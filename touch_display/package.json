@@ -1,23 +1,37 @@
 {
 	"name": "touch_display",
-	"version": "1.3.0",
+	"version": "3.0.0",
 	"description": "The plugin enables the touch display controller for the original Raspberry 7\" touchscreen.",
 	"main": "index.js",
+	"repository": "http://github.com/yourproject",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Volumio Team, gvolt",
-	"license": "",
+	"license": "ISC",
 	"volumio_info": {
-		"prettyName": "Touch Display",
-		"icon": "fa-hand-pointer-o",
-		"plugin_type": "miscellanea",
-		"boot_priority": 2
+		"prettyName": "Touch display",
+		"variants": "volumio",
+		"plugin_type": "system_hardware",
+		"os": [
+			"buster"
+		],
+		"changelog": "Volumio3 version",
+		"details": "Touch_display",
+		"channel": "stable",
+		"architectures": [
+			"armhf"
+		],
+		"icon": "fa-headphones"
 	},
 	"dependencies": {
 		"fs-extra": "^8.1.0",
 		"kew": "^0.7.0",
 		"v-conf": "^1.4.2",
 		"socket.io-client": "^2.3.1"
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
 	}
 }
