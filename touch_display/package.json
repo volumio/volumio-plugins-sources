@@ -1,6 +1,6 @@
 {
 	"name": "touch_display",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"description": "The plugin enables the touch display controller for the original Raspberry 7\" touchscreen.",
 	"main": "index.js",
 	"repository": "http://github.com/yourproject",
@@ -22,7 +22,7 @@
 		"architectures": [
 			"armhf"
 		],
-		"icon": "fa-headphones"
+		"icon": "fa-hand-pointer-o"
 	},
 	"dependencies": {
 		"fs-extra": "^8.1.0",
