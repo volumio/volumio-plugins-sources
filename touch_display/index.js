@@ -348,7 +348,7 @@ TouchDisplay.prototype.getUIConfig = function () {
 TouchDisplay.prototype.updateUIConfig = function () {
   const self = this;
 
-  self.commandRouter.getUIConfigOnPlugin('miscellanea', 'touch_display', {})
+  self.commandRouter.getUIConfigOnPlugin('system_hardware', 'touch_display', {})
     .then(function (uiconf) {
       self.commandRouter.broadcastMessage('pushUiConfig', uiconf);
     });
@@ -417,19 +417,19 @@ TouchDisplay.prototype.saveBrightnessConf = function (confData) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.TESTBRIGHTNESS'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'miscellanea/touch_display', method: 'testBrightness', data: Object.assign({}, confData) }
+        payload: { endpoint: 'system_hardware/touch_display', method: 'testBrightness', data: Object.assign({}, confData) }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CONTINUE'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'miscellanea/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
+        payload: { endpoint: 'system_hardware/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CANCEL'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'miscellanea/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
+        payload: { endpoint: 'system_hardware/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
       }
     ]
   };
@@ -873,13 +873,13 @@ TouchDisplay.prototype.testBrightness = function (confData) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.YES'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'miscellanea/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
+        payload: { endpoint: 'system_hardware/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
       },
       {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.NO'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'miscellanea/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
+        payload: { endpoint: 'system_hardware/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
       }
     ]
   };
@@ -1141,19 +1141,19 @@ TouchDisplay.prototype.getAlsValue = function (data) {
       name: self.commandRouter.getI18nString('TOUCH_DISPLAY.OK'),
       class: 'btn btn-default',
       emit: 'callMethod',
-      payload: { endpoint: 'miscellanea/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
+      payload: { endpoint: 'system_hardware/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
     },
     {
       name: self.commandRouter.getI18nString('TOUCH_DISPLAY.SKIP'),
       class: 'btn btn-info',
       emit: 'callMethod',
-      payload: { endpoint: 'miscellanea/touch_display', method: 'getAlsValue', data: { confData: data.confData, action: data.action.slice(3) } }
+      payload: { endpoint: 'system_hardware/touch_display', method: 'getAlsValue', data: { confData: data.confData, action: data.action.slice(3) } }
     },
     {
       name: self.commandRouter.getI18nString('COMMON.CANCEL'),
       class: 'btn btn-info',
       emit: 'callMethod',
-      payload: { endpoint: 'miscellanea/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
+      payload: { endpoint: 'system_hardware/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
     }
   ];
 
@@ -1163,13 +1163,13 @@ TouchDisplay.prototype.getAlsValue = function (data) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.OK'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'miscellanea/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
+        payload: { endpoint: 'system_hardware/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CANCEL'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'miscellanea/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
+        payload: { endpoint: 'system_hardware/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
       }
     ];
   }
