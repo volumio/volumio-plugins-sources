@@ -4,6 +4,8 @@ TARGET = $libasound_module_pcm_cdsp
 opath=/data/INTERNAL/FusionDsp
 echo "creating filters folder and copying demo filters"
 
+sudo apt-get update
+sudo apt-get -y install drc
 
 mkdir -m 777 $opath
 #mkdir -m 777 $opath/tools

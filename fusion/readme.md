@@ -1,4 +1,4 @@
-October 9th 2021
+October 14th 2021
 
 
 ##  For Volumio3
@@ -133,6 +133,10 @@ nearly everythings ;-)
 - 
 
 ### 4. Last changes
+
+October 14th 2021
+
+- DRC-FIR was not installed
 
 October 9th 2021
 
