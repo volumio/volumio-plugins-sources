@@ -22,9 +22,9 @@ then
 sudo cp /data/plugins/user_interface/Systeminfo/c/hw_params_arm /data/plugins/user_interface/Systeminfo/hw_params
 sudo chmod +x /data/plugins/user_interface/Systeminfo/hw_params
 sudo chmod +x /data/plugins/user_interface/Systeminfo/firmware.sh
-elif [ $cpu = "x86_64" ] || [ $cpu = "i686" ]
+elif [ $cpu = "x86_64" ]
 then
-sudo cp /data/plugins/user_interface/Systeminfo/c/hw_params_x86 /data/plugins/user_interface/Systeminfo/hw_params
+sudo cp /data/plugins/user_interface/Systeminfo/c/hw_params_amd64 /data/plugins/user_interface/Systeminfo/hw_params
 sudo chmod +x /data/plugins/user_interface/Systeminfo/hw_params
 sudo chmod +x /data/plugins/user_interface/Systeminfo/firmware.sh
 else
