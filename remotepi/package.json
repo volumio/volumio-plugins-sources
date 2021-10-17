@@ -1,0 +1,37 @@
+{
+	"name": "remotepi",
+	"version": "3.1.8",
+	"description": "The plugin enables support for RemotePi boards.",
+	"main": "index.js",
+	"repository": "https://github.com/volumio/volumio-plugins-sources/tree/master/remotepi",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "gvolt",
+	"license": "ISC",
+	"volumio_info": {
+		"prettyName": "RemotePi",
+    "variants": "volumio",
+		"plugin_type": "user_interface",
+		"os": [
+			"buster"
+		],
+		"changelog": "Volumio3 version",
+		"details": "<h4>RemotePi Plugin</h4><br>The plugin enables support for RemotePi boards for Raspberry Pi 4, Pi 3 B+, Pi 3, Pi 2, B+ and B.<br>With the plugin the RemotePi board will manage cutting the power after Volumio has been shut down via the GUI or the RemotePi board's hardware knob has been pressed or a infrared power off signal (learned-in to the RemotePi board) has been received.",
+		"channel": "stable",
+		"architectures": [
+			"armhf"
+		],
+		"icon": "fa-power-off"
+	},
+	"dependencies": {
+		"fs-extra": "^8.1.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.2",
+		"onoff": "^6.0.0"
+  },
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	}
+}
