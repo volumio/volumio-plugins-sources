@@ -11,7 +11,7 @@
 	"license": "ISC",
 	"volumio_info": {
 		"prettyName": "RemotePi",
-    "variants": "volumio",
+        "variants": "volumio",
 		"plugin_type": "user_interface",
 		"os": [
 			"buster"
@@ -23,13 +23,13 @@
 			"armhf"
 		],
 		"icon": "fa-power-off"
-	},
+        },
 	"dependencies": {
 		"fs-extra": "^8.1.0",
 		"kew": "^0.7.0",
 		"v-conf": "^1.4.2",
 		"onoff": "^6.0.0"
-  },
+        },
 	"engines": {
 		"node": ">=8",
 		"volumio": ">=3"
