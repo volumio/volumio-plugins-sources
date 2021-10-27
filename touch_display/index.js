@@ -74,8 +74,11 @@ TouchDisplay.prototype.onStart = function () {
     .then(self.systemctl.bind(self, 'start volumio-kiosk.service'))
     .then(function () {
       self.logger.info(id + 'Volumio Kiosk started');
-      device = self.commandRouter.executeOnPlugin('system_controller', 'system', 'getConfigParam', 'device');
-      if (device === 'Raspberry PI') {
+      self.commandRouter.executeOnPlugin('system_controller', 'system', 'getSystemVersion', '')
+        .then(function (infos) {
+          device = infos.hardware;
+        });
+      if (device === 'pi') {
         fs.readFile('/proc/modules', 'utf8', function (err, data) {
           if (err) {
             self.logger.error(id + 'Error reading /proc/modules: ' + err);
@@ -197,7 +200,7 @@ TouchDisplay.prototype.onStop = function () {
   unixDomSocket.removeAllListeners();
   unixDomSocket.destroy();
   socket.off('pushState');
-  if (device === 'Raspberry PI') {
+  if (device === 'pi') {
     self.setOrientation('0');
     if (self.config.get('controlGpuMem')) {
       self.modBootConfig('^#GPU_MEM', 'gpu_mem')
@@ -243,37 +246,41 @@ TouchDisplay.prototype.getUIConfig = function () {
       uiconf.sections[0].content[1].value = self.config.get('afterPlay');
       if (rpiBacklight) {
         uiconf.sections[1].hidden = false;
-        if (fs.existsSync(als)) {
-          uiconf.sections[1].content[0].hidden = false;
-          uiconf.sections[1].content[0].value = self.config.get('autoMode');
-          uiconf.sections[1].content[1].value = self.config.get('minBr');
-          uiconf.sections[1].content[1].attributes = [
-            {
-              placeholder: 15,
-              maxlength: maxBrightness.toString().length,
-              min: 0,
-              max: maxBrightness
-            }
-          ];
-          uiconf.sections[1].content[2].value = self.config.get('maxBr');
-          uiconf.sections[1].content[2].attributes = [
-            {
-              placeholder: maxBrightness,
-              maxlength: maxBrightness.toString().length,
-              min: 0,
-              max: maxBrightness
-            }
-          ];
-          uiconf.sections[1].content[4].value = self.config.get('brightnessCurve');
-          uiconf.sections[1].content[5].value = self.config.get('midBr');
-          uiconf.sections[1].content[5].attributes = [
-            {
-              placeholder: maxBrightness,
-              maxlength: maxBrightness.toString().length,
-              min: 0,
-              max: maxBrightness
-            }
-          ];
+        try {
+          if (fs.existsSync(als)) {
+            uiconf.sections[1].content[0].hidden = false;
+            uiconf.sections[1].content[0].value = self.config.get('autoMode');
+            uiconf.sections[1].content[1].value = self.config.get('minBr');
+            uiconf.sections[1].content[1].attributes = [
+              {
+                placeholder: 15,
+                maxlength: maxBrightness.toString().length,
+                min: 0,
+                max: maxBrightness
+              }
+            ];
+            uiconf.sections[1].content[2].value = self.config.get('maxBr');
+            uiconf.sections[1].content[2].attributes = [
+              {
+                placeholder: maxBrightness,
+                maxlength: maxBrightness.toString().length,
+                min: 0,
+                max: maxBrightness
+              }
+            ];
+            uiconf.sections[1].content[4].value = self.config.get('brightnessCurve');
+            uiconf.sections[1].content[5].value = self.config.get('midBr');
+            uiconf.sections[1].content[5].attributes = [
+              {
+                placeholder: maxBrightness,
+                maxlength: maxBrightness.toString().length,
+                min: 0,
+                max: maxBrightness
+              }
+            ];
+          }
+        } catch (e) {
+          self.logger.error(id + 'Error checking the existence of "/etc/als": ' + e);
         }
         uiconf.sections[1].content[7].value = self.config.get('manualBr');
         uiconf.sections[1].content[7].attributes = [
@@ -308,7 +315,7 @@ TouchDisplay.prototype.getUIConfig = function () {
           }
         ];
       }
-      if (device === 'Raspberry PI') {
+      if (device === 'pi') {
         uiconf.sections[2].hidden = false;
         uiconf.sections[2].content[0].value.value = self.config.get('angle');
         uiconf.sections[2].content[0].value.label = self.commandRouter.getI18nString('TOUCH_DISPLAY.' + self.config.get('angle'));
@@ -361,15 +368,21 @@ TouchDisplay.prototype.getConfigurationFiles = function () {
 };
 
 TouchDisplay.prototype.getI18nFile = function (langCode) {
-  const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+  const self = this;
   const langFile = 'strings_' + langCode + '.json';
 
-  // check for i18n file fitting the system language
-  if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
-    return path.join(__dirname, 'i18n', langFile);
+  try {
+    const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+    // check for i18n file fitting the system language
+    if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
+      return path.join(__dirname, 'i18n', langFile);
+    }
+    throw new Error('i18n file complementing the system language not found.');
+  } catch (e) {
+    self.logger.error(id + 'Fetching language file: ' + e);
+    // return default i18n file
+    return path.join(__dirname, 'i18n', 'strings_en.json');
   }
-  // return default i18n file
-  return path.join(__dirname, 'i18n', 'strings_en.json');
 };
 
 TouchDisplay.prototype.saveScreensaverConf = function (confData) {
