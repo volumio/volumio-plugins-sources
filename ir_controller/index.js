@@ -8,10 +8,8 @@ const os = require('os');
 const id = 'ir_controller: ';
 const kernelVersion = os.release().match(/[0-9]+/g);
 const overlay = (Number(kernelVersion[0]) < 4 || (Number(kernelVersion[0]) === 4 && Number(kernelVersion[1]) < 19)) ? 'lirc-rpi' : 'gpio-ir';
-const lircVersion = execSync('/usr/bin/dpkg -s lirc', { encoding: 'utf8', uid: 1000, gid: 1000 }).match(/^Version: .+$/m).toString().match(/[0-9]+/g);
-const lircLegacy = (Number(lircVersion[0]) === 0 && (Number(lircVersion[1]) < 9 || (Number(lircVersion[1]) === 9 && Number(lircVersion[2]) < 4)));
 var gpioConfigurable = false;
-var device, header;
+var lircLegacy, device, header;
 
 module.exports = IrController;
 
@@ -42,72 +40,79 @@ IrController.prototype.onStart = function () {
     .then(function (infos) {
       device = infos.hardware;
     });
-  self.prepareLirc()
-    .then(function () {
-      self.saveIROptions({ ir_profile: { value: self.config.get('ir_profile', 'JustBoom IR Remote') }, notify: false });
-      if (device === 'pi') {
-        if (!fs.existsSync('/sys/firmware/devicetree/base/lirc_rpi') && fs.readdirSync('/sys/firmware/devicetree/base').find(function (fn) { return fn.startsWith('ir-receiver'); }) === undefined) {
-          if (overlay === 'gpio-ir') {
-            self.logger.info(id + 'HAT did not load /proc/device-tree/ir_receiver!');
-          } else {
-            self.logger.info(id + 'HAT did not load /proc/device-tree/lirc_rpi!');
-          }
-          // determine header pincount by Raspberry Pi revision code (https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md)
-          exec('awk \'/^Revision/ {sub("^1000", "", $3); print $3}\' /proc/cpuinfo', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
-            if (error !== null) {
-              self.logger.info(id + 'Raspberry Pi model cannot be determined: ' + error);
+  try {
+    const lircVersion = execSync('/usr/bin/dpkg -s lirc', { encoding: 'utf8', uid: 1000, gid: 1000 }).match(/^Version: .+$/m).toString().match(/[0-9]+/g);
+    lircLegacy = (Number(lircVersion[0]) === 0 && (Number(lircVersion[1]) < 9 || (Number(lircVersion[1]) === 9 && Number(lircVersion[2]) < 4)));
+    self.prepareLirc()
+      .then(function () {
+        self.saveIROptions({ ir_profile: { value: self.config.get('ir_profile', 'JustBoom IR Remote') }, notify: false });
+        if (device === 'pi') {
+          if (!fs.existsSync('/sys/firmware/devicetree/base/lirc_rpi') && fs.readdirSync('/sys/firmware/devicetree/base').find(function (fn) { return fn.startsWith('ir-receiver'); }) === undefined) {
+            if (overlay === 'gpio-ir') {
+              self.logger.info(id + 'HAT did not load /proc/device-tree/ir_receiver!');
             } else {
-              gpioConfigurable = true;
-              stdout = stdout.trim();
-              self.logger.info(id + 'Raspberry Pi revision code: ' + stdout);
-              if (stdout === 'Beta' || parseInt(stdout, 16) < 4) {
-                // Model B beta, model B PCB rev. 1.0: original 26pin header (P1)
-                header = '26';
-              } else if (parseInt(stdout, 16) < 22) {
-                // Model B PCB rev. 2.0 and model A PCB rev. 2.0: altered 26pin header (P1) + 8pin header (P5)
-                header = '34';
+              self.logger.info(id + 'HAT did not load /proc/device-tree/lirc_rpi!');
+            }
+            // determine header pincount by Raspberry Pi revision code (https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md)
+            exec('awk \'/^Revision/ {sub("^1000", "", $3); print $3}\' /proc/cpuinfo', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+              if (error !== null) {
+                self.logger.info(id + 'Raspberry Pi model cannot be determined: ' + error);
               } else {
-                const modelId = (stdout.length === 4) ? stdout : stdout.substr(-3, 2);
-                switch (modelId) {
-                  // sort out the Compute Modules except CM4
-                  case '0011': // CM1
-                  case '0014': // CM1
-                  case '06': // CM
-                  case '0a': // CM3
-                  case '10': // CM3+
-                    gpioConfigurable = false;
-                    break;
-                  default:
-                    // Models B+, A+, 2B, 3B, 3B+, 3A+, 4B, Zero, Zero W, Pi 400, CM4 IO Board: 40pin header (P1)
-                    header = '40';
+                gpioConfigurable = true;
+                stdout = stdout.trim();
+                self.logger.info(id + 'Raspberry Pi revision code: ' + stdout);
+                if (stdout === 'Beta' || parseInt(stdout, 16) < 4) {
+                  // Model B beta, model B PCB rev. 1.0: original 26pin header (P1)
+                  header = '26';
+                } else if (parseInt(stdout, 16) < 22) {
+                  // Model B PCB rev. 2.0 and model A PCB rev. 2.0: altered 26pin header (P1) + 8pin header (P5)
+                  header = '34';
+                } else {
+                  const modelId = (stdout.length === 4) ? stdout : stdout.substr(-3, 2);
+                  switch (modelId) {
+                    // sort out the Compute Modules except CM4
+                    case '0011': // CM1
+                    case '0014': // CM1
+                    case '06': // CM
+                    case '0a': // CM3
+                    case '10': // CM3+
+                      gpioConfigurable = false;
+                      break;
+                    default:
+                      // Models B+, A+, 2B, 3B, 3B+, 3A+, 4B, Zero, Zero W, Pi 400, CM4 IO Board: 40pin header (P1)
+                      header = '40';
+                  }
+                }
+                if (gpioConfigurable) {
+                  self.saveGpioOptions({
+                    header40_gpio_in_pin: { value: self.config.get('gpio_in_pin', 25) },
+                    header34_gpio_in_pin: { value: self.config.get('gpio_in_pin', 25) },
+                    header26_gpio_in_pin: { value: self.config.get('gpio_in_pin', 25) },
+                    gpio_pull: { value: self.config.get('gpio_pull', 'up') },
+                    forceActiveState: self.config.get('forceActiveState', false),
+                    activeState: { value: self.config.get('activeState', 1) },
+                    notify: false
+                  });
                 }
               }
-              if (gpioConfigurable) {
-                self.saveGpioOptions({
-                  header40_gpio_in_pin: { value: self.config.get('gpio_in_pin', 25) },
-                  header34_gpio_in_pin: { value: self.config.get('gpio_in_pin', 25) },
-                  header26_gpio_in_pin: { value: self.config.get('gpio_in_pin', 25) },
-                  gpio_pull: { value: self.config.get('gpio_pull', 'up') },
-                  forceActiveState: self.config.get('forceActiveState', false),
-                  activeState: { value: self.config.get('activeState', 1) },
-                  notify: false
-                });
-              }
-            }
-          });
-        } else {
-          if (overlay === 'gpio-ir') {
-            self.logger.info(id + 'HAT already loaded /proc/device-tree/ir_receiver!');
+            });
           } else {
-            self.logger.info(id + 'HAT already loaded /proc/device-tree/lirc_rpi!');
+            if (overlay === 'gpio-ir') {
+              self.logger.info(id + 'HAT already loaded /proc/device-tree/ir_receiver!');
+            } else {
+              self.logger.info(id + 'HAT already loaded /proc/device-tree/lirc_rpi!');
+            }
           }
         }
-      }
-      defer.resolve();
-    })
-    .fail(function () {
-      defer.reject();
-    });
+        defer.resolve();
+      })
+      .fail(function () {
+        defer.reject();
+      });
+  } catch (e) {
+    self.logger.error(id + e);
+    defer.reject();
+  }
   return defer.promise;
 };
 
@@ -159,67 +164,72 @@ IrController.prototype.getUIConfig = function () {
   const self = this;
   const defer = libQ.defer();
   const langCode = this.commandRouter.sharedVars.get('language_code');
-  const dirs = fs.readdirSync(path.join(__dirname, 'configurations'));
 
   try {
-    fs.readdirSync('/data/INTERNAL/ir_controller/configurations').forEach(function (customDir) {
-      if (dirs.every(function (dir) { return dir !== customDir; })) {
-        dirs.push(customDir);
-      }
-    });
-    dirs.sort();
-  } catch (e) {
-    self.logger.error(id + 'Custom profile folder not accessible: ' + e);
-  }
-  self.commandRouter.i18nJson(path.join(__dirname, 'i18n', 'strings_' + langCode + '.json'),
-    path.join(__dirname, 'i18n', 'strings_en.json'),
-    path.join(__dirname, 'UIConfig.json'))
-    .then(function (uiconf) {
-      const activeProfile = self.config.get('ir_profile', 'JustBoom IR Remote');
-      uiconf.sections[0].content[0].value.value = activeProfile;
-      uiconf.sections[0].content[0].value.label = activeProfile;
-      for (let i = 0, n = dirs.length; i < n; i++) {
-        self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', { value: dirs[i], label: dirs[i] });
-      }
-      if (gpioConfigurable) {
-        uiconf.sections[1].hidden = false;
-        switch (header) {
-          case '40':
-            uiconf.sections[1].content[0].hidden = false;
-            uiconf.sections[1].content[0].value.value = self.config.get('gpio_in_pin', 25);
-            uiconf.sections[1].content[0].value.label = self.config.get('gpio_in_pin', 25);
-            uiconf.sections[1].content[1].hidden = true;
-            uiconf.sections[1].content[2].hidden = true;
-            break;
-          case '34':
-            uiconf.sections[1].content[0].hidden = true;
-            uiconf.sections[1].content[1].hidden = false;
-            uiconf.sections[1].content[1].value.value = self.config.get('gpio_in_pin', 25);
-            uiconf.sections[1].content[1].value.label = self.config.get('gpio_in_pin', 25);
-            uiconf.sections[1].content[2].hidden = true;
-            break;
-          case '26':
-            uiconf.sections[1].content[0].hidden = true;
-            uiconf.sections[1].content[1].hidden = true;
-            uiconf.sections[1].content[2].hidden = false;
-            uiconf.sections[1].content[2].value.value = self.config.get('gpio_in_pin', 25);
-            uiconf.sections[1].content[2].value.label = self.config.get('gpio_in_pin', 25);
-            break;
+    const dirs = fs.readdirSync(path.join(__dirname, 'configurations'));
+    try {
+      fs.readdirSync('/data/INTERNAL/ir_controller/configurations').forEach(function (customDir) {
+        if (dirs.every(function (dir) { return dir !== customDir; })) {
+          dirs.push(customDir);
         }
-        uiconf.sections[1].content[3].value.value = self.config.get('gpio_pull', 'up');
-        uiconf.sections[1].content[3].value.label = self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[3].options'), self.config.get('gpio_pull', 'up'));
-        uiconf.sections[1].content[4].value = self.config.get('forceActiveState', false);
-        uiconf.sections[1].content[5].value.value = self.config.get('activeState', 1);
-        uiconf.sections[1].content[5].value.label = self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[5].options'), self.config.get('activeState', 1));
-      } else {
-        uiconf.sections[1].hidden = true;
-      }
-      defer.resolve(uiconf);
-    })
-    .fail(function (e) {
-      self.logger.error(id + 'Could not fetch UI configuration: ' + e);
-      defer.reject(new Error());
-    });
+      });
+      dirs.sort();
+    } catch (e) {
+      self.logger.error(id + 'Custom profile folder not accessible: ' + e);
+    }
+    self.commandRouter.i18nJson(path.join(__dirname, 'i18n', 'strings_' + langCode + '.json'),
+      path.join(__dirname, 'i18n', 'strings_en.json'),
+      path.join(__dirname, 'UIConfig.json'))
+      .then(function (uiconf) {
+        const activeProfile = self.config.get('ir_profile', 'JustBoom IR Remote');
+        uiconf.sections[0].content[0].value.value = activeProfile;
+        uiconf.sections[0].content[0].value.label = activeProfile;
+        for (let i = 0, n = dirs.length; i < n; i++) {
+          self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', { value: dirs[i], label: dirs[i] });
+        }
+        if (gpioConfigurable) {
+          uiconf.sections[1].hidden = false;
+          switch (header) {
+            case '40':
+              uiconf.sections[1].content[0].hidden = false;
+              uiconf.sections[1].content[0].value.value = self.config.get('gpio_in_pin', 25);
+              uiconf.sections[1].content[0].value.label = self.config.get('gpio_in_pin', 25);
+              uiconf.sections[1].content[1].hidden = true;
+              uiconf.sections[1].content[2].hidden = true;
+              break;
+            case '34':
+              uiconf.sections[1].content[0].hidden = true;
+              uiconf.sections[1].content[1].hidden = false;
+              uiconf.sections[1].content[1].value.value = self.config.get('gpio_in_pin', 25);
+              uiconf.sections[1].content[1].value.label = self.config.get('gpio_in_pin', 25);
+              uiconf.sections[1].content[2].hidden = true;
+              break;
+            case '26':
+              uiconf.sections[1].content[0].hidden = true;
+              uiconf.sections[1].content[1].hidden = true;
+              uiconf.sections[1].content[2].hidden = false;
+              uiconf.sections[1].content[2].value.value = self.config.get('gpio_in_pin', 25);
+              uiconf.sections[1].content[2].value.label = self.config.get('gpio_in_pin', 25);
+              break;
+          }
+          uiconf.sections[1].content[3].value.value = self.config.get('gpio_pull', 'up');
+          uiconf.sections[1].content[3].value.label = self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[3].options'), self.config.get('gpio_pull', 'up'));
+          uiconf.sections[1].content[4].value = self.config.get('forceActiveState', false);
+          uiconf.sections[1].content[5].value.value = self.config.get('activeState', 1);
+          uiconf.sections[1].content[5].value.label = self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[5].options'), self.config.get('activeState', 1));
+        } else {
+          uiconf.sections[1].hidden = true;
+        }
+        defer.resolve(uiconf);
+      })
+      .fail(function (e) {
+        self.logger.error(id + 'Could not fetch UI configuration: ' + e);
+        defer.reject(new Error());
+      });
+  } catch (e) {
+    self.logger.error(id + 'Profile folder not accessible: ' + e);
+    defer.reject();
+  }
   return defer.promise;
 };
 
@@ -238,15 +248,21 @@ IrController.prototype.getConfigurationFiles = function () {
 };
 
 IrController.prototype.getI18nFile = function (langCode) {
-  const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+  const self = this;
   const langFile = 'strings_' + langCode + '.json';
 
-  // check for i18n file fitting the system language
-  if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
-    return path.join(__dirname, 'i18n', langFile);
+  try {
+    const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+    // check for i18n file fitting the system language
+    if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
+      return path.join(__dirname, 'i18n', langFile);
+    }
+    throw new Error('i18n file complementing the system language not found.');
+  } catch (e) {
+    self.logger.error(id + 'Fetching language file: ' + e);
+    // return default i18n file
+    return path.join(__dirname, 'i18n', 'strings_en.json');
   }
-  // return default i18n file
-  return path.join(__dirname, 'i18n', 'strings_en.json');
 };
 
 IrController.prototype.saveIROptions = function (data) {
