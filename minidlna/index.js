@@ -38,13 +38,17 @@ minidlna.prototype.onVolumioStart = function () {
 minidlna.prototype.onStart = function () {
   const self = this;
   const defer = libQ.defer();
-  const defaultConfig = fs.readJsonSync(path.join(__dirname, 'config.json'));
 
   self.commandRouter.loadI18nStrings();
-  for (const configItem in defaultConfig) {
-    if (!self.config.has(configItem)) {
-      self.config.set(configItem, defaultConfig[configItem].value);
+  try {
+    const defaultConfig = fs.readJsonSync(path.join(__dirname, 'config.json'));
+    for (const configItem in defaultConfig) {
+      if (!self.config.has(configItem)) {
+        self.config.set(configItem, defaultConfig[configItem].value);
+      }
     }
+  } catch (e) {
+    self.logger.error(id + 'Failed to read default configuration from ' + path.join(__dirname, 'config.json: ') + e);
   }
   try {
     if (!fs.statSync('/usr/sbin/minidlnad').isFile()) {
@@ -169,15 +173,21 @@ minidlna.prototype.getConfigurationFiles = function () {
 };
 
 minidlna.prototype.getI18nFile = function (langCode) {
-  const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+  const self = this;
   const langFile = 'strings_' + langCode + '.json';
 
-  // check for i18n file fitting the system language
-  if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
-    return path.join(__dirname, 'i18n', langFile);
+  try {
+    const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+    // check for i18n file fitting the system language
+    if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
+      return path.join(__dirname, 'i18n', langFile);
+    }
+    throw new Error('i18n file complementing the system language not found.');
+  } catch (e) {
+    self.logger.error(id + 'Fetching language file: ' + e);
+    // return default i18n file
+    return path.join(__dirname, 'i18n', 'strings_en.json');
   }
-  // return default i18n file
-  return path.join(__dirname, 'i18n', 'strings_en.json');
 };
 
 minidlna.prototype.saveConf = function (data) {
@@ -337,7 +347,7 @@ minidlna.prototype.createMinidlnaConf = function () {
 
   fs.readFile(path.join(__dirname, 'minidlna.conf.tmpl'), 'utf8', function (err, data) {
     if (err) {
-      self.logger.error(id + 'Error reading ' + path.join(__dirname, 'minidlna.conf.tmpl: ') + err);
+      self.logger.error(id + 'Failed to read ' + path.join(__dirname, 'minidlna.conf.tmpl: ') + err);
       self.commandRouter.pushToastMessage('stickyerror', self.commandRouter.getI18nString('MINIDLNA.PLUGIN_NAME'), self.commandRouter.getI18nString('MINIDLNA.ERR_READ') + path.join(__dirname, 'minidlna.conf.tmpl: ') + err);
       defer.reject();
     } else {
@@ -387,7 +397,7 @@ minidlna.prototype.createMinidlnaConf = function () {
       });
       fs.writeFile('/data/minidlna.conf', data, 'utf8', function (err) {
         if (err) {
-          self.logger.error(id + 'Error writing /data/minidlna.conf: ' + err);
+          self.logger.error(id + 'Failed to write /data/minidlna.conf: ' + err);
           self.commandRouter.pushToastMessage('stickyerror', self.commandRouter.getI18nString('MINIDLNA.PLUGIN_NAME'), self.commandRouter.getI18nString('MINIDLNA.ERR_WRITE') + '/data/minidlna.conf: ' + err);
           defer.reject();
         } else {

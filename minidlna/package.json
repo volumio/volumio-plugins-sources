@@ -1,6 +1,6 @@
 {
 	"name": "minidlna",
-	"version": "3.1.8",
+	"version": "3.1.9",
 	"description": "The plugin installs and configures a miniDLNA server.",
 	"main": "index.js",
 	"scripts": {
