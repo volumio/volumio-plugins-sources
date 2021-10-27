@@ -101,15 +101,21 @@ remotepi.prototype.getConfigurationFiles = function () {
 };
 
 remotepi.prototype.getI18nFile = function (langCode) {
-  const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+  const self = this;
   const langFile = 'strings_' + langCode + '.json';
 
-  // check for i18n file fitting the system language
-  if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
-    return path.join(__dirname, 'i18n', langFile);
+  try {
+    const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+    // check for i18n file fitting the system language
+    if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
+      return path.join(__dirname, 'i18n', langFile);
+    }
+    throw new Error('i18n file complementing the system language not found.');
+  } catch (e) {
+    self.logger.error(id + 'Fetching language file: ' + e);
+    // return default i18n file
+    return path.join(__dirname, 'i18n', 'strings_en.json');
   }
-  // return default i18n file
-  return path.join(__dirname, 'i18n', 'strings_en.json');
 };
 
 remotepi.prototype.saveConf = function (data) {
