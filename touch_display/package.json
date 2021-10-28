@@ -8,7 +8,7 @@
 	},
 	"author": "Volumio Team, gvolt",
 	"license": "ISC",
-	"repository": "https://github.com/volumio/volumio-plugins-sources/touch_display",
+	"repository": "https://github.com/volumio/volumio-plugins-sources/tree/master/touch_display",
 	"volumio_info": {
 		"prettyName": "Touch Display",
 		"icon": "fa-hand-pointer-o",
