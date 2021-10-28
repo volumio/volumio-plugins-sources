@@ -8,7 +8,7 @@
 	},
 	"author": "gvolt",
 	"license": "ISC",
-	"repository": "https://github.com/volumio/volumio-plugins-sources/remotepi",
+	"repository": "https://github.com/volumio/volumio-plugins-sources/tree/master/remotepi",
 	"volumio_info": {
 		"prettyName": "RemotePi",
 		"icon": "fa-power-off",
