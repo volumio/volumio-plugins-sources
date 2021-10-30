@@ -1,4 +1,4 @@
-October 23th 2021
+October 29th 2021
 
 
 ##  For Volumio3
@@ -133,6 +133,15 @@ nearly everythings ;-)
 - 
 
 ### 4. Last changes
+
+
+October 29th 2021
+
+- RPI Zero insttall correction
+
+October 28th 2021
+
+- RPI Zero (to be tested...)
 
 October 23th 2021
 
