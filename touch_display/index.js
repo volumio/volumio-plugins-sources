@@ -77,65 +77,65 @@ TouchDisplay.prototype.onStart = function () {
       self.commandRouter.executeOnPlugin('system_controller', 'system', 'getSystemVersion', '')
         .then(function (infos) {
           device = infos.hardware;
-        });
-      if (device === 'pi') {
-        fs.readFile('/proc/modules', 'utf8', function (err, data) {
-          if (err) {
-            self.logger.error(id + 'Error reading /proc/modules: ' + err);
-            self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_READ') + '/proc/modules: ' + err);
-          } else {
-            // detect Raspberry Pi Foundation original touch screen
-            if (data.match(/^rpi_ft5406\b/gm) === null && data.match(/^raspberrypi_ts\b/gm) === null) {
-              self.logger.info(id + 'No Raspberry Pi Foundation touch screen detected.');
-            } else {
-              rpiScreen = true;
-              self.logger.info(id + 'Raspberry Pi Foundation touch screen detected.');
-              // check for backlight module of Raspberry Pi Foundation original touch screen
-              if (data.match(/^rpi_backlight\b/gm) === null) {
-                self.logger.info(id + 'No backlight module of a Raspberry Pi Foundation touch screen detected.');
+          if (device === 'pi') {
+            fs.readFile('/proc/modules', 'utf8', function (err, data) {
+              if (err) {
+                self.logger.error(id + 'Error reading /proc/modules: ' + err);
+                self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_READ') + '/proc/modules: ' + err);
               } else {
-                rpiBacklight = true;
-                self.logger.info(id + 'Backlight module of a Raspberry Pi Foundation touch screen detected.');
-                // screen brightness
-                fs.readFile(blInterface + '/max_brightness', 'utf8', function (err, data) {
-                  if (err) {
-                    self.logger.error(id + 'Error reading ' + blInterface + '/max_brightness: ' + err);
-                    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_READ') + blInterface + '/max_brightness: ' + err);
+                // detect Raspberry Pi Foundation original touch screen
+                if (data.match(/^rpi_ft5406\b/gm) === null && data.match(/^raspberrypi_ts\b/gm) === null) {
+                  self.logger.info(id + 'No Raspberry Pi Foundation touch screen detected.');
+                } else {
+                  rpiScreen = true;
+                  self.logger.info(id + 'Raspberry Pi Foundation touch screen detected.');
+                  // check for backlight module of Raspberry Pi Foundation original touch screen
+                  if (data.match(/^rpi_backlight\b/gm) === null) {
+                    self.logger.info(id + 'No backlight module of a Raspberry Pi Foundation touch screen detected.');
                   } else {
-                    maxBrightness = parseInt(data, 10);
-                    exec('/usr/bin/sudo /bin/chmod a+w ' + blInterface + '/brightness', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
-                      if (error !== null) {
-                        self.logger.error(id + 'Error setting file permissions for backlight brightness control: ' + error);
+                    rpiBacklight = true;
+                    self.logger.info(id + 'Backlight module of a Raspberry Pi Foundation touch screen detected.');
+                    // screen brightness
+                    fs.readFile(blInterface + '/max_brightness', 'utf8', function (err, data) {
+                      if (err) {
+                        self.logger.error(id + 'Error reading ' + blInterface + '/max_brightness: ' + err);
+                        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_READ') + blInterface + '/max_brightness: ' + err);
                       } else {
-                        self.logger.info(id + 'File permissions for backlight brightness control set.');
-                        if (!self.config.get('autoMode')) {
-                          if (self.config.get('br2StartTime') !== self.config.get('br1StartTime')) {
-                            self.toggleBrightness();
+                        maxBrightness = parseInt(data, 10);
+                        exec('/usr/bin/sudo /bin/chmod a+w ' + blInterface + '/brightness', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+                          if (error !== null) {
+                            self.logger.error(id + 'Error setting file permissions for backlight brightness control: ' + error);
                           } else {
-                            self.setBrightness(self.config.get('manualBr'));
+                            self.logger.info(id + 'File permissions for backlight brightness control set.');
+                            if (!self.config.get('autoMode')) {
+                              if (self.config.get('br2StartTime') !== self.config.get('br1StartTime')) {
+                                self.toggleBrightness();
+                              } else {
+                                self.setBrightness(self.config.get('manualBr'));
+                              }
+                            } else {
+                              self.autoBrightness();
+                            }
                           }
-                        } else {
-                          self.autoBrightness();
-                        }
+                        });
                       }
                     });
                   }
-                });
+                }
               }
-            }
-          }
-          // screen orientation
-          self.setOrientation(self.config.get('angle'));
-          // GPU memory size
-          if (self.config.get('controlGpuMem')) {
-            self.modBootConfig(configTxtGpuMemBanner + 'gpu_mem=.*', configTxtGpuMemBanner + 'gpu_mem=' + self.config.get('gpuMem'))
-              .then(self.modBootConfig.bind(self, '^gpu_mem', '#GPU_MEM'))
-              .fail(function () {
-                self.logger.info(id + 'Writing the touch display plugin\'s gpu_mem setting failed. Previous gpu_mem settings in /boot/config.txt have not been commented.');
-              });
+              // screen orientation
+              self.setOrientation(self.config.get('angle'));
+              // GPU memory size
+              if (self.config.get('controlGpuMem')) {
+                self.modBootConfig(configTxtGpuMemBanner + 'gpu_mem=.*', configTxtGpuMemBanner + 'gpu_mem=' + self.config.get('gpuMem'))
+                  .then(self.modBootConfig.bind(self, '^gpu_mem', '#GPU_MEM'))
+                  .fail(function () {
+                    self.logger.info(id + 'Writing the touch display plugin\'s gpu_mem setting failed. Previous gpu_mem settings in /boot/config.txt have not been commented.');
+                  });
+              }
+            });
           }
         });
-      }
       // screensaver
       if (self.commandRouter.volumioGetState().status === 'play') {
         lastStateIsPlaying = true;
