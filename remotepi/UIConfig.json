@@ -9,7 +9,7 @@
                 "label": "TRANSLATE.REMOTEPI.REMOTEPI_CONF",
                 "description": "TRANSLATE.REMOTEPI.REMOTEPI_DESC",
                 "icon": "fa-cogs",
-                "onSave": {"type":"controller", "endpoint":"user_interface/remotepi", "method":"saveConf"},
+                "onSave": {"type":"controller", "endpoint":"system_hardware/remotepi", "method":"saveConf"},
                 "saveButton": {
                               "label": "TRANSLATE.REMOTEPI.SAVE",
                               "data": [
