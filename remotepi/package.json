@@ -12,7 +12,7 @@
 	"volumio_info": {
 		"prettyName": "RemotePi",
 		"icon": "fa-power-off",
-		"plugin_type": "user_interface",
+		"plugin_type": "system_hardware",
 		"architectures": [
 			"armhf"
 		],
