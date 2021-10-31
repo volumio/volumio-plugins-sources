@@ -12,7 +12,7 @@
 	"volumio_info": {
 		"prettyName": "Touch Display",
 		"icon": "fa-hand-pointer-o",
-		"plugin_type": "system_hardware",
+		"plugin_type": "user_interface",
 		"architectures": [
 			"armhf"
 		],
