@@ -236,7 +236,7 @@ IrController.prototype.getUIConfig = function () {
 IrController.prototype.updateUIConfig = function () {
   const self = this;
 
-  self.commandRouter.getUIConfigOnPlugin('user_interface', 'ir_controller', {})
+  self.commandRouter.getUIConfigOnPlugin('system_hardware', 'ir_controller', {})
     .then(function (uiconf) {
       self.commandRouter.broadcastMessage('pushUiConfig', uiconf);
     });

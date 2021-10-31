@@ -8,7 +8,7 @@
                 "element": "section",
                 "label": "TRANSLATE.IRCONTROLLER.IR_CONFIGURATION",
                 "icon": "fa-magic",
-                 "onSave": {"type":"controller", "endpoint":"user_interface/ir_controller", "method":"saveIROptions"},
+                 "onSave": {"type":"controller", "endpoint":"system_hardware/ir_controller", "method":"saveIROptions"},
                  "saveButton": {
                                "label": "TRANSLATE.IRCONTROLLER.SAVE",
                                "data": [
@@ -34,7 +34,7 @@
                 "label": "TRANSLATE.IRCONTROLLER.GPIO_CONFIGURATION",
                 "description": "TRANSLATE.IRCONTROLLER.GPIO_DESC",
                 "icon": "fa-microchip",
-                "onSave": {"type":"controller","endpoint":"user_interface/ir_controller","method":"saveGpioOptions"},
+                "onSave": {"type":"controller","endpoint":"system_hardware/ir_controller","method":"saveGpioOptions"},
                 "saveButton": {
                               "label": "TRANSLATE.IRCONTROLLER.SAVE",
                               "data": [
