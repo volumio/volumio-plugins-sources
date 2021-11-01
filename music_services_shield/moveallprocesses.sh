@@ -36,8 +36,8 @@ fi
 cset shield -c $CPUCONFIG > /dev/null
 
 # Move the processes to the user or system group
-/data/plugins/music_service/music_services_shield/moveprocess.sh mpd $MPDGROUP > /dev/null
-/data/plugins/music_service/music_services_shield/moveprocess.sh vollibrespot $SPOTIFYGROUP > /dev/null
+/data/plugins/system_hardware/music_services_shield/moveprocess.sh mpd $MPDGROUP > /dev/null
+/data/plugins/system_hardware/music_services_shield/moveprocess.sh vollibrespot $SPOTIFYGROUP > /dev/null
 
 # Destroy the shield if no processes are assigned to it
 if [ $SHIELDEMPTY = "true" ]
@@ -51,12 +51,12 @@ cset shield
 #Set the process priorities
 if [ $RTMPDCONFIG = "true" ]
 then
-/data/plugins/music_service/music_services_shield/setrtpriority.sh mpd
+/data/plugins/system_hardware/music_services_shield/setrtpriority.sh mpd
 fi
 
 if [ $RTSPOTIFYCONFIG = "true" ]
 then
-/data/plugins/music_service/music_services_shield/setrtpriority.sh vollibrespot
+/data/plugins/system_hardware/music_services_shield/setrtpriority.sh vollibrespot
 fi
 
 

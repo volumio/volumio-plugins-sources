@@ -12,7 +12,7 @@
 	"volumio_info": {
 		"prettyName": "Music Services Shield",
 		"icon": "fa-shield",
-		"plugin_type": "music_service",
+		"plugin_type": "system_hardware",
 		"architectures": [
 			"amd64",
 			"armhf",

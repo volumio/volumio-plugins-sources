@@ -2,8 +2,8 @@
 echo "Installing Music Services Shield Dependencies"
 
 #Define the paths
-libpath=/data/plugins/music_service/music_services_shield
-configpath=/data/configuration/music_service/music_services_shield
+libpath=/data/plugins/system_hardware/music_services_shield
+configpath=/data/configuration/system_hardware/music_services_shield
 
 
 ## Removing previous config

@@ -10,7 +10,7 @@
 		"icon": "fa-cog",
 		"onSave": {
 			"type": "controller",
-			"endpoint": "music_service/music_services_shield",
+			"endpoint": "system_hardware/music_services_shield",
 			"method": "saveConfig"
 		},
 		"saveButton": {
@@ -27,7 +27,7 @@
 			"label": "List User Tasks",
 			"onClick": {
 				"type": "plugin",
-				"endpoint": "music_service/music_services_shield",
+				"endpoint": "system_hardware/music_services_shield",
 				"method": "listUserTasks"
 			}
 		},

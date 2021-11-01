@@ -1,6 +1,6 @@
 #!/bin/bash
 
-libpath=/data/plugins/music_service/music_services_shield
+libpath=/data/plugins/system_hardware/music_services_shield
 
 sudo ${libpath}/removeservice.sh
 
