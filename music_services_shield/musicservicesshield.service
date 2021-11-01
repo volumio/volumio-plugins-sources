@@ -18,4 +18,5 @@ SyslogIdentifier=volumio
 
 [Install]
 WantedBy=multi-user.target
-
+WantedBy=volspotconnect2.service
+WantedBy=mpd.service
