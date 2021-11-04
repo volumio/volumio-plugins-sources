@@ -57,6 +57,10 @@ The plugin uses the following libraries for obtaining data through scraping (cre
 
 ### Changelog
 
+0.1.5
+- [Changed] Repackage plugin to fit Volumio 3 size limit requirements
+- [Changed] Refetch audio URLs increase to 5 max retries
+
 0.1.4
 - [Fixed] `contentDetails` missing in getVideo() (gapi model) which, among other things, breaks autoplay
 - [Changed] Update package.json to meet plugin submission criteria for Volumio 3

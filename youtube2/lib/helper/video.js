@@ -8,7 +8,7 @@ const yt2 = require(yt2PluginLibRoot + '/youtube2');
 
 class VideoHelper {
 
-    static getPlaybackInfo(videoId, rt = 3) {
+    static getPlaybackInfo(videoId, rt = 5) {
         let ytdlInfo = libQ.defer();
 
         yt2.getLogger().info(`[youtube2-videohelper] Obtaining info for videoId ${ videoId }...`);
@@ -39,7 +39,7 @@ class VideoHelper {
 
         return ytdlInfo.then( info => {
             // Sometimes ytdl returns audio URL that is 403-Forbidden.
-            // Check and retry if encountered (up to three times).
+            // Check and retry if encountered (up to five times).
             yt2.getLogger().info('[youtube2-videohelper] Checking audio URL...');
             let checkAudioUrl = libQ.defer();
             request.head(info.audioUrl, (error, response) => {
