@@ -57,6 +57,9 @@ The plugin uses the following libraries for obtaining data through scraping (cre
 
 ### Changelog
 
+0.1.6
+- [Fixed] Loading of translations
+
 0.1.5
 - [Changed] Repackage plugin to fit Volumio 3 size limit requirements
 - [Changed] Refetch audio URLs increase to 5 max retries
