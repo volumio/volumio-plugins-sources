@@ -13,7 +13,7 @@ class UserParser extends BaseParser {
             'type': 'folder',
             'title': user.username,
             'artist': user.fullname || user.location,
-            'album': sc.getI18n('SOUNDCLOUD2_CHANNEL_PARSER_USER'),
+            'album': sc.getI18n('SOUNDCLOUD_USER_PARSER_ALBUM'),
             'albumart': user.thumbnail || this.getAvatarIcon(),
             'uri': baseUri + '/users@userId=' + user.id
         }

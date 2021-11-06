@@ -13,7 +13,7 @@ class PlaylistParser extends BaseParser {
             'type': 'folder',
             'title': playlist.title,
             'artist': playlist.user.username,
-            'album': sc.getI18n('SOUNDCLOUD2_PLAYLIST_PARSER_ALBUM'),
+            'album': sc.getI18n('SOUNDCLOUD_PLAYLIST_PARSER_ALBUM'),
             'albumart': playlist.thumbnail || this.getSoundCloudIcon(),
             'uri': baseUri + '/playlists@playlistId=' + playlist.id
         }

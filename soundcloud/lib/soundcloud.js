@@ -41,7 +41,7 @@ class SoundCloudContext {
         return this._pluginContext.coreCommand.stateMachine;
     }
 
-    toast(type, message, title = "SoundCloud2") {
+    toast(type, message, title = "SoundCloud") {
         this._pluginContext.coreCommand.pushToastMessage(type, title, message);
     }
 
