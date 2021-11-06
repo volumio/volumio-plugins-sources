@@ -1,0 +1,45 @@
+{
+	"name": "ytcr",
+	"version": "0.1.1",
+	"description": "YouTube Cast Receiver for Volumio",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/patrickkfkan/volumio-ytcr.git"
+	},
+	"author": "Patrick Kan",
+	"license": "MIT",
+	"volumio_info": {
+		"prettyName": "YouTube Cast Receiver",
+		"plugin_type": "music_service",
+		"os": [
+			"buster"
+		],
+		"icon": "fa-youtube",
+		"boot_priority": 10,
+		"details": "YouTube Cast Receiver for Volumio",
+		"changelog": "",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		]
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"kew": "^0.7.0",
+		"mpd-api": "^1.1.0",
+		"network-interfaces": "^1.1.0",
+		"string-format": "^2.0.0",
+		"v-conf": "^1.4.2",
+		"ytdl-core": "^4.9.1",
+		"request": "^2.88.2",
+		"yt-cast-receiver": "0.1.1-b"
+	}
+}
