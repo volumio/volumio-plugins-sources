@@ -1,6 +1,6 @@
 {
 	"name": "music_services_shield",
-	"version": "1.3.0",
+	"version": "1.3.1",
 	"description": "Separates music processes from other processes, allocates them to their own CPU Set and assigns their priority.",
 	"main": "index.js",
 	"scripts": {
