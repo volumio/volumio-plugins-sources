@@ -8,6 +8,8 @@ var execSync = require('child_process').execSync;
 const pluginPath = '/data/plugins/system_hardware/music_services_shield/';
 const sudoCommand = '/bin/echo volumio | /usr/bin/sudo -S ';
 const buildShieldScript = 'moveallprocesses.sh';
+const addServiceScript = 'addservice.sh';
+const removeServiceScript = 'removeservice.sh';
 
 // Config parameters
 const userCpuSpec = 'userCpuSpec';
@@ -94,10 +96,12 @@ musicServicesShield.prototype.onStart = function() {
 				self.logger.info('failed ' + error);
 				self.commandRouter.pushToastMessage('error', 'Could not move processes to user CPU set!', error);
 			} else {
-                self.commandRouter.pushToastMessage('success', 'Moved processes to user CPU set', stdout);
-            }
-
-            defer.resolve();
+				self.commandRouter.pushToastMessage('success', 'Moved processes to user CPU set', stdout);
+				
+				// Add the service to re-apply the shield when services restart
+				self.executeScriptAsSudo(addServiceScript);
+			}
+			defer.resolve();
         });
     } catch (e) {
         self.logger.info('Error moving processes to user CPU set', e);
@@ -114,9 +118,10 @@ musicServicesShield.prototype.onStop = function() {
     var defer=libQ.defer();
 
 	try {
-	    // Remove all the services from the shield and recreate the shield without them
-        self.disableShieldViaConfig();
-        self.executeScriptAsSudo(buildShieldScript);
+		// Remove all the services from the shield and recreate the shield without them, and disable the service
+		self.disableShieldViaConfig();
+		self.executeScriptAsSudo(buildShieldScript);
+		self.executeScriptAsSudo(removeServiceScript);
     } catch (e) {
         self.logger.info('Error moving processes to user CPU set', e);
         self.commandRouter.pushToastMessage('error', 'Error moving processes to user CPU set', e);
