@@ -495,6 +495,10 @@ class MPDPlayer extends Player {
 
     async loadPlayData(videoId, rt = 5) {
         this.logDebug(`[MPDPlayer] loadPlayData(${ videoId })`);
+
+        ytdl.cache.info.clear();
+        ytdl.cache.watch.clear();
+
         let info = await ytdl.getInfo(videoId);
         let data = {};
 

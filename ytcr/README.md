@@ -33,6 +33,9 @@ To begin casting:
 
 # Changelog
 
+0.1.2
+- Improve fetching of audio URLs
+
 0.1.1
 - Check audio URLs and refetch on error response (retry up to 5 times)
 - Minor change to loading of translations
