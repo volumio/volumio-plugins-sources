@@ -12,6 +12,9 @@ class VideoHelper {
         let ytdlInfo = libQ.defer();
 
         yt2.getLogger().info(`[youtube2-videohelper] Obtaining info for videoId ${ videoId }...`);
+
+        ytdl.cache.info.clear();
+        ytdl.cache.watch.clear();
         
         ytdl.getInfo(videoId).then( (info) => {
             // Audio

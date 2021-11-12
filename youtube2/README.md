@@ -57,6 +57,9 @@ The plugin uses the following libraries for obtaining data through scraping (cre
 
 ### Changelog
 
+0.1.7
+- [Changed] Improve fetching of audio URLs and playback (should improve stability)
+
 0.1.6
 - [Fixed] Loading of translations
 

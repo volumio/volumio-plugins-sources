@@ -109,9 +109,6 @@ class PlayController {
             return mpdPlugin.sendMpdCommand('clear', []);
         })
         .then( () => {
-            return mpdPlugin.sendMpdCommand('load "' + streamUrl + '"', []);
-        })
-        .fail( () => {
             // Send 'addid' command instead of 'add' to get mpd's Id of the song added.
             // We can then add tags using mpd's song Id.
             return mpdPlugin.sendMpdCommand('addid "' + streamUrl + '"', []);
