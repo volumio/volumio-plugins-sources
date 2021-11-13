@@ -9,19 +9,6 @@ const path = require('path');
 
 const np = require(nowPlayingPluginLibRoot + '/np');
 
-function renderStylesheet(styles) {
-    return new Promise( (resolve, reject) => {
-        ejs.renderFile(`${ __dirname }/../app/views/styles.ejs`, { styles, host: '${ host }' }, {}, (err, str) => {
-            if (err) {
-                reject(err);
-            }
-            else {
-                resolve(str);
-            }
-        });
-    });
-}
-
 function fileExists(path) {
     try {
         return fs.existsSync(path) && fs.lstatSync(path).isFile();
@@ -95,7 +82,6 @@ function getPluginVersion() {
 }
 
 module.exports = {
-    renderStylesheet,
     fileExists,
     findInFile,
     replaceInFile,

@@ -46,6 +46,16 @@ To change the volume, tap the down arrow at the top of the screen (or swipe down
 
 ## Changelog
 
+0.1.3
+- Add widget margins setting
+- Code changes relating to use of CSS variables
+
+0.1.2
+- Use colorpicker for color settings
+- Add "Show Album Art" option to Album Art settings
+- Add "Margins", "Alignment (Vertical)" and "Max Lines" options to Text Style settings
+- Add external volume change indicator 
+
 0.1.1
 - Update plugin for Volumio 3 (note the change of category to 'user_interface')
 - Some minor code changes
