@@ -1833,7 +1833,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composeout += '    type: File' + '\n';
         composeout += '    channels: 2' + '\n';
         composeout += '    filename: "/dev/null"' + '\n';
-        composeout += '    format: S24LE3' + '\n';
+        composeout += '    format: S32LE' + '\n';
 
       } else if (testclipping == false) {
         var composeout = ''
@@ -1841,7 +1841,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composeout += '    type: Alsa' + '\n';
         composeout += '    channels: 2' + '\n';
         composeout += '    device: "fromDsp1"' + '\n';
-        composeout += '    format: S24LE3' + '\n';
+        composeout += '    format: S32LE' + '\n';
       }
       //------resampling section-----
       var composeddevice = '';
@@ -3417,7 +3417,7 @@ FusionDsp.prototype.installtools = function (data) {
       self.commandRouter.broadcastMessage("openModal", modalData);
 
       // let cpz = execSync('/bin/rm /tmp/tools.tar.xz');
-      let cp3 = execSync('/usr/bin/wget -P /tmp https://github.com/balbuze/volumio-plugins/raw/master/plugins/audio_interface/brutefir3/tools/tools.tar.xz');
+      let cp3 = execSync('/usr/bin/wget -P /tmp https://github.com/balbuze/volumio-plugins/tree/alsa_modular/plugins/audio_interface/FusionDsp/tools/tools.tar.xz');
       //  let cp4 = execSync('/bin/mkdir ' + toolspath);
       let cp5 = execSync('tar -xvf /tmp/tools.tar.xz -C /data/' + toolspath);
       let cp6 = execSync('/bin/rm /tmp/tools.tar.xz*');
