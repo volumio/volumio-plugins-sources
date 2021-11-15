@@ -22,6 +22,9 @@ As the name implies, the purpose of this plugin is to allow you to discover musi
 
 ## Changelog
 
+0.1.2
+- Display search results by item type (configurable in plugin settings)
+
 0.1.1
 - Minor change to loading of translations
 - Update plugin for Volumio 3
