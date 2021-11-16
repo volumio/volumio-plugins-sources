@@ -1,0 +1,34 @@
+{
+	"name": "ir_controller",
+	"version": "3.4.6",
+	"description": "Volumio IR Remote plugin",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Volumio Team, gvolt",
+	"license": "ISC",
+	"repository": "https://github.com/volumio/volumio-plugins-sources/tree/master/ir_controller",
+	"volumio_info": {
+		"prettyName": "IR Remote Controller",
+		"icon": "fa-magic",
+		"plugin_type": "system_hardware",
+		"architectures": [
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "<h4>IR Remote Controller Plugin </h4><br>This Plugin has been sponsored by <a href=\"https://www.justboom.co/?utm_source=JustBoom+Player&utm_medium=Software&utm_campaign=JustBoom+Player+Software&utm_content=IR+Remote+Plugin+Main+Site+Link\" target=\"blank\">JustBoom</a> and it works out of the box with <a href=\"https://www.justboom.co/product/justboom-ir-remote/?utm_source=JustBoom+Player&utm_medium=Software&utm_campaign=JustBoom+Player+Software&utm_content=IR+Remote+Plugin+Link\" target=\"blank\">JustBoom IR Remote</a><br><br>FEATURES: <br><br><ul><li>3 profiles available (JustBoom IR Remote, Odroid Remote, Apple remote)</li><li>Controls: Play, pause, mute, volume, next, previous, seek, repeat and random</li></ul>",
+		"changelog": "Fixed error message after boot"
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"fs-extra": "^8.1.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.2"
+	}
+}
