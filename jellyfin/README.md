@@ -2,6 +2,13 @@
 
 Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested with Jellyfin 10.6.4 to 10.7.6.
 
+This repository has two branches:
+
+1. The `master` branch is targeted towards Volumio 3.
+2. The `volumio-2.x` branch is targeted towards Volumio 2.x.
+
+The focus is on the `master` branch. The `volumio-2.x` branch will only be maintained if it is practically feasible and still worthwhile to do so.
+
 #### Adding a Jellyfin Server
 
 A Jellyfin server can be on the same network as your Volumio device, or it can be remote (of course, you would have to configure the server so that it is accessible from the Internet). You can add a server in the ```Add a Server``` section of the plugin settings.
@@ -16,6 +23,9 @@ You can add multiple servers, and those that are reachable will appear when you 
 - Audio is served through Direct Streaming. This means when you play a song, it will be streamed to Volumio in its original format without any modifications. This gives you the highest sound quality possible but, if you are streaming from a remote server, then you should consider whether you have a fast-enough Internet connection with unlimited data.
 
 #### Changelog
+
+0.1.4:
+- [Changed] Clean up install script
 
 0.1.3:
 - [Changed] Minor change to loading of translations
