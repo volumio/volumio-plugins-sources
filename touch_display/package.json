@@ -1,37 +1,35 @@
 {
 	"name": "touch_display",
-	"version": "3.0.2",
-	"description": "The plugin enables the touch display controller for the original Raspberry 7\" touchscreen.",
+	"version": "3.3.1",
+	"description": "The plugin enables displaying and operating Volumios UI on a original Raspberry 7\" touchscreen.",
 	"main": "index.js",
-	"repository": "http://github.com/yourproject",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Volumio Team, gvolt",
 	"license": "ISC",
+	"repository": "https://github.com/volumio/volumio-plugins-sources/tree/master/touch_display",
 	"volumio_info": {
-		"prettyName": "Touch display",
-		"variants": "volumio",
-		"plugin_type": "system_hardware",
-		"os": [
-			"buster"
-		],
-		"changelog": "Volumio3 version",
-		"details": "Touch_display",
-		"channel": "stable",
+		"prettyName": "Touch Display",
+		"icon": "fa-hand-pointer-o",
+		"plugin_type": "user_interface",
 		"architectures": [
 			"armhf"
 		],
-		"icon": "fa-hand-pointer-o"
-	},
-	"dependencies": {
-		"fs-extra": "^8.1.0",
-		"kew": "^0.7.0",
-		"v-conf": "^1.4.2",
-		"socket.io-client": "^2.3.1"
+		"os": [
+			"buster"
+		],
+		"details": "<h4>Touch Display Plugin</h4><br>The plugin enables the display of Volumio's UI on locally connected screens. If the screen offers touch control, apart from keyboard input the UI can be operated from the screen.<br>The plugin focuses on the Raspberry Pi Foundation's 7\" display (and compatible DSI displays), but can in principle also be used with displays connected via HDMI or GPIO. However, HDMI and GPIO displays usually require additional action by the user, depending on the type of display and any touch controller present, and <b>requiring advanced knowledge</b>.",
+		"changelog": "Changed plugin type to \"user_interface\"; all sync functions now wrapped in \"try ... catch\"; more reliable method to determine the device Volumio is running on"
 	},
 	"engines": {
 		"node": ">=8",
 		"volumio": ">=3"
+	},
+	"dependencies": {
+		"fs-extra": "^8.1.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.3",
+		"socket.io-client": "^2.3.1"
 	}
 }
