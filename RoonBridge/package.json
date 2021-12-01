@@ -1,36 +1,36 @@
 {
-		"name": "RoonBridge",
-		"version": "1.0.0",
-		"description": "Stream music from Roon to Volumio",
-		"main": "index.js",
-		"scripts": {
-			"test": "echo \"Error: no test specified\" && exit 1"
-		},
-		"author": "Christopher Rieke",
-		"license": "ISC",
-		"repository": "https://github.com/crieke/volumio-plugins-sources",
-		"volumio_info": {
-			"prettyName": "Roon Bridge",
-			"icon": "fas fa-volume-up",
-			"plugin_type": "music_service",
-			"architectures": [
-				"amd64",
-				"armhf"
-			],
-			"os": [
-				"buster"
-			],
-			"has_alsa_contribution": false,
-			"details": "Stream music from Roon to Volumio",
-			"changelog": "changes for Volumio 3"
-		},
-		"engines": {
-			"node": ">=8",
-			"volumio": ">=3"
-		},
-		"dependencies": {
-			"fs-extra": "^0.28.0",
-			"kew": "^0.7.0",
-			"v-conf": "^1.4.0"
-		}
+	"name": "RoonBridge",
+	"version": "1.0.0",
+	"description": "Stream music from Roon to Volumio",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Christopher Rieke",
+	"license": "ISC",
+	"repository": "https://github.com/crieke/volumio-plugins-sources",
+	"volumio_info": {
+		"prettyName": "Roon Bridge",
+		"icon": "fas fa-volume-up",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"has_alsa_contribution": false,
+		"details": "Stream music from Roon to Volumio",
+		"changelog": "changes for Volumio 3"
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0"
 	}
+}
