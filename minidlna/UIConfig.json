@@ -150,22 +150,6 @@
                                           "label": "TRANSLATE.MINIDLNA.VIDEO"
                                           },
                                           {
-                                          "value": "64",
-                                          "label": "TRANSLATE.MINIDLNA.BROWSEDIR_ID"
-                                          },
-                                          {
-                                          "value": "1",
-                                          "label": "TRANSLATE.MINIDLNA.MUSIC_ID"
-                                          },
-                                          {
-                                          "value": "2",
-                                          "label": "TRANSLATE.MINIDLNA.IMAGE_ID"
-                                          },
-                                          {
-                                          "value": "3",
-                                          "label": "TRANSLATE.MINIDLNA.VIDEO_ID"
-                                          },
-                                          {
                                           "value": "1$4",
                                           "label": "TRANSLATE.MINIDLNA.MUSIC_ALL_ID"
                                           },

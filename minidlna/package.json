@@ -1,6 +1,6 @@
 {
 	"name": "minidlna",
-	"version": "3.1.9",
+	"version": "3.1.10",
 	"description": "The plugin installs and configures a miniDLNA server.",
 	"main": "index.js",
 	"scripts": {
@@ -21,8 +21,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "<h4>miniDLNA Plugin</h4><br>The plugin installs a miniDLNA (aka ReadyMedia) server.<br>Through Volumio’s UI the plugin provides access to the configuration options of the miniDLNA server.<br>The plugin also features a rescan button that allows to force a rescan of all media directories for new media files.",
-		"changelog": "Volumio3 version"
+		"details": "The plugin installs a miniDLNA (aka ReadyMedia) server.<br><br>Through Volumio’s UI the plugin provides access to the configuration options of the miniDLNA server.<br>The plugin also features a rescan button that allows to force a rescan of all media directories for new media files.",
+		"changelog": "Removed redundant entries \"BROWSEDIR_ID\", \"MUSIC_ID\", \"VIDEO_ID\" and \"IMAGE_ID\" from \"Root Container\" select list"
 	},
 	"engines": {
 		"node": ">=8",
@@ -31,6 +31,6 @@
 	"dependencies": {
 		"fs-extra": "^8.1.0",
 		"kew": "^0.7.0",
-		"v-conf": "^1.4.2"
+		"v-conf": "^1.4.3"
 	}
 }
