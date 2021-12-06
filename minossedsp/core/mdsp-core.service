@@ -1,0 +1,26 @@
+
+[Unit]
+Description=Minosse DSP core daemon
+After=syslog.target
+
+#StartLimitInterval=2
+#StartLimitBurst=4
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStartPre=/usr/local/bin/mdsp-core-execpre.sh
+ExecStart=/usr/bin/nice -n -20 /usr/local/bin/mdsp-core-loop.sh
+ExecStartPost=/usr/local/bin/mdsp-core-execpost.sh
+
+#Restart=always
+#RestartSec=0.4s
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=volumio
+
+[Install]
+WantedBy=multi-user.target
+

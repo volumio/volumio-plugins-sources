@@ -1,0 +1,29 @@
+
+[Unit]
+Description=Brutefir daemon
+After=syslog.target
+
+#StartLimitInterval=2
+#StartLimitBurst=4
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStartPre=/usr/local/bin/mdsp-bf-execpre.sh
+#ExecStart=/usr/local/src/brutefir-1.0o/brutefir /data/INTERNAL/minossedsp/mdsp-bfconf.txt
+ExecStart=/usr/bin/brutefir /data/INTERNAL/minossedsp/mdsp-bfconf.txt
+ExecStartPost=/usr/local/bin/mdsp-bf-execpost.sh
+
+#Restart=always
+#RestartSec=0.4s
+
+#WorkingDirectory=/usr/local/src/brutefir-1.0o/
+WorkingDirectory=/usr/bin/
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=volumio
+
+[Install]
+WantedBy=multi-user.target
+

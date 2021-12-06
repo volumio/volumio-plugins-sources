@@ -1,0 +1,17 @@
+--- bfconf.c.old	2016-11-15 13:39:48.000000000 +0100
++++ bfconf.c	2021-10-12 13:33:10.803194794 +0200
+@@ -3238,10 +3238,10 @@
+     }
+ 
+     /* calculate which sched priorities to use */
+-    bfconf->realtime_maxprio = 4;
+-    bfconf->realtime_midprio = 3;
+-    bfconf->realtime_minprio = 2;
+-    bfconf->realtime_usermaxprio = 1;
++    bfconf->realtime_maxprio = 60;
++    bfconf->realtime_midprio = 50;
++    bfconf->realtime_minprio = 40;
++    bfconf->realtime_usermaxprio = 30;
+     min_prio = -1;
+     max_prio = 0;
+     FOR_IN_AND_OUT {

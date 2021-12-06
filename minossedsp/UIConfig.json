@@ -1,0 +1,704 @@
+{
+  "page": {
+    "label": "TRANSLATE.MINOSSE_CONFIGURATION"
+  },
+  "sections": [
+  
+  
+      {
+	  "id": "dsp_choice_section",
+	  "element": "section",
+	  "label": "TRANSLATE.SECTION_DSP_LABEL",
+	  "icon": "fa-wrench",
+	  "hidden": false,
+	  "onSave": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"saveDSPchoice"},
+	  "saveButton": {
+		"label": "TRANSLATE.APPLY",
+		"data": [
+		  "dsp_choice"
+		]
+	  },
+	  "content": [
+	    {
+          "id": "dsp_choice",
+          "element": "select",
+          "hidden": false,
+          "label": "TRANSLATE.SECTION_DSP_LABEL",
+          "value":  {
+            "value":"dsp_eq_10_band",
+            "label": "TRANSLATE.EQ_10_BAND"
+          },
+          "options": [
+            {
+              "value":"dsp_eq_10_band",
+              "label": "TRANSLATE.EQ_10_BAND"
+            },
+            {
+              "value":"dsp_drc",
+              "label": "Digital Room Correction"
+            }
+          ]
+        }
+	  ]
+	},
+
+
+	{
+	  "id": "eq_options",
+	  "element": "section",
+	  "label": "TRANSLATE.SECTION_EQ_OPTIONS",
+	  "icon": "fa-sliders fa-rotate-90",
+	  "hidden": false,
+	  "onSave": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"saveEQoptions"},
+	  "saveButton": {
+		"label": "TRANSLATE.APPLY",
+		"data": [
+		  "dsp_eq_10_band",
+		  "eq_load_preset_switch",
+		  "eq_load_preset_select",
+		  "eq_save_preset_input",
+		  "eq_save_preset_switch"
+		]
+	  },
+	  "content": [
+		{
+		  "id": "dsp_eq_10_band",
+		  "element": "equalizer",
+		  "config": {
+		    "orientation": "vertical",
+		    "bars": [
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["31.5"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["63"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["125"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["250"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["500"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["1000"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["2000"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["4000"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["8000"], "tooltip": "show" },
+		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["16000"], "tooltip": "show" }
+		    ]
+		  }
+		},
+        {
+		  "id":"eq_load_preset_switch",
+		  "element": "switch",
+		  "hidden": false,
+		  "visibleIf": {
+	        "field": "eq_save_preset_switch",
+	        "value": false
+	      },
+		  "label": "TRANSLATE.LOAD_PRESET",
+		  "doc": "TRANSLATE.EQ_PRESET_DOC",
+		  "value": false
+		},
+        {
+		  "id":"eq_load_preset_select",
+		  "element": "select",
+		  "hidden": false,
+		  "visibleIf": {
+	        "field": "eq_load_preset_switch",
+	        "value": true
+	      },
+		  "label": "TRANSLATE.LOAD",
+		  "value":  {
+              "value":"----",
+              "label": "----"
+          },
+          "options": [
+            
+          ]
+		},
+		{
+		  "id":"eq_save_preset_input",
+		  "element": "input",
+		  "type": "text",
+		  "attributes": [
+            {
+              "placeholder": "TRANSLATE.EQ_PLACEHOLDER"
+            }
+          ],
+		  "hidden": false,
+		  "visibleIf": {
+	        "field": "eq_save_preset_switch",
+	        "value": true
+	      },
+		  "label": "TRANSLATE.SAVE"
+		},
+		{
+		  "id":"eq_save_preset_switch",
+		  "element": "switch",
+		  "hidden": false,
+		  "visibleIf": {
+	        "field": "eq_load_preset_switch",
+	        "value": false
+	      },
+		  "label": "TRANSLATE.SAVE_PRESET",
+		  "doc": "TRANSLATE.EQ_PRESET_DOC",
+		  "value": false
+		}
+	  ]
+	},
+
+
+	{
+	  "id": "drc_options",
+	  "element": "section",
+	  "label": "TRANSLATE.SECTION_DRC_OPTIONS",
+	  "icon": "fa-music",
+	  "hidden": false,
+	  "onSave": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"saveDRCoptions"},
+	  "saveButton": {
+		"label": "TRANSLATE.APPLY",
+		"data": [
+		  "output_channels",
+		  "coefficients_id"
+		]
+	  },
+	  "content": [
+	    {
+          "id": "coefficients_id",
+          "element": "select",
+          "hidden": false,
+          "doc": "TRANSLATE.COEFFICIENTS_ID_DOC",
+          "label": "TRANSLATE.COEFFICIENTS_ID_LABEL",
+          "value":  {
+              "value":"----",
+              "label": "----"
+          },
+          "options": [
+            
+          ]
+        },
+	    {
+          "id": "output_channels",
+          "element": "select",
+          "hidden": false,
+          "doc": "TRANSLATE.OUTPUT_CHANNELS_DOC",
+          "label": "TRANSLATE.OUTPUT_CHANNELS_LABEL",
+          "value":  {
+              "value":"2.0",
+              "label": "2.0"
+          },
+          "options": [
+            {
+              "value":"2.0",
+              "label": "2.0"
+            },
+            {
+              "value":"2.1",
+              "label": "2.1"
+            },
+            {
+              "value":"4.0",
+              "label": "4.0"
+            },
+            {
+              "value":"4.1",
+              "label": "4.1"
+            },
+            {
+              "value":"6.0",
+              "label": "6.0"
+            },
+            {
+              "value":"6.1",
+              "label": "6.1"
+            },
+            {
+              "value":"8.0",
+              "label": "8.0"
+            }
+          ]
+        }
+	  ]
+	},
+
+
+    {
+      "id": "section_volume_settings",
+      "element": "section",
+      "hidden": false,
+      "label": "TRANSLATE.SECTION_VOLUME_SETTINGS",
+      "icon": "fa-volume-up",
+      "onSave": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"saveVolumeSettings"},
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "volume_enabled",
+          "volume_max",
+          "volume_min",
+          "volume_steps",
+          "init_volume",
+          "filters_attenuation"
+        ]
+      },
+      "content": [
+        {
+          "id":"volume_enabled",
+          "element": "switch",
+          "hidden": true,
+          "doc": "TRANSLATE.VOLUME_INFO",
+          "label": "TRANSLATE.VOLUME_ENABLED",
+          "value": true
+        },
+        {
+          "id": "volume_max",
+          "visibleIf": {
+            "field": "volume_enabled",
+            "value": true
+          },
+          "element": "select",
+          "hidden": false,
+          "doc" : "TRANSLATE.VOLUME_MAX_DOC",
+          "label": "TRANSLATE.VOLUME_MAX_LABEL",
+          "value":  {
+            "value":"30",
+            "label": "-30 dB"
+          },
+          "options": [
+            {
+              "value":"0",
+              "label": "-0 dB"
+            },
+            {
+              "value":"5",
+              "label": "-5 dB"
+            },
+            {
+              "value":"10",
+              "label": "-10 dB"
+            },
+            {
+              "value":"15",
+              "label": "-15 dB"
+            },
+            {
+              "value":"20",
+              "label": "-20 dB"
+            },
+            {
+              "value":"25",
+              "label": "-25 dB"
+            },
+            {
+              "value":"30",
+              "label": "-30 dB"
+            },
+            {
+              "value":"35",
+              "label": "-35 dB"
+            },
+            {
+              "value":"40",
+              "label": "-40 dB"
+            },
+            {
+              "value":"45",
+              "label": "-45 dB"
+            },
+            {
+              "value":"50",
+              "label": "-50 dB"
+            }
+          ]
+        },
+        {
+          "id": "volume_min",
+          "visibleIf": {
+            "field": "volume_enabled",
+            "value": true
+          },
+          "element": "select",
+          "hidden": false,
+          "doc" : "TRANSLATE.VOLUME_MIN_DOC",
+          "label": "TRANSLATE.VOLUME_MIN_LABEL",
+          "value":  {
+            "value":"80",
+            "label": "-80 dB"
+          },
+          "options": [
+            {
+              "value":"60",
+              "label": "-60 dB"
+            },
+            {
+              "value":"65",
+              "label": "-65 dB"
+            },
+            {
+              "value":"70",
+              "label": "-70 dB"
+            },
+            {
+              "value":"75",
+              "label": "-75 dB"
+            },
+            {
+              "value":"80",
+              "label": "-80 dB"
+            },
+            {
+              "value":"85",
+              "label": "-85 dB"
+            },
+            {
+              "value":"90",
+              "label": "-90 dB"
+            },
+            {
+              "value":"95",
+              "label": "-95 dB"
+            },
+            {
+              "value":"100",
+              "label": "-100 dB"
+            }
+          ]
+        },
+        {
+          "id": "volume_steps",
+          "visibleIf": {
+            "field": "volume_enabled",
+            "value": true
+          },
+          "element": "select",
+          "hidden": false,
+          "doc" : "TRANSLATE.VOLUME_STEPS_DOC",
+          "label": "TRANSLATE.VOLUME_STEPS_LABEL",
+          "value":  {
+            "value":"2",
+            "label": "2"
+          },
+          "options": [
+            {
+              "value":"1",
+              "label": "1"
+            },
+            {
+              "value":"2",
+              "label": "2"
+            },
+            {
+              "value":"3",
+              "label": "3"
+            },
+            {
+              "value":"4",
+              "label": "4"
+            },
+            {
+              "value":"5",
+              "label": "5"
+            },
+            {
+              "value":"6",
+              "label": "6"
+            },
+            {
+              "value":"8",
+              "label": "8"
+            },
+            {
+              "value":"10",
+              "label": "10"
+            },
+            {
+              "value":"12",
+              "label": "12"
+            }
+          ]
+        },
+        {
+          "id": "init_volume",
+          "visibleIf": {
+            "field": "volume_enabled",
+            "value": true
+          },
+          "element": "select",
+          "hidden": false,
+          "doc" : "TRANSLATE.INIT_VOLUME_DOC",
+          "label": "TRANSLATE.INIT_VOLUME_LABEL",
+          "value":  {
+            "value":"40",
+            "label": "40"
+          },
+          "options": [
+            {
+              "value":"0",
+              "label": "0"
+            },
+            {
+              "value":"10",
+              "label": "10"
+            },
+            {
+              "value":"20",
+              "label": "20"
+            },
+            {
+              "value":"30",
+              "label": "30"
+            },
+            {
+              "value":"40",
+              "label": "40"
+            },
+            {
+              "value":"50",
+              "label": "50"
+            },
+            {
+              "value":"60",
+              "label": "60"
+            },
+            {
+              "value":"70",
+              "label": "70"
+            },
+            {
+              "value":"80",
+              "label": "80"
+            },
+            {
+              "value":"90",
+              "label": "90"
+            },
+            {
+              "value":"100",
+              "label": "100"
+            }
+          ]
+        },
+        {
+          "id": "filters_attenuation",
+          "visibleIf": {
+            "field": "volume_enabled",
+            "value": false
+          },
+          "element": "select",
+          "hidden": false,
+          "doc" : "TRANSLATE.NO_VOL_ATT_DOC",
+          "label": "TRANSLATE.NO_VOL_ATT_LABEL",
+          "value":  {
+            "value":"6",
+            "label": "-6 dB"
+          },
+          "options": [
+            {
+              "value":"0",
+              "label": "-0 dB"
+            },
+            {
+              "value":"1",
+              "label": "-1 dB"
+            },
+            {
+              "value":"2",
+              "label": "-2 dB"
+            },
+            {
+              "value":"3",
+              "label": "-3 dB"
+            },
+            {
+              "value":"4",
+              "label": "-4 dB"
+            },
+            {
+              "value":"5",
+              "label": "-5 dB"
+            },
+            {
+              "value":"6",
+              "label": "-6 dB"
+            },
+            {
+              "value":"7",
+              "label": "-7 dB"
+            },
+            {
+              "value":"8",
+              "label": "-8 dB"
+            },
+            {
+              "value":"9",
+              "label": "-9 dB"
+            },
+            {
+              "value":"10",
+              "label": "-10 dB"
+            },
+            {
+              "value":"11",
+              "label": "-11 dB"
+            },
+            {
+              "value":"12",
+              "label": "-12 dB"
+            },
+            {
+              "value":"13",
+              "label": "-13 dB"
+            },
+            {
+              "value":"14",
+              "label": "-14 dB"
+            },
+            {
+              "value":"15",
+              "label": "-15 dB"
+            },
+            {
+              "value":"16",
+              "label": "-16 dB"
+            },
+            {
+              "value":"17",
+              "label": "-17 dB"
+            },
+            {
+              "value":"18",
+              "label": "-18 dB"
+            },
+            {
+              "value":"19",
+              "label": "-19 dB"
+            },
+            {
+              "value":"20",
+              "label": "-20 dB"
+            },
+            {
+              "value":"25",
+              "label": "-25 dB"
+            },
+            {
+              "value":"30",
+              "label": "-30 dB"
+            }
+          ]
+        }
+      ]
+    },
+
+
+	{
+	  "id": "input_buffer",
+	  "element": "section",
+	  "label": "TRANSLATE.SECTION_INPUT",
+	  "icon": "fa-microchip",
+	  "hidden": true,
+	  "onSave": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"saveInputBufferOptions"},
+	  "saveButton": {
+		"label": "TRANSLATE.SAVE",
+		"data": [
+		  "buffer_delay"
+		]
+	  },
+	  "content": [
+	  {
+          "id": "buffer_delay",
+          "element": "select",
+          "hidden": false,
+          "doc": "TRANSLATE.BUFFER_DELAY_DOC",
+          "label": "TRANSLATE.BUFFER_DELAY_LABEL",
+          "value":  {
+              "value":"1.2",
+              "label": "1.2"
+          },
+          "options": [
+            {
+              "value":"0.3",
+              "label": "0.3"
+            },
+            {
+              "value":"0.6",
+              "label": "0.6"
+            },
+            {
+              "value":"0.9",
+              "label": "0.9"
+            },
+            {
+              "value":"1.2",
+              "label": "1.2"
+            },
+            {
+              "value":"1.5",
+              "label": "1.5"
+            },
+            {
+              "value":"1.8",
+              "label": "1.8"
+            },
+            {
+              "value":"2.1",
+              "label": "2.1"
+            },
+            {
+              "value":"2.4",
+              "label": "2.4"
+            }
+          ]
+        }
+	  ]
+	},
+
+
+	{
+	  "id": "update_section",
+	  "element": "section",
+	  "label": "TRANSLATE.SECTION_UPDATE",
+	  "icon": "fa-refresh",
+	  "hidden": true,
+	  "content": [
+        {
+          "id":"update_button",
+          "element": "button",
+          "label": "TRANSLATE.CHECK_UPDATES",
+          "description": "TRANSLATE.CHECK_UPDATES_DESCR",
+          "onClick": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"checkUpdates"}
+        }
+      ]
+	},
+
+
+	{
+	  "id": "advanced_options",
+	  "element": "section",
+	  "label": "TRANSLATE.SECTION_ADVANCED",
+	  "icon": "fa-tachometer",
+	  "hidden": true,
+	  "content": [
+        {
+          "id":"advanced_options_button",
+          "element": "switch",
+          "doc": "TRANSLATE.ADVANCED_OPTIONS_BUTTON_DESCR",
+          "label": "TRANSLATE.ADVANCED_OPTIONS_BUTTON",
+          "value": false
+        }
+      ]
+	},
+	
+	
+	{
+	  "id": "donate_section",
+	  "element": "section",
+	  "label": "TRANSLATE.SECTION_DONATE",
+	  "icon": "fa-heart",
+	  "hidden": false,
+	  "content": [
+        {
+          "id":"donate_button",
+          "element": "button",
+          "label": "TRANSLATE.DONATE_NOW",
+          "description": "TRANSLATE.DONATE_DESC",
+          "onClick": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"makeDonation"}
+        }
+      ]
+	}
+	
+	
+  ]
+}

@@ -1,0 +1,11 @@
+--- bfio_file.c.old	2016-11-15 13:39:48.000000000 +0100
++++ bfio_file.c	2021-10-20 16:32:53.527805771 +0200
+@@ -220,7 +220,7 @@
+     *device_period_size = 0; 
+     *isinterleaved = 1;
+     if (io == BF_IN) {
+-	if ((fd = open(settings->path, O_RDONLY | O_NONBLOCK |
++	if ((fd = open(settings->path, O_RDONLY | O_ASYNC |
+ 		       O_LARGEFILE)) == -1)
+ 	{
+ 	    fprintf(stderr, "File I/O: Could not open file \"%s\" for "

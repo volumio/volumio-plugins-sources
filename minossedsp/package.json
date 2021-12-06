@@ -1,0 +1,35 @@
+{
+	"name": "minossedsp",
+	"version": "0.5.1",
+	"description": "Minimal sIgnal path, Non-OverSampling, cuStom pipEline Digital Signal Processor",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "carlito_s",
+	"license": "GPL 3.0",
+	"repository": "https://github.com/KarlitoswayXYZ/minossedsp",
+	"volumio_info": {
+		"prettyName": "Minosse DSP",
+		"icon": "fa-sliders",
+		"plugin_type": "audio_interface",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Lorem ipsum",
+		"changelog": "Lorem ipsum"
+	},
+	"engines": {
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.163.0 <4.0.0"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0"
+	}
+}
