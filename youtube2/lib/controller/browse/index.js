@@ -3,6 +3,8 @@
 const libQ = require('kew');
 const yt2 = require(yt2PluginLibRoot + '/youtube2');
 const ViewHandlerFactory = require(__dirname + '/view-handlers/factory');
+const ViewHelper = require(yt2PluginLibRoot + '/helper/view');
+const Model = require(yt2PluginLibRoot + '/model');
 
 class BrowseController {
 
@@ -56,6 +58,23 @@ class BrowseController {
 
         return defer.promise;
     }
+
+    goto(data) {
+        let gotoUri = libQ.resolve('youtube2');
+        let trackView = ViewHelper.getViewsFromUri(data.uri).pop();
+        if (trackView && trackView.name === 'video' && trackView.videoId && (data.type === 'album' || data.type === 'artist')) {
+            if (data.type === 'album' && trackView.fromPlaylistId) {
+                gotoUri = libQ.resolve('youtube2/videos@playlistId=' + trackView.fromPlaylistId);
+            }
+            else {
+                let model = Model.getInstance('video');
+                gotoUri = model.getVideo(trackView.videoId)
+                    .then( video => video && video.channel && video.channel.id ? 'youtube2/playlists@channelId=' + video.channel.id : 'youtube2' );
+            }
+        }
+        return gotoUri.then( uri => this.browseUri(uri) );
+    }
+    
 
 }
 

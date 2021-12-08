@@ -72,6 +72,9 @@ class ExplodableViewHandler extends BaseViewHandler {
      */
     _getTrackUri(video, autoplay = false) {
         let uri = `youtube2/video${autoplay ? '@autoplay=1' : ''}@videoId=${video.id}`;
+        if (video.fromPlaylistId) {
+            uri += `@fromPlaylistId=${ video.fromPlaylistId }`;
+        }
         yt2.getLogger().info('[youtube2-explodable] getTrackUri(): ' + uri);
         return uri;
     }

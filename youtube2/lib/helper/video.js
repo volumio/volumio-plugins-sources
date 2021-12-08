@@ -33,6 +33,7 @@ class VideoHelper {
 
             ytdlInfo.resolve({
                 audioUrl: highestAudioFormat.url,
+                bitrate: `${ highestAudioFormat.audioBitrate } kbps`,
                 upNextVideoId: upNextVideoId,
                 relatedVideos: info.related_videos
             });

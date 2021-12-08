@@ -57,6 +57,11 @@ The plugin uses the following libraries for obtaining data through scraping (cre
 
 ### Changelog
 
+0.1.8
+- [Fixed] Adding current track to playlist / favorites in Playback view
+- [Changed] Because of fix above, track info now shows bitrate instead of bit depth and sample rate
+- [Added] Goto album / artist
+
 0.1.7
 - [Changed] Improve fetching of audio URLs and playback (should improve stability)
 

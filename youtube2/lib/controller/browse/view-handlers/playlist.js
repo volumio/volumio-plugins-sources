@@ -135,6 +135,10 @@ class PlaylistViewHandler extends ExplodableViewHandler {
                 limit: limit - currentList.length
             };
             model.getVideos(options).then( (videos) => {
+                // Add playlistId to each video for goto(album)
+                videos.items.forEach( video => {
+                    video.fromPlaylistId = options.playlistId;
+                });
                 currentList = currentList.concat(videos.items);
                 if (currentList.length >= limit || currentIndex === playlists.length - 1) {
                     defer.resolve(currentList);

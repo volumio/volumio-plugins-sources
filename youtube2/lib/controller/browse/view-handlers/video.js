@@ -103,7 +103,17 @@ class VideoViewHandler extends ExplodableViewHandler {
         let model = self.getModel('video');
 
         if (view.name === 'video') {
-            return model.getVideo(view.videoId);
+            return model.getVideo(view.videoId).then( video => {
+                // Check if previous view is 'videos@playlistId=...'
+                // If so, we include the playlistId in the result for goto(album).
+                let prevs = self.getPreviousViews();
+                let prev = prevs[prevs.length - 1];
+                if (prev && prev.name === 'videos' && prev.playlistId) {
+                    video.fromPlaylistId = prev.playlistId;
+                }
+
+                return video;
+            });
         }
         else if (view.name === 'videos') {
             let defer = libQ.defer();
@@ -129,6 +139,12 @@ class VideoViewHandler extends ExplodableViewHandler {
             }
 
             model.getVideos(options).then( (videos) => {
+                if (view.playlistId) {
+                    // Add playlistId to each video for goto(album)
+                    videos.items.forEach( video => {
+                        video.fromPlaylistId = view.playlistId;
+                    });
+                }
                 defer.resolve(videos.items);
             }).fail( (error) => {
                 defer.reject(error);

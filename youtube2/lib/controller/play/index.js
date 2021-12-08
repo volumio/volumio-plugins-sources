@@ -3,6 +3,7 @@
 const libQ = require('kew');
 const yt2 = require(yt2PluginLibRoot + '/youtube2');
 const VideoHelper = require(yt2PluginLibRoot + '/helper/video');
+const ViewHelper = require(yt2PluginLibRoot + '/helper/view');
 
 class PlayController {
 
@@ -23,28 +24,22 @@ class PlayController {
 
     /**
      * Track uri:
-     * youtube/video@videoId={videoId}
+     * youtube2/video[@autoplay=1]@videoId={videoId}[@fromPlaylistId=...]
      */
     clearAddPlayTrack(track) {
         yt2.getLogger().info('[youtube2-play] clearAddPlayTrack: ' + track.uri);
         let self = this;
 
-        let videoId;
-        let prefix = 'youtube2/video@videoId=';
-        let autoplayPrefix = 'youtube2/video@autoplay=1@videoId=';
-        let autoplay = track.uri.startsWith(autoplayPrefix);
-        if (track.uri.startsWith(prefix)) {
-            videoId = track.uri.substring(prefix.length).trim() || undefined;
-        }
-        else if (autoplay) {
-            videoId = track.uri.substring(autoplayPrefix.length).trim() || undefined;
-        }
+        let trackUriView = ViewHelper.getViewsFromUri(track.uri).pop();
+        let videoId = trackUriView.videoId;
+        let autoplay = trackUriView.autoplay != undefined;
         if (videoId == undefined) {
             let err = 'Invalid track uri: ' + track.uri;
             yt2.toast('error', err);
             return libQ.reject(err);
         }
 
+        yt2.getLogger().info(`[youtube2-play] clearAddPlayTrack - videoId: ${ videoId }, autoplay: ${ autoplay }, fromPlaylistId: ${ trackUriView.fromPlaylistId }`);
         let streamUrl;
         return VideoHelper.getPlaybackInfo(videoId).then( (info) => {
             streamUrl = info.audioUrl.replace(/"/g, '\\"');  // safe uri
@@ -57,6 +52,13 @@ class PlayController {
                 relatedVideos: info.relatedVideos,
                 mixPlaylist: mixPlaylist
             };
+            // We setConsumeUpdateService to ignore metadata, so we set the track's samplerate to bitrate here.
+            // Note that while sample rate can be included in info, the bit depth is not available until
+            // the stream is actually played. Thanks to the logic of statemachine (which is illogical),
+            // when setConsumeUpdateService is set to ignore metadata, the state always obtain 
+            // bitdepth / samplerate from track in the queue, and just won't fall back to using those 
+            // provided by the consume service (MPD) if the track doesn't contain this data.
+            track.samplerate = info.bitrate;
             return streamUrl;
         }).then( (streamUrl) => {
             return self._doPlay(streamUrl, track);
@@ -82,23 +84,33 @@ class PlayController {
     }
 
     stop() {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.stop();
     };
 
     pause() {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.pause();
     };
   
     resume() {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.resume();
     }
   
     seek(position) {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.seek(position);
+    }
+
+    next() {
+        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
+        return this.mpdPlugin.next();
+    }
+
+    previous() {
+        yt2.getStateMachine().setConsumeUpdateService(undefined);
+        return yt2.getStateMachine().previous();
     }
 
     _doPlay(streamUrl, track) {
@@ -136,7 +148,7 @@ class PlayController {
             }
         })
         .then( () => {
-            yt2.getStateMachine().setConsumeUpdateService('mpd', false, false);
+            yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
             return mpdPlugin.sendMpdCommand('play', []);
         });
     }
@@ -153,10 +165,17 @@ class PlayController {
             state = stateMachine.getState(),
             isLastTrack = stateMachine.getQueue().length - 1 === lastPlaybackItemPosition,
             currentPositionChanged = state.position !== lastPlaybackItemPosition, // true if client clicks on another item in the queue
-            autoplayPrefix = 'youtube2/video@autoplay=1@videoId=',
             queueItemRemoved = false;
+        
+        const isLastPlaybackAutoplayItem = () => {
+            if (self.lastPlaybackInfo.track.service === 'youtube2') {
+                let lastPlaybackView = ViewHelper.getViewsFromUri(self.lastPlaybackInfo.track.uri).pop();
+                return lastPlaybackView.autoplay != undefined;
+            }
+            return false;
+        }
            
-        if (self.lastPlaybackInfo.track.service === 'youtube2' && self.lastPlaybackInfo.track.uri.startsWith(autoplayPrefix)) {
+        if (isLastPlaybackAutoplayItem()) {
             yt2.getLogger().info(`[youtube2-play] _handleAutoPlay(): Removing autoplayed video from queue (position ${lastPlaybackItemPosition})`);
             stateMachine.removeQueueItem({ value: lastPlaybackItemPosition });
             queueItemRemoved = true;
@@ -207,13 +226,20 @@ class PlayController {
                     // will be shown as escaped string)
                     let queue = stateMachine.getQueue();
                     let addedQueueItem = queue[result.firstItemIndex];
-                    let titleWithAutoplayLabel = addedQueueItem.name;
+                    // let titleWithAutoplayLabel = addedQueueItem.name;  *See remark
                     addedQueueItem.name = addedQueueItem.title; // 'title' has no autoplay label
 
                     stateMachine.play(result.firstItemIndex).then( () => {
                         // Reinstate queue item name
-                        addedQueueItem.name = titleWithAutoplayLabel;
+                       // addedQueueItem.name = titleWithAutoplayLabel;  *See remark
                     });
+
+                    // Remark:
+                    // Commented out because with setConsumeUpdateService to ignore metadata, the title 
+                    // returned in the state will be taken from the queue item (trackblock). If we reinstate
+                    // the queue item to show the Autoplay label, the HTML tags will get escaped in the UI's trackbar.
+                    // Unfortunately, not reinstating the Autoplay label will cause the label to disappear if the 
+                    // UI is refreshed. Perhaps we should move the label to the Album field without formatting?
                 });
             }
         });

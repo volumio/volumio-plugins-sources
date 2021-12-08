@@ -395,6 +395,14 @@ ControllerYouTube2.prototype.seek = function (position) {
     return this.playController.seek(position);
 }
 
+ControllerYouTube2.prototype.next = function () {
+    return this.playController.next();
+}
+
+ControllerYouTube2.prototype.previous = function () {
+    return this.playController.previous();
+}
+
 ControllerYouTube2.prototype.search = function(query) {
     return this.searchController.search(query);
 }
@@ -402,3 +410,7 @@ ControllerYouTube2.prototype.search = function(query) {
 /*ControllerYouTube2.prototype.prefetch = function (trackBlock) {
     return this.playController.prefetch(trackBlock);
 };*/
+
+ControllerYouTube2.prototype.goto = function(data) {
+    return this.browseController.goto(data);
+}
