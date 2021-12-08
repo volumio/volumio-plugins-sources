@@ -10,7 +10,7 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.SCREENSAVER_DESC",
                 "icon": "fa-clock-o",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"system_hardware/touch_display", "method":"saveScreensaverConf"},
+                "onSave": {"type":"controller", "endpoint":"user_interface/touch_display", "method":"saveScreensaverConf"},
                 "saveButton": {
                               "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
                               "data": [
@@ -49,7 +49,7 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.BRIGHTNESS_DESC",
                 "icon": "fa-sun-o",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"system_hardware/touch_display", "method":"saveBrightnessConf"},
+                "onSave": {"type":"controller", "endpoint":"user_interface/touch_display", "method":"saveBrightnessConf"},
                 "saveButton": {
                               "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
                               "data": [
@@ -108,7 +108,7 @@
                              "element": "button",
                              "doc": "TRANSLATE.TOUCH_DISPLAY.CALIBRATION_DOC",
                              "label": "TRANSLATE.TOUCH_DISPLAY.CALIBRATION",
-                             "onClick": {"type":"controller", "endpoint":"system_hardware/touch_display", "method":"getAlsValue", "data":{"confData": "", "action": "minmax"}},
+                             "onClick": {"type":"controller", "endpoint":"user_interface/touch_display", "method":"getAlsValue", "data":{"confData": "", "action": "minmax"}},
                              "visibleIf": {"field": "autoMode", "value": true}
                              },
                              {
@@ -139,7 +139,7 @@
                              "element": "button",
                              "doc": "TRANSLATE.TOUCH_DISPLAY.GET_MID_ALS_DOC",
                              "label": "TRANSLATE.TOUCH_DISPLAY.GET_MID_ALS",
-                             "onClick": {"type":"controller", "endpoint":"system_hardware/touch_display", "method":"getAlsValue", "data":{"confData": "", "action": "mid"}},
+                             "onClick": {"type":"controller", "endpoint":"user_interface/touch_display", "method":"getAlsValue", "data":{"confData": "", "action": "mid"}},
                              "visibleIf": {"field": "autoMode", "value": true}
                              },
                              {
@@ -211,7 +211,7 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.ORIENTATION_DESC",
                 "icon": "fa-compass",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"system_hardware/touch_display", "method":"saveOrientationConf"},
+                "onSave": {"type":"controller", "endpoint":"user_interface/touch_display", "method":"saveOrientationConf"},
                 "saveButton": {
                               "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
                               "data": [
@@ -253,7 +253,7 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.GPUMEM_DESC",
                 "icon": "fa-microchip",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"system_hardware/touch_display", "method":"saveGpuMemConf"},
+                "onSave": {"type":"controller", "endpoint":"user_interface/touch_display", "method":"saveGpuMemConf"},
                 "saveButton": {
                               "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
                               "data": [
@@ -293,7 +293,7 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.POINTER_DESC",
                 "icon": "fa-mouse-pointer",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"system_hardware/touch_display", "method":"savePointerConf"},
+                "onSave": {"type":"controller", "endpoint":"user_interface/touch_display", "method":"savePointerConf"},
                 "saveButton": {
                               "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
                               "data": [
@@ -317,7 +317,7 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.SCALE_DESC",
                 "icon": "fa-expand",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"system_hardware/touch_display", "method":"saveScaleConf"},
+                "onSave": {"type":"controller", "endpoint":"user_interface/touch_display", "method":"saveScaleConf"},
                 "saveButton": {
                               "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
                               "data": [

@@ -1,4 +1,4 @@
-October 9th 2021
+November 17th 2021
 
 
 ##  For Volumio3
@@ -133,6 +133,46 @@ nearly everythings ;-)
 - 
 
 ### 4. Last changes
+
+November 17th 2021
+
+- max frequuency is now 22049Hz
+
+November 14th 2021
+
+- tools album art
+- mpdignore peq
+- tools source path
+
+November 13th 2021
+
+- Output is now S32LE instead of S24LE3 to support Allo kali reclocker
+
+November 10th 2021
+
+- code cleaning
+
+October 29th 2021
+
+- RPI Zero insttall correction
+
+October 28th 2021
+
+- RPI Zero (to be tested...)
+
+October 23th 2021
+
+- Fix Q value issue with Highshelf2, Lowshelf2
+- Lowpass label was missing 
+
+October 17th 2021
+
+- close Modals on all screen
+- hw probe for samplerate instead of volumioDsp
+
+October 14th 2021
+
+- DRC-FIR was not installed
 
 October 9th 2021
 

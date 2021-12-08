@@ -1,0 +1,22 @@
+1. mixcloud.png: based on https://github.com/FortAwesome/Font-Awesome/issues/16532
+
+2. mixcloud-sq.png: based on mixcloud.png
+
+3. Font: Exo by https://www.1001fonts.com/users/ndiscovered/
+
+4. Tag icons: based on https://freeicons.io/technology-icons-2/tag-fill-round-icon-14558 by icon king1 (https://freeicons.io/profile/3) on https://freeicons.io
+                                
+Remarks
+-------
+Background colors:
+
+#121C36
+#1F565C
+#675722
+#284C77
+#7A294E
+#4A2D86
+#262B73
+#2E548A
+#406321
+#603520
