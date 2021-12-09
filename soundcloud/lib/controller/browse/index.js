@@ -3,6 +3,8 @@
 const libQ = require('kew');
 const sc = require(scPluginLibRoot + '/soundcloud');
 const ViewHandlerFactory = require(__dirname + '/view-handlers/factory');
+const Model = require(scPluginLibRoot + '/model');
+const ViewHelper = require(scPluginLibRoot + '/helper/view');
 
 class BrowseController {
 
@@ -58,6 +60,25 @@ class BrowseController {
         });
 
         return defer.promise;
+    }
+
+    goto(data) {
+        let gotoUri = libQ.resolve('soundcloud');
+        let trackView = ViewHelper.getViewsFromUri(data.uri).pop();
+        if (trackView && trackView.name === 'track' && trackView.trackId && (data.type === 'album' || data.type === 'artist')) {
+            if (data.type === 'album' && trackView.fromPlaylistId) {
+                gotoUri = libQ.resolve('soundcloud/playlists@playlistId=' + trackView.fromPlaylistId);
+            }
+            else if (data.type === 'album' && trackView.fromAlbumId) {
+                gotoUri = libQ.resolve('soundcloud/albums@albumId=' + trackView.fromAlbumId);
+            }
+            else {
+                let model = Model.getInstance('track');
+                gotoUri = model.getTrack(trackView.trackId)
+                    .then( track => track && track.user && track.user.id ? 'soundcloud/users@userId=' + track.user.id : 'soundcloud' );
+            }
+        }
+        return gotoUri.then( uri => this.browseUri(uri) );
     }
 
 }
