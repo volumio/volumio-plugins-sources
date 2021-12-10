@@ -1,6 +1,6 @@
 {
 	"name": "touch_display",
-	"version": "3.3.1",
+	"version": "3.3.2",
 	"description": "The plugin enables displaying and operating Volumios UI on a original Raspberry 7\" touchscreen.",
 	"main": "index.js",
 	"scripts": {
@@ -19,8 +19,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "<h4>Touch Display Plugin</h4><br>The plugin enables the display of Volumio's UI on locally connected screens. If the screen offers touch control, apart from keyboard input the UI can be operated from the screen.<br>The plugin focuses on the Raspberry Pi Foundation's 7\" display (and compatible DSI displays), but can in principle also be used with displays connected via HDMI or GPIO. However, HDMI and GPIO displays usually require additional action by the user, depending on the type of display and any touch controller present, and <b>requiring advanced knowledge</b>.",
-		"changelog": "Changed plugin type to \"user_interface\"; all sync functions now wrapped in \"try ... catch\"; more reliable method to determine the device Volumio is running on"
+		"details": "The plugin enables the display of Volumio's UI on locally connected screens. If the screen offers touch control, apart from keyboard input the UI can be operated from the screen.<br>The plugin focuses on the Raspberry Pi Foundation's 7\" display (and compatible DSI displays), but can in principle also be used with displays connected via HDMI or GPIO. However, HDMI and GPIO displays usually require additional action by the user, depending on the type of display and any touch controller present, and <b>requiring advanced knowledge</b>.",
+		"changelog": "Removed code for Debian Jessie based systems; added failure handling during installation"
 	},
 	"engines": {
 		"node": ">=8",
@@ -29,7 +29,7 @@
 	"dependencies": {
 		"fs-extra": "^8.1.0",
 		"kew": "^0.7.0",
-		"v-conf": "^1.4.3",
+		"v-conf": "^1.4.2",
 		"socket.io-client": "^2.3.1"
 	}
 }

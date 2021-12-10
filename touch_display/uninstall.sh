@@ -1,22 +1,21 @@
 #!/bin/bash
 
-HW=$(awk '/VOLUMIO_HARDWARE=/' /etc/*-release | sed 's/VOLUMIO_HARDWARE=//' | sed 's/\"//g')
-ID=$(awk '/VERSION_ID=/' /etc/*-release | sed 's/VERSION_ID=//' | sed 's/\"//g')
-
 echo "Removing dependencies"
-apt-get -y purge --auto-remove fonts-arphic-ukai fonts-arphic-gbsn00lp fonts-unfonts-core
-if [ "$HW" = "pi" ]; then # on Raspberry Pi hardware
+apt-get -y purge --auto-remove fonts-arphic-ukai
+apt-get -y purge --auto-remove fonts-arphic-gbsn00lp
+apt-get -y purge --auto-remove fonts-unfonts-core
+if grep -q Raspberry /proc/cpuinfo; then # on Raspberry Pi hardware
   apt-mark unhold libraspberrypi0 raspberrypi-bootloader raspberrypi-kernel
-  apt-get -y purge --auto-remove chromium-browser openbox xinit libraspberrypi0 raspberrypi-bootloader raspberrypi-kernel
-  if [ "$ID" = "8" ]; then
-    apt-get -y purge --auto-remove xserver-xorg-legacy
-  fi
+  apt-get -y purge --auto-remove chromium-browser
+  apt-get -y purge --auto-remove openbox
+  apt-get -y purge --auto-remove xinit
+  apt-get -y purge --auto-remove libraspberrypi0
+  apt-get -y purge --auto-remove raspberrypi-bootloader
+  apt-get -y purge --auto-remove raspberrypi-kernel
 else # on other hardware
-  if [ "$ID" = "8" ]; then
-    apt-get -y purge --auto-remove chromium-codecs-ffmpeg-extra chromium-browser openbox xinit
-  else
-    apt-get -y purge --auto-remove chromium openbox xinit
-  fi
+  apt-get -y purge --auto-remove chromium
+  apt-get -y purge --auto-remove openbox
+  apt-get -y purge --auto-remove xinit
 fi
 
 echo "Deleting /opt/volumiokiosk.sh"
