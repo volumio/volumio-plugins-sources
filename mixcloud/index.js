@@ -180,6 +180,14 @@ ControllerMixcloud.prototype.pause = function () {
 ControllerMixcloud.prototype.resume = function () {
     return this.playController.resume();
 }
+
+ControllerMixcloud.prototype.next = function () {
+    return this.playController.next();
+}
+
+ControllerMixcloud.prototype.previous = function () {
+    return this.playController.previous();
+}
   
 ControllerMixcloud.prototype.seek = function (position) {
     return this.playController.seek(position);
