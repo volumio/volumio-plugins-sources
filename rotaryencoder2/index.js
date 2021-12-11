@@ -133,6 +133,7 @@ rotaryencoder2.prototype.onStop = function() {
     return defer.promise;
 };
 
+
 rotaryencoder2.prototype.onRestart = function() {
     var self = this;
     var defer=libQ.defer();
