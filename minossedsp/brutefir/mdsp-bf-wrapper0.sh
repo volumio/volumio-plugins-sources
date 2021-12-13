@@ -221,7 +221,7 @@ filter "right" {
 };
 '
 	
-	#DELAY_STRING='0,0'
+	DELAY_STRING='0,0'
 	
 	### Copy the equalizer template to the target configuration file
 	/bin/echo "$EQ_TEMPLATE" >> "$brutefir_conf_file"

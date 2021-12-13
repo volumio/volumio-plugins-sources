@@ -64,19 +64,20 @@
 		{
 		  "id": "dsp_eq_10_band",
 		  "element": "equalizer",
+		  "label": "TRANSLATE.EQ_MAGNITUDE",
 		  "config": {
 		    "orientation": "vertical",
 		    "bars": [
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["31.5"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["63"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["125"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["250"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["500"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["1000"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["2000"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["4000"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["8000"], "tooltip": "show" },
-		      { "min": -12, "max": 12, "step": "0.5", "value": 0, "ticksLabels": ["16000"], "tooltip": "show" }
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["31.5"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["63"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["125"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["250"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["500"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["1000"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["2000"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["4000"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["8000"], "tooltip": "show" },
+		      { "min": -16, "max": 16, "step": "0.5", "value": 0, "ticksLabels": ["16000"], "tooltip": "show" }
 		    ]
 		  }
 		},
@@ -213,6 +214,33 @@
         }
 	  ]
 	},
+	
+	
+	{
+	  "id": "eq_download_section",
+	  "element": "section",
+	  "label": "TRANSLATE.EQ_DOWNLOAD_SECTION",
+	  "icon": "fa-headphones",
+	  "hidden": false,
+	  "content": [
+        {
+          "id":"eq_download_button",
+          "element": "button",
+          "button_label": "TRANSLATE.DOWNLOAD",
+          "hidden": false,
+          "description": "TRANSLATE.EQ_DOWNLOAD_DESC",
+          "onClick": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"downloadEQlist"}
+        },
+        {
+          "id":"eq_erase_button",
+          "element": "button",
+          "button_label": "TRANSLATE.ERASE",
+          "hidden": false,
+          "description": "TRANSLATE.EQ_ERASE_DESC",
+          "onClick": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"eraseEQlist"}
+        }
+      ]
+	},
 
 
     {
@@ -248,59 +276,17 @@
             "field": "volume_enabled",
             "value": true
           },
-          "element": "select",
+          "element": "input",
+          "type": "number",
           "hidden": false,
           "doc" : "TRANSLATE.VOLUME_MAX_DOC",
           "label": "TRANSLATE.VOLUME_MAX_LABEL",
-          "value":  {
-            "value":"30",
-            "label": "-30 dB"
-          },
-          "options": [
-            {
-              "value":"0",
-              "label": "-0 dB"
-            },
-            {
-              "value":"5",
-              "label": "-5 dB"
-            },
-            {
-              "value":"10",
-              "label": "-10 dB"
-            },
-            {
-              "value":"15",
-              "label": "-15 dB"
-            },
-            {
-              "value":"20",
-              "label": "-20 dB"
-            },
-            {
-              "value":"25",
-              "label": "-25 dB"
-            },
-            {
-              "value":"30",
-              "label": "-30 dB"
-            },
-            {
-              "value":"35",
-              "label": "-35 dB"
-            },
-            {
-              "value":"40",
-              "label": "-40 dB"
-            },
-            {
-              "value":"45",
-              "label": "-45 dB"
-            },
-            {
-              "value":"50",
-              "label": "-50 dB"
-            }
+          "value": -30,
+          "attributes": [
+             {"placeholder": -30},
+             {"maxlength": 3},
+             {"min": -50},
+             {"max": 0}
           ]
         },
         {
@@ -309,51 +295,17 @@
             "field": "volume_enabled",
             "value": true
           },
-          "element": "select",
+          "element": "input",
+          "type": "number",
           "hidden": false,
           "doc" : "TRANSLATE.VOLUME_MIN_DOC",
           "label": "TRANSLATE.VOLUME_MIN_LABEL",
-          "value":  {
-            "value":"80",
-            "label": "-80 dB"
-          },
-          "options": [
-            {
-              "value":"60",
-              "label": "-60 dB"
-            },
-            {
-              "value":"65",
-              "label": "-65 dB"
-            },
-            {
-              "value":"70",
-              "label": "-70 dB"
-            },
-            {
-              "value":"75",
-              "label": "-75 dB"
-            },
-            {
-              "value":"80",
-              "label": "-80 dB"
-            },
-            {
-              "value":"85",
-              "label": "-85 dB"
-            },
-            {
-              "value":"90",
-              "label": "-90 dB"
-            },
-            {
-              "value":"95",
-              "label": "-95 dB"
-            },
-            {
-              "value":"100",
-              "label": "-100 dB"
-            }
+          "value": -80,
+          "attributes": [
+             {"placeholder": -80},
+             {"maxlength": 4},
+             {"min": -100},
+             {"max": -60}
           ]
         },
         {
@@ -362,51 +314,17 @@
             "field": "volume_enabled",
             "value": true
           },
-          "element": "select",
+          "element": "input",
+          "type": "number",
           "hidden": false,
           "doc" : "TRANSLATE.VOLUME_STEPS_DOC",
           "label": "TRANSLATE.VOLUME_STEPS_LABEL",
-          "value":  {
-            "value":"2",
-            "label": "2"
-          },
-          "options": [
-            {
-              "value":"1",
-              "label": "1"
-            },
-            {
-              "value":"2",
-              "label": "2"
-            },
-            {
-              "value":"3",
-              "label": "3"
-            },
-            {
-              "value":"4",
-              "label": "4"
-            },
-            {
-              "value":"5",
-              "label": "5"
-            },
-            {
-              "value":"6",
-              "label": "6"
-            },
-            {
-              "value":"8",
-              "label": "8"
-            },
-            {
-              "value":"10",
-              "label": "10"
-            },
-            {
-              "value":"12",
-              "label": "12"
-            }
+          "value": 2,
+          "attributes": [
+             {"placeholder": 2},
+             {"maxlength": 2},
+             {"min": 1},
+             {"max": 10}
           ]
         },
         {
@@ -415,59 +333,17 @@
             "field": "volume_enabled",
             "value": true
           },
-          "element": "select",
+          "element": "input",
+          "type": "number",
           "hidden": false,
           "doc" : "TRANSLATE.INIT_VOLUME_DOC",
           "label": "TRANSLATE.INIT_VOLUME_LABEL",
-          "value":  {
-            "value":"40",
-            "label": "40"
-          },
-          "options": [
-            {
-              "value":"0",
-              "label": "0"
-            },
-            {
-              "value":"10",
-              "label": "10"
-            },
-            {
-              "value":"20",
-              "label": "20"
-            },
-            {
-              "value":"30",
-              "label": "30"
-            },
-            {
-              "value":"40",
-              "label": "40"
-            },
-            {
-              "value":"50",
-              "label": "50"
-            },
-            {
-              "value":"60",
-              "label": "60"
-            },
-            {
-              "value":"70",
-              "label": "70"
-            },
-            {
-              "value":"80",
-              "label": "80"
-            },
-            {
-              "value":"90",
-              "label": "90"
-            },
-            {
-              "value":"100",
-              "label": "100"
-            }
+          "value": 40,
+          "attributes": [
+             {"placeholder": 40},
+             {"maxlength": 3},
+             {"min": 0},
+             {"max": 100}
           ]
         },
         {
@@ -476,107 +352,17 @@
             "field": "volume_enabled",
             "value": false
           },
-          "element": "select",
+          "element": "input",
+          "type": "number",
           "hidden": false,
           "doc" : "TRANSLATE.NO_VOL_ATT_DOC",
           "label": "TRANSLATE.NO_VOL_ATT_LABEL",
-          "value":  {
-            "value":"6",
-            "label": "-6 dB"
-          },
-          "options": [
-            {
-              "value":"0",
-              "label": "-0 dB"
-            },
-            {
-              "value":"1",
-              "label": "-1 dB"
-            },
-            {
-              "value":"2",
-              "label": "-2 dB"
-            },
-            {
-              "value":"3",
-              "label": "-3 dB"
-            },
-            {
-              "value":"4",
-              "label": "-4 dB"
-            },
-            {
-              "value":"5",
-              "label": "-5 dB"
-            },
-            {
-              "value":"6",
-              "label": "-6 dB"
-            },
-            {
-              "value":"7",
-              "label": "-7 dB"
-            },
-            {
-              "value":"8",
-              "label": "-8 dB"
-            },
-            {
-              "value":"9",
-              "label": "-9 dB"
-            },
-            {
-              "value":"10",
-              "label": "-10 dB"
-            },
-            {
-              "value":"11",
-              "label": "-11 dB"
-            },
-            {
-              "value":"12",
-              "label": "-12 dB"
-            },
-            {
-              "value":"13",
-              "label": "-13 dB"
-            },
-            {
-              "value":"14",
-              "label": "-14 dB"
-            },
-            {
-              "value":"15",
-              "label": "-15 dB"
-            },
-            {
-              "value":"16",
-              "label": "-16 dB"
-            },
-            {
-              "value":"17",
-              "label": "-17 dB"
-            },
-            {
-              "value":"18",
-              "label": "-18 dB"
-            },
-            {
-              "value":"19",
-              "label": "-19 dB"
-            },
-            {
-              "value":"20",
-              "label": "-20 dB"
-            },
-            {
-              "value":"25",
-              "label": "-25 dB"
-            },
-            {
-              "value":"30",
-              "label": "-30 dB"
-            }
+          "value": -6,
+          "attributes": [
+             {"placeholder": -6},
+             {"maxlength": 3},
+             {"min": -30},
+             {"max": 0}
           ]
         }
       ]
@@ -657,6 +443,7 @@
           "id":"update_button",
           "element": "button",
           "label": "TRANSLATE.CHECK_UPDATES",
+          "button_label": "TRANSLATE.CHECK_UPDATES",
           "description": "TRANSLATE.CHECK_UPDATES_DESCR",
           "onClick": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"checkUpdates"}
         }
@@ -676,6 +463,7 @@
           "element": "switch",
           "doc": "TRANSLATE.ADVANCED_OPTIONS_BUTTON_DESCR",
           "label": "TRANSLATE.ADVANCED_OPTIONS_BUTTON",
+          "button_label": "TRANSLATE.ADVANCED_OPTIONS_BUTTON",
           "value": false
         }
       ]
@@ -692,7 +480,7 @@
         {
           "id":"donate_button",
           "element": "button",
-          "label": "TRANSLATE.DONATE_NOW",
+          "button_label": "TRANSLATE.DONATE_NOW",
           "description": "TRANSLATE.DONATE_DESC",
           "onClick": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"makeDonation"}
         }

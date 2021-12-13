@@ -1,14 +1,19 @@
 #!/bin/bash -e
 
 ### Load folder and file locations
+
+MDSP_BF_CONF="/data/plugins/audio_interface/minossedsp/conf/mdsp-bf-conf.json.tmpl"
 MDSP_BF_DIRS="/data/plugins/audio_interface/minossedsp/conf/mdsp-sys-dirs.sh"
 #MDSP_BF_DIRS="/home/volumio/minossedsp/conf/mdsp-sys-dirs.sh"
 . "$MDSP_BF_DIRS"
 
+### Load required parameters
+core_fifo=$(/bin/cat "$MDSP_BF_CONF" | /usr/bin/jq -r '.core_fifo')
+
 VUSER="volumio"
 VGROUP="volumio"
 
-HOMEDIR="/home/volumio/minossedsp"
+ISUPDATE="true"
 
 trap '_cleanup' EXIT
 trap '_rollback' ERR
@@ -18,7 +23,7 @@ _cleanup() {
 	set +e
 	
 	echo "========== Erasing installation files... =========="
-	sudo rm -r -f "$HOMEDIR"*
+	#sudo rm -r -f "$PWD"*
 	sudo rm -r -f "$minosse_plugin_folder"bin
 	sudo rm -r -f "$minosse_plugin_folder"brutefir
 	sudo rm -r -f "$minosse_plugin_folder"conf
@@ -31,6 +36,13 @@ _cleanup() {
 	sudo rm -r -f "$minosse_plugin_folder"*git
 	sudo rm -r -f "$minosse_plugin_folder"*project
 	sudo rm -r -f "$minosse_plugin_folder"*settings
+	
+	if [ "$ISUPDATE" != "false" ]
+	then
+		#echo '============ Rebooting now... ============'
+		#sudo shutdown -r now
+		/bin/echo '{"event":"pushmsg","data":{"type":"warning","content":"UPDATE_REBOOT","extra":""}}' > "$core_fifo"
+	fi
 
 }
 
@@ -88,13 +100,17 @@ _copy() {
 	sudo cp -f "$minosse_plugin_folder"core/mdsp-*.service /etc/systemd/system/
 	
 	### Copy configuration files
-	sudo rm -r -f "$minosse_data_folder"
-	sudo mkdir "$minosse_data_folder"
+	#sudo rm -r -f "$minosse_data_folder"
+	if [ ! -d "$minosse_data_folder" ]
+	then
+		sudo mkdir "$minosse_data_folder"
+		sudo mkdir "$brutefir_fftw_wisdom_folder"
+		ISUPDATE="false"
+	fi
 	sudo cp -r -f "$minosse_plugin_folder"img/ "$minosse_data_folder"
 	sudo cp -f "$minosse_plugin_folder"conf/mdsp-* "$minosse_data_folder"
 	#sudo cp -f "$minosse_plugin_folder"conf/mpd.service "$minosse_data_folder"
 	sudo cp -f "$minosse_plugin_folder"conf/override.conf "$minosse_data_folder"
-	sudo mkdir "$brutefir_fftw_wisdom_folder"
 	#sudo chown -R "$VUSER":"$VGROUP" "$minosse_data_folder"
 	sudo chown -R "$VUSER":"$VGROUP" "$minosse_data_folder" > /dev/null 2>&1
 	
@@ -110,12 +126,15 @@ _copy() {
 
 _filters() {
 	
-	echo "========== Downloading demo filters from GitHub... =========="
-	#git clone -b master --single-branch https://github.com/KarlitoswayXYZ/minosse-filters.git "$minosse_data_folder"filters/
-	git clone -b master --depth 1 --single-branch https://github.com/KarlitoswayXYZ/minosse-filters.git "$minosse_data_folder"filters/
-	sudo rm -r -f "$minosse_data_folder"filters/.??*
-	#sudo chown -R "$VUSER":"$VGROUP" "$minosse_data_folder"
-	sudo chown -R "$VUSER":"$VGROUP" "$minosse_data_folder" > /dev/null 2>&1
+	if [ ! -d "$minosse_data_folder"filters/ ]
+	then
+		echo "========== Downloading demo filters from GitHub/KarlitoswayXYZ... =========="
+		#git clone -b master --single-branch https://github.com/KarlitoswayXYZ/minosse-filters.git "$minosse_data_folder"filters/
+		git clone -b master --depth 1 --single-branch https://github.com/KarlitoswayXYZ/minosse-filters.git "$minosse_data_folder"filters/
+		sudo rm -r -f "$minosse_data_folder"filters/.??*
+		#sudo chown -R "$VUSER":"$VGROUP" "$minosse_data_folder"
+		sudo chown -R "$VUSER":"$VGROUP" "$minosse_data_folder" > /dev/null 2>&1
+	fi
 }
 
 _brutefir() {
@@ -183,25 +202,7 @@ _filters
 #_brutefir
 #_fftw
 
-### Only for debugging!
-### In production, the following task will be performed during plugin activation and/or audio type change
-#"$minosse_bin_folder"mdsp-activate.sh "2.0"
-
-echo "
-
-
-"
 echo "================================ Installation finished ================================="
-echo "========== Go to Settings -> Plugins -> Installed Plugins to activate Minosse =========="
-#sleep 4
-
-#mdsp-voloveron.sh
-#mdsp-volopthid.sh
-#mdsp-mpdconfforce.sh
-#mdsp-enable-minosse.sh
 
 #requred to end the plugin install
 echo "plugininstallend"
-
-#echo '============ Rebooting now... ============'
-#sudo shutdown -r now

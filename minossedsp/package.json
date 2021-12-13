@@ -1,6 +1,6 @@
 {
 	"name": "minossedsp",
-	"version": "0.5.1",
+	"version": "0.5.4",
 	"description": "Minimal sIgnal path, Non-OverSampling, cuStom pipEline Digital Signal Processor",
 	"main": "index.js",
 	"scripts": {
@@ -21,11 +21,11 @@
 			"buster"
 		],
 		"details": "Lorem ipsum",
-		"changelog": "Lorem ipsum"
+		"changelog": "final RC1 (install and update fixed; added headphones preset download)"
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",
-		"volumio": ">=3.163.0 <4.0.0"
+		"volumio": ">=3.165.0 <4.0.0"
 	},
 	"dependencies": {
 		"fs-extra": "^0.28.0",

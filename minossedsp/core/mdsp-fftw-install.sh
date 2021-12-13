@@ -31,7 +31,7 @@ _libs() {
 	fi
 }
 
-#_deps
+_deps
 
 ### Too much screen output seems to cast trouble when called from install.sh, so use " > /dev/null 2>&1"
 

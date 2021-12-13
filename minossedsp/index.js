@@ -15,6 +15,8 @@ const pushMsgPath = '/tmp/'
 const pushMsgFile = 'mdsp-guimsg.txt';
 var outputDeviceFlag = false;
 const initeq = '0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0';
+var headphonesList = {};
+var headphonesPage = 1;
 
 module.exports = minossedsp;
 function minossedsp(context) {
@@ -39,7 +41,7 @@ minossedsp.prototype.onStart = function() {
 	const IDSTR = "MinosseDSP::onStart: ";
 	const sleepBeforeReboot = 4.5;	// Time in seconds
 	const minosseDelay = 5000;		// Time in milliseconds
-	//const activationDelay = 1500;		// Time in milliseconds
+	//const activationDelay = 1500;	// Time in milliseconds
 	
 	var defer=libQ.defer();
 	
@@ -148,6 +150,20 @@ minossedsp.prototype.onStart = function() {
 		
 		this.commandRouter.sharedVars.registerCallback('alsa.outputdevice', this.onOutputDeviceChange.bind(this));
 		
+		/*
+		var minosseREST = {
+	        'endpoint': 'addEQpreset',
+			'type': 'audio_interface',
+            'name': 'minossedsp',
+			'method': 'addEQpreset'
+	    };
+		this.commandRouter.addPluginRestEndpoint(minosseREST);
+		*/
+		/*
+		Test using:
+		/usr/bin/curl 'http://127.0.0.1:3000/api/pluginEndpoint?endpoint=addEQpreset&type=audio_interface&name=minossedsp&method=addEQpreset&data={"data1":"123","data2":"xyz"}'
+		*/
+		
 		// Once the Plugin has successfull started resolve the promise
 		defer.resolve();
 		
@@ -178,14 +194,14 @@ minossedsp.prototype.onStop = function() {
 		// Reset all options to default values
 		// Volume Settings section:
 		self.config.set('volumeenabled', true);
-		self.config.set('volumemax', 30);
-		self.config.set('volumemin', 80);
-		self.config.set('volumesteps', 2);
-		self.config.set('initvolume', 40);
-		self.config.set('filteratt', 6);
+		self.config.set('volumemax', '30');
+		self.config.set('volumemin', '80');
+		self.config.set('volumesteps', '2');
+		self.config.set('initvolume', '40');
+		self.config.set('filteratt', '6');
 		// Filters and Coefficients Options section:
 		self.config.set('dspchoice', 'dsp_eq_10_band');
-		self.config.set('dspeq10band', initeq);
+		self.config.set('dspeq10band', initeq.trim());
 		self.config.set('outchannels', '2.0');
 		self.config.set('coeffid', 'undefined');
 		// Input Buffer Options section:
@@ -274,7 +290,7 @@ minossedsp.prototype.getMinosseConf = function()
 		if (typeof self.config.get('filteratt') === 'undefined') { self.config.set('filteratt', '6'); }
 		// Filters and Coefficients Options section:
 		if (typeof self.config.get('dspchoice') === 'undefined') { self.config.set('dspchoice', 'dsp_eq_10_band'); }
-		if (typeof self.config.get('dspeq10band') === 'undefined') { self.config.set('dspeq10band', initeq); }
+		if (typeof self.config.get('dspeq10band') === 'undefined') { self.config.set('dspeq10band', initeq.trim()); }
 		if (typeof self.config.get('outchannels') === 'undefined') { self.config.set('outchannels', '2.0'); }
 		if (typeof self.config.get('coeffid') === 'undefined') { self.config.set('coeffid', 'undefined'); }
 		// Input Buffer Options section:
@@ -411,9 +427,29 @@ minossedsp.prototype.monitorPushMsg = async function(eventName, filename) {
 			//	  {"type":"warning","content":"RECONFIGURING_AUDIO_NO_PCM","extra":""}
 			var msgfile = fs.readFileSync(pushMsgPath + pushMsgFile, {encoding: 'utf8'});
 			var msgjson = JSON.parse(msgfile);
-			if (typeof msgjson.extra === 'undefined') {
-				console.log(IDSTR + self.getI18nString(msgjson.content));
-				self.commandRouter.pushToastMessage(msgjson.type, self.getI18nString(msgjson.content));
+			if ((msgjson.extra == undefined) || (msgjson.extra == 'undefined') || (msgjson.extra == "")) {
+				if (msgjson.content == 'UPDATE_REBOOT') {
+					
+					var updateReboot = {
+						title: self.getI18nString('WARNING'),
+						message: self.getI18nString('UPDATE_REBOOT'),
+						size: 'lg',
+						buttons: [
+							{
+								name: self.getI18nString('REBOOT'),
+								class: 'btn btn-info',
+								emit: 'reboot',
+      							payload: ''
+							}
+						]
+					};
+					console.log(IDSTR + self.getI18nString('UPDATE_REBOOT'));
+				    self.commandRouter.broadcastMessage('openModal', updateReboot);
+					
+				} else {
+					console.log(IDSTR + self.getI18nString(msgjson.content));
+					self.commandRouter.pushToastMessage(msgjson.type, self.getI18nString(msgjson.content));
+				}
 			} else {
 				console.log(IDSTR + self.getI18nString(msgjson.content) + msgjson.extra);
 				self.commandRouter.pushToastMessage(msgjson.type, self.getI18nString(msgjson.content) + msgjson.extra);
@@ -607,6 +643,7 @@ minossedsp.prototype.getUIConfig = function() {
 	var self = this;
 	const IDSTR = "MinosseDSP::getUIConfig: ";
     var defer = libQ.defer();
+	const maxforpage = 500;
     
     var lang_code = this.commandRouter.sharedVars.get('language_code');
 
@@ -617,22 +654,74 @@ minossedsp.prototype.getUIConfig = function() {
         {
 			//console.log(IDSTR + JSON.stringify(uiconf));
 			
+			// Download headphones equalization section:
+			if (Object.keys(headphonesList).length > 0) {
+				
+				self.configManager.setUIConfigParam(uiconf, 'sections[3].content[0].hidden', true);
+				self.configManager.setUIConfigParam(uiconf, 'sections[3].content[1].hidden', false);
+				
+				// Create a list of keys without duplicates
+				var ulines = Object.keys(headphonesList).filter((vx, vi, va) => va.indexOf(vx) == vi);
+				//console.log(IDSTR + ulines.length);
+				
+				// Sort the list of keys
+				var slines = ulines.sort((a, b) => a.localeCompare(b));
+				//console.log(IDSTR + slines.length);
+				
+				// Calculate pages
+				var npages = Math.ceil(slines.length / maxforpage);
+				if ((headphonesPage == undefined) || (headphonesPage === 'undefined') || (headphonesPage < 1) || (headphonesPage > npages)) headphonesPage = 1;
+				//console.log(IDSTR + npages + ' ' + headphonesPage);
+				
+				// Add page buttons
+				for (let np = 1; np <= npages; np++) {
+					
+					var ist = (np - 1) * maxforpage;
+					var isp = ist + maxforpage - 1;
+					if (isp > Object.keys(headphonesList).length - 1) isp = Object.keys(headphonesList).length - 1;
+					//console.log(IDSTR + ist + ' ' + isp);
+					
+					self.configManager.pushUIConfigParam(uiconf, 'sections[3].content', {
+			        	"id": "page_" + np,
+			        	"element": "button",
+			        	"button_label": self.getI18nString('GOTO_PAGE') + np,
+						"description": self.getI18nString('FROM') + ' "' + slines[ist] + '" ' + self.getI18nString('TO') + ' "' + slines[isp] + '"',
+			        	"onClick": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"goToPage", "data":{"page": np}}
+			        });
+				}
+				
+				// Add preset buttons
+				var istart = (headphonesPage - 1) * maxforpage;
+				var istop = istart + maxforpage - 1;
+				if (istop > Object.keys(headphonesList).length - 1) istop = Object.keys(headphonesList).length - 1;
+				//console.log(IDSTR + istart + ' ' + istop);
+				
+				for (let i = istart; i <= istop; i++) {
+					self.configManager.pushUIConfigParam(uiconf, 'sections[3].content', {
+			        	"id": slines[i],
+			        	"element": "button",
+						"label": slines[i],
+			        	"button_label": self.getI18nString('ADD_PRESET'),
+			        	"onClick": {"type":"controller", "endpoint":"audio_interface/minossedsp", "method":"addEQpreset", "data":{"headphones": slines[i]}}
+			        });
+				}
+				
+			} else {
+				self.configManager.setUIConfigParam(uiconf, 'sections[3].content[0].hidden', false);
+				self.configManager.setUIConfigParam(uiconf, 'sections[3].content[1].hidden', true);
+			}
+			
 			// Volume Settings section:
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[0].value', self.config.get('volumeenabled'));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[1].value.value', self.config.get('volumemax'));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[1].value.label', self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[3].content[1].options'), self.config.get('volumemax')));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[2].value.value', self.config.get('volumemin'));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[2].value.label', self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[3].content[2].options'), self.config.get('volumemin')));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[3].value.value', self.config.get('volumesteps'));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[3].value.label', self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[3].content[3].options'), self.config.get('volumesteps')));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[4].value.value', self.config.get('initvolume'));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[4].value.label', self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[3].content[4].options'), self.config.get('initvolume')));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[5].value.value', self.config.get('filteratt'));
-			self.configManager.setUIConfigParam(uiconf, 'sections[3].content[5].value.label', self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[3].content[5].options'), self.config.get('filteratt')));
+			self.configManager.setUIConfigParam(uiconf, 'sections[4].content[0].value', self.config.get('volumeenabled'));
+			self.configManager.setUIConfigParam(uiconf, 'sections[4].content[1].value', -parseFloat(self.config.get('volumemax')));
+			self.configManager.setUIConfigParam(uiconf, 'sections[4].content[2].value', -parseFloat(self.config.get('volumemin')));
+			self.configManager.setUIConfigParam(uiconf, 'sections[4].content[3].value', parseFloat(self.config.get('volumesteps')));
+			self.configManager.setUIConfigParam(uiconf, 'sections[4].content[4].value', parseFloat(self.config.get('initvolume')));
+			self.configManager.setUIConfigParam(uiconf, 'sections[4].content[5].value', -parseFloat(self.config.get('filteratt')));
 			
 			// Input Delay Options section:
-			self.configManager.setUIConfigParam(uiconf, 'sections[4].content[0].value.value', self.config.get('bufferdelay'));
-			self.configManager.setUIConfigParam(uiconf, 'sections[4].content[0].value.label', self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[4].content[0].options'), self.config.get('bufferdelay')));
+			self.configManager.setUIConfigParam(uiconf, 'sections[5].content[0].value.value', self.config.get('bufferdelay'));
+			self.configManager.setUIConfigParam(uiconf, 'sections[5].content[0].value.label', self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[5].content[0].options'), self.config.get('bufferdelay')));
 			
 			// DSP choice section:
 			self.configManager.setUIConfigParam(uiconf, 'sections[0].content[0].value.value', self.config.get('dspchoice'));
@@ -640,9 +729,11 @@ minossedsp.prototype.getUIConfig = function() {
 			if (self.config.get('dspchoice') == 'dsp_eq_10_band') {
 				self.configManager.setUIConfigParam(uiconf, 'sections[1].hidden', false);
 				self.configManager.setUIConfigParam(uiconf, 'sections[2].hidden', true);
+				self.configManager.setUIConfigParam(uiconf, 'sections[3].hidden', false);
 			} else if (self.config.get('dspchoice') == 'dsp_drc') {
 				self.configManager.setUIConfigParam(uiconf, 'sections[1].hidden', true);
 				self.configManager.setUIConfigParam(uiconf, 'sections[2].hidden', false);
+				self.configManager.setUIConfigParam(uiconf, 'sections[3].hidden', true);
 			}
 			
 			// DRC Options section:
@@ -739,7 +830,7 @@ minossedsp.prototype.getUIConfig = function() {
         {
             defer.reject(new Error());
         });
-
+	
 	return defer.promise;
 };
 
@@ -769,14 +860,41 @@ minossedsp.prototype.saveVolumeSettings = function (data) {
 	}
 	
 	self.config.set('volumeenabled', data['volume_enabled']);
-	self.config.set('volumemax', data['volume_max'].value);
-	self.config.set('volumemin', data['volume_min'].value);
-	self.config.set('volumesteps', data['volume_steps'].value);
-	//self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'setConfigParam', {key: 'volumesteps', value: self.config.get('volumesteps')});
-	self.config.set('initvolume', data['init_volume'].value);
-	self.config.set('filteratt', data['filters_attenuation'].value);
 	
-	this.logger.info(IDSTR + self.config.get('volumeenabled') + ' ' + self.config.get('volumemax') + ' ' + self.config.get('volumemin') + ' ' + self.config.get('volumesteps') + ' ' + self.config.get('initvolume') + ' | ' + self.config.get('filteratt'));
+	//self.config.set('volumemax', Math.abs(data['volume_max']).toFixed(0).toString());
+	var vxtmp = Math.abs(data['volume_max']).toFixed(0);
+	if (vxtmp > 50) { vxtmp = 50; }
+	self.config.set('volumemax', vxtmp.toString());
+	
+	//self.config.set('volumemin', Math.abs(data['volume_min']).toFixed(0).toString());
+	var vntmp = Math.abs(data['volume_min']).toFixed(0);
+	if (vntmp < 60) { vntmp = 60; }
+	if (vntmp > 100) { vntmp = 100; }
+	self.config.set('volumemin', vntmp.toString());
+	
+	//self.config.set('volumesteps', Math.abs(data['volume_steps']).toFixed(0).toString());
+	var vstmp = Math.abs(data['volume_steps']).toFixed(0);
+	if (vstmp < 1) { vstmp = 1; }
+	if (vstmp > 10) { vstmp = 10; }
+	self.config.set('volumesteps', vstmp.toString());
+	
+	//self.config.set('initvolume', Math.abs(data['init_volume']).toFixed(0).toString());
+	var vitmp = Math.abs(data['init_volume']).toFixed(0);
+	if (vitmp > 100) { vitmp = 100; }
+	self.config.set('initvolume', vitmp.toString());
+	
+	//self.config.set('filteratt', Math.abs(data['filters_attenuation']).toFixed(0).toString());
+	var vatmp = Math.abs(data['filters_attenuation']).toFixed(0);
+	if (vatmp > 30) { vatmp = 30; }
+	self.config.set('filteratt', vatmp.toString());
+	
+	console.log(IDSTR + self.config.get('volumeenabled') + ' ' + self.config.get('volumemax') + ' ' + self.config.get('volumemin') + ' ' + self.config.get('volumesteps') + ' ' + self.config.get('initvolume') + ' | ' + self.config.get('filteratt'));
+	
+	// Refresh the configuration panel immediately			
+	var respconfig = self.commandRouter.getUIConfigOnPlugin('audio_interface', 'minossedsp', {});
+	respconfig.then(function (config) {
+		self.commandRouter.broadcastMessage('pushUiConfig', config);
+	});
 	
 	if (prev_volenabled != self.config.get('volumeenabled')) {
 		if (self.config.get('volumeenabled')) {
@@ -808,13 +926,13 @@ minossedsp.prototype.saveVolumeSettings = function (data) {
 					buttons: [
 						{
 							name: self.getI18nString('CANCEL'),
-							class: 'btn btn-warning',
+							class: 'btn btn-info',
 							emit: 'closeModals',
 							payload: ''
 						},
 						{
 							name: self.getI18nString('CONTINUE_AND_REBOOT'),
-							class: 'btn btn-warning',
+							class: 'btn btn-info',
 							emit: 'callMethod',
 							payload: { 'endpoint': 'audio_interface/minossedsp', 'method': 'VolumeOffReboot', 'data': '' }
 						}
@@ -876,7 +994,7 @@ minossedsp.prototype.saveEQoptions = function (data) {
 		
 		var psetname = data['eq_load_preset_select'].value;
 		var eq10var = execSync('/usr/local/bin/mdsp-eq-loadpset.sh ' + psetname, {encoding: 'utf8'});
-		self.config.set('dspeq10band', eq10var);
+		self.config.set('dspeq10band', eq10var.trim());
 		console.log(IDSTR + psetname + ' -> ' + self.config.get('dspeq10band'));
 		execSync('/usr/local/bin/mdsp-eq-setmagnitude.sh ' + self.config.get('dspeq10band'));
 		
@@ -919,7 +1037,7 @@ minossedsp.prototype.saveEQoptions = function (data) {
 					
 					self.config.set('dspeq10band', data['dsp_eq_10_band']);
 					execSync('/usr/local/bin/mdsp-eq-setmagnitude.sh ' + self.config.get('dspeq10band'));
-					console.log(IDSTR + savename + ' ' + self.config.get('dspeq10band'));
+					console.log(IDSTR + savename + ' <- ' + self.config.get('dspeq10band'));
 					
 					exec('/usr/local/bin/mdsp-eq-savepset.sh "' + savename + '" ' + self.config.get('dspeq10band'),
 						function (error, stdout, stderr)
@@ -930,8 +1048,8 @@ minossedsp.prototype.saveEQoptions = function (data) {
 					      	}
 							else
 							{
-								console.log(IDSTR + self.getI18nString('EQ_SAVE_SUCCESS'));
-								self.commandRouter.pushToastMessage('success', self.getI18nString('EQ_SAVE_SUCCESS'));
+								console.log(IDSTR + self.getI18nString('EQ_SAVE_SUCCESS') + savename);
+								self.commandRouter.pushToastMessage('success', self.getI18nString('EQ_SAVE_SUCCESS') + savename);
 								
 								// Refresh the configuration panel immediately			
 								var respconfig = self.commandRouter.getUIConfigOnPlugin('audio_interface', 'minossedsp', {});
@@ -1021,7 +1139,7 @@ minossedsp.prototype.onOutputDeviceChange = function() {
 					buttons: [
 						{
 							name: "OK",
-							class: 'btn btn-warning',
+							class: 'btn btn-info',
 							emit: 'closeModals',
 							payload: ''
 						}
@@ -1072,7 +1190,7 @@ minossedsp.prototype.onOutputDeviceChange = function() {
 								buttons: [
 									{
 										name: self.getI18nString('REBOOT'),
-										class: 'btn btn-warning',
+										class: 'btn btn-info',
 										emit: 'callMethod',
 										payload: { 'endpoint': 'audio_interface/minossedsp', 'method': 'OutputDeviceReboot', 'data': '' }
 									}
@@ -1240,7 +1358,7 @@ minossedsp.prototype.saveDRCoptions = function (data) {
 					buttons: [
 						{
 							name: "OK",
-							class: 'btn btn-warning',
+							class: 'btn btn-info',
 							emit: 'closeModals',
 							payload: ''
 						}
@@ -1293,12 +1411,12 @@ minossedsp.prototype.makeDonation = function() {
     var self = this;
 	const IDSTR = "MinosseDSP::makeDonation: ";
 	
-	const DONMSG = '<br><center>																									\
-			<a href="https://www.paypal.com/donate/?hosted_button_id=3X4ESPGKFDATU">			\
-				<img src="albumart?path=%2Fmnt%2FINTERNAL%2Fminossedsp%2Fimg%2FQR_Code.png"		\
-				alt="Click or scan to donate" width="250" height="250">							\
-			</a>																				\
-		</center><br>';
+	const DONMSG = '<br><center>															\
+		<a href="https://www.paypal.com/donate/?hosted_button_id=3X4ESPGKFDATU">			\
+			<img src="albumart?path=%2Fmnt%2FINTERNAL%2Fminossedsp%2Fimg%2FQR_Code.png"		\
+			alt="Click or scan to donate" width="250" height="250">							\
+		</a>																				\
+	</center><br>';
 	
 	var donationModal = {
 		title: self.getI18nString('CLICK_OR_SCAN'),
@@ -1307,13 +1425,177 @@ minossedsp.prototype.makeDonation = function() {
 		buttons: [
 			{
 				name: self.getI18nString('CANCEL'),
-				class: 'btn btn-warning',
+				class: 'btn btn-info',
 				emit: 'closeModals',
 				payload: ''
 			}
 		]
 	};
 	self.commandRouter.broadcastMessage('openModal', donationModal);
+	
+};
+
+minossedsp.prototype.downloadEQlist = function() {
+    var self = this;
+	const IDSTR = "MinosseDSP::downloadEQlist: ";
+	
+	var eqListMsg = {
+		title: self.getI18nString('INFO'),
+		message: self.getI18nString('DLOAD_HPHONES_LIST'),
+		size: 'lg',
+		buttons: [
+			{
+				name: self.getI18nString('CANCEL'),
+				class: 'btn btn-info',
+				emit: 'callMethod',
+				payload: { 'endpoint': 'audio_interface/minossedsp', 'method': 'cancelEQdownload', 'data': '' }
+			}
+		]
+	};
+	console.log(IDSTR + self.getI18nString('DLOAD_HPHONES_LIST'));
+    self.commandRouter.broadcastMessage('openModal', eqListMsg);
+	
+	headphonesList = {};
+	headphonesPage = 1;
+	
+	exec('/usr/local/bin/mdsp-eq-autoeqlist.sh', {encoding: 'utf8'},
+		function (error, stdout, stderr)
+		{
+			if (error)
+			{
+	        	console.log(IDSTR + error);
+	      	} else {
+				
+				// Close modals
+				self.commandRouter.closeModals();
+				
+				// Create an array of URLs
+				var lines = stdout.split('\n');
+				//console.log(IDSTR + lines.length);
+				
+				// Create an array of name:URL pairs
+				for (let i = 0; i < lines.length; i++) {
+					if (lines[i].length > 0) {
+						var vkey = decodeURIComponent(lines[i].substr(lines[i].lastIndexOf('/') + 1)).replace('&amp;', '&');
+						if (vkey.length > 0) headphonesList[vkey] = lines[i];
+					}
+				}
+				console.log(IDSTR + 'A list of ' + Object.keys(headphonesList).length + ' headphones has been downloaded');
+				
+				// Refresh the configuration panel immediately			
+				var respconfig = self.commandRouter.getUIConfigOnPlugin('audio_interface', 'minossedsp', {});
+				respconfig.then(function (config) {
+					self.commandRouter.broadcastMessage('pushUiConfig', config);
+				});
+				
+			}
+	    }
+	);
+};
+
+minossedsp.prototype.cancelEQdownload = function() {
+    var self = this;
+	const IDSTR = "MinosseDSP::cancelEQdownload: ";
+	headphonesList = {};
+	
+	exec('/usr/bin/killall mdsp-eq-autoeqlist.sh',
+		function (error, stdout, stderr)
+		{
+			if (error)
+			{
+	        	console.log(IDSTR + error);
+	      	}
+	    }
+	);
+};
+
+minossedsp.prototype.eraseEQlist = function() {
+    var self = this;
+	headphonesList = {};
+	
+	// Refresh the configuration panel immediately			
+	var respconfig = self.commandRouter.getUIConfigOnPlugin('audio_interface', 'minossedsp', {});
+	respconfig.then(function (config) {
+		self.commandRouter.broadcastMessage('pushUiConfig', config);
+	});
+};
+
+minossedsp.prototype.goToPage = function(data) {
+    var self = this;
+	const IDSTR = "MinosseDSP::goToPage: ";
+	
+	//console.log(IDSTR + data.page);
+	headphonesPage = parseInt(data.page);
+	
+	// Refresh the configuration panel immediately			
+	var respconfig = self.commandRouter.getUIConfigOnPlugin('audio_interface', 'minossedsp', {});
+	respconfig.then(function (config) {
+		self.commandRouter.broadcastMessage('pushUiConfig', config);
+	});
+};
+
+minossedsp.prototype.addEQpreset = function(data) {
+    var self = this;
+	const IDSTR = "MinosseDSP::addEQpreset: ";
+	
+	var hmodel = data.headphones;
+	var savename = hmodel.toUpperCase().trim();
+	//console.log(IDSTR + savename);
+	savename = savename.replace(/[\W]/g,"-");
+	//console.log(IDSTR + savename);
+	var hurl = headphonesList[hmodel];
+	console.log(IDSTR + 'Downloading equalization for ' + hmodel + ' from ' + hurl);
+	
+	exec('/usr/local/bin/mdsp-eq-autoequrl.sh "' + hurl + '"',
+		function (error, stdout, stderr)
+		{
+			if (error)
+			{
+	        	console.log(IDSTR + error);
+	      	} else {
+				
+				exec('/usr/local/bin/mdsp-eq-autoeq2str.sh', {encoding: 'utf8'},
+					function (error, stdout, stderr)
+					{
+						if (error)
+						{
+				        	console.log(IDSTR + error);
+				      	} else {
+							
+							//console.log(IDSTR + stdout);
+							
+							self.config.set('dspeq10band', stdout.trim());
+							execSync('/usr/local/bin/mdsp-eq-setmagnitude.sh ' + self.config.get('dspeq10band'));
+							console.log(IDSTR + savename + ' <- ' + self.config.get('dspeq10band'));
+							
+							exec('/usr/local/bin/mdsp-eq-savepset.sh "' + savename + '" ' + self.config.get('dspeq10band'),
+								function (error, stdout, stderr)
+								{
+									if (error)
+									{
+							        	console.log(IDSTR + error);
+							      	}
+									else
+									{
+										console.log(IDSTR + self.getI18nString('EQ_SAVE_SUCCESS') + savename);
+										self.commandRouter.pushToastMessage('success', self.getI18nString('EQ_SAVE_SUCCESS') + savename);
+										
+										// Refresh the configuration panel immediately			
+										var respconfig = self.commandRouter.getUIConfigOnPlugin('audio_interface', 'minossedsp', {});
+										respconfig.then(function (config) {
+											self.commandRouter.broadcastMessage('pushUiConfig', config);
+										});
+							      	}
+							    }
+							);
+														
+						}
+				    }
+				);
+				
+			}
+	    }
+	);
 	
 };
 

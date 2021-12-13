@@ -43,12 +43,12 @@ ADNUM=$("$minosse_bin_folder"mdsp-getcardnum.sh)
 RETVAL="$(/usr/bin/jq '.out_device_number = "'"$ADNUM"'"' "$MDSP_BF_CONF")" && echo "${RETVAL}" > "$MDSP_BF_CONF"
 
 ### Some audio cards need to be initialized the hard way...
-audio_type=$(/bin/cat "$MDSP_BF_CONF" | /usr/bin/jq -r '.audio_type')
-"$minosse_bin_folder"mdsp-amixmute.sh
-if [[ "$audio_type" == "2.0" ]]
-then
-	"$minosse_bin_folder"mdsp-chkchannels.sh "4.0"
-else
-	"$minosse_bin_folder"mdsp-chkchannels.sh "2.0"
-fi
-"$minosse_bin_folder"mdsp-chkchannels.sh "$audio_type"
+#audio_type=$(/bin/cat "$MDSP_BF_CONF" | /usr/bin/jq -r '.audio_type')
+#"$minosse_bin_folder"mdsp-amixmute.sh
+#if [[ "$audio_type" == "2.0" ]]
+#then
+#	"$minosse_bin_folder"mdsp-chkchannels.sh "4.0"
+#else
+#	"$minosse_bin_folder"mdsp-chkchannels.sh "2.0"
+#fi
+#"$minosse_bin_folder"mdsp-chkchannels.sh "$audio_type"
