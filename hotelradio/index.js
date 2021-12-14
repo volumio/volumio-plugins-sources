@@ -122,7 +122,9 @@ ControllerHotelRadio.prototype.shallLogin = function () {
 
 ControllerHotelRadio.prototype.loginToHotelRadio=function(username, password) {
     var defer=libQ.defer()
-    var self=this
+    var self=this;
+
+    self.logger.info('Loggin in to HotelRadio');
 
     unirest.post('https://users.hotelradio.fm/api/index/login')
         .send('username='+username)
@@ -607,8 +609,8 @@ ControllerHotelRadio.prototype.startRefreshCron=function() {
 
     this.stopRefreshCron();
 
-    // Calculating cron string
-    var m=moment()
+    // Refreshing login every 12 hours
+    var m=moment();
     var cronString=m.second()+' '+m.minute()+' '+m.hour()+','+(m.hour()+12)%24+' * * *';
     this.accessTokenRefreshCron=cron.scheduleJob(cronString, () => {
         self.startupLogin();
