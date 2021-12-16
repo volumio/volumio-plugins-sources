@@ -1,3 +1,5 @@
+
+
 'use strict';
 
 var libQ = require('kew');
@@ -8,8 +10,6 @@ var backend = require('./backend');
 var fs = require('fs');
 var myUri = "";
 var semver = require('semver');
-
-libQ.longStackSupport = true;
 
 module.exports = ControllerVolusonic;
 
@@ -572,7 +572,6 @@ ControllerVolusonic.prototype.showArtist = function(uriParts, curUri) {
   var info = {
     uri: curUri,
     title: '',
-    description: '',
     service: 'volusonic',
     type: 'artist',
     albumart: ''
@@ -590,13 +589,11 @@ ControllerVolusonic.prototype.showArtist = function(uriParts, curUri) {
           info.title = artist.name;
           info.albumart = artistArt;
           //bio section
-          var meta = "Magic Playlist";
+          var meta = "";
           if ((infos.biography !== undefined) && (self.config.get('metas'))) {
-            if (typeof infos.biography == "string") {
-              meta = infos.biography;
-            }
+            if (typeof infos.biography == "string") meta = infos.biography; //ampache hack
           }
-          var magic = {
+          var bio = {
             title: meta,
             type: 'folder',
             availableListViews: ['list', 'grid'],
@@ -608,7 +605,7 @@ ControllerVolusonic.prototype.showArtist = function(uriParts, curUri) {
               uri: 'volusonic/radio/' + id,
             }]
           }
-          nav.navigation['lists'].push(magic);
+          nav.navigation['lists'].push(bio);
           //top songs section
           if (top.song !== undefined) {
             var sgs = [];
@@ -668,7 +665,7 @@ ControllerVolusonic.prototype.showArtist = function(uriParts, curUri) {
   return defer.promise;
 }
 
-ControllerVolusonic.prototype._getArtId = function(id) {
+ControllerVolusonic.prototype._getArtId = function(id){
   if (id == undefined) id = "-1";
   return id;
 }
@@ -932,7 +929,7 @@ ControllerVolusonic.prototype.listAlbums = function(uriParts, curUri) {
   var id = uriParts[1];
   if (id == "genres") {
     id = uriParts[2];
-    params = "type=byGenre&genre=" + uriParts[2] + "&size=500";
+    params = "type=byGenre&genre=" + uriParts[2] + "&size=" + self.getSetting('listsSize');
   } else {
     params = "type=" + uriParts[1] + "&size=" + self.getSetting('listsSize');
   }
@@ -943,41 +940,58 @@ ControllerVolusonic.prototype.listAlbums = function(uriParts, curUri) {
   var aList = 'albumList';
   if (self.config.get('ID3')) aList = "albumList2";
 
-  var offset = 0;
-  var items = [];
-
-  var items = self.getAlbumPages(items, getList, id, params, offset, curUri)
-    .then(function(items) {
-      defer.resolve(self._formatNav(uriParts[uriParts.length - 1].charAt(0).toUpperCase() + uriParts[uriParts.length - 1].slice(1), 'folder', self._getIcon(uriParts[1]), ['list', 'grid'], items, self._prevUri(curUri)));
-    })
-    .fail(function(items) {
-      defer.reject(new Error('listAlbums'));
-    });
-  return defer.promise;
-}
-
-ControllerVolusonic.prototype.getAlbumPages = function(items, getList, id, params, offset, curUri) {
-  var self = this;
-  var defer = libQ.defer();
-
-  var aList = 'albumList';
-  if (self.config.get('ID3')) aList = "albumList2";
-
-  var result = self.backend.get(getList, id, params + "&offset=" + offset)
-    .then(async function(result) {
-      var length = result['subsonic-response'][aList]['album'].length;
-      result['subsonic-response'][aList]['album'].forEach(function(album) {
-        items.push(self._formatAlbum(album, curUri));
+/*
+else if (uri.startsWith('volusonic/artists') && uriParts.length == 2) {
+  var artist = self._artist(id);
+  artist.then(function(artist) {
+    if ((artist.album !== undefined) || (artist.child !== undefined)) {
+      var container = "child";
+      if (self.config.get('ID3')) container = "album";
+      var proms = [];
+      artist[container].forEach(function(album) {
+        var alb = self._album(album.id);
+        var sg = "child";
+        if (self.config.get('ID3')) sg = "song";
+        alb.then(function(alb) {
+          alb[sg].forEach(function(song) {
+            items.push(self._getPlayable(song));
+          });
+        });
+        proms.push(alb);
       });
-      if ((length == 500) && (id != "random") && (id != "newest")) {
-        offset = offset + 500;
-        items.concat(await self.getAlbumPages(items, getList, id, params, offset, curUri));
-      }
-      defer.resolve(items);
-    })
-    .fail(function(result) {
-      reject(new Error('getAlbumPages'));
-    });
+      libQ.all(proms)
+        .then(function() {
+          defer.resolve(items);
+        });
+    }
+  });
+}
+*/
+  var proms=[];
+  var items=[];
+  var offset=0;
+  var length=parseInt(self.getSetting('listsSize'),10);
+
+  (function nextPage (offset, getList, aList, items, length) {
+    console.log("length: " + length);
+    console.log("offset: " + offset);
+    if (length != parseInt(self.getSetting('listsSize'),10)) return items;
+    var result = self.backend.get(getList, id, params + "&offset=" + offset)
+      .then(function(result) {
+        result['subsonic-response'][aList]['album'].forEach(function(album) {
+          items.push(self._formatAlbum(album, curUri));
+        });
+        length=result['subsonic-response'][aList]['album'].length;
+        offset=offset+parseInt(self.getSetting('listsSize'),10);
+        nextPage(offset, getList, aList, items, length);
+      })
+      .fail(function(result) {
+        defer.reject(new Error('listAlbums'));
+      });
+
+  });
+
+  defer.resolve(nextPage(offset, getList, aList, items, length));
   return defer.promise;
 }
 
@@ -1373,6 +1387,11 @@ ControllerVolusonic.prototype.explodeUri = function(uri) {
     params = 'id=' + id + "&count=500";
     var result = self.backend.get(command, id, params)
       .then(function(result) {
+        if (result['subsonic-response']['similarSongs'] !== undefined) { //ampache hack
+          similar = "similarSongs"; //ampache hack
+        } else { //ampache hack
+          similar = "similarSongs2"; //ampache hack
+        } //ampache hack
         result['subsonic-response'][similar]['song'].forEach(function(song) {
           items.push(self._getPlayable(song));
         });
