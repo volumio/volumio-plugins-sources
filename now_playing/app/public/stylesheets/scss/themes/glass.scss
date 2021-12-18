@@ -1,0 +1,194 @@
+@mixin scrollbar {
+  .os-scrollbar {
+    .os-scrollbar-handle {
+      background: rgba(179, 179, 179, 0.3);
+
+      &.active {
+        background: rgba(143, 143, 143, 0.3);
+      }
+    }
+
+    &:hover .os-scrollbar-handle {
+      background: rgba(143, 143, 143, 0.3);
+    }
+  }
+}
+
+#screen-wrapper[data-active="browseMusic"],
+#screen-wrapper[data-active="queue"] {
+  > .bg {
+    --background-blur: 30px !important;
+/*    --background-scale: 1.5 !important;*/
+  }
+}
+
+#screen-wrapper .screens > .screen:not(.active).visible-under-active {
+  filter: blur(30px) brightness(0.8);
+}
+
+#browse-music {
+  background: rgba(72, 72, 72, 0.3);
+
+  .contents {
+
+    .header {
+      .main-actions .icon-text-input {
+        input[type="text"] {
+          background: rgba(0, 0, 0, 0.3);
+
+          &:focus,
+          &:hover {
+            border-color: #eee;
+          }
+        }
+        input[type="text"]:focus + i,
+        input[type="text"]:hover + i {
+          color: #eee;
+        }
+      }
+
+      button.action.search-expand.active {
+        color: #ccc;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 0.2em;
+      }
+
+      .screen-actions button.action {
+        color: #ccc;
+
+        :hover {
+          color: #eee;
+        }
+      }
+    }
+
+    .navigation-wrapper {
+
+      @include scrollbar;
+    }
+
+    .navigation {
+      section.list .items .item {
+        &:not(:last-of-type) {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        background: rgba(0, 0, 0, 0.4);
+    
+        &:hover {
+          background: rgba(0, 0, 0, 0.2);
+        }
+      }
+    
+      section.grid .items .item .albumart {
+        background: rgba(0, 0, 0, 0.3);
+      }
+    
+      .info-header .bg {
+        background: rgba(0, 0, 0, 0.3);
+    
+        img {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &.loading .contents .header:before {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}
+
+#queue {
+  background: rgba(72, 72, 72, 0.3);
+
+  .contents {
+    background: rgba(0, 0, 0, 0.3);
+
+    .header {
+      button.action.active {
+        color: #ccc;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 0.2em;
+      }
+
+      .screen-actions button.action {
+        color: #ccc;
+
+        :hover {
+          color: #eee;
+        }
+      }
+    }
+
+    .items-wrapper .items .item {
+
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .items-wrapper {
+      @include scrollbar;
+    }
+  }
+}
+
+#track-bar {
+  background: rgba(72, 72, 72, 0.3);
+
+  --widget-primary-color: rgba(255, 255, 255, 0.2);
+  --widget-highlight-color: #ccc;
+
+  .main .controls button.active {
+    color: #ccc;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.2em;
+  }
+}
+
+#action-panel {
+  .volume {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .actions-wrapper {
+    .screen-switcher {
+      .label-wrapper {
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .switches-wrapper {
+        background: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    .action {
+      background: rgba(0, 0, 0, 0.3);
+      color: #ccc;
+    }
+  }
+}
+
+#volume-panel {
+  & .contents .volume {
+    background: rgba(32, 32, 32, 0.7);
+  }
+
+  @supports (backdrop-filter: none) {
+    backdrop-filter: blur(10px);
+  }
+}
+
+.snackbar-wrapper .snackbar {
+  background: rgb(32, 32, 32, 0.7);
+
+  @supports (backdrop-filter: none) {
+    backdrop-filter: blur(10px);
+  }
+}

@@ -1,0 +1,3 @@
+equalizer.gif: Jellyfin Project
+https://github.com/jellyfin/jellyfin-web/blob/master/src/assets/img/equalizer.gif
+

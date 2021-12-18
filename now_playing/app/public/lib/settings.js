@@ -1,13 +1,23 @@
-function setCSSVariables(data) {
-  for (let [varName, value] of Object.entries(data)) {
-    if (value == undefined || (typeof value === 'string' && value.trim() === '')) {
-      value = `var(--default-${ varName })`;
+import { registry } from './registry.js';
+
+let _customStyles = {};
+let _theme = null;
+
+function setCSSVariables(data, target = 'root') {
+  let style = target === 'root' ? document.documentElement.style : $(target.el).prop('style');
+  let bgStyle = $(registry.ui.background.el).prop('style');
+  if (style) {
+    for (let [varName, value] of Object.entries(data)) {
+      if (value == undefined || (typeof value === 'string' && value.trim() === '')) {
+        value = `var(--default-${ varName })`;
+      }
+      let _style = varName.startsWith('background') ? bgStyle : style;
+      _style.setProperty(`--${ varName }`, value);
     }
-    document.documentElement.style.setProperty(`--${ varName }`, value);
   }
 }
 
-function applyCustomStyles(styles = {}) {
+export function applyCustomStyles(styles = {}, target) {
   let css = {
     'title-font-size': undefined,
     'artist-font-size': undefined,
@@ -125,6 +135,7 @@ function applyCustomStyles(styles = {}) {
     css['albumart-border-radius'] = styles.albumartBorderRadius;
   } 
 
+  let bgEl = $(registry.ui.background.el);
   if (styles.backgroundType == 'albumart') { 
     let albumartBackgroundFit = styles.albumartBackgroundFit || 'cover'; 
     let backgroundSize = albumartBackgroundFit == 'fill' ? '100% 100%' : albumartBackgroundFit; 
@@ -135,6 +146,7 @@ function applyCustomStyles(styles = {}) {
     css['background-position'] = backgroundPosition;
     css['background-blur'] = backgroundBlur;
     css['background-scale'] = backgroundScale;
+    bgEl.removeClass('fixed');
   }
   else if (styles.backgroundType == 'volumioBackground' && styles.volumioBackgroundImage !== '') { 
     let volumioBackgroundFit = styles.volumioBackgroundFit || 'cover'; 
@@ -142,16 +154,21 @@ function applyCustomStyles(styles = {}) {
     let backgroundPosition = styles.volumioBackgroundPosition || 'center'; 
     let backgroundBlur = styles.volumioBackgroundBlur || '0px'; 
     let backgroundScale = styles.volumioBackgroundScale || '1'; 
-    css['background-image'] = `url("${ getHost() }/backgrounds/${ styles.volumioBackgroundImage }")`;
+    css['background-image'] = `url("${ registry.app.host }/backgrounds/${ styles.volumioBackgroundImage }")`;
     css['background-size'] = backgroundSize;
     css['background-position'] = backgroundPosition;
     css['background-blur'] = backgroundBlur;
     css['background-scale'] = backgroundScale;
+    bgEl.addClass('fixed');
   }
   else if (styles.backgroundType == 'color') {
     css['background-image'] = 'none';
     css['background-color'] = styles.backgroundColor || '#000';
-  } 
+    bgEl.addClass('fixed');
+  }
+  else {
+    bgEl.removeClass('fixed');
+  }
 
   if (styles.backgroundOverlay == 'custom') { 
     css['background-overlay-color'] = styles.backgroundOverlayColor;
@@ -161,5 +178,31 @@ function applyCustomStyles(styles = {}) {
     css['background-overlay-display'] = 'none';
   }
 
-  setCSSVariables(css);
+  setCSSVariables(css, target);
+
+  registry.screens.nowPlaying.applyVolumeIndicatorTweaks(styles.volumeIndicator);
+
+  let targetName = getTargetName(target);
+  if (targetName) {
+    _customStyles[targetName] = styles;
+  }
+}
+
+export function applyTheme(theme) {
+  let styleSheetPath = theme === 'default' ? '' : `/stylesheets/css/themes/${ theme }.css`;
+  $('head link#theme-stylesheet').attr('href', styleSheetPath);
+  _theme = theme;
+}
+
+export function getCurrentTheme() {
+  return _theme;
+}
+
+export function getCustomStyles(target) {
+  let targetName = getTargetName(target);
+  return targetName ? (_customStyles[targetName] || {}) : {};
+}
+
+function getTargetName(target) {
+  return typeof target === 'string' ? target : (target.el || '');
 }

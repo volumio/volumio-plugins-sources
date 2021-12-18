@@ -4,15 +4,14 @@
   <title>Volumio - Now Playing (Preview)</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/lib/jquery-3.6.0.min.js"></script>
-  <script src="/lib/jquery-ui-1.12.1/jquery-ui.min.js"></script>
-  <script src="/lib/socket.io.min.js"></script>
-  <script src="/lib/common.js"></script>
+  <script src="/lib/vendor/jquery-3.6.0.min.js"></script>
+  <script src="/lib/vendor/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+  <script src="/lib/vendor/socket.io.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?Noto+Sans+Display:wght@100;700&family=Roboto:wght@700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/stylesheets/font-awesome-4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/lib/jquery-ui-1.12.1/jquery-ui.min.css">
-  <link rel="stylesheet" href="/stylesheets/preview.css">
+  <link rel="stylesheet" href="/lib/vendor/jquery-ui-1.12.1/jquery-ui.min.css">
+  <link rel="stylesheet" href="/stylesheets/css/preview.css">
 </head>
 
 <body>
@@ -34,7 +33,10 @@
   </div>
 </body>
 
-<script>
+<script type="module">
+  import { init } from '/lib/startup.js';
+  import { registry } from '/lib/registry.js';
+
   const SIZE_PRESETS = [
     [320, 240],
     [480, 320],
@@ -46,10 +48,15 @@
     [1920, 1080]
   ];
 
-  let socket = getSocket('<%- host %>', {
-    pluginVersion: '<%- pluginVersion %>',
-    appPort: '<%- appPort %>'
-  }); 
+  init({
+    app: {
+      host: '<%- host %>',
+      version: '<%- pluginVersion %>',
+      port: '<%- appPort %>'
+    }
+  });
+  
+  let socket = registry.socket;
 
   $(document).ready(() => {
     // Populate size presets menu

@@ -42,9 +42,15 @@ The 'Preview URL' points to the preview page. Click the 'Open Preview' button to
 
 ### How do I change the volume?
 
-To change the volume, tap the down arrow at the top of the screen (or swipe down from the top) to reveal the pop-up panel. You will see the volume slider there.
+To change the volume, tap the down arrow at the top of the screen (or swipe down from the top) to reveal the action panel. You will see the volume slider there.
 
 ## Changelog
+
+0.1.4
+- Add option to display volume level on Now Playing screen (enable in plugin settings -> Volume Indicator Tweaks)
+- Add early preview of extra screens (Browse Music and Queue)
+- Fix buttons not working in action panel if mixer is set to 'None'
+- Miscellaneous UI changes
 
 0.1.3
 - Add widget margins setting

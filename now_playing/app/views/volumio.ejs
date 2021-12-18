@@ -4,14 +4,13 @@
   <title>Volumio</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/lib/jquery-3.6.0.min.js"></script>
-  <script src="/lib/socket.io.min.js"></script>
-  <script src="/lib/common.js"></script>
+  <script src="/lib/vendor/jquery-3.6.0.min.js"></script>
+  <script src="/lib/vendor/socket.io.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?Noto+Sans+Display:wght@100;700&family=Roboto:wght@700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/stylesheets/font-awesome-4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/lib/jquery-ui-1.12.1/jquery-ui.min.css">
-  <link rel="stylesheet" href="/stylesheets/volumio.css">
+  <link rel="stylesheet" href="/lib/vendor/jquery-ui-1.12.1/jquery-ui.min.css">
+  <link rel="stylesheet" href="/stylesheets/css/volumio.css">
 </head>
 
 <body>
@@ -23,11 +22,19 @@
   </div>
 </body>
 
-<script>
-  let socket = getSocket('<%- host %>', {
-    pluginVersion: '<%- pluginVersion %>',
-    appPort: '<%- appPort %>'
+<script type="module">
+  import { init } from '/lib/startup.js';
+  import { registry } from '/lib/registry.js';
+
+  init({
+    app: {
+      host: '<%- host %>',
+      version: '<%- pluginVersion %>',
+      port: '<%- appPort %>'
+    }
   });
+  
+  let socket = registry.socket;
 
   socket.on('connect', () => {
     $('#header').show();

@@ -1,0 +1,145 @@
+#screen-wrapper[data-active=browseMusic] > .bg,
+#screen-wrapper[data-active=queue] > .bg {
+  --background-blur: 30px !important;
+  /*    --background-scale: 1.5 !important;*/
+}
+
+#screen-wrapper .screens > .screen:not(.active).visible-under-active {
+  filter: blur(30px) brightness(0.8);
+}
+
+#browse-music {
+  background: rgba(72, 72, 72, 0.3);
+}
+#browse-music .contents .header .main-actions .icon-text-input input[type=text] {
+  background: rgba(0, 0, 0, 0.3);
+}
+#browse-music .contents .header .main-actions .icon-text-input input[type=text]:focus, #browse-music .contents .header .main-actions .icon-text-input input[type=text]:hover {
+  border-color: #eee;
+}
+#browse-music .contents .header .main-actions .icon-text-input input[type=text]:focus + i,
+#browse-music .contents .header .main-actions .icon-text-input input[type=text]:hover + i {
+  color: #eee;
+}
+#browse-music .contents .header button.action.search-expand.active {
+  color: #ccc;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.2em;
+}
+#browse-music .contents .header .screen-actions button.action {
+  color: #ccc;
+}
+#browse-music .contents .header .screen-actions button.action :hover {
+  color: #eee;
+}
+#browse-music .contents .navigation-wrapper .os-scrollbar .os-scrollbar-handle {
+  background: rgba(179, 179, 179, 0.3);
+}
+#browse-music .contents .navigation-wrapper .os-scrollbar .os-scrollbar-handle.active {
+  background: rgba(143, 143, 143, 0.3);
+}
+#browse-music .contents .navigation-wrapper .os-scrollbar:hover .os-scrollbar-handle {
+  background: rgba(143, 143, 143, 0.3);
+}
+#browse-music .contents .navigation section.list .items .item {
+  background: rgba(0, 0, 0, 0.4);
+}
+#browse-music .contents .navigation section.list .items .item:not(:last-of-type) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+#browse-music .contents .navigation section.list .items .item:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+#browse-music .contents .navigation section.grid .items .item .albumart {
+  background: rgba(0, 0, 0, 0.3);
+}
+#browse-music .contents .navigation .info-header .bg {
+  background: rgba(0, 0, 0, 0.3);
+}
+#browse-music .contents .navigation .info-header .bg img {
+  display: none;
+}
+#browse-music.loading .contents .header:before {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+#queue {
+  background: rgba(72, 72, 72, 0.3);
+}
+#queue .contents {
+  background: rgba(0, 0, 0, 0.3);
+}
+#queue .contents .header button.action.active {
+  color: #ccc;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.2em;
+}
+#queue .contents .header .screen-actions button.action {
+  color: #ccc;
+}
+#queue .contents .header .screen-actions button.action :hover {
+  color: #eee;
+}
+#queue .contents .items-wrapper .items .item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+#queue .contents .items-wrapper .items .item:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+#queue .contents .items-wrapper .os-scrollbar .os-scrollbar-handle {
+  background: rgba(179, 179, 179, 0.3);
+}
+#queue .contents .items-wrapper .os-scrollbar .os-scrollbar-handle.active {
+  background: rgba(143, 143, 143, 0.3);
+}
+#queue .contents .items-wrapper .os-scrollbar:hover .os-scrollbar-handle {
+  background: rgba(143, 143, 143, 0.3);
+}
+
+#track-bar {
+  background: rgba(72, 72, 72, 0.3);
+  --widget-primary-color: rgba(255, 255, 255, 0.2);
+  --widget-highlight-color: #ccc;
+}
+#track-bar .main .controls button.active {
+  color: #ccc;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.2em;
+}
+
+#action-panel .volume {
+  background: rgba(0, 0, 0, 0.3);
+}
+#action-panel .actions-wrapper .screen-switcher .label-wrapper {
+  background: rgba(0, 0, 0, 0.5);
+}
+#action-panel .actions-wrapper .screen-switcher .switches-wrapper {
+  background: rgba(0, 0, 0, 0.3);
+}
+#action-panel .actions-wrapper .action {
+  background: rgba(0, 0, 0, 0.3);
+  color: #ccc;
+}
+
+#volume-panel .contents .volume {
+  background: rgba(32, 32, 32, 0.7);
+}
+@supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+  #volume-panel {
+    -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+  }
+}
+
+.snackbar-wrapper .snackbar {
+  background: rgba(32, 32, 32, 0.7);
+}
+@supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+  .snackbar-wrapper .snackbar {
+    -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+  }
+}/*# sourceMappingURL=glass.css.map */

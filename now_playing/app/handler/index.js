@@ -6,7 +6,8 @@ const util = require(nowPlayingPluginLibRoot + '/util');
 
 async function index(req, res) {
     let html = await renderView('index', req, {
-        styles: np.getConfigValue('styles', {}, true)
+        styles: np.getConfigValue('styles', {}, true),
+        theme: np.getConfigValue('theme', 'default')
     });
     res.send(html);
 }
