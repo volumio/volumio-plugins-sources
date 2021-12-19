@@ -11,7 +11,7 @@ eq_preset_file=$(/bin/cat "$MDSP_BF_CONF" | /usr/bin/jq -r '.eq_preset_file')
 
 PSETFILE="$coefficient_folder""$eq_preset_file"
 
-INTVAL=$(/usr/bin/jq -c 'keys' "$PSETFILE" | /bin/sed 's/"//g;s/\[//g;s/\]//g;s/ //g')
+INTVAL=$(/usr/bin/jq -c '."eq-presets"' "$PSETFILE" | /usr/bin/jq -c 'keys' | /bin/sed 's/"//g;s/\[//g;s/\]//g;s/ //g')
 #/bin/echo "$INTVAL"
 
 mapfile -d ',' RETVAL < <(/bin/echo "$INTVAL")

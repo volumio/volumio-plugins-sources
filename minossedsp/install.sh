@@ -13,6 +13,8 @@ core_fifo=$(/bin/cat "$MDSP_BF_CONF" | /usr/bin/jq -r '.core_fifo')
 VUSER="volumio"
 VGROUP="volumio"
 
+FILERSURL="https://github.com/KarlitoswayXYZ/minosse-filters/archive/refs/tags/v0.0.2.tar.gz"
+
 ISUPDATE="true"
 
 trap '_cleanup' EXIT
@@ -137,6 +139,20 @@ _filters() {
 	fi
 }
 
+_filters_tar() {
+	
+	if [ ! -d "$minosse_data_folder"filters/ ]
+	then
+		echo "========== Downloading demo filters from GitHub/KarlitoswayXYZ... =========="
+		wget -P "$minosse_data_folder" "$FILERSURL"
+		TARN=$(/usr/bin/basename "$FILERSURL")
+		tar -xzf "$minosse_data_folder""$TARN" -C "$minosse_data_folder"
+		rm -f "$minosse_data_folder""$TARN"
+		mv "$minosse_data_folder"minosse-filters-* "$minosse_data_folder"filters
+		sudo chown -R "$VUSER":"$VGROUP" "$minosse_data_folder" > /dev/null 2>&1
+	fi
+}
+
 _brutefir() {
 	
 	echo "========== Installing Brutefir from source... =========="
@@ -198,7 +214,8 @@ _fftw() {
 #_deps_c
 _deps
 _copy
-_filters
+#_filters
+_filters_tar
 #_brutefir
 #_fftw
 

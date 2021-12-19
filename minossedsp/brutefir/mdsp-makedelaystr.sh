@@ -47,6 +47,7 @@ _zero_delays() {
 		DELAY_STRING="${DELAY_STRING/left/0}"
 		DELAY_STRING="${DELAY_STRING/right/0}"
 		DELAY_STRING="${DELAY_STRING/sub/0}"
+		DELAY_STRING="${DELAY_STRING/sub/0}"
 	elif [[ "$audio_type" == "4.0" ]]
 	then
 		DELAY_STRING="${DELAY_STRING/left-bass/0}"
@@ -59,6 +60,7 @@ _zero_delays() {
 		DELAY_STRING="${DELAY_STRING/right-bass/0}"
 		DELAY_STRING="${DELAY_STRING/left-treble/0}"
 		DELAY_STRING="${DELAY_STRING/right-treble/0}"
+		DELAY_STRING="${DELAY_STRING/sub/0}"
 		DELAY_STRING="${DELAY_STRING/sub/0}"
 	elif [[ "$audio_type" == "6.0" ]]
 	then
@@ -76,6 +78,7 @@ _zero_delays() {
 		DELAY_STRING="${DELAY_STRING/right-treble/0}"
 		DELAY_STRING="${DELAY_STRING/left-bass/0}"
 		DELAY_STRING="${DELAY_STRING/right-bass/0}"
+		DELAY_STRING="${DELAY_STRING/sub/0}"
 		DELAY_STRING="${DELAY_STRING/sub/0}"
 	elif [[ "$audio_type" == "8.0" ]]
 	then

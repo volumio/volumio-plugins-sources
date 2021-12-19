@@ -11,6 +11,6 @@ eq_preset_file=$(/bin/cat "$MDSP_BF_CONF" | /usr/bin/jq -r '.eq_preset_file')
 
 PSETFILE="$coefficient_folder""$eq_preset_file"
 
-RETVAL=$(/usr/bin/jq -c '."'"$1"'".magnitude' "$PSETFILE")
+RETVAL=$(/usr/bin/jq -c '."eq-presets"."'"$1"'".magnitude' "$PSETFILE")
 
 /bin/echo "$RETVAL" | /bin/sed 's/"//g'

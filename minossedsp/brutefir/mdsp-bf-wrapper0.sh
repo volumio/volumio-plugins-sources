@@ -165,9 +165,6 @@ then
 	NCH="8"
 fi
 
-PARAM_STRING=$(/bin/echo "$OUTPUT_STRING" | /bin/sed 's/_out//g' | /bin/sed 's/_1//g' | /bin/sed 's/_2//g' | /bin/sed 's/"//g')
-DELAY_STRING=$("$minosse_bin_folder"mdsp-makedelaystr.sh "$PARAM_STRING")
-
 if [ "$eq_enabled" == "true" ]
 then
 
@@ -221,7 +218,7 @@ filter "right" {
 };
 '
 	
-	DELAY_STRING='0,0'
+	DELAY_STRING=$("$minosse_bin_folder"mdsp-eq-getdelay.sh)
 	
 	### Copy the equalizer template to the target configuration file
 	/bin/echo "$EQ_TEMPLATE" >> "$brutefir_conf_file"
@@ -229,6 +226,9 @@ filter "right" {
 else
 	
 	#//========== DIGITAL ROOM CORRECTION IS ENABLED ==========
+	
+	PARAM_STRING=$(/bin/echo "$OUTPUT_STRING" | /bin/sed 's/_out//g' | /bin/sed 's/_1//g' | /bin/sed 's/_2//g' | /bin/sed 's/"//g')
+	DELAY_STRING=$("$minosse_bin_folder"mdsp-makedelaystr.sh "$PARAM_STRING")
 	
 	CLI_TEMPLATE_DRC='
 ### Connect using "socat - UNIX-CLIENT:'"$bf_client_connection"'"
