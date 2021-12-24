@@ -73,9 +73,10 @@ rotaryencoder2.prototype.onStart = function() {
 	var defer=libQ.defer();
 	
 	self.debugLogging = (self.config.get('logging')==true);
-	self.handles=[].fill(null,0,maxRotaries);
-	self.buttons=[].fill(null,0,maxRotaries);
-	self.pushDownTime=[].fill(0,0,maxRotaries);
+	self.handles = new Array(maxRotaries).fill(null,0,maxRotaries);
+	self.buttons = new Array(maxRotaries).fill(null,0,maxRotaries);
+	self.pushDownTime= new Array(maxRotaries).fill(0,0,maxRotaries);
+	self.btnLastEdge = new Array(maxRotaries).fill(-1,0,maxRotaries)
 	self.status=null;
 	self.loadI18nStrings();
 
@@ -461,12 +462,18 @@ rotaryencoder2.prototype.activateButtons = function (rotaryIndexArray) {
 						self.buttons[rotaryIndex] = new Gpio(gpio, 'in', 'both', {debounceTimeout: debounce});
 						self.buttons[rotaryIndex].watch((err,value) => {
 							if (err) {
-								return self.logger.error('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' caused an error.')
+								self.logger.error('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' caused an error.')
 							}
 							switch (value==self.config.get('pushState'+rotaryIndex)) {
 								case true: //(falling edge & active_high) or (rising edge and active low) = released
+									if (self.btnLastEdge[rotaryIndex] < 0) {
+										self.logger.warn('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' signalled "released" but was never pressed. Did you set the correct Push Button logic?')
+									} else if (self.btnLastEdge[rotaryIndex]==value){
+										self.logger.warn('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' signalled "released" without intermediate "pressed". You may be suffering from bouncy buttons.')										
+									}
 									var pushTime = Date.now() - self.pushDownTime[rotaryIndex]
 									if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' released after '+pushTime+'ms.');
+									if ((pushTime > 10000) && (self.debugLogging)) self.logger.warn('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' released after '+pushTime+'ms. Seems quite long, maybe you have a wrong button logic level setting or bouncy button?');
 									if (pushTime > 1500) {
 										self.emitPushCommand(true, rotaryIndex)
 									} else {
@@ -482,6 +489,7 @@ rotaryencoder2.prototype.activateButtons = function (rotaryIndexArray) {
 								default:
 									break;
 							}
+							self.btnLastEdge[rotaryIndex] = value;
 						})
 						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' now resolving.');
 						return defer.resolve();	
