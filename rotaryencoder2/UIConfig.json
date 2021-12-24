@@ -34,8 +34,13 @@
 				"socketDataPush0",
 				"longPushAction0",
 				"socketCmdLongPush0",
-				"socketDataLongPush0"
-			]
+				"socketDataLongPush0",
+				"delayLongPush0",
+				"doublePushAction0",
+				"socketCmdDoublePush0",
+				"socketDataDoublePush0",
+				"delayDoublePush0"
+				]
 		},
 		"content": [
 			{
@@ -348,6 +353,108 @@
 				"label": "TRANSLATE.ROTARYENCODER2.SOCKDATA",
 				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKDATA",
 				"value": ""
+			},
+			{
+				"id":"delayLongPush0",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "enabled0", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.PINPUSHDELAY",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_PINPUSHDEDELAY",
+				"value": ""
+			},
+			{
+				"id": "doublePushAction0",
+				"element": "select",
+				"visibleIf": {"field": "enabled0", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.DOUBLEPUSHACTION",
+					"doc": "TRANSLATE.ROTARYENCODER2.D_DOUBLEPUSHACTION",
+				"value": {"value": 0 ,"label": "..."},
+				"options": [
+				{
+					"value": 0,
+					"label": "..."
+				},
+				{
+					"value": 1,
+					"label": "TRANSLATE.ROTARYENCODER2.PLAY"
+				},
+				{
+					"value": 2,
+					"label": "TRANSLATE.ROTARYENCODER2.PAUSE"
+				},
+				{
+					"value": 3,
+					"label": "TRANSLATE.ROTARYENCODER2.PLAYPAUSE"
+				},
+				{
+					"value": 4,
+					"label": "TRANSLATE.ROTARYENCODER2.STOP"
+				},
+				{
+					"value": 5,
+					"label": "TRANSLATE.ROTARYENCODER2.REPEAT"
+				},
+				{
+					"value": 6,
+					"label": "TRANSLATE.ROTARYENCODER2.RANDOM"
+				},
+				{
+					"value": 7,
+					"label": "TRANSLATE.ROTARYENCODER2.CLEARQUEUE"
+				},
+				{
+					"value": 8,
+					"label": "TRANSLATE.ROTARYENCODER2.MUTE"
+				},
+				{
+					"value": 9,
+					"label": "TRANSLATE.ROTARYENCODER2.UNMUTE"
+				},
+				{
+					"value": 10,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEMUTE"
+				},
+				{
+					"value": 11,
+					"label": "TRANSLATE.ROTARYENCODER2.SHUTDOWN"
+				},
+				{
+					"value": 12,
+					"label": "TRANSLATE.ROTARYENCODER2.REBOOT"
+				},
+				{
+					"value": 13,
+					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				}
+				]        
+			},	
+			{
+				"id":"socketCmdDoublePush0",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "doublePushAction0", "value": 13},
+				"label": "TRANSLATE.ROTARYENCODER2.SOCKCMD",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKCMD",
+				"value": ""
+			},
+			{
+				"id":"socketDataDoublePush0",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "doublePushAction0", "value": 13},
+				"label": "TRANSLATE.ROTARYENCODER2.SOCKDATA",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKDATA",
+				"value": ""
+			},
+			{
+				"id":"delayDoublePush0",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "enabled0", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.PINDOUBLEPUSHDELAY",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_PINDOUBLEPUSHDEDELAY",
+				"value": ""
 			}
 		  ]
 		},
@@ -382,7 +489,12 @@
 				"socketDataPush1",
 				"longPushAction1",
 				"socketCmdLongPush1",
-				"socketDataLongPush1"
+				"socketDataLongPush1",
+				"delayLongPush1",
+				"doublePushAction1",
+				"socketCmdDoublePush1",
+				"socketDataDoublePush1",
+				"delayDoublePush1"
 			]
 		},
 		"content": [
@@ -696,6 +808,108 @@
 				"label": "TRANSLATE.ROTARYENCODER2.SOCKDATA",
 				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKDATA",
 				"value": ""
+			},
+			{
+				"id":"delayLongPush1",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "enabled1", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.PINPUSHDELAY",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_PINPUSHDEDELAY",
+				"value": ""
+			},
+			{
+				"id": "doublePushAction1",
+				"element": "select",
+				"visibleIf": {"field": "enabled1", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.DOUBLEPUSHACTION",
+					"doc": "TRANSLATE.ROTARYENCODER2.D_DOUBLEPUSHACTION",
+				"value": {"value": 0 ,"label": "..."},
+				"options": [
+				{
+					"value": 0,
+					"label": "..."
+				},
+				{
+					"value": 1,
+					"label": "TRANSLATE.ROTARYENCODER2.PLAY"
+				},
+				{
+					"value": 2,
+					"label": "TRANSLATE.ROTARYENCODER2.PAUSE"
+				},
+				{
+					"value": 3,
+					"label": "TRANSLATE.ROTARYENCODER2.PLAYPAUSE"
+				},
+				{
+					"value": 4,
+					"label": "TRANSLATE.ROTARYENCODER2.STOP"
+				},
+				{
+					"value": 5,
+					"label": "TRANSLATE.ROTARYENCODER2.REPEAT"
+				},
+				{
+					"value": 6,
+					"label": "TRANSLATE.ROTARYENCODER2.RANDOM"
+				},
+				{
+					"value": 7,
+					"label": "TRANSLATE.ROTARYENCODER2.CLEARQUEUE"
+				},
+				{
+					"value": 8,
+					"label": "TRANSLATE.ROTARYENCODER2.MUTE"
+				},
+				{
+					"value": 9,
+					"label": "TRANSLATE.ROTARYENCODER2.UNMUTE"
+				},
+				{
+					"value": 10,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEMUTE"
+				},
+				{
+					"value": 11,
+					"label": "TRANSLATE.ROTARYENCODER2.SHUTDOWN"
+				},
+				{
+					"value": 12,
+					"label": "TRANSLATE.ROTARYENCODER2.REBOOT"
+				},
+				{
+					"value": 13,
+					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				}
+				]        
+			},	
+			{
+				"id":"socketCmdDoublePush1",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "doublePushAction1", "value": 13},
+				"label": "TRANSLATE.ROTARYENCODER2.SOCKCMD",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKCMD",
+				"value": ""
+			},
+			{
+				"id":"socketDataDoublePush1",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "doublePushAction1", "value": 13},
+				"label": "TRANSLATE.ROTARYENCODER2.SOCKDATA",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKDATA",
+				"value": ""
+			},
+			{
+				"id":"delayDoublePush1",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "enabled1", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.PINDOUBLEPUSHDELAY",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_PINDOUBLEPUSHDEDELAY",
+				"value": ""
 			}
 		]
 	},
@@ -730,7 +944,12 @@
 				"socketDataPush2",
 				"longPushAction2",
 				"socketCmdLongPush2",
-				"socketDataLongPush2"
+				"socketDataLongPush2",
+				"delayLongPush2",
+				"doublePushAction2",
+				"socketCmdDoublePush2",
+				"socketDataDoublePush2",
+				"delayDoublePush2"
 			]
 		},
 		"content": [
@@ -1043,6 +1262,108 @@
 				"visibleIf": {"field": "longPushAction2", "value": 13},
 				"label": "TRANSLATE.ROTARYENCODER2.SOCKDATA",
 				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKDATA",
+				"value": ""
+			},
+			{
+				"id":"delayLongPush2",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "enabled2", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.PINPUSHDELAY",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_PINPUSHDEDELAY",
+				"value": ""
+			},
+			{
+				"id": "doublePushAction2",
+				"element": "select",
+				"visibleIf": {"field": "enabled2", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.DOUBLEPUSHACTION",
+					"doc": "TRANSLATE.ROTARYENCODER2.D_DOUBLEPUSHACTION",
+				"value": {"value": 0 ,"label": "..."},
+				"options": [
+				{
+					"value": 0,
+					"label": "..."
+				},
+				{
+					"value": 1,
+					"label": "TRANSLATE.ROTARYENCODER2.PLAY"
+				},
+				{
+					"value": 2,
+					"label": "TRANSLATE.ROTARYENCODER2.PAUSE"
+				},
+				{
+					"value": 3,
+					"label": "TRANSLATE.ROTARYENCODER2.PLAYPAUSE"
+				},
+				{
+					"value": 4,
+					"label": "TRANSLATE.ROTARYENCODER2.STOP"
+				},
+				{
+					"value": 5,
+					"label": "TRANSLATE.ROTARYENCODER2.REPEAT"
+				},
+				{
+					"value": 6,
+					"label": "TRANSLATE.ROTARYENCODER2.RANDOM"
+				},
+				{
+					"value": 7,
+					"label": "TRANSLATE.ROTARYENCODER2.CLEARQUEUE"
+				},
+				{
+					"value": 8,
+					"label": "TRANSLATE.ROTARYENCODER2.MUTE"
+				},
+				{
+					"value": 9,
+					"label": "TRANSLATE.ROTARYENCODER2.UNMUTE"
+				},
+				{
+					"value": 10,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEMUTE"
+				},
+				{
+					"value": 11,
+					"label": "TRANSLATE.ROTARYENCODER2.SHUTDOWN"
+				},
+				{
+					"value": 12,
+					"label": "TRANSLATE.ROTARYENCODER2.REBOOT"
+				},
+				{
+					"value": 13,
+					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				}
+				]        
+			},	
+			{
+				"id":"socketCmdDoublePush2",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "doublePushAction2", "value": 13},
+				"label": "TRANSLATE.ROTARYENCODER2.SOCKCMD",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKCMD",
+				"value": ""
+			},
+			{
+				"id":"socketDataDoublePush2",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "doublePushAction2", "value": 13},
+				"label": "TRANSLATE.ROTARYENCODER2.SOCKDATA",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_SOCKDATA",
+				"value": ""
+			},
+			{
+				"id":"delayDoublePush2",
+				"type":"text",
+				"element": "input",
+				"visibleIf": {"field": "enabled2", "value": true},
+				"label": "TRANSLATE.ROTARYENCODER2.PINDOUBLEPUSHDELAY",
+				"doc": "TRANSLATE.ROTARYENCODER2.D_PINDOUBLEPUSHDEDELAY",
 				"value": ""
 			}
 		]

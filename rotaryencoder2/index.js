@@ -11,6 +11,10 @@ const io = require('socket.io-client');
 const dtoverlayRegex = /^([0-9]+):\s+rotary-encoder\s+pin_a=([0-9]+) pin_b=([0-9]+).*$/gm
 
 const maxRotaries = 3;
+const minDoublePushInterval=100; //min delay between button presses in ms, 1/10 s is quite quick
+const maxDoublePushInterval=1000; //min delay between button presses in ms, 1s seems reasonable
+const maxDebounceTime = 1000; //max allowed debounce time 1s, 1s is already pretty long and will make poor user experience
+
 
 const rotaryTypes = new Array(
 	"...",
@@ -185,7 +189,13 @@ rotaryencoder2.prototype.getUIConfig = function() {
 				uiconf.sections[i].content[15].value.value = self.config.get('longPushAction' + i) | 0;
 				uiconf.sections[i].content[15].value.label = self.getI18nString('ROTARYENCODER2.'+btnActions[parseInt(self.config.get('longPushAction' + i))|0]);
 				uiconf.sections[i].content[16].value = self.config.get('socketCmdLongPush' + i);
-				uiconf.sections[i].content[17].value = self.config.get('socketDataLongPush' + i);	
+				uiconf.sections[i].content[17].value = self.config.get('socketDataLongPush' + i);
+				uiconf.sections[i].content[18].value = self.config.get('delayLongPush' + i);
+				uiconf.sections[i].content[19].value.value = self.config.get('doublePushAction' + i) | 0;
+				uiconf.sections[i].content[19].value.label = self.getI18nString('ROTARYENCODER2.'+btnActions[parseInt(self.config.get('doublePushAction' + i))|0]);
+				uiconf.sections[i].content[20].value = self.config.get('socketCmdDoublePush' + i);
+				uiconf.sections[i].content[21].value = self.config.get('socketDataDoublePush' + i);
+				uiconf.sections[i].content[22].value = self.config.get('delayDoublePush' + i);
 			}
 			//logging section
 			uiconf.sections[maxRotaries].content[0].value = (self.config.get('logging')==true)
@@ -243,6 +253,11 @@ rotaryencoder2.prototype.updateEncoder = function(data){
 			self.config.set('longPushAction'+rotaryIndex, (data['longPushAction'+rotaryIndex].value));
 			self.config.set('socketCmdLongPush'+rotaryIndex, (data['socketCmdLongPush'+rotaryIndex]));
 			self.config.set('socketDataLongPush'+rotaryIndex, (data['socketDataLongPush'+rotaryIndex]));
+			self.config.set('delayLongPush'+rotaryIndex, (data['delayLongPush'+rotaryIndex]));
+			self.config.set('doublePushAction'+rotaryIndex, (data['doublePushAction'+rotaryIndex].value));
+			self.config.set('socketCmdDoublePush'+rotaryIndex, (data['socketCmdDoublePush'+rotaryIndex]));
+			self.config.set('socketDataDoublePush'+rotaryIndex, (data['socketDataDoublePush'+rotaryIndex]));
+			self.config.set('delayDoublePush'+rotaryIndex, (data['delayDoublePush'+rotaryIndex]));
 			self.config.set('enabled'+rotaryIndex, true);	
 		} else {
 			self.config.set('enabled'+rotaryIndex, false);
@@ -325,10 +340,13 @@ rotaryencoder2.prototype.sanityCheckSettings = function(rotaryIndex, data){
 						self.logger.error('[ROTARYENCODER2] sanityCheckSettings: Periods per tick not set.');
 						defer.reject('Must select periods per tick.')
 					} else {		
+						//check, if debounce time is set and is limit the settings to values between 0 and 1s
 						data['pinPushDebounce'+rotaryIndex] = Math.max(0,data['pinPushDebounce'+rotaryIndex]);
-						data['pinPushDebounce'+rotaryIndex] = Math.min(1000,data['pinPushDebounce'+rotaryIndex]);
+						data['pinPushDebounce'+rotaryIndex] = Math.min(maxDebounceTime,data['pinPushDebounce'+rotaryIndex]);
+						//check, that the delay for a long press is at least 
 						defer.resolve('pass');	
 					}
+
 				}		
 			}
 		}				
