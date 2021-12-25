@@ -71,6 +71,26 @@
       "type": "string",
       "value": ""
     },
+    "delayLongPush0": {
+      "type": "string",
+      "value": "1500"
+    },
+    "doublePushAction0": {
+      "type": "number",
+      "value": 5
+    },
+    "socketCmdDoublePush0": {
+      "type": "string",
+      "value": ""
+    },
+    "socketDataDoublePush0": {
+      "type": "string",
+      "value": ""
+    },
+    "delayDoublePush0": {
+      "type": "string",
+      "value": "700"
+    },
     "enabled1": {
         "type": "boolean",
         "value": false
@@ -143,6 +163,26 @@
       "type": "string",
       "value": ""
     },
+    "delayLongPush1": {
+      "type": "string",
+      "value": "1500"
+    },
+    "doublePushAction1": {
+      "type": "number",
+      "value": 5
+    },
+    "socketCmdDoublePush1": {
+      "type": "string",
+      "value": ""
+    },
+    "socketDataDoublePush1": {
+      "type": "string",
+      "value": ""
+    },
+    "delayDoublePush1": {
+      "type": "string",
+      "value": "700"
+    },
     "enabled2": {
         "type": "boolean",
         "value": false
@@ -214,6 +254,26 @@
     "socketDataLongPush2": {
       "type": "string",
       "value": ""
+    },
+    "delayLongPush2": {
+      "type": "string",
+      "value": "1500"
+    },
+    "doublePushAction2": {
+      "type": "number",
+      "value": 5
+    },
+    "socketCmdDoublePush2": {
+      "type": "string",
+      "value": ""
+    },
+    "socketDataDoublePush2": {
+      "type": "string",
+      "value": ""
+    },
+    "delayDoublePush2": {
+      "type": "string",
+      "value": "700"
     },
     "logging": {
       "type": "boolean",
