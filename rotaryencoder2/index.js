@@ -13,6 +13,7 @@ const dtoverlayRegex = /^([0-9]+):\s+rotary-encoder\s+pin_a=([0-9]+) pin_b=([0-9
 const maxRotaries = 3;
 const minDoublePushInterval=100; //min delay between button presses in ms, 1/10 s is quite quick
 const maxDoublePushInterval=1000; //min delay between button presses in ms, 1s seems reasonable
+const minLongPushTime = 500;
 const maxDebounceTime = 1000; //max allowed debounce time 1s, 1s is already pretty long and will make poor user experience
 
 
@@ -79,8 +80,13 @@ rotaryencoder2.prototype.onStart = function() {
 	self.debugLogging = (self.config.get('logging')==true);
 	self.handles = new Array(maxRotaries).fill(null,0,maxRotaries);
 	self.buttons = new Array(maxRotaries).fill(null,0,maxRotaries);
+	self.pressedCount = new Array(maxRotaries).fill(0,0,maxRotaries);
+	self.dblElapsed = new Array(maxRotaries).fill(true,0,maxRotaries);
+	self.doublePushTimer = new Array(maxRotaries).fill(null,0,maxRotaries);
+	self.longPushTimer = new Array(maxRotaries).fill(null,0,maxRotaries);
 	self.pushDownTime= new Array(maxRotaries).fill(0,0,maxRotaries);
-	self.btnLastEdge = new Array(maxRotaries).fill(-1,0,maxRotaries)
+	self.btnLastEdge = new Array(maxRotaries).fill(-1,0,maxRotaries);
+	self.pressed = new Array(maxRotaries).fill(false,0,maxRotaries);
 	self.status=null;
 	self.loadI18nStrings();
 
@@ -343,7 +349,13 @@ rotaryencoder2.prototype.sanityCheckSettings = function(rotaryIndex, data){
 						//check, if debounce time is set and is limit the settings to values between 0 and 1s
 						data['pinPushDebounce'+rotaryIndex] = Math.max(0,data['pinPushDebounce'+rotaryIndex]);
 						data['pinPushDebounce'+rotaryIndex] = Math.min(maxDebounceTime,data['pinPushDebounce'+rotaryIndex]);
-						//check, that the delay for a long press is at least 
+						//check, that the delay for a long press is at least minLongPushTime
+						data['delayLongPush'+rotaryIndex] = Math.max(minLongPushTime,data['delayLongPush'+rotaryIndex]);
+						//check, that DoublePushInterval is within the allowed range
+						data['delayDoublePush'+rotaryIndex] = Math.max(minDoublePushInterval,data['delayDoublePush'+rotaryIndex]);
+						data['delayDoublePush'+rotaryIndex] = Math.min(maxDoublePushInterval,data['delayDoublePush'+rotaryIndex]);
+						//doublePushInterval must be shorter than long press delay
+						data['delayLongPush'+rotaryIndex] = Math.max(data['delayLongPush'+rotaryIndex],data['delayDoublePush'+rotaryIndex] + 100)
 						defer.resolve('pass');	
 					}
 
@@ -492,18 +504,48 @@ rotaryencoder2.prototype.activateButtons = function (rotaryIndexArray) {
 									var pushTime = Date.now() - self.pushDownTime[rotaryIndex]
 									if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' released after '+pushTime+'ms.');
 									if ((pushTime > 10000) && (self.debugLogging)) self.logger.warn('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' released after '+pushTime+'ms. Seems quite long, maybe you have a wrong button logic level setting or bouncy button?');
-									if (pushTime > 1500) {
-										self.emitPushCommand(true, rotaryIndex)
-									} else {
-										self.emitPushCommand(false, rotaryIndex)
+									self.pressed[rotaryIndex] = false;
+									if (self.dblElapsed[rotaryIndex] && (self.pressedCount[rotaryIndex]==1)) {
+										if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' sending single push command at release.');
+										self.pressedCount[rotaryIndex] = 0;
+										self.emitPushCommand('single',rotaryIndex);
 									}
 									break;
 							
 								case false: //(falling edge & active low) or (rising edge and active high) = pressed
 									if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' pressed.');
-									self.pushDownTime[rotaryIndex] = Date.now();						
+									self.pushDownTime[rotaryIndex] = Date.now(); //only used for logging
+									if (self.pressedCount[rotaryIndex] == 0) { //if first time pressed, start timers
+										if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' starting timers.');
+										self.doublePushTimer[rotaryIndex] = setTimeout(() => {  //timer to check for double-press
+											if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' doublepush timer elapsed. (' + self.pressed[rotaryIndex] + ', ' + self.pressedCount[rotaryIndex] + ')' );
+											self.dblElapsed[rotaryIndex] = true;
+											if (self.pressedCount[rotaryIndex] == 2) {
+												if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' sending double push command.');
+												clearTimeout(self.longPushTimer[rotaryIndex]);
+												self.pressedCount[rotaryIndex] = 0;
+												self.emitPushCommand('double', rotaryIndex)
+											} else if ((self.pressedCount[rotaryIndex] == 1) && (!self.pressed[rotaryIndex])){
+												clearTimeout(self.longPushTimer[rotaryIndex]);
+												if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' sending single push command.');
+												self.pressedCount[rotaryIndex] = 0;
+												self.emitPushCommand('single', rotaryIndex)
+											}
+										}, self.config.get('delayDoublePush'+rotaryIndex));
+										self.dblElapsed[rotaryIndex] = false;
+										self.longPushTimer[rotaryIndex] = setTimeout(() => {  //timer to check for long press
+											if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' longpush timer elapsed. (' + self.pressed[rotaryIndex] + ', ' + self.pressedCount[rotaryIndex] + ')' );
+											if (self.pressed[rotaryIndex] && (self.pressedCount[rotaryIndex] == 1)) {
+												if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' sending long push command.');
+												self.pressedCount[rotaryIndex] = 0;
+												self.emitPushCommand('long', rotaryIndex)
+											}
+											self.pressedCount[rotaryIndex] = 0;
+										}, self.config.get('delayLongPush'+rotaryIndex));										
+									};
+									self.pressed[rotaryIndex] =true;
+									self.pressedCount[rotaryIndex] +=1;
 									break;
-							
 								default:
 									break;
 							}
@@ -664,22 +706,37 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 	}
 }
 
-rotaryencoder2.prototype.emitPushCommand = function(longPress,rotaryIndex){
+rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 	var self = this;
 	var cmd = '';
 	var data = '';
-	if (longPress) {
-		var action = self.config.get('longPushAction'+rotaryIndex)
-		if (action == btnActions.indexOf("EMIT")) {
-			cmd = self.config.get('socketCmdLongPush' + rotaryIndex);
-			data = self.config.get('socketDataLongPush' + rotaryIndex);
-		} 
-	} else {
-		var action = self.config.get('pushAction'+rotaryIndex)
-		if (action == btnActions.indexOf("EMIT")) {
-			cmd = self.config.get('socketCmdPush' + rotaryIndex);
-			data = self.config.get('socketDataPush' + rotaryIndex);
-		} 
+	switch (type) {
+		case 'single':
+			var action = self.config.get('pushAction'+rotaryIndex)
+			if (action == btnActions.indexOf("EMIT")) {
+				cmd = self.config.get('socketCmdPush' + rotaryIndex);
+				data = self.config.get('socketDataPush' + rotaryIndex);
+			} 			
+			break;
+	
+		case 'long':
+			var action = self.config.get('longPushAction'+rotaryIndex)
+			if (action == btnActions.indexOf("EMIT")) {
+				cmd = self.config.get('socketCmdLongPush' + rotaryIndex);
+				data = self.config.get('socketDataLongPush' + rotaryIndex);
+			} 			
+			break;
+	
+		case 'double':
+			var action = self.config.get('doublePushAction'+rotaryIndex)
+			if (action == btnActions.indexOf("EMIT")) {
+				cmd = self.config.get('socketCmdDoublePush' + rotaryIndex);
+				data = self.config.get('socketDataDoublePush' + rotaryIndex);
+			} 			
+			break;
+	
+		default:
+			break;
 	}
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emitPushCommand: '+action + 'for Rotary: '+(rotaryIndex + 1))
 
