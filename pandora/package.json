@@ -1,0 +1,39 @@
+{
+	"name": "pandora",
+	"version": "2.9.3",
+	"description": "Pandora Music Services Plugin",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "truckershitch",
+	"license": "ISC",
+	"repository": "https://github.com/truckershitch/volumio-plugins-sources/pandora",
+	"volumio_info": {
+		"prettyName": "pandora",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Lorem ipsum",
+		"changelog": "https://github.com/truckershitch/volumio-plugins-sources/pandora/Readme.md"
+	},
+	"engines": {
+		"node": ">=8.11.1",
+		"volumio": ">=2.411 <4.0"
+	},
+	"dependencies": {
+        "anesidora": "https://github.com/truckershitch/anesidora.git",
+		"dns-sync": "^0.1.3",
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0",
+        "mqtt": "3.0.0"
+	}
+}
