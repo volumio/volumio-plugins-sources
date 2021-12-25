@@ -77,7 +77,7 @@
     },
     "doublePushAction0": {
       "type": "number",
-      "value": 5
+      "value": 0
     },
     "socketCmdDoublePush0": {
       "type": "string",
@@ -169,7 +169,7 @@
     },
     "doublePushAction1": {
       "type": "number",
-      "value": 5
+      "value": 0
     },
     "socketCmdDoublePush1": {
       "type": "string",
@@ -261,7 +261,7 @@
     },
     "doublePushAction2": {
       "type": "number",
-      "value": 5
+      "value": 0
     },
     "socketCmdDoublePush2": {
       "type": "string",
