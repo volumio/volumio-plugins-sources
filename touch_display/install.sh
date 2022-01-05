@@ -13,22 +13,27 @@ exit_cleanup() {
     fi
   fi
 
+  if [ -d "$TMP_DIR" ]; then
+    echo "Removing temporary directory $TMP_DIR"
+    rm -rf "$TMP_DIR"
+  fi
+
   #required to end the plugin install
   echo "plugininstallend"
 }
 trap "exit_cleanup" EXIT
 
+TMP_DIR="$(mktemp -d touch_display-XXXXXXXXXX)" || { echo "Creating temporary directory failed"; exit 1; }
+export DEBIAN_FRONTEND=noninteractive
+
 if grep -q Raspberry /proc/cpuinfo; then # on Raspberry Pi hardware
   echo "Installing fake packages for kernel, bootloader and pi lib"
-  wget https://repo.volumio.org/Volumio2/Binaries/arm/libraspberrypi0_0.0.1_all.deb || { echo "Download of libraspberrypi0_0.0.1_all.deb failed"; exit 1; }
-  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-bootloader_0.0.1_all.deb || { echo "Download of raspberrypi-bootloader_0.0.1_all.deb failed"; exit 1; }
-  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-kernel_0.0.1_all.deb || { echo "Download of raspberrypi-kernel_0.0.1_all.deb failed"; exit 1; }
-  dpkg -i libraspberrypi0_0.0.1_all.deb || { echo "Installation of libraspberrypi0_0.0.1_all.deb failed"; exit 1; }
-  dpkg -i raspberrypi-bootloader_0.0.1_all.deb || { echo "Installation of raspberrypi-bootloader_0.0.1_all.deb failed"; exit 1; }
-  dpkg -i raspberrypi-kernel_0.0.1_all.deb || { echo "Installation of raspberrypi-kernel_0.0.1_all.deb failed"; exit 1; }
-  rm libraspberrypi0_0.0.1_all.deb
-  rm raspberrypi-bootloader_0.0.1_all.deb
-  rm raspberrypi-kernel_0.0.1_all.deb
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/libraspberrypi0_0.0.1_all.deb -P "$TMP_DIR" || { echo "Download of libraspberrypi0_0.0.1_all.deb failed"; exit 1; }
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-bootloader_0.0.1_all.deb -P "$TMP_DIR" || { echo "Download of raspberrypi-bootloader_0.0.1_all.deb failed"; exit 1; }
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-kernel_0.0.1_all.deb -P "$TMP_DIR" || { echo "Download of raspberrypi-kernel_0.0.1_all.deb failed"; exit 1; }
+  dpkg -i "$TMP_DIR"/libraspberrypi0_0.0.1_all.deb || { echo "Installation of libraspberrypi0_0.0.1_all.deb failed"; exit 1; }
+  dpkg -i "$TMP_DIR"/raspberrypi-bootloader_0.0.1_all.deb || { echo "Installation of raspberrypi-bootloader_0.0.1_all.deb failed"; exit 1; }
+  dpkg -i "$TMP_DIR"/raspberrypi-kernel_0.0.1_all.deb || { echo "Installation of raspberrypi-kernel_0.0.1_all.deb failed"; exit 1; }
 
   echo "Putting on hold packages for kernel, bootloader and pi lib"
   apt-mark hold libraspberrypi0 raspberrypi-bootloader raspberrypi-kernel || { echo "Putting on hold packages for kernel, bootloader and pi lib failed"; exit 1; }
@@ -46,7 +51,7 @@ if grep -q Raspberry /proc/cpuinfo; then # on Raspberry Pi hardware
   apt-get -y install chromium-browser || { echo "Installation of Chromium failed"; exit 1; }
 
   echo "Creating /etc/X11/xorg.conf.d dir"
-  mkdir /etc/X11/xorg.conf.d
+  mkdir -p /etc/X11/xorg.conf.d || { echo "Creating /etc/X11/xorg.conf.d failed"; exit 1; }
 
   echo "Creating Xorg configuration file"
   echo "# This file is managed by the Touch Display plugin: Do not alter!
@@ -69,15 +74,15 @@ else # on other hardware
 
   echo "Installing Chromium"
   apt-get -y install chromium || { echo "Installation of Chromium failed"; exit 1; }
-  ln -s /usr/bin/chromium /usr/bin/chromium-browser
+  ln -s /usr/bin/chromium /usr/bin/chromium-browser || { echo "Linking /usr/bin/chromium to /usr/bin/chromium-browser failed"; exit 1; }
 fi
 
 echo "Installing japanese, korean, chinese and taiwanese fonts"
 apt-get -y install fonts-arphic-ukai fonts-arphic-gbsn00lp fonts-unfonts-core || { echo "Installation of fonts failed"; exit 1; }
 
 echo "Creating Kiosk data dir"
-mkdir /data/volumiokiosk
-chown volumio:volumio /data/volumiokiosk
+mkdir -p /data/volumiokiosk || { echo "Creating /data/volumiokiosk failed"; exit 1; }
+chown volumio:volumio /data/volumiokiosk || { echo "Setting permissions to Kiosk data folder failed"; exit 1; }
 
 echo "Creating chromium kiosk start script"
 echo "#!/bin/bash
@@ -105,7 +110,7 @@ while true; do
     --user-data-dir='/data/volumiokiosk' \
     http://localhost:3000
 done" > /opt/volumiokiosk.sh || { echo "Creating chromium kiosk start script failed"; exit 1; }
-/bin/chmod +x /opt/volumiokiosk.sh
+chmod +x /opt/volumiokiosk.sh || { echo "Making chromium kiosk start script executable failed"; exit 1; }
 
 echo "Creating Systemd Unit for Kiosk"
 echo "[Unit]
@@ -123,4 +128,4 @@ WantedBy=multi-user.target
 systemctl daemon-reload
 
 echo "Allowing volumio to start an xsession"
-/bin/sed -i "s/allowed_users=console/allowed_users=anybody/" /etc/X11/Xwrapper.config || { echo "Allowing volumio to start an xsession failed"; exit 1; }
+sed -i "s/allowed_users=console/allowed_users=anybody/" /etc/X11/Xwrapper.config || { echo "Allowing volumio to start an xsession failed"; exit 1; }
