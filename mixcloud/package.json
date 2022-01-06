@@ -1,0 +1,45 @@
+{
+	"name": "mixcloud",
+	"version": "0.1.0",
+	"description": "Listen to Mixcloud shows",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/patrickkfkan/volumio-mixcloud.git"
+	},
+	"author": "Patrick Kan",
+	"license": "MIT",
+	"volumio_info": {
+		"prettyName": "Mixcloud",
+		"plugin_type": "music_service",
+		"os": [
+			"buster"
+		],
+		"icon": "fa-mixcloud",
+		"boot_priority": 10,
+		"details": "Listen to Mixcloud shows",
+		"changelog": "",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		]
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"array-shuffle": "^2.0.0",
+		"kew": "^0.7.0",
+		"md5": "^2.3.0",
+		"mixcloud-fetch": "0.1.0-a",
+		"node-cache": "^5.1.2",
+		"slugify": "^1.6.1",
+		"string-format": "^2.0.0",
+		"v-conf": "^1.4.2"
+	}
+}
