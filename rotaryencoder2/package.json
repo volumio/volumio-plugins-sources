@@ -24,8 +24,8 @@
 		"changelog": "Added more configuration options for buttons (+ double press, trigger long press before release, variable timers). Changed category"
 	},
 	"engines": {
-		"node": ">=8",
-		"volumio": ">=2"
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.179.0 <4.0.0"
 	},
 	"dependencies": {
 		"fs-extra": "^5.0.0",
