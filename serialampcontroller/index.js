@@ -9,8 +9,10 @@ var libQ = require('kew');
 var fs=require('fs-extra');
 var config = new (require('v-conf'))();
 var exec = require('child_process').exec;
-var execSync = require('child_process').execSync;
-var spawn = require('child_process').spawn;
+const SerialPort = require('serialport');
+const Readline = require('@serialport/parser-readline');
+var execSync = require('child_process').execSync;  //+++++++++++remove later
+var spawn = require('child_process').spawn;  //+++++++++++remove later
 
 const EventEmitter = require('events').EventEmitter;
 const io = require('socket.io-client');
@@ -209,9 +211,9 @@ serialampcontroller.prototype.getUIConfig = function() {
             {
                 self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', {
                     value: n+1,
-                    label: self.serialDevices[n]
+                    label: self.serialDevices[n].pnpId
                 });
-                if (self.serialDevices[n] == serialFromConfig) {
+                if (self.serialDevices[n].pnpId == serialFromConfig) {
                     selected = n+1;
                 }
             };
@@ -380,27 +382,25 @@ serialampcontroller.prototype.listSerialDevices = function() {
     var self = this;
     var defer = libQ.defer();
 
-    fs.pathExists('/dev/serial/by-id/')
-    .then(exists => {
-        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: pathExists=' + exists);
-        if (exists){
-            exec("/bin/ls /dev/serial/by-id", {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
-                if (error !== null) {
-                    self.logger.error('[SERIALAMPCONTROLLER] listSerialDevices: Cannot list serial devices - ' + error)
-                    defer.reject();
-                } else {
-                    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: ' + stdout);
-                    self.serialDevices = stdout.split(/[\r\n|\n|\r]/).filter(String);
-                    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: found ' + self.serialDevices.length + ' devices.');
-                    defer.resolve();
-                }
-            });
-        } else {
-            self.serialDevices = {};
-            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: found no serial devices.');
+    SerialPort.list().then(
+        ports => {
+            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: ' + JSON.stringify(ports));
+            self.serialDevices = ports;
+            self.serialDevices = self.serialDevices.filter(function(dev){
+                return (dev.pnpId !== "undefined" && dev.path !== "/dev/ttyAMA0"); 
+            })
+            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: found ' + self.serialDevices.length + ' devices.' + JSON.stringify(self.serialDevices));
+            // if (self.serialDevices.length == 0) {
+            //     self.serialDevices = {};
+            // }
             defer.resolve();
+        },
+        err => {
+            self.logger.error('[SERIALAMPCONTROLLER] listSerialDevices: Cannot get list of serial devices - ' + err)
+            defer.reject();
         }
-    });
+    )
+
     return defer.promise;
 }
 
