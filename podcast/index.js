@@ -683,7 +683,7 @@ ControllerPodcast.prototype.explodeUri = function (uri) {
     name: episode.title,
     albumart: episode.albumart
       ? episode.albumart
-      : podcastItem.image
+      : podcastItem && podcastItem.image
           ? podcastItem.image
           : '/albumart?sourceicon=music_service/podcast/podcast.svg',
     serviceName: self.serviceName
