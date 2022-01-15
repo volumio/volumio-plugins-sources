@@ -64,8 +64,7 @@
                 "volValue": "vol_##!",
                 "mute": "mute!",
                 "muteOn": "mute_on!",
-                "muteOff": "mute_off!",
-                "source": "##!"
+                "muteOff": "mute_off!"
             },
             "responses": [
                 {"rx": "power=on", "cmd": ["respPowerOn"]},
@@ -106,8 +105,7 @@
                 "volValue": "vol_##!",
                 "mute": "mute!",
                 "muteOn": "mute_on!",
-                "muteOff": "mute_off!",
-                "source": "##!"
+                "muteOff": "mute_off!"
             },
             "responses": [
                 {"rx": "power=on", "cmd": ["respPowerOn"]},
@@ -145,11 +143,12 @@
                 "volUp": "VP",
                 "volDown": "VM",
                 "volValue": "VN##!",
-                "mute": "MU",
-                "source": "##"
+                "mute": "MU"
             },
             "responses": [
-                {"rx": "([A-Za-z0-9 ]{6})([0-9]{2})", "cmd": ["source","volume"]}
+                {"rx": "([A-Za-z0-9 ]{6})([0-9]{2})", "cmd": ["respSource","respVolume", "respMuteOff"]},
+                {"rx": "Mute", "cmd": ["respMuteOn"]},
+                {"rx": "Standby", "cmd": ["respPowerOff"]}
             ],
             "statusRequests": {
             }

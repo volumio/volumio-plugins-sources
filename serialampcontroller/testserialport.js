@@ -9,10 +9,18 @@ SerialPort.list().then(
   err => console.error(err)
 )
 
-const port = new SerialPort('/dev/ttyUSB0', {
-  baudRate: 115200
+//{"autoOpen":false,"lock":true,"baudRate":115200,"dataBits":8,"stopBits":1,"parity":"none","rtscts":false,"xon":false,"xoff":false,"xany":false}
+serialOptions = {autoOpen: false, lock: true};
+serialOptions.baudRate = 115200;
+serialOptions.dataBits = 8;
+serialOptions.stopBits = 1;
+serialOptions.parity = "none";
+serialOptions.rtscts = false;
+serialOptions.xon = false;
+serialOptions.xoff = false;
+serialOptions.xany = false;
 
-},function (err) {
+const port = new SerialPort('/dev/ttyUSB0', JSON.stringify(serialOptions),function (err) {
   if (err) {
     return console.log('Error: ', err.message)
   }
