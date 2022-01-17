@@ -4,13 +4,13 @@ const Readline = require('@serialport/parser-readline')
 
 SerialPort.list().then(
   ports => ports.forEach(function(item){
-    console.log(item.manufacturer + ": "+ item.pnpId)
+    console.log(item.manufacturer + ": "+ item.pnpId + " (" + item.path +")")
   }),
   err => console.error(err)
 )
 
 //{"autoOpen":false,"lock":true,"baudRate":115200,"dataBits":8,"stopBits":1,"parity":"none","rtscts":false,"xon":false,"xoff":false,"xany":false}
-serialOptions = {autoOpen: false, lock: true};
+serialOptions = {autoOpen: true, lock: true};
 serialOptions.baudRate = 115200;
 serialOptions.dataBits = 8;
 serialOptions.stopBits = 1;
@@ -20,7 +20,10 @@ serialOptions.xon = false;
 serialOptions.xoff = false;
 serialOptions.xany = false;
 
-const port = new SerialPort('/dev/ttyUSB0', JSON.stringify(serialOptions),function (err) {
+const port = new SerialPort('/dev/ttyUSB0', serialOptions,function (err) {
+// const port = new SerialPort('/dev/ttyUSB0', {
+//   baudRate: 115200
+// }, function (err) {
   if (err) {
     return console.log('Error: ', err.message)
   }
@@ -42,6 +45,8 @@ parser.on('data', console.log)
 // // Pipe the data into another stream (like a parser or standard out)
 // const lineStream = port.pipe(new Readline())
 
-port.write("mute!",'ascii',function(err) {
-  console.log(err);
-})
+setTimeout(() => {
+  port.write("mute!",'ascii',function(err) {
+    console.log(err);
+  })  
+}, 1000);
