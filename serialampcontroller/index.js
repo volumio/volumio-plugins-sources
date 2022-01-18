@@ -70,7 +70,7 @@ serialampcontroller.prototype.onStart = function() {
     //configure the serial interface
     .then(_ => self.configSerialInterface())
     //attach listener to handle messages from the amp
-    .then(serialDev => {self.attachListener(serialDev)})
+    .then(_ => {self.attachListener()})
     //determine the current settings of the amp
     .then(_ => self.getAmpStatus()) 
     //set the volume to the startup value
@@ -349,7 +349,7 @@ serialampcontroller.prototype.configSerialInterface = function (){
             }
     } else {
         self.serialInterfaceDev = '';
-        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] configSerialInterface: Configuration still incomplete. No interface selected.');
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] configSerialInterface: Configuration still incomplete. No interface configured yet.');
         defer.resolve('');
     }
     return defer.promise;
@@ -873,7 +873,7 @@ serialampcontroller.prototype.updateSerialSettings = function (data) {
     self.config.set('serialInterfaceDev', (data['serial_interface_dev'].label));
     self.closeSerialInterface()
     .then(_=>{self.configSerialInterface()})
-    .then(serialDev => {self.attachListener(serialDev)})
+    .then(_ => {self.attachListener()})
     .then(_=> {self.updateVolumeSettings()})
     .then(_=> {
         defer.resolve();
@@ -907,13 +907,13 @@ serialampcontroller.prototype.updateAmpSettings = function (data) {
     .then(config => {self.commandRouter.broadcastMessage('pushUiConfig', config)})
     .then(_=> self.closeSerialInterface())
     .then(_=> self.configSerialInterface())
-    .then(serialDev => {self.attachListener(serialDev)})
+    .then(_ => self.attachListener())
     .then(_=> self.updateVolumeSettings())
     .then(_=> self.volumioupdatevolume(self.getVolumeObject()))
     .then(_=> {
         defer.resolve();        
+        self.commandRouter.pushToastMessage('success', self.getI18nString('TOAST_SAVE_SUCCESS'), self.getI18nString('TOAST_AMP_SAVE'));
     })  
-    self.commandRouter.pushToastMessage('success', self.getI18nString('TOAST_SAVE_SUCCESS'), self.getI18nString('TOAST_AMP_SAVE'));
     return defer.promise;
 };
 
@@ -947,31 +947,36 @@ serialampcontroller.prototype.loadI18nStrings = function() {
     self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
 };
 
-serialampcontroller.prototype.attachListener = function(devPath){
+serialampcontroller.prototype.attachListener = function(){
 	var self = this;
 	var defer = libQ.defer();
+    var cmdFound = false;
 
-	if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] attachListener: ' + devPath);
-    if (devPath!==undefined && devPath!=="") {
+    if (self.port!==undefined && self.port.isOpen) {
+    	if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] attachListener: ' + self.port.path);
         self.parser = self.port.pipe(new Readline({ delimiter: self.selectedAmp.delimiter }));
-        // self.parser.on('data', self.parseResponse);
-        // self.parser.on('data', data => {
-        //     if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] parseResponse: received: " + data);
-        //     if (data!==undefined) {
-        //         self.selectedAmp.responses.forEach(response => {
-        //             match = data[0].match(new RegExp(response.rx,'i'));
-        //             if (match !==null) {
-        //                 if (match.length==1){
-        //                     self.processResponse(response.cmd[0])
-        //                 } else {
-        //                     for (let i = 1; i < match.length; i++){
-        //                         self.processResponse(response.cmd[i-1],match[i])
-        //                     }
-        //                 }
-        //             }
-        //         })
-        //     }
-        // })
+        self.parser.on('data', data => {
+            if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] Listener received: " + data);
+            if (typeof(data) == 'string' && self.selectedAmp !== undefined && self.selectedAmp.responses !== undefined && self.selectedAmp.responses.length > 0) {
+                var cmdFound = false;
+                self.selectedAmp.responses.forEach(response => {
+                    match = data.match(new RegExp(response.rx,'i'));
+                    if (match !==null) {
+                        cmdFound = true;
+                        if (match.length==1){
+                            self.processResponse(response.cmd[0])
+                        } else {
+                            for (let i = 1; i < match.length; i++){
+                                self.processResponse(response.cmd[i-1],match[i])
+                            }
+                        }
+                    } 
+                })
+                if (self.debugLogging && cmdFound) self.logger.info('[SERIALAMPCONTROLLER] Listener: no matching regex for: ' + data);
+            } else {
+                self.logger.error("[SERIALAMPCONTROLLER] Listener: do not have any information, what to do with message: " + data + "is the 'ampCommands.json' complete?");
+            }
+        });
         if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] attachListener: parser attached and listening for data separated by: ' + self.selectedAmp.delimiter);
         defer.resolve();
     } else {
@@ -985,7 +990,7 @@ serialampcontroller.prototype.closeSerialInterface = function(){
 	var self = this;
 	var defer = libQ.defer();
 
-    if (self.port.isOpen) {
+    if (self.port !== undefined && self.port.isOpen) {
         self.port.close(err => {
             if (err) {
                 self.logger.error('[SERIALAMPCONTROLLER] onStop: could not close port: ' + err.message);
