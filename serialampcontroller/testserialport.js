@@ -20,6 +20,10 @@ serialOptions.xon = false;
 serialOptions.xoff = false;
 serialOptions.xany = false;
 
+function output(params) {
+  console.log(params)
+}
+
 const port = new SerialPort('/dev/ttyUSB0', serialOptions,function (err) {
 // const port = new SerialPort('/dev/ttyUSB0', {
 //   baudRate: 115200
@@ -30,7 +34,7 @@ const port = new SerialPort('/dev/ttyUSB0', serialOptions,function (err) {
 })
 
 const parser = port.pipe(new Readline({ delimiter: '$' }))
-parser.on('data', console.log)
+parser.on('data', output)
 
 // Read data that is available but keep the stream in "paused mode"
 // port.on('readable', function () {
