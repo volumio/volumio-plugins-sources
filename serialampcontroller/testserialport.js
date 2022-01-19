@@ -71,3 +71,7 @@ parser.on('data', output)
       process.exit(1)
     }
   }, 1000);
+
+  setTimeout(() => {
+    port.close();
+  }, 10000)
