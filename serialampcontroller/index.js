@@ -67,16 +67,16 @@ serialampcontroller.prototype.onStart = function() {
     .then(_=> self.listSerialDevices())
     //set the active amp
     .then(_ => self.setActiveAmp())
-    //configure the serial interface
-    .then(_ => self.configSerialInterface())
+    //configure the serial interface and open it
+    .then(_ => self.openSerialPort())
     //attach listener to handle messages from the amp
-    .then(_ => {self.attachListener()})
-    //determine the current settings of the amp
-    .then(_ => self.getAmpStatus()) 
-    //set the volume to the startup value
-    .then(_ => self.alsavolume(this.config.get('startupVolume')))
-    // //update the volume settings
-    // .then(_ => self.updateVolumeSettings())
+    // .then(_ => {self.attachListener()})
+    // //determine the current settings of the amp
+    // .then(_ => self.getAmpStatus()) 
+    // //set the volume to the startup value
+    // .then(_ => self.alsavolume(this.config.get('startupVolume')))
+    // // //update the volume settings
+    // // .then(_ => self.updateVolumeSettings())
     .then(function(){
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onStart: successfully started plugin');
             defer.resolve();
@@ -303,7 +303,7 @@ serialampcontroller.prototype.setConf = function(varName, varValue) {
 };
 
 //configure serial interface according to ampDefinition file
-serialampcontroller.prototype.configSerialInterface = function (){
+serialampcontroller.prototype.openSerialPort = function (){
     var self = this;
     var defer = libQ.defer();
     if ((self.config.get('serialInterfaceDev')!==undefined) && 
@@ -333,23 +333,23 @@ serialampcontroller.prototype.configSerialInterface = function (){
                 self.serialInterfaceDev = self.serialDevices.filter(dev => {
                     return dev.pnpId === self.config.get('serialInterfaceDev')
                 });
-                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] configSerialInterface: connect to ' + self.serialInterfaceDev[0].path +' configured with: ' + JSON.stringify(self.serialOptions));
+                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: connect to ' + self.serialInterfaceDev[0].path +' configured with: ' + JSON.stringify(self.serialOptions));
                 self.port = new SerialPort(self.serialInterfaceDev[0].path, self.serialOptions, function (err) {
                     if (err) {
-                        self.logger.error('[SERIALAMPCONTROLLER] configSerialInterface: could not open port: ' + err.message);
+                        self.logger.error('[SERIALAMPCONTROLLER] openSerialPort: could not open port: ' + err.message);
                         defer.reject();
                     } else {
-                        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] configSerialInterface: Connection successful.');
+                        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: Connection successful.');
                         defer.resolve(self.serialInterfaceDev[0].path);
                     }
                 });
             } else {
-                self.logger.error('[SERIALAMPCONTROLLER] configSerialInterface: AmpCommands.js has insufficient interface parameters for ' + self.selectedAmp.vendor + " - " + self.selectedAmp.model);
+                self.logger.error('[SERIALAMPCONTROLLER] openSerialPort: AmpCommands.js has insufficient interface parameters for ' + self.selectedAmp.vendor + " - " + self.selectedAmp.model);
                 defer.resolve();
             }
     } else {
         self.serialInterfaceDev = '';
-        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] configSerialInterface: Configuration still incomplete. No interface configured yet.');
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: Configuration still incomplete. No interface configured yet.');
         defer.resolve('');
     }
     return defer.promise;
@@ -872,7 +872,7 @@ serialampcontroller.prototype.updateSerialSettings = function (data) {
     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] updateSerialSettings: Saving Serial Settings:' + JSON.stringify(data));
     self.config.set('serialInterfaceDev', (data['serial_interface_dev'].label));
     self.closeSerialInterface()
-    .then(_=>{self.configSerialInterface()})
+    .then(_=>{self.openSerialPort()})
     .then(_ => {self.attachListener()})
     .then(_=> {self.updateVolumeSettings()})
     .then(_=> {
@@ -906,7 +906,7 @@ serialampcontroller.prototype.updateAmpSettings = function (data) {
     .then(_=> self.commandRouter.getUIConfigOnPlugin('system_controller', 'serialampcontroller', {}))
     .then(config => {self.commandRouter.broadcastMessage('pushUiConfig', config)})
     .then(_=> self.closeSerialInterface())
-    .then(_=> self.configSerialInterface())
+    .then(_=> self.openSerialPort())
     .then(_ => self.attachListener())
     .then(_=> self.updateVolumeSettings())
     .then(_=> self.volumioupdatevolume(self.getVolumeObject()))
