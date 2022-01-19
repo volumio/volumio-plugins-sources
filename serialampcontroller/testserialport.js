@@ -24,16 +24,16 @@ function output(params) {
   console.log(params)
 }
 
-const port = new SerialPort('/dev/ttyUSB0', serialOptions,function (err) {
-// const port = new SerialPort('/dev/ttyUSB0', {
-//   baudRate: 115200
-// }, function (err) {
+// const port = new SerialPort('/dev/ttyUSB0', serialOptions,function (err) {
+const port = new SerialPort('/dev/ttyUSB0', {
+  baudRate: 115200
+}, function (err) {
   if (err) {
-    return console.log('Error: ', err.message)
+    return console.log('New Port Error: ', err.message)
   }
 })
 
-const parser = port.pipe(new Readline({ delimiter: '$' }))
+var parser = port.pipe(new Readline({ delimiter: '$' }))
 parser.on('data', output)
 
 // Read data that is available but keep the stream in "paused mode"
@@ -49,8 +49,25 @@ parser.on('data', output)
 // // Pipe the data into another stream (like a parser or standard out)
 // const lineStream = port.pipe(new Readline())
 
-setTimeout(() => {
-  port.write("mute!",'ascii',function(err) {
-    console.log(err);
-  })  
-}, 1000);
+  setTimeout(() => {
+    if (port.isOpen) {
+      port.write("power?",'ascii',function(err) {
+        console.log('power error: ' + err);
+      })  
+      port.write("source?",'ascii',function(err) {
+        console.log('source error: ' + err);
+      })  
+      port.write("volume?",'ascii',function(err) {
+        console.log('volume error: ' + err);
+      })  
+      port.write("mute?",'ascii',function(err) {
+        console.log('mute error: ' + err);
+      })  
+      port.write("model?",'ascii',function(err) {
+        console.log('model error: ' + err);
+      })  
+    } else {
+      console.log('port not open');
+      process.exit(1)
+    }
+  }, 1000);
