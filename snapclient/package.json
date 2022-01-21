@@ -1,7 +1,7 @@
 {
 	"name": "snapclient",
 	"version": "1.0.5",
-	"description": "SnapCast is a multiroom client-server audio player, where all clients are time synchronized with the server to play perfectly synced audio.",
+	"description": "SnapCast is a multiroom client-server audio player, where all clients are time synchronized with the server to play perfectly synced audio. This is the client part.",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,22 @@
 	"volumio_info": {
 		"prettyName": "SnapClient",
 		"icon": "fa fa-podcast",
-		"plugin_type": "audio_interface"
+		"plugin_type": "audio_interface",
+		"os": [
+			"jessie",
+			"buster"
+		],
+		"architecture": [
+			"amd64",
+			"i386",
+			"armhf"
+		],
+		"details": "Client plugin for the SnapCast ecosystem",
+		"changelog": "Completely refactored client-plugin."
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=2"
 	},
 	"dependencies": {
 		"fs-extra": "^0.28.0",
@@ -19,20 +34,12 @@
 		"net": "^1.0.2",
 		"v-conf": "^1.4.0"
 	},
-	"devDependencies": {},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Saiyato/volumio-snapclient-plugin.git"
-	},
+	"repository": "https://github.com/Saiyato/volumio-snapclient-plugin",
 	"keywords": [
 		"snapcast",
 		"snapclient",
 		"multiroom",
 		"audio",
 		"volumio"
-	],
-	"bugs": {
-		"url": "https://github.com/Saiyato/volumio-snapclient-plugin/issues"
-	},
-	"homepage": "https://github.com/Saiyato/volumio-snapclient-plugin#readme"
+	]
 }
