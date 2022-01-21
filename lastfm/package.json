@@ -1,0 +1,42 @@
+{
+	"name": "lastfm",
+	"version": "1.5.3",
+	"description": "Installs a LastFM scrobbler which uses the Volumio artist and track info.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Saiyato",
+	"license": "GPL-3.0",
+	"volumio_info": {
+		"prettyName": "LastFM Scrobbler",
+		"icon": "fa-lastfm",
+		"plugin_type": "miscellanea"
+	},
+	"dependencies": {
+		"crypto": "^1.0.1",
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"simple-lastfm": "https://github.com/Saiyato/simple-lastfm/tarball/f5f1d1010d9e5abfb354d8db623c7d07c34d70db",
+		"socket.io-client": "^1.4.8",
+		"v-conf": "^0.10.0"
+	},
+	"devDependencies": {},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Saiyato/volumio-lastfm-plugin.git"
+	},
+	"keywords": [	
+		"fm",
+		"lastfm",
+		"last",
+		"scrobble",
+		"scrobbler",
+		"scrobbling",
+		"volumio"
+	],
+	"bugs": {
+		"url": "https://github.com/Saiyato/volumio-lastfm-plugin/issues"
+	},
+	"homepage": "https://github.com/Saiyato/volumio-lastfm-plugin#readme"
+}
