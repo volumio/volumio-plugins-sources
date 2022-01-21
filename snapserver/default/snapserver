@@ -1,0 +1,4 @@
+# Minimised start parameters
+START_SNAPSERVER=true
+USER_OPTS="--user snapserver:snapserver"
+SNAPSERVER_OPTS="-s pipe:///tmp/snapfifo?name=Volumio&mode=read&sampleformat=44100:16:2"

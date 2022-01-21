@@ -1,0 +1,79 @@
+{
+  "stream_name": {
+    "type": "string",
+    "value": "VolumioMain"
+  },    
+  "stream_sample_rate": {
+    "type": "string",
+    "value": "44100"
+  },
+  "stream_bit_depth": {
+    "type": "string",
+    "value": "16" 
+  },
+  "stream_channels": {
+    "type": "string",
+    "value": "2"
+  },
+  "stream_codec": {
+    "type": "string",
+    "value": "flac"
+  },
+  "enable_debug_logging": {
+    "type": "boolean",
+    "value": false
+  },  
+  "patch_mpd_conf": {
+    "type": "boolean",
+    "value": true
+  },
+  "mpd_sample_rate": {
+    "type": "string",
+    "value": "44100"
+  },
+  "mpd_bit_depth": {
+    "type": "string",
+    "value": "16" 
+  },
+  "mpd_channels": {
+    "type": "string",
+    "value": "2"
+  },
+  "enable_alsa_mpd": {
+    "type": "boolean",
+    "value": false
+  },
+  "enable_fifo_mpd": {
+    "type": "boolean",
+    "value": true
+  }, 
+  "mpd_stream": {
+    "type": "string",
+    "value": "1"
+  },  
+  "enable_volspotconnect_service": {
+    "type": "boolean",
+    "value": false
+  },
+  "volspotconnect_stream": {
+    "type": "string",
+    "value": 1
+  },
+  "enable_spop_service": {
+    "type": "boolean",
+    "value": false
+  },
+  "spop_stream": {
+    "type": "string",
+    "value": 1
+  },
+  "enable_airplay_service": {
+    "type": "boolean",
+    "value": false
+  }
+  ,
+  "airplay_stream": {
+    "type": "string",
+    "value": 1
+  }
+}
