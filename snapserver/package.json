@@ -11,27 +11,34 @@
 	"volumio_info": {
 		"prettyName": "SnapServer",
 		"icon": "fa fa-podcast",
-		"plugin_type": "audio_interface"
+		"plugin_type": "audio_interface",
+		"os": [
+			"jessie",
+			"buster"
+		],
+		"architecture": [
+			"amd64",
+			"i386",
+			"armhf"
+		],
+		"details": "Server plugin for the SnapCast ecosystem",
+		"changelog": "Completely refactored server-plugin, with minimal, but enough options."
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=2"
 	},
 	"dependencies": {
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
 		"v-conf": "^1.4.0"
 	},
-	"devDependencies": {},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Saiyato/volumio-snapserver-plugin.git"
-	},
+	"repository": "https://github.com/Saiyato/volumio-snapserver-plugin",
 	"keywords": [
 		"snapcast",
 		"snapserver",
 		"multiroom",
 		"audio",
 		"volumio"
-	],
-	"bugs": {
-		"url": "https://github.com/Saiyato/volumio-snapserver-plugin/issues"
-	},
-	"homepage": "https://github.com/Saiyato/volumio-snapserver-plugin#readme"
+	]
 }
