@@ -1,0 +1,98 @@
+{
+	"page": {
+		"label": "TRANSLATE.SNAPCLIENT.SNAPCLIENTCONF"
+	},
+	"sections": [{
+		"id": "section_clientconf",
+		"element": "section",
+		"label": "TRANSLATE.SNAPCLIENT.CLIENT",
+		"description": "TRANSLATE.SNAPCLIENT.D_CLIENT",
+		"icon": "fa-music",
+		"onSave": {
+			"type": "controller",
+			"endpoint": "audio_interface/snapclient",
+			"method": "updateSnapClient"
+		},
+		"saveButton": {
+			"label": "TRANSLATE.SNAPCLIENT.SAVE",
+			"data": ["volumio_host",
+			"custom_host",
+			"host",
+			"soundcard",			
+			"custom_host_id",
+			"host_id",
+			"client_cli"
+			]
+		},
+		"content": [
+		{
+			"id": "volumio_host",
+			"element": "select",
+			"doc": "TRANSLATE.SNAPCLIENT.D_VOLUMIOHOST",
+			"label": "TRANSLATE.SNAPCLIENT.VOLUMIOHOST",
+			"value": {
+				"value": "127.0.0.1",
+				"label": "Localhost [default]"
+			},
+			"options": []
+		},
+		{
+			"id": "custom_host",
+			"element": "switch",
+			"doc": "TRANSLATE.SNAPCLIENT.D_CUSTOMHOST",
+			"label": "TRANSLATE.SNAPCLIENT.CUSTOMHOST",
+			"value": false
+		},
+		{
+			"id": "host",
+			"element": "input",
+			"type": "text",
+			"doc": "TRANSLATE.SNAPCLIENT.D_HOSTNAME",
+			"label": "TRANSLATE.SNAPCLIENT.HOSTNAME",
+			"value": "127.0.0.1",
+			"visibleIf": {
+				"field": "custom_host",
+				"value": true
+			}
+		},
+		{
+			"id": "soundcard",
+			"element": "select",
+			"doc": "TRANSLATE.SNAPCLIENT.D_SOUNDCARD",
+			"label": "TRANSLATE.SNAPCLIENT.SOUNDCARD",
+			"value": {
+				"value": "ALSA",
+				"label": "Audio Jack"
+			},
+			"options": []
+		},
+		{
+			"id": "custom_host_id",
+			"element": "switch",
+			"doc": "TRANSLATE.SNAPCLIENT.D_CUSTOMHOSTID",
+			"label": "TRANSLATE.SNAPCLIENT.CUSTOMHOSTID",
+			"value": false
+		},
+		{
+			"id": "host_id",
+			"element": "input",
+			"type": "text",
+			"doc": "TRANSLATE.SNAPCLIENT.D_HOSTID",
+			"label": "TRANSLATE.SNAPCLIENT.HOSTID",
+			"value": "",
+			"visibleIf": {
+				"field": "custom_host_id",
+				"value": true
+			}
+		},
+		{
+			"id": "client_cli",
+			"element": "input",
+			"type": "text",
+			"doc": "TRANSLATE.SNAPCLIENT.D_CLI",
+			"label": "TRANSLATE.SNAPCLIENT.CLI",
+			"description": "TRANSLATE.SNAPCLIENT.DD_CLI",
+			"value": ""
+		}]
+	}]
+}

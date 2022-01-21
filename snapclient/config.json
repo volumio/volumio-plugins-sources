@@ -1,0 +1,34 @@
+{
+  "client_id": {
+    "type": "string",
+    "value": ""
+  },
+  "volumio_host": {
+    "type": "string",
+    "value": "127.0.0.1"
+  },
+  "custom_host": {
+    "type": "boolean",
+    "value": false
+  },
+  "host": {
+    "type": "string",
+    "value": ""
+  },
+  "soundcard": {
+    "type": "string",
+    "value": "ALSA"
+  },  
+  "custom_host_id": {
+    "type": "boolean",
+    "value": false
+  },
+  "host_id": {
+    "type": "string",
+    "value": ""
+  },
+  "client_cli": {
+	"type": "string",
+    "value": ""
+  }
+}

@@ -1,0 +1,23 @@
+{
+	"SNAPCLIENT":{
+	"SNAPCLIENTCONF":"SnapCast Client Configuration",
+		"CLIENT":"SnapClient settings",
+		"D_CLIENT":"Configure the local snapclient, you can either connect to the local server or another one in the network. Please note that the listed hosts are not necessarily snapservers, these are merely enumerated Volumio instances.",
+			"VOLUMIOHOST":"Volumio host",
+			"D_VOLUMIOHOST":"Choose a Volumio host, note: you still need to verify and install the SnapServer on that host.",
+			"CUSTOMHOST":"Define a custom host",
+			"D_CUSTOMHOST":"Define a custom (possibly) non-Volumio host",
+			"HOSTNAME":"SnapCast host (name/IP)",
+			"D_HOSTNAME":"SnapCast server name or IP.",
+			"SOUNDCARD":"Soundcard to use for playback",
+			"D_SOUNDCARD":"The soundcard you wish to use for the SnapCast client output.",	
+			"CUSTOMHOSTID":"Define a custom host ID",
+			"D_CUSTOMHOST":"Define a custom SnapCast client host ID.",
+			"HOSTID":"SnapCast client host ID",
+			"D_HOSTID":"Define a SnapCast host by filling in its ID.",
+		"CLI": "Additional CLI commands",
+		"D_CLI": "This field allows you to add CLI commands to your setup.<br />You can find the commands here: https://github.com/badaix/snapcast#Configuration",
+		"DD_CLI": "The CLI commands will be appended to the config. In the case of leading spaces, prefix the string with a backslash (\\).",
+	"SAVE": "Save"
+	}
+}

@@ -1,0 +1,4 @@
+# defaults file for snapclient
+START_SNAPCLIENT=true
+USER_OPTS="--user snapclient:audio"
+SNAPCLIENT_OPTS="-h volumio.local -s ALSA"
