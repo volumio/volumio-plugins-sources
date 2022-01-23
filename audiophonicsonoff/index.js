@@ -59,11 +59,16 @@ ControllerAudiophonicsOnOff.prototype.onStop = function() {
 	var self = this;
 	self.logger.info("performing onStop action");
 	
-	self.shutdownButton.unwatchAll();
-	self.shutdownButton.unexport();
-	self.bootOk.unexport();
-	self.softShutdown.unexport();
-	
+	if(self.bootOk != undefined)
+		self.bootOk.unexport();
+	if(self.softShutdown != undefined)
+		self.softShutdown.unexport();
+	if(self.shutdownButton != undefined)
+	{
+		self.shutdownButton.unwatchAll();
+		self.shutdownButton.unexport();
+	}
+
 	return libQ.resolve();
 };
 
