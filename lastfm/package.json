@@ -11,7 +11,7 @@
 	"volumio_info": {
 		"prettyName": "LastFM Scrobbler",
 		"icon": "fa-lastfm",
-		"plugin_type": "user_interface"
+		"plugin_type": "user_interface",
 		"os": [
 			"jessie",
 			"buster"
