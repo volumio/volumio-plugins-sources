@@ -60,22 +60,9 @@ FusionDsp.prototype.onStart = function () {
   //----- alsa temporary workaround--------
   self.loadalsastuff();
   //---------------------------------------
-
   self.hwinfo();
-
-  /*-----------Experimental CamillaGui
-
-  try {
-    exec("/usr/bin/python3 /data/plugins/audio_interface/fusiondsp/cgui/main.py", {
-      uid: 1000,
-      gid: 1000
-    });
-    self.commandRouter.pushConsoleMessage('CamillaGui loaded');
-    defer.resolve();
-  } catch (err) {
-    self.logger.info('failed to load Camilla Gui' + err);
-  }
-*/
+  self.purecamillagui();
+  self.getIP();
 
   // if mixer set to none, do not show loudness settings
   //this.commandRouter.sharedVars.registerCallback('alsa.mixertype',  this.refreshUI.bind(this));
@@ -218,7 +205,7 @@ FusionDsp.prototype.hwinfo = function () {
 
 // Configuration methods------------------------------------------------------------------------
 
-FusionDsp.prototype.getUIConfig = function () {
+FusionDsp.prototype.getUIConfig = function (address) {
   const self = this;
   let defer = libQ.defer();
 
@@ -250,6 +237,9 @@ FusionDsp.prototype.getUIConfig = function () {
         case ("convfir"):
           var dsplabel = self.commandRouter.getI18nString('CONV_LABEL')
           break;
+        //    case ("purecgui"):
+        //    var dsplabel = "Pure CamillaDsp gui"
+        //  break;
         default: "EQ15"
       }
       // No convolution if cpu is armv6l
@@ -272,6 +262,10 @@ FusionDsp.prototype.getUIConfig = function () {
             "value": "convfir",
             "label": self.commandRouter.getI18nString('CONV_LABEL')
           }]
+          // {
+          // "value": "purecgui",
+          // "label": "Pure CamillaDsp Gui"
+          //  }]
           self.configManager.setUIConfigParam(uiconf, 'sections[0].content[0].value.value', selectedsp);
           self.configManager.setUIConfigParam(uiconf, 'sections[0].content[0].value.label', dsplabel);
 
@@ -746,11 +740,11 @@ FusionDsp.prototype.getUIConfig = function () {
         var valuestored
         let valuestoredl
         let valuestoredr
-
+        
         valuestoredl = self.config.get('leftfilter');
         var valuestoredllabel = valuestoredl.replace("$samplerate$", "variable samplerate")
         self.configManager.setUIConfigParam(uiconf, 'sections[1].content[0].value.value', valuestoredl);
-        self.configManager.setUIConfigParam(uiconf, 'sections[1].content[0].value.label', valuestoredl);
+        self.configManager.setUIConfigParam(uiconf, 'sections[1].content[0].value.label', valuestoredllabel);
 
         value = self.config.get('attenuationl');
         self.configManager.setUIConfigParam(uiconf, 'sections[1].content[1].value.value', value);
@@ -759,7 +753,7 @@ FusionDsp.prototype.getUIConfig = function () {
         valuestoredr = self.config.get('rightfilter');
         var valuestoredrlabel = valuestoredr.replace("$samplerate$", "variable samplerate")
         self.configManager.setUIConfigParam(uiconf, 'sections[1].content[2].value.value', valuestoredr);
-        self.configManager.setUIConfigParam(uiconf, 'sections[1].content[2].value.label', valuestoredr);
+        self.configManager.setUIConfigParam(uiconf, 'sections[1].content[2].value.label', valuestoredrlabel);
         value = self.config.get('attenuationr');
         self.configManager.setUIConfigParam(uiconf, 'sections[1].content[3].value.value', value);
         self.configManager.setUIConfigParam(uiconf, 'sections[1].content[3].value.label', value);
@@ -806,9 +800,63 @@ FusionDsp.prototype.getUIConfig = function () {
         uiconf.sections[1].saveButton.data.push('rightfilter');
         uiconf.sections[1].saveButton.data.push('attenuationr');
         uiconf.sections[1].saveButton.data.push('enableclipdetect');
+
+        //----------------end of convfir section------------
+
+        //----------------Pure CamillaDsp section------------
+      } else if (selectedsp == "purecgui") {
+        // var devicename = self.commandRouter.sharedVars.get('system.name');
+
+        var IPaddress = self.config.get('address')
+
+        var purecamillainstalled = self.config.get('purecgui')
+        uiconf.sections[1].hidden = true;
+        uiconf.sections[2].hidden = true;
+        uiconf.sections[3].hidden = true;
+        uiconf.sections[4].hidden = true;
+        uiconf.sections[5].hidden = true;
+        uiconf.sections[6].hidden = true;
+        uiconf.sections[7].hidden = true;
+        uiconf.sections[8].hidden = true;
+
+        if (purecamillainstalled == true) {
+
+          //  self.getIP()
+          self.logger.info('IP adress is ---------------------------' + IPaddress)
+          uiconf.sections[9].content.push(
+            {
+              "id": "camillagui",
+              "element": "button",
+              "label": "Access to Camilla Gui",
+              "doc": "CamillaGui",
+              "onClick": {
+                "type": "openUrl",
+                "url": "http://" + IPaddress + ":5011"
+              }
+            }
+          )
+        } else if (purecamillainstalled == false) {
+          uiconf.sections[9].content.push(
+
+            {
+              "id": "installcamillagui",
+              "element": "button",
+              "label": "First use. Install Camilla GUI",
+              "doc": "First use. Install Camilla GUI",
+              "onClick": {
+                "type": "plugin",
+                "endpoint": "audio_interface/fusiondsp",
+                "method": "installcamillagui",
+                "data": [],
+
+              }
+            }
+          )
+        }
       }
 
-      //----------------end of convfir section------------
+
+
       //---------------more settings---------------------
       var moresettings = self.config.get('moresettings')
       if (moresettings == false) {
@@ -1063,24 +1111,9 @@ FusionDsp.prototype.getUIConfig = function () {
 
       }
       //------------experimental
-      /*
-     var devicename = self.commandRouter.sharedVars.get('system.name');
-     
-      {
-        "id": "camillagui",
-        "element": "button",
-        "label": "CamillaGui (experimental)",
-        "doc": "CamillaGui",
-        "onClick": {
-          "type": "openUrl",
-          "url": "http://" + devicename + ".local:5011"
-        },
-        "visibleIf": {
-          "field": "showeq",
-          "value": true
-        },
-      } 
-      */
+
+      var devicename = self.commandRouter.sharedVars.get('system.name');
+
       //-----------------
 
       // }
@@ -1562,6 +1595,9 @@ FusionDsp.prototype.choosedsp = function (data) {
     self.config.set('nbreq', 2),
       self.config.set('mergedeq', self.config.get('savedmergedeqfir'))
 
+  } else if (selectedsp === 'purecgui') {
+    self.logger.info('Launching CamillaDsp GUI')
+    self.purecamillagui()
   }
 
   self.config.set('effect', true)
@@ -1574,6 +1610,70 @@ FusionDsp.prototype.choosedsp = function (data) {
 
   self.refreshUI();
 };
+
+FusionDsp.prototype.getIP = function () {
+  const self = this;
+  var address
+  var iPAddresses = self.commandRouter.executeOnPlugin('system_controller', 'network', 'getCachedIPAddresses', '');
+  if (iPAddresses && iPAddresses.eth0 && iPAddresses.eth0 != '') {
+    address = iPAddresses.eth0;
+  } else if (iPAddresses && iPAddresses.wlan0 && iPAddresses.wlan0 != '' && iPAddresses.wlan0 !== '192.168.211.1') {
+    address = iPAddresses.wlan0;
+  } else {
+    address = '127.0.0.1';
+  }
+  self.config.set('address', address)
+};
+
+FusionDsp.prototype.purecamillagui = function () {
+  const self = this;
+  let defer = libQ.defer();
+
+  //-----------Experimental CamillaGui
+
+  try {
+    exec("/usr/bin/python3 /data/plugins/audio_interface/fusiondsp/cgui/main.py", {
+      uid: 1000,
+      gid: 1000
+    });
+    self.commandRouter.pushConsoleMessage('CamillaGui loaded');
+    defer.resolve();
+  } catch (err) {
+    self.logger.info('failed to load Camilla Gui' + err);
+  }
+
+}
+
+FusionDsp.prototype.installcamillagui = function () {
+  const self = this;
+  let defer = libQ.defer();
+
+  //-----------Experimental CamillaGui
+  self.config.set('purecgui', true)
+
+  try {
+
+    exec('/usr/bin/sudo /usr/bin/apt update', { uid: 1000, gid: 1000, encoding: 'utf8' });
+    defer.resolve();
+  } catch (err) {
+    self.logger.info('failed to apt update' + err);
+  }
+
+  try {
+    self.commandRouter.pushToastMessage('info', 'Takes up to 3 min')
+
+    execSync('/data/plugins/audio_interface/fusiondsp/installcamillagui.sh', {
+      uid: 1000,
+      gid: 1000
+    });
+    self.refreshUI()
+    defer.resolve();
+  } catch (err) {
+    self.logger.info('failed to install Camilla Gui' + err);
+  }
+
+}
+
 
 
 FusionDsp.prototype.addeq = function (data) {
@@ -1879,7 +1979,7 @@ FusionDsp.prototype.testclipping = function () {
 
     let track = '/data/plugins/audio_interface/fusiondsp/testclipping/testclipping.wav';
     try {
-      let cmd = ('/usr/bin/aplay --device=volumioDsp ' + track);
+      let cmd = ('/usr/bin/aplay -c2 --device=volumioDspfx ' + track);
       self.commandRouter.pushToastMessage('info', 'Clipping detection in progress...');
 
       // exec('/usr/bin/killall aplay');
@@ -2003,42 +2103,42 @@ FusionDsp.prototype.dfiltertype = function (data) {
     auto_filter_format = 'TEXT';
   }
   else if (filext == 'wav') {
-
+    let SampleFormat;
     // return;
 
-    /* try {
-       execSync('/usr/bin/python /data/plugins/audio_interface/fusiondsp/test.py ' + filterfolder + filtername + ' >/tmp/test.result');
-       setTimeout(function () {
- 
-         fs.readFile('/tmp/test.result', 'utf8', function (err, result) {
-           if (err) {
-             self.logger.info('Error reading test.result', err);
-           } else {
-             var resultJSON = JSON.parse(result);
-             var DataLength = resultJSON.DataLength;
-             var DataStart = resultJSON.DataStart;
-             var BytesPerFrame = resultJSON.BytesPerFrame;
-             SampleFormat = resultJSON.SampleFormat;
- 
-             filelength = DataLength / BytesPerFrame;
-             skipvalue = ('skip_bytes_lines: ' + (8 + (+DataStart)));
- 
-             self.config.set('filter_size', filelength);
-             self.config.set('skipvalue', skipvalue);
-             self.config.set('wavetype', SampleFormat);
- 
-           }
-         });
-       }, 50);
- 
-       auto_filter_format = self.config.get('wavetype').replace('_', '');
-       filelength = self.config.get('filter_size');
-       skipvalue = self.config.get('skipvalue');
- 
-     } catch (e) {
-       self.logger.error('Could not read wav file: ' + e)
-     }
-     */
+    try {
+      execSync('/usr/bin/python /data/plugins/audio_interface/fusiondsp/test.py ' + filterfolder + filtername + ' >/tmp/test.result');
+      setTimeout(function () {
+
+        fs.readFile('/tmp/test.result', 'utf8', function (err, result) {
+          if (err) {
+            self.logger.info('Error reading test.result', err);
+          } else {
+            var resultJSON = JSON.parse(result);
+            var DataLength = resultJSON.DataLength;
+            var DataStart = resultJSON.DataStart;
+            var BytesPerFrame = resultJSON.BytesPerFrame;
+            SampleFormat = resultJSON.SampleFormat;
+
+            filelength = DataLength / BytesPerFrame;
+            skipvalue = ('skip_bytes_lines: ' + (8 + (+DataStart)));
+
+            self.config.set('filter_size', filelength);
+            self.config.set('skipvalue', skipvalue);
+            self.config.set('wavetype', SampleFormat);
+
+          }
+        });
+      }, 50);
+
+      auto_filter_format = self.config.get('wavetype').replace('_', '');
+      filelength = self.config.get('filter_size');
+      skipvalue = self.config.get('skipvalue');
+
+    } catch (e) {
+      self.logger.error('Could not read wav file: ' + e)
+    }
+
   } else {
     let modalData = {
       title: self.commandRouter.getI18nString('FILTER_FORMAT_TITLE'),
@@ -2057,7 +2157,7 @@ FusionDsp.prototype.dfiltertype = function (data) {
   self.config.set('filter_format', auto_filter_format);
   self.logger.info('--------->filter format ' + filext + ' ' + auto_filter_format);
   self.logger.info('--------->filter size ' + filelength);
-  // self.logger.info('--------->Skip value for wav :' + skipvalue);
+  self.logger.info('--------->Skip value for wav :' + skipvalue);
 
 
   var arr = [2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144];
@@ -2117,8 +2217,8 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       var leftlevel = self.config.get('leftlevel')
       var rightlevel = self.config.get('rightlevel')
       //----fIr VARIABLES----
-      var filter1 = self.config.get('leftfilter');
-      var filter2 = self.config.get('rightfilter');
+      let filter1 = self.config.get('leftfilter');
+      let filter2 = self.config.get('rightfilter');
       var attenuation = self.config.get('attenuationl');
       var testclipping = self.config.get('testclipping')
       // var smpl_rate = self.config.get('smpl_rate')
@@ -3192,6 +3292,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     let attenuationr = (data['attenuationr'].value);
     let leftfilter = (data['leftfilter'].value);
     let rightfilter = (data['rightfilter'].value);
+
     //   self.logger.error('Sxxxxxxxxxxxxxxxxxxxxxxxxxxxx' + leftfilter);
     let filtername //= self.config.get('leftfilterlabel');
     let filext = (data['leftfilter'].value).split('.').pop().toString();
@@ -3209,40 +3310,44 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       return;
 
     } else {
-
-      if (filext == "wav") {
-        let listf = ('leftfilter,rightfilter')
-        let list = listf.split(',')
-        for (i in list) {
-          filtername = (data[list[i]].value)
-          self.commandRouter.pushToastMessage('error', 'Wav file is going to be converted in raw to be use')
-          //sox example.wav --bits 32 example.raw
-          try {
-            let cmdsox = ("/usr/bin/sox " + filterfolder + filtername + " --bits 32 " + filterfolder + filtername.slice(0, -3) + "raw");
-            execSync(cmdsox);
-            self.logger.info(cmdsox);
-            self.commandRouter.pushToastMessage('success', 'Wav file converted in raw. Please select it now to use it')
-
-          } catch (e) {
-            self.logger.error('input file does not exist ' + e);
-            self.commandRouter.pushToastMessage('error', 'Sox fails to convert file' + e);
-          };
-          self.config.set(list[i], filtername.slice(0, -3) + "raw");
-          self.config.set('leftfilterlabel', filtername.slice(0, -3) + "raw");
-
-          // self.config.set(list[i] + ',' + filtername.slice(0, -3) + "raw")
-          self.logger.info('filter saved ' + list[i] + ',' + filtername.slice(0, -3) + "raw")
-          // self.refreshUI();
-        }
-      } else {
-        self.config.set('leftfilterlabel', leftfilter);
-        self.config.set('leftfilter', leftfilter);
-        self.config.set('rightfilter', rightfilter);
-      }
+      /*
+      
+            if (filext == "wav") {
+              let listf = ('leftfilter,rightfilter')
+              let list = listf.split(',')
+              for (i in list) {
+                filtername = (data[list[i]].value)
+                self.commandRouter.pushToastMessage('error', 'Wav file is going to be converted in raw to be use')
+                //sox example.wav --bits 32 example.raw
+                try {
+                  let cmdsox = ("/usr/bin/sox " + filterfolder + filtername + " --bits 32 " + filterfolder + filtername.slice(0, -3) + "raw");
+                  execSync(cmdsox);
+                  self.logger.info(cmdsox);
+                  self.commandRouter.pushToastMessage('success', 'Wav file converted in raw. Please select it now to use it')
+      
+                } catch (e) {
+                  self.logger.error('input file does not exist ' + e);
+                  self.commandRouter.pushToastMessage('error', 'Sox fails to convert file' + e);
+                };
+                self.config.set(list[i], filtername.slice(0, -3) + "raw");
+                self.config.set('leftfilterlabel', filtername.slice(0, -3) + "raw");
+      
+                // self.config.set(list[i] + ',' + filtername.slice(0, -3) + "raw")
+                self.logger.info('filter saved ' + list[i] + ',' + filtername.slice(0, -3) + "raw")
+                // self.refreshUI();
+              }
+            } else {
+              self.config.set('leftfilterlabel', leftfilter);
+              self.config.set('leftfilter', leftfilter);
+              self.config.set('rightfilter', rightfilter);
+            }*/
       self.dfiltertype(data);
 
       let val = self.dfiltertype(obj);
       let valfound = val.valfound
+      self.config.set('leftfilterlabel', leftfilter);
+      self.config.set('leftfilter', leftfilter);
+      self.config.set('rightfilter', rightfilter);
       let enableclipdetect = data['enableclipdetect'];
       self.config.set('attenuationl', attenuationl);
       self.config.set('attenuationr', attenuationr);
@@ -3282,9 +3387,10 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
 
       }
       setTimeout(function () {
-
-        self.areSampleswitch();
-      }, 1500);
+ 
+         self.areSampleswitch();
+       }, 1500);
+       
       let ltest, rtest, cleftfilter, crightfilter
 
       cleftfilter = filterfolder + leftfilter
@@ -3356,7 +3462,15 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     }
     let loudness = data["loudness"]
     if (loudness) {
-      self.sendvolumelevel()
+      self.config.set('loudnessthreshold', data.loudnessthreshold)
+      socket.emit('volume', '+')
+      setTimeout(function () {
+
+        self.sendvolumelevel()
+      }, 900);
+
+      socket.emit('volume', '-')
+      self.logger.info('--------xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-------------volume emit')
     } else {
       socket.off()
     }
@@ -3368,7 +3482,6 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     if (self.config.get('showloudness')) {
 
       self.config.set('loudness', loudness);
-      self.config.set('loudnessthreshold', data.loudnessthreshold)
     }
   }
 
@@ -3615,7 +3728,10 @@ FusionDsp.prototype.usethispreset = function (data) {
 
   setTimeout(function () {
     self.refreshUI();
+
     self.createCamilladspfile()
+
+
   }, 500);
   return defer.promise;
 
@@ -3989,13 +4105,15 @@ FusionDsp.prototype.playToolsFile = function (data) {
 
 FusionDsp.prototype.sendvolumelevel = function () {
   const self = this;
-  let loudnessMaxGain = 15
-  let loudnessVolumeThreshold = self.config.get('loudnessthreshold')
-  let loudnessLowThreshold = 10
-  let loudnessRange = loudnessVolumeThreshold - loudnessLowThreshold
-  let ratio = loudnessMaxGain / loudnessRange
-  let loudnessGain
+
   socket.on('pushState', function (data) {
+    let loudnessVolumeThreshold = self.config.get('loudnessthreshold')
+    let loudnessMaxGain = 15
+    let loudnessLowThreshold = 10
+    let loudnessRange = loudnessVolumeThreshold - loudnessLowThreshold
+    let ratio = loudnessMaxGain / loudnessRange
+    let loudnessGain
+
     if (data.volume > loudnessLowThreshold && data.volume < loudnessVolumeThreshold) {
       loudnessGain = ratio * (loudnessVolumeThreshold - data.volume)
     } else if (data.volume <= loudnessLowThreshold) {
