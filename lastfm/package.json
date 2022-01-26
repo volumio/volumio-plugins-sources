@@ -15,7 +15,7 @@
 		"os": [
 			"buster"
 		],
-		"architecture": [
+		"architectures": [
 			"amd64",
 			"i386",
 			"armhf"
