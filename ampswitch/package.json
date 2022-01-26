@@ -1,0 +1,37 @@
+{
+	"name": "ampswitch",
+	"version": "0.2.0",
+	"description": "Status based power management of external amplifier",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Tim Lange",
+	"license": "ISC",
+	"volumio_info": {
+		"prettyName": "Amplifier Switch",
+		"icon": "fa-power-off",
+		"plugin_type": "system_controller",
+		"boot_priority": 1,
+		"os": [
+			"buster"
+		],
+		"details": "Status based power management of external amplifier",
+		"changelog": "",
+		"architectures": [
+			"armhf"
+		]
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^0.10.0",
+		"onoff": "^6.0.3",
+		"socket.io-client": "^2.0.0"
+	},
+	"engines": {
+		"volumio": ">=3",
+		"node": ">=14.15.4"
+	},
+	"repository": "https://github.com/volumio/volumio-plugins-sources"
+}
