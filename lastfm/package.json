@@ -13,7 +13,6 @@
 		"icon": "fa-lastfm",
 		"plugin_type": "user_interface",
 		"os": [
-			"jessie",
 			"buster"
 		],
 		"architecture": [
@@ -25,8 +24,8 @@
 		"changelog": "Completely refactored."
 	},
 	"engines": {
-		"node": ">=8",
-		"volumio": ">=2"
+		"node": ">=14.0",
+		"volumio": ">=2.0.0"
 	},
 	"dependencies": {
 		"crypto": "^1.0.1",
