@@ -24,7 +24,7 @@
 		"changelog": "Completely refactored server-plugin, with minimal, but enough options."
 	},
 	"engines": {
-		"node": ">=14.0",
+		"node": ">=8.11.1",
 		"volumio": ">=2.0.0"
 	},
 	"dependencies": {
