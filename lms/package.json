@@ -24,7 +24,7 @@
 		"changelog": "Refactored installation script, now tries to fetch the latest version."
 	},
 	"engines": {
-		"node": ">=14.0",
+		"node": ">=8.11.1",
 		"volumio": ">=2.0.0"
 	},
 	"dependencies": {
