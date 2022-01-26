@@ -24,7 +24,7 @@
 		"changelog": "Slightly refactored client-plugin"
 	},
 	"engines": {
-		"node": ">=8.0",
+		"node": ">=8.11.1",
 		"volumio": ">=2.0.0"
 	},
 	"dependencies": {
