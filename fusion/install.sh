@@ -29,36 +29,36 @@ rm -Rf $LIB/filters
 rm -Rf $LIB/target-curves
 rm -Rf $LIB/filters-sources
 		
-echo "copying hw detection script"
+echo "Installing/fusiondsp dependencies"
+sudo apt update
+sudo apt -y install python3-aiohttp python3-pip
 #for future use.....
-#cd $LIB
+cd $LIB
+wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/cgui.zip
 #mv cgui.zip.ren cgui.zip
-#miniunzip cgui.zip
-#sudo chown -R volumio cgui
-#sudo chgrp -R volumio cgui
-#
-#
-#echo "Installing/fusiondsp dependencies"
-#sudo apt update
-#sudo apt -y install python3-aiohttp python3-pip
-#
-#cd $LIB
-#git clone https://github.com/HEnquist/pycamilladsp
-#sudo chown -R volumio pycamilladsp
-#sudo chgrp -R volumio pycamilladsp
-#
-#cd $LIB/pycamilladsp
-#pip3 install .
-#cd $LIB
-#git clone https://github.com/HEnquist/pycamilladsp-plot
-#sudo chown -R volumio pycamilladsp-plot
-#sudo chgrp -R volumio pycamilladsp-plot
-#
-#cd $LIB/pycamilladsp-plot
-#pip3 install .
+miniunzip cgui.zip
+sudo chown -R volumio cgui
+sudo chgrp -R volumio cgui
+
+cd $LIB
+git clone https://github.com/HEnquist/pycamilladsp
+sudo chown -R volumio pycamilladsp
+sudo chgrp -R volumio pycamilladsp
+
+cd $LIB/pycamilladsp
+echo "pycamilladsp pip3 install"
+pip3 install .
+cd $LIB
+git clone https://github.com/HEnquist/pycamilladsp-plot
+sudo chown -R volumio pycamilladsp-plot
+sudo chgrp -R volumio pycamilladsp-plot
+
+cd $LIB/pycamilladsp-plot
+echo "pycamilladsp-plot pip3 install"
+
+pip3 install .
 cd $LIB
 
-#
 #echo "remove previous configuration"
 #if [ ! -f "/data/configuration/audio_interface/fusiondsp/config.json" ];
 #	then
@@ -88,7 +88,7 @@ ln -s  $LIB/lib/arm/libasound_module_pcm_cdsp.so /usr/lib/arm-linux-gnueabihf/al
 sudo cp $LIB/c/hw_params_arm $LIB/hw_params
 sudo chmod +x $LIB/hw_params
 
-sudo apt-get update
+#sudo apt-get update
 sudo apt-get -y install drc
 
 elif [ $cpu = "x86_64" ]
@@ -106,7 +106,7 @@ ln -s $LIB/lib/x86_amd64/libasound_module_pcm_cdsp.so /usr/lib/x86_64-linux-gnu/
 cp $LIB/c/hw_params_amd64 $LIB/hw_params
 chmod +x $LIB/hw_params
 
-sudo apt-get update
+#sudo apt-get update
 sudo apt-get -y install drc
 
 elif [ $cpu = "armv6l" ]
