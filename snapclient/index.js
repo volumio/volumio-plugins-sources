@@ -125,7 +125,7 @@ snapclient.prototype.getUIConfig = function() {
         })
         .fail(function(err)
         {
-			console.log('An error occurred: ' + err);
+			self.logger.error('[SnapClient] An error occurred: ' + err);
             defer.reject(new Error());
         });
 
@@ -224,7 +224,7 @@ snapclient.prototype.getAlsaCards = function () {
 
 		}
 	} catch (e) {
-		self.logger.error('[SnapClient] Could not enumerate soundcards, error: ' + e);
+		self.logger.error('[SnapClient] Could not enumerate soundcards, error: ' + e.message);
 		var namestring = 'No Audio Device Available';
 		cards.push({id: '', hw: 'ALSA', name: namestring});
 	}
@@ -248,7 +248,6 @@ snapclient.prototype.getCardinfo = function (cardnum) {
 snapclient.prototype.getVolumioInstances = function () {
 	var self = this;
 	var results = self.commandRouter.executeOnPlugin('system_controller', 'volumiodiscovery', 'getDevices', '');
-	
 	return results;
 };
 
@@ -275,9 +274,18 @@ snapclient.prototype.updateSnapClientConfig = function (data)
 	var hostID = "";
 	if(data['custom_host_id'] && data['host_id'] != undefined && data['host_id'] != "")
 		hostID = " --hostID " + data['host_id'];
-		
-	self.streamEdit("SNAPCLIENT_OPTS", "SNAPCLIENT_OPTS=\"" + streamHost + snapSoundCard + hostID + " " + cli_commands + "\"", __dirname + "/default/snapclient", false);
-	self.commandRouter.pushToastMessage('success', "Settings saved", "Successfully saved the SnapClient settings and reinitialized the player.");
+	
+	try
+	{
+		self.streamEdit("SNAPCLIENT_OPTS", "SNAPCLIENT_OPTS=\"" + streamHost + snapSoundCard + hostID + " " + cli_commands + "\"", __dirname + "/default/snapclient", false);
+		self.commandRouter.pushToastMessage('success', "Settings saved", "Successfully saved the SnapClient settings and reinitialized the player.");
+		defer.resolve();
+	}
+	catch(e)
+	{
+		self.logger.error("[SnapClient] an error occurred while trying to update the SnapClient settings. Error:\n " + e.message);
+		defer.reject(new Error("Unable to save settings with error: " + e.message));
+	}
 	
 	return defer.promise;
 };
@@ -293,12 +301,10 @@ snapclient.prototype.executeShellScript = function (scriptName)
 	exec(command, {uid:1000, gid:1000}, function (error, stout, stderr) {
 		if(error)
 		{
-			console.log(stderr);
+			self.logger.error("[SnapClient] could not execute script with error: " + stderr);
 			self.commandRouter.pushConsoleMessage('[SnapClient] Could not execute script {' + scriptName + '} with error: ' + error);
 		}
-
 		self.commandRouter.pushConsoleMessage('[SnapClient] Successfully executed script {' + scriptName + '}');
-		//fs.unlinkSync(scriptName)
 		defer.resolve();
 	});
 
@@ -323,8 +329,7 @@ snapclient.prototype.streamEdit = function (pattern, value, inFile, append)
 
 	exec(command, {uid:1000, gid:1000}, function (error, stout, stderr) {
 		if(error)
-			console.log(stderr);
-
+			self.logger.error("[SnapClient] unable to edit stream (sed) with error: " + stderr);
 		defer.resolve();
 	});
 	
@@ -340,7 +345,7 @@ snapclient.prototype.isValidJSON = function (str)
     } 
 	catch (e) 
 	{
-		self.logger.error('[SnapClient] Could not parse JSON, error: ' + e + '\nMalformed JSON msg: ' + JSON.stringify(str));
+		self.logger.error('[SnapClient] Could not parse JSON, error: ' + e.message + '\nMalformed JSON msg: ' + JSON.stringify(str));
         return false;
     }
     return true;
