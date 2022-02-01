@@ -23,7 +23,7 @@
                     "volValue": "vol_##!",
                     "mute": "mute!",
                     "muteOn": "mute_on!",
-                    "muteOff": "mute_off!",
+                    "muteOff": "mute_off!"
                 },
             "responses": [
                 {"rx": "power=on", "cmd": ["respPowerOn"]},
