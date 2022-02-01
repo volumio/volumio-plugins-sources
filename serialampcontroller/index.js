@@ -1,4 +1,5 @@
 // review all ########  and +++++++++++
+//retrievevolume muss noch definiert werden
 
 'use strict';
 
@@ -69,7 +70,9 @@ serialampcontroller.prototype.onStart = function() {
     .then(_ => self.setActiveAmp())
     //configure the serial interface and open it
     .then(_ => self.openSerialPort())
-
+    //update Volume Settings and announce the updated settings to Volumio
+    .then(_ => self.alsavolume(this.config.get('startupVolume')))
+    .then(_ => self.updateVolumeSettings())
 	// Once the Plugin has successfull started resolve the promise
     .then(function(){
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onStart: successfully started plugin');
@@ -89,7 +92,7 @@ serialampcontroller.prototype.loadAmpDefinitions = function() {
     var ampDefinitionFile = this.commandRouter.pluginManager.getConfigurationFile(this.context,'ampCommands.json');
     self.ampDefinitions = new(require('v-conf'))();
     self.ampDefinitions.loadFile(ampDefinitionFile);
-    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] loadAmpDefinitions: loaded AmpDefinitions: ' + JSON.stringify(self.ampDefinitions.data));
+    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] loadAmpDefinitions: loaded AmpDefinitions: ' + JSON.stringify(self.ampDefinitions));
     //Generate list of Amp Names as combination of Vendor + Model
     self.ampVendorModelList = [];
     for (var n = 0; n < self.ampDefinitions.data.amps.length; n++)
@@ -150,12 +153,14 @@ serialampcontroller.prototype.onStop = function() {
     var defer=libQ.defer();
 
     self.socket.off('pushState');
-    self.port.close(error => {
-        if (error) {
-            self.logger.error('[SERIALAMPCONTROLLER] onStop: problem during close of serial Port: ' + error);
-        }
-        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onStop: closed serial Port');        
-    });
+    if (self.port!==undefined && self.port.isOpen) {
+        self.port.close(error => {
+            if (error) {
+                self.logger.error('[SERIALAMPCONTROLLER] onStop: problem during close of serial Port: ' + error);
+            }
+            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onStop: closed serial Port');        
+        });
+    }
     defer.resolve();
 
     return defer.promise;
@@ -285,6 +290,15 @@ serialampcontroller.prototype.openSerialPort = function (){
     if ((self.config.get('serialInterfaceDev')!==undefined) && 
         (self.config.get('serialInterfaceDev')!=='...') &&
         (Object.keys(self.selectedAmp).length > 0))  {
+            //if port is open, close it first
+            if (self.port !== undefined && self.port.isOpen) {
+                self.port.close(error => {
+                    if (error) {
+                        self.logger.error('[SERIALAMPCONTROLLER] openSerialPort: problem during close of serial Port: ' + error);
+                    }
+                    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: closed serial Port');        
+                });
+            }
             //SerialPort and Amp selected, now check if all settings are defined
             if (self.selectedAmp.baudRate!==undefined &&
                     self.selectedAmp.dataBits!==undefined &&
@@ -459,7 +473,7 @@ serialampcontroller.prototype.sendCommand  = function(...cmd) {
         default:
             break;
     }
-    if (cmdString!==''){
+    if (self.port !== undefined && cmdString!==''){
         if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] sendCommand: now sending cmdString: " + cmdString);
         self.port.write(cmdString,'ascii',function(err) {
             if (err) {
@@ -603,7 +617,7 @@ serialampcontroller.prototype.sendStatusRequest = function(messageType) {
         default:
             break;
     };
-    if (!cmdString=='') {
+    if (self.port!==undefined && cmdString!=='') {
         self.port.write(cmdString,'ascii',function(err) {
             if (err) {
                 self.logger.error('[SERIALAMPCONTROLLER] sendStatusRequest: Failed to send: "' + cmdString + '" ' + error);
@@ -747,6 +761,7 @@ serialampcontroller.prototype.alsavolume = function (VolumeInteger) {
         
     } else {
         if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] alsavolume: either Serial Interface, listener or Ampconfig missing');
+        defer.resolve();
     }
     return defer.promise;
 };
@@ -768,18 +783,21 @@ serialampcontroller.prototype.updateSerialSettings = function (data) {
     var defer = libQ.defer();
     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] updateSerialSettings: Saving Serial Settings:' + JSON.stringify(data));
     self.config.set('serialInterfaceDev', (data['serial_interface_dev'].label));
-    // self.closeSerialInterface()
-    // .then(_=>{self.openSerialPort()})
-    // .then(_ => {self.attachListener()})
-    // .then(_=> {self.updateVolumeSettings()})
-    // .then(_=> {
+    //set the active amp
+    self.setActiveAmp();
+    //configure the serial interface and open it
+    self.openSerialPort()
+    //update Volume Settings and announce the updated settings to Volumio
+    .then(_ => self.alsavolume(this.config.get('startupVolume')))
+    .then(_ => self.updateVolumeSettings())
+    .then(_=> {
         defer.resolve();
         self.commandRouter.pushToastMessage('success', self.getI18nString('TOAST_SAVE_SUCCESS'), self.getI18nString('TOAST_SERIAL_SAVE'));
-    // })
-    // .fail(err => {
-    //     self.logger.error('[SERIALAMPCONTROLLER] updateSerialSettings: FAILED ' + err);
-    //     defer.reject(err);
-    // })
+    })
+    .fail(err => {
+        self.logger.error('[SERIALAMPCONTROLLER] updateSerialSettings: FAILED ' + err);
+        defer.reject(err);
+    })
     return defer.promise;
 };
 
@@ -802,12 +820,11 @@ serialampcontroller.prototype.updateAmpSettings = function (data) {
     self.setActiveAmp()
     .then(_=> self.commandRouter.getUIConfigOnPlugin('system_controller', 'serialampcontroller', {}))
     .then(config => {self.commandRouter.broadcastMessage('pushUiConfig', config)})
-    // ##########
-    // .then(_=> self.closeSerialInterface())
-    // .then(_=> self.openSerialPort())
-    // .then(_ => self.attachListener())
-    // .then(_=> self.updateVolumeSettings())
-    // .then(_=> self.volumioupdatevolume(self.getVolumeObject()))
+    //configure the serial interface and open it
+    .then(_ => self.openSerialPort())
+    //update Volume Settings and announce the updated settings to Volumio
+    .then(_ => self.alsavolume(this.config.get('startupVolume')))
+    .then(_ => self.updateVolumeSettings())
     .then(_=> {
         defer.resolve();        
         self.commandRouter.pushToastMessage('success', self.getI18nString('TOAST_SAVE_SUCCESS'), self.getI18nString('TOAST_AMP_SAVE'));
@@ -872,3 +889,8 @@ serialampcontroller.prototype.volumioupdatevolume = function() {
     var self = this;
     return self.commandRouter.volumioupdatevolume(self.getVolumeObject());
 };
+
+serialampcontroller.prototype.retrievevolume = function () {
+    var self = this;
+    return self.getVolumeObject();
+}
