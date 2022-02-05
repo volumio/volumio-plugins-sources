@@ -24,6 +24,7 @@ const tnbreq = 50// Nbre total of Eq
 const filterfolder = "/data/INTERNAL/FusionDsp/filters/";
 const filtersource = "/data/INTERNAL/FusionDsp/filter-sources/";
 const tccurvepath = "/data/INTERNAL/FusionDsp/target-curves/";
+const hrtffilterpath = "/data/plugins/audio_interface/fusiondsp/hrtf-filters/";
 const toolspath = "INTERNAL/FusionDsp/tools/";
 const wavfolder = "/data/INTERNAL/FusionDsp/wavfiles/";
 const eq15range = [25, 40, 63, 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 6300, 10000, 16000]
@@ -922,6 +923,18 @@ FusionDsp.prototype.getUIConfig = function (address) {
           case ("linkwitz"):
             var crosslabel = "Linkwitz 700Hz/2dB"
             break;
+          case ("nc_11_30"):
+            var crosslabel = "Natural Crossfeed 1.1, 30 deg"
+            break;
+          case ("nc_11_50"):
+            var crosslabel = "Natural Crossfeed 1.1, 50 deg"
+            break;
+          case ("sadie_d1"):
+            var crosslabel = "SADIE D1 HRTF (KU100 Dummy Head)"
+            break;
+          case ("sadie_h15m"):
+            var crosslabel = "SADIE H15m HRTF (Human Subject)"
+            break;
           default: "None"
         }
 
@@ -933,7 +946,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
             "doc": self.commandRouter.getI18nString('CROSSFEED_DOC'),
             "label": self.commandRouter.getI18nString('CROSSFEED'),
             "value": { "value": self.config.get('crossfeed'), "label": crosslabel },
-            "options": [{ "value": "None", "label": "None" }, { "value": "bauer", "label": "Bauer 700Hz/4.5dB" }, { "value": "chumoy", "label": "Chu Moy 700Hz/6dB" }, { "value": "jameier", "label": "Jan Meier 650Hz/9.5dB" }, { "value": "linkwitz", "label": "Linkwitz 700Hz/2dB" }],
+            "options": [{ "value": "None", "label": "None" }, { "value": "bauer", "label": "Bauer 700Hz/4.5dB" }, { "value": "chumoy", "label": "Chu Moy 700Hz/6dB" }, { "value": "jameier", "label": "Jan Meier 650Hz/9.5dB" }, { "value": "linkwitz", "label": "Linkwitz 700Hz/2dB" }, { "value": "nc_11_30", "label": "Natural Crossfeed 1.1, 30 deg" }, , { "value": "nc_11_50", "label": "Natural Crossfeed 1.1, 50 deg" }, , { "value": "sadie_d1", "label": "SADIE D1 HRTF (KU100 Dummy Head)" }, { "value": "sadie_h15m", "label": "SADIE H15m HRTF (Human Subject)" }],
             "visibleIf": {
               "field": "showeq",
               "value": true
@@ -1919,6 +1932,7 @@ FusionDsp.prototype.areSampleswitch = function () {
     let filterNameShort = filterName.slice(0, -9);
     let filterNameForSwapc = filterNameShort + swapWord + fileExt;
     let filterNameForSwap = filterNameShort + "$samplerate$" + fileExt;
+    self.logger.info('sample switch possible !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'+ filterNameForSwap )
 
     if (fs.exists(filterfolder + filterNameForSwap)) {
       return [true, filterNameForSwap]
@@ -1939,8 +1953,6 @@ FusionDsp.prototype.areSampleswitch = function () {
     self.config.set('autoswitchsamplerate', true);
   } else {
     self.config.set('autoswitchsamplerate', false);
-
-
   };
   self.refreshUI()
   /*
@@ -2056,7 +2068,8 @@ FusionDsp.prototype.dfiltertype = function (data) {
   var auto_filter_format;
   let filext = self.config.get('leftfilterlabel').split('.').pop().toString();
   var wavetype;
-  let filelength;
+  let filelength
+  let convtype = "Raw"
 
   if (filext == 'pcm') {
     try {
@@ -2103,42 +2116,46 @@ FusionDsp.prototype.dfiltertype = function (data) {
     auto_filter_format = 'TEXT';
   }
   else if (filext == 'wav') {
-    let SampleFormat;
-    // return;
+    convtype = "Wav"
+   // auto_filter_format = '';
 
-    try {
-      execSync('/usr/bin/python /data/plugins/audio_interface/fusiondsp/test.py ' + filterfolder + filtername + ' >/tmp/test.result');
-      setTimeout(function () {
-
-        fs.readFile('/tmp/test.result', 'utf8', function (err, result) {
-          if (err) {
-            self.logger.info('Error reading test.result', err);
-          } else {
-            var resultJSON = JSON.parse(result);
-            var DataLength = resultJSON.DataLength;
-            var DataStart = resultJSON.DataStart;
-            var BytesPerFrame = resultJSON.BytesPerFrame;
-            SampleFormat = resultJSON.SampleFormat;
-
-            filelength = DataLength / BytesPerFrame;
-            skipvalue = ('skip_bytes_lines: ' + (8 + (+DataStart)));
-
-            self.config.set('filter_size', filelength);
-            self.config.set('skipvalue', skipvalue);
-            self.config.set('wavetype', SampleFormat);
-
-          }
-        });
-      }, 50);
-
-      auto_filter_format = self.config.get('wavetype').replace('_', '');
-      filelength = self.config.get('filter_size');
-      skipvalue = self.config.get('skipvalue');
-
-    } catch (e) {
-      self.logger.error('Could not read wav file: ' + e)
-    }
-
+    /*
+        let SampleFormat;
+        // return;
+    
+        try {
+          execSync('/usr/bin/python /data/plugins/audio_interface/fusiondsp/test.py ' + filterfolder + filtername + ' >/tmp/test.result');
+          setTimeout(function () {
+    
+            fs.readFile('/tmp/test.result', 'utf8', function (err, result) {
+              if (err) {
+                self.logger.info('Error reading test.result', err);
+              } else {
+                var resultJSON = JSON.parse(result);
+                var DataLength = resultJSON.DataLength;
+                var DataStart = resultJSON.DataStart;
+                var BytesPerFrame = resultJSON.BytesPerFrame;
+                SampleFormat = resultJSON.SampleFormat;
+    
+                filelength = DataLength / BytesPerFrame;
+                skipvalue = ('skip_bytes_lines: ' + (8 + (+DataStart)));
+    
+                self.config.set('filter_size', filelength);
+                self.config.set('skipvalue', skipvalue);
+                self.config.set('wavetype', SampleFormat);
+    
+              }
+            });
+          }, 50);
+    
+          auto_filter_format = self.config.get('wavetype').replace('_', '');
+          filelength = self.config.get('filter_size');
+          skipvalue = self.config.get('skipvalue');
+    
+        } catch (e) {
+          self.logger.error('Could not read wav file: ' + e)
+        }
+    */
   } else {
     let modalData = {
       title: self.commandRouter.getI18nString('FILTER_FORMAT_TITLE'),
@@ -2155,9 +2172,11 @@ FusionDsp.prototype.dfiltertype = function (data) {
   filelength = self.config.get('filter_size');
 
   self.config.set('filter_format', auto_filter_format);
+  self.config.set('convtype', convtype);
+
   self.logger.info('--------->filter format ' + filext + ' ' + auto_filter_format);
   self.logger.info('--------->filter size ' + filelength);
-  self.logger.info('--------->Skip value for wav :' + skipvalue);
+  // self.logger.info('--------->Skip value for wav :' + skipvalue);
 
 
   var arr = [2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144];
@@ -2287,7 +2306,8 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       //------crossfeed section------
 
       var crossconfig = self.config.get('crossfeed')
-      if ((crossconfig != 'None'))/* && (effect))*/ {
+      var is_natural = crossconfig.includes("nc_") || crossconfig.includes("sadie_")
+      if ((crossconfig != 'None') && (!is_natural))/* && (effect))*/ {
         var composedeq = '';
 
         self.logger.info('crossfeed  ' + (self.config.get('crossfeed')))
@@ -2339,6 +2359,64 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedeq += '      \n'
         result += composedeq
 
+
+      }
+       if ((crossconfig != 'None') && (is_natural) &&(effect)) {
+        var composedeq = '';
+
+        let hrtf_filterl = '';
+        let hrtf_filterr = '';
+        crossatt = 3;
+
+        self.logger.info('crossfeed  ' + (self.config.get('crossfeed')))
+        switch (crossconfig) {
+          case ("nc_11_30"):
+            hrtf_filterl = "NC_11_30/NC_11_30_Left_$samplerate$.wav";
+            hrtf_filterr = "NC_11_30/NC_11_30_Right_$samplerate$.wav";
+            break;
+          case ("nc_11_50"):
+            hrtf_filterl = "NC_11_50/NC_11_50_Left_$samplerate$.wav";
+            hrtf_filterr = "NC_11_50/NC_11_50_Right_$samplerate$.wav";
+            break;
+          case ("sadie_d1"):
+            hrtf_filterl = "SADIE_D1/SADIE_D1_Left_30deg_$samplerate$.wav";
+            hrtf_filterr = "SADIE_D1/SADIE_D1_Right_30deg_$samplerate$.wav";
+            break;
+          case ("sadie_h15m"):
+            hrtf_filterl = "SADIE_H15/SADIE_H15_mod_Left_30deg_$samplerate$.wav";
+            hrtf_filterr = "SADIE_H15/SADIE_H15_mod_Right_30deg_$samplerate$.wav";
+            break;
+        }
+
+        composedeq += '  hrtf_conv_ll:\n';
+        composedeq += '    type: Conv' + '\n';
+        composedeq += '    parameters:' + '\n';
+        composedeq += '      type: Wav' + '\n';
+        composedeq += '      filename: ' + hrtffilterpath + hrtf_filterl + '\n';
+        composedeq += '      channel: 0\n';
+        composedeq += '      \n'
+        composedeq += '  hrtf_conv_lr:\n';
+        composedeq += '    type: Conv' + '\n';
+        composedeq += '    parameters:' + '\n';
+        composedeq += '      type: Wav' + '\n';
+        composedeq += '      filename: ' + hrtffilterpath + hrtf_filterl + '\n';
+        composedeq += '      channel: 1\n';
+        composedeq += '      \n'
+        composedeq += '  hrtf_conv_rl:\n';
+        composedeq += '    type: Conv' + '\n';
+        composedeq += '    parameters:' + '\n';
+        composedeq += '      type: Wav' + '\n';
+        composedeq += '      filename: ' + hrtffilterpath + hrtf_filterr + '\n';
+        composedeq += '      channel: 0\n';
+        composedeq += '      \n'
+        composedeq += '  hrtf_conv_rr:\n';
+        composedeq += '    type: Conv' + '\n';
+        composedeq += '    parameters:' + '\n';
+        composedeq += '      type: Wav' + '\n';
+        composedeq += '      filename: ' + hrtffilterpath + hrtf_filterr + '\n';
+        composedeq += '      channel: 1\n';
+        composedeq += '      \n'
+        result += composedeq
 
       } else {
         crossatt = 0
@@ -2569,16 +2647,19 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
             }
 
           } else if (typer == 'Conv') {
+            var convtype = self.config.get('convtype')
             filterr = eval('filter' + o)
 
             var composedeq = '';
             composedeq += '  conv' + [o] + ':\n';
             composedeq += '    type: Conv' + '\n';
             composedeq += '    parameters:' + '\n';
-            composedeq += '      type: File' + '\n';
+            composedeq += '      type: ' + convtype + '\n';
             composedeq += '      filename: ' + filterfolder + filterr + '\n';
-            composedeq += '      format: ' + filter_format + '\n';
-            composedeq += '      ' + skipval + '\n';
+            if (convtype != 'Wav') {
+              composedeq += '      format: ' + self.config.get("filter_format") + '\n';
+            }
+            //composedeq += '      ' + skipval + '\n';
             composedeq += '' + '\n';
             gainmax = ',' + convatt
 
@@ -2882,7 +2963,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           composedpipeline += '\n'
         }
 
-      } else if ((crossconfig != 'None') && (effect)) {
+      } else if ((crossconfig != 'None') && (!is_natural) && (effect)) {
         // -- if a crossfeed is used
         composedmixer += 'mixers:\n'
         composedmixer += '  2to4:\n'
@@ -2960,6 +3041,88 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedpipeline += '     channel: 3\n'
         composedpipeline += '     names:\n'
         composedpipeline += '       - highcross\n'
+        composedpipeline += '   - type: Mixer\n'
+        composedpipeline += '     name: stereo\n'
+        composedpipeline += '   - type: Filter\n'
+        composedpipeline += '     channel: 0\n'
+        composedpipeline += '     names:\n'
+        composedpipeline += '      - ' + pipelinelr + '\n'
+        composedpipeline += '   - type: Filter\n'
+        composedpipeline += '     channel: 1\n'
+        composedpipeline += '     names:\n'
+        composedpipeline += '      - ' + pipelinerr + '\n'
+
+
+      } else if ((crossconfig != 'None') && (is_natural) && (effect)) {
+        // -- if a crossfeed is used
+        composedmixer += 'mixers:\n'
+        composedmixer += '  2to4:\n'
+        composedmixer += '    channels:\n'
+        composedmixer += '      in: 2\n'
+        composedmixer += '      out: 4\n'
+        composedmixer += '    mapping:\n'
+        composedmixer += '      - dest: 0\n'
+        composedmixer += '        sources:\n'
+        composedmixer += '          - channel: 0\n'
+        composedmixer += '            gain: ' + leftgain + '\n'
+        composedmixer += '            inverted: false\n'
+        composedmixer += '      - dest: 1\n'
+        composedmixer += '        sources:\n'
+        composedmixer += '          - channel: 0\n'
+        composedmixer += '            gain: ' + leftgain + '\n'
+        composedmixer += '            inverted: false\n'
+        composedmixer += '      - dest: 2\n'
+        composedmixer += '        sources:\n'
+        composedmixer += '          - channel: 1\n'
+        composedmixer += '            gain: ' + rightgain + '\n'
+        composedmixer += '            inverted: false\n'
+        composedmixer += '      - dest: 3\n'
+        composedmixer += '        sources:\n'
+        composedmixer += '          - channel: 1\n'
+        composedmixer += '            gain: ' + rightgain + '\n'
+        composedmixer += '            inverted: false\n'
+        composedmixer += '  stereo:\n'
+        composedmixer += '    channels:\n'
+        composedmixer += '      in: 4\n'
+        composedmixer += '      out: 2\n'
+        composedmixer += '    mapping:\n'
+        composedmixer += '      - dest: 0\n'
+        composedmixer += '        sources:\n'
+        composedmixer += '          - channel: 0\n'
+        composedmixer += '            gain: 0\n'
+        composedmixer += '            inverted: false\n'
+        composedmixer += '          - channel: 2\n'
+        composedmixer += '            gain: 0\n'
+        composedmixer += '            inverted: false\n'
+        composedmixer += '      - dest: 1\n'
+        composedmixer += '        sources:\n'
+        composedmixer += '          - channel: 1\n'
+        composedmixer += '            gain: 0\n'
+        composedmixer += '            inverted: false\n'
+        composedmixer += '          - channel: 3\n'
+        composedmixer += '            gain: 0\n'
+        composedmixer += '            inverted: false\n'
+
+        composedpipeline += '\n'
+        composedpipeline += 'pipeline:\n'
+        composedpipeline += '   - type: Mixer\n'
+        composedpipeline += '     name: 2to4\n'
+        composedpipeline += '   - type: Filter\n'
+        composedpipeline += '     channel: 0\n'
+        composedpipeline += '     names:\n'
+        composedpipeline += '       - hrtf_conv_ll\n'
+        composedpipeline += '   - type: Filter\n'
+        composedpipeline += '     channel: 1\n'
+        composedpipeline += '     names:\n'
+        composedpipeline += '       - hrtf_conv_lr\n'
+        composedpipeline += '   - type: Filter\n'
+        composedpipeline += '     channel: 2\n'
+        composedpipeline += '     names:\n'
+        composedpipeline += '       - hrtf_conv_rl\n'
+        composedpipeline += '   - type: Filter\n'
+        composedpipeline += '     channel: 3\n'
+        composedpipeline += '     names:\n'
+        composedpipeline += '       - hrtf_conv_rr\n'
         composedpipeline += '   - type: Mixer\n'
         composedpipeline += '     name: stereo\n'
         composedpipeline += '   - type: Filter\n'
