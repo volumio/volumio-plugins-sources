@@ -119,7 +119,20 @@ class TrackViewHandler extends ExplodableViewHandler {
         let model = self.getModel('track');
 
         if (view.name === 'track') {
-            return model.getTrack(view.trackId);
+            return model.getTrack(view.trackId).then( track => {
+                // Check if previous view is 'albums@albumId=...' or 'playlists@playlistId...'
+                // If so, we include the playlistId in the result for goto(album).
+                let prevs = self.getPreviousViews();
+                let prev = prevs[prevs.length - 1] || {};
+                if (prev.name === 'albums' && prev.albumId) {
+                    track.fromAlbumId = prev.albumId;
+                }
+                else if (prev.name === 'playlists' && prev.playlistId && prev.type !== 'system') {
+                    track.fromPlaylistId = prev.playlistId;
+                }
+
+                return track;
+            });
         }
         /*else if (view.name === 'tracks') {
             let defer = libQ.defer();
