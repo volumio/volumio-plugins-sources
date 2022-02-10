@@ -10,6 +10,8 @@
     "ERR_MOD":"Fehler beim Ändern von ",
     "ERR_WRITE":"Fehler beim Schreiben von ",
     "ERR_READ":"Fehler beim Lesen von ",
+    "WARN_ORIENTATION":"Die Einstellung der Displayausrichtung erfordert einen Neustart.",
+    "WARN_GPUMEM":"Die Einstellung des GPU-Speichers erfordert einen Neustart.",
     "GETALSRANGE_FAILED":"Automatische Helligkeitsregelung ist nicht möglich: Das Messen des vom Umgebungslichtsensor abgedeckten Helligkeitsbereichs ist fehlgeschlagen.",
     "CALIBRATION_NEEDED":"Der Umgebungslichtsensor muss erst kalibriert werden, bevor diese Funktion genutzt werden kann.",
     "MIDALS_TOO_LOW":"Helligkeitskurve kann nicht genutzt werden werden: Die Umgebungshelligkeit, die der Referenzhelligkeit zugeordnet werden soll, muss höher sein als der Wert, der geringsten Bildschirmhelligkeit zugeordnet wurde.",

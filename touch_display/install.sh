@@ -6,10 +6,12 @@ exit_cleanup() {
   if [ "$?" -ne 0 ]; then
     echo "Plugin failed to install!"
     echo "Cleaning up..."
-    . ."$PLUGIN_DIR"/uninstall.sh | grep -v "pluginuninstallend"
     if [ -d "$PLUGIN_DIR" ]; then
+    . ."$PLUGIN_DIR"/uninstall.sh | grep -v "pluginuninstallend"
       echo "Removing plugin directory $PLUGIN_DIR"
       rm -rf "$PLUGIN_DIR"
+    else
+      echo "Plugin directory could not be found: Cleaning up failed."
     fi
   fi
 
