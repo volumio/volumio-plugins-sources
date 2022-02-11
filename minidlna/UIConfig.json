@@ -8,7 +8,7 @@
                 "element": "section",
                 "label": "TRANSLATE.MINIDLNA.MINIDLNA_CONF",
                 "icon": "fa-cogs",
-                "onSave": {"type":"controller", "endpoint":"music_service/minidlna", "method":"saveConf"},
+                "onSave": {"type":"controller", "endpoint":"${plugin_type}/minidlna", "method":"saveConf"},
                 "saveButton": {
                               "label": "TRANSLATE.MINIDLNA.SAVE",
                               "data": [
@@ -104,9 +104,9 @@
                              "doc": "TRANSLATE.MINIDLNA.DB_DIR_DOC",
                              "label": "TRANSLATE.MINIDLNA.DB_DIR",
                              "visibleIf": {"field": "show_more", "value": true},
-                             "value": "/data/configuration/music_service/minidlna",
+                             "value": "/data/configuration/${plugin_type}/minidlna",
                              "attributes": [
-                                             {"placeholder": "/data/configuration/music_service/minidlna"}
+                                             {"placeholder": "/data/configuration/${plugin_type}/minidlna"}
                                            ]
                              },
                              {
@@ -772,7 +772,7 @@
                                "doc": "TRANSLATE.MINIDLNA.RECREATE_DB_DOC",
                                "label": "TRANSLATE.MINIDLNA.RECREATE_DB",
                                "button_label": "TRANSLATE.MINIDLNA.START_BTN",
-                               "onClick": {"type":"controller", "endpoint":"music_service/minidlna", "method":"forceRescan", "data":"R"}
+                               "onClick": {"type":"controller", "endpoint":"${plugin_type}/minidlna", "method":"forceRescan", "data":"R"}
                              },
                              {
                                "id": "updateDB",
@@ -780,7 +780,7 @@
                                "doc": "TRANSLATE.MINIDLNA.UPDATE_DB_DOC",
                                "label": "TRANSLATE.MINIDLNA.UPDATE_DB",
                                "button_label": "TRANSLATE.MINIDLNA.START_BTN",
-                               "onClick": {"type":"controller", "endpoint":"music_service/minidlna", "method":"forceRescan", "data":"r"}
+                               "onClick": {"type":"controller", "endpoint":"${plugin_type}/minidlna", "method":"forceRescan", "data":"r"}
                              }
                            ]
                 }
