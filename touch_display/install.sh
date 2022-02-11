@@ -7,7 +7,7 @@ exit_cleanup() {
     echo "Plugin failed to install!"
     echo "Cleaning up..."
     if [ -d "$PLUGIN_DIR" ]; then
-    . ."$PLUGIN_DIR"/uninstall.sh | grep -v "pluginuninstallend"
+      . ."$PLUGIN_DIR"/uninstall.sh | grep -v "pluginuninstallend"
       echo "Removing plugin directory $PLUGIN_DIR"
       rm -rf "$PLUGIN_DIR"
     else
@@ -24,6 +24,9 @@ exit_cleanup() {
   echo "plugininstallend"
 }
 trap "exit_cleanup" EXIT
+
+echo "Completing \"UIConfig.json\""
+sed -i "s/\${plugin_type}/$(grep "\"plugin_type\":" "$PLUGIN_DIR"/package.json | cut -d"\"" -f4)/" "$PLUGIN_DIR"/UIConfig.json || { echo "Completing \"UIConfig.json\" failed"; exit 1; }
 
 TMP_DIR="$(mktemp -d touch_display-XXXXXXXXXX)" || { echo "Creating temporary directory failed"; exit 1; }
 export DEBIAN_FRONTEND=noninteractive

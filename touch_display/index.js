@@ -378,7 +378,7 @@ TouchDisplay.prototype.getUIConfig = function () {
 TouchDisplay.prototype.updateUIConfig = function () {
   const self = this;
 
-  self.commandRouter.getUIConfigOnPlugin('user_interface', 'touch_display', {})
+  self.commandRouter.getUIConfigOnPlugin(self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type, 'touch_display', {})
     .then(function (uiconf) {
       self.commandRouter.broadcastMessage('pushUiConfig', uiconf);
     });
@@ -453,19 +453,19 @@ TouchDisplay.prototype.saveBrightnessConf = function (confData) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.TESTBRIGHTNESS'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'user_interface/touch_display', method: 'testBrightness', data: Object.assign({}, confData) }
+        payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'testBrightness', data: Object.assign({}, confData) }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CONTINUE'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'user_interface/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
+        payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CANCEL'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'user_interface/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
+        payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
       }
     ]
   };
@@ -687,7 +687,7 @@ TouchDisplay.prototype.saveGpuMemConf = function (confData) {
     ]
   };
 
-  if (confData.controlGpuMem) { // controlGpuMem has been *set to be* enabled
+  if (confData.controlGpuMem) {
     if (Number.isNaN(parseInt(confData.gpuMem, 10)) || !isFinite(confData.gpuMem)) {
       confData.gpuMem = self.config.get('gpuMem');
       uiNeedsUpdate = true;
@@ -944,13 +944,13 @@ TouchDisplay.prototype.testBrightness = function (confData) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.YES'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'user_interface/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
+        payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
       },
       {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.NO'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'user_interface/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
+        payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
       }
     ]
   };
@@ -1212,19 +1212,19 @@ TouchDisplay.prototype.getAlsValue = function (data) {
       name: self.commandRouter.getI18nString('TOUCH_DISPLAY.OK'),
       class: 'btn btn-default',
       emit: 'callMethod',
-      payload: { endpoint: 'user_interface/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
+      payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
     },
     {
       name: self.commandRouter.getI18nString('TOUCH_DISPLAY.SKIP'),
       class: 'btn btn-info',
       emit: 'callMethod',
-      payload: { endpoint: 'user_interface/touch_display', method: 'getAlsValue', data: { confData: data.confData, action: data.action.slice(3) } }
+      payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'getAlsValue', data: { confData: data.confData, action: data.action.slice(3) } }
     },
     {
       name: self.commandRouter.getI18nString('COMMON.CANCEL'),
       class: 'btn btn-info',
       emit: 'callMethod',
-      payload: { endpoint: 'user_interface/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
+      payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
     }
   ];
 
@@ -1234,13 +1234,13 @@ TouchDisplay.prototype.getAlsValue = function (data) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.OK'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'user_interface/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
+        payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CANCEL'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'user_interface/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
+        payload: { endpoint: self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type + '/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
       }
     ];
   }
