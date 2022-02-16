@@ -1,0 +1,37 @@
+{
+	"name": "randomizer",
+	"version": "3.0.0",
+	"description": "A collection of utilities to; Load random tracks or random albums from the music library",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Redlawd",
+	"license": "ISC",
+	"repository": "https://github.com/yourname/yourrepo",
+	"volumio_info": {
+		"prettyName": "randomizer",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "user_interface",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Lorem ipsum",
+		"changelog": "Lorem ipsum"
+	},
+	"engines": {
+		"node": ">=15.14.4",
+		"volumio": ">=3.198.0 <4.0.0"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"socket.io-client": "^1.7.4",
+		"v-conf": "^1.4.0"
+	}
+}
