@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
 	"name": "nowyswiat",
 	"version": "1.0.4",
@@ -36,42 +35,3 @@
 		"nanotimer": "^0.3.15"
 	}
 }
-=======
-{
-	"name": "nowyswiat",
-	"version": "1.0.4",
-	"description": "Radio Nowy Swiat Plugin for Volumio3",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "DJack",
-	"license": "ISC",
-	"repository": "https://github.com/volumio/volumio-plugins/tree/master/plugins/music_service/nowyswiat",
-	"volumio_info": {
-		"prettyName": "Radio Nowy Swiat",
-		"icon": "fa-lightbulb-o",
-		"plugin_type": "music_service",
-		"architectures": [
-			"amd64",
-			"armhf",
-			"i386"
-		],
-		"os": [
-			"buster"
-		],
-		"details": "Lorem ipsum",
-		"changelog": "Lorem ipsum"
-	},
-	"engines": {
-		"node": ">=14.19.0 <15.0.0",
-		"volumio": ">=3.224.0 <4.0.0"
-	},
-	"dependencies": {
-		"fs-extra": "^0.28.0",
-		"kew": "^0.7.0",
-		"v-conf": "^1.4.0",
-		"nanotimer": "^0.3.15"
-	}
-}
->>>>>>> 4b4fb60fe2b007c8f899f6fdbf8e6de66bd5832d
