@@ -7,6 +7,7 @@ const {XMLParser} = require('fast-xml-parser');
 const NodeCache = require('node-cache');
 const fetch = require('node-fetch');
 const podcastSearchApi = 'https://itunes.apple.com';
+const urlModule = require('url');
 
 module.exports = ControllerPodcast;
 
@@ -254,7 +255,8 @@ ControllerPodcast.prototype.fetchRssUrl = function(url) {
       },
       (error) => {
         clearTimeout(timeout);
-        self.logger.info("ControllerPodcast::fetchRssUrl::timed out or error with url:"+request.url);
+        self.logger.info("ControllerPodcast::fetchRssUrl:timed out: ["+
+              Date.now() + "] url=" + request.url+", error="+error);
         reject();
       }
     )
@@ -269,7 +271,11 @@ ControllerPodcast.prototype.fetchRssUrl = function(url) {
       var feed = parser.parse(fetchData);
       resolve(feed);
     })
-    .catch((error) => reject());
+    .catch((error) => {
+      self.logger.info('ControllerPodcast::fetchRssUrl: [' +
+          Date.now() + '] ' + '[Podcast] Error: ' + error);
+      reject();
+    });
   });
 }
 
@@ -277,13 +283,35 @@ ControllerPodcast.prototype.checkAddPodcast = function(defer, rssUrl) {
   var self=this;
   var message;
 
+  var urlObj = urlModule.parse(rssUrl);
+  // exception handling for ssenhosting host url
+  try {
+    if (urlObj.hostname === "pod.ssenhosting.com") {
+      var pathValues = urlObj.pathname.substring(1).split("/");
+      if (pathValues.length === 2) {
+        pathValues[1] = pathValues[1].split(".").shift();
+      }
+      if (pathValues.length === 3) {
+        pathValues.splice(2, 1);
+      }
+      rssUrl = `${urlObj.protocol}//${urlObj.hostname}/${pathValues.join("/")}`
+    }
+  }
+  catch (error) {
+    self.logger.info('ControllerPodcast::checkAddPodcast:ssenhosting: [' +
+        Date.now() + '] ' + '[Podcast] Error: ' + error);
+    self.showMessageToast('error',
+        self.getPodcastI18nString('MESSAGE_INVALID_PODCAST_FORMAT'));
+    defer.reject();
+    return;
+  }
+
   var findItem = self.podcasts.items.find( item => item.url === rssUrl);
   if (findItem) {
     self.showMessageToast('info', self.getPodcastI18nString('DUPLICATED_PODCAST'));
     defer.resolve();
     return;
   }
-
   self.showMessageToast('info', self.getPodcastI18nString('ADD_PODCAST_PROCESSING'));
 
   self.fetchRssUrl(rssUrl)
@@ -292,8 +320,22 @@ ControllerPodcast.prototype.checkAddPodcast = function(defer, rssUrl) {
 
     if ( feed.rss.channel.image && feed.rss.channel.image.url )
       imageUrl = feed.rss.channel.image.url;
+    else if ( feed.rss.channel['itunes:image'] )
+      imageUrl = feed.rss.channel['itunes:image'].href;
     else if ( feed.rss.channel.itunes && feed.rss.channel.itunes.image )
       imageUrl = feed.rss.channel.itunes.image;
+
+    // check validation of image url
+    var validUrl;
+    try {
+      var checkUrl = new URL(imageUrl);
+      validUrl = checkUrl.protocol === "http:" || checkUrl.protocol === "https:"
+    }
+    catch (_) {
+      validUrl = false;
+    }
+    if (!validUrl)
+      imageUrl = '/albumart?sourceicon=music_service/podcast/default.jpg';
 
     const feedTitle = feed.rss.channel.title;
     podcastItem = {
@@ -316,6 +358,8 @@ ControllerPodcast.prototype.checkAddPodcast = function(defer, rssUrl) {
     defer.resolve();
   })
   .catch(error => {
+    self.logger.info('ControllerPodcast::checkAddPodcast: [' +
+        Date.now() + '] ' + '[Podcast] Error: ' + error);
     self.showMessageToast('error',
         self.getPodcastI18nString('MESSAGE_INVALID_PODCAST_FORMAT'));
     defer.reject();
@@ -457,7 +501,8 @@ ControllerPodcast.prototype.searchPodcast = function(data) {
     defer.resolve();
   })
   .catch(error => {
-    self.logger.info('ControllerPodcast::SEARCH: [' + Date.now() + '] ' + '[Podcast] Error: ' + error.message);
+    self.logger.info('ControllerPodcast::searchPodcast: [' +
+        Date.now() + '] ' + '[Podcast] Error: ' + error);
     defer.resolve();
     self.showMessageToast('error', self.getPodcastI18nString('SEARCH_PODCAST_ERROR'));
   });
@@ -611,6 +656,12 @@ ControllerPodcast.prototype.getPodcastContent = function(uri) {
       if (!feed.rss.channel.item) {
         feed.rss.channel.item = [];
       }
+      if (!Array.isArray(feed.rss.channel.item)) {
+        var tempItem = feed.rss.channel.item;
+        feed.rss.channel.item = [];
+        feed.rss.channel.item.push(tempItem);
+      }
+
       feed.rss.channel.item.some(function (entry, index) {
         if (entry.enclosure && entry.enclosure.url) {
           var imageUrl;
@@ -647,9 +698,10 @@ ControllerPodcast.prototype.getPodcastContent = function(uri) {
       defer.resolve(response);
     })
     .catch((error) => {
-        self.showDialogMessage(targetPodcast.title +
-            ": " + self.getPodcastI18nString('MESSAGE_INVALID_PODCAST_FORMAT'));
-        defer.reject();
+      self.logger.info('ControllerPodcast::getPodcastContent: [' + Date.now() + '] ' + '[Podcast] Error: ' + error);
+      self.showDialogMessage(targetPodcast.title +
+          ": " + self.getPodcastI18nString('MESSAGE_INVALID_PODCAST_FORMAT'));
+      defer.reject();
     })
   }
   else {
@@ -856,11 +908,11 @@ ControllerPodcast.prototype.loadPodcastI18nStrings = function () {
   try {
     var language_code = self.commandRouter.sharedVars.get('language_code');
     self.i18nStrings=fs.readJsonSync(__dirname+'/i18n/strings_'+language_code+".json");
-    self.i18nCountry=fs.readJsonSync(__dirname+'/i18n/country_code.json');
   } catch(e) {
     self.i18nStrings=fs.readJsonSync(__dirname+'/i18n/strings_en.json');
   }
 
+  self.i18nCountry=fs.readJsonSync(__dirname+'/i18n/country_code.json');
   self.i18nStringsDefaults=fs.readJsonSync(__dirname+'/i18n/strings_en.json');
 };
 
