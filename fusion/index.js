@@ -3039,7 +3039,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       if (selectedsp === "convfir") {
         chunksize = 4096
       } else {
-        chunksize = 8192
+        chunksize = 1024
       }
 
 
