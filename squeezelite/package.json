@@ -1,6 +1,6 @@
 {
 	"name": "squeezelite",
-	"version": "1.1.5",
+	"version": "1.1.6",
 	"description": "Installs the Squeezelite player you can use in combination with the Logitech Media Server",
 	"main": "index.js",
 	"scripts": {
