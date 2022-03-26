@@ -1,0 +1,89 @@
+{
+    "page": {
+      "label": "TRANSLATE.MIXCLOUD_CONFIGURATION"
+    },
+    "sections": [
+      {
+        "id": "section_general",
+        "element": "section",
+        "label": "TRANSLATE.MIXCLOUD_SECTION_GENERAL",
+        "icon": "fa-cog",
+        "onSave": {
+          "type": "controller",
+          "endpoint": "music_service/mixcloud",
+          "method": "configSaveGeneralSettings"
+        },
+        "saveButton": {
+          "label": "TRANSLATE.MIXCLOUD_SAVE",
+          "data": [
+            "itemsPerPage",
+            "itemsPerSection"
+          ]
+        },
+        "content": [
+          {
+            "id": "itemsPerPage",
+            "type": "number",
+            "element": "input",
+            "label": "TRANSLATE.MIXCLOUD_ITEMS_PER_PAGE",
+            "value": 47
+          },
+          {
+            "id": "itemsPerSection",
+            "type": "number",
+            "element": "input",
+            "label": "TRANSLATE.MIXCLOUD_ITEMS_PER_SECTION",
+            "value": 11
+          }
+        ]
+      },
+      {
+        "id": "section_cache",
+        "element": "section",
+        "label": "TRANSLATE.MIXCLOUD_SECTION_CACHE",
+        "icon": "fa-hdd-o",
+        "onSave": {
+          "type": "controller",
+          "endpoint": "music_service/mixcloud",
+          "method": "configSaveCacheSettings"
+        },
+        "saveButton": {
+          "label": "TRANSLATE.MIXCLOUD_SAVE",
+          "data": [
+            "cacheMaxEntries",
+            "cacheTTL"
+          ]
+        },
+        "content": [
+          {
+            "id": "cacheMaxEntries",
+            "type": "number",
+            "element": "input",
+            "label": "TRANSLATE.MIXCLOUD_CACHE_MAX_ENTRIES",
+            "value": 5000
+          },
+          {
+            "id": "cacheTTL",
+            "type": "number",
+            "element": "input",
+            "label": "TRANSLATE.MIXCLOUD_CACHE_TTL",
+            "value": 1800
+          },
+          {
+            "id": "clearCache",
+            "element": "button",
+            "label": "TRANSLATE.MIXCLOUD_CLEAR_CACHE",
+            "onClick": {
+                "type": "emit",
+                "message": "callMethod",
+                "data": {
+                    "endpoint": "music_service/mixcloud",
+                    "method": "configClearCache"
+                }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  

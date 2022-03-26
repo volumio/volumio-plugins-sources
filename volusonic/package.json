@@ -1,0 +1,38 @@
+{
+	"name": "volusonic",
+	"version": "2.2.1",
+	"description": "Volumio client for subsonic's API servers (subsonic / navidrome / airsonic / ampache / owncloud / nextcloud / etc..)",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "foobarjo",
+	"license": "ISC",
+	"repository": "https://github.com/volumio/volumio-plugins/tree/master/plugins/music_service/volusonic",
+	"volumio_info": {
+		"prettyName": "Volusonic",
+		"icon": "fa-ship",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Volumio client for subsonic's API servers (subsonic / navidrome / airsonic / ampache / owncloud / nextcloud / etc..)",
+		"changelog": "see github"
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"cache-manager": "^2.4.0",
+		"kew": "^0.7.0",
+		"unirest": "^0.6.0",
+		"v-conf": "^1.4.2",
+		"semver": "^7.3.2"
+	}
+}
