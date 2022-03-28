@@ -4,6 +4,7 @@ const libQ = require('kew');
 const sc = require(scPluginLibRoot + '/soundcloud');
 const Model = require(scPluginLibRoot + '/model')
 const Parser = require(__dirname + '/parser');
+const ViewHelper = require(scPluginLibRoot + '/helper/view');
 
 class BaseViewHandler {
 
@@ -187,6 +188,9 @@ class BaseViewHandler {
     }
 
     addLinkToListTitle(title, link, linkText) {
+        if (!ViewHelper.supportsEnhancedTitles()) {
+            return title;
+        }
         return `<div style="display: flex; width: 100%; align-items: baseline;">
                 <div>${title}</div>
                 <div style="flex-grow: 1; text-align: right; font-size: small;">

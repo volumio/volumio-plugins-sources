@@ -693,7 +693,7 @@ ControllerVolspotconnect.prototype.play = function () {
   if (this.active) {
     return this.spotifyApi.play().then(e => {
       if (this.state.status !== 'play') {
-        this.state.staus = 'play';
+        this.state.status = 'play';
         this.pushState();
       }
     }).catch(error => {
