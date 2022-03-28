@@ -6,6 +6,7 @@ global.nowPlayingPluginLibRoot = path.resolve(__dirname) + '/lib';
 const libQ = require('kew');
 const np = require(nowPlayingPluginLibRoot + '/np');
 const util = require(nowPlayingPluginLibRoot + '/util');
+const metadata = require(nowPlayingPluginLibRoot + '/api/metadata');
 const app = require(__dirname + '/app');
 
 const volumioKioskPath = '/opt/volumiokiosk.sh';
@@ -30,15 +31,17 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
     self.commandRouter.i18nJson(__dirname + '/i18n/strings_' + lang_code + '.json',
         __dirname + '/i18n/strings_en.json',
         __dirname + '/UIConfig.json')
-    .then( async uiconf => {
+    .then(uiconf => {
         let daemonUIConf = uiconf.sections[0];
         let textStylesUIConf = uiconf.sections[1];
         let widgetStylesUIConf = uiconf.sections[2];
         let albumartStylesUIConf = uiconf.sections[3];
         let backgroundStylesUIConf = uiconf.sections[4];
         let volumeIndicatorTweaksUIConf = uiconf.sections[5];
-        let extraScreensUIConf = uiconf.sections[6];
-        let kioskUIConf = uiconf.sections[7];
+        let metadataServiceUIConf = uiconf.sections[6];
+        let extraScreensUIConf = uiconf.sections[7];
+        let kioskUIConf = uiconf.sections[8];
+        let performanceUIConf = uiconf.sections[9];
 
         /**
          * Daemon conf
@@ -47,8 +50,8 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
         daemonUIConf.content[0].value = port;
 
         // Get Now Playing Url
-        let systemInfo = await self.commandRouter.executeOnPlugin('system_controller', 'system', 'getSystemInfo');
-        let url = `${ systemInfo.host }:${ port }`;
+        let thisDevice = np.getDeviceInfo();
+        let url = `${ thisDevice.host }:${ port }`;
         let previewUrl = `${ url }/preview`
         daemonUIConf.content[1].value = url;
         daemonUIConf.content[2].value = previewUrl;
@@ -122,14 +125,29 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
                 textStylesUIConf.content[16].value.label = np.getI18n('NOW_PLAYING_POSITION_TOP');
         }
 
-        let maxLines = styles.maxLines || 'auto';
+        let textAlignmentLyrics = styles.textAlignmentLyrics || 'center';
         textStylesUIConf.content[17].value = {
+            value: textAlignmentLyrics
+        };
+        switch (textAlignmentLyrics) {
+            case 'center':
+                textStylesUIConf.content[17].value.label = np.getI18n('NOW_PLAYING_POSITION_CENTER');
+                break;
+            case 'right':
+                textStylesUIConf.content[17].value.label = np.getI18n('NOW_PLAYING_POSITION_RIGHT');
+                break;
+            default: 
+                textStylesUIConf.content[17].value.label = np.getI18n('NOW_PLAYING_POSITION_LEFT');
+        }
+
+        let maxLines = styles.maxLines || 'auto';
+        textStylesUIConf.content[18].value = {
             value: maxLines,
             label: maxLines == 'auto' ? np.getI18n('NOW_PLAYING_AUTO') : np.getI18n('NOW_PLAYING_CUSTOM')
         };
-        textStylesUIConf.content[18].value = styles.maxTitleLines || '';
-        textStylesUIConf.content[19].value = styles.maxArtistLines || '';
-        textStylesUIConf.content[20].value = styles.maxAlbumLines || '';
+        textStylesUIConf.content[19].value = styles.maxTitleLines || '';
+        textStylesUIConf.content[20].value = styles.maxArtistLines || '';
+        textStylesUIConf.content[21].value = styles.maxAlbumLines || '';
         
         /**
          * Widget Styles conf
@@ -368,6 +386,13 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
         volumeIndicatorTweaksUIConf.content[3].value = volumeIndicatorStyles.margin || '';
 
         /**
+         * Metadata Service conf
+         */
+        metadataServiceUIConf.content[0].value = np.getConfigValue('geniusAccessToken', '');
+        let accessTokenSetupUrl = `${ url }/genius_setup`;
+        metadataServiceUIConf.content[1].onClick.url = accessTokenSetupUrl;
+
+        /**
          * Extra Screens conf
          */
         let theme = np.getConfigValue('theme', 'default');
@@ -451,7 +476,21 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
         if (kioskButton) {
             kioskUIConf.content = [ kioskButton ];
         }
-        
+
+        // Performance conf
+        let performanceSettings = np.getConfigValue('performance', {}, true);
+        performanceUIConf.content[0].value = performanceSettings.transitionEffectsKiosk || false;
+        performanceUIConf.content[1].value = performanceSettings.transitionEffectsOtherDevices == undefined ? true : performanceSettings.transitionEffectsOtherDevices;
+        let unmountScreensOnExit = performanceSettings.unmountScreensOnExit || 'default';
+        performanceUIConf.content[2].value = {
+            value: unmountScreensOnExit,
+            label: fontColors == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
+        };
+        performanceUIConf.content[3].value = performanceSettings.unmountNowPlayingScreenOnExit == undefined ? true : performanceSettings.unmountNowPlayingScreenOnExit;
+        performanceUIConf.content[4].value = performanceSettings.unmountBrowseScreenOnExit || false;
+        performanceUIConf.content[5].value = performanceSettings.unmountQueueScreenOnExit || false;
+        performanceUIConf.content[6].value = performanceSettings.unmountVolumioScreenOnExit == undefined ? true : performanceSettings.unmountVolumioScreenOnExit;
+
         defer.resolve(uiconf);
     })
     .fail( error => {
@@ -511,6 +550,11 @@ ControllerNowPlaying.prototype.configConfirmSaveDaemon = function(data) {
     self.restartApp().then( () => {
         np.toast('success', np.getI18n('NOW_PLAYING_RESTARTED'));
 
+        // Update cached plugin info and broadcast it
+        np.set('pluginInfo', util.getPluginInfo());
+        let bc = self.getPluginInfo();
+        np.broadcastMessage(bc.message, bc.payload);
+
         // Check if kiosk script was set to show Now Playing, and update 
         // to new port (do not restart volumio-kiosk service because 
         // the screen will reload itself when app is started)
@@ -543,6 +587,7 @@ ControllerNowPlaying.prototype.configSaveTextStyles = function(data) {
         mediaInfoFontColor: data.mediaInfoFontColor,
         textAlignmentH: data.textAlignmentH.value,
         textAlignmentV: data.textAlignmentV.value,
+        textAlignmentLyrics: data.textAlignmentLyrics.value,
         textMargins: data.textMargins.value,
         titleMargin: data.titleMargin,
         artistMargin: data.artistMargin,
@@ -657,6 +702,18 @@ ControllerNowPlaying.prototype.configSaveVolumeIndicatorTweakSettings = function
     np.broadcastMessage('nowPlayingSetCustomCSS', updatedStyles);
 }
 
+ControllerNowPlaying.prototype.configSaveMetadataServiceSettings = function(data) {
+    let token = data['geniusAccessToken'].trim();
+    this.config.set('geniusAccessToken', token);
+    metadata.setAccessToken(token);
+    np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+}
+
+ControllerNowPlaying.prototype.clearMetadataCache = function() {
+    metadata.clearCache();
+    np.toast('success', np.getI18n('NOW_PLAYING_CACHE_CLEARED'));
+}
+
 ControllerNowPlaying.prototype.configSaveExtraScreenSettings = function(data) {
     let theme = data.theme.value;
     this.config.set('theme', theme);
@@ -745,24 +802,33 @@ ControllerNowPlaying.prototype.restartVolumioKioskService = function() {
     return defer.promise;
 }
 
+ControllerNowPlaying.prototype.configSavePerformanceSettings = function(data) {
+    let performanceSettings = {
+        transitionEffectsKiosk: data.transitionEffectsKiosk,
+        transitionEffectsOtherDevices: data.transitionEffectsOtherDevices,
+        unmountScreensOnExit: data.unmountScreensOnExit.value,
+        unmountNowPlayingScreenOnExit: data.unmountNowPlayingScreenOnExit,
+        unmountBrowseScreenOnExit: data.unmountBrowseScreenOnExit,
+        unmountQueueScreenOnExit: data.unmountQueueScreenOnExit,
+        unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit
+    };
+    this.config.set('performance', JSON.stringify(performanceSettings));
+    np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+
+    np.broadcastMessage('nowPlayingSetPerformanceSettings', performanceSettings);
+}
+
 ControllerNowPlaying.prototype.broadcastRefresh = function() {
     np.broadcastMessage('nowPlayingRefresh');
     np.toast('success', np.getI18n('NOW_PLAYING_BROADCASTED_COMMAND'));
 }
 
-let broadcastPluginInfoTimer = null;
-ControllerNowPlaying.prototype.broadcastPluginInfo = function() {
-    // Multiple screens could be calling this function, so we send after two seconds.
-    // During this time, ignore all other requests.
-    if (broadcastPluginInfoTimer) {
-        return;
-    }
-    broadcastPluginInfoTimer = setTimeout( () => {
-        let appPort = np.getConfigValue('port', 4004);
-        let pluginVersion = util.getPluginVersion();
-        np.broadcastMessage('nowPlayingPluginInfo', { pluginVersion, appPort });
-        broadcastPluginInfoTimer = null;
-    }, 2000);
+// Socket callMethod
+ControllerNowPlaying.prototype.getPluginInfo = function() {
+    return {
+        message: 'nowPlayingPluginInfo',
+        payload: np.get('pluginInfo')
+    };
 }
 
 ControllerNowPlaying.prototype.refreshUIConfig = function() {
@@ -786,6 +852,10 @@ ControllerNowPlaying.prototype.onStart = function() {
 
     np.init(self.context, self.config);
 
+    metadata.setAccessToken(np.getConfigValue('geniusAccessToken', ''));
+
+    np.set('pluginInfo', util.getPluginInfo());
+    
     return self.startApp().then( () => {
         let display = np.getConfigValue('kioskDisplay', 'default');
         if (display == 'nowPlaying') {
@@ -801,10 +871,6 @@ ControllerNowPlaying.prototype.onStart = function() {
 
 ControllerNowPlaying.prototype.onStop = function() {
     this.stopApp();
-
-    if (broadcastPluginInfoTimer) {
-        clearTimeout(broadcastPluginInfoTimer);
-    }
 
     // If kiosk is set to Now Playing, restore it back to default
     let restoreKiosk;
@@ -826,20 +892,12 @@ ControllerNowPlaying.prototype.getConfigurationFiles = function() {
 }
 
 ControllerNowPlaying.prototype.startApp = function() {
-    let self = this;
     let defer = libQ.defer();
 
     app.start({
         port: np.getConfigValue('port', 4004)
     })
     .then( () => {
-        // This is for active Now Playing screens to reload themselves
-        // if plugin version or port has changed.
-        // Note: if Volumio has just restarted, the socket
-        // on client side might not have reconnected and will not receive the message.
-        // So on the client side we request plugin info upon socket reconnect.
-        self.broadcastPluginInfo();
-
         defer.resolve();
     })
     .catch( error => {

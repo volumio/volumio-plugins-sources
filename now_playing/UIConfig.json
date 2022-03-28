@@ -82,6 +82,7 @@
           "mediaInfoMargin",
           "textAlignmentH",
           "textAlignmentV",
+          "textAlignmentLyrics",
           "maxLines",
           "maxTitleLines",
           "maxArtistLines",
@@ -343,6 +344,29 @@
             {
               "value": "space-between", 
               "label": "TRANSLATE.NOW_PLAYING_SPREAD"
+            }
+          ]
+        },
+        {
+          "id": "textAlignmentLyrics",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALIGNMENT_LYRICS",
+          "value": {
+            "value": "left", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+          },
+          "options": [
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
             }
           ]
         },
@@ -1109,6 +1133,54 @@
       ]
     },
     {
+      "id": "section_metadata_service",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_METADATA_SERVICE",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveMetadataServiceSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "geniusAccessToken"
+        ]
+      },
+      "content": [
+        {
+          "id": "geniusAccessToken",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_GENIUS_ACCESS_TOKEN",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_GENIUS_ACCESS_TOKEN",
+          "value": ""
+        },
+        {
+          "id": "accessTokenGuide",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_ACCESS_TOKEN_GUIDE",
+          "onClick": {
+            "type": "openUrl"
+          }
+        },
+        {
+          "id": "clearMetadataCache",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_CLEAR_CACHE",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+                "endpoint": "user_interface/now_playing",
+                "method": "clearMetadataCache"
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "section_extra_screens",
       "element": "section",
       "label": "TRANSLATE.NOW_PLAYING_EXTRA_SCREENS",
@@ -1151,6 +1223,105 @@
       "element": "section",
       "label": "TRANSLATE.NOW_PLAYING_KIOSK",
       "icon": "fa-television"
+    },
+    {
+      "id": "section_performance",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_PERFORMANCE",
+      "icon": "fa-bolt",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSavePerformanceSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "transitionEffectsKiosk",
+          "transitionEffectsOtherDevices",
+          "unmountScreensOnExit",
+          "unmountNowPlayingScreenOnExit",
+          "unmountBrowseScreenOnExit",
+          "unmountQueueScreenOnExit",
+          "unmountVolumioScreenOnExit"
+        ]
+      },
+      "content": [
+        {
+          "id": "transitionEffectsKiosk",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRANSITION_EFFECTS_KIOSK",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRANSITION_EFFECTS",
+          "value": false
+        },
+        {
+          "id": "transitionEffectsOtherDevices",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRANSITION_EFFECTS_OTHER",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRANSITION_EFFECTS",
+          "value": true
+        },
+        {
+          "id": "unmountScreensOnExit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_UNMOUNT_SCREENS",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_UNMOUNT_SCREENS",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "unmountNowPlayingScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_NP",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountBrowseScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_BROWSE",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountQueueScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_QUEUE",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountVolumioScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_VOLUMIO",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        }
+      ]
     },
     {
       "id": "section_other",

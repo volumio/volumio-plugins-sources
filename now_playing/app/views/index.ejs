@@ -1,106 +1,15 @@
-<!DOCTYPE HTML>
-<html>
-
-<head>
-  <title>Volumio - Now Playing</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/lib/vendor/jquery-3.6.0.min.js"></script>
-  <script src="/lib/vendor/jquery-ui-1.12.1/jquery-ui.min.js"></script>
-  <script src="/lib/vendor/socket.io.min.js"></script>
-  <script src="/lib/vendor/EventEmitter.js"></script>
-
-  <!-- https://github.com/mattbryson/TouchSwipe-Jquery-Plugin -->
-  <script src="/lib/vendor/jquery.touchSwipe.min.js"></script>
-
-  <!-- https://github.com/RWAP/jquery-ui-touch-punch -->
-  <script src="/lib/vendor/jquery.ui.touch-punch.js"></script>
-
-  <!-- https://kingsora.github.io/OverlayScrollbars -->
-  <link rel="stylesheet" href="/lib/vendor/OverlayScrollbars/css/OverlayScrollbars.min.css">
-  <script src="/lib/vendor/OverlayScrollbars/js/jquery.overlayScrollbars.js"></script>
-
-  <link href="https://fonts.googleapis.com/css2?Noto+Sans+Display:wght@100;700&family=Roboto:wght@400;700&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="/stylesheets/font-awesome-4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/lib/vendor/jquery-ui-1.12.1/jquery-ui.min.css">
-  <link rel="stylesheet" href="/stylesheets/css/main.css">
-  <link rel="stylesheet" href="/stylesheets/css/components.css">
-  <link rel="stylesheet" href="/stylesheets/css/browse-music.css">
-  <link rel="stylesheet" href="/stylesheets/css/np.css">
-  <link rel="stylesheet" href="/stylesheets/css/queue.css">
-  <link id="theme-stylesheet" rel="stylesheet" href="">
-</head>
-
-<body>
-  <div id="screen-wrapper">
-    <div class="bg"></div>
-    <div class="screens">
-      <div id="browse-music" class="screen"></div>
-      <div id="now-playing" class="screen"></div>
-      <div id="queue" class="screen"></div>
-    </div>
-    <div id="track-bar"></div>
-  </div>
-  <div id="disconnected-overlay"></div>
-  <div id="action-panel"></div>
-  <div id="volume-panel"></div>
-  <div id="volume-indicator-overlay"></div>
-</body>
-
-<script type="module">
-  import { init } from '/lib/startup.js';
-  import * as util from '/lib/util.js';
-  import { registry } from '/lib/registry.js';
-  import * as settings from '/lib/settings.js';
-
-  init({
-    app: {
-      host: '<%- host %>',
-      version: '<%- pluginVersion %>',
-      port: '<%- appPort %>'
-    },
-    ui: {
-      background: '#screen-wrapper .bg',
-      actionPanel: '#action-panel',
-      volumeIndicatorOverlay: '#volume-indicator-overlay',
-      disconnectIndicator: '#disconnected-overlay',
-      trackBar: '#track-bar',
-      volumePanel: '#volume-panel'
-    },
-    screens: {
-      browseMusic: '#browse-music',
-      nowPlaying: '#now-playing',
-      queue: '#queue'
-    },
-    i18n: {
-      'REFRESH': <%- JSON.stringify(i18n('NOW_PLAYING_REFRESH')) %>,
-      'SWITCH_TO_VOLUMIO': <%- JSON.stringify(i18n('NOW_PLAYING_SWITCH_TO_VOLUMIO')) %>
-    }
-  });
-
-  let socket = registry.socket;
-
-  socket.on('nowPlayingSetCustomCSS', css => {
-    settings.applyCustomStyles(css, registry.screens.nowPlaying);
-  });
-  socket.on('nowPlayingSetTheme', theme => {
-    settings.applyTheme(theme);
-  })
-  socket.on('pushToastMessage', data => {
-      // this.$log.debug('pushToastMessage', data);
-      util.showSnackbar(data);
-    });
-
-  window.registry = registry;
-  window.util = util;
-  
-  $(document).ready( () => {
-    settings.applyCustomStyles(<%- JSON.stringify(styles || {}) %>, registry.screens.nowPlaying);
-    settings.applyTheme(<%- JSON.stringify(theme || 'default') %>);
-    registry.screens.manager.switch(registry.screens.nowPlaying);
-    socket.connect();
-  });
-</script>
-
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script type="text/javascript">
+      window.__initialData = {
+        host: JSON.parse(`<%- JSON.stringify(host); %>`),
+        pluginInfo: JSON.parse(`<%- JSON.stringify(pluginInfo); %>`),
+        styles: JSON.parse(`<%- JSON.stringify(styles); %>`),
+        theme: JSON.parse(`<%- JSON.stringify(theme); %>`),
+        performanceSettings: JSON.parse(`<%- JSON.stringify(performanceSettings); %>`),
+      }
+    </script>
+  </head>
+  <%- include('../client/build/index.html'); %>
 </html>

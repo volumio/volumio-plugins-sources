@@ -81,6 +81,19 @@ function getPluginVersion() {
     }
 }
 
+function getPluginInfo() {
+    let appPort = np.getConfigValue('port', 4004);
+    let version = getPluginVersion();
+    let thisDevice = np.getDeviceInfo();
+    let appUrl = `${ thisDevice.host }:${ appPort }`;
+    let previewUrl = `${ appUrl }/preview`;
+    let apiPath = `${ appUrl }/api`;
+
+    return {
+        appPort, version, appUrl, previewUrl, apiPath
+    };
+}
+
 module.exports = {
     fileExists,
     findInFile,
@@ -89,5 +102,6 @@ module.exports = {
     restartSystemdService,
     readdir,
     getPluginVersion,
-    copyFile
-}
+    copyFile,
+    getPluginInfo
+};
