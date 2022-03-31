@@ -14,14 +14,14 @@ const als = '/etc/als'; // The plugin awaits the current value of an optional am
 const configTxtGpuMemBanner = '#### Touch Display gpu_mem setting below: do not alter ####' + os.EOL;
 const configTxtRotationBanner = '#### Touch Display rotation setting below: do not alter ####' + os.EOL;
 const id = 'touch_display: ';
-var rpiScreen = false;
-var rpiBacklight = false;
-var maxBrightness = 255;
+let rpiScreen = false;
+let rpiBacklight = false;
+let maxBrightness = 255;
 const alsProgression = [];
-var autoBrTimeoutCleared = false;
-var currentlyAdjusting = false;
-var uiNeedsUpdate = false;
-var device, displayNumber, autoBrTimer, toggleBrTimer;
+let autoBrTimeoutCleared = false;
+let currentlyAdjusting = false;
+let uiNeedsUpdate = false;
+let device, displayNumber, autoBrTimer, toggleBrTimer;
 
 module.exports = TouchDisplay;
 
@@ -74,65 +74,68 @@ TouchDisplay.prototype.onStart = function () {
     .then(self.systemctl.bind(self, 'start volumio-kiosk.service'))
     .then(function () {
       self.logger.info(id + 'Volumio Kiosk started');
-      device = self.commandRouter.executeOnPlugin('system_controller', 'system', 'getConfigParam', 'device');
-      if (device === 'Raspberry PI') {
-        fs.readFile('/proc/modules', 'utf8', function (err, data) {
-          if (err) {
-            self.logger.error(id + 'Error reading /proc/modules: ' + err);
-            self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_READ') + '/proc/modules: ' + err);
-          } else {
-            // detect Raspberry Pi Foundation original touch screen
-            if (data.match(/^rpi_ft5406\b/gm) === null && data.match(/^raspberrypi_ts\b/gm) === null) {
-              self.logger.info(id + 'No Raspberry Pi Foundation touch screen detected.');
-            } else {
-              rpiScreen = true;
-              self.logger.info(id + 'Raspberry Pi Foundation touch screen detected.');
-              // check for backlight module of Raspberry Pi Foundation original touch screen
-              if (data.match(/^rpi_backlight\b/gm) === null) {
-                self.logger.info(id + 'No backlight module of a Raspberry Pi Foundation touch screen detected.');
+      self.commandRouter.executeOnPlugin('system_controller', 'system', 'getSystemVersion', '')
+        .then(function (infos) {
+          device = infos.hardware;
+          if (device === 'pi') {
+            fs.readFile('/proc/modules', 'utf8', function (err, data) {
+              if (err) {
+                self.logger.error(id + 'Error reading /proc/modules: ' + err);
+                self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_READ') + '/proc/modules: ' + err);
               } else {
-                rpiBacklight = true;
-                self.logger.info(id + 'Backlight module of a Raspberry Pi Foundation touch screen detected.');
-                // screen brightness
-                fs.readFile(blInterface + '/max_brightness', 'utf8', function (err, data) {
-                  if (err) {
-                    self.logger.error(id + 'Error reading ' + blInterface + '/max_brightness: ' + err);
-                    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_READ') + blInterface + '/max_brightness: ' + err);
+                // detect Raspberry Pi Foundation original touch screen
+                if (data.match(/^rpi_ft5406\b/gm) === null && data.match(/^raspberrypi_ts\b/gm) === null) {
+                  self.logger.info(id + 'No Raspberry Pi Foundation touch screen detected.');
+                } else {
+                  rpiScreen = true;
+                  self.logger.info(id + 'Raspberry Pi Foundation touch screen detected.');
+                  // check for backlight module of Raspberry Pi Foundation original touch screen
+                  if (data.match(/^rpi_backlight\b/gm) === null) {
+                    self.logger.info(id + 'No backlight module of a Raspberry Pi Foundation touch screen detected.');
                   } else {
-                    maxBrightness = parseInt(data, 10);
-                    exec('/usr/bin/sudo /bin/chmod a+w ' + blInterface + '/brightness', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
-                      if (error !== null) {
-                        self.logger.error(id + 'Error setting file permissions for backlight brightness control: ' + error);
+                    rpiBacklight = true;
+                    self.logger.info(id + 'Backlight module of a Raspberry Pi Foundation touch screen detected.');
+                    // screen brightness
+                    fs.readFile(blInterface + '/max_brightness', 'utf8', function (err, data) {
+                      if (err) {
+                        self.logger.error(id + 'Error reading ' + blInterface + '/max_brightness: ' + err);
+                        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_READ') + blInterface + '/max_brightness: ' + err);
                       } else {
-                        self.logger.info(id + 'File permissions for backlight brightness control set.');
-                        if (!self.config.get('autoMode')) {
-                          if (self.config.get('br2StartTime') !== self.config.get('br1StartTime')) {
-                            self.toggleBrightness();
+                        maxBrightness = parseInt(data, 10);
+                        exec('/usr/bin/sudo /bin/chmod a+w ' + blInterface + '/brightness', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+                          if (error !== null) {
+                            self.logger.error(id + 'Error setting file permissions for backlight brightness control: ' + error);
                           } else {
-                            self.setBrightness(self.config.get('manualBr'));
+                            self.logger.info(id + 'File permissions for backlight brightness control set.');
+                            if (!self.config.get('autoMode')) {
+                              if (self.config.get('br2StartTime') !== self.config.get('br1StartTime')) {
+                                self.toggleBrightness();
+                              } else {
+                                self.setBrightness(self.config.get('manualBr'));
+                              }
+                            } else {
+                              self.autoBrightness();
+                            }
                           }
-                        } else {
-                          self.autoBrightness();
-                        }
+                        });
                       }
                     });
                   }
-                });
+                }
               }
-            }
-          }
-          // screen orientation
-          self.setOrientation(self.config.get('angle'));
-          // GPU memory size
-          if (self.config.get('controlGpuMem')) {
-            self.modBootConfig(configTxtGpuMemBanner + 'gpu_mem=.*', configTxtGpuMemBanner + 'gpu_mem=' + self.config.get('gpuMem'))
-              .then(self.modBootConfig.bind(self, '^gpu_mem', '#GPU_MEM'))
-              .fail(function () {
-                self.logger.info(id + 'Writing the touch display plugin\'s gpu_mem setting failed. Previous gpu_mem settings in /boot/config.txt have not been commented.');
-              });
+              // screen orientation
+              self.setOrientation(self.config.get('angle'));
+              // GPU memory size
+              if (self.config.get('controlGpuMem')) {
+                self.modBootConfig(configTxtGpuMemBanner + 'gpu_mem=.*', configTxtGpuMemBanner + 'gpu_mem=' + self.config.get('gpuMem'))
+                  .then(self.modBootConfig.bind(self, '^gpu_mem', '#GPU_MEM'))
+                  .fail(function () {
+                    self.logger.info(id + 'Writing the touch display plugin\'s gpu_mem setting failed. Previous gpu_mem settings in /boot/config.txt have not been commented.');
+                  });
+              }
+            });
           }
         });
-      }
       // screensaver
       if (self.commandRouter.volumioGetState().status === 'play') {
         lastStateIsPlaying = true;
@@ -197,7 +200,7 @@ TouchDisplay.prototype.onStop = function () {
   unixDomSocket.removeAllListeners();
   unixDomSocket.destroy();
   socket.off('pushState');
-  if (device === 'Raspberry PI') {
+  if (device === 'pi') {
     self.setOrientation('0');
     if (self.config.get('controlGpuMem')) {
       self.modBootConfig('^#GPU_MEM', 'gpu_mem')
@@ -243,37 +246,41 @@ TouchDisplay.prototype.getUIConfig = function () {
       uiconf.sections[0].content[1].value = self.config.get('afterPlay');
       if (rpiBacklight) {
         uiconf.sections[1].hidden = false;
-        if (fs.existsSync(als)) {
-          uiconf.sections[1].content[0].hidden = false;
-          uiconf.sections[1].content[0].value = self.config.get('autoMode');
-          uiconf.sections[1].content[1].value = self.config.get('minBr');
-          uiconf.sections[1].content[1].attributes = [
-            {
-              placeholder: 15,
-              maxlength: maxBrightness.toString().length,
-              min: 0,
-              max: maxBrightness
-            }
-          ];
-          uiconf.sections[1].content[2].value = self.config.get('maxBr');
-          uiconf.sections[1].content[2].attributes = [
-            {
-              placeholder: maxBrightness,
-              maxlength: maxBrightness.toString().length,
-              min: 0,
-              max: maxBrightness
-            }
-          ];
-          uiconf.sections[1].content[4].value = self.config.get('brightnessCurve');
-          uiconf.sections[1].content[5].value = self.config.get('midBr');
-          uiconf.sections[1].content[5].attributes = [
-            {
-              placeholder: maxBrightness,
-              maxlength: maxBrightness.toString().length,
-              min: 0,
-              max: maxBrightness
-            }
-          ];
+        try {
+          if (fs.existsSync(als)) {
+            uiconf.sections[1].content[0].hidden = false;
+            uiconf.sections[1].content[0].value = self.config.get('autoMode');
+            uiconf.sections[1].content[1].value = self.config.get('minBr');
+            uiconf.sections[1].content[1].attributes = [
+              {
+                placeholder: 15,
+                maxlength: maxBrightness.toString().length,
+                min: 0,
+                max: maxBrightness
+              }
+            ];
+            uiconf.sections[1].content[2].value = self.config.get('maxBr');
+            uiconf.sections[1].content[2].attributes = [
+              {
+                placeholder: maxBrightness,
+                maxlength: maxBrightness.toString().length,
+                min: 0,
+                max: maxBrightness
+              }
+            ];
+            uiconf.sections[1].content[4].value = self.config.get('brightnessCurve');
+            uiconf.sections[1].content[5].value = self.config.get('midBr');
+            uiconf.sections[1].content[5].attributes = [
+              {
+                placeholder: maxBrightness,
+                maxlength: maxBrightness.toString().length,
+                min: 0,
+                max: maxBrightness
+              }
+            ];
+          }
+        } catch (e) {
+          self.logger.error(id + 'Error checking the existence of "/etc/als": ' + e);
         }
         uiconf.sections[1].content[7].value = self.config.get('manualBr');
         uiconf.sections[1].content[7].attributes = [
@@ -308,7 +315,7 @@ TouchDisplay.prototype.getUIConfig = function () {
           }
         ];
       }
-      if (device === 'Raspberry PI') {
+      if (device === 'pi') {
         uiconf.sections[2].hidden = false;
         uiconf.sections[2].content[0].value.value = self.config.get('angle');
         uiconf.sections[2].content[0].value.label = self.commandRouter.getI18nString('TOUCH_DISPLAY.' + self.config.get('angle'));
@@ -348,7 +355,7 @@ TouchDisplay.prototype.getUIConfig = function () {
 TouchDisplay.prototype.updateUIConfig = function () {
   const self = this;
 
-  self.commandRouter.getUIConfigOnPlugin('system_hardware', 'touch_display', {})
+  self.commandRouter.getUIConfigOnPlugin('user_interface', 'touch_display', {})
     .then(function (uiconf) {
       self.commandRouter.broadcastMessage('pushUiConfig', uiconf);
     });
@@ -361,15 +368,21 @@ TouchDisplay.prototype.getConfigurationFiles = function () {
 };
 
 TouchDisplay.prototype.getI18nFile = function (langCode) {
-  const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+  const self = this;
   const langFile = 'strings_' + langCode + '.json';
 
-  // check for i18n file fitting the system language
-  if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
-    return path.join(__dirname, 'i18n', langFile);
+  try {
+    const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
+    // check for i18n file fitting the system language
+    if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
+      return path.join(__dirname, 'i18n', langFile);
+    }
+    throw new Error('i18n file complementing the system language not found.');
+  } catch (e) {
+    self.logger.error(id + 'Fetching language file: ' + e);
+    // return default i18n file
+    return path.join(__dirname, 'i18n', 'strings_en.json');
   }
-  // return default i18n file
-  return path.join(__dirname, 'i18n', 'strings_en.json');
 };
 
 TouchDisplay.prototype.saveScreensaverConf = function (confData) {
@@ -417,19 +430,19 @@ TouchDisplay.prototype.saveBrightnessConf = function (confData) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.TESTBRIGHTNESS'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'system_hardware/touch_display', method: 'testBrightness', data: Object.assign({}, confData) }
+        payload: { endpoint: 'user_interface/touch_display', method: 'testBrightness', data: Object.assign({}, confData) }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CONTINUE'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'system_hardware/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
+        payload: { endpoint: 'user_interface/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CANCEL'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'system_hardware/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
+        payload: { endpoint: 'user_interface/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
       }
     ]
   };
@@ -873,13 +886,13 @@ TouchDisplay.prototype.testBrightness = function (confData) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.YES'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'system_hardware/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
+        payload: { endpoint: 'user_interface/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = true; return data; })() }
       },
       {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.NO'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'system_hardware/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
+        payload: { endpoint: 'user_interface/touch_display', method: 'saveBrightnessConf', data: (function () { const data = Object.assign({}, confData); data.modalResult = false; return data; })() }
       }
     ]
   };
@@ -1141,19 +1154,19 @@ TouchDisplay.prototype.getAlsValue = function (data) {
       name: self.commandRouter.getI18nString('TOUCH_DISPLAY.OK'),
       class: 'btn btn-default',
       emit: 'callMethod',
-      payload: { endpoint: 'system_hardware/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
+      payload: { endpoint: 'user_interface/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
     },
     {
       name: self.commandRouter.getI18nString('TOUCH_DISPLAY.SKIP'),
       class: 'btn btn-info',
       emit: 'callMethod',
-      payload: { endpoint: 'system_hardware/touch_display', method: 'getAlsValue', data: { confData: data.confData, action: data.action.slice(3) } }
+      payload: { endpoint: 'user_interface/touch_display', method: 'getAlsValue', data: { confData: data.confData, action: data.action.slice(3) } }
     },
     {
       name: self.commandRouter.getI18nString('COMMON.CANCEL'),
       class: 'btn btn-info',
       emit: 'callMethod',
-      payload: { endpoint: 'system_hardware/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
+      payload: { endpoint: 'user_interface/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
     }
   ];
 
@@ -1163,13 +1176,13 @@ TouchDisplay.prototype.getAlsValue = function (data) {
         name: self.commandRouter.getI18nString('TOUCH_DISPLAY.OK'),
         class: 'btn btn-default',
         emit: 'callMethod',
-        payload: { endpoint: 'system_hardware/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
+        payload: { endpoint: 'user_interface/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: data.action } }
       },
       {
         name: self.commandRouter.getI18nString('COMMON.CANCEL'),
         class: 'btn btn-info',
         emit: 'callMethod',
-        payload: { endpoint: 'system_hardware/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
+        payload: { endpoint: 'user_interface/touch_display', method: 'assignCurrentAls', data: { confData: data.confData, action: 'cancel' } }
       }
     ];
   }
@@ -1278,14 +1291,15 @@ TouchDisplay.prototype.modBootConfig = function (searchexp, newEntry) {
       let newConfigTxt = configTxt;
       switch (newEntry) {
         case 'gpu_mem':
-        case '#GPU_MEM':
-          var i = configTxt.lastIndexOf(configTxtGpuMemBanner);
+        case '#GPU_MEM': {
+          const i = configTxt.lastIndexOf(configTxtGpuMemBanner);
           if (i === -1) {
             newConfigTxt = configTxt.replace(new RegExp(searchexp, 'gm'), newEntry);
           } else {
             newConfigTxt = configTxt.substring(0, i).replace(new RegExp(searchexp, 'gm'), newEntry) + configTxt.substring(i, i + configTxtGpuMemBanner.length + 7) + configTxt.substring(i + configTxtGpuMemBanner.length + 7).replace(new RegExp(searchexp, 'gm'), newEntry);
           }
           break;
+        }
         case '':
           newConfigTxt = configTxt.replace(new RegExp(os.EOL + '*' + searchexp), newEntry);
           break;
