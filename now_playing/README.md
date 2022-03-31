@@ -77,6 +77,14 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.2.3
+- Add following settings:
+  - Track info display order
+  - Album art border
+  - Background overlay gradients
+  - Additional Volume Indicator Tweaks
+- Update web client: v0.1.2
+
 0.2.2
 - Update preview page: v0.1.2
 

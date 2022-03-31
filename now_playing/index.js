@@ -145,9 +145,19 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
             value: maxLines,
             label: maxLines == 'auto' ? np.getI18n('NOW_PLAYING_AUTO') : np.getI18n('NOW_PLAYING_CUSTOM')
         };
-        textStylesUIConf.content[19].value = styles.maxTitleLines || '';
-        textStylesUIConf.content[20].value = styles.maxArtistLines || '';
-        textStylesUIConf.content[21].value = styles.maxAlbumLines || '';
+        textStylesUIConf.content[19].value = styles.maxTitleLines !== undefined ? styles.maxTitleLines : '';
+        textStylesUIConf.content[20].value = styles.maxArtistLines !== undefined ? styles.maxArtistLines : '';
+        textStylesUIConf.content[21].value = styles.maxAlbumLines !== undefined ? styles.maxAlbumLines : '';
+
+        let trackInfoOrder = styles.trackInfoOrder || 'default';
+        textStylesUIConf.content[22].value = {
+            value: trackInfoOrder,
+            label: trackInfoOrder == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
+        };
+        textStylesUIConf.content[23].value = styles.trackInfoTitleOrder !== undefined ? styles.trackInfoTitleOrder : '';
+        textStylesUIConf.content[24].value = styles.trackInfoArtistOrder !== undefined ? styles.trackInfoArtistOrder : '';
+        textStylesUIConf.content[25].value = styles.trackInfoAlbumOrder !== undefined ? styles.trackInfoAlbumOrder : '';
+        textStylesUIConf.content[26].value = styles.trackInfoMediaInfoOrder !== undefined ? styles.trackInfoMediaInfoOrder : '';
         
         /**
          * Widget Styles conf
@@ -211,7 +221,8 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
             default: 
                 albumartStylesUIConf.content[4].value.label = np.getI18n('NOW_PLAYING_FIT_COVER');
         }
-        albumartStylesUIConf.content[5].value = styles.albumartBorderRadius || '';
+        albumartStylesUIConf.content[5].value = styles.albumartBorder || '';
+        albumartStylesUIConf.content[6].value = styles.albumartBorderRadius || '';
         if (!albumartVisibility) {
             albumartStylesUIConf.content = [ albumartStylesUIConf.content[0] ];
             albumartStylesUIConf.saveButton.data = [ 'albumartVisibility' ];
@@ -331,12 +342,19 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
         backgroundStylesUIConf.content[10].value = styles.volumioBackgroundScale || '';
 
         let backgroundOverlay = styles.backgroundOverlay || 'default';
+        // Revert obsolete value 'custom' to 'default'
+        if (backgroundOverlay === 'custom') {
+            backgroundOverlay = 'default';
+        }
         backgroundStylesUIConf.content[11].value = {
             value: backgroundOverlay
         };
         switch (backgroundOverlay) {
-            case 'custom':
-                backgroundStylesUIConf.content[11].value.label = np.getI18n('NOW_PLAYING_CUSTOM');
+            case 'customColor':
+                backgroundStylesUIConf.content[11].value.label = np.getI18n('NOW_PLAYING_CUSTOM_COLOR');
+                break;
+            case 'customGradient':
+                backgroundStylesUIConf.content[11].value.label = np.getI18n('NOW_PLAYING_CUSTOM_GRADIENT');
                 break;
             case 'none': 
                 backgroundStylesUIConf.content[11].value.label = np.getI18n('NOW_PLAYING_NONE');
@@ -345,7 +363,9 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
                 backgroundStylesUIConf.content[11].value.label = np.getI18n('NOW_PLAYING_DEFAULT');
         }
         backgroundStylesUIConf.content[12].value = styles.backgroundOverlayColor || '#000000';
-        backgroundStylesUIConf.content[13].value = styles.backgroundOverlayOpacity || '';
+        backgroundStylesUIConf.content[13].value = styles.backgroundOverlayColorOpacity || '';
+        backgroundStylesUIConf.content[14].value = styles.backgroundOverlayGradient || '';
+        backgroundStylesUIConf.content[15].value = styles.backgroundOverlayGradientOpacity || '';
 
         /**
          * Volume Indicator Tweaks
@@ -383,7 +403,10 @@ ControllerNowPlaying.prototype.getUIConfig = function() {
                 volumeIndicatorTweaksUIConf.content[1].value.label = np.getI18n('NOW_PLAYING_POSITION_BOTTOM_RIGHT');
         }
         volumeIndicatorTweaksUIConf.content[2].value = volumeIndicatorStyles.fontSize || '';
-        volumeIndicatorTweaksUIConf.content[3].value = volumeIndicatorStyles.margin || '';
+        volumeIndicatorTweaksUIConf.content[3].value = volumeIndicatorStyles.iconSize || '';
+        volumeIndicatorTweaksUIConf.content[4].value = volumeIndicatorStyles.fontColor || '#CCCCCC';
+        volumeIndicatorTweaksUIConf.content[5].value = volumeIndicatorStyles.iconColor || '#CCCCCC';
+        volumeIndicatorTweaksUIConf.content[6].value = volumeIndicatorStyles.margin || '';
 
         /**
          * Metadata Service conf
@@ -571,9 +594,13 @@ ControllerNowPlaying.prototype.configConfirmSaveDaemon = function(data) {
 }
 
 ControllerNowPlaying.prototype.configSaveTextStyles = function(data) {
-    let maxTitleLines = data.maxTitleLines ? parseInt(data.maxTitleLines, 10) : '';
-    let maxArtistLines = data.maxArtistLines ? parseInt(data.maxArtistLines, 10) : '';
-    let maxAlbumLines = data.maxAlbumLines ? parseInt(data.maxAlbumLines, 10) : '';
+    let maxTitleLines = data.maxTitleLines !== '' ? parseInt(data.maxTitleLines, 10) : '';
+    let maxArtistLines = data.maxArtistLines !== '' ? parseInt(data.maxArtistLines, 10) : '';
+    let maxAlbumLines = data.maxAlbumLines !== '' ? parseInt(data.maxAlbumLines, 10) : '';
+    let trackInfoTitleOrder = data.trackInfoTitleOrder !== '' ? parseInt(data.trackInfoTitleOrder, 10) : '';
+    let trackInfoArtistOrder = data.trackInfoArtistOrder !== '' ? parseInt(data.trackInfoArtistOrder, 10) : '';
+    let trackInfoAlbumOrder = data.trackInfoAlbumOrder !== '' ? parseInt(data.trackInfoAlbumOrder, 10) : '';
+    let trackInfoMediaInfoOrder = data.trackInfoMediaInfoOrder !== '' ? parseInt(data.trackInfoMediaInfoOrder, 10) : '';
     let styles = {
         fontSizes: data.fontSizes.value,
         titleFontSize: data.titleFontSize,
@@ -596,7 +623,12 @@ ControllerNowPlaying.prototype.configSaveTextStyles = function(data) {
         maxLines: data.maxLines.value,
         maxTitleLines,
         maxArtistLines,
-        maxAlbumLines
+        maxAlbumLines,
+        trackInfoOrder: data.trackInfoOrder.value,
+        trackInfoTitleOrder,
+        trackInfoArtistOrder,
+        trackInfoAlbumOrder,
+        trackInfoMediaInfoOrder
     };
     let currentStyles = np.getConfigValue('styles', {}, true);
     let updatedStyles = Object.assign(currentStyles, styles);
@@ -675,7 +707,9 @@ ControllerNowPlaying.prototype.configSaveBackgroundStyles = function(data) {
         volumioBackgroundScale: data.volumioBackgroundScale,
         backgroundOverlay: data.backgroundOverlay.value,
         backgroundOverlayColor: data.backgroundOverlayColor,
-        backgroundOverlayOpacity: data.backgroundOverlayOpacity
+        backgroundOverlayColorOpacity: data.backgroundOverlayColorOpacity,
+        backgroundOverlayGradient: data.backgroundOverlayGradient,
+        backgroundOverlayGradientOpacity: data.backgroundOverlayGradientOpacity
     };
     let currentStyles = np.getConfigValue('styles', {}, true);
     let updatedStyles = Object.assign(currentStyles, styles);
@@ -691,6 +725,9 @@ ControllerNowPlaying.prototype.configSaveVolumeIndicatorTweakSettings = function
             visibility: data.volumeIndicatorAlwaysVisible ? 'always' : 'default',
             placement: data.volumeIndicatorPlacement.value,
             fontSize: data.volumeIndicatorFontSize,
+            iconSize: data.volumeIndicatorIconSize,
+            fontColor: data.volumeIndicatorFontColor,
+            iconColor: data.volumeIndicatorIconColor,
             margin: data.volumeIndicatorMargin
         }
     };

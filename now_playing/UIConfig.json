@@ -86,7 +86,12 @@
           "maxLines",
           "maxTitleLines",
           "maxArtistLines",
-          "maxAlbumLines"
+          "maxAlbumLines",
+          "trackInfoOrder",
+          "trackInfoTitleOrder",
+          "trackInfoArtistOrder",
+          "trackInfoAlbumOrder",
+          "trackInfoMediaInfoOrder"
         ]
       },
       "content": [
@@ -422,6 +427,70 @@
             "field": "maxLines",
             "value": "custom"
           }
+        },
+        {
+          "id": "trackInfoOrder",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_TRACK_INFO_ORDER",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRACK_INFO_ORDER",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "trackInfoTitleOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoArtistOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoAlbumOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoMediaInfoOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
         }
       ]
     },
@@ -633,6 +702,7 @@
           "albumartWidth",
           "albumartHeight",
           "albumartFit",
+          "albumartBorder",
           "albumartBorderRadius"
         ]
       },
@@ -714,6 +784,14 @@
           ]
         },
         {
+          "id": "albumartBorder",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BORDER",
+          "label": "TRANSLATE.NOW_PLAYING_BORDER",
+          "value": ""
+        },
+        {
           "id": "albumartBorderRadius",
           "type": "text",
           "element": "input",
@@ -749,7 +827,9 @@
           "volumioBackgroundScale",
           "backgroundOverlay",
           "backgroundOverlayColor",
-          "backgroundOverlayOpacity"
+          "backgroundOverlayColorOpacity",
+          "backgroundOverlayGradient",
+          "backgroundOverlayGradientOpacity"
         ]
       },
       "content": [
@@ -997,8 +1077,12 @@
               "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
             },
             {
-              "value": "custom", 
-              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+              "value": "customColor", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_COLOR"
+            },
+            {
+              "value": "customGradient", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_GRADIENT"
             },
             {
               "value": "none", 
@@ -1015,11 +1099,11 @@
           "value": "",
           "visibleIf": {
             "field": "backgroundOverlay",
-            "value": "custom"
+            "value": "customColor"
           }
         },
         {
-          "id": "backgroundOverlayOpacity",
+          "id": "backgroundOverlayColorOpacity",
           "type": "text",
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
@@ -1027,7 +1111,31 @@
           "value": "",
           "visibleIf": {
             "field": "backgroundOverlay",
-            "value": "custom"
+            "value": "customColor"
+          }
+        },
+        {
+          "id": "backgroundOverlayGradient",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_GRADIENT",
+          "label": "TRANSLATE.NOW_PLAYING_GRADIENT",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customGradient"
+          }
+        },
+        {
+          "id": "backgroundOverlayGradientOpacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customGradient"
           }
         }
       ]
@@ -1048,6 +1156,9 @@
           "volumeIndicatorAlwaysVisible",
           "volumeIndicatorPlacement",
           "volumeIndicatorFontSize",
+          "volumeIndicatorIconSize",
+          "volumeIndicatorFontColor",
+          "volumeIndicatorIconColor",
           "volumeIndicatorMargin"
         ]
       },
@@ -1112,6 +1223,42 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
           "label": "TRANSLATE.NOW_PLAYING_FONT_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeIndicatorIconSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeIndicatorFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeIndicatorIconColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_COLOR",
           "value": "",
           "visibleIf": {
             "field": "volumeIndicatorAlwaysVisible",

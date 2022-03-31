@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.7ba756cd.css",
-    "main.js": "/static/js/main.c565af46.js",
+    "main.css": "/static/css/main.fe19b868.css",
+    "main.js": "/static/js/main.d277692e.js",
     "static/media/fontawesome-webfont.svg?v=4.7.0": "/static/media/fontawesome-webfont.c1e38fd9e0e74ba58f7a.svg",
     "static/media/MaterialIcons-Regular.ttf": "/static/media/MaterialIcons-Regular.b459c012769931f03de2.ttf",
     "static/media/fontawesome-webfont.eot": "/static/media/fontawesome-webfont.8b43027f47b20503057d.eot",
@@ -10,11 +10,11 @@
     "static/media/fontawesome-webfont.woff2?v=4.7.0": "/static/media/fontawesome-webfont.20fd1704ea223900efa9.woff2",
     "static/media/volumio-icon.png": "/static/media/volumio-icon.3204cd4ee69f030fda73.png",
     "index.html": "/index.html",
-    "main.7ba756cd.css.map": "/static/css/main.7ba756cd.css.map",
-    "main.c565af46.js.map": "/static/js/main.c565af46.js.map"
+    "main.fe19b868.css.map": "/static/css/main.fe19b868.css.map",
+    "main.d277692e.js.map": "/static/js/main.d277692e.js.map"
   },
   "entrypoints": [
-    "static/css/main.7ba756cd.css",
-    "static/js/main.c565af46.js"
+    "static/css/main.fe19b868.css",
+    "static/js/main.d277692e.js"
   ]
 }
