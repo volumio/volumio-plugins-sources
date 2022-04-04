@@ -18,41 +18,17 @@ class PlayController {
         jellyfin.getLogger().info('[jellyfin-play] clearAddPlayTrack: ' + track.uri);
 
         let self = this;
-
-        let songIdPrefix = 'song@songId=';
-        let uri = track.uri.split('/');
-        let serverId = uri[1];
-        let songId;
-        if (uri[2].startsWith(songIdPrefix)) {
-            songId = uri[2].substring(songIdPrefix.length);
-            if (songId === '') {
-                songId = undefined;
-            }
-        }
-        if (uri[0] !== 'jellyfin' || serverId == undefined || songId == undefined) {
-            return libQ.reject('Invalid track uri: ' + track.uri);
-        }
-       
-        let server = self._getAvailableServerById(serverId);
-        if (!server) {
-            return libQ.reject('Server unavailable');
-        }
-
-        let apiClient;
-        return jellyfin.get('connectionManager').authenticate(server).then( (result) => {
+        let song, apiClient;
+        return self.getSongFromTrack(track).then( (result) => {
+            song = result.song;
             apiClient = result.apiClient;
-            return libQ.resolve();
-        }).then( () => {
-            let model = Model.getInstance('song', apiClient);
-            return model.getSong(songId);
-        }).then( (song) => {
             let streamUrl = self._getStreamUrl(song, apiClient);
             let safeUri = streamUrl.replace(/"/g, '\\"');
             return safeUri;
         }).then( (streamUrl) => {
             return self._doPlay(streamUrl, track);
         }).then( (mpdPlayResult) => {
-            self._markPlayed(serverId, songId, apiClient);
+            self._markPlayed(serverId, song.Id, apiClient);
             return mpdPlayResult;
         }).fail( (error) => {
             jellyfin.getLogger().error('[jellyfin-play] clearAddPlayTrack() error');
@@ -61,23 +37,33 @@ class PlayController {
     }
 
     stop() {
-        jellyfin.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        jellyfin.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.stop();
     };
 
     pause() {
-        jellyfin.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        jellyfin.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.pause();
     };
   
     resume() {
-        jellyfin.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        jellyfin.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.resume();
     }
   
     seek(position) {
-        jellyfin.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        jellyfin.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.seek(position);
+    }
+
+    next() {
+        jellyfin.getStateMachine().setConsumeUpdateService('mpd', true, false);
+        return this.mpdPlugin.next();
+    }
+
+    previous() {
+        jellyfin.getStateMachine().setConsumeUpdateService(undefined);
+        return jellyfin.getStateMachine().previous();
     }
 
     /*prefetch(trackBlock) {
@@ -155,7 +141,7 @@ class PlayController {
             }
         })
         .then( () => {
-            jellyfin.getStateMachine().setConsumeUpdateService('mpd', false, false);
+            jellyfin.getStateMachine().setConsumeUpdateService('mpd', true, false);
             return mpdPlugin.sendMpdCommand('play', []);
         });
     }
@@ -170,6 +156,43 @@ class PlayController {
                 jellyfin.getLogger().error('[jellyfin] markPlayed(' + serverId + ', ' + songId + '): Cannot mark song as played - ' + error);
             }
         );
+    }
+
+    getSongFromTrack(track) {
+        let songIdPrefix = 'song@songId=';
+        let uri = track.uri.split('/');
+        let serverId = uri[1];
+        let songId;
+        if (uri[2].startsWith(songIdPrefix)) {
+            songId = uri[2].substring(songIdPrefix.length);
+            if (songId === '') {
+                songId = undefined;
+            }
+        }
+        if (uri[0] !== 'jellyfin' || serverId == undefined || songId == undefined) {
+            return libQ.reject('Invalid track uri: ' + track.uri);
+        }
+
+        let server = this._getAvailableServerById(serverId);
+        if (!server) {
+            auth = libQ.reject('Server unavailable');
+        }
+
+        let apiClient;
+        return jellyfin.get('connectionManager').authenticate(server).then( (result) => {
+            apiClient = result.apiClient;
+            return libQ.resolve();
+        })
+        .then( () => {
+            let model = Model.getInstance('song', apiClient);
+            return model.getSong(songId);
+        })
+        .then( (song) => {
+            return {
+                apiClient,
+                song
+            };
+        });
     }
 
     _getAvailableServerById(serverId) {
