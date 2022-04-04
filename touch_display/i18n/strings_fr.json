@@ -10,6 +10,8 @@
     "ERR_MOD":"Erreur en modifiant ",
     "ERR_WRITE":"Erreur d'écriture ",
     "ERR_READ":"Erreur de lecture ",
+    "WARN_ORIENTATION":"Le réglage de l'orientation de l'affichage nécessite un redémarrage.",
+    "WARN_GPUMEM":"Le réglage de la mémoire du GPU nécessite un redémarrage.",
     "GETALSRANGE_FAILED":"La régulation automatique de la luminosité n'est pas possible: Echec de lecture des valeurs du capteur.",
     "CALIBRATION_NEEDED":"La calibration du capteur de lumière ambiante est nécéssaire avant d'utliser cette fonction.",
     "MIDALS_TOO_LOW":"La courbe de luminosité ne peut être utilsée: La luminosité ambiante de référence doit être plus grande que la valeur minimale.",

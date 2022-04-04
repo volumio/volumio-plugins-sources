@@ -1,37 +1,62 @@
 #!/bin/bash
 
-ID=$(awk '/VERSION_ID=/' /etc/*-release | sed 's/VERSION_ID=//' | sed 's/\"//g')
+PLUGIN_DIR="$(cd "$(dirname "$0")"; pwd -P)"
+
+exit_cleanup() {
+  if [ "$?" -ne 0 ]; then
+    echo "Plugin failed to install!"
+    echo "Cleaning up..."
+    if [ -d "$PLUGIN_DIR" ]; then
+      . ."$PLUGIN_DIR"/uninstall.sh | grep -v "pluginuninstallend"
+      echo "Removing plugin directory $PLUGIN_DIR"
+      rm -rf "$PLUGIN_DIR"
+    else
+      echo "Plugin directory could not be found: Cleaning up failed."
+    fi
+  fi
+
+  if [ -d "$TMP_DIR" ]; then
+    echo "Removing temporary directory $TMP_DIR"
+    rm -rf "$TMP_DIR"
+  fi
+
+  #required to end the plugin install
+  echo "plugininstallend"
+}
+trap "exit_cleanup" EXIT
+
+echo "Completing \"UIConfig.json\""
+sed -i "s/\${plugin_type}/$(grep "\"plugin_type\":" "$PLUGIN_DIR"/package.json | cut -d"\"" -f4)/" "$PLUGIN_DIR"/UIConfig.json || { echo "Completing \"UIConfig.json\" failed"; exit 1; }
+
+TMP_DIR="$(mktemp -d touch_display-XXXXXXXXXX)" || { echo "Creating temporary directory failed"; exit 1; }
+export DEBIAN_FRONTEND=noninteractive
 
 if grep -q Raspberry /proc/cpuinfo; then # on Raspberry Pi hardware
   echo "Installing fake packages for kernel, bootloader and pi lib"
-  wget https://repo.volumio.org/Volumio2/Binaries/arm/libraspberrypi0_0.0.1_all.deb
-  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-bootloader_0.0.1_all.deb
-  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-kernel_0.0.1_all.deb
-  dpkg -i libraspberrypi0_0.0.1_all.deb
-  dpkg -i raspberrypi-bootloader_0.0.1_all.deb
-  dpkg -i raspberrypi-kernel_0.0.1_all.deb
-  rm libraspberrypi0_0.0.1_all.deb
-  rm raspberrypi-bootloader_0.0.1_all.deb
-  rm raspberrypi-kernel_0.0.1_all.deb
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/libraspberrypi0_0.0.1_all.deb -P "$TMP_DIR" || { echo "Download of libraspberrypi0_0.0.1_all.deb failed"; exit 1; }
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-bootloader_0.0.1_all.deb -P "$TMP_DIR" || { echo "Download of raspberrypi-bootloader_0.0.1_all.deb failed"; exit 1; }
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-kernel_0.0.1_all.deb -P "$TMP_DIR" || { echo "Download of raspberrypi-kernel_0.0.1_all.deb failed"; exit 1; }
+  dpkg -i "$TMP_DIR"/libraspberrypi0_0.0.1_all.deb || { echo "Installation of libraspberrypi0_0.0.1_all.deb failed"; exit 1; }
+  dpkg -i "$TMP_DIR"/raspberrypi-bootloader_0.0.1_all.deb || { echo "Installation of raspberrypi-bootloader_0.0.1_all.deb failed"; exit 1; }
+  dpkg -i "$TMP_DIR"/raspberrypi-kernel_0.0.1_all.deb || { echo "Installation of raspberrypi-kernel_0.0.1_all.deb failed"; exit 1; }
 
   echo "Putting on hold packages for kernel, bootloader and pi lib"
-  apt-mark hold libraspberrypi0 raspberrypi-bootloader raspberrypi-kernel
+  apt-mark hold libraspberrypi0 raspberrypi-bootloader raspberrypi-kernel || { echo "Putting on hold packages for kernel, bootloader and pi lib failed"; exit 1; }
 
   echo "Installing Chromium dependencies"
   apt-get update
-  apt-get -y install
+  apt-get -y install || { echo "Installation of Chromium dependencies failed"; exit 1; }
 
   echo "Installing graphical environment"
-  DEBIAN_FRONTEND=noninteractive apt-get -y install xinit xorg openbox
-  if [ "$ID" = "8" ]; then
-    apt-get -y install xserver-xorg-legacy
-  fi
+  apt-get -y install xinit || { echo "Installation of xinit failed"; exit 1; }
+  apt-get -y install xorg || { echo "Installation of xorg failed"; exit 1; }
+  apt-get -y install openbox || { echo "Installation of openbox failed"; exit 1; }
 
   echo "Installing Chromium"
-  apt-get -y install chromium-browser
+  apt-get -y install chromium-browser || { echo "Installation of Chromium failed"; exit 1; }
 
   echo "Creating /etc/X11/xorg.conf.d dir"
-  mkdir /etc/X11/xorg.conf.d
+  mkdir -p /etc/X11/xorg.conf.d || { echo "Creating /etc/X11/xorg.conf.d failed"; exit 1; }
 
   echo "Creating Xorg configuration file"
   echo "# This file is managed by the Touch Display plugin: Do not alter!
@@ -41,36 +66,28 @@ Section \"InputClass\"
         MatchIsTouchscreen \"on\"
         MatchDevicePath \"/dev/input/event*\"
         MatchDriver \"libinput|evdev\"
-EndSection" > /etc/X11/xorg.conf.d/95-touch_display-plugin.conf
+EndSection" > /etc/X11/xorg.conf.d/95-touch_display-plugin.conf || { echo "Creating Xorg configuration file failed"; exit 1; }
 else # on other hardware
   echo "Installing Chromium dependencies"
   apt-get update
-  apt-get -y install
+  apt-get -y install || { echo "Installation of Chromium dependencies failed"; exit 1; }
 
   echo "Installing graphical environment"
-  DEBIAN_FRONTEND=noninteractive apt-get install -y xinit xorg openbox
+  apt-get -y install xinit || { echo "Installation of xinit failed"; exit 1; }
+  apt-get -y install xorg || { echo "Installation of xorg failed"; exit 1; }
+  apt-get -y install openbox || { echo "Installation of openbox failed"; exit 1; }
 
   echo "Installing Chromium"
-  if [ "$ID" = "8" ]; then
-    cd /home/volumio/
-    wget https://launchpadlibrarian.net/234969703/chromium-browser_48.0.2564.82-0ubuntu0.15.04.1.1193_armhf.deb
-    wget https://launchpadlibrarian.net/234969705/chromium-codecs-ffmpeg-extra_48.0.2564.82-0ubuntu0.15.04.1.1193_armhf.deb
-    dpkg -i /home/volumio/chromium-*.deb
-    apt-get install -y -f
-    dpkg -i /home/volumio/chromium-*.deb
-    rm /home/volumio/chromium-*.deb
-  else
-    apt-get -y install chromium
-    ln -s /usr/bin/chromium /usr/bin/chromium-browser
-  fi
+  apt-get -y install chromium || { echo "Installation of Chromium failed"; exit 1; }
+  ln -s /usr/bin/chromium /usr/bin/chromium-browser || { echo "Linking /usr/bin/chromium to /usr/bin/chromium-browser failed"; exit 1; }
 fi
 
 echo "Installing japanese, korean, chinese and taiwanese fonts"
-apt-get -y install fonts-arphic-ukai fonts-arphic-gbsn00lp fonts-unfonts-core
+apt-get -y install fonts-arphic-ukai fonts-arphic-gbsn00lp fonts-unfonts-core || { echo "Installation of fonts failed"; exit 1; }
 
 echo "Creating Kiosk data dir"
-mkdir /data/volumiokiosk
-chown volumio:volumio /data/volumiokiosk
+mkdir -p /data/volumiokiosk || { echo "Creating /data/volumiokiosk failed"; exit 1; }
+chown volumio:volumio /data/volumiokiosk || { echo "Setting permissions to Kiosk data folder failed"; exit 1; }
 
 echo "Creating chromium kiosk start script"
 echo "#!/bin/bash
@@ -97,8 +114,8 @@ while true; do
     --disable-translate \\
     --user-data-dir='/data/volumiokiosk' \
     http://localhost:3000
-done" > /opt/volumiokiosk.sh
-/bin/chmod +x /opt/volumiokiosk.sh
+done" > /opt/volumiokiosk.sh || { echo "Creating chromium kiosk start script failed"; exit 1; }
+chmod +x /opt/volumiokiosk.sh || { echo "Making chromium kiosk start script executable failed"; exit 1; }
 
 echo "Creating Systemd Unit for Kiosk"
 echo "[Unit]
@@ -112,11 +129,8 @@ Group=volumio
 ExecStart=/usr/bin/startx /etc/X11/Xsession /opt/volumiokiosk.sh -- -nocursor
 [Install]
 WantedBy=multi-user.target
-" > /lib/systemd/system/volumio-kiosk.service
+" > /lib/systemd/system/volumio-kiosk.service || { echo "Creating Systemd Unit for Kiosk failed"; exit 1; }
 systemctl daemon-reload
 
 echo "Allowing volumio to start an xsession"
-/bin/sed -i "s/allowed_users=console/allowed_users=anybody/" /etc/X11/Xwrapper.config
-
-#required to end the plugin install
-echo "plugininstallend"
+sed -i "s/allowed_users=console/allowed_users=anybody/" /etc/X11/Xwrapper.config || { echo "Allowing volumio to start an xsession failed"; exit 1; }
