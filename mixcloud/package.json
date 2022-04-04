@@ -1,6 +1,6 @@
 {
 	"name": "mixcloud",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Listen to Mixcloud shows",
 	"main": "index.js",
 	"scripts": {
@@ -40,6 +40,8 @@
 		"node-cache": "^5.1.2",
 		"slugify": "^1.6.1",
 		"string-format": "^2.0.0",
-		"v-conf": "^1.4.2"
+		"v-conf": "^1.4.2",
+		"miniget": "^4.2.1",
+		"m3u8-parser": "^4.7.0"
 	}
 }

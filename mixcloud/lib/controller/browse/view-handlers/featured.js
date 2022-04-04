@@ -16,13 +16,22 @@ class FeaturedViewHandler extends DiscoverViewHandler {
 
         let view = this.getCurrentView();
         if (!view.inSection && selectedTags.length > 0) {
-            let discoverUri = this.getUri() + `/discover@slug=${selectedTags[0].slug}`;
-            let discoverLink = this.constructGoToViewLink(mixcloud.getI18n('MIXCLOUD_VIEW_ALL_SHOWS', tagNames), discoverUri);
+            let discoverLinkData = this.getSwitchViewLinkData(selectedTags);
+            let discoverLink = this.constructGoToViewLink(discoverLinkData.text, discoverLinkData.uri);
 
             title = UIHelper.constructListTitleWithLink(title, discoverLink, true);
         }
 
         return title;
+    }
+
+    getSwitchViewLinkData(selectedTags) {
+        // "View all { tag } shows"
+        let tagNames = selectedTags.map( t => t.name ).join(' &amp; ');
+        return {
+            uri: this.getUri() + `/discover@slug=${selectedTags[0].slug}`,
+            text: mixcloud.getI18n('MIXCLOUD_VIEW_ALL_SHOWS', tagNames)
+        };
     }
 }
 
