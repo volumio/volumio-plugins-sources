@@ -121,6 +121,10 @@ class NowPlayingContext {
         return str;
     }
 
+    getDeviceInfo() {
+        return this._pluginContext.coreCommand.executeOnPlugin('system_controller', 'volumiodiscovery', 'getThisDevice');
+    }
+
     _loadI18n() {
         let self = this;
 
