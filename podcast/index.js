@@ -629,7 +629,7 @@ ControllerPodcast.prototype.getPodcastContent = function(uri) {
           var urlParam = JSON.stringify(param);
           var podcastItem = {
             service: self.serviceName,
-            type: 'mywebradio',
+            type: 'song',
             title: entry.title,
             uri: `podcast/${podcastId}/${encodeURIComponent(urlParam)}`
           };
