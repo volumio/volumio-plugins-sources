@@ -1,7 +1,6 @@
 'use strict';
 
 const fs = require('fs');
-const ejs = require('ejs');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
 const jsonfile = require('jsonfile');
