@@ -82,10 +82,16 @@
           "mediaInfoMargin",
           "textAlignmentH",
           "textAlignmentV",
+          "textAlignmentLyrics",
           "maxLines",
           "maxTitleLines",
           "maxArtistLines",
-          "maxAlbumLines"
+          "maxAlbumLines",
+          "trackInfoOrder",
+          "trackInfoTitleOrder",
+          "trackInfoArtistOrder",
+          "trackInfoAlbumOrder",
+          "trackInfoMediaInfoOrder"
         ]
       },
       "content": [
@@ -347,6 +353,29 @@
           ]
         },
         {
+          "id": "textAlignmentLyrics",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALIGNMENT_LYRICS",
+          "value": {
+            "value": "left", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+          },
+          "options": [
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            }
+          ]
+        },
+        {
           "id": "maxLines",
           "element": "select",
           "label": "TRANSLATE.NOW_PLAYING_MAX_LINES",
@@ -396,6 +425,70 @@
           "value": "",
           "visibleIf": {
             "field": "maxLines",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoOrder",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_TRACK_INFO_ORDER",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRACK_INFO_ORDER",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "trackInfoTitleOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoArtistOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoAlbumOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoMediaInfoOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
             "value": "custom"
           }
         }
@@ -609,6 +702,7 @@
           "albumartWidth",
           "albumartHeight",
           "albumartFit",
+          "albumartBorder",
           "albumartBorderRadius"
         ]
       },
@@ -690,6 +784,14 @@
           ]
         },
         {
+          "id": "albumartBorder",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BORDER",
+          "label": "TRANSLATE.NOW_PLAYING_BORDER",
+          "value": ""
+        },
+        {
           "id": "albumartBorderRadius",
           "type": "text",
           "element": "input",
@@ -725,7 +827,9 @@
           "volumioBackgroundScale",
           "backgroundOverlay",
           "backgroundOverlayColor",
-          "backgroundOverlayOpacity"
+          "backgroundOverlayColorOpacity",
+          "backgroundOverlayGradient",
+          "backgroundOverlayGradientOpacity"
         ]
       },
       "content": [
@@ -973,8 +1077,12 @@
               "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
             },
             {
-              "value": "custom", 
-              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+              "value": "customColor", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_COLOR"
+            },
+            {
+              "value": "customGradient", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_GRADIENT"
             },
             {
               "value": "none", 
@@ -991,11 +1099,11 @@
           "value": "",
           "visibleIf": {
             "field": "backgroundOverlay",
-            "value": "custom"
+            "value": "customColor"
           }
         },
         {
-          "id": "backgroundOverlayOpacity",
+          "id": "backgroundOverlayColorOpacity",
           "type": "text",
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
@@ -1003,8 +1111,257 @@
           "value": "",
           "visibleIf": {
             "field": "backgroundOverlay",
-            "value": "custom"
+            "value": "customColor"
           }
+        },
+        {
+          "id": "backgroundOverlayGradient",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_GRADIENT",
+          "label": "TRANSLATE.NOW_PLAYING_GRADIENT",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customGradient"
+          }
+        },
+        {
+          "id": "backgroundOverlayGradientOpacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customGradient"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_volume_indicator_tweaks",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_VOLUME_INDICATOR_TWEAKS",
+      "icon": "fa-wrench",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveVolumeIndicatorTweakSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "volumeIndicatorAlwaysVisible",
+          "volumeIndicatorPlacement",
+          "volumeIndicatorFontSize",
+          "volumeIndicatorIconSize",
+          "volumeIndicatorFontColor",
+          "volumeIndicatorIconColor",
+          "volumeIndicatorMargin"
+        ]
+      },
+      "content": [
+        {
+          "id": "volumeIndicatorAlwaysVisible",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ALWAYS_VISIBLE",
+          "value": false
+        },
+        {
+          "id": "volumeIndicatorPlacement",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PLACEMENT",
+          "value": {
+            "value": "bottom-right", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+          },
+          "options": [
+            {
+              "value": "top-left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_LEFT"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "top-right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_RIGHT"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "bottom-left",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_LEFT"
+            },
+            {
+              "value": "bottom",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "bottom-right",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+            }
+          ],
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeIndicatorFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeIndicatorIconSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeIndicatorFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeIndicatorIconColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeIndicatorMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": "",
+          "visibleIf": {
+            "field": "volumeIndicatorAlwaysVisible",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_metadata_service",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_METADATA_SERVICE",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveMetadataServiceSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "geniusAccessToken"
+        ]
+      },
+      "content": [
+        {
+          "id": "geniusAccessToken",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_GENIUS_ACCESS_TOKEN",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_GENIUS_ACCESS_TOKEN",
+          "value": ""
+        },
+        {
+          "id": "accessTokenGuide",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_ACCESS_TOKEN_GUIDE",
+          "onClick": {
+            "type": "openUrl"
+          }
+        },
+        {
+          "id": "clearMetadataCache",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_CLEAR_CACHE",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+                "endpoint": "user_interface/now_playing",
+                "method": "clearMetadataCache"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_extra_screens",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_EXTRA_SCREENS",
+      "icon": "fa-television",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveExtraScreenSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "theme"
+        ]
+      },
+      "content": [
+        {
+          "id": "theme",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_THEME",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default", 
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "glass",
+              "label": "TRANSLATE.NOW_PLAYING_GLASS"
+            }
+          ]
         }
       ]
     },
@@ -1013,6 +1370,105 @@
       "element": "section",
       "label": "TRANSLATE.NOW_PLAYING_KIOSK",
       "icon": "fa-television"
+    },
+    {
+      "id": "section_performance",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_PERFORMANCE",
+      "icon": "fa-bolt",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSavePerformanceSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "transitionEffectsKiosk",
+          "transitionEffectsOtherDevices",
+          "unmountScreensOnExit",
+          "unmountNowPlayingScreenOnExit",
+          "unmountBrowseScreenOnExit",
+          "unmountQueueScreenOnExit",
+          "unmountVolumioScreenOnExit"
+        ]
+      },
+      "content": [
+        {
+          "id": "transitionEffectsKiosk",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRANSITION_EFFECTS_KIOSK",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRANSITION_EFFECTS",
+          "value": false
+        },
+        {
+          "id": "transitionEffectsOtherDevices",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRANSITION_EFFECTS_OTHER",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRANSITION_EFFECTS",
+          "value": true
+        },
+        {
+          "id": "unmountScreensOnExit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_UNMOUNT_SCREENS",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_UNMOUNT_SCREENS",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "unmountNowPlayingScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_NP",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountBrowseScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_BROWSE",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountQueueScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_QUEUE",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountVolumioScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_VOLUMIO",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        }
+      ]
     },
     {
       "id": "section_other",

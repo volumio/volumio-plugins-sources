@@ -391,6 +391,14 @@ ControllerJellyfin.prototype.seek = function (position) {
     return this.playController.seek(position);
 }
 
+ControllerJellyfin.prototype.next = function (position) {
+    return this.playController.next();
+}
+
+ControllerJellyfin.prototype.previous = function (position) {
+    return this.playController.previous();
+}
+
 /*ControllerJellyfin.prototype.prefetch = function (trackBlock) {
     return this.playController.prefetch(trackBlock);
 };*/
@@ -401,4 +409,22 @@ ControllerJellyfin.prototype.search = function(query) {
 
 ControllerJellyfin.prototype.pollServers = function() {
     this.serverPoller.start(Server.fromPluginSettings(this.getServerSettingsFromConfig()));
+}
+
+ControllerJellyfin.prototype.goto = function(data) {
+    return this.playController.getSongFromTrack(data).then( result => {
+        let song = result.song;
+        console.log('goto', song);
+        if (data.type === 'album' && song.AlbumId) {
+            return this.browseController.browseUri(`jellyfin/${ song.ServerId }/songs@albumId=${ song.AlbumId }`);
+        }
+        else if (data.type === 'artist' && Array.isArray(song.ArtistItems)) {
+            let artist = song.ArtistItems[0];
+            if (artist && artist.Id) {
+                return this.browseController.browseUri(`jellyfin/${ song.ServerId }/albums@artistId=${ artist.Id }`);
+            }
+        }
+
+        return libQ.reject('Requested data not found.');
+    });
 }

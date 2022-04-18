@@ -52,8 +52,8 @@
     "SEARCH_LIST_NOTE": "Please select a search result from the podcast.",
     "SUPPORT_KOREAN": "Support in Korea (by KakaoPay)",
     "SUPPORT_FOREIGNER": "Support outside Korea (by paypal)",
-    "SUPPORT_KOREAN_LINK_DESCRIPTION": "Go to the 'Donaricano' korean support site",
-    "SUPPORT_FOREIGNER_LINK_DESCRIPTION": "Go to the 'PayPal.Me' outside korea support site",
+    "SUPPORT_KOREAN_LINK_DESCRIPTION": "Go to 'github.com' and sponsor with Kakao Pay",
+    "SUPPORT_FOREIGNER_LINK_DESCRIPTION": "Go to the 'PayPal.Me' and sponsor for outside korea",
     "SUPPORT_PLUGIN": "Podcast Plugin Support",
     "SUPPORT_DESCRIPTION": "Please support this podcast plugin. Thanks."
   }

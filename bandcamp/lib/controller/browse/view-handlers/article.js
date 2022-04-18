@@ -180,7 +180,7 @@ class ArticleViewHandler extends ExplodableViewHandler {
 
         return self._getCategoryFromUriOrDefault().then( (currentCategory) => {
             let firstList = {
-                title: UIHelper.addIconBefore('fa fa-filter', bandcamp.getI18n('BANDCAMP_ARTICLE_CATEGORIES')),
+                title: UIHelper.addIconToListTitle('fa fa-filter', bandcamp.getI18n('BANDCAMP_ARTICLE_CATEGORIES')),
                 availableListViews: ['list'],
                 items: []
             };
@@ -375,6 +375,10 @@ class ArticleViewHandler extends ExplodableViewHandler {
             }
             else {
                 title = UIHelper.wrapInDiv(title, 'width: 100%;');
+            }
+
+            if (!UIHelper.supportsEnhancedTitles()) {
+                title = bandcamp.getI18n('BANDCAMP_UI_CONTENT_HIDDEN');
             }
 
             lists.push({

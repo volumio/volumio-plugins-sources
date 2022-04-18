@@ -187,6 +187,14 @@ ControllerBandcamp.prototype.seek = function (position) {
     return this.playController.seek(position);
 }
 
+ControllerBandcamp.prototype.next = function () {
+    return this.playController.next();
+}
+
+ControllerBandcamp.prototype.previous = function () {
+    return this.playController.previous();
+}
+
 ControllerBandcamp.prototype.search = function(query) {
     return this.searchController.search(query);
 }
