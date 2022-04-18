@@ -1,6 +1,6 @@
 {
 	"name": "now_playing",
-	"version": "0.3.2",
+	"version": "0.3.3",
 	"description": "Provides a 'Now Playing' screen for your Volumio device.",
 	"main": "index.js",
 	"scripts": {
@@ -38,7 +38,6 @@
 		"ejs": "^3.1.6",
 		"express": "^4.17.1",
 		"genius-fetch": "^0.1.0",
-		"geo-tz": "^7.0.1",
 		"install": "^0.13.0",
 		"jsonfile": "^6.1.0",
 		"kew": "^0.7.0",

@@ -87,6 +87,9 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.3.3
+- Yet another version just to work around the limitations of Volumio plugin submission. This version moves the `geo-tz` node module to `install.sh`, thereby reducing the size of the installation package.
+
 0.3.2
 - This version is solely for the purpose of resubmitting to the Volumio plugin store. The code is exactly the same as v0.3.1. Version incremented only due to omission in deleting node_modules and package-lock.json left over from previous `volumio plugin submit`, resulting in node modules not being updated in the installation package that was uploaded to Volumio store. This means v0.3.1 from the Volumio store is broken and will fail to start. You should install v0.3.2 instead.
 
