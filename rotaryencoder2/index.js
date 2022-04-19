@@ -484,11 +484,11 @@ rotaryencoder2.prototype.activateButtons = function (rotaryIndexArray) {
 						gpio = parseInt(gpio);
 						var debounce = self.config.get('pinPushDebounce'+rotaryIndex);
 						if (!Number.isInteger(debounce)){
-							debounce = 0
+							debounce = 50
 						} else {
 							debounce = parseInt(debounce);
 						};
-						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] activateButtons: Now assign push button: ' + (rotaryIndex + 1));
+						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] activateButtons: Now assign push button: ' + (rotaryIndex + 1) + ', debounce: ' + debounce);
 						self.buttons[rotaryIndex] = new Gpio(gpio, 'in', 'both', {debounceTimeout: debounce});
 						self.buttons[rotaryIndex].watch((err,value) => {
 							if (err) {
