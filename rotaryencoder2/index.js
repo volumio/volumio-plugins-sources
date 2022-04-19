@@ -587,16 +587,14 @@ rotaryencoder2.prototype.deactivateButtons = function (rotaryIndexArray) {
 			self.deactivateButtons(rotaryIndexArray.slice(1,rotaryIndexArray.length))
 			.then(_=>{
 				if (self.config.get('enabled'+rotaryIndex)) {
-					if (self.config.get('pinPush1'+rotaryIndex)>0) {
+					if (self.config.get('pinPush'+rotaryIndex)>0) {
 						self.buttons[rotaryIndex].unwatchAll();
 						self.buttons[rotaryIndex].unexport();
-						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: deactivated button ' + (rotaryIndex + 1));
-						defer.resolve();	
-					} else {
-						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' is disabled.');
+						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: deactivated button ' + (rotaryIndex + 1) + '.(' + self.buttons[rotaryIndex] +')');
 						defer.resolve();	
 					}						
 				} else {
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' is disabled.');
 					defer.resolve();
 				}
 
