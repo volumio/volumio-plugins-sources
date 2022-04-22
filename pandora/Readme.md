@@ -184,9 +184,14 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
    * Fixed problem fetching tracks in `handleBrowseUri`.  Call to getNewTracks is now different due to returned Promise.
    * Small logging fix in `fetchAndAddTracks`.
 
-### Versio 2.9.3
+### Version 2.9.3
    #### Changes
    * Only change was to `package.json` for Volumio 3
+
+### Version 2.10.1
+   #### Changes
+   * Stations can now be sorted by Newest, Oldest, Alphabetical or Reverse Alphabetical order.  I had the sorts ready but had not implemented them.  @HeadGeek's request put the matches under my feet.
+   * Icons were slightly changed in the browse screen.
 
 ## Issues
 

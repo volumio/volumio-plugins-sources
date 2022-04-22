@@ -33,5 +33,11 @@
         "PANDORA_MQTT_USERNAME_LABEL": "MQTT Username",
         "PANDORA_MQTT_PASSWORD_DOC": "MQTT Broker Password (leave blank if ununsed).",
         "PANDORA_MQTT_PASSWORD_LABEL": "MQTT Password"
+    },
+    "BROWSE": {
+        "PANDORA_BROWSE_ATOZ": "Sort stations in alphabetical order",
+        "PANDORA_BROWSE_ZTOA": "Sort stations in reverse alphabetical order",
+        "PANDORA_BROWSE_NEW": "Sort by newest station",
+        "PANDORA_BROWSE_OLD": "Sort by oldest station"
     }
 }

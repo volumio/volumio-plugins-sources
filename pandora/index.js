@@ -1,6 +1,7 @@
 /* jshint node: true, esversion: 9, unused: false */
 'use strict';
 
+var fs = require('fs-extra');
 var libQ = require('kew');
 
 var dnsSync = require('dns-sync');
@@ -115,6 +116,21 @@ ControllerPandora.prototype.flushPandora = function () {
     return libQ.resolve();
 };
 
+ControllerPandora.prototype.loadI18nStrings = function () {
+    var self = this;
+    self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+    self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+};
+
+ControllerPandora.prototype.getI18nString = function (key) {
+    var self = this;
+
+    if (self.i18nStrings['BROWSE'][key] !== undefined)
+        return self.i18nStrings['BROWSE'][key];
+    else
+        return self.i18nStringsDefaults['BROWSE'][key];
+};
+
 ControllerPandora.prototype.initialSetup = function (email, password, isPandoraOne) {
     var self = this;
 
@@ -122,6 +138,8 @@ ControllerPandora.prototype.initialSetup = function (email, password, isPandoraO
 
     self.pandoraHandler = new PandoraHandler(self);
     self.stationDataHandler = new StationDataPublisher(self);
+
+    self.loadI18nStrings();
 
     return self.pandoraHandler.init()
         .then(() => self.pandoraHandler.setMQTTEnabled(self.mqttEnabled))
@@ -385,8 +403,80 @@ ControllerPandora.prototype.addToBrowseSources = function () {
 ControllerPandora.prototype.handleBrowseUri = function (curUri) {
     var self = this;
     const fnName = 'handleBrowseUri';
+    const sortData = [
+        {
+            type: 'ageNew',
+            desc: 'PANDORA_BROWSE_NEW',
+            fn: (a, b) => (parseInt(a[0]) < parseInt(b[0])) ? 1 : -1
+        },
+        {
+            type: 'ageOld',
+            desc: 'PANDORA_BROWSE_OLD',
+            fn: (a, b) => (parseInt(a[0]) > parseInt(b[0])) ? 1 : -1
+        },
+        {
+            type: 'alphaFwd',
+            desc: 'PANDORA_BROWSE_ATOZ',
+            fn: (a, b) => (a[1].name > b[1].name) ? 1 : -1
+        },
+        {
+            type: 'alphaRev',
+            desc: 'PANDORA_BROWSE_ZTOA',
+            fn: (a, b) => (a[1].name < b[1].name) ? 1 : -1
+        }
+    ];
+    const sortTypeUris = sortData.map(i => uriParts.keys[0] + '/' + i.type);
 
-    var response = {
+    const responseRoot = {
+        navigation: {
+            'prev': { uri: uriParts.keys[0] },
+            'lists': [
+                {
+                    'availableListViews': ['list'],
+                    'items': [
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: self.getI18nString(sortData[0].desc),
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-folder-open-o',
+                            uri: uriParts.keys[0] + '/' + sortData[0].type
+                        },
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: self.getI18nString(sortData[1].desc),
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-folder-open-o',
+                            uri: uriParts.keys[0] + '/' + sortData[1].type
+                        },
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: self.getI18nString(sortData[2].desc),
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-folder-open-o',
+                            uri: uriParts.keys[0] + '/' + sortData[2].type
+                        },
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: self.getI18nString(sortData[3].desc),
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-folder-open-o',
+                            uri: uriParts.keys[0] + '/' + sortData[3].type
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
+    var responseSorted = {
         navigation: {
             'prev': { uri: uriParts.keys[0] },
             'lists': [
@@ -423,19 +513,13 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
         .then(result => {
             self.stationData = result; // this looks good here
 
-            const sortFn = {
-                alphaFwd: (a, b) => (a[1].name < b[1].name) ? 1 : -1,
-                alphaRev: (a, b) => (a[1].name > b[1].name) ? 1 : -1,
-                // ageOld: (a, b) => (parseInt(a[1].id) > parseInt(b[1].id)) ? 1 : -1,
-                // ageNew: (a, b) => (parseInt(a[1].id) < parseInt(b[1].id)) ? 1 : -1,
-                ageOld: (a, b) => (parseInt(a[0]) > parseInt(b[0])) ? 1 : -1,
-                ageNew: (a, b) => (parseInt(a[0]) < parseInt(b[0])) ? 1 : -1,
-            };
-
-            if (curUri === '/pandora') {
-                const entries = Object.entries(self.stationData).sort(sortFn.ageNew);
+            if (curUri === uriParts.keys[0]) { // root response
+                return libQ.resolve(responseRoot);
+            }
+            else if (sortTypeUris.includes(curUri)) { // station sorting choice
+                const entries = Object.entries(self.stationData).sort(sortData[sortTypeUris.indexOf(curUri)].fn);
                 entries.forEach(pair => { // [key, value]
-                    response.navigation.lists[0].items.push({
+                    responseSorted.navigation.lists[0].items.push({
                         service: serviceName,
                         type: 'station',
                         artist: pair[1].artist,
@@ -443,14 +527,14 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
                         name: pair[1].name,
                         album: pair[1].album,
                         albumart: pair[1].albumart,
-                        icon: 'fa fa-folder-open-o',
+                        icon: 'fa fa-music',
                         uri: uriPrefix + pair[0]
                     });
                 });
 
-                return libQ.resolve(response);
+                return libQ.resolve(responseSorted);
             }
-            else if (curUri.match(uriStaRE) !== null) {
+            else if (curUri.match(uriStaRE) !== null) { // station chosen
                 const stationToken = curUri.match(uriStaRE)[1];
 
                 return checkForStationChange(stationToken)
@@ -471,7 +555,7 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
                                 }
 
                                 self.commandRouter.pushToastMessage('error', 'Pandora',
-                                'Failed to load tracks from ' + self.currStation.name);
+                                    'Failed to load tracks from ' + self.currStation.name);
     
                                 return self.pUtil.generalReject(fnName, 'Failed to load tracks from ' +
                                     self.currStation.name);
