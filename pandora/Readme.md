@@ -21,12 +21,12 @@ Linux users, you're fine.
 
 Then, clone the repository:
 
-`git clone https://github.com/truckershitch/volumio-plugin-sources.git`
+`git clone https://github.com/truckershitch/volumio-plugins-sources.git`
 
 ### Optional (not recommended):
-There are two older versions archived on GitHub.  If you want to try out another branch, change to the `volumio-plugin-sources` directory:
+There are two older versions archived on GitHub.  If you want to try out another branch, change to the `volumio-plugins-sources` directory:
 
-`cd volumio-plugin-sources`
+`cd volumio-plugins-sources`
 
 The pianode branch is the oldest <b>and works the least</b>.  I have not tested it on the newer Volumio releases.<br/>
 <b>It may break your system.  It probably won't work.</b>
@@ -43,18 +43,18 @@ Otherwise, just continue below (don't bother with checking out anything).  To sw
 
 `git checkout master`
 
-Or you can just delete the `volumio-plugin-sources` directory.
+Or you can just delete the `volumio-plugins-sources` directory.
 
 ## Continuing with Installation
 
 <b>To upgrade from an older plugin version:</b>
 
-`cd /path-to/volumio-plugin-sources/pandora`<br/>
+`cd /path-to/volumio-plugins-sources/pandora`<br/>
 `volumio plugin update`
 
 <b>For a fresh installation:</b>
 
-`cd /path-to/volumio-plugin-sources/pandora`<br/>
+`cd /path-to/volumio-plugins-sources/pandora`<br/>
 `volumio plugin install`
 
 Both of these two commands stop for me after 100%.  I'm not sure why; if you look at `install.sh`, it's pretty empty.  Weird.  The operations succeed.
