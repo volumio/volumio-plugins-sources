@@ -1,6 +1,6 @@
 {
 	"name": "gpio-buttons",
-	"version": "0.8.1",
+	"version": "0.8.2",
 	"description": "GPIO button-listener plugin for Volumio3",
 	"main": "index.js",
 	"scripts": {
