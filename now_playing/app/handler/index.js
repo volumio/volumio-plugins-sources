@@ -2,16 +2,23 @@
 
 const ejs = require('ejs');
 const np = require(nowPlayingPluginLibRoot + '/np');
+const config = require(nowPlayingPluginLibRoot + '/config');
 const apiHandlers = {
     'metadata': require(nowPlayingPluginLibRoot + '/api/metadata'),
-    'settings': require(nowPlayingPluginLibRoot + '/api/settings')
+    'settings': require(nowPlayingPluginLibRoot + '/api/settings'),
+    'weather': require(nowPlayingPluginLibRoot + '/api/weather')
 };
 
 async function index(req, res) {
     let html = await renderView('index', req, {
-        styles: np.getConfigValue('styles', {}, true),
-        theme: np.getConfigValue('theme', 'default'),
-        performanceSettings: np.getConfigValue('performance', null, true)
+        settings: {
+            'screen.nowPlaying': np.getConfigValue('screen.nowPlaying', {}, true),
+            'screen.idle': np.getConfigValue('screen.idle', {}, true),
+            background: np.getConfigValue('background', {}, true),
+            theme: np.getConfigValue('theme', 'default'),
+            performance: np.getConfigValue('performance', null, true),
+            localization: config.getLocalizationSettings()
+        }
     });
     res.send(html);
 }

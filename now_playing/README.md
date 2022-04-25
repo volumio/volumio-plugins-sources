@@ -68,6 +68,16 @@ The Now Playing screen is a web page that can be accessed directly through the N
 
 The 'Preview URL' points to the preview page. Click the 'Open Preview' button to quickly open this URL. On the preview page, you will see the Now Playing screen inside a frame that can be adjusted to match the resolution of your Volumio device's display (or you can choose from one of the presets). This way, even if your Volumio device is away from you, you can still see any customizations you make in the plugin settings.
 
+### What are the localization settings for?
+
+'Geographic Coordinates' are used by the Weather Service to display location-specific weather information in the Weather Dock Component and on the Idle Screen*.
+
+'Locale' determines how dates and times are displayed. E.g. for numeric date formats, 'English (United States)' will display the month before the day ('4/18/2022'), whereas 'English (United Kingdom)' will display the day first ('18/4/2022').
+
+'Timezone' determines what date and time should be displayed in the Clock Dock Component and on the Idle Screen. If you have provided Geographic Coordinates, you can simply set this to 'Match Geographic Coordinates' - the plugin will determine the timezone based on the specified coordinates.
+
+*Display of weather information is optional. Note that to display weather, you also need to provide an OpenWeatherMap API key in the 'Weather Service' section of the plugin settings.
+
 ## Technical Notes
 
 Starting from version 0.2.0, the web client and preview page are implemented in ReactJS for better code maintainability. This repo only contains the production build for these components (under `/app/client/build` and `/app/preview/build` respectively). You can access their sources here:
@@ -76,6 +86,30 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 - [Preview page](https://github.com/patrickkfkan/volumio-now-playing-reactjs-preview)
 
 ## Changelog
+
+0.3.3
+- Yet another version just to work around the limitations of Volumio plugin submission. This version moves the `geo-tz` node module to `install.sh`, thereby reducing the size of the installation package.
+
+0.3.2
+- This version is solely for the purpose of resubmitting to the Volumio plugin store. The code is exactly the same as v0.3.1. Version incremented only due to omission in deleting node_modules and package-lock.json left over from previous `volumio plugin submit`, resulting in node modules not being updated in the installation package that was uploaded to Volumio store. This means v0.3.1 from the Volumio store is broken and will fail to start. You should install v0.3.2 instead.
+
+0.3.1
+- Fix bug with empty performance settings causing client to crash on startup
+- Update web client v0.2.1
+
+0.3.0
+- Add localization settings
+- Add weather service
+- Add Idle Screen
+- Add Dock Components:
+  - Action Panel trigger
+  - Volume Indicator (replaces Volume Indicator Tweaks)
+  - Clock
+  - Weather
+- Add seek time font size and color settings
+- Update web client: v0.2.0
+
+Note: due to changes in the config data schema, style customizations you made in previous versions will be lost, so you would have to reconfigure them after updating. A config updater is *planned* for future releases to provide automatic config migration across version updates.
 
 0.2.3
 - Add following settings:
