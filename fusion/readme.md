@@ -1,4 +1,4 @@
-March 31th 2022
+April 23th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -33,6 +33,7 @@ For all
 - tools to easily plays test files (pink noise, sweep) to help measurments 
 
 For PEQ equalizer, while importing file, you can add or replace values to EQ the setting.
+Supported filtter : PK, HS, LS
 - Select the file for left channel
 - choose the scope L
 - Choose the mode REPLACE
@@ -138,6 +139,29 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+April 23th 2022 v1.0.12
+
+- new switch to disable automatic pre-amp
+
+April 18th 2022 v1.0.11
+
+- import local now support LS and HS filter
+
+April 12th 2022 v1.0.10
+
+- code socket handling
+
+April 9th 2022 v1.0.9
+
+- Graphics eq : new button to reset to 0
+
+April 8th 2022 v1.0.8
+
+- Typo in EN, DE
+- PureCamilla gui as systemd service
+- code cleaning
+- A filter was missing in Loudness pipeline
 
 March 31th 2022 v1.0.7
 

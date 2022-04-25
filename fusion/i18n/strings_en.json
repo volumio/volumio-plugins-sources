@@ -72,7 +72,7 @@
   "VALUE_SAVED_APPLIED": "Values saved and applied",
   "CHOOSE_PRESET": "Choose a preset",
   "VALUE_SAVED_PRESET": "Values saved in preset ",
-  "PRESET_LOADED_USED": " is lodaded and used",
+  "PRESET_LOADED_USED": " is loaded and used",
   "EQ_LOADED_USED": "New Eq profil is loaded and used",
   "LIST_SUCCESS_UPDATED": "List successfully updated!",
   "LIST_FAIIL_UPDATE": "Fails to update list",
@@ -182,5 +182,9 @@
   "DELAY_SCOPE":"Delay on channel",
   "DELAY_SCOPE_DOC":"Enter on which channel apply the delay",
   "PERMUT_CHANNEL": "Swap L&R channels",
-  "PERMUT_CHANNEL_DOC":"Swap L&R channels"
+  "PERMUT_CHANNEL_DOC":"Swap L&R channels",
+  "RESETEQ":"Reset all EQ",
+  "RESETEQ_DOC":"Reset all Eq to Zero",
+  "AUTO_ATT":"Automatic pre-amp",
+  "AUTO_ATT_DOC":"Automatic pre-amp to avoid clipping. If disabled, you may need to set an attenuation by hand for both channels to avoid clipping"
 }
