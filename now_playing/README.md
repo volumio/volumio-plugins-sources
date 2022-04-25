@@ -87,6 +87,14 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.3.5
+- Update web client v0.2.3
+
+0.3.4
+- Add option to show volume bar when docked volume indicator is clicked
+- Implemented config update logic
+- Update web client v0.2.2
+
 0.3.3
 - Yet another version just to work around the limitations of Volumio plugin submission. This version moves the `geo-tz` node module to `install.sh`, thereby reducing the size of the installation package.
 
