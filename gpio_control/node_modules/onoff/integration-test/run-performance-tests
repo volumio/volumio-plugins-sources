@@ -1,5 +1,0 @@
-#!/bin/sh
-node performance-async
-node performance-sync
-node performance-interrupt
-
