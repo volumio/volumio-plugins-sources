@@ -193,6 +193,10 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
    * Stations can now be sorted by Newest, Oldest, Alphabetical or Reverse Alphabetical order.  I had the sorts ready but had not implemented them.  @HeadGeek's request put the matches under my feet.
    * Icons were slightly changed in the browse screen.
 
+### Version 2.10.2
+   #### Changes
+   * Resized the Pandora icon to 45% of former size to better match other Volumio icons.  The former size was due to remedial image processing skills by yours truly.  Suggested by @davestlou.
+
 ## Issues
 
 * ~~Next track is not working properly.  Hopefully there will be a fix!~~<br/>
