@@ -495,6 +495,8 @@ ControllerNowPlaying.prototype.getUIConfig = function () {
             let dockedVolumeIndicatorEnabled = dockedVolumeIndicator.enabled || false;
             let dockedVolumeIndicatorFontSettings = dockedVolumeIndicator.fontSettings || 'default';
             let dockedVolumeIndicatorIconSettings = dockedVolumeIndicator.iconSettings || 'default';
+            let dockedVolumeIndicatorVolumeBarPosition = dockedVolumeIndicator.volumeBarPosition || 'center';
+            let dockedVolumeIndicatorVolumeBarOrientation = dockedVolumeIndicator.volumeBarOrientation || 'horizontal';
             let dockedvolumeIndicatorPlacement = dockedVolumeIndicator.placement || 'bottom-right';
             dockedVolumeIndicatorUIConf.content[0].value = dockedVolumeIndicatorEnabled ? true : false;
             dockedVolumeIndicatorUIConf.content[1].value = {
@@ -539,6 +541,27 @@ ControllerNowPlaying.prototype.getUIConfig = function () {
             dockedVolumeIndicatorUIConf.content[7].value = dockedVolumeIndicator.iconSize || '';
             dockedVolumeIndicatorUIConf.content[8].value = dockedVolumeIndicator.iconColor || '#CCCCCC';
             dockedVolumeIndicatorUIConf.content[9].value = dockedVolumeIndicator.margin || '';
+            dockedVolumeIndicatorUIConf.content[10].value = dockedVolumeIndicator.showVolumeBarOnClick ? true : false;
+            dockedVolumeIndicatorUIConf.content[11].value = {
+                value: dockedVolumeIndicatorVolumeBarPosition
+            };
+            switch (dockedVolumeIndicatorVolumeBarPosition) {
+                case 'anchored':
+                    dockedVolumeIndicatorUIConf.content[11].value.label = np.getI18n('NOW_PLAYING_VOL_BAR_ANCHORED');
+                    break;
+                default:
+                    dockedVolumeIndicatorUIConf.content[11].value.label = np.getI18n('NOW_PLAYING_VOL_BAR_CENTER');
+            }
+            dockedVolumeIndicatorUIConf.content[12].value = {
+                value: dockedVolumeIndicatorVolumeBarOrientation
+            };
+            switch (dockedVolumeIndicatorVolumeBarOrientation) {
+                case 'vertical':
+                    dockedVolumeIndicatorUIConf.content[12].value.label = np.getI18n('NOW_PLAYING_VERTICAL');
+                    break;
+                default:
+                    dockedVolumeIndicatorUIConf.content[12].value.label = np.getI18n('NOW_PLAYING_HORIZONTAL');
+            }
             if (!dockedVolumeIndicatorEnabled) {
                 dockedVolumeIndicatorUIConf.content = [dockedVolumeIndicatorUIConf.content[0]];
                 dockedVolumeIndicatorUIConf.saveButton.data = ['enabled'];

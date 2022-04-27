@@ -1493,7 +1493,10 @@
           "iconSettings",
           "iconSize",
           "iconColor",
-          "margin"
+          "margin",
+          "showVolumeBarOnClick",
+          "volumeBarPosition",
+          "volumeBarOrientation"
         ]
       },
       "content": [
@@ -1648,6 +1651,61 @@
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
           "label": "TRANSLATE.NOW_PLAYING_MARGIN",
           "value": ""
+        },
+        {
+          "id": "showVolumeBarOnClick",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_ON_CLICK",
+          "value": false
+        },
+        {
+          "id": "volumeBarPosition",
+          "element": "select",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_POSITION",
+          "value": {
+            "value": "center",
+            "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_CENTER"
+          },
+          "options": [
+            {
+              "value": "center",
+              "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_CENTER"
+            },
+            {
+              "value": "anchored",
+              "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_ANCHORED"
+            }
+          ],
+          "visibleIf": {
+            "field": "showVolumeBarOnClick",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeBarOrientation",
+          "element": "select",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ORIENTATION",
+          "value": {
+            "value": "horizontal",
+            "label": "TRANSLATE.NOW_PLAYING_HORIZONTAL"
+          },
+          "options": [
+            {
+              "value": "horizontal",
+              "label": "TRANSLATE.NOW_PLAYING_HORIZONTAL"
+            },
+            {
+              "value": "vertical",
+              "label": "TRANSLATE.NOW_PLAYING_VERTICAL"
+            }
+          ],
+          "visibleIf": {
+            "field": "showVolumeBarOnClick",
+            "value": true
+          }
         }
       ]
     },

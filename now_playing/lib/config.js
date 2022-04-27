@@ -3,6 +3,8 @@ const locales = require('windows-locale');
 const ct = require('countries-and-timezones');
 const { getPluginVersion } = require("./util");
 const np = require(nowPlayingPluginLibRoot + '/np');
+const fs = require('fs');
+const path = require('path');
 
 const DEFAULT_LOCALIZATION_SETTINGS = {
     geoCoordinates: '',
@@ -17,30 +19,83 @@ const DEFAULT_PERFORMANCE_SETTINGS = {
     unmountScreensOnExit: 'default'
 };
 
+const CONFIG_UPDATER_PATH = path.resolve(`${__dirname}/../updaters`);
+
 function checkConfig() {
     const pluginVersion = getPluginVersion();
     const configVersion = np.getConfigValue('configVersion', null);
 
     if (!configVersion) {
-        np.getLogger().info(`[now-playing-config] Config version not available. Either this is the first time the plugin is installed and run or the previous version is < 0.3.0). Config data will not be updated.`);
+        np.getLogger().info(`[now-playing-config] Config version not available. Either this is the first time the plugin is installed and run or the previous version is < 0.3.0). Config will not be updated.`);
         updateConfigVersion(pluginVersion);
     }
     else if (semver.satisfies(pluginVersion, configVersion)) {
         np.getLogger().info(`[now-playing-config] Config is up to date.`);
     }
     else if (semver.gt(configVersion, pluginVersion)) {
-        np.getLogger().info(`[now-playing-config] Config version is newer than plugin version (${configVersion} > ${pluginVersion}). Config data will not be updated.`);
+        np.getLogger().info(`[now-playing-config] Config version is newer than plugin version (${configVersion} > ${pluginVersion}). Config will not be updated.`);
         updateConfigVersion(pluginVersion);
     }
     else if (semver.lt(configVersion, pluginVersion)) {
-        np.getLogger().info(`[now-playing-config] Config version is older than plugin version (${configVersion} < ${pluginVersion}). Config data will be updated.`);
+        np.getLogger().info(`[now-playing-config] Config version is older than plugin version (${configVersion} < ${pluginVersion}). Will check and apply config updates.`);
         updateConfigData(configVersion, pluginVersion);
     }
 }
 
-function updateConfigData(fromVersion, toVersion) {
-    // Not actually doing anything for this version as it is the first version that supports config data updates.
-    // Future versions will contain logic to update config data as necessary.
+function getConfigUpdaters() {
+    let matchRegEx = /config_from_(.*).js/;
+    return fs.readdirSync(CONFIG_UPDATER_PATH).reduce((prev, file) => {
+        let matches = file.match(matchRegEx);
+        if (matches) {
+            let _from = matches[1];
+            if (_from) {
+                prev.push({
+                    path: path.join(CONFIG_UPDATER_PATH, file),
+                    fromVersion: _from.replace(/_/g, '.')
+                });
+            }
+        }
+        return prev;
+    }, [])
+    .sort((up1, up2) => semver.lt(up1.fromVersion, up2.fromVersion) ? -1 : 1);
+}
+
+function updateConfigData(fromVersion, toVersion, remainingUpdaters = null) {
+    let updaters;
+    if (remainingUpdaters) {
+        updaters = remainingUpdaters;
+    }
+    else {
+        try {
+            updaters = getConfigUpdaters();
+        } catch (e) {
+            np.getLogger().error(np.getErrorMessage(`[now-playing-config] Error fetching config updaters from "${CONFIG_UPDATER_PATH}":`, e));
+            return;
+        }
+    }
+    let applyIndex = updaters.findIndex(up => up.fromVersion === fromVersion || semver.gt(up.fromVersion, fromVersion));
+    let applyUpdater = applyIndex >= 0 ? updaters[applyIndex] : null;
+
+    if (!applyUpdater) {
+        np.getLogger().info(`[now-playing-config] No ${remainingUpdaters ? 'more ' : ''}config updaters found.`);
+        updateConfigVersion(toVersion);
+        return;
+    }
+    else {
+        np.getLogger().info(`[now-playing-config] Running config updater at "${applyUpdater.path}"...`);
+        try {
+            let updater = require(applyUpdater.path);
+            updater.update();
+        } catch (e) {
+            np.getLogger().error(np.getErrorMessage(`[now-playing-config] Error running config updater:`, e));
+            return;
+        }
+
+        let updatedVersion = np.getConfigValue('configVersion');
+        np.getLogger().info(`[now-playing-config] Config version updated to ${updatedVersion}. Checking if there are further updates to be performed...`);
+
+        updateConfigData(updatedVersion, toVersion, updaters.slice(applyIndex + 1));
+    }
 }
 
 function updateConfigVersion(toVersion) {
