@@ -11,10 +11,16 @@ class UIHelper {
         return `<img src="/albumart?sourceicon=${encodeURIComponent('music_service/mixcloud/assets/images/mixcloud-sq.png')}" style="width: 32px; height: 32px; margin-right: 8px;" />`;
     }
     static addMixcloudIconToListTitle(s) {
+        if (!this.supportsEnhancedTitles()) {
+            return s;
+        }
         return `${this.getMixcloudIcon()}${s}`;
     }
 
-    static addIconBefore(faClass, s) {
+    static addIconToListTitle(faClass, s) {
+        if (!this.supportsEnhancedTitles()) {
+            return s;
+        }
         return `<i class="${faClass}" style="padding-right: 15px;"></i>${s}`;
     }
 
@@ -39,6 +45,9 @@ class UIHelper {
     }
 
     static constructListTitleWithLink(title, links, isFirstList) {
+        if (!this.supportsEnhancedTitles()) {
+            return title;
+        }
         let html = `<div style="display: flex; width: 100%; align-items: flex-end;${isFirstList ? '' : ' margin-top: -24px;'}">
                     <div>${title}</div>
                     <div style="flex-grow: 1; text-align: right; font-size: small;">`;
@@ -123,6 +132,16 @@ class UIHelper {
             rnd.currentIndex = null;
         }
         return albumart;
+    }
+
+    static supportsEnhancedTitles() {
+        return !this.isManifestUI();
+    }
+    
+    static isManifestUI() {
+        let volumioManifestUIFlagFile = '/data/manifestUI';
+        let volumioManifestUIDisabledFile = '/data/disableManifestUI';
+        return fs.existsSync(volumioManifestUIFlagFile) && !fs.existsSync(volumioManifestUIDisabledFile);
     }
 }
 

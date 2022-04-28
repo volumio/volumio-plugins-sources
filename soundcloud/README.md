@@ -38,9 +38,19 @@ The last format, "MPEG Audio (HLS)", is somewhat problematic. While the stream w
 
 ### Supporting SoundCloud and Artists
 
-If you come across an album that you like, consider purchasing it to support the SoundCloud platform and its artists. The plugin displays links where applicable so you can follow them to the corresponding SoundCloud pages.
+If you come across an album that you like, consider purchasing it to support the SoundCloud platform and its artists. The plugin displays links where applicable so you can follow them to the corresponding SoundCloud pages (note: links not available if Manifest UI is enabled).
 
 ### Changelog
+
+0.1.4
+- [Fixed] Adding current song to playlist / favorites in Playback view
+- [Changed] Because of fix above, track info now shows bitrate instead of bit depth and sample rate
+- [Added] Go To Album / Artist*
+- [Changed] Use plain text titles if Manifest UI is enabled
+
+*&nbsp;Go To Album has the following behavior:
+- Shows the album or playlist (non-system type) from which current track was originally selected; or
+- Shows the track's artist, if the track was not selected from an album or playlist
 
 0.1.3
 - [Fixed] Translations

@@ -69,10 +69,10 @@ class TagViewHandler extends BaseViewHandler {
         
         let title;
         if (view.inSection) {
-            title = mixcloud.getI18n('MIXCLOUD_TAGS');
+            title = mixcloud.getI18n(UIHelper.supportsEnhancedTitles() ? 'MIXCLOUD_TAGS' : 'MIXCLOUD_TAGS_FULL');
         }
         else {
-            title = mixcloud.getI18n('MIXCLOUD_TAGS_MATCHING', decodeURIComponent(view.keywords));
+            title = mixcloud.getI18n(UIHelper.supportsEnhancedTitles() ? 'MIXCLOUD_TAGS_MATCHING' : 'MIXCLOUD_TAGS_MATCHING_FULL', decodeURIComponent(view.keywords));
         }
 
         return {

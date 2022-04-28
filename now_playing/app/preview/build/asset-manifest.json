@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/preview/static/css/main.4a5873bc.css",
+    "main.js": "/preview/static/js/main.db947394.js",
+    "static/media/MaterialIcons-Regular.ttf": "/preview/static/media/MaterialIcons-Regular.b459c012769931f03de2.ttf",
+    "index.html": "/preview/index.html",
+    "main.4a5873bc.css.map": "/preview/static/css/main.4a5873bc.css.map",
+    "main.db947394.js.map": "/preview/static/js/main.db947394.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4a5873bc.css",
+    "static/js/main.db947394.js"
+  ]
+}

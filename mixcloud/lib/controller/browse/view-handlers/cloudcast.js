@@ -73,22 +73,26 @@ class CloudcastViewHandler extends ExplodableViewHandler {
                     items: [moreFromUserItem]
                 });
             }
-            let link = {
-                url: cloudcast.url,
-                text: mixcloud.getI18n('MIXCLOUD_VIEW_LINK_SHOW'),
-                icon: { type: 'mixcloud' },
-                style: UIHelper.STYLES.VIEW_LINK,
-                target: '_blank'
-            };
-            let title = UIHelper.constructListTitleWithLink('', link, true);
-            if (cloudcast.description) {
-                title += UIHelper.wrapInDiv(cloudcast.description, UIHelper.STYLES.DESCRIPTION);
-            }
-            if (cloudcast.description) {
-                title = UIHelper.wrapInDiv(title, 'width: 100%;');
-            }
-            else {
-                title = UIHelper.wrapInDiv(title, 'width: 100%; margin-bottom: -24px;');
+
+            let title = '';
+            if (UIHelper.supportsEnhancedTitles()) {
+                let link = {
+                    url: cloudcast.url,
+                    text: mixcloud.getI18n('MIXCLOUD_VIEW_LINK_SHOW'),
+                    icon: { type: 'mixcloud' },
+                    style: UIHelper.STYLES.VIEW_LINK,
+                    target: '_blank'
+                };
+                title = UIHelper.constructListTitleWithLink('', link, true);
+                if (cloudcast.description) {
+                    title += UIHelper.wrapInDiv(cloudcast.description, UIHelper.STYLES.DESCRIPTION);
+                }
+                if (cloudcast.description) {
+                    title = UIHelper.wrapInDiv(title, 'width: 100%;');
+                }
+                else {
+                    title = UIHelper.wrapInDiv(title, 'width: 100%; margin-bottom: -24px;');
+                }
             }
             lists[0].title = title;
 
@@ -240,7 +244,7 @@ class CloudcastViewHandler extends ExplodableViewHandler {
             });
         });
         let title = mixcloud.getI18n(`MIXCLOUD_SELECT_${view.select.toUpperCase()}`);
-        title = UIHelper.addIconBefore(USER_SHOWS_OPTION_ICONS[view.select], title);
+        title = UIHelper.addIconToListTitle(USER_SHOWS_OPTION_ICONS[view.select], title);
         let lists = [{
             title,
             availableListViews: ['list'],
@@ -296,22 +300,25 @@ class CloudcastViewHandler extends ExplodableViewHandler {
             return cloudcastModel.getCloudcasts(options).then( cloudcasts => {
                 let lists = [self._getCloudcastsList(cloudcasts)];
     
-                let link = {
-                    url: playlist.url,
-                    text: mixcloud.getI18n('MIXCLOUD_VIEW_LINK_PLAYLIST'),
-                    icon: { type: 'mixcloud' },
-                    style: UIHelper.STYLES.VIEW_LINK,
-                    target: '_blank'
-                };
-                let title = UIHelper.constructListTitleWithLink('', link, true);
-                if (playlist.description) {
-                    title += UIHelper.wrapInDiv(playlist.description, UIHelper.STYLES.DESCRIPTION);
-                }
-                if (playlist.description) {
-                    title = UIHelper.wrapInDiv(title, 'width: 100%;');
-                }
-                else {
-                    title = UIHelper.wrapInDiv(title, 'width: 100%; margin-bottom: -24px;');
+                let title = '';
+                if (UIHelper.supportsEnhancedTitles()) {
+                    let link = {
+                        url: playlist.url,
+                        text: mixcloud.getI18n('MIXCLOUD_VIEW_LINK_PLAYLIST'),
+                        icon: { type: 'mixcloud' },
+                        style: UIHelper.STYLES.VIEW_LINK,
+                        target: '_blank'
+                    };
+                    title = UIHelper.constructListTitleWithLink('', link, true);
+                    if (playlist.description) {
+                        title += UIHelper.wrapInDiv(playlist.description, UIHelper.STYLES.DESCRIPTION);
+                    }
+                    if (playlist.description) {
+                        title = UIHelper.wrapInDiv(title, 'width: 100%;');
+                    }
+                    else {
+                        title = UIHelper.wrapInDiv(title, 'width: 100%; margin-bottom: -24px;');
+                    }
                 }
                 lists[0].title = title;
                 
@@ -497,10 +504,10 @@ class CloudcastViewHandler extends ExplodableViewHandler {
 
         let title;
         if (view.inSection) {
-            title = mixcloud.getI18n('MIXCLOUD_SHOWS');
+            title = mixcloud.getI18n(UIHelper.supportsEnhancedTitles() ? 'MIXCLOUD_SHOWS' : 'MIXCLOUD_SHOWS_FULL');
         }
         else {
-            title = mixcloud.getI18n('MIXCLOUD_SHOWS_MATCHING', decodeURIComponent(view.keywords));
+            title = mixcloud.getI18n(UIHelper.supportsEnhancedTitles() ? 'MIXCLOUD_SHOWS_MATCHING' : 'MIXCLOUD_SHOWS_MATCHING_FULL', decodeURIComponent(view.keywords));
         }
 
         return {
@@ -540,7 +547,7 @@ class CloudcastViewHandler extends ExplodableViewHandler {
             });
         });
         let title = mixcloud.getI18n(`MIXCLOUD_SELECT_${view.select.toUpperCase()}`);
-        title = UIHelper.addIconBefore(SEARCH_OPTION_ICONS[view.select], title);
+        title = UIHelper.addIconToListTitle(SEARCH_OPTION_ICONS[view.select], title);
         let lists = [{
             title,
             availableListViews: ['list'],
