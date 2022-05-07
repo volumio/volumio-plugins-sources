@@ -87,6 +87,14 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.3.6
+- Add option to hide volume slider in Action Panel
+- Change default value of idle screen weather icon animation to "OFF" since animating icons can be resource-heavy
+- Add metadata font settings
+- Add hourly data to info returned by weather service
+- Some minor bug fixes
+- Update web client v0.2.4
+
 0.3.5
 - Update web client v0.2.3
 

@@ -43,14 +43,15 @@ ControllerNowPlaying.prototype.getUIConfig = function () {
             let widgetStylesUIConf = uiconf.sections[5];
             let albumartStylesUIConf = uiconf.sections[6];
             let backgroundStylesUIConf = uiconf.sections[7];
-            let dockedActionPanelTriggerUIConf = uiconf.sections[8];
-            let dockedVolumeIndicatorUIConf = uiconf.sections[9];
-            let dockedClockUIConf = uiconf.sections[10];
-            let dockedWeatherUIConf = uiconf.sections[11];
-            let idleScreenUIConf = uiconf.sections[12];
-            let extraScreensUIConf = uiconf.sections[13];
-            let kioskUIConf = uiconf.sections[14];
-            let performanceUIConf = uiconf.sections[15];
+            let actionPanelUIConf = uiconf.sections[8]
+            let dockedActionPanelTriggerUIConf = uiconf.sections[9];
+            let dockedVolumeIndicatorUIConf = uiconf.sections[10];
+            let dockedClockUIConf = uiconf.sections[11];
+            let dockedWeatherUIConf = uiconf.sections[12];
+            let idleScreenUIConf = uiconf.sections[13];
+            let extraScreensUIConf = uiconf.sections[14];
+            let kioskUIConf = uiconf.sections[15];
+            let performanceUIConf = uiconf.sections[16];
 
             /**
              * Daemon conf
@@ -147,66 +148,35 @@ ControllerNowPlaying.prototype.getUIConfig = function () {
             textStylesUIConf.content[3].value = nowPlayingScreenSettings.albumFontSize || '';
             textStylesUIConf.content[4].value = nowPlayingScreenSettings.mediaInfoFontSize || '';
             textStylesUIConf.content[5].value = nowPlayingScreenSettings.seekTimeFontSize || '';
+            textStylesUIConf.content[6].value = nowPlayingScreenSettings.metadataFontSize || '';
 
             let fontColors = nowPlayingScreenSettings.fontColors || 'default';
-            textStylesUIConf.content[6].value = {
+            textStylesUIConf.content[7].value = {
                 value: fontColors,
                 label: fontColors == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
             };
-            textStylesUIConf.content[7].value = nowPlayingScreenSettings.titleFontColor || '#FFFFFF';
-            textStylesUIConf.content[8].value = nowPlayingScreenSettings.artistFontColor || '#CCCCCC';
-            textStylesUIConf.content[9].value = nowPlayingScreenSettings.albumFontColor || '#CCCCCC';
-            textStylesUIConf.content[10].value = nowPlayingScreenSettings.mediaInfoFontColor || '#CCCCCC';
-            textStylesUIConf.content[11].value = nowPlayingScreenSettings.seekTimeFontColor || '#CCCCCC';
+            textStylesUIConf.content[8].value = nowPlayingScreenSettings.titleFontColor || '#FFFFFF';
+            textStylesUIConf.content[9].value = nowPlayingScreenSettings.artistFontColor || '#CCCCCC';
+            textStylesUIConf.content[10].value = nowPlayingScreenSettings.albumFontColor || '#CCCCCC';
+            textStylesUIConf.content[11].value = nowPlayingScreenSettings.mediaInfoFontColor || '#CCCCCC';
+            textStylesUIConf.content[12].value = nowPlayingScreenSettings.seekTimeFontColor || '#CCCCCC';
+            textStylesUIConf.content[13].value = nowPlayingScreenSettings.metadataFontColor || '#CCCCCC';
 
             let textMargins = nowPlayingScreenSettings.textMargins || 'auto';
-            textStylesUIConf.content[12].value = {
+            textStylesUIConf.content[14].value = {
                 value: textMargins,
                 label: textMargins == 'auto' ? np.getI18n('NOW_PLAYING_AUTO') : np.getI18n('NOW_PLAYING_CUSTOM')
             };
-            textStylesUIConf.content[13].value = nowPlayingScreenSettings.titleMargin || '';
-            textStylesUIConf.content[14].value = nowPlayingScreenSettings.artistMargin || '';
-            textStylesUIConf.content[15].value = nowPlayingScreenSettings.albumMargin || '';
-            textStylesUIConf.content[16].value = nowPlayingScreenSettings.mediaInfoMargin || '';
+            textStylesUIConf.content[15].value = nowPlayingScreenSettings.titleMargin || '';
+            textStylesUIConf.content[16].value = nowPlayingScreenSettings.artistMargin || '';
+            textStylesUIConf.content[17].value = nowPlayingScreenSettings.albumMargin || '';
+            textStylesUIConf.content[18].value = nowPlayingScreenSettings.mediaInfoMargin || '';
 
             let textAlignmentH = nowPlayingScreenSettings.textAlignmentH || 'left';
-            textStylesUIConf.content[17].value = {
+            textStylesUIConf.content[19].value = {
                 value: textAlignmentH
             };
             switch (textAlignmentH) {
-                case 'center':
-                    textStylesUIConf.content[17].value.label = np.getI18n('NOW_PLAYING_POSITION_CENTER');
-                    break;
-                case 'right':
-                    textStylesUIConf.content[17].value.label = np.getI18n('NOW_PLAYING_POSITION_RIGHT');
-                    break;
-                default:
-                    textStylesUIConf.content[17].value.label = np.getI18n('NOW_PLAYING_POSITION_LEFT');
-            }
-
-            let textAlignmentV = nowPlayingScreenSettings.textAlignmentV || 'flex-start';
-            textStylesUIConf.content[18].value = {
-                value: textAlignmentV
-            };
-            switch (textAlignmentV) {
-                case 'center':
-                    textStylesUIConf.content[18].value.label = np.getI18n('NOW_PLAYING_POSITION_CENTER');
-                    break;
-                case 'flex-end':
-                    textStylesUIConf.content[18].value.label = np.getI18n('NOW_PLAYING_POSITION_BOTTOM');
-                    break;
-                case 'space-between':
-                    textStylesUIConf.content[18].value.label = np.getI18n('NOW_PLAYING_SPREAD');
-                    break;
-                default:
-                    textStylesUIConf.content[18].value.label = np.getI18n('NOW_PLAYING_POSITION_TOP');
-            }
-
-            let textAlignmentLyrics = nowPlayingScreenSettings.textAlignmentLyrics || 'center';
-            textStylesUIConf.content[19].value = {
-                value: textAlignmentLyrics
-            };
-            switch (textAlignmentLyrics) {
                 case 'center':
                     textStylesUIConf.content[19].value.label = np.getI18n('NOW_PLAYING_POSITION_CENTER');
                     break;
@@ -217,24 +187,57 @@ ControllerNowPlaying.prototype.getUIConfig = function () {
                     textStylesUIConf.content[19].value.label = np.getI18n('NOW_PLAYING_POSITION_LEFT');
             }
 
-            let maxLines = nowPlayingScreenSettings.maxLines || 'auto';
+            let textAlignmentV = nowPlayingScreenSettings.textAlignmentV || 'flex-start';
             textStylesUIConf.content[20].value = {
+                value: textAlignmentV
+            };
+            switch (textAlignmentV) {
+                case 'center':
+                    textStylesUIConf.content[20].value.label = np.getI18n('NOW_PLAYING_POSITION_CENTER');
+                    break;
+                case 'flex-end':
+                    textStylesUIConf.content[20].value.label = np.getI18n('NOW_PLAYING_POSITION_BOTTOM');
+                    break;
+                case 'space-between':
+                    textStylesUIConf.content[20].value.label = np.getI18n('NOW_PLAYING_SPREAD');
+                    break;
+                default:
+                    textStylesUIConf.content[20].value.label = np.getI18n('NOW_PLAYING_POSITION_TOP');
+            }
+
+            let textAlignmentLyrics = nowPlayingScreenSettings.textAlignmentLyrics || 'center';
+            textStylesUIConf.content[21].value = {
+                value: textAlignmentLyrics
+            };
+            switch (textAlignmentLyrics) {
+                case 'center':
+                    textStylesUIConf.content[21].value.label = np.getI18n('NOW_PLAYING_POSITION_CENTER');
+                    break;
+                case 'right':
+                    textStylesUIConf.content[21].value.label = np.getI18n('NOW_PLAYING_POSITION_RIGHT');
+                    break;
+                default:
+                    textStylesUIConf.content[21].value.label = np.getI18n('NOW_PLAYING_POSITION_LEFT');
+            }
+
+            let maxLines = nowPlayingScreenSettings.maxLines || 'auto';
+            textStylesUIConf.content[22].value = {
                 value: maxLines,
                 label: maxLines == 'auto' ? np.getI18n('NOW_PLAYING_AUTO') : np.getI18n('NOW_PLAYING_CUSTOM')
             };
-            textStylesUIConf.content[21].value = nowPlayingScreenSettings.maxTitleLines !== undefined ? nowPlayingScreenSettings.maxTitleLines : '';
-            textStylesUIConf.content[22].value = nowPlayingScreenSettings.maxArtistLines !== undefined ? nowPlayingScreenSettings.maxArtistLines : '';
-            textStylesUIConf.content[23].value = nowPlayingScreenSettings.maxAlbumLines !== undefined ? nowPlayingScreenSettings.maxAlbumLines : '';
+            textStylesUIConf.content[23].value = nowPlayingScreenSettings.maxTitleLines !== undefined ? nowPlayingScreenSettings.maxTitleLines : '';
+            textStylesUIConf.content[24].value = nowPlayingScreenSettings.maxArtistLines !== undefined ? nowPlayingScreenSettings.maxArtistLines : '';
+            textStylesUIConf.content[25].value = nowPlayingScreenSettings.maxAlbumLines !== undefined ? nowPlayingScreenSettings.maxAlbumLines : '';
 
             let trackInfoOrder = nowPlayingScreenSettings.trackInfoOrder || 'default';
-            textStylesUIConf.content[24].value = {
+            textStylesUIConf.content[26].value = {
                 value: trackInfoOrder,
                 label: trackInfoOrder == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
             };
-            textStylesUIConf.content[25].value = nowPlayingScreenSettings.trackInfoTitleOrder !== undefined ? nowPlayingScreenSettings.trackInfoTitleOrder : '';
-            textStylesUIConf.content[26].value = nowPlayingScreenSettings.trackInfoArtistOrder !== undefined ? nowPlayingScreenSettings.trackInfoArtistOrder : '';
-            textStylesUIConf.content[27].value = nowPlayingScreenSettings.trackInfoAlbumOrder !== undefined ? nowPlayingScreenSettings.trackInfoAlbumOrder : '';
-            textStylesUIConf.content[28].value = nowPlayingScreenSettings.trackInfoMediaInfoOrder !== undefined ? nowPlayingScreenSettings.trackInfoMediaInfoOrder : '';
+            textStylesUIConf.content[27].value = nowPlayingScreenSettings.trackInfoTitleOrder !== undefined ? nowPlayingScreenSettings.trackInfoTitleOrder : '';
+            textStylesUIConf.content[28].value = nowPlayingScreenSettings.trackInfoArtistOrder !== undefined ? nowPlayingScreenSettings.trackInfoArtistOrder : '';
+            textStylesUIConf.content[29].value = nowPlayingScreenSettings.trackInfoAlbumOrder !== undefined ? nowPlayingScreenSettings.trackInfoAlbumOrder : '';
+            textStylesUIConf.content[30].value = nowPlayingScreenSettings.trackInfoMediaInfoOrder !== undefined ? nowPlayingScreenSettings.trackInfoMediaInfoOrder : '';
 
             /**
              * Widget Styles conf
@@ -444,6 +447,13 @@ ControllerNowPlaying.prototype.getUIConfig = function () {
             backgroundStylesUIConf.content[13].value = backgroundSettings.backgroundOverlayColorOpacity || '';
             backgroundStylesUIConf.content[14].value = backgroundSettings.backgroundOverlayGradient || '';
             backgroundStylesUIConf.content[15].value = backgroundSettings.backgroundOverlayGradientOpacity || '';
+
+            /**
+             * Action Panel
+             */
+             let actionPanelSettings = np.getConfigValue('actionPanel', {}, true);
+             let actionPanelShowVolumeSlider = actionPanelSettings.showVolumeSlider === undefined ? true : actionPanelSettings.showVolumeSlider;
+             actionPanelUIConf.content[0].value = actionPanelShowVolumeSlider ? true : false;
 
             /**
              * Docked Action Panel Trigger
@@ -876,7 +886,7 @@ ControllerNowPlaying.prototype.getUIConfig = function () {
             idleScreenUIConf.content[23].value = idleScreen.weatherForecastIconSize || '';
             idleScreenUIConf.content[24].value = idleScreen.weatherCurrentIconMonoColor || '#FFFFFF';
             idleScreenUIConf.content[25].value = idleScreen.weatherForecastIconMonoColor || '#FFFFFF';
-            idleScreenUIConf.content[26].value = idleScreen.weatherCurrentIconAnimate !== undefined ? idleScreen.weatherCurrentIconAnimate : true;
+            idleScreenUIConf.content[26].value = idleScreen.weatherCurrentIconAnimate !== undefined ? idleScreen.weatherCurrentIconAnimate : false;
             idleScreenUIConf.content[27].value = {
                 value: idleScreenBackgroundType,
             };
@@ -1082,7 +1092,7 @@ ControllerNowPlaying.prototype.getUIConfig = function () {
             let unmountScreensOnExit = performanceSettings.unmountScreensOnExit || 'default';
             performanceUIConf.content[2].value = {
                 value: unmountScreensOnExit,
-                label: fontColors == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
+                label: unmountScreensOnExit == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
             };
             performanceUIConf.content[3].value = performanceSettings.unmountNowPlayingScreenOnExit == undefined ? true : performanceSettings.unmountNowPlayingScreenOnExit;
             performanceUIConf.content[4].value = performanceSettings.unmountBrowseScreenOnExit || false;
@@ -1183,12 +1193,14 @@ ControllerNowPlaying.prototype.configSaveTextStyles = function (data) {
         albumFontSize: data.albumFontSize,
         mediaInfoFontSize: data.mediaInfoFontSize,
         seekTimeFontSize: data.seekTimeFontSize,
+        metadataFontSize: data.metadataFontSize,
         fontColors: data.fontColors.value,
         titleFontColor: data.titleFontColor,
         artistFontColor: data.artistFontColor,
         albumFontColor: data.albumFontColor,
         mediaInfoFontColor: data.mediaInfoFontColor,
         seekTimeFontColor: data.seekTimeFontColor,
+        metadataFontColor: data.metadataFontColor,
         textAlignmentH: data.textAlignmentH.value,
         textAlignmentV: data.textAlignmentV.value,
         textAlignmentLyrics: data.textAlignmentLyrics.value,
@@ -1286,6 +1298,18 @@ ControllerNowPlaying.prototype.configSaveBackgroundStyles = function (data) {
     np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
 
     np.broadcastMessage('nowPlayingPushSettings', { namespace: 'background', data: updated });
+}
+
+ControllerNowPlaying.prototype.configSaveActionPanelSettings = function (data) {
+    let settings = {
+        showVolumeSlider: data.showVolumeSlider
+    };
+    let current = np.getConfigValue('actionPanel', {}, true);
+    let updated = Object.assign(current, settings);
+    this.config.set('actionPanel', JSON.stringify(updated));
+    np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+
+    np.broadcastMessage('nowPlayingPushSettings', { namespace: 'actionPanel', data: updated });
 }
 
 ControllerNowPlaying.prototype.configSaveDockedActionPanelTriggerSettings = function (data) {
