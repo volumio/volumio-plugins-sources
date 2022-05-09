@@ -25,8 +25,8 @@
 		"changelog": "Lorem ipsum"
 	},
 	"engines": {
-		"node": ">=14.19.0 <15.0.0",
-		"volumio": ">=3.224.0 <4.0.0"
+		"node": ">=8",
+		"volumio": ">=3"
 	},
 	"dependencies": {
 		"fs-extra": "^0.28.0",
