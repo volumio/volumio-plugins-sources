@@ -197,6 +197,10 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
    #### Changes
    * Resized the Pandora icon to 45% of former size to better match other Volumio icons.  The former size was due to remedial image processing skills by yours truly.  Suggested by @davestlou.
 
+### Version 2.10.3
+   #### Fixes
+   * Changed Pandora icon from grayscale to black and white to fit the Volumio standard (I did not see the comment on GitHub until a few days ago).
+
 ## Issues
 
 * ~~Next track is not working properly.  Hopefully there will be a fix!~~<br/>
