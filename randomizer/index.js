@@ -75,7 +75,6 @@ randomizer.prototype.randomTracks = function() {
     var list = 0; 
     self.tracks = self.config.get('tracks');
     if (isNaN(self.tracks)) self.tracks = 25;
-    socket.emit('clearQueue');
     socket.emit('browseLibrary', {'uri':'albums://'});
     socket.on('pushBrowseLibrary',function(data) {
        var item = data.navigation.lists[0].items[0];
@@ -85,6 +84,10 @@ randomizer.prototype.randomTracks = function() {
          self.commandRouter.pushToastMessage('error', self.getI18nString("ERROR_NO_LIBRARY_FOUND_TITLE"), self.getI18nString("ERROR_NO_TRACKS_LIBRARY_MESSAGE"));
          socket.off('pushBrowseLibrary');
          socket.off('pushQueue');
+       }
+       if (list !=0 && queue == 0)
+       {
+         socket.emit('clearQueue');
        }
        if (list !=0)
        {
@@ -138,27 +141,37 @@ randomizer.prototype.trackToAlbum = function() {
     var self = this;
     var defer=libQ.defer();
     socket.emit('getState', '');
-    socket.emit('clearQueue');
     socket.on('pushState', function (data) {
-       if (data.uri.length == 0)
-       {
-          socket.off('pushState');
-          socket.off('pushQueue');
-          self.commandRouter.pushToastMessage('error', self.getI18nString("ERROR_QUEUE_EMPTY_TITLE"), self.getI18nString("ERROR_QUEUE_EMPTY_MESSAGE"));
-       }
-       if (data.uri.length != 0)
-       {
-          var album = (data.uri.lastIndexOf('/'));
-          data.uri = data.uri.substring(0, album);
-          socket.emit('addToQueue', {'uri': data.uri})
+      if (data.uri.length == 0)
+      {
+        socket.off('pushState');
+        socket.off('pushQueue');
+        self.commandRouter.pushToastMessage('error', self.getI18nString("ERROR_QUEUE_EMPTY_TITLE"), self.getI18nString("ERROR_QUEUE_EMPTY_MESSAGE"));
+      }
+      if (data.service !='mpd' && data.uri.length !=0)
+      {
+        self.getI18nString("ERROR_NOT_MPD_TITLE")
+        var serv = self.getI18nString("ERROR_NOT_MPD_TITLE").concat(" ", data.service , "."); 
+        self.commandRouter.pushToastMessage('error', serv, self.getI18nString("ERROR_NOT_MPD_MESSAGE"));
+        socket.off('pushState');
+        socket.off('pushQueue');
+      }
+      if (data.service =='mpd' && data.uri.length != 0)
+      {
+           socket.emit('clearQueue');
+           var album = (data.uri.lastIndexOf('/'));
+           data.uri = data.uri.substring(0, album);
+           socket.emit('addToQueue', {'uri': data.uri})
        }
        socket.off('pushState');
    });
    socket.on('pushQueue', function(data) {
-      if (data && data.length > 0) {
-         socket.emit('play',{'value':0});
-         socket.off('pushQueue');
-      }
+     if (data && data.length > 0)
+     {
+       socket.emit('play',{'value':0});
+       socket.off('pushQueue');
+       socket.off('pushState');
+     }
    });
 
    // Once the Plugin has successfull stopped resolve the promise
@@ -170,7 +183,7 @@ randomizer.prototype.trackToAlbum = function() {
 randomizer.prototype.randomAlbum = function() {
     var self = this;
     var defer=libQ.defer();
-    socket.emit('clearQueue');
+//    socket.emit('clearQueue');
     socket.emit('browseLibrary',{'uri':'albums://'});
     socket.on('pushBrowseLibrary',function(data)
     {
@@ -183,6 +196,7 @@ randomizer.prototype.randomAlbum = function() {
       }
       if (list != 0)
       {
+        socket.emit('clearQueue');
         var q = self.rand(list.length, 0);
         var select = list[q];
         tidyuri = select.uri.replace(/%20/g, " ");
@@ -200,50 +214,6 @@ randomizer.prototype.randomAlbum = function() {
     defer.resolve();
     return libQ.resolve();
 }
-
-
-
-
-
-//randomizer.prototype.randomAlbum2 = function() {
-//  var self = this;
-//  var defer=libQ.defer();
-//  var q = 0;
-//  var select = 0;
-//  var list = 0;
-//  socket.emit('clearQueue');
-//  socket.emit('browseLibrary',{'uri':'albums://'});
-//  socket.on('pushBrowseLibrary',function(data)
-//  {
-//    var list = data.navigation.lists[0].items;
-//    if (list == 0)
-//    {
-//      self.commandRouter.pushToastMessage('error', self.getI18nString("ERROR_NO_LIBRARY_TITLE"), self.getI18nString("ERROR_NO_LIBRARY_MESSAGE"));
-//      socket.off('pushBrowseLibrary');
-//      socket.off('pushQueue');
-//    }
-//    if (list != 0)
-//    {
-//      var q = self.rand(list.length, 0);
-//      var select = list[q];
-//      tidyuri = select.uri.replace(/%20/g, " ");
-//      socket.emit('addToQueue', {'uri':tidyuri})});
-//    }
-//    socket.off('pushQueue');
-//    });
-//    socket.on('pushQueue', function(data) { 
-//     if (data && data.length > 0)
-//     {
-//       socket.emit('play',{'value':0});
-//       socket.off('pushBrowseLibrary');
-//       socket.off('pushQueue');
-//     }
-//  });    
-//  defer.resolve();
-//  return libQ.resolve();
-//}
-
-
 
 randomizer.prototype.truePrevious = function() {
      var self = this;
