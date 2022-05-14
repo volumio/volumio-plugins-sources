@@ -1,7 +1,7 @@
 {
 	"name": "jellyfin",
-	"version": "0.1.5",
-	"description": "Jellyfin plugin for Volumio",
+	"version": "0.1.6",
+	"description": "Jellyfin client plugin for Volumio",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -20,7 +20,7 @@
 		],
 		"icon": "fa-music",
 		"boot_priority": 10,
-		"details": "Jellyfin plugin for Volumio",
+		"details": "Browse your music libraries hosted on one or more Jellyfin media servers with filtering and sorting options. Audio is streamed in native format.",
 		"changelog": "",
 		"architectures": [
 			"amd64",

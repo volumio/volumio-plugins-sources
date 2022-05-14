@@ -42,12 +42,11 @@ class ConnectionManager {
                 }
 // TODO: reset server info if "Unavailable" state
                 defer.resolve(result.State);
-            },
-            (error) => {
-                jellyfin.getLogger().error('[jellyfin-connect] refreshServerInfo(' + server.getUrl() + '): Error occurred while connecting to server: ' + error);
-                defer.reject(error);
             }
-        );
+        ).catch((error) => {
+            jellyfin.getLogger().error('[jellyfin-connect] refreshServerInfo(' + server.getUrl() + '): Error occurred while connecting to server: ' + error);
+            defer.reject(error);
+        });
 
         return defer.promise;
     }
