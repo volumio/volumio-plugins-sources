@@ -1,6 +1,6 @@
 {
 	"name": "randomizer",
-	"version": "1.0.0",
+	"version": "1.0.3",
 	"description": "Randomizer will browse your music library and; Load a number of Random Tracks, Load a Random Album or Load the album of the currently playing track.",
 	"main": "index.js",
 	"scripts": {
