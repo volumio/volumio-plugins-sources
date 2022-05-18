@@ -24,6 +24,10 @@ You can add multiple servers, and those that are reachable will appear when you 
 
 #### Changelog
 
+0.1.7:
+- [Fixed] Playlist items not appearing in correct order
+- [Fixed] UnhandledPromiseRejectionWarnings thrown during authentication (supposedly fixed in prev version, but in fact wasn't)
+
 0.1.6:
 - [Fixed] Regression in marking songs as played
 - [Fixed] Support for 'localhost' server URL

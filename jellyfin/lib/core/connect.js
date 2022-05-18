@@ -11,7 +11,7 @@ class ConnectionManager {
         this._connectionManagerApi = new api.ConnectionManager(
             new api.Credentials(),
             'Jellyfin plugin for Volumio',
-            '0.1.0',
+            '0.1.7',
             deviceInfo.name,
             deviceInfo.uuid
         );

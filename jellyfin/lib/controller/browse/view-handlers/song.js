@@ -177,6 +177,8 @@ class SongViewHandler extends ExplodableViewHandler {
             }
             else if (isPlaylist) {
                 options.parentId = playlistId;
+                options.sortBy = '__unset';
+                options.sortOrder = '__unset';
 
                 if (jellyfin.getConfigValue('showAllPlaylistTracks', true)) {
                     delete options.limit;
