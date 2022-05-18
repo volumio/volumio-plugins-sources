@@ -1063,6 +1063,10 @@ ControllerPandora.prototype.goPreviousNext = function (fnName) {
                     return self.stop()
                         .then(() => {
                             if (self.nextIsThumbsDown) {
+                                // Check if last track in queue
+                                if (qPos == qLen - 1) {
+                                    self.setCurrQueuePos(0);
+                                }
                                 return self.commandRouter.stateMachine.removeQueueItem({value: qPos});
                             }
                         });
@@ -1091,7 +1095,7 @@ ControllerPandora.prototype.next = function () {
     self.pUtil.announceFn(fnName);
 
     if (self.nextIsThumbsDown) {
-        self.pandoraHandler.thumbTrack(self.getQueueTrack(), isUp=false);
+        self.pandoraHandler.thumbTrack(self.getQueueTrack(), false);
     }
 
     return self.goPreviousNext(fnName);

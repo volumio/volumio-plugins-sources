@@ -414,7 +414,7 @@ PandoraHandler.prototype.addFeedback = function (track, feedback) {
 
     self.pandora.request('station.addFeedback', {
         'stationToken': track.stationToken,
-        'trackId': track.trackId,
+        'trackToken': track.trackToken,
         'isPositive': feedback
         }, defer.makeNodeResolver());
 
@@ -429,7 +429,7 @@ PandoraHandler.prototype.thumbTrack = function (track, isUp) {
     self.pUtil.announceFn(fnName);
 
     if (track.service === serviceName) {
-        return self.pandora.addFeedback(track, isUp)
+        return self.addFeedback(track, isUp)
             .fail(err => {
                 self.reportAPIError(fnName, err);
                 return self.pUtil.generalReject(fnName, err);
