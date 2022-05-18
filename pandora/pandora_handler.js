@@ -421,6 +421,7 @@ PandoraHandler.prototype.addFeedback = function (track, feedback) {
     return defer.promise;
 };
 
+// send thumbs up / down to Pandora servers for track
 PandoraHandler.prototype.thumbTrack = function (track, isUp) {
     var self = this;
     const fnName = 'thumbTrack(isUp=' + isUp + ')';

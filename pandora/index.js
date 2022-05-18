@@ -1101,13 +1101,13 @@ ControllerPandora.prototype.next = function () {
     return self.goPreviousNext(fnName);
 };
 
-ControllerPandora.prototype.thumbTrack = function () {
+ControllerPandora.prototype.thumbTrack = function (isUp) {
     var self = this;
     const fnName = 'thumbTrack';
 
     self.pUtil.announceFn(fnName);
 
-    return self.pandoraHandler.thumbTrack(self.getQueueTrack(), isUp=false);
+    return self.pandoraHandler.thumbTrack(self.getQueueTrack(), isUp);
 };
 
 ControllerPandora.prototype.clearAndPlayStation = function (stationJSON) {
