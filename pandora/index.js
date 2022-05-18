@@ -1091,10 +1091,19 @@ ControllerPandora.prototype.next = function () {
     self.pUtil.announceFn(fnName);
 
     if (self.nextIsThumbsDown) {
-        self.pandoraHandler.thumbsDownTrack(self.getQueueTrack());
+        self.pandoraHandler.thumbTrack(self.getQueueTrack(), isUp=false);
     }
 
     return self.goPreviousNext(fnName);
+};
+
+ControllerPandora.prototype.thumbTrack = function () {
+    var self = this;
+    const fnName = 'thumbTrack';
+
+    self.pUtil.announceFn(fnName);
+
+    return self.pandoraHandler.thumbTrack(self.getQueueTrack(), isUp=false);
 };
 
 ControllerPandora.prototype.clearAndPlayStation = function (stationJSON) {

@@ -405,28 +405,46 @@ PandoraHandler.prototype.fetchTracks = function () {
         });
 };
 
-PandoraHandler.prototype.thumbsDownTrack = function (track) {
-    const self = this;
-    const fnName = 'thumbsDownTrack';
+PandoraHandler.prototype.addFeedback = function (track, feedback) {
+    var self = this;
+    const fnName = 'addFeedback';
     var defer = libQ.defer();
 
     self.pUtil.announceFn(fnName);
 
+    self.pandora.request('station.addFeedback', {
+        'stationToken': track.stationToken,
+        'trackId': track.trackId,
+        'isPositive': feedback
+        }, defer.makeNodeResolver());
+
+    return defer.promise;
+};
+
+PandoraHandler.prototype.thumbTrack = function (track, isUp) {
+    var self = this;
+    const fnName = 'thumbTrack(isUp=' + isUp + ')';
+    const thumb = isUp ? ['Up', 'Olé'] : ['Down', 'Adiós'];
+
+    self.pUtil.announceFn(fnName);
+
     if (track.service === serviceName) {
-        self.pandora.request('station.addFeedback', {
-            'stationToken': track.stationToken,
-            'trackId': track.trackId,
-            'isPositive': false
-            }, defer.makeNodeResolver());
+        return self.pandora.addFeedback(track, isUp)
+            .fail(err => {
+                self.reportAPIError(fnName, err);
+                return self.pUtil.generalReject(fnName, err);
+            })
+            .then(() => {
+                self.pUtil.logInfo(fnName,
+                    'Thumbs ' + thumb[0] + ' delivered.  Station: ' +
+                    self.context.currStation.name + ' Track: ' + track.name);
 
-        self.pUtil.logInfo(fnName, 'Thumbs down delivered.  Station: ' +
-            self.context.currStation.name + ' Track: ' + track.name);
+                self.pUtil.timeOutToast(fnName, 'success', 'Pandora',
+                    'Thumbs ' + thumb[0] + ' delivered.\n' +
+                    '¡' + thumb[1] + ', ' + track.name + '!', 5000);
 
-        self.pUtil.timeOutToast(fnName, 'success', 'Pandora',
-            'Thumbs Down delivered.\n' +
-            '¡Adiós, ' + track.name + '!', 5000);
-
-        return defer.promise;
+                return libQ.resolve();
+            });
     }
     self.pUtil.logInfo(fnName, 'Not a Pandora track.  Ignored.');
 

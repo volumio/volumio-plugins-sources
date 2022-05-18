@@ -201,6 +201,11 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
    #### Fixes
    * Changed Pandora icon from grayscale to black and white to fit the Volumio standard (I did not see the comment on GitHub until a few days ago).
 
+### Version 2.11.1
+   #### Fixes
+   * `PandoraHandler::thumbsDown()` was not working (`self` was declared as `const`).  Function was refactored to `PandoraHandler::thumbTrack()` and `PandoraHandler::addFeedback()` to allow for both Thumbs Up and Thumbs Down.
+   * `thumbTrack()` is now exposed / can be called from WebSocket API et al.
+
 ## Issues
 
 * ~~Next track is not working properly.  Hopefully there will be a fix!~~<br/>
@@ -229,4 +234,4 @@ My alpha fork of the module was rewritten to use Promises instead of callbacks, 
 * <b>@lostmyshape</b> gave me the heads-up about the Unofficial Pandora API and gave me some constructive ideas.  He was the first person to look at my code and give me help.  I also borrowed his mpd player listener callback function which really helped a lot.  Much obliged!
 * <b>@marco79cgn</b> in particular laid the groundwork for my plugin.  I shamelessly borrowed from his code in several areas.
 * The creators of the other Volumio plugins.  I tried to learn from your code.
-* <b>@downtownHippie</b> and <b>@Jim_Edwards</b> in the forum for their helpful and extensive feedback.
+* <b>@downtownHippie</b>, <b>@Jim_Edwards</b>, <b>@GlennBurnett</b> in the forum for their helpful and extensive feedback.
