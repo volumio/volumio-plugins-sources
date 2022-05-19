@@ -1057,17 +1057,20 @@ ControllerPandora.prototype.goPreviousNext = function (fnName) {
                         return self.stop();
                     }
                     self.setCurrQueuePos(qPos);
-                    return self.clearAddPlayTrack(self.getQueue()[qPos]);
+                    return self.clearAddPlayTrack(self.getQueue()[qPos]); // self.clearAddPlayTrack(self.getQueueTrack(qPos))
                 }
                 else if (fnName === 'next') {
                     return self.stop()
                         .then(() => {
-                            if (self.nextIsThumbsDown) {
-                                // Check if last track in queue
-                                if (qPos == qLen - 1) {
-                                    self.setCurrQueuePos(0);
+                            if (self.nextIsThumbsDown) { // remove unwanted track
+                                // Check if last track in queue -- MAY NOT NEED THIS
+                                if (qPos == qLen - 1) { 
+                                    return self.fetchAndAddTracks(self.getQueueTrack().uri)
+                                        .then(() => self.commandRouter.stateMachine.removeQueueItem({value: qPos}));
                                 }
-                                return self.commandRouter.stateMachine.removeQueueItem({value: qPos});
+                                else {
+                                    return self.commandRouter.stateMachine.removeQueueItem({value: qPos});
+                                }
                             }
                         });
                 }

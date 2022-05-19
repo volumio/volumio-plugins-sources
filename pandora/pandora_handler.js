@@ -139,7 +139,7 @@ PandoraHandler.prototype.getSongMaxDiff = function () {
         });
 };
 
-PandoraHandler.prototype.reportAPIError = function (fnName, pandoraErr) {
+PandoraHandler.prototype.reportAPIError = function (errFnName, pandoraErr) {
     const self = this;
     const errMsg = pandoraErr.message;
     const errMatch = errMsg.match(/\[(\d+)\]/);
@@ -150,13 +150,16 @@ PandoraHandler.prototype.reportAPIError = function (fnName, pandoraErr) {
     const retry_codes = ['0', '1003'];
     const msg_retry = 'Try again in a few hours. ' +
         'Check status at https://pandora.com';
+    const fnName = 'reportAPIError';
 
-    self.pUtil.logError(fnName, ' Error: ' + decoded);
+    self.pUtil.announceFn(fnName);
+
+    self.pUtil.logError(errFnName, 'Pandora API Error', decoded);
     self.commandRouter.pushToastMessage(
         'error', phName, decoded);
 
     if (retry_codes.includes(code)) {
-        self.pUtil.timeOutToast('reportAPIError', 'info',
+        self.pUtil.timeOutToast(fnName, 'info',
             phName, msg_retry, 5000);
     }
 

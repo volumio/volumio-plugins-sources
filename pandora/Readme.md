@@ -205,6 +205,9 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
    #### Fixes
    * `PandoraHandler::thumbsDown()` was not working (`self` was declared as `const`).  Function was refactored to `PandoraHandler::thumbTrack()` and `PandoraHandler::addFeedback()` to allow for both Thumbs Up and Thumbs Down.
    * `thumbTrack()` is now exposed / can be called from WebSocket API et al.
+   #### Changes
+   * `PandoraHandler::reportAPIError()`: refactored logging.
+   * `goPreviousNext()`: When `(nextIsThumbsDown == true && qPos == qLen - 1)` -- Fetch more tracks before removing last track from queue -- Otherwise an error might occur or playback might stop?
 
 ## Issues
 
