@@ -1,0 +1,40 @@
+{
+	"name": "jellyfin_server",
+	"version": "0.1.0",
+	"description": "Installs a Jellyfin media server. Note: will likely choke on devices with less than 1GB RAM (recommended 2GB or more).",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/patrickkfkan/volumio-jellyfin-server"
+	},
+	"author": "Patrick Kan",
+	"license": "MIT",
+	"volumio_info": {
+		"prettyName": "Jellyfin Server",
+		"plugin_type": "music_service",
+		"os": [
+			"buster"
+		],
+		"icon": "fa-music",
+		"boot_priority": 10,
+		"details": "This plugin installs a Jellyfin media server on your Volumio device. The server runs in a Docker container when the plugin is enabled.",
+		"changelog": "",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		]
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"kew": "^0.7.0",
+		"string-format": "^2.0.0",
+		"v-conf": "^1.4.3"
+	}
+}

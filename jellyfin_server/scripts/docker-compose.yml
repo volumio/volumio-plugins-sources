@@ -1,0 +1,27 @@
+version: "3.5"
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:10.7.7
+    container_name: jellyfin
+    user: 1000:1000
+    network_mode: "host"
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - /data/INTERNAL:/VOLUMIO/INTERNAL
+      - type: bind
+        source: /mnt/NAS
+        target: /VOLUMIO/NAS
+        bind:
+          propagation: slave
+      - type: bind
+        source: /media
+        target: /VOLUMIO/USB
+        bind:
+          propagation: slave
+    restart: "on-failure"
+volumes:
+  jellyfin-config:
+    external: true
+  jellyfin-cache:
+    external: true
