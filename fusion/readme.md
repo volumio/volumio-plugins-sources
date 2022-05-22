@@ -1,4 +1,4 @@
-Mai 14th 2022
+Mai 21th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,10 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+May 21th 2022 v1.0.15
+
+- Add online help
 
 May 14th 2022 v1.0.14
 
