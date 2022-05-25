@@ -1,7 +1,7 @@
 {
   "VOLSPOTCONNECT": {
     "VOLSPOTCONNECTCONF": "Configuration Volumio Spotify Connect",
-    "VOLSPOTCONNECTACCOUNT": "Compte Spotify",
+    "VOLSPOTCONNECTACCOUNT": "Réglages",
     "USERNAME": "Nom utilisateur",
     "PASSWORD": "Mot de passe",
     "HIGHBITRATE": "Haute qualité",

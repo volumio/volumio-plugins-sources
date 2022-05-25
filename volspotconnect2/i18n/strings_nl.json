@@ -1,7 +1,7 @@
 {
   "VOLSPOTCONNECT": {
     "VOLSPOTCONNECTCONF": "Volumio Spotify Connect Configuratie",
-    "VOLSPOTCONNECTACCOUNT": "Spotify account",
+    "VOLSPOTCONNECTACCOUNT": "Instellingen",
     "USERNAME": "Gebruikersnaam",
     "PASSWORD": "Wachtwoord",
     "HIGHBITRATE": "Stream bitsnelheid",
