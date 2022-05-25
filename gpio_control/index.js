@@ -342,10 +342,14 @@ GPIOControl.prototype.handleEvent = function(e) {
 	var self = this;
 
 	self.GPIOs.forEach(function(gpio) {
+		clearTimeout(gpio.delayTimeoutId);
+	});
+
+	self.GPIOs.forEach(function(gpio) {
 		if (gpio.e == e){
 
 			// Clear any previous timers
-			clearTimeout(gpio.delayTimeoutId);
+			//clearTimeout(gpio.delayTimeoutId);
 			clearTimeout(gpio.durationTimeoutId);
 
 			self.log(`*** ${e} ***`);
