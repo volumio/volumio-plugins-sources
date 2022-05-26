@@ -405,7 +405,7 @@ GPIOControl.prototype.cancelAllDelayedEvents = function() {
 // Output to log
 GPIOControl.prototype.log = function(s) {
 	var self = this;
-//	self.logger.info("[GPIO_Control] " + s);
+	self.logger.info("[GPIO_Control] " + s);
 }
 
 // Function for printing booleans

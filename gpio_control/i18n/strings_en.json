@@ -24,7 +24,7 @@
 	"GPIO_DELAY_UNITS": "Delay units",
 	"GPIO_DELAY_UNITS_DOC": "Delay units",
 	"GPIO_CANCEL_OTHER_TIMERS": "Cancel existing delayed events",
-	"GPIO_CANCEL_OTHER_TIMERS_DOC": "Whether or not to cancel any existing delayed events still pending",
+	"GPIO_CANCEL_OTHER_TIMERS_DOC": "Cancel any delayed events still pending",
 	"GPIO_DURATION": "Duration",
 	"GPIO_DURATION_DOC": "How long to keep the GPIO at this state",
 	"GPIO_DURATION_UNITS": "Duration units",
