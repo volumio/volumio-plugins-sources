@@ -21,6 +21,7 @@
 					"systemStartupState",
 					"systemStartupDelay",
 					"systemStartupDelayUnits",
+					"systemStartupCancelDelayedEvents",
 					"systemStartupDuration",
 					"systemStartupDurationUnits",
 					"systemShutdownEnabled",
@@ -28,6 +29,7 @@
 					"systemShutdownState",
 					"systemShutdownDelay",
 					"systemShutdownDelayUnits",
+					"systemShutdownCancelDelayedEvents",
 					"systemShutdownDuration",
 					"systemShutdownDurationUnits",
 					"musicPlayEnabled",
@@ -35,6 +37,7 @@
 					"musicPlayState",
 					"musicPlayDelay",
 					"musicPlayDelayUnits",
+					"musicPlayCancelDelayedEvents",
 					"musicPlayDuration",
 					"musicPlayDurationUnits",
 					"musicPauseEnabled",
@@ -42,6 +45,7 @@
 					"musicPauseState",
 					"musicPauseDelay",
 					"musicPauseDelayUnits",
+					"musicPauseCancelDelayedEvents",
 					"musicPauseDuration",
 					"musicPauseDurationUnits",
 					"musicStopEnabled",
@@ -49,6 +53,7 @@
 					"musicStopState",
 					"musicStopDelay",
 					"musicStopDelayUnits",
+					"musicStopCancelDelayedEvents",
 					"musicStopDuration",
 					"musicStopDurationUnits"
 				]
@@ -620,6 +625,13 @@
 						"field": "systemStartupEnabled",
 						"value": true
 					}
+				},
+				{
+					"id": "systemStartupCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false
 				},
 				{
 					"id": "systemStartupDuration",
@@ -1641,6 +1653,13 @@
 					}
 				},
 				{
+					"id": "systemShutdownCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false
+				},
+				{
 					"id": "systemShutdownDuration",
 					"element": "select",
 					"label": "TRANSLATE.GPIO_DURATION",
@@ -2658,6 +2677,13 @@
 						"field": "musicPlayEnabled",
 						"value": true
 					}
+				},
+				{
+					"id": "musicPlayCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false
 				},
 				{
 					"id": "musicPlayDuration",
@@ -3679,6 +3705,13 @@
 					}
 				},
 				{
+					"id": "musicPauseCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false
+				},
+				{
 					"id": "musicPauseDuration",
 					"element": "select",
 					"label": "TRANSLATE.GPIO_DURATION",
@@ -4696,6 +4729,13 @@
 						"field": "systemShutdownEnabled",
 						"value": true
 					}
+				},
+				{
+					"id": "musicStopCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false
 				},
 				{
 					"id": "musicStopDuration",

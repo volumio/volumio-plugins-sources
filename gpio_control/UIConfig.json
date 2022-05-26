@@ -21,6 +21,7 @@
 					"systemStartupState",
 					"systemStartupDelay",
 					"systemStartupDelayUnits",
+					"systemStartupCancelDelayedEvents",
 					"systemStartupDuration",
 					"systemStartupDurationUnits",
 					"systemShutdownEnabled",
@@ -28,6 +29,7 @@
 					"systemShutdownState",
 					"systemShutdownDelay",
 					"systemShutdownDelayUnits",
+					"systemShutdownCancelDelayedEvents",
 					"systemShutdownDuration",
 					"systemShutdownDurationUnits",
 					"musicPlayEnabled",
@@ -35,6 +37,7 @@
 					"musicPlayState",
 					"musicPlayDelay",
 					"musicPlayDelayUnits",
+					"musicPlayCancelDelayedEvents",
 					"musicPlayDuration",
 					"musicPlayDurationUnits",
 					"musicPauseEnabled",
@@ -42,6 +45,7 @@
 					"musicPauseState",
 					"musicPauseDelay",
 					"musicPauseDelayUnits",
+					"musicPauseCancelDelayedEvents",
 					"musicPauseDuration",
 					"musicPauseDurationUnits",
 					"musicStopEnabled",
@@ -49,6 +53,7 @@
 					"musicStopState",
 					"musicStopDelay",
 					"musicStopDelayUnits",
+					"musicStopCancelDelayedEvents",
 					"musicStopDuration",
 					"musicStopDurationUnits"
 				]
@@ -652,6 +657,17 @@
 							"label": "TRANSLATE.UNITS_MILLISECONDS"
 						}
 					],
+					"visibleIf": {
+						"field": "systemStartupEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "systemStartupCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false,
 					"visibleIf": {
 						"field": "systemStartupEnabled",
 						"value": true
@@ -1713,6 +1729,17 @@
 					}
 				},
 				{
+					"id": "systemShutdownCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false,
+					"visibleIf": {
+						"field": "systemShutdownEnabled",
+						"value": true
+					}
+				},
+				{
 					"id": "systemShutdownDuration",
 					"element": "select",
 					"label": "TRANSLATE.GPIO_DURATION",
@@ -2762,6 +2789,17 @@
 							"label": "TRANSLATE.UNITS_MILLISECONDS"
 						}
 					],
+					"visibleIf": {
+						"field": "musicPlayEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "musicPlayCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false,
 					"visibleIf": {
 						"field": "musicPlayEnabled",
 						"value": true
@@ -3823,6 +3861,17 @@
 					}
 				},
 				{
+					"id": "musicPauseCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false,
+					"visibleIf": {
+						"field": "musicPauseEnabled",
+						"value": true
+					}
+				},
+				{
 					"id": "musicPauseDuration",
 					"element": "select",
 					"label": "TRANSLATE.GPIO_DURATION",
@@ -4873,7 +4922,18 @@
 						}
 					],
 					"visibleIf": {
-						"field": "systemShutdownEnabled",
+						"field": "musicStopEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "musicStopCancelDelayedEvents",
+					"element": "switch",
+					"label": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS",
+					"doc": "TRANSLATE.GPIO_CANCEL_OTHER_TIMERS_DOC",
+					"value": false,
+					"visibleIf": {
+						"field": "musicStopEnabled",
 						"value": true
 					}
 				},

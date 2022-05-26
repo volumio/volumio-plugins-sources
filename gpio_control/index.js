@@ -168,6 +168,7 @@ GPIOControl.prototype.getUIConfig = function() {
 				var s5 = e.concat("DelayUnits");
 				var s6 = e.concat("Duration");
 				var s7 = e.concat("DurationUnits");
+				var s8 = e.concat("CancelDelayedEvents");
 
 				// Strings for config
 				var c1 = e.concat(".enabled");
@@ -177,6 +178,7 @@ GPIOControl.prototype.getUIConfig = function() {
 				var c5 = e.concat(".delayUnits");
 				var c6 = e.concat(".duration");
 				var c7 = e.concat(".durationUnits");
+				var c8 = e.concat(".cancelDelayedEvents");
 
 				// Extend the find method on the content array - mental but works
 				uiconf.sections[0].content.findItem = function(obj) {
@@ -196,6 +198,7 @@ GPIOControl.prototype.getUIConfig = function() {
 				self.setSelectElement(uiconf, s5, config.get(c5), self.unitsToString(config.get(c5))); // delay units
 				self.setSelectElement(uiconf, s6, config.get(c6), self.durationToString(config.get(c6))); // duration
 				self.setSelectElement(uiconf, s7, config.get(c7), self.unitsToString(config.get(c7))); // duration units
+				self.setSelectElement(uiconf, s8, config.get(c8)); // cancel delayed events
 			});
 
 			defer.resolve(uiconf);
@@ -225,6 +228,7 @@ GPIOControl.prototype.saveConfig = function(data){
 		var e5 = item.concat("DelayUnits");
 		var e6 = item.concat("Duration");
 		var e7 = item.concat("DurationUnits");
+		var e8 = item.concat("CancelDelayedEvents");
 
 		// Strings for config
 		var c1 = item.concat(".enabled");
@@ -234,6 +238,7 @@ GPIOControl.prototype.saveConfig = function(data){
 		var c5 = item.concat(".delayUnits");
 		var c6 = item.concat(".duration");
 		var c7 = item.concat(".durationUnits");
+		var c8 = item.concat(".cancelDelayedEvents");
 
 		config.set(c1, data[e1]);
 		config.set(c2, data[e2]["value"]);
@@ -242,6 +247,7 @@ GPIOControl.prototype.saveConfig = function(data){
 		config.set(c5, data[e5]["value"]);
 		config.set(c6, data[e6]["value"]);
 		config.set(c7, data[e7]["value"]);
+		config.set(c8, data[e8]);
 	});
 
 	self.log("Saving config");
@@ -269,13 +275,15 @@ GPIOControl.prototype.createGPIOs = function() {
 		var c4 = e.concat(".delay");
 		var c5 = e.concat(".delayUnits");	
 		var c6 = e.concat(".duration");
-		var c7 = e.concat(".durationUnits");	
+		var c7 = e.concat(".durationUnits");
+		var c8 = e.concat(".cancelDelayedEvents");
 
 		var enabled = config.get(c1);
 		var pin = config.get(c2);
 		var state = config.get(c3);
 		var delay = self.getDurationMs(config.get(c4), config.get(c5));
 		var duration = self.getDurationMs(config.get(c6), config.get(c7));
+		var cancelDelayedEvents = config.get(c8);
 
 		if (enabled){
 			self.log(`Will set GPIO ${pin} ${self.boolToString(state)} when ${e}`);
@@ -287,6 +295,7 @@ GPIOControl.prototype.createGPIOs = function() {
 			gpio.duration = duration;
 			gpio.delayTimeoutId = 0;
 			gpio.durationTimeoutId = 0;
+			gpio.cancelDelayedEvents = cancelDelayedEvents;
 			self.GPIOs.push(gpio);
 		}
 	});
@@ -342,7 +351,12 @@ GPIOControl.prototype.handleEvent = function(e) {
 	var self = this;
 
 	self.GPIOs.forEach(function(gpio) {
-		if (gpio.e == e){
+		if (gpio.e == e) {
+
+			self.log(`cancelDelayedEvents: ${gpio.cancelDelayedEvents}`);
+			if (gpio.cancelDelayedEvents) {
+				self.cancelAllDelayedEvents();
+			}
 
 			// Clear any previous timers
 			clearTimeout(gpio.delayTimeoutId);
@@ -372,10 +386,19 @@ GPIOControl.prototype.handleEvent = function(e) {
 			}, gpio.delay);
 
 			// Shutdown after a short wait
-			if (e == SYSTEM_SHUTDOWN){
+			if (e == SYSTEM_SHUTDOWN) {
 				sleep.sleep(5);
 			}
 		}
+	});
+}
+
+// Cancel all delayed events
+GPIOControl.prototype.cancelAllDelayedEvents = function() {
+	// Clear any previous delay timers
+	self.log('Cancelling all previous delayed events');
+	self.GPIOs.forEach(function(gpio) {
+		clearTimeout(gpio.delayTimeoutId);
 	});
 }
 
