@@ -395,6 +395,8 @@ GPIOControl.prototype.handleEvent = function(e) {
 
 // Cancel all delayed events
 GPIOControl.prototype.cancelAllDelayedEvents = function() {
+	var self = this;
+	
 	// Clear any previous delay timers
 	self.log('Cancelling all previous delayed events');
 	self.GPIOs.forEach(function(gpio) {
