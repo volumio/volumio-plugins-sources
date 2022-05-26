@@ -198,7 +198,7 @@ GPIOControl.prototype.getUIConfig = function() {
 				self.setSelectElement(uiconf, s5, config.get(c5), self.unitsToString(config.get(c5))); // delay units
 				self.setSelectElement(uiconf, s6, config.get(c6), self.durationToString(config.get(c6))); // duration
 				self.setSelectElement(uiconf, s7, config.get(c7), self.unitsToString(config.get(c7))); // duration units
-				self.setSelectElement(uiconf, s8, config.get(c8)); // cancel delayed events
+				self.setSwitchElement(uiconf, s8, config.get(c8)); // cancel delayed events
 			});
 
 			defer.resolve(uiconf);
