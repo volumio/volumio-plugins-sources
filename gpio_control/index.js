@@ -402,7 +402,6 @@ GPIOControl.prototype.cancelAllDelayedEvents = function() {
 	});
 }
 
-
 // Output to log
 GPIOControl.prototype.log = function(s) {
 	var self = this;
