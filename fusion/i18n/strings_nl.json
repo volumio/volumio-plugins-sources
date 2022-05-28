@@ -51,7 +51,7 @@
   "Q_RANGE": "Coëfficiënt Q moet een decimaal getal zijn [0.1-40] in ",
   "BANDWIDTH_RANGE":"Ontbrekende bandbreedte in octaaf ",
   "BANDWIDTH_SLOPE_RANGE":"ontbrekende bandbreedte in dB/octaaf ",
-  "SLOPE_RANGE": "Helling moet een geheel getal [1-12] zijn in ",
+  "SLOPE_RANGE": "Helling moet een [1-12] zijn in ",
   "NO_THIRDCOEFF": "Geen derde coëfficiënt nodig in ",
   "ONLY_FREQ":"Alleen frequentie vereist in ",
   "MORE_SETTINGS":"Meer instellingen",
