@@ -1,0 +1,86 @@
+## irexec
+begin irexec
+
+  begin
+    prog = irexec
+    button = KEY_POWER
+    config = sudo systemctl poweroff
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_KPPLUS
+    config = volumio volume plus
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_KPMINUS
+    config = volumio volume minus
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_UP
+    config = volumio volume plus
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_DOWN
+    config = volumio volume minus
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_PAUSE
+    config = volumio toggle
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_STOP
+    config = volumio pause
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_PLAY
+    config = volumio play
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_BACK
+    config = volumio seek minus
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_FORWARD
+    config = volumio seek plus
+    repeat = 0
+  end
+
+  begin
+    prog = irexec
+    button = KEY_PREVIOUS
+    config = volumio previous
+  end
+
+  begin
+    prog = irexec
+    button = KEY_NEXT
+    config = volumio next
+  end
+
+end irexec

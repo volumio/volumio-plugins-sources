@@ -100,10 +100,14 @@ class ShowViewHandler extends ExplodableViewHandler {
             if (view.view === 'albums') {
                 let albumParser = self.getParser('album');
                 let trackParser = self.getParser('track');
+                let switchViewLinkData = {
+                    uri: self._constructUriWithParams({ view: 'tracks', noExplode: 1 }),
+                    text: bandcamp.getI18n('BANDCAMP_SHOW_FEATURED_TRACKS')
+                };
                 let switchViewLink = {
                     url: '#',
-                    text: bandcamp.getI18n('BANDCAMP_SHOW_FEATURED_TRACKS'),
-                    onclick: 'angular.element(\'#browse-page\').scope().browse.fetchLibrary({uri: \'' + self._constructUriWithParams({ view: 'tracks', noExplode: 1 }) + '\'}, true)',
+                    text: switchViewLinkData.text,
+                    onclick: 'angular.element(\'#browse-page\').scope().browse.fetchLibrary({uri: \'' + switchViewLinkData.uri + '\'}, true)',
                     icon: {
                         type: 'fa',
                         class: 'fa fa-arrow-circle-right',
@@ -147,6 +151,8 @@ class ShowViewHandler extends ExplodableViewHandler {
                         }
                     });
                     data.lists.push(featuredAlbumsSection);
+                    self._checkAndAddSwitchViewListItem(switchViewLinkData, data.lists);
+
                     return data;
                 }).fail( (error) => {
                     /*console.log(error);
@@ -156,10 +162,14 @@ class ShowViewHandler extends ExplodableViewHandler {
             }
             else {
                 let trackParser = self.getParser('track');
+                let switchViewLinkData = {
+                    uri: self._constructUriWithParams({ view: 'albums', noExplode: 1 }),
+                    text: bandcamp.getI18n('BANDCAMP_SHOW_TRACK_SOURCES')
+                };
                 let switchViewLink = {
                     url: '#',
-                    text: bandcamp.getI18n('BANDCAMP_SHOW_TRACK_SOURCES'),
-                    onclick: 'angular.element(\'#browse-page\').scope().browse.fetchLibrary({uri: \'' + self._constructUriWithParams({ view: 'albums', noExplode: 1 }) + '\'}, true)',
+                    text: switchViewLinkData.text,
+                    onclick: 'angular.element(\'#browse-page\').scope().browse.fetchLibrary({uri: \'' + switchViewLinkData.uri + '\'}, true)',
                     icon: {
                         type: 'fa',
                         class: 'fa fa-arrow-circle-right',
@@ -187,6 +197,8 @@ class ShowViewHandler extends ExplodableViewHandler {
                         featuredTracksSection.items.push(trackParser.parseToListItem(track));
                     });
                     data.lists.push(featuredTracksSection);
+                    self._checkAndAddSwitchViewListItem(switchViewLinkData, data.lists);
+
                     return data;
                 }).fail( (error) => {
                     /*console.log(error);
@@ -220,6 +232,23 @@ class ShowViewHandler extends ExplodableViewHandler {
         let curView = Object.assign({}, this.getCurrentView(), params);
 
         return this.constructUriFromViews(prevViews.concat(curView));
+    }
+
+    _checkAndAddSwitchViewListItem(data, lists) {
+        if (!UIHelper.supportsEnhancedTitles()) {
+            // Compensate for loss of switch view link
+            let switchViewListItem = {
+                type: 'bandcampLinkItem',
+                uri: data.uri,
+                title: data.text,
+                icon: 'fa fa-arrow-circle-right'
+            };
+            lists.push({
+                availableListViews: ['list'],
+                items: [ switchViewListItem ]
+            });
+        }
+        return lists;
     }
 
     getTracksOnExplode() {

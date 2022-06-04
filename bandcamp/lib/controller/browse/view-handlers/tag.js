@@ -66,7 +66,7 @@ class TagViewHandler extends ExplodableViewHandler {
         tags[key].forEach( (tag) => {
             items.push(parser.parseToListItem(tag, this._constructTagUrl(tag.url), currentTagUrl));
         });
-        title = UIHelper.addIconBefore(icon, title);
+        title = UIHelper.addIconToListTitle(icon, title);
         return {
             title,
             availableListViews: ['list'],
@@ -241,7 +241,7 @@ class TagViewHandler extends ExplodableViewHandler {
                 });
             }
             let title = bandcamp.getI18n(`BANDCAMP_SELECT_${view.select.toUpperCase()}`);
-            title = UIHelper.addIconBefore(FILTER_ICONS[view.select], title);
+            title = UIHelper.addIconToListTitle(FILTER_ICONS[view.select], title);
             let lists = [{
                 title,
                 availableListViews: ['list'],
