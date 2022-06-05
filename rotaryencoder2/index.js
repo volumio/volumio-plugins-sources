@@ -596,9 +596,12 @@ rotaryencoder2.prototype.deactivateButtons = function (rotaryIndexArray) {
 							if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' was not configured.');
 						}
 						defer.resolve();	
-					}						
+					} else {
+						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' has no GPIO configured.');
+						defer.resolve();
+					}				
 				} else {
-					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' is disabled.');
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' is not configured.');
 					defer.resolve();
 				}
 
