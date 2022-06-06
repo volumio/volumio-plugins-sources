@@ -1,0 +1,52 @@
+{
+  "COMMON":{
+    "USERNAME":"Username",
+    "PASSWORD":"Password",
+    "SAVE":"Save",
+    "CONFIG_SECTION_TITLE":"calm radio plugin configuration",
+    "LOGIN":"Login",
+    "LOGOUT":"Logout",
+    "LOGGED_IN":"Logged in to Calm Radio",
+    "LOGGED_OUT":"Logged out from Calm Radio",
+    "LOGIN_FIRST":"You must first login to Calm Radio (plugin setting)",
+    "ERROR_LOGGING_IN":"An error occurred trying to log in into Calm Radio",
+    "ERROR_LOGGING_OUT":"An error occurred trying to log out from Calm Radio"
+  },
+  "CALMRADIO":{
+  	"CATEGORIES":"Categories",
+    "GROUPS":"Groups",
+    "CHANNELS":"Channels",
+    "UPDATING":"Updating Calm Radio % data",
+    "SECTION_ACCOUNT":"calm radio account credentials",
+    "ACCOUNT_LOGIN_DESC":"Login to start streaming wonderful webradios",
+    "USERNAME_DOC":"Username used during registration",
+    "PASSWORD_DOC":"Password used during registration",
+    "SECTION_PLAYBACK":"calm radio playback settings",
+    "FREE_TRIAL_DESCR":"14 days free trial",
+    "FREE_TRIAL":"Free trial",
+    "RESET_PASSWORD":"Reset",
+    "RESET_PASSWORD_DESCR":"Reset your account password",
+    "FREE_TRIAL_ACTIVE":"Free trial is active",
+    "LOGGED_IN_EMAIL":"Logged in as "
+  },
+  "CONFIG":{
+  	"CATEGORIES":"Categories",
+    "GROUPS":"Groups",
+    "CHANNELS":"Channels",
+    "SECTION_ACCOUNT":"calm radio account credentials",
+    "ACCOUNT_LOGIN_DESC":"Login to start streaming wonderful webradios",
+    "USERNAME_DOC":"Your Calm Radio account username",
+    "PASSWORD_DOC":"Your Calm Radio account password",
+    "SECTION_PLAYBACK":"calm radio playback settings",
+    "BITRATE":"Channel Play Bitrate",
+    "LOW":"Low",
+    "MEDIUM":"Meduim",
+    "HIGH":"High",
+    "FREE_TRIAL_DESCR":"14 days free trial",
+    "FREE_TRIAL":"Free trial",
+    "RESET_PASSWORD":"Reset",
+    "RESET_PASSWORD_DESCR":"Reset your account password",
+    "FREE_TRIAL_ACTIVE":"Free trial is active",
+    "LOGGED_IN_EMAIL":"Logged in as "
+  }
+}

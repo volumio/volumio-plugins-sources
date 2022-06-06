@@ -1,0 +1,102 @@
+{
+	"page": {
+		"label": "TRANSLATE.COMMON.CONFIG_SECTION_TITLE"
+	},
+	"sections": [
+		{
+			"id": "CALMRADIO_SECTION",
+			"element": "section",
+			"label": "TRANSLATE.CALMRADIO.SECTION_ACCOUNT",
+			"icon": "fa-user",
+			"image": "fa-user",
+			"description": "TRANSLATE.CALMRADIO.ACCOUNT_LOGIN_DESC",
+			"hidden":false,
+			"onSave": {
+				"type": "controller",
+				"endpoint": "music_service/calmradio",
+				"method": "saveAccountCredentials"
+		 	},
+			"saveButton": {
+				"label": "TRANSLATE.COMMON.LOGIN",
+				"data": [
+					"calmradio_username",
+					"calmradio_password",
+					"calmradio_bitrate"
+				]
+			},
+			"content": [
+				{
+					"id": "calmradio_username",
+					"type": "text",
+					"element": "input",
+					"doc": "TRANSLATE.CALMRADIO.USERNAME_DOC",
+					"label": "TRANSLATE.COMMON.USERNAME",
+					"value": "",
+					"hidden":false
+				},
+				{
+					"id": "calmradio_password",
+					"type": "password",
+					"element": "input",
+					"doc": "TRANSLATE.CALMRADIO.PASSWORD_DOC",
+					"label": "TRANSLATE.COMMON.PASSWORD",
+					"value": "",
+					"hidden":false
+				},
+				{
+					"id":"calmradio_reset_password",
+					"element": "button",
+					"label": "TRANSLATE.CALMRADIO.RESET_PASSWORD",
+					"description": "TRANSLATE.CALMRADIO.RESET_PASSWORD_DESCR",
+					"onClick": {"type":"openUrl", "url":"https://calmradio.com/en/login"},
+					"hidden":true
+				}
+			]
+		},
+		{
+			"id": "CALMRADIO_SECTION_PLAYBACK",
+			"element": "section",
+			"label": "TRANSLATE.CALMRADIO.SECTION_PLAYBACK",
+			"icon": "fa-cogs",
+			"description": "TRANSLATE.CALMRADIO.ACCOUNT_PLAYBACK_DESC",
+			"hidden":false,
+			"onSave": {
+				"type": "controller",
+				"endpoint": "music_service/calmradio",
+				"method": "savePlaybackSettings"
+		 	},
+			"saveButton": {
+				"label": "TRANSLATE.COMMON.SAVE",
+				"data": [
+					"calmradio_bitrate"
+				]
+			},
+			"content": [
+				{
+					"id": "calmradio_bitrate",
+					"element": "select",
+					"doc": "TRANSLATE.PORT_DOC",
+					"label": "TRANSLATE.CONFIG.BITRATE",
+					"value": {
+						"value": "64",
+						"label": "TRANSLATE.CONFIG.LOW"
+						},
+					"options": [
+						{
+							"value": "64",
+							"label": "TRANSLATE.CONFIG.LOW"
+						},
+						{
+							"value": "192",
+							"label": "TRANSLATE.CONFIG.MEDIUM"
+						},
+						{
+							"value": "320",
+							"label": "TRANSLATE.CONFIG.HIGH"
+						}
+					]
+				}
+			]
+		}
+	]
+}
