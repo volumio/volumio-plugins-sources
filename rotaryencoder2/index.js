@@ -668,9 +668,10 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 					break;
 			
 				case dialActions.indexOf("EMIT"): //4
-					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command "' + self.config.get('socketCmdCCW'+rotaryIndex) +
-						'" with data "' + self.config.get('socketDataCCW'+rotaryIndex));
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command ' + (self.config.get('socketCmdCCW'+rotaryIndex)) +
+						' with data ' + self.config.get('socketDataCCW'+rotaryIndex));
 					self.socket.emit(self.config.get('socketCmdCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCW'+rotaryIndex)));				
+					// self.socket.emit("callMethod", JSON.parse('{"endpoint":"system_hardware/eadog_lcd","method":"up","data":""}'));				
 					break;
 			
 				default:
@@ -697,9 +698,10 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 					break;
 			
 				case dialActions.indexOf("EMIT"): //4
-					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command "' + self.config.get('socketCmdCCW'+rotaryIndex) +
-						'" with data "' + self.config.get('socketDataCCW'+rotaryIndex));
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command ' + (self.config.get('socketCmdCCW'+rotaryIndex)) +
+						' with data ' + self.config.get('socketDataCCW'+rotaryIndex));
 					self.socket.emit(self.config.get('socketCmdCCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCCW'+rotaryIndex)));				
+					// self.socket.emit("callMethod", JSON.parse('{"endpoint":"system_hardware/eadog_lcd","method":"down","data":""}'));				
 					break;
 			
 				default:
@@ -720,7 +722,7 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('pushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdPush' + rotaryIndex);
-				data = self.config.get('socketDataPush' + rotaryIndex);
+				data = JSON.parse(self.config.get('socketDataPush' + rotaryIndex));
 			} 			
 			break;
 	
@@ -728,7 +730,7 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('longPushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdLongPush' + rotaryIndex);
-				data = self.config.get('socketDataLongPush' + rotaryIndex);
+				data = JSON.parse(self.config.get('socketDataLongPush' + rotaryIndex));
 			} 			
 			break;
 	
@@ -736,7 +738,7 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('doublePushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdDoublePush' + rotaryIndex);
-				data = self.config.get('socketDataDoublePush' + rotaryIndex);
+				data = JSON.parse(self.config.get('socketDataDoublePush' + rotaryIndex));
 			} 			
 			break;
 	
