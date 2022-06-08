@@ -1,46 +1,46 @@
 {
-  "name": "calmradio",
-  "version": "0.5.0",
-  "description": "Calm Radio plugin for Volumio3",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ron4mac/volumio-calmradio.git"
-  },
-  "author": "Ron Crans",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ron4mac/volumio-calmradio/issues"
-  },
-  "homepage": "https://github.com/ron4mac/volumio-calmradio#readme",
-  "dependencies": {
-    "fs-extra": "^0.28.0",
-    "kew": "^0.7.0",
-    "unirest": "^0.6.0",
-    "v-conf": "^1.4.2",
-    "node-cache": "^5.1.2"
-  },
-  "volumio_info": {
-    "plugin_type": "music_service",
-    "boot_priority": 100,
-    "prettyName": "Calm Radio",
-    "os": [
-      "buster"
-    ],
-    "details": "Calm Radio plugin for Volumio3",
-    "changelog": "",
-    "icon": "fa-heartbeat",
-    "architectures": [
-      "amd64",
-      "armhf"
-    ],
-    "manually_installed": true
-  },
-  "engines": {
-    "volumio": ">=3",
-    "node": ">=14.15.4"
-  }
+	"name": "calmradio",
+	"version": "0.8.0",
+	"description": "Calm Radio plugin for Volumio3",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ron4mac/volumio-calmradio.git"
+	},
+	"author": "Ron Crans",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/ron4mac/volumio-calmradio/issues"
+	},
+	"homepage": "https://github.com/ron4mac/volumio-calmradio#readme",
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"unirest": "^0.6.0",
+		"v-conf": "^1.4.2",
+		"node-cache": "^5.1.2"
+	},
+	"volumio_info": {
+		"plugin_type": "music_service",
+		"boot_priority": 100,
+		"prettyName": "Calm Radio",
+		"os": [
+			"buster"
+		],
+		"details": "Calm Radio plugin for Volumio3",
+		"changelog": "",
+		"icon": "fa-heartbeat",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"manually_installed": true
+	},
+	"engines": {
+		"volumio": ">=3",
+		"node": ">=14.15.4"
+	}
 }

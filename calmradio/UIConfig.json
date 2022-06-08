@@ -1,15 +1,15 @@
 {
 	"page": {
-		"label": "TRANSLATE.COMMON.CONFIG_SECTION_TITLE"
+		"label": "TRANSLATE.CONFIG.CONFIG_SECTION_TITLE"
 	},
 	"sections": [
 		{
 			"id": "CALMRADIO_SECTION",
 			"element": "section",
-			"label": "TRANSLATE.CALMRADIO.SECTION_ACCOUNT",
+			"label": "TRANSLATE.CONFIG.SECTION_ACCOUNT",
 			"icon": "fa-user",
 			"image": "fa-user",
-			"description": "TRANSLATE.CALMRADIO.ACCOUNT_LOGIN_DESC",
+			"description": "TRANSLATE.CONFIG.ACCOUNT_LOGIN_DESC",
 			"hidden":false,
 			"onSave": {
 				"type": "controller",
@@ -17,7 +17,7 @@
 				"method": "saveAccountCredentials"
 		 	},
 			"saveButton": {
-				"label": "TRANSLATE.COMMON.LOGIN",
+				"label": "TRANSLATE.CONFIG.LOGIN",
 				"data": [
 					"calmradio_username",
 					"calmradio_password",
@@ -29,7 +29,7 @@
 					"id": "calmradio_username",
 					"type": "text",
 					"element": "input",
-					"doc": "TRANSLATE.CALMRADIO.USERNAME_DOC",
+					"doc": "TRANSLATE.CONFIG.USERNAME_DOC",
 					"label": "TRANSLATE.COMMON.USERNAME",
 					"value": "",
 					"hidden":false
@@ -38,7 +38,7 @@
 					"id": "calmradio_password",
 					"type": "password",
 					"element": "input",
-					"doc": "TRANSLATE.CALMRADIO.PASSWORD_DOC",
+					"doc": "TRANSLATE.CONFIG.PASSWORD_DOC",
 					"label": "TRANSLATE.COMMON.PASSWORD",
 					"value": "",
 					"hidden":false
@@ -46,8 +46,8 @@
 				{
 					"id":"calmradio_reset_password",
 					"element": "button",
-					"label": "TRANSLATE.CALMRADIO.RESET_PASSWORD",
-					"description": "TRANSLATE.CALMRADIO.RESET_PASSWORD_DESCR",
+					"label": "TRANSLATE.CONFIG.RESET_PASSWORD",
+					"description": "TRANSLATE.CONFIG.RESET_PASSWORD_DESCR",
 					"onClick": {"type":"openUrl", "url":"https://calmradio.com/en/login"},
 					"hidden":true
 				}
@@ -56,7 +56,7 @@
 		{
 			"id": "CALMRADIO_SECTION_PLAYBACK",
 			"element": "section",
-			"label": "TRANSLATE.CALMRADIO.SECTION_PLAYBACK",
+			"label": "TRANSLATE.CONFIG.SECTION_PLAYBACK",
 			"icon": "fa-cogs",
 			"description": "TRANSLATE.CALMRADIO.ACCOUNT_PLAYBACK_DESC",
 			"hidden":false,

@@ -337,7 +337,7 @@ ControllerCalmRadio.prototype.handleRootBrowseUri = function () {
 }
 
 
-ControllerCalmRadio.prototype.doListChannels = function (groupId) {
+ControllerCalmRadio.prototype.doListChannels = function (groupId, sterm=null) {
 	let self = this
 	self.logger.info('Calm Radio list channels for group '+groupId)
 	let chans = self.cache.get('channels')
@@ -347,19 +347,21 @@ ControllerCalmRadio.prototype.doListChannels = function (groupId) {
 	chans.map(cat => {
 		if (cat['category'] == groupId) {
 			cat['channels'].map(channel => {
-				let chant = 'webradio'
-				let chnid = channel['id']
-				if (!self.isLoggedIn() && !channel.streams.free) {
-					chant = 'item-no-menu'
-					chnid = '-1'
+				if (!sterm || sterm.test(channel.title) || sterm.test(channel.description)) {
+					let chant = 'webradio'
+					let chnid = channel['id']
+					if (!self.isLoggedIn() && !channel.streams.free) {
+						chant = 'item-no-menu'
+						chnid = '-1'
+					}
+					channelItems.push({
+						type: chant,
+						title: channel['title'].replace('CALMRADIO - ',''),
+						albumart: CRURLS.arts + channel['image'],
+						uri: `calmradio://${groupId}/${chnid}`,
+						service:'calmradio'
+					})
 				}
-				channelItems.push({
-					type: chant,
-					title: channel['title'].replace('CALMRADIO - ',''),
-					albumart: CRURLS.arts + channel['image'],
-					uri: `calmradio://${groupId}/${chnid}`,
-					service:'calmradio'
-				})
 			})
 		}
 	})
@@ -522,11 +524,24 @@ ControllerCalmRadio.prototype.stop = function () {
 }
 
 
-ControllerCalmRadio.prototype.search = function (text, etc) {
+ControllerCalmRadio.prototype.search = function (text) {
 	let self = this
 	let defer = libQ.defer()
 
-	defer.resolve({})
+	self.getCalmRadioData('channels')
+		.then((chans) => {
+			let chlst = []
+			let rgx = new RegExp(text.value, 'i')
+			chans.map(cat => {
+				chlst = chlst.concat(self.doListChannels(cat['category'], rgx).navigation.lists[0].items)
+			})
+			defer.resolve([{
+				title: 'Calm Radio',
+				icon: 'fa-heartbeat',
+				availableListViews: ['list'],
+				items: chlst
+			}])
+		})
 
 	return defer.promise
 }
@@ -547,8 +562,8 @@ ControllerCalmRadio.prototype.getUIConfig = function () {
 				uiconf.sections[0].content[1].hidden = true
 				uiconf.sections[0].content[2].hidden = true
 
-				uiconf.sections[0].description = self.getI18n('CALMRADIO.LOGGED_IN_EMAIL')+self.config.get('username')
-				uiconf.sections[0].saveButton.label = self.getI18n('COMMON.LOGOUT')
+				uiconf.sections[0].description = self.getI18n('CONFIG.LOGGED_IN_EMAIL')+self.config.get('username')
+				uiconf.sections[0].saveButton.label = self.getI18n('CONFIG.LOGOUT')
 				uiconf.sections[0].onSave.method = 'clearAccountCredentials'
 			} else {
 				uiconf.sections[0].content[0].hidden = false
@@ -557,8 +572,8 @@ ControllerCalmRadio.prototype.getUIConfig = function () {
 
 				uiconf.sections[1].hidden = true
 
-				uiconf.sections[0].description = self.getI18n('CALMRADIO.ACCOUNT_LOGIN_DESC')
-				uiconf.sections[0].saveButton.label = self.getI18n('COMMON.LOGIN')
+				uiconf.sections[0].description = self.getI18n('CONFIG.ACCOUNT_LOGIN_DESC')
+				uiconf.sections[0].saveButton.label = self.getI18n('CONFIG.LOGIN')
 				uiconf.sections[0].onSave.method = 'saveAccountCredentials'
 			}
 
