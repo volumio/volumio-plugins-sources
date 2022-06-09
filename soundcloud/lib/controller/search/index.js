@@ -3,6 +3,7 @@
 const libQ = require('kew');
 const sc = require(scPluginLibRoot + '/soundcloud');
 const ViewHandlerFactory = require(scPluginLibRoot + '/controller/browse/view-handlers/factory');
+const ViewHelper = require(scPluginLibRoot + '/helper/view');
 
 class SearchController {
 
@@ -80,6 +81,9 @@ class SearchController {
     }
 
     addIcon(s) {
+        if (!ViewHelper.supportsEnhancedTitles()) {
+            return s;
+        }
         let icon = '<img src="/albumart?sourceicon=' + encodeURIComponent('music_service/soundcloud/assets/images/soundcloud.svg') + '" style="width: 23px; height: 23px; margin-right: 8px; margin-top: -3px;" />';
         return icon + s;
     }

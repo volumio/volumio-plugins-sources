@@ -84,6 +84,12 @@ class ExplodableViewHandler extends BaseViewHandler {
      */
     _getTrackUri(track) {
         let uri = `soundcloud/track@trackId=${track.id}`;
+        if (track.fromAlbumId) {
+            uri += `@fromAlbumId=${ track.fromAlbumId }`;
+        }
+        else if (track.fromPlaylistId) {
+            uri += `@fromPlaylistId=${ track.fromPlaylistId }`;
+        }
         sc.getLogger().info('[soundcloud-explodable] getTrackUri(): ' + uri);
         return uri;
     }

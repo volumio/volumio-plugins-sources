@@ -1,0 +1,47 @@
+{
+	"name": "podcast",
+	"version": "2.1.0",
+	"description": "Podcast for Volumio",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Chris Song",
+	"license": "ISC",
+	"volumio_info": {
+		"prettyName": "Podcast",
+		"icon": "fa-podcast",
+		"plugin_type": "music_service",
+		"details": "Podcast Plugin for Volumio.<br>You can search, add and delete podcasts at setup page and you can set favourite function for a podcast episode.",
+		"changelog": "fix single episode problem; fix iTunes image url; fix the disappearance of a region; add special rss url handling",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		]
+	},
+	"dependencies": {
+		"v-conf": "^1.4.3",
+		"fs-extra": "^10.0.0",
+		"kew": "^0.7.0",
+		"node-cache": "^5.1.2",
+		"fast-xml-parser": "^4.0.3",
+		"node-fetch": "^2.6.7"
+	},
+	"repository": "https://github.com/ChrisPanda/volumio-podcast-plugin",
+	"keywords": [
+		"podcast",
+		"volumio"
+	],
+	"bugs": {
+		"url": "https://github.com/ChrisPanda/volumio-podcast-plugin/issues"
+	},
+	"homepage": "https://github.com/ChrisPanda/volumio-podcast-plugin#readme",
+	"engines": {
+		"volumio": ">=2",
+		"node": ">=14.15.4"
+	}
+}

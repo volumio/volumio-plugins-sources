@@ -24,6 +24,11 @@ You can add multiple servers, and those that are reachable will appear when you 
 
 #### Changelog
 
+0.1.5:
+- [Fixed] Adding current song to playlist / favorites in Playback view
+- [Added] Goto album / artist
+- [Changed] Use plain text titles if Manifest UI is enabled
+
 0.1.4:
 - [Changed] Clean up install script
 

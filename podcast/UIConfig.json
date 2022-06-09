@@ -1,0 +1,212 @@
+{
+  "page": {
+    "label": "TRANSLATE.CONFIG.TITLE"
+  },
+  "sections": [
+    {
+      "id": "select_country_section",
+      "element": "section",
+      "label": "TRANSLATE.CONFIG.SEARCH_PODCAST_COUNTRY_SELECTION",
+      "icon": "fa-cogs",
+      "description": "TRANSLATE.CONFIG.SELECT_PODCAST_COUNTRY_DESCRIPTION",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/podcast",
+        "method": "selectCountry"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.CONFIG.SAVE_SEARCH_REGION",
+        "data": [
+          "country_code"
+        ]
+      },
+      "content": [
+        {
+          "id": "country_code",
+          "element": "select",
+          "label": "TRANSLATE.CONFIG.SELECT_SEARCH_REGION",
+          "value": {},
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "search_result_section",
+      "element": "section",
+      "label": "TRANSLATE.CONFIG.SEARCH_RESULT_PODCAST",
+      "icon": "fa-cogs",
+      "hidden": true,
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/podcast",
+        "method": "searchAddPodcast"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.CONFIG.ADD_PODCAST",
+        "data": [
+          "search_result_podcast"
+        ]
+      },
+      "content": [
+        {
+          "id": "search_result_podcast",
+          "element": "select",
+          "label": "TRANSLATE.CONFIG.SEARCH_LIST_PODCAST",
+          "value": {},
+          "options": [],
+          "description": "TRANSLATE.CONFIG.SEARCH_LIST_NOTE"
+        }
+      ]
+    },
+    {
+      "id": "search_podcast_section",
+      "element": "section",
+      "label": "TRANSLATE.CONFIG.SEARCH_PODCAST",
+      "icon": "fa-cogs",
+      "description": "TRANSLATE.CONFIG.SEARCH_PODCAST_DESCRIPTION",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/podcast",
+        "method": "searchPodcast"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.CONFIG.SEARCH_PODCAST",
+        "data": [
+          "search_keyword"
+        ]
+      },
+      "content": [
+        {
+          "id": "search_keyword",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.CONFIG.PODCAST_NAME",
+          "value": "",
+          "description": "TRANSLATE.CONFIG.SEARCH_PODCAST_NOTE"
+        }
+      ]
+    },
+
+    {
+      "id": "delete_podcast_section",
+      "element": "section",
+      "label": "TRANSLATE.CONFIG.DELETE_PODCAST",
+      "icon": "fa-cogs",
+      "description": "TRANSLATE.CONFIG.DELETE_PODCAST_DESCRIPTION",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/podcast",
+        "method": "deletePodcast"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.CONFIG.DELETE_PODCAST",
+        "data": [
+          "list_podcast"
+        ]
+      },
+      "content": [
+        {
+          "id": "list_podcast",
+          "element": "select",
+          "label": "TRANSLATE.CONFIG.LIST_PODCAST",
+          "value": {},
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "add_podcast_section",
+      "element": "section",
+      "label": "TRANSLATE.CONFIG.ADD_PODCAST",
+      "icon": "fa-cogs",
+      "description": "TRANSLATE.CONFIG.ADD_PODCAST_DESCRIPTION",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/podcast",
+        "method": "addPodcast"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.CONFIG.ADD_PODCAST",
+        "data": [
+          "input_podcast"
+        ]
+      },
+      "content": [
+        {
+          "id": "input_podcast",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.CONFIG.REGISTER_PODCAST",
+          "value": "",
+          "description": "TRANSLATE.CONFIG.ADD_PODCAST_NOTE"
+        }
+      ]
+    },
+    {
+      "id": "limit_episodes",
+      "element": "section",
+      "label": "TRANSLATE.CONFIG.MAX_EPISODES",
+      "icon": "fa-cogs",
+      "description": "TRANSLATE.CONFIG.MAX_EPISODES_DESCRIPTION",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/podcast",
+        "method": "saveMaxEpisodeNumber"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.CONFIG.SAVE_MAX_EPISODE_NUMBER",
+        "data": [
+          "max_episode"
+        ]
+      },
+      "content": [
+        {
+          "id": "max_episode",
+          "element": "equalizer",
+          "label": "TRANSLATE.CONFIG.MAX_EPISODES_NUMBER",
+          "config": {
+            "orientation": "horizontal",
+            "bars": [
+              {
+                "min": 10,
+                "max": 500,
+                "step": 1,
+                "value": 100,
+                "tooltip": "always"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "support_section",
+      "element": "section",
+      "label": "TRANSLATE.CONFIG.SUPPORT_PLUGIN",
+      "description": "TRANSLATE.CONFIG.SUPPORT_DESCRIPTION",
+      "icon": "fa-life-ring",
+      "content": [
+        {
+          "id": "support_global",
+          "element": "button",
+          "label": "TRANSLATE.CONFIG.SUPPORT_FOREIGNER",
+          "description": "TRANSLATE.CONFIG.SUPPORT_FOREIGNER_LINK_DESCRIPTION",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://paypal.me/ckchrispanda"
+          }
+        },
+        {
+          "id": "support_korean",
+          "element": "button",
+          "label": "TRANSLATE.CONFIG.SUPPORT_KOREAN",
+          "description": "TRANSLATE.CONFIG.SUPPORT_KOREAN_LINK_DESCRIPTION",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://github.com/ChrisPanda/donation"
+          }
+        }
+      ]
+    }
+  ]
+}

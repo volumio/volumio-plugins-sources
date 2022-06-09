@@ -59,6 +59,7 @@
   "BANDCAMP_VIEW_LINK_LABEL": "View this label on Bandcamp",
   "BANDCAMP_VIEW_LINK_SHOW": "Listen to this show on Bandcamp",
   "BANDCAMP_VIEW_LINK_ARTICLE": "View article on Bandcamp",
+  "BANDCAMP_UI_CONTENT_HIDDEN": "(Manifest UI enabled - content hidden)",
   "BANDCAMP_SECTION_GENERAL": "General Settings",
   "BANDCAMP_ITEMS_PER_PAGE": "Items per page",
   "BANDCAMP_COMBINED_SEARCH_RESULTS": "Items in combined search results",

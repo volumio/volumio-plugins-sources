@@ -32,23 +32,33 @@ class PlayController {
     }
 
     stop() {
-        bandcamp.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        bandcamp.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.stop();
     };
 
     pause() {
-        bandcamp.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        bandcamp.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.pause();
     };
   
     resume() {
-        bandcamp.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        bandcamp.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.resume();
     }
   
     seek(position) {
-        bandcamp.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        bandcamp.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.seek(position);
+    }
+
+    next() {
+        bandcamp.getStateMachine().setConsumeUpdateService('mpd', true, false);
+        return this.mpdPlugin.next();
+    }
+
+    previous() {
+        bandcamp.getStateMachine().setConsumeUpdateService(undefined);
+        return bandcamp.getStateMachine().previous();
     }
 
     _getStreamUrl(track) {
@@ -150,7 +160,7 @@ class PlayController {
             }
         })
         .then( () => {
-            bandcamp.getStateMachine().setConsumeUpdateService('mpd', false, false);
+            bandcamp.getStateMachine().setConsumeUpdateService('mpd', true, false);
             return mpdPlugin.sendMpdCommand('play', []);
         });
     }
