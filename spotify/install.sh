@@ -1,22 +1,109 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-echo "Installing Spop Dependencies"
-sudo apt-get update
-sudo apt-get -y install libao-dev libglib2.0-dev libjson-glib-1.0-0 libjson-glib-dev libao-common libreadline-dev libsox-dev libsoup2.4-dev libsoup2.4-1 libdbus-glib-1-dev libnotify-dev --no-install-recommends
+# Force bash shell
+if [ -z "$BASH" ]; then
+  echo "Launching a bash shell"
+  exec bash "$0"
+fi
+set -eo pipefail
 
-echo "Installing Spop and libspotify"
+name="spop"
+use_local_ver=no
+libpath=/data/plugins/music_service/${name}
+configpath=/data/configuration/music_service/${name}
 
-DPKG_ARCH=`dpkg --print-architecture`
+exit_error() {
+  echo "Plugin <${name}> installation script failed!!"
+}
+trap exit_error INT ERR
 
-echo $DPKG_ARCH
-cd /tmp 
-wget http://repo.volumio.org/Packages/Spop/spop-${DPKG_ARCH}.tar.gz
-sudo tar xvf /tmp/spop-${DPKG_ARCH}.tar.gz -C /
-rm /tmp/spop-${DPKG_ARCH}.tar.gz
+echo "Installing ${name} dependencies"
 
-sudo chmod 777 /etc/spopd.conf
-echo "Linking libsox if required"
-[ ! -e /usr/lib/arm-linux-gnueabihf/libsox.so.2 ] && ln -s /usr/lib/arm-linux-gnueabihf/libsox.so.3 /usr/local/lib/libsox.so.2
+## Removing previous config
+if [ -f "${configpath}/config.json" ]; then
+  echo "Cleaning old config flile"
+  sudo rm ${configpath}/config.json
+fi
 
-#requred to end the plugin install
+## Get the Daemon binary
+declare -A VLS_BIN=(
+  [armv6l]="vollibrespot-armv6l.tar.xz"
+  [armv7l]="vollibrespot-armv7l.tar.xz"
+  [aarch64]="vollibrespot-armv7l.tar.xz"
+  [i686]="vollibrespot-i686.tar.xz"
+  [x86_64]="vollibrespot-x86_64.tar.xz"
+)
+
+# Find arch
+cpu=$(lscpu | awk 'FNR == 1 {print $2}')
+echo "Detected cpu architecture as $cpu"
+
+# Download and extract latest release
+cd $libpath
+if [ ${VLS_BIN[$cpu]+ok} ]; then
+  # Check for the latest release first
+  RELEASE_JSON=$(curl --silent "https://api.github.com/repos/ashthespy/vollibrespot/releases/latest")
+  # Get a fixed version from the repo
+  VLS_VER=v$(jq -r '.vollibrespot.version' package.json)
+  LATEST_VER=$(jq -r '.tag_name' <<<"${RELEASE_JSON}")
+
+  echo "Latest version: ${LATEST_VER} Requested version: ${VLS_VER}"
+  echo "Supported device (arch = $cpu), downloading required packages for vollibrespot $VLS_VER"
+  RELEASE_URL="https://api.github.com/repos/ashthespy/vollibrespot/releases/tags/${VLS_VER}"
+
+  DOWNLOAD_URL=$(curl --silent "${RELEASE_URL}" |
+    jq -r --arg VLS_BIN "${VLS_BIN[$cpu]}" '.assets[] | select(.name | contains($VLS_BIN)).browser_download_url')
+  echo "Downloading file <${DOWNLOAD_URL}>"
+
+  if [[ $use_local_ver == no ]]; then
+    curl -L --output "${VLS_BIN[$cpu]}" "${DOWNLOAD_URL}"
+  elif [[ -f ${VLS_BIN[$cpu]} ]]; then
+    echo "Using local version"
+  fi
+
+  if [ $? -eq 0 ]; then
+    echo "Extracting..."
+    ls -l "${VLS_BIN[$cpu]}"
+    sudo tar -xf "${VLS_BIN[$cpu]}" -C /usr/bin &&
+      ./usr/bin/vollibrespot -v &&
+      rm "${VLS_BIN[$cpu]}"
+  else
+    echo -e "Failed to download vollibrespot daemon. Check for internet connectivity/DNS issues. \nTerminating installation!"
+    exit 1
+  fi
+else
+  echo -e "Sorry, current device (arch = $cpu) is not supported! \nTerminating installation!"
+  exit 1
+fi
+
+echo "Writing systemd unit"
+
+echo "[Unit]
+Description=Volspotconnect2 Daemon
+After=syslog.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /usr/lib/startconnect.sh
+Restart=always
+RestartSec=2
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=volumio
+User=volumio
+Group=volumio
+
+[Install]
+WantedBy=multi-user.target" > /lib/systemd/system/volspotconnect.service
+
+echo "Writing startconnect unit"
+
+echo "#!/usr/bin/env bash
+./usr/bin/vollibrespot \
+    -c /tmp/volspotify.toml" -> /usr/lib/startconnect.sh
+
+chmod a+x /usr/lib/startconnect.sh
+
+echo "${name} installed"
+#required to end the plugin install
 echo "plugininstallend"
