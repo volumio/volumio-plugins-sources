@@ -1,4 +1,2 @@
-# volumio-calmradio
-calm radio plugin for volumio 3
-
-![screenshot](https://rjcrans.net/dev/volumio/crsshot.jpeg)
+# volumio-plugins-sources
+Volumio plugins source code for Volumio 3
