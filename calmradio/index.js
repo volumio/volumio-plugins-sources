@@ -310,7 +310,7 @@ ControllerCalmRadio.prototype.doListCategories = function (bg) {
 			lists: [
 				{
 					type: 'title',
-					title: bg ? (catt + ' ' + self.getI18n('CALMRADIO.GROUPS')) : self.getI18n('CALMRADIO.CATEGORIES'),
+					title: 'Calm Radio ' + (bg ? (catt + ' ' + self.getI18n('CALMRADIO.GROUPS')) : self.getI18n('CALMRADIO.CATEGORIES')),
 				//	'availableListViews': ['grid', 'list'],
 					availableListViews: ['grid'],
 					items: groupItems
@@ -371,7 +371,7 @@ ControllerCalmRadio.prototype.doListChannels = function (groupId, sterm=null) {
 			lists: [
 				{
 					type: 'title',
-					title: catt + self.getI18n('CALMRADIO.CHANNELS'),
+					title: 'Calm Radio ' + catt + self.getI18n('CALMRADIO.CHANNELS'),
 					availableListViews: ['grid', 'list'],
 					items: channelItems
 				}]
