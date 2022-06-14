@@ -1970,7 +1970,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         bitrate: this.getCurrentBitrate(),
         channels: 2
     };
-
+    
     const nHost = ''; // blank = localhost
     const nPort = 5030;
     logger.info('Starting metadata listener');
@@ -2058,7 +2058,8 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         this.SinkActive = false;
         clearInterval(seekTimer);
         seekTimer = undefined;
-        this.state.status = 'pause';
+        // This is commented since it might cause race conditions
+        this.state.status = 'stop';
         if (this.active && !this.isStopping) {
             this.commandRouter.servicePushState(this.state, this.servicename);
         } else {
