@@ -2057,9 +2057,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             this.checkWebApi();
             this.state.status = 'play';
             if (!this.active) this.ActiveState();
-            setTimeout(()=>{
-                this.pushState();
-            }, 300);
+            this.pushState();
         }
     });
 
