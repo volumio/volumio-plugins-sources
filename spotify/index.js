@@ -1301,7 +1301,9 @@ ControllerSpotify.prototype.getAlbumTracks = function (id) {
                             album: album,
                             albumart: albumart,
                             uri: track.uri,
-                            bitrate: self.getCurrentBitrate(),
+                            samplerate: self.getCurrentBitrate(),
+                            bitdepth: '16 bit',
+                            bitrate: '',
                             trackType: 'spotify',
                             duration: Math.trunc(track.duration_ms / 1000)
                         });
@@ -1345,7 +1347,9 @@ ControllerSpotify.prototype.getPlaylistTracks = function (userId, playlistId) {
                             artist: track.artists[0].name,
                             album: track.album.name,
                             uri: track.uri,
-                            bitrate: self.getCurrentBitrate(),
+                            samplerate: self.getCurrentBitrate(),
+                            bitdepth: '16 bit',
+                            bitrate: '',
                             trackType: 'spotify',
                             albumart: (track.album.hasOwnProperty('images') && track.album.images.length > 0 ? track.album.images[0].url : ''),
                             duration: Math.trunc(track.duration_ms / 1000)
@@ -1386,7 +1390,9 @@ ControllerSpotify.prototype.getArtistTopTracks = function (id) {
                         album: track.album.name,
                         albumart: albumart,
                         duration: parseInt(track.duration_ms / 1000),
-                        bitrate: self.getCurrentBitrate(),
+                        samplerate: self.getCurrentBitrate(),
+                        bitdepth: '16 bit',
+                        bitrate: '',
                         trackType: 'spotify',
                         uri: track.uri
                     });
@@ -1512,7 +1518,9 @@ ControllerSpotify.prototype.getTrack = function (id) {
                     type: 'song',
                     duration: parseInt(results.body.duration_ms / 1000),
                     albumart: albumart,
-                    bitrate: self.getCurrentBitrate(),
+                    samplerate: self.getCurrentBitrate(),
+                    bitdepth: '16 bit',
+                    bitrate: '',
                     trackType: 'spotify'
                 };
                 response.push(item);
@@ -1967,10 +1975,12 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         trackType: 'spotify',
         seek: 0,
         duration: 0,
-        bitrate: this.getCurrentBitrate(),
+        samplerate: this.getCurrentBitrate(),
+        bitdepth: '16 bit',
+        bitrate: '',
         channels: 2
     };
-    
+
     const nHost = ''; // blank = localhost
     const nPort = 5030;
     logger.info('Starting metadata listener');
@@ -2090,7 +2100,9 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         this.state.duration = Math.ceil(meta.duration_ms / 1000);
         this.state.seek = meta.position_ms;
         this.state.albumart = `https://i.scdn.co/image/${albumartId}`;
-        this.state.bitrate = this.getCurrentBitrate();
+        this.state.samplerate = this.getCurrentBitrate();
+        this.state.bitdepth = '16 bit';
+        this.state.bitrate = '';
         if (!this.isStopping) {
             this.debugLog('Pushing metadata');
             // This will not succeed if volspotconnect2 isn't the current active service
