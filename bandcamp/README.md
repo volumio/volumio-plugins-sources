@@ -22,6 +22,11 @@ As the name implies, the purpose of this plugin is to allow you to discover musi
 
 ## Changelog
 
+0.1.3
+- Fixed adding current track to playlist / favorites in Playback view
+- Because of fix above, track info now shows bitrate (as obtained by MPD) instead of bit depth and sample rate
+- If Manifest UI is enabled, titles will be shown in plain text without formatting and links. For Bandcamp Daily, article texts will be hidden as they will not display nicely in Manifest UI's page anchors.
+
 0.1.2
 - Display search results by item type (configurable in plugin settings)
 

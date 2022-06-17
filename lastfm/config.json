@@ -1,0 +1,54 @@
+{
+  "API_KEY": {
+    "type": "string",
+    "value": ""
+  },
+  "API_SECRET": {
+    "type": "string",
+    "value": ""
+  },
+  "username": {
+    "type": "string",
+    "value": ""
+  },
+  "password": {
+    "type": "string",
+    "value": ""
+  },
+  "authToken": {
+    "type": "string",
+    "value": ""
+  },
+  "blacklistedServices": {
+    "type": "string",
+    "value": ""
+  },  
+  "scrobbleThreshold": {
+    "type": "int",
+    "value": "75"
+  },
+  "pushToastOnScrobble": {
+    "type": "boolean",
+    "value": true
+  },
+  "scrobbleFromStream": {
+    "type": "boolean",
+    "value": true
+  },
+  "streamScrobbleThreshold": {
+    "type": "string",
+    "value": "120"
+  },
+  "titleSeparator": {
+    "type": "string",
+    "value": " - "
+  },
+  "artistFirst": {
+    "type": "boolean",
+    "value": true
+  },
+  "enable_debug_logging": {
+    "type": "boolean",
+    "value": false
+  }
+}

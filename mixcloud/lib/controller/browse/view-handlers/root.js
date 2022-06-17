@@ -52,8 +52,10 @@ class RootViewHandler extends BaseViewHandler {
                     items.push(parser.parseToListItem(category));
                 });
                 let title = mixcloud.getI18n('MIXCLOUD_DISCOVER_SHOWS', sectionName);
-                title = UIHelper.styleText(title, UIHelper.STYLES.TITLE_CASE);
-                title = UIHelper.addMixcloudIconToListTitle(title);
+                if (UIHelper.supportsEnhancedTitles()) {
+                    title = UIHelper.styleText(title, UIHelper.STYLES.TITLE_CASE);
+                    title = UIHelper.addMixcloudIconToListTitle(title);
+                }
                 lists.push({
                     title,
                     availableListViews: ['list', 'grid'],

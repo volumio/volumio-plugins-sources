@@ -1,6 +1,7 @@
 'use strict';
 
 const bandcamp = require(bandcampPluginLibRoot + '/bandcamp');
+const fs = require('fs');
 
 class UIHelper {
 
@@ -8,10 +9,16 @@ class UIHelper {
         return `<img src="/albumart?sourceicon=${encodeURIComponent('music_service/bandcamp/assets/images/bandcamp.svg')}" style="width: 23px; height: 23px; margin-right: 8px; margin-top: -3px;" />`;
     }
     static addBandcampIconToListTitle(s) {
+        if (!this.supportsEnhancedTitles()) {
+            return s;
+        }
         return `${this.getBandcampIcon()}${s}`;
     }
 
-    static addIconBefore(faClass, s) {
+    static addIconToListTitle(faClass, s) {
+        if (!this.supportsEnhancedTitles()) {
+            return s;
+        }
         return `<i class="${faClass}" style="padding-right: 15px;"></i>${s}`;
     }
 
@@ -36,6 +43,9 @@ class UIHelper {
     }
 
     static constructListTitleWithLink(title, links, isFirstList) {
+        if (!this.supportsEnhancedTitles()) {
+            return title;
+        }
         let html = `<div style="display: flex; width: 100%; align-items: flex-end;${isFirstList ? '' : ' margin-top: -24px;'}">
                     <div>${title}</div>
                     <div style="flex-grow: 1; text-align: right; font-size: small;">`;
@@ -77,6 +87,15 @@ class UIHelper {
         return html;
     }
 
+    static supportsEnhancedTitles() {
+        return !this.isManifestUI();
+    }
+    
+    static isManifestUI() {
+        let volumioManifestUIFlagFile = '/data/manifestUI';
+        let volumioManifestUIDisabledFile = '/data/disableManifestUI';
+        return fs.existsSync(volumioManifestUIFlagFile) && !fs.existsSync(volumioManifestUIDisabledFile);
+    }
 }
 
 UIHelper.STYLES = {
