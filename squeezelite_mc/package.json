@@ -1,0 +1,46 @@
+{
+	"name": "squeezelite_mc",
+	"version": "0.1.0",
+	"description": "A plugin that installs and runs Squeezelite with (M)onitoring and (C)ontrol. Aims to work with minimal configuration, displays playback status on Volumio and provides basic player controls.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/patrickkfkan/volumio-squeezelite-mc.git"
+	},
+	"author": "Patrick Kan",
+	"license": "MIT",
+	"volumio_info": {
+		"prettyName": "Squeezelite MC",
+		"plugin_type": "music_service",
+		"os": [
+			"buster"
+		],
+		"icon": "fa-play-circle-o",
+		"boot_priority": 10,
+		"details": "A plugin that installs and runs Squeezelite with (M)onitoring and (C)ontrol. Aims to work with minimal configuration, displays playback status on Volumio and provides basic player controls.",
+		"changelog": "",
+		"architectures": [
+			"amd64",
+			"armhf"
+		]
+	},
+	"engines": {
+		"node": ">=12",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"abort-controller": "^3.0.0",
+		"express": "^4.18.1",
+		"fast-deep-equal": "^3.1.3",
+		"kew": "^0.7.0",
+		"lms-cli-notifications": "^0.1.2",
+		"lms-discovery": "^0.1.0",
+		"network-interfaces": "^1.1.0",
+		"node-fetch": "^2.6.7",
+		"string-format": "^2.0.0",
+		"v-conf": "^1.4.2"
+	}
+}
