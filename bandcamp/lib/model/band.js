@@ -7,30 +7,37 @@ const BaseModel = require(__dirname + '/base');
 const Artist = require(bandcampPluginLibRoot + '/core/entities/artist.js');
 const Label = require(bandcampPluginLibRoot + '/core/entities/label.js');
 
-class ArtistModel extends BaseModel {
+class BandModel extends BaseModel {
 
-    getArtists(options) {
-        if (options.labelUrl) {
+    getBands(options) {
+        if (options.labelUrl) { // Get label artists
             return this.getItems(options);
         }
         return libQ.resolve([]);
     }
 
-    getArtist(artistUrl) {
+    getBand(bandUrl) {
         let self = this;
         let defer = libQ.defer();
 
-        bandcamp.getCache().cacheOrPromise(self.getCacheKeyForFetch('artist', { artistUrl }), () => {
-            return bcfetch.limiter.getArtistOrLabelInfo(artistUrl, {
+        bandcamp.getCache().cacheOrPromise(self.getCacheKeyForFetch('band', { bandUrl }), () => {
+            return bcfetch.limiter.getArtistOrLabelInfo(bandUrl, {
                 imageFormat: self.getArtistImageFormat()
             });
         }).then( (info) => {
-            let artist = new Artist(info.url, info.name, info.imageUrl, info.location);
-            if (info.label) {
-                artist.label = new Label(info.label.url, info.label.name);
+            if (info.type === 'artist') {
+                let artist = new Artist(info.url, info.name, info.imageUrl, info.location);
+                if (info.label) {
+                    artist.label = new Label(info.label.url, info.label.name);
+                }
+                defer.resolve(artist);
             }
-            artist.isLabel = info.type === 'label';
-            defer.resolve(artist);
+            else if (info.type === 'label') {
+                defer.resolve(new Label(info.url, info.name, info.imageUrl, info.location));
+            }
+            else {
+                defer.resolve(null);
+            }            
         }).fail( (error) => {
             defer.reject(error);
         });
@@ -57,4 +64,4 @@ class ArtistModel extends BaseModel {
 
 }
 
-module.exports = ArtistModel;
+module.exports = BandModel;

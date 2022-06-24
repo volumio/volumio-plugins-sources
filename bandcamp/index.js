@@ -30,12 +30,16 @@ ControllerBandcamp.prototype.getUIConfig = function() {
         __dirname + '/UIConfig.json')
     .then( (uiconf) => {
         let generalUIConf = uiconf.sections[0];
-        let cacheUIConf = uiconf.sections[1];
+        let myBandcampUIConf = uiconf.sections[1];
+        let cacheUIConf = uiconf.sections[2];
 
         // General   
         generalUIConf.content[0].value = bandcamp.getConfigValue('itemsPerPage', 47);
         generalUIConf.content[1].value = bandcamp.getConfigValue('combinedSearchResults', 17);
         generalUIConf.content[2].value = bandcamp.getConfigValue('searchByItemType', true);
+
+        // My Bandcamp
+        myBandcampUIConf.content[0].value = bandcamp.getConfigValue('myUsername', '');
 
         // Cache
         let cacheMaxEntries = bandcamp.getConfigValue('cacheMaxEntries', 5000);
@@ -72,6 +76,11 @@ ControllerBandcamp.prototype.configSaveGeneralSettings = function(data) {
     this.config.set('combinedSearchResults', combinedSearchResults);
     this.config.set('searchByItemType', data.searchByItemType);
     
+    bandcamp.toast('success', bandcamp.getI18n('BANDCAMP_SETTINGS_SAVED'));   
+}
+
+ControllerBandcamp.prototype.configSaveMyBandcampSettings = function(data) {
+    this.config.set('myUsername', data.myUsername.trim());
     bandcamp.toast('success', bandcamp.getI18n('BANDCAMP_SETTINGS_SAVED'));   
 }
 
@@ -209,7 +218,7 @@ ControllerBandcamp.prototype.goto = function(data) {
         return this.browseController.browseUri('bandcamp/album@albumUrl=' + trackView.albumUrl);
     }
     else if (data.type === 'artist' && trackView.artistUrl) {
-        return this.browseController.browseUri('bandcamp/artist@artistUrl=' + trackView.artistUrl);
+        return this.browseController.browseUri('bandcamp/band@bandUrl=' + trackView.artistUrl);
     }
     else if (trackView.name === 'show') {
         return this.browseController.browseUri('bandcamp/shows@showUrl=' + trackView.showUrl);

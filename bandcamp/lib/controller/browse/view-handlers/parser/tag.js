@@ -21,6 +21,20 @@ class TagParser extends BaseParser {
         };
     }
 
+    parseToGenreListItem(tag) {
+        let baseUri = this.getUri();
+
+        let data = {
+            service: 'bandcamp',
+            type: 'folder',
+            title: tag.name,
+            albumart: tag.imageUrls[0],
+            'uri': baseUri + '/tag@tagUrl=' + encodeURIComponent(tag.url)
+        };
+
+        return data;
+    }
+
     parseToHeader(tag) {
         let baseUri = this.getUri();
         let header = {
