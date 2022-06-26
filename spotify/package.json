@@ -1,6 +1,6 @@
 {
 	"name": "spop",
-	"version": "2.0.3",
+	"version": "3.0.1",
 	"description": "Spotify plugin for Volumio2",
 	"main": "index.js",
 	"scripts": {
@@ -8,6 +8,9 @@
 	},
 	"author": "Volumio Team, Skirkwood",
 	"license": "ISC",
+	"vollibrespot": {
+		"version": "0.2.5"
+	},
 	"volumio_info": {
 		"prettyName": "Spotify",
 		"icon": "fa-spotify",
@@ -18,7 +21,9 @@
 		"details": "Spotify plugin for Volumio2",
 		"changelog": "",
 		"architectures": [
-			"armhf"
+			"amd64",
+			"armhf",
+			"i386"
 		]
 	},
 	"dependencies": {
@@ -29,7 +34,9 @@
 		"node-cache": "^4.1.1",
 		"nodetools": "^1.0.0",
 		"spotify-web-api-node": "^4.0.0",
-		"v-conf": "^1.4.2"
+		"v-conf": "^1.4.2",
+		"chalk": "^3.0.0",
+		"socket.io-client": "2.1.1"
 	},
 	"engines": {
 		"volumio": ">=3",
