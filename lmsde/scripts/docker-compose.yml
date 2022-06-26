@@ -1,0 +1,35 @@
+version: "3.5"
+services:
+  logitechmediaserver:
+    image: ${LMS_DOCKER_IMAGE_REPO}:${LMS_DOCKER_IMAGE_TAG}
+    container_name: logitechmediaserver
+    network_mode: "host"
+    volumes:
+      - logitechmediaserver-config:/config
+      - logitechmediaserver-playlist:/playlist
+      - /data/INTERNAL:/music/INTERNAL:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - type: bind
+        source: /mnt/NAS
+        target: /music/NAS
+        read_only: true
+        bind:
+          propagation: slave
+      - type: bind
+        source: /media
+        target: /music/USB
+        read_only: true
+        bind:
+          propagation: slave
+    environment:
+      - PUID=1000
+      - PGID=1000
+    restart: "on-failure"
+volumes:
+  logitechmediaserver-config:
+    external: true
+  logitechmediaserver-music:
+    external: true
+  logitechmediaserver-playlist:
+    external: true
