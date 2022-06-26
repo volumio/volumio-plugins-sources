@@ -2,26 +2,26 @@
 
 pushd "$(dirname "$0")" > /dev/null
 
-[ -z "$JELLYFIN_DIR" ] && . common.sh
+[ -z "${OPT_DIR}" ] && . common.sh
 check_root
 
 start_service() {
-  pushd "$JELLYFIN_DIR" > /dev/null
+  pushd "${OPT_DIR}" > /dev/null
   COMPOSE_HTTP_TIMEOUT=120 docker-compose up -d
   popd > /dev/null
 }
 
 stop_service() {
-  pushd "$JELLYFIN_DIR" > /dev/null
+  pushd "${OPT_DIR}" > /dev/null
   docker-compose stop
   popd > /dev/null
 }
 
 get_status() {
   if [ "$(is_running)" == '1' ]; then
-    echo "Jellyfin server is running"
+    echo "${APP_NAME} is running"
   else
-    echo "Jellyfin server is not running"
+    echo "${APP_NAME} is not running"
   fi
 }
 

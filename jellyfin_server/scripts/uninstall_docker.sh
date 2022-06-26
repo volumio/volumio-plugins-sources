@@ -1,6 +1,8 @@
 #! /bin/bash
 
-[ -z "$JELLYFIN_DIR" ] && . common.sh
+UNINSTALLING=1
+
+[ -z "${OPT_DIR}" ] && . common.sh
 check_root
 
 if [ $(docker images -q | wc -l) -gt 0 ]; then

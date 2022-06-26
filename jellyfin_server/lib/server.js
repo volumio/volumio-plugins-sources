@@ -1,7 +1,9 @@
 const { exec } = require('child_process');
 const js = require(jellyfinServerPluginLibRoot + '/js');
 
-const JELLYFIN_DIR = '/opt/jellyfin';
+const OPT_DIR = '/opt/jellyfin';
+const OPT_MAIN_SCRIPT = 'jellyfin.sh';
+const DOCKER_CONTAINER_NAME = 'jellyfin';
 
 function addSudo(cmd) {
   return`echo volumio | sudo -S ${cmd}`;
@@ -9,8 +11,8 @@ function addSudo(cmd) {
 
 function execScript(arg) {
   return new Promise((resolve, reject) => {
-    const cmd = `${JELLYFIN_DIR}/jellyfin.sh ${arg}`;
-    js.getLogger().info(`[jellyfin-server] Executing Jellyfin script: ${cmd}`);
+    const cmd = `${OPT_DIR}/${OPT_MAIN_SCRIPT} ${arg}`;
+    js.getLogger().info(`[jellyfin-server] Executing script: ${cmd}`);
     exec(addSudo(cmd), { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
       if (error) {
         js.getLogger().error(js.getErrorMessage(`[jellyfin-server] Failed to execute ${cmd}: ${stderr.toString()}`, error));
@@ -62,23 +64,34 @@ function execDockerInfoTypeCmd(args) {
 }
 
 function inspect() {
-  return execDockerInfoTypeCmd(`inspect -f '{{ json . }}' jellyfin`);
+  return execDockerInfoTypeCmd(`inspect -f '{{ json . }}' ${DOCKER_CONTAINER_NAME}`);
 }
 
 function stats() {
-  return execDockerInfoTypeCmd(`stats --no-stream --format '{{ json . }}' jellyfin`);
+  return execDockerInfoTypeCmd(`stats --no-stream --format '{{ json . }}' ${DOCKER_CONTAINER_NAME}`);
 }
 
-function image() {
-  return execDockerInfoTypeCmd(`images --format '{{ json . }}' jellyfin/jellyfin`);
+async function image() {
+  // Get name of Docker image belonging to the container identified by DOCKER_CONTAINER_NAME
+  const imageName = await execDockerInfoTypeCmd(`container ls -a --filter 'name=${DOCKER_CONTAINER_NAME}' --format '{{ json .Image }}'`);
+  if (imageName.error) {
+    return imageName;
+  }
+  // Get info about the image
+  return execDockerInfoTypeCmd(`images --format '{{ json . }}' ${imageName.data}`);
 }
 
 async function df() {
+  const targetImage = await image();
+  if (targetImage.error) {
+    return targetImage;
+  }
+  const targetImageData = targetImage.data;
   const df = await execDockerInfoTypeCmd(`system df -v --format '{{ json . }}'`);
   if (!df.error) {
     const data = df.data;
-    const image = data.Images.find(image => image.Repository === 'jellyfin/jellyfin') || {};
-    const container = data.Containers.find(container => container.Names === 'jellyfin') || {};
+    const image = data.Images.find(image => image.Repository === targetImageData.Repository && image.Tag === targetImageData.Tag) || {};
+    const container = data.Containers.find(container => container.Names === DOCKER_CONTAINER_NAME) || {};
     const config = data.Volumes.find(volume => volume.Name === 'jellyfin-config') || {};
     const cache = data.Volumes.find(volume => volume.Name === 'jellyfin-cache') || {};
     return {

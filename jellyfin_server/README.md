@@ -112,6 +112,11 @@ Then reboot your Volumio device.
 
 ## Changelog
 
+0.1.1:
+- Improve robustness of (un)installation process
+- Improve fetching of server stats
+- Jellyfin version installed: 10.8.0
+
 0.1.0:
 - Initial release
 - Jellyfin version installed: 10.7.7

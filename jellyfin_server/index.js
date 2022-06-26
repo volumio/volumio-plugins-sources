@@ -14,6 +14,7 @@ function ControllerJellyfinServer(context) {
   this.commandRouter = this.context.coreCommand;
   this.logger = this.context.logger;
   this.configManager = this.context.configManager;
+  this.serverStatus = 'stopped';
 }
 
 ControllerJellyfinServer.prototype.getUIConfig = function () {
@@ -83,6 +84,7 @@ ControllerJellyfinServer.prototype.onStart = function () {
   server.start()
     .then(() => {
       js.toast('success', js.getI18n('JELLYFIN_SERVER_STARTED'));
+      this.serverStatus = 'started';
       defer.resolve();
     })
     .catch((e) => {
@@ -94,12 +96,17 @@ ControllerJellyfinServer.prototype.onStart = function () {
 }
 
 ControllerJellyfinServer.prototype.onStop = function () {
+  if (this.serverStatus === 'stopped') {
+    return libQ.resolve();
+  }
+
   const defer = libQ.defer();
 
   js.toast('info', js.getI18n('JELLYFIN_SERVER_STOPPING'));
   server.stop()
     .then(() => {
       js.toast('success', js.getI18n('JELLYFIN_SERVER_STOPPED'));
+      this.serverStatus = 'stopped';
       defer.resolve();
     })
     .catch((e) => {

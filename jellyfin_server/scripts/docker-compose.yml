@@ -1,8 +1,8 @@
 version: "3.5"
 services:
-  jellyfin:
-    image: jellyfin/jellyfin:10.7.7
-    container_name: jellyfin
+  ${DOCKER_CONTAINER_NAME}:
+    image: ${DOCKER_IMAGE_REPO}:${DOCKER_IMAGE_TAG}
+    container_name: ${DOCKER_CONTAINER_NAME}
     user: 1000:1000
     network_mode: "host"
     volumes:
