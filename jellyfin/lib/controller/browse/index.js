@@ -19,6 +19,7 @@ class BrowseController {
      * - playlists[@startIndex=...]
      * - genres[@parentId=...][@startIndex=...]
      * - songs[@albumId=...] | [ [@playlistId=...| @parentId=...][@startIndex=...] ][@viewType=recentlyPlayed|frequentlyPlayed|favorite][@search=...]
+     * - folder[@parentId=...][@startIndex=...]: lists contents of specified folder. Folders are shown in userViews when 'folder view' is enabled in Jellyfin.
      * 
      */
     browseUri(uri) {
