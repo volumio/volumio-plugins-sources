@@ -4,35 +4,65 @@
   },
   "sections": [
     {
-      "id": "quality",
+      "id": "section_program",
       "element": "section",
-      "label": "TRANSLATE.CONFIG.RADIO_PROTOCOL",
-      "icon": "fa-cogs",
-      "description": "TRANSLATE.CONFIG.PROTOCOL_SETUP_GUIDE",
+      "label": "TRANSLATE.CONFIG.PROGRAM",
+      "description": "TRANSLATE.CONFIG.PROGRAM_DESCRIPTION",
+      "icon": "fa-info-circle",
       "onSave": {
         "type": "controller",
-        "endpoint":"music_service/personal_radio",
-        "method":"updateConfig"
+        "endpoint": "music_service/personal_radio",
+        "method": "showRadioProgram"
       },
       "saveButton": {
-        "label": "TRANSLATE.CONFIG.SAVE",
+        "label": "TRANSLATE.CONFIG.SAVE_SEARCH_REGION",
         "data": [
-          "sbsProtocol",
-          "mbcProtocol"
+          "radio_channel"
         ]
       },
       "content": [
         {
-          "id": "sbsProtocol",
-          "element": "switch",
-          "label": "TRANSLATE.CONFIG.SBS_ENABLE_HTTP",
-          "value": true
+          "id": "radio_channel",
+          "element": "select",
+          "label": "TRANSLATE.CONFIG.SELECT_RADIO_CHANNEL",
+          "value": { "value": "24", "label": "KBS 1FM" },
+          "options": [
+            { "value": "24", "label": "KBS 1FM" },
+            { "value": "25", "label": "KBS 2FM" },
+            { "value": "21", "label": "KBS 1Radio" },
+            { "value": "22", "label": "KBS 2Radio" },
+            { "value": "23", "label": "KBS 3Radio" },
+            { "value": "I92", "label": "KBS World" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_support",
+      "element": "section",
+      "label": "TRANSLATE.CONFIG.SUPPORT_PLUGIN",
+      "description": "TRANSLATE.CONFIG.SUPPORT_DESCRIPTION",
+      "icon": "fa-life-ring",
+      "content": [
+        {
+          "id": "support_korean",
+          "element": "button",
+          "label": "TRANSLATE.CONFIG.SUPPORT_KOREAN",
+          "description": "TRANSLATE.CONFIG.SUPPORT_KOREAN_LINK_DESCRIPTION",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://github.com/ChrisPanda/donation"
+          }
         },
         {
-          "id": "mbcProtocol",
-          "element": "switch",
-          "label": "TRANSLATE.CONFIG.MBC_ENABLE_HTTP",
-          "value": true
+          "id": "support_korean",
+          "element": "button",
+          "label": "TRANSLATE.CONFIG.SUPPORT_FOREIGNER",
+          "description": "TRANSLATE.CONFIG.SUPPORT_FOREIGNER_LINK_DESCRIPTION",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://paypal.me/ckchrispanda"
+          }
         }
       ]
     }

@@ -22,6 +22,11 @@ The purpose of this plugin is to allow you to discover shows and content creator
 
 ## Changelog
 
+0.1.1
+- Fixed adding current track to playlist / favorites in Playback view
+- Because of fix above, track info now shows bitrate (where it can be obtained) instead of bit depth and sample rate
+- If Manifest UI is enabled, titles will be shown in plain text without formatting and links
+
 0.1.0
 - Minor change to loading of translations
 - Update plugin for Volumio 3

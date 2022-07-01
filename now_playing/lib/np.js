@@ -75,6 +75,10 @@ class NowPlayingContext {
         }
     }
 
+    setConfigValue(key, value, json = false) {
+        this._pluginConfig.set(key, json ? JSON.stringify(value) : value);
+    }
+
     getPluginManager() {
         return this._pluginContext.coreCommand.pluginManager;
     }
@@ -121,6 +125,14 @@ class NowPlayingContext {
         return str;
     }
 
+    getDeviceInfo() {
+        return this._pluginContext.coreCommand.executeOnPlugin('system_controller', 'volumiodiscovery', 'getThisDevice');
+    }
+
+    getLanguageCode() {
+        return this._pluginContext.coreCommand.sharedVars.get('language_code');
+    }
+
     _loadI18n() {
         let self = this;
 
@@ -134,8 +146,7 @@ class NowPlayingContext {
             }
             
             try {
-                let language_code = self._pluginContext.coreCommand.sharedVars.get('language_code');
-                self._i18n = fs.readJsonSync(i18nPath + '/strings_' + language_code + ".json");
+                self._i18n = fs.readJsonSync(i18nPath + '/strings_' + this.getLanguageCode() + ".json");
             } catch(e) {
                 self._i18n = self._i18nDefaults;
             }            
