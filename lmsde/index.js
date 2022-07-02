@@ -4,6 +4,7 @@ const path = require('path');
 global.LMSDEPluginLibRoot = path.resolve(__dirname) + '/lib';
 
 const libQ = require('kew');
+const { resolveOnShieldCreated } = require('./lib/mss');
 const js = require(LMSDEPluginLibRoot + '/lmsde');
 const server = require(LMSDEPluginLibRoot + '/server');
 
@@ -80,17 +81,39 @@ ControllerLMS.prototype.onStart = function () {
 
   js.init(this.context, this.config);
 
-  js.toast('info', js.getI18n('LMSDE_STARTING'));
-  server.start()
-    .then(() => {
-      js.toast('success', js.getI18n('LMSDE_STARTED'));
-      this.serverStatus = 'started;'
-      defer.resolve();
+  const doStart = () => {
+    js.toast('info', js.getI18n('LMSDE_STARTING'));
+    server.start()
+      .then(() => {
+        js.toast('success', js.getI18n('LMSDE_STARTED'));
+        this.serverStatus = 'started';
+        defer.resolve();
+      })
+      .catch((e) => {
+        js.toast('error', js.getI18n('LMSDE_ERR_START', js.getErrorMessage('', e, false)));
+        defer.reject(e);
+      });
+  }
+
+  if (this.commandRouter.getPluginEnabled('system_hardware', 'music_services_shield')) {
+    js.getLogger().warn('[lmsde] Music Services Shield plugin detected and enabled. Going to start LMS when shield is created.');
+    resolveOnShieldCreated().then((result) => {
+      if (result.status === 'created') {
+        js.getLogger().warn('[lmsde] Music Services Shield created. Going to start LMS now.');
+      }
+      else if (result.status === 'timeout') {
+        js.getLogger().warn('[lmsde] Timeout while waiting for Music Services Shield to be created, but going to start LMS anyway...');
+      }
+      doStart();
     })
     .catch((e) => {
       js.toast('error', js.getI18n('LMSDE_ERR_START', js.getErrorMessage('', e, false)));
       defer.reject(e);
     });
+  }
+  else {
+    doStart();
+  }
 
   return defer.promise;
 }

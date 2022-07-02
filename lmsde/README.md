@@ -50,7 +50,14 @@ cgroup_enable=memory
 
 Then reboot your Volumio device.
 
+**After installing this plugin, I installed the Music Services Shield plugin but the latter reports "shielding not active on system". How do I resolve this?**
+
+If the Music Services Shield plugin is enabled while the LMS Docker container is running, it will fail to create the cpusets required for shielding because of conflicts with Docker's own cpuset. To resolve this, the Music Services Shield plugin needs to be enabled first. The easiest way would be to have both plugins enabled, followed by restarting Volumio. On startup, the LMS - Docker Edition plugin will check if Music Services Shield is enabled and, if so, start the LMS Docker container on the "unshielded" cpuset.
+
 ## Changelog
+
+0.1.1:
+- Improve compatibility with Music Services Shield plugin
 
 0.1.0:
 - Initial release

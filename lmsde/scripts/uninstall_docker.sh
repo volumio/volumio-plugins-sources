@@ -2,7 +2,7 @@
 
 UNINSTALLING=1
 
-[ -z "${LMS_DIR}" ] && . common.sh
+[ -z "${OPT_DIR}" ] && . common.sh
 check_root
 
 if [ $(docker images -q | wc -l) -gt 0 ]; then

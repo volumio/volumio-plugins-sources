@@ -2,62 +2,67 @@
 
 INSTALLING=1
 
-[ -z "${LMS_DIR}" ] && . common.sh
+[ -z "${OPT_DIR}" ] && . common.sh
 check_root
 
 START_ON_BUILD="0";
 
-. lms-docker-image.conf
-
-echo "Installing Logitech Media Server ${LMS_DOCKER_IMAGE_TAG}..."
+echo "Installing ${APP_NAME} ${DOCKER_IMAGE_TAG}..."
 
 # Check if container already exists
 # If so, remove it
-if [ "$(docker ps -a --format '{{.Names}}' | grep logitechmediaserver)" ]; then
+if [ "$(docker ps -a --format '{{.Names}}' | grep ${DOCKER_CONTAINER_NAME})" ]; then
     # If this is an update, and if the container is running, we 
     # set START_ON_BUILD to "1", so that it gets started
     # when it is rebuilt. This is because Volumio does not
     # restart the plugin when it is updated (but then, it doesn't
     # refresh the updated plugin files, so user should still reboot)
     START_ON_BUILD="$(is_running)"
-    echo "LMS Docker container already exists. Removing it first..."
-    docker rm --force logitechmediaserver
+    echo "Docker container '"${DOCKER_CONTAINER_NAME}"' already exists. Removing it first..."
+    docker rm --force "${DOCKER_CONTAINER_NAME}"
 fi
 
 # Create docker volumes
-echo "Creating volumes..."
-docker volume create logitechmediaserver-config
-docker volume create logitechmediaserver-music
-docker volume create logitechmediaserver-playlist
+if [ ! -z "${DOCKER_VOLUME_NAMES}" ]; then
+    echo "Creating volumes..."
+    for VOLUME_NAME in ${DOCKER_VOLUME_NAMES[@]}; do
+        docker volume create "${VOLUME_NAME}"
+    done
+fi
 
 # Copy scripts
-echo "Copying scripts to ${LMS_DIR}..."
-[ ! -d "${LMS_DIR}" ] && mkdir "${LMS_DIR}"
-cp docker-compose.yml "${LMS_DIR}"
-cp common.sh "${LMS_DIR}"
-cp lms.sh "${LMS_DIR}"
+echo "Copying scripts to ${OPT_DIR}..."
+[ ! -d "${OPT_DIR}" ] && mkdir "${OPT_DIR}"
+cp install.conf "${OPT_DIR}"
+cp docker-compose.yml "${OPT_DIR}"
+cp common.sh "${OPT_DIR}"
+cp "${OPT_MAIN_SCRIPT}" "${OPT_DIR}"
 
-sed -i 's|${LMS_DOCKER_IMAGE_REPO}|'"${LMS_DOCKER_IMAGE_REPO}"'|' "${LMS_DIR}/docker-compose.yml"
-sed -i 's/${LMS_DOCKER_IMAGE_TAG}/'"${LMS_DOCKER_IMAGE_TAG}"'/' "${LMS_DIR}/docker-compose.yml"
+sed -i 's/${DOCKER_CONTAINER_NAME}/'"${DOCKER_CONTAINER_NAME}"'/' "${OPT_DIR}/docker-compose.yml"
+sed -i 's|${DOCKER_IMAGE_REPO}|'"${DOCKER_IMAGE_REPO}"'|' "${OPT_DIR}/docker-compose.yml"
+sed -i 's/${DOCKER_IMAGE_TAG}/'"${DOCKER_IMAGE_TAG}"'/' "${OPT_DIR}/docker-compose.yml"
+
+cp "${OPT_DIR}/docker-compose.yml" "${OPT_DIR}/docker-compose.yml.template"
+sed -i 's|${DOCKER_CGROUP_PARENT}|/|' "${OPT_DIR}/docker-compose.yml"
 
 # Build container
 echo "Finalizing installation..."
-cd "${LMS_DIR}"
+cd "${OPT_DIR}"
 COMPOSE_HTTP_TIMEOUT=600 docker-compose up --no-start
 
-echo "Logitech Media Server ${LMS_DOCKER_IMAGE_TAG} installed."
+echo "${APP_NAME} ${DOCKER_IMAGE_TAG} installed."
 
-CURRENT_LMS_IMAGE_ID=$(docker images "${LMS_DOCKER_IMAGE_REPO}":"${LMS_DOCKER_IMAGE_TAG}" -q)
-if [ -z "${CURRENT_LMS_IMAGE_ID}" ]; then
-    echo "Warning: failed to obtain ID of LMS Docker image!";
+CURRENT_IMAGE_ID=$(docker images "${DOCKER_IMAGE_REPO}":"${DOCKER_IMAGE_TAG}" -q)
+if [ -z "${CURRENT_IMAGE_ID}" ]; then
+    echo "Warning: failed to obtain Docker image ID for ${DOCKER_IMAGE_REPO}:${DOCKER_IMAGE_TAG}!";
 else
-    OTHER_LMS_IMAGE_IDS=$(docker images "${LMS_DOCKER_IMAGE_REPO}" -q | grep -v "${CURRENT_LMS_IMAGE_ID}" || true)
-    if [ ! -z "${OTHER_LMS_IMAGE_IDS}" ]; then
-        echo "The following LMS Docker images are found and not used by the plugin. They will be removed:"
+    REPO_OTHER_IMAGE_IDS=$(docker images "${DOCKER_IMAGE_REPO}" -q | grep -v "${CURRENT_IMAGE_ID}" || true)
+    if [ ! -z "${REPO_OTHER_IMAGE_IDS}" ]; then
+        echo "The following Docker images from repo '"${DOCKER_IMAGE_REPO}"' are found and not used by the plugin. They will be removed:"
         echo "--------------------"
-        echo "$(docker image ls --format "{{.ID}}: {{.Repository}}:{{.Tag}}" "${LMS_DOCKER_IMAGE_REPO}" | grep -v "${CURRENT_LMS_IMAGE_ID}")"
+        echo "$(docker image ls --format "{{.ID}}: {{.Repository}}:{{.Tag}}" "${DOCKER_IMAGE_REPO}" | grep -v "${CURRENT_IMAGE_ID}")"
         echo "--------------------"
-        echo "${OTHER_LMS_IMAGE_IDS}" | while read IMAGE_ID ; do
+        echo "${REPO_OTHER_IMAGE_IDS}" | while read IMAGE_ID ; do
             docker rmi --force "${IMAGE_ID}"
         done
     fi
@@ -65,5 +70,5 @@ fi
 
 if [ "$START_ON_BUILD" == "1" ]; then
     echo "Starting server..."
-    ./lms.sh start
+    ./"${OPT_MAIN_SCRIPT}" start
 fi

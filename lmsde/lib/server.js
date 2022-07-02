@@ -1,7 +1,9 @@
 const { exec } = require('child_process');
 const js = require(LMSDEPluginLibRoot + '/lmsde');
 
-const LMSDE_DIR = '/opt/lmsde';
+const OPT_DIR = '/opt/lmsde';
+const OPT_MAIN_SCRIPT = 'lms.sh';
+const DOCKER_CONTAINER_NAME = 'logitechmediaserver';
 
 function addSudo(cmd) {
   return`echo volumio | sudo -S ${cmd}`;
@@ -9,7 +11,7 @@ function addSudo(cmd) {
 
 function execScript(arg) {
   return new Promise((resolve, reject) => {
-    const cmd = `${LMSDE_DIR}/lms.sh ${arg}`;
+    const cmd = `${OPT_DIR}/${OPT_MAIN_SCRIPT} ${arg}`;
     js.getLogger().info(`[lmsde] Executing script: ${cmd}`);
     exec(addSudo(cmd), { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
       if (error) {
@@ -62,16 +64,16 @@ function execDockerInfoTypeCmd(args) {
 }
 
 function inspect() {
-  return execDockerInfoTypeCmd(`inspect -f '{{ json . }}' logitechmediaserver`);
+  return execDockerInfoTypeCmd(`inspect -f '{{ json . }}' ${DOCKER_CONTAINER_NAME}`);
 }
 
 function stats() {
-  return execDockerInfoTypeCmd(`stats --no-stream --format '{{ json . }}' logitechmediaserver`);
+  return execDockerInfoTypeCmd(`stats --no-stream --format '{{ json . }}' ${DOCKER_CONTAINER_NAME}`);
 }
 
 async function image() {
-  // Get name of Docker image belonging to the 'logitechmediaserver' container
-  const imageName = await execDockerInfoTypeCmd(`container ls -a --filter 'name=logitechmediaserver' --format '{{ json .Image }}'`);
+  // Get name of Docker image belonging to the container identified by DOCKER_CONTAINER_NAME
+  const imageName = await execDockerInfoTypeCmd(`container ls -a --filter 'name=${DOCKER_CONTAINER_NAME}' --format '{{ json .Image }}'`);
   if (imageName.error) {
     return imageName;
   }
@@ -89,7 +91,7 @@ async function df() {
   if (!df.error) {
     const data = df.data;
     const image = data.Images.find(image => image.Repository === targetImageData.Repository && image.Tag === targetImageData.Tag) || {};
-    const container = data.Containers.find(container => container.Names === 'logitechmediaserver') || {};
+    const container = data.Containers.find(container => container.Names === DOCKER_CONTAINER_NAME) || {};
     const config = data.Volumes.find(volume => volume.Name === 'logitechmediaserver-config') || {};
     const playlist = data.Volumes.find(volume => volume.Name === 'logitechmediaserver-playlist') || {};
     return {

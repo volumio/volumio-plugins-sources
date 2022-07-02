@@ -3,7 +3,7 @@
 DOCKER_GPG_FILE="/usr/share/keyrings/docker-archive-keyring.gpg"
 INSTALLING=1
 
-[ -z "${LMS_DIR}" ] && . common.sh
+[ -z "${OPT_DIR}" ] && . common.sh
 check_root
 echo "Installing Docker..."
 apt-get update

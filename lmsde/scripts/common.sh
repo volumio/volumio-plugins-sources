@@ -1,4 +1,4 @@
-LMS_DIR="/opt/lmsde"
+. install.conf
 
 set -eo pipefail
 
@@ -22,7 +22,7 @@ on_error() {
 }
 
 is_running() {
-  if [ "$( docker container inspect -f '{{.State.Status}}' logitechmediaserver )" == "running" ]; then
+  if [ "$( docker container inspect -f '{{.State.Status}}' "${DOCKER_CONTAINER_NAME}" )" == "running" ]; then
     echo "1"
   else
     echo "0"
