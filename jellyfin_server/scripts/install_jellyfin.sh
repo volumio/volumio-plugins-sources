@@ -42,6 +42,9 @@ sed -i 's/${DOCKER_CONTAINER_NAME}/'"${DOCKER_CONTAINER_NAME}"'/' "${OPT_DIR}/do
 sed -i 's|${DOCKER_IMAGE_REPO}|'"${DOCKER_IMAGE_REPO}"'|' "${OPT_DIR}/docker-compose.yml"
 sed -i 's/${DOCKER_IMAGE_TAG}/'"${DOCKER_IMAGE_TAG}"'/' "${OPT_DIR}/docker-compose.yml"
 
+cp "${OPT_DIR}/docker-compose.yml" "${OPT_DIR}/docker-compose.yml.template"
+sed -i 's|${DOCKER_CGROUP_PARENT}|/|' "${OPT_DIR}/docker-compose.yml"
+
 # Build container
 echo "Finalizing installation..."
 cd "${OPT_DIR}"

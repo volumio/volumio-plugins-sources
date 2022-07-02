@@ -4,6 +4,7 @@ const path = require('path');
 global.jellyfinServerPluginLibRoot = path.resolve(__dirname) + '/lib';
 
 const libQ = require('kew');
+const { resolveOnShieldCreated } = require('./lib/mss');
 const js = require(jellyfinServerPluginLibRoot + '/js');
 const server = require(jellyfinServerPluginLibRoot + '/server');
 
@@ -80,6 +81,7 @@ ControllerJellyfinServer.prototype.onStart = function () {
 
   js.init(this.context, this.config);
 
+  const doStart = () => {
   js.toast('info', js.getI18n('JELLYFIN_SERVER_STARTING'));
   server.start()
     .then(() => {
@@ -91,6 +93,27 @@ ControllerJellyfinServer.prototype.onStart = function () {
       js.toast('error', js.getI18n('JELLYFIN_SERVER_ERR_START', js.getErrorMessage('', e, false)));
       defer.reject(e);
     });
+  }
+
+  if (this.commandRouter.getPluginEnabled('system_hardware', 'music_services_shield')) {
+    js.getLogger().warn('[jellyfin-server] Music Services Shield plugin detected and enabled. Going to start server when shield is created.');
+    resolveOnShieldCreated().then((result) => {
+      if (result.status === 'created') {
+        js.getLogger().warn('[jellyfin-server] Music Services Shield created. Going to start server now.');
+      }
+      else if (result.status === 'timeout') {
+        js.getLogger().warn('[jellyfin-server] Timeout while waiting for Music Services Shield to be created, but going to start server anyway...');
+      }
+      doStart();
+    })
+    .catch((e) => {
+      js.toast('error', js.getI18n('JELLYFIN_SERVER_ERR_START', js.getErrorMessage('', e, false)));
+      defer.reject(e);
+    });
+  }
+  else {
+    doStart();
+  }
 
   return defer.promise;
 }

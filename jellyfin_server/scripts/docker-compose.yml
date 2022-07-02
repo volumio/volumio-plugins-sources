@@ -5,6 +5,7 @@ services:
     container_name: ${DOCKER_CONTAINER_NAME}
     user: 1000:1000
     network_mode: "host"
+    cgroup_parent: "${DOCKER_CGROUP_PARENT}"
     volumes:
       - jellyfin-config:/config
       - jellyfin-cache:/cache
@@ -19,7 +20,7 @@ services:
         target: /VOLUMIO/USB
         bind:
           propagation: slave
-    restart: "on-failure"
+    restart: "no"
 volumes:
   jellyfin-config:
     external: true

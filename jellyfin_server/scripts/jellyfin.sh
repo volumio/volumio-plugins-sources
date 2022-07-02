@@ -7,7 +7,16 @@ check_root
 
 start_service() {
   pushd "${OPT_DIR}" > /dev/null
-  COMPOSE_HTTP_TIMEOUT=120 docker-compose up -d
+  # Compatibility with Music Services Shield plugin:
+  # Check if 'user' cpuset (created by MSS) exists. If so, set cgroup parent of Docker container to 'system' (also created by MSS).
+  if [ -d "/sys/fs/cgroup/cpuset/user" ]; then
+    CGROUP_PARENT="/system"
+  else
+    CGROUP_PARENT="/"
+  fi
+  cp "${OPT_DIR}/docker-compose.yml.template" "${OPT_DIR}/docker-compose.yml"
+  sed -i 's|${DOCKER_CGROUP_PARENT}|'"${CGROUP_PARENT}"'|' "${OPT_DIR}/docker-compose.yml"
+  COMPOSE_HTTP_TIMEOUT=600 docker-compose up -d
   popd > /dev/null
 }
 

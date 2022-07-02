@@ -110,7 +110,14 @@ cgroup_enable=memory
 
 Then reboot your Volumio device.
 
+**After installing this plugin, I installed the Music Services Shield plugin but the latter reports "shielding not active on system". How do I resolve this?**
+
+If the Music Services Shield plugin is enabled while the Jellyfin Docker container is running, it will fail to create the cpusets required for shielding because of conflicts with Docker's own cpuset. To resolve this, the Music Services Shield plugin needs to be enabled first. The easiest way would be to have both plugins enabled, followed by restarting Volumio. On startup, the Jellyfin Server plugin will check if Music Services Shield is enabled and, if so, start the Jellyfin Docker container on the "unshielded" cpuset.
+
 ## Changelog
+
+0.1.2:
+- Improve compatibility with Music Services Shield plugin
 
 0.1.1:
 - Improve robustness of (un)installation process
