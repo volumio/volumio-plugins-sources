@@ -2543,101 +2543,118 @@ ControllerSpotify.prototype.stop = function () {
 ControllerSpotify.prototype.pause = function () {
     this.debugLog('Received pause');
 
-
-    this.spotifyApi.pause().catch(error => {
+    self.spotifyCheckAccessToken().then(()=>{
+        this.spotifyApi.pause().catch(error => {
             //this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
             logger.error(error);
+        });
+        this.state.status = 'pause';
+        this.pushState();
     });
-    this.state.status = 'pause';
-    this.pushState();
 };
 
 ControllerSpotify.prototype.play = function () {
     this.logger.info('Spotify Play');
 
-    if (this.active) {
-        return this.spotifyApi.play().then(e => {
+    self.spotifyCheckAccessToken().then(()=>{
+        if (this.active) {
+            return this.spotifyApi.play().then(e => {
                 if (this.state.status !== 'play') {
-            this.state.status = 'play';
-            this.pushState();
-        }
-    }).catch(error => {
-            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
-        logger.error(error);
-        this.checkActive();
-    });
-    } else {
-        this.debugLog('Playing on:', this.deviceID);
-        return this.spotifyApi.transferMyPlayback({ deviceIds: [this.deviceID], play: true }).catch(error => {
+                    this.state.status = 'play';
+                    this.pushState();
+                }
+            }).catch(error => {
                 this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
-        logger.error(error);
+                logger.error(error);
+                this.checkActive();
+            });
+        } else {
+            this.debugLog('Playing on:', this.deviceID);
+            return this.spotifyApi.transferMyPlayback({ deviceIds: [this.deviceID], play: true }).catch(error => {
+                this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+                logger.error(error);
+            });
+        }
     });
-    }
 };
 
 ControllerSpotify.prototype.resume = function () {
     this.logger.info('Spotify Resume');
 
-    return this.spotifyApi.play().then(e => {
-        if (this.state.status !== 'play') {
-            this.state.status = 'play';
-            this.pushState();
-        }
-    }).catch(error => {
-        this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
-        logger.error(error);
-        this.checkActive();
+    self.spotifyCheckAccessToken().then(()=>{
+        return this.spotifyApi.play().then(e => {
+            if (this.state.status !== 'play') {
+                this.state.status = 'play';
+                this.pushState();
+            }
+        }).catch(error => {
+            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            logger.error(error);
+            this.checkActive();
+        });
     });
 };
 
 ControllerSpotify.prototype.next = function () {
     this.logger.info('Spotify next');
-    return this.spotifyApi.skipToNext().catch(error => {
+    self.spotifyCheckAccessToken().then(()=>{
+        return this.spotifyApi.skipToNext().catch(error => {
             this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
-    logger.error(error);
-});
+            logger.error(error);
+        });
+    });
 };
 
 ControllerSpotify.prototype.previous = function () {
     this.logger.info('Spotify previous');
-    return this.spotifyApi.skipToPrevious().catch(error => {
+    self.spotifyCheckAccessToken().then(()=>{
+        return this.spotifyApi.skipToPrevious().catch(error => {
             this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
-    logger.error(error);
-});
+            logger.error(error);
+        });
+    });
 };
 
 ControllerSpotify.prototype.seek = function (position) {
     this.logger.info('Spotify seek to: ' + position);
-    return this.spotifyApi.seek(position).catch(error => {
+    self.spotifyCheckAccessToken().then(()=>{
+        return this.spotifyApi.seek(position).catch(error => {
             this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
-    logger.error(error);
-});
+            logger.error(error);
+        });
+    });
 };
 
 ControllerSpotify.prototype.random = function (value) {
     this.logger.info('Spotify Random: ' + value);
-    return this.spotifyApi.setShuffle({ state: value }).then(() => {
-        this.state.random = value;
-    this.pushState();
-}).catch(error => {
-        this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
-    logger.error(error);
-});
+
+    self.spotifyCheckAccessToken().then(()=>{
+        return this.spotifyApi.setShuffle({ state: value }).then(() => {
+            this.state.random = value;
+            this.pushState();
+        }).catch(error => {
+            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            logger.error(error);
+        });
+    });
+    
 };
 
 ControllerSpotify.prototype.repeat = function (value, repeatSingle) {
-    let state = value ? 'context' : 'off';
-    state = repeatSingle ? 'track' : state;
-    this.debugLog(`Received Repeat: ${value}-${repeatSingle} => ${state}`);
-    // track, context or off.
-    return this.spotifyApi.setRepeat({ state: state }).then(() => {
-        this.state.repeat = value;
-    this.state.repeatSingle = repeatSingle;
-    this.pushState();
-}).catch(error => {
-        this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
-    logger.error(error);
-});
+    self.spotifyCheckAccessToken().then(()=>{
+        let state = value ? 'context' : 'off';
+        state = repeatSingle ? 'track' : state;
+        this.debugLog(`Received Repeat: ${value}-${repeatSingle} => ${state}`);
+        // track, context or off.
+        return this.spotifyApi.setRepeat({ state: state }).then(() => {
+            this.state.repeat = value;
+            this.state.repeatSingle = repeatSingle;
+            this.pushState();
+        }).catch(error => {
+            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            logger.error(error);
+        });
+    });
 };
 
 ControllerSpotify.prototype.seekTimerAction = function () {
@@ -2660,21 +2677,22 @@ ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data
 ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUri) {
     var self = this;
 
-    superagent.put('https://api.spotify.com/v1/me/player/play')
-        .set("Content-Type", "application/json")
-        .set("Authorization", "Bearer " + this.accessToken)
-        .send({
-            device_id: self.thisSpotifyConnectDeviceId,
-            uris : [trackUri],
-            position_ms: 0
-        })
-        .accept('application/json')
-        .then(function (results) {
-        })
-        .catch(function (err) {
-            self.logger.info('An error occurred while starting playback ' + err.message);
-        });
-
+    self.spotifyCheckAccessToken().then(()=>{
+        superagent.put('https://api.spotify.com/v1/me/player/play')
+            .set("Content-Type", "application/json")
+            .set("Authorization", "Bearer " + this.accessToken)
+            .send({
+                device_id: self.thisSpotifyConnectDeviceId,
+                uris : [trackUri],
+                position_ms: 0
+            })
+            .accept('application/json')
+            .then(function (results) {
+            })
+            .catch(function (err) {
+                self.logger.info('An error occurred while starting playback ' + err.message);
+            });
+    });
 };
 
 ControllerSpotify.prototype.setDeviceActive = function () {
@@ -2682,21 +2700,23 @@ ControllerSpotify.prototype.setDeviceActive = function () {
     var defer = libQ.defer();
 
     self.logger.info('Setting this device active')
-
-    superagent.put('https://api.spotify.com/v1/me/player')
-        .set("Content-Type", "application/json")
-        .set("Authorization", "Bearer " + this.accessToken)
-        .send({
-            device_ids: [self.thisSpotifyConnectDeviceId]
-        })
-        .accept('application/json')
-        .then(function (results) {
-            defer.resolve('');
-        })
-        .catch(function (err) {
-            self.logger.info('Failed to Set Device Active: ' + err);
-            defer.reject('');
-        });
+    self.spotifyCheckAccessToken().then(()=> {
+        superagent.put('https://api.spotify.com/v1/me/player')
+            .set("Content-Type", "application/json")
+            .set("Authorization", "Bearer " + this.accessToken)
+            .send({
+                device_ids: [self.thisSpotifyConnectDeviceId]
+            })
+            .accept('application/json')
+            .then(function (results) {
+                defer.resolve('');
+            })
+            .catch(function (err) {
+                self.logger.info('Failed to Set Device Active: ' + err);
+                defer.reject('');
+            });
+    })
+    
 
     return defer.promise;
 };
@@ -2740,20 +2760,22 @@ ControllerSpotify.prototype.setSpotifyVolume = function (volumePercent) {
     var self = this;
 
     if (self.spotifyApi) {
-        self.spotifyApi.setVolume(volumePercent)
-            .then(function () {
-                currentSpotifyVolume = volumePercent;
-                self.debugLog('Setting Spotify Volume ' + volumePercent);
-            }, function(err) {
-                self.debugLog('Error Setting Spotify Volume ' + err);
-            });
+        self.spotifyCheckAccessToken().then(()=> {
+            self.spotifyApi.setVolume(volumePercent)
+                .then(function () {
+                    currentSpotifyVolume = volumePercent;
+                    self.debugLog('Setting Spotify Volume ' + volumePercent);
+                }, function (err) {
+                    self.debugLog('Error Setting Spotify Volume ' + err);
+                });
+        });
     }
 };
 
 ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackObj) {
     var self = this;
 
-    if (self.userCountry && self.userCountry.length && currentTrackObj.available_markets && currentTrackObj.available_markets.length) {
+    if (self.userCountry && self.userCountry.length && currentTrackObj && currentTrackObj.available_markets && currentTrackObj.available_markets.length) {
         if (currentTrackObj.available_markets.includes(self.userCountry)) {
             return true;
         } else {
