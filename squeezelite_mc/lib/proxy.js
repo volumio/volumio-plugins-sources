@@ -110,7 +110,12 @@ class Proxy {
       }
     } catch (error) {
       sm.getLogger().error(sm.getErrorMessage(`[squeezelite_mc] Proxy server encountered the following error:`, error));
-      res.redirect(fallback);
+      // It might be too late to redirect the response to fallback, so need to try-catch
+      try {
+        res.redirect(fallback);
+      } catch (error) {
+        sm.getLogger().error(sm.getErrorMessage(`[squeezelite_mc] Proxy server failed to redirect response to fallback url:`, error, false));
+      }
     }
   }
 }

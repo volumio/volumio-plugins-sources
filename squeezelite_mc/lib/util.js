@@ -1,15 +1,16 @@
-const ni = require('network-interfaces');
+const os = require('os');
 const libQ = require('kew');
 
-function getIPAddresses() {
-  let ifNames = ni.getInterfaces({
-    internal: false,
-    ipVersion: 4
-  });
-  return ifNames.map((v) => ({
-    name: v,
-    ip: ni.toIp(v)
-  }));
+function getNetworkInterfaces() {
+  const result = {};
+  for (const [ifName, addresses] of Object.entries(os.networkInterfaces())) {
+    const filteredAddresses = addresses.filter((ni) => ni.family === 'IPv4' && !ni.internal);
+    if (filteredAddresses.length > 0) {
+      result[ifName] = filteredAddresses;
+    }
+  }
+  
+  return result;
 }
 
 function encodeBase64(str) {
@@ -89,7 +90,7 @@ class PlaybackTimer {
 }
 
 module.exports = {
-  getIPAddresses,
+  getNetworkInterfaces,
   encodeBase64,
   getServerConnectParams,
   jsPromiseToKew,

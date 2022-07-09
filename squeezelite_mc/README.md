@@ -39,6 +39,15 @@ In the plugin settings, you can configure the following:
 
 ## Changelog
 
+0.1.2
+- Fix sync group status updates
+- Fix artist name sometimes empty even if track data has it
+
+0.1.1
+- Fix Squeezelite sometimes setting default player name to 'Squeezelite' instead of device hostname
+- Fix compatibility with LMS UPnP bridge and similar plugins that create multiple Squeezelite instances on same device
+- Other minor bug fixes and improvements
+
 0.1.0
 - Initial release
 

@@ -36,7 +36,10 @@ async function sendRpcRequest(connectParams, params, abortController = null) {
       throw new Error(`${response.status} - ${response.statusText}`);
     }
   } catch (error) {
-    if (error.name !== 'AbortError') {
+    if (error.name === 'AbortError') {
+      return { _requestAborted: true };
+    }
+    else {
       throw error;
     }
   }
