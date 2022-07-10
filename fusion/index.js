@@ -1,5 +1,5 @@
 /*--------------------
-FusionDsp plugin for volumio 3. By balbuze May 2022
+FusionDsp plugin for volumio 3. By balbuze July 2022
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -2046,7 +2046,7 @@ FusionDsp.prototype.testclipping = function () {
   }
   const journalctl = new Journalctl(opts);
   journalctl.on('event', (event) => {
-    let pevent = event.MESSAGE.indexOf("Clipping detected");
+    const pevent = event.MESSAGE.indexOf("Clipping detected");
     if (pevent != -1) {
       let filteredMessage = event.MESSAGE.split(',').slice(0, -1).pop().replace("peak ", "").slice(0, -1);
       //self.logger.info('filteredMessage ' + filteredMessage)
@@ -2859,15 +2859,17 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
       if (effect) {
         gainresult = (gainmaxused.toString().split(',').slice(1).sort((a, b) => a - b)).pop();
-        // self.logger.info('gainresult ' + gainresult + ' ' + typeof (+gainresult))
+        //  self.logger.info('gainresult ' + gainresult + ' ' + typeof (+gainresult))
 
 
         if (+gainresult < 0) {
           gainclipfree = -2
           self.logger.info('else 1  ' + gainclipfree)
         } else {
+          gainclipfree = ('-' + Math.round(parseFloat(gainresult)) + 1)
 
-          gainclipfree = ('-' + (parseInt(gainresult))) //+ 2))
+          //  gainclipfree = ('-' + (parseInt(gainresult))) //+ 2))
+          //  self.logger.info('gainclipfree '+ gainclipfree)
         }
         if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
           gainclipfree = 0
@@ -3188,7 +3190,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       if (selectedsp === "convfir") {
         chunksize = 4096
       } else {
-        chunksize = 1024
+        chunksize = 4096//1024 To check if less bufferunderrun
       }
 
 
@@ -3927,7 +3929,7 @@ FusionDsp.prototype.convertimportedeq = function () {
 
     for (o; o < result.length; o++) {
       if (nbreq < tnbreq) {
-        if ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1) && ((result[o].indexOf("PK") != -1) || (result[o].indexOf("LPQ") != -1) || (result[o].indexOf("HPQ") != -1) || (result[o].indexOf("LP1") != -1) || (result[o].indexOf("HP1") != -1)|| (result[o].indexOf("LS ") != -1) || (result[o].indexOf("HS ") != -1) || (result[o].indexOf("NO") != -1) || (result[o].indexOf("LP ") != -1) || (result[o].indexOf("HP ") != -1) || (result[o].indexOf("LS 6dB") != -1) || (result[o].indexOf("HS 6dB") != -1) || (result[o].indexOf("LS 12dB") != -1) || (result[o].indexOf("HS 12dB") != -1) || (result[o].indexOf("LSQ") != -1) || (result[o].indexOf("HSQ") != -1)) && (result[o].indexOf('Gain   0.00 dB') == -1)) {
+        if ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1) && ((result[o].indexOf("PK") != -1) || (result[o].indexOf("LPQ") != -1) || (result[o].indexOf("HPQ") != -1) || (result[o].indexOf("LP1") != -1) || (result[o].indexOf("HP1") != -1) || (result[o].indexOf("LS ") != -1) || (result[o].indexOf("HS ") != -1) || (result[o].indexOf("NO") != -1) || (result[o].indexOf("LP ") != -1) || (result[o].indexOf("HP ") != -1) || (result[o].indexOf("LS 6dB") != -1) || (result[o].indexOf("HS 6dB") != -1) || (result[o].indexOf("LS 12dB") != -1) || (result[o].indexOf("HS 12dB") != -1) || (result[o].indexOf("LSQ") != -1) || (result[o].indexOf("HSQ") != -1)) && (result[o].indexOf('Gain   0.00 dB') == -1)) {
           //if (((result[o].indexOf('Gain   0.00 dB') == -1)) && ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1))) {
 
           var lresult0 = result[o].replace(/       /g, ' ');

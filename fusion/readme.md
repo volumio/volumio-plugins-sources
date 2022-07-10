@@ -1,4 +1,4 @@
-Mai 27th 2022
+July 10th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,11 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+July 10th 2022
+
+- test chunksize 4096 with PEQ
+- PRE AMP auto tweak
 
 May 27th 2022 v1.0.16
 
