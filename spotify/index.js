@@ -2543,7 +2543,7 @@ ControllerSpotify.prototype.stop = function () {
 ControllerSpotify.prototype.pause = function () {
     this.debugLog('Received pause');
 
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         this.spotifyApi.pause().catch(error => {
             //this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
             logger.error(error);
@@ -2556,7 +2556,7 @@ ControllerSpotify.prototype.pause = function () {
 ControllerSpotify.prototype.play = function () {
     this.logger.info('Spotify Play');
 
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         if (this.active) {
             return this.spotifyApi.play().then(e => {
                 if (this.state.status !== 'play') {
@@ -2581,7 +2581,7 @@ ControllerSpotify.prototype.play = function () {
 ControllerSpotify.prototype.resume = function () {
     this.logger.info('Spotify Resume');
 
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         return this.spotifyApi.play().then(e => {
             if (this.state.status !== 'play') {
                 this.state.status = 'play';
@@ -2597,7 +2597,7 @@ ControllerSpotify.prototype.resume = function () {
 
 ControllerSpotify.prototype.next = function () {
     this.logger.info('Spotify next');
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         return this.spotifyApi.skipToNext().catch(error => {
             this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
             logger.error(error);
@@ -2607,7 +2607,7 @@ ControllerSpotify.prototype.next = function () {
 
 ControllerSpotify.prototype.previous = function () {
     this.logger.info('Spotify previous');
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         return this.spotifyApi.skipToPrevious().catch(error => {
             this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
             logger.error(error);
@@ -2617,7 +2617,7 @@ ControllerSpotify.prototype.previous = function () {
 
 ControllerSpotify.prototype.seek = function (position) {
     this.logger.info('Spotify seek to: ' + position);
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         return this.spotifyApi.seek(position).catch(error => {
             this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
             logger.error(error);
@@ -2628,7 +2628,7 @@ ControllerSpotify.prototype.seek = function (position) {
 ControllerSpotify.prototype.random = function (value) {
     this.logger.info('Spotify Random: ' + value);
 
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         return this.spotifyApi.setShuffle({ state: value }).then(() => {
             this.state.random = value;
             this.pushState();
@@ -2641,7 +2641,7 @@ ControllerSpotify.prototype.random = function (value) {
 };
 
 ControllerSpotify.prototype.repeat = function (value, repeatSingle) {
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         let state = value ? 'context' : 'off';
         state = repeatSingle ? 'track' : state;
         this.debugLog(`Received Repeat: ${value}-${repeatSingle} => ${state}`);
@@ -2677,7 +2677,7 @@ ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data
 ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUri) {
     var self = this;
 
-    self.spotifyCheckAccessToken().then(()=>{
+    this.spotifyCheckAccessToken().then(()=>{
         superagent.put('https://api.spotify.com/v1/me/player/play')
             .set("Content-Type", "application/json")
             .set("Authorization", "Bearer " + this.accessToken)
