@@ -2166,9 +2166,14 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             startVolume = false;
             this.setSpotifyVolume(currentVolumioVolume);
         } else {
-            currentSpotifyVolume = vol;
-            if (currentVolumioVolume !== currentSpotifyVolume) {
-                this.commandRouter.volumiosetvolume(vol);
+            // TODO IMPLEMENT A VOLUME DEBOUNCE METHOD HERE
+            if (Number.isInteger(vol)) {
+                currentSpotifyVolume = vol;
+                if (currentVolumioVolume !== currentSpotifyVolume) {
+                    if (this.iscurrService()) {
+                        this.fromSpotifyVolumeToVolumioVolume()
+                    }
+                }
             }
         }
     });
@@ -2759,7 +2764,7 @@ ControllerSpotify.prototype.volumeListener = function () {
     socket= io.connect('http://localhost:3000');
     socket.on("connect", function(){
         socket.on("pushState", function(state) {
-            if (state && state.volume !== undefined && state.mute !== undefined) {
+            if (state && state.volume !== undefined && state.mute !== undefined && Number.isInteger(state.volume)) {
                 let volume = parseInt(state.volume);
                 let mute = state.mute;
                 if (mute) {
@@ -2767,7 +2772,9 @@ ControllerSpotify.prototype.volumeListener = function () {
                 }
                 currentVolumioVolume = volume;
                 if (currentVolumioVolume !== currentSpotifyVolume) {
-                    self.setSpotifyVolume(volume);
+                    if (self.iscurrService()) {
+                        self.setSpotifyVolume(volume);
+                    }
                 }
             }
         });
@@ -2825,3 +2832,25 @@ ControllerSpotify.prototype.applySpotifyHostsFix = function () {
         }
     });
 };
+
+ControllerSpotify.prototype.fromSpotifyVolumeToVolumioVolume = function () {
+    var self = this;
+
+    fs.readFile('/etc/hosts', 'utf8', (err, data) => {
+        if (err) {
+            self.logger.error('Failed to Read hosts file:' + err);
+        } else {
+            if (!data.includes('ap-gew4.spotify.com')) {
+                data = data + os.EOL + '#SPOTIFY HOSTS FIX' + os.EOL + '104.199.65.124  ap-gew4.spotify.com' + os.EOL;
+                fs.writeFile('/etc/hosts', data, (err) => {
+                    if (err) {
+                        self.logger.error('Failed to fix hosts file for Spotify: ' + err);
+                    } else {
+                        self.logger.info('Successfully fixed Spotify hosts');
+                    }
+                });
+            }
+        }
+    });
+};
+
