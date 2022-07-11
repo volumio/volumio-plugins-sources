@@ -8,6 +8,7 @@ var config = new (require('v-conf'))();
 var superagent = require('superagent');
 var NodeCache = require('node-cache');
 var io = require('socket.io-client');
+var os = require('os');
 
 // Spotify connect libs 
 const util = require('util');
@@ -71,7 +72,6 @@ ControllerSpotify.prototype.onVolumioStart = function () {
     var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
     this.config = new (require('v-conf'))();
     this.config.loadFile(configFile);
-    this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
     this.loadI18n();
 
     return libQ.resolve();
@@ -120,6 +120,13 @@ ControllerSpotify.prototype.onStart = function () {
     this.device = undefined;
     this.selectedBitrate = self.config.get('bitrate', '320').toString();
     this.volumeListener();
+    this.applySpotifyHostsFix();
+
+    this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
+
+    var boundMethod = self.onPlayerNameChanged.bind(self);
+    self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
+
 
     this.init().then(() => {
         defer.resolve();
@@ -1801,6 +1808,17 @@ ControllerSpotify.prototype.systemLanguageChanged = function () {
     self.flushCache();
 };
 
+ControllerSpotify.prototype.onPlayerNameChanged = function () {
+    var self=this;
+
+    setTimeout(()=>{
+        self.rebuildRestartDaemon();
+    }, 1000)
+    setTimeout(()=>{
+        self.applySpotifyHostsFix();
+    }, 3000)
+};
+
 ControllerSpotify.prototype.flushCache = function() {
     var self=this
 
@@ -2784,4 +2802,26 @@ ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackOb
     } else {
         return true;
     }
+};
+
+
+ControllerSpotify.prototype.applySpotifyHostsFix = function () {
+    var self = this;
+
+    fs.readFile('/etc/hosts', 'utf8', (err, data) => {
+        if (err) {
+            self.logger.error('Failed to Read hosts file:' + err);
+        } else {
+            if (!data.includes('ap-gew4.spotify.com')) {
+                data = data + os.EOL + '#SPOTIFY HOSTS FIX' + os.EOL + '104.199.65.124  ap-gew4.spotify.com' + os.EOL;
+                fs.writeFile('/etc/hosts', data, (err) => {
+                    if (err) {
+                        self.logger.error('Failed to fix hosts file for Spotify: ' + err);
+                    } else {
+                        self.logger.info('Successfully fixed Spotify hosts');
+                    }
+                });
+            }
+        }
+    });
 };
