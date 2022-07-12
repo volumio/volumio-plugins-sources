@@ -45,6 +45,14 @@
         "options": []
       },
       {
+        "id":"placeholder",
+        "element": "button",
+        "label": "TRANSLATE.LOGOUT",
+        "description": "TRANSLATE.LOGOUT",
+        "onClick": {"type":"emit", "message":"callMethod", "data":{"endpoint":"music_service/spop","method":"logout","data":""}},
+        "hidden": true
+      },
+      {
         "id":"logout",
         "element": "button",
         "label": "TRANSLATE.LOGOUT",

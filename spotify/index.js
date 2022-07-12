@@ -1227,8 +1227,8 @@ ControllerSpotify.prototype.getUIConfig = function () {
             if (userName !== '' && userPassword !== '' &&  self.accessToken !== '') {
                 uiconf.sections[1].content[0].hidden = true
                 uiconf.sections[1].content[1].hidden = true;
-                uiconf.sections[1].content[2].hidden = false;
-                uiconf.sections[1].content[2].description = self.getI18n('LOGGED_IN_AS') + ' ' + userName;
+                uiconf.sections[1].content[3].hidden = false;
+                uiconf.sections[1].content[3].description = self.getI18n('LOGGED_IN_AS') + ' ' + userName;
             } else {
                 uiconf.sections[1].saveButton = {
                     "label": self.getI18n('SPOTIFY_LOGIN'),
@@ -2518,7 +2518,7 @@ ControllerSpotify.prototype.createConfigFile = async function () {
         // get some hints as to what when wrong
         const trouble = conf.match(/^.*\b(undefined)\b.*$/gm);
         logger.error('volspotify config error: ', trouble);
-        this.commandRouter.pushToastMessage('stickyerror', 'Spotify Connect', `Error reading config: ${trouble}`);
+        this.commandRouter.pushToastMessage('stickyerror', 'Spotify', `Error reading config: ${trouble}`);
     }
     return writeFile('/tmp/volspotify.toml', conf);
 };
@@ -2527,14 +2527,18 @@ ControllerSpotify.prototype.saveVolspotconnectAccount = function (data) {
     var self = this;
     var defer = libQ.defer();
 
-
-    self.config.set('username', data.username);
-    self.config.set('password', data.password);
-    self.rebuildRestartDaemon()
-        .then(() => defer.resolve({}))
-    .catch((e) => defer.reject(new Error('saveVolspotconnectAccountError')));
-    self.pushUiConfig(true);
-    this.commandRouter.pushToastMessage('success', 'Spotify Connect', self.getI18n('CONFIGURATION_SUCCESSFULLY_UPDATED'));
+    if (data && data.username.length && data.password.length) {
+        self.config.set('username', data.username);
+        self.config.set('password', data.password);
+        self.rebuildRestartDaemon()
+            .then(() => defer.resolve({}))
+            .catch((e) => defer.reject(new Error('saveVolspotconnectAccountError')));
+        self.pushUiConfig(true);
+        this.commandRouter.pushToastMessage('success', 'Spotify', self.getI18n('CONFIGURATION_SUCCESSFULLY_UPDATED'));
+    } else {
+        this.commandRouter.pushToastMessage('error', 'Spotify', self.getI18n('PROVIDE_USERNAME_AND_PASSWORD'));
+        defer.resolve('');
+    }
 
     return defer.promise;
 };
@@ -2571,7 +2575,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data) {
         .then(() => defer.resolve({}))
         .catch((e) => defer.reject(new Error('saveVolspotconnectAccountError')));
     self.pushUiConfig(true);
-    this.commandRouter.pushToastMessage('success', 'Spotify Connect', self.getI18n('CONFIGURATION_SUCCESSFULLY_UPDATED'));
+    this.commandRouter.pushToastMessage('success', 'Spotify', self.getI18n('CONFIGURATION_SUCCESSFULLY_UPDATED'));
 
     return defer.promise;
 };
@@ -2588,10 +2592,10 @@ ControllerSpotify.prototype.rebuildRestartDaemon = async function () {
         // TOFIX THIS IS CALLED TOO EARLY
         setTimeout(()=>{
             this.checkWebApi();
-        }, 4000)
+        }, 6000)
 
     } catch (e) {
-        this.commandRouter.pushToastMessage('error', 'Spotify Connect', `Unable to update config: ${e}`);
+        this.commandRouter.pushToastMessage('error', 'Spotify', `Unable to update config: ${e}`);
     }
 };
 
@@ -2653,14 +2657,14 @@ ControllerSpotify.prototype.play = function () {
                     this.pushState();
                 }
             }).catch(error => {
-                this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+                this.commandRouter.pushToastMessage('error', 'Spotify API Error', error.message);
                 logger.error(error);
                 this.checkActive();
             });
         } else {
             this.debugLog('Playing on:', this.deviceID);
             return this.spotifyApi.transferMyPlayback({ deviceIds: [this.deviceID], play: true }).catch(error => {
-                this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+                this.commandRouter.pushToastMessage('error', 'Spotify API Error', error.message);
                 logger.error(error);
             });
         }
@@ -2677,7 +2681,7 @@ ControllerSpotify.prototype.resume = function () {
                 this.pushState();
             }
         }).catch(error => {
-            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            this.commandRouter.pushToastMessage('error', 'Spotify API Error', error.message);
             logger.error(error);
             this.checkActive();
         });
@@ -2688,7 +2692,7 @@ ControllerSpotify.prototype.next = function () {
     this.logger.info('Spotify next');
     this.spotifyCheckAccessToken().then(()=>{
         return this.spotifyApi.skipToNext().catch(error => {
-            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            this.commandRouter.pushToastMessage('error', 'Spotify API Error', error.message);
             logger.error(error);
         });
     });
@@ -2698,7 +2702,7 @@ ControllerSpotify.prototype.previous = function () {
     this.logger.info('Spotify previous');
     this.spotifyCheckAccessToken().then(()=>{
         return this.spotifyApi.skipToPrevious().catch(error => {
-            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            this.commandRouter.pushToastMessage('error', 'Spotify API Error', error.message);
             logger.error(error);
         });
     });
@@ -2708,7 +2712,7 @@ ControllerSpotify.prototype.seek = function (position) {
     this.logger.info('Spotify seek to: ' + position);
     this.spotifyCheckAccessToken().then(()=>{
         return this.spotifyApi.seek(position).catch(error => {
-            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            this.commandRouter.pushToastMessage('error', 'Spotify API Error', error.message);
             logger.error(error);
         });
     });
@@ -2722,7 +2726,7 @@ ControllerSpotify.prototype.random = function (value) {
             this.state.random = value;
             this.pushState();
         }).catch(error => {
-            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            this.commandRouter.pushToastMessage('error', 'Spotify API Error', error.message);
             logger.error(error);
         });
     });
@@ -2740,7 +2744,7 @@ ControllerSpotify.prototype.repeat = function (value, repeatSingle) {
             this.state.repeatSingle = repeatSingle;
             this.pushState();
         }).catch(error => {
-            this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error.message);
+            this.commandRouter.pushToastMessage('error', 'Spotify API Error', error.message);
             logger.error(error);
         });
     });
@@ -2942,5 +2946,5 @@ ControllerSpotify.prototype.handleBrowsingError = function (error) {
         }
     }
 
-    self.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error);
+    self.commandRouter.pushToastMessage('error', 'Spotify API Error', error);
 };
