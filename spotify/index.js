@@ -1258,8 +1258,8 @@ ControllerSpotify.prototype.getUIConfig = function () {
 
             uiconf.sections[2].content[4].value.label = self.config.get('volume_ctrl');
             uiconf.sections[2].content[4].value.value = self.config.get('volume_ctrl');
-            uiconf.sections[2].content[5].value = self.config.get('gapless');
-            uiconf.sections[2].content[6].value = self.config.get('autoplay');
+            uiconf.sections[2].content[5].value = self.config.get('gapless', true);
+            uiconf.sections[2].content[6].value = self.config.get('autoplay', true);
             uiconf.sections[2].content[7].value = self.config.get('debug');
 
             if (process.env.SHOW_SPOTIFY_ON_BROWSE_SOURCES === 'true') {
@@ -2507,9 +2507,9 @@ ControllerSpotify.prototype.createConfigFile = async function () {
         .replace('${mixlin}', mixlin)
         .replace('${mixeropts}', mixeropts)
         .replace('${initvol}', initvolstr)
-        .replace('${autoplay}', this.config.get('autoplay'))
-        .replace('${gapless}', this.config.get('gapless'))
-        .replace('${bitrate}', this.config.get('bitrate'));
+        .replace('${autoplay}', this.config.get('autoplay', true))
+        .replace('${gapless}', this.config.get('gapless', true))
+        .replace('${bitrate}', this.config.get('bitrate', false));
     /* eslint-enable no-template-curly-in-string */
 
     // Sanity check
@@ -2543,14 +2543,29 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data) {
     var self = this;
     var defer = libQ.defer();
 
-    self.config.set('initvol', data.initvol);
-    self.config.set('bitrate', data.bitrate.value);
-    self.config.set('normalvolume', data.normalvolume);
+    if (data.initvol !== undefined) {
+        self.config.set('initvol', data.initvol);
+    }
+    if (data.bitrate !== undefined && data.bitrate.value !== undefined) {
+        self.config.set('bitrate', data.bitrate.value);
+    }
+    if (data.normalvolume !== undefined) {
+        self.config.set('normalvolume', data.normalvolume);
+    }
+    if (data.volume_ctrl !== undefined && data.volume_ctrl.value !== undefined) {
+        self.config.set('volume_ctrl', data.volume_ctrl.value);
+    }
+    if (data.gapless !== undefined) {
+        self.config.set('gapless', data.gapless);
+    }
+    if (data.autoplay !== undefined) {
+        self.config.set('autoplay', data.autoplay);
+    }
+    if (data.debug !== undefined) {
+        self.config.set('debug', data.debug);
+    }
+
     self.config.set('shareddevice', false);
-    self.config.set('volume_ctrl', data.volume_ctrl.value);
-    self.config.set('gapless', data.gapless);
-    self.config.set('autoplay', data.autoplay);
-    self.config.set('debug', data.debug);
     self.selectedBitrate = self.config.get('bitrate', '320').toString();
     self.rebuildRestartDaemon()
         .then(() => defer.resolve({}))
