@@ -1390,6 +1390,7 @@ ControllerSpotify.prototype.getPlaylistTracks = function (userId, playlistId) {
             }, function (err) {
                 self.logger.error('An error occurred while exploding listing Spotify playlist tracks ' + err);
                 self.handleBrowsingError(err);
+                defer.reject(err);
             });
         });
 
@@ -2917,7 +2918,7 @@ ControllerSpotify.prototype.handleBrowsingError = function (error) {
     if (error === 'WebapiError: Forbidden') {
         self.logger.info('Web API failed due to error forbidden, refreshing token');
         try {
-            this.SpotConn.sendmsg(msgMap.get('ReqToken'));
+            self.SpotConn.sendmsg(msgMap.get('ReqToken'));
         } catch(e) {
             self.logger.error('Failed to request new token: ' + e);
         }
