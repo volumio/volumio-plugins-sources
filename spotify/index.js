@@ -1252,8 +1252,8 @@ ControllerSpotify.prototype.getUIConfig = function () {
             // Asking for trouble, map index to id?
             uiconf.sections[2].content[1].config.bars[0].value = self.config.get('initvol');
             uiconf.sections[2].content[2].value = self.config.get('normalvolume');
-            uiconf.sections[2].content[3].value.value = self.config.get('bitrate');
-            uiconf.sections[2].content[3].value.label = self.config.get('bitrate').toString();
+            uiconf.sections[2].content[3].value.value = self.config.get('bitrate', 320);
+            uiconf.sections[2].content[3].value.label = self.config.get('bitrate', 320).toString();
 
 
             uiconf.sections[2].content[4].value.label = self.config.get('volume_ctrl');
