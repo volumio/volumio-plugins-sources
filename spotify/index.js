@@ -1262,6 +1262,10 @@ ControllerSpotify.prototype.getUIConfig = function () {
             uiconf.sections[2].content[6].value = self.config.get('autoplay');
             uiconf.sections[2].content[7].value = self.config.get('debug');
 
+            if (process.env.SHOW_SPOTIFY_ON_BROWSE_SOURCES === 'true') {
+                uiconf.sections.shift();
+            }
+
             defer.resolve(uiconf);
         })
         .fail(function (error) {
@@ -2515,7 +2519,6 @@ ControllerSpotify.prototype.createConfigFile = async function () {
         const trouble = conf.match(/^.*\b(undefined)\b.*$/gm);
         logger.error('volspotify config error: ', trouble);
         this.commandRouter.pushToastMessage('stickyerror', 'Spotify Connect', `Error reading config: ${trouble}`);
-        throw Error('Undefined found found in conf');
     }
     return writeFile('/tmp/volspotify.toml', conf);
 };
