@@ -2075,6 +2075,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         // Sink is active when actual playback starts
         logger.evnt('<SinkActive> Sink acquired');
         if (!this.iscurrService()) {
+            this.logger.info('Acquiring new spotify session');
             this.volumioStop().then(() => {
                 this.SinkActive = true;
                 this.checkWebApi();
@@ -2085,6 +2086,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                 }, 300);
             });
         } else {
+            this.logger.info('Continuing Spotify Session');
             this.SinkActive = true;
             this.checkWebApi();
             this.state.status = 'play';
@@ -2118,21 +2120,19 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         this.SinkActive = false;
         clearInterval(seekTimer);
         seekTimer = undefined;
-        // This is commented since it might cause race conditions
-        // todo check if its connect or not
+
         if (!this.isCurrTrackInQueue()) {
             this.state.status = 'stop';
         } else {
             this.isPlabyackFromConnectDevice().then((isConnect)=>{
+                console.log('IS CONNECT: ' + isConnect);
                 if (!isConnect) {
                     this.state.status = 'stop';
-                    if (this.active && !this.isStopping) {
-                        this.commandRouter.servicePushState(this.state, this.servicename);
-                    }
+                    this.commandRouter.servicePushState(this.state, this.servicename);
                 }
             })
         }
-        //this.state.status = 'stop';
+
         if (this.active && !this.isStopping) {
             this.commandRouter.servicePushState(this.state, this.servicename);
         } else {
@@ -2273,9 +2273,9 @@ ControllerSpotify.prototype.ActiveState = function () {
     logger.info('Vollibrespot Active');
     this.isPlabyackFromConnectDevice().then((isConnect)=>{
         if (isConnect) {
-            self.logger.info('SPOTIFY: Starting playback from connect device');
+            logger.info('SPOTIFY: Starting playback from connect device');
         } else {
-            self.logger.info('SPOTIFY: Starting playback from Volumio');
+            logger.info('SPOTIFY: Starting playback from Volumio');
         }
         if (isConnect && !this.iscurrService()) {
             logger.info('Setting Volatile state to Volspotconnect2');
@@ -2284,6 +2284,7 @@ ControllerSpotify.prototype.ActiveState = function () {
                 service: this.servicename,
                 callback: this.unsetVol
             });
+            this.pushState();
         }
     })
     // Push state with metadata
@@ -2817,7 +2818,7 @@ ControllerSpotify.prototype.volumeListener = function () {
                     volume = 0;
                 }
                 currentVolumioVolume = volume;
-                if (currentVolumioVolume !== currentSpotifyVolume) {
+                if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
                     if (self.iscurrService()) {
                         self.setSpotifyVolume(volume);
                     }
@@ -2892,10 +2893,12 @@ ControllerSpotify.prototype.isPlabyackFromConnectDevice = function () {
                 .set("Content-Type", "application/json")
                 .set("Authorization", "Bearer " + self.accessToken)
                 .accept('application/json')
-                .then(function (results) {
+                .then((results) => {
                     if (results && results.body && results.body.context && results.body.context.uri) {
+                        self.logger.info('Is Connect Playback');
                         defer.resolve(true);
                     } else {
+                        self.logger.info('Is Not Connect Playback');
                         defer.resolve(false);
                     }
                 })
@@ -2920,5 +2923,5 @@ ControllerSpotify.prototype.handleBrowsingError = function (error) {
         }
     }
 
-    this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error);
+    self.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error);
 };
