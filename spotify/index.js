@@ -1251,7 +1251,7 @@ ControllerSpotify.prototype.getUIConfig = function () {
 
             // Asking for trouble, map index to id?
             uiconf.sections[2].content[1].config.bars[0].value = self.config.get('initvol');
-            uiconf.sections[2].content[2].value = self.config.get('normalvolume');
+            uiconf.sections[2].content[2].value = self.config.get('normalvolume', false);
             uiconf.sections[2].content[3].value.value = self.config.get('bitrate_number', 320);
             uiconf.sections[2].content[3].value.label = self.config.get('bitrate_number', 320).toString();
 
@@ -2944,11 +2944,14 @@ ControllerSpotify.prototype.isPlabyackFromConnectDevice = function () {
     return defer.promise;
 };
 
-ControllerSpotify.prototype.handleBrowsingError = function (error) {
+ControllerSpotify.prototype.handleBrowsingError = function (errorMsg) {
     var self = this;
     var defer = libQ.defer();
+    console.log('AAAAAAAAAAAAAAAAAAAAA')
+    console.log(errorMsg)
+    console.log(errorMsg.toString())
 
-    if (error.includes('Forbidden')) {
+    if (errorMsg.toString().includes('Forbidden')) {
         self.logger.info('Web API failed due to error forbidden, refreshing token');
         try {
             self.SpotConn.sendmsg(msgMap.get('ReqToken'));
@@ -2957,5 +2960,5 @@ ControllerSpotify.prototype.handleBrowsingError = function (error) {
         }
     }
 
-    self.commandRouter.pushToastMessage('error', 'Spotify API Error', error);
+    self.commandRouter.pushToastMessage('error', 'Spotify API Error', errorMsg.toString());
 };
