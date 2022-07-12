@@ -118,7 +118,7 @@ ControllerSpotify.prototype.onStart = function () {
     // SpotifyWebApi
     this.spotifyApi = new SpotifyWebApi();
     this.device = undefined;
-    this.selectedBitrate = self.config.get('bitrate', '320').toString();
+    this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
     this.volumeListener();
     this.applySpotifyHostsFix();
 
@@ -1252,8 +1252,8 @@ ControllerSpotify.prototype.getUIConfig = function () {
             // Asking for trouble, map index to id?
             uiconf.sections[2].content[1].config.bars[0].value = self.config.get('initvol');
             uiconf.sections[2].content[2].value = self.config.get('normalvolume');
-            uiconf.sections[2].content[3].value.value = self.config.get('bitrate', 320);
-            uiconf.sections[2].content[3].value.label = self.config.get('bitrate', 320).toString();
+            uiconf.sections[2].content[3].value.value = self.config.get('bitrate_number', 320);
+            uiconf.sections[2].content[3].value.label = self.config.get('bitrate_number', 320).toString();
 
 
             uiconf.sections[2].content[4].value.label = self.config.get('volume_ctrl');
@@ -2493,6 +2493,17 @@ ControllerSpotify.prototype.createConfigFile = async function () {
         isDebugMode = true;
     }
 
+    if (process.env.MODULAR_ALSA_PIPELINE !== 'true') {
+        var outdev = this.commandRouter.sharedVars.get('alsa.outputdevice');
+        hwdev = `plughw:${outdev}`;
+        if (outdev === 'softvolume') {
+            hwdev = outdev;
+        }
+    }
+
+    // We need to hardcode the bitrate value, since it might conflict with old spop values
+    var bitrateValue = 320;
+
     /* eslint-disable no-template-curly-in-string */
     const conf = template.replace('${shared}', shared)
         .replace('${username}', username)
@@ -2509,7 +2520,7 @@ ControllerSpotify.prototype.createConfigFile = async function () {
         .replace('${initvol}', initvolstr)
         .replace('${autoplay}', this.config.get('autoplay', true))
         .replace('${gapless}', this.config.get('gapless', true))
-        .replace('${bitrate}', this.config.get('bitrate', false));
+        .replace('${bitrate}', bitrateValue);
     /* eslint-enable no-template-curly-in-string */
 
     // Sanity check
@@ -2551,7 +2562,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data) {
         self.config.set('initvol', data.initvol);
     }
     if (data.bitrate !== undefined && data.bitrate.value !== undefined) {
-        self.config.set('bitrate', data.bitrate.value);
+        self.self.config.get('bitrate_number', data.bitrate.value);
     }
     if (data.normalvolume !== undefined) {
         self.config.set('normalvolume', data.normalvolume);
@@ -2570,7 +2581,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data) {
     }
 
     self.config.set('shareddevice', false);
-    self.selectedBitrate = self.config.get('bitrate', '320').toString();
+    self.selectedBitrate = self.config.get('bitrate_number', '320').toString();
     self.rebuildRestartDaemon()
         .then(() => defer.resolve({}))
         .catch((e) => defer.reject(new Error('saveVolspotconnectAccountError')));
@@ -2937,7 +2948,7 @@ ControllerSpotify.prototype.handleBrowsingError = function (error) {
     var self = this;
     var defer = libQ.defer();
 
-    if (error === 'WebapiError: Forbidden') {
+    if (error.includes('Forbidden')) {
         self.logger.info('Web API failed due to error forbidden, refreshing token');
         try {
             self.SpotConn.sendmsg(msgMap.get('ReqToken'));
