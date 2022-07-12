@@ -331,15 +331,15 @@ FusionDsp.prototype.getUIConfig = function (address) {
             case ("Highpass"):
               peqlabel = "Highpass Hz,Q"
               break;
-            case ("Highpass2"):
-              peqlabel = "Highpass Hz,bandwidth Octave"
-              break;
+         //   case ("Highpass2"):
+         //     peqlabel = "Highpass Hz,bandwidth Octave"
+         //     break;
             case ("Lowpass"):
               peqlabel = "Lowpass Hz,Q"
               break;
-            case ("Lowpass2"):
-              peqlabel = "Lowpass Hz,bandwidth Octave"
-              break;
+          //  case ("Lowpass2"):
+          //    peqlabel = "Lowpass Hz,bandwidth Octave"
+          //    break;
             case ("Highpass"):
               peqlabel = "Highpass Hz,bandwidth Octave"
               break;
@@ -389,9 +389,9 @@ FusionDsp.prototype.getUIConfig = function (address) {
           { "value": "Notch", "label": "Notch Hz,Q" },
           { "value": "Notch2", "label": "Notch Hz,bandwidth Octave" },
           { "value": "Highpass", "label": "Highpass Hz,Q" },
-          { "value": "Highpass2", "label": "Highpass Hz,bandwidth Octave" },
+          // "value": "Highpass2", "label": "Highpass Hz,bandwidth Octave" },
           { "value": "Lowpass", "label": "Lowpass Hz,Q" },
-          { "value": "Lowpass2", "label": "Lowpass Hz,bandwidth Octave" },
+          //{ "value": "Lowpass2", "label": "Lowpass Hz,bandwidth Octave" },
           { "value": "HighpassFO", "label": "HighpassFO Hz" },
           { "value": "LowpassFO", "label": "LowpassFO Hz" },
           { "value": "LinkwitzTransform", "label": "Linkwitz Transform Fa Hz,Qa,FT Hz,Qt" },
@@ -2698,8 +2698,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
             }
 
-          } else if ((typer == 'Lowpass2' || typer == 'Highpass2' || typer == 'Notch2')) {
-
+         // } else if ((typer == 'Lowpass2' || typer == 'Highpass2' || typer == 'Notch2')) {
+          } else if ((typer == 'Notch2')) {
+          
             composedeq += '  ' + eqc + ':\n';
             composedeq += '    type: Biquad' + '\n';
             composedeq += '    parameters:' + '\n';
@@ -2866,7 +2867,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           gainclipfree = -2
           self.logger.info('else 1  ' + gainclipfree)
         } else {
-          gainclipfree = ('-' + Math.round(parseFloat(gainresult)) + 1)
+          gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
 
           //  gainclipfree = ('-' + (parseInt(gainresult))) //+ 2))
           //  self.logger.info('gainclipfree '+ gainclipfree)

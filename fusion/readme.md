@@ -1,4 +1,4 @@
-July 10th 2022
+July 12th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,11 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+July 12th 2022
+
+- Fix auto pre amp error
+- Remove wrong lowpass and highpass
 
 July 10th 2022
 
