@@ -2947,9 +2947,6 @@ ControllerSpotify.prototype.isPlabyackFromConnectDevice = function () {
 ControllerSpotify.prototype.handleBrowsingError = function (errorMsg) {
     var self = this;
     var defer = libQ.defer();
-    console.log('AAAAAAAAAAAAAAAAAAAAA')
-    console.log(errorMsg)
-    console.log(errorMsg.toString())
 
     if (errorMsg.toString().includes('Forbidden')) {
         self.logger.info('Web API failed due to error forbidden, refreshing token');
