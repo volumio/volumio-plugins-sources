@@ -11,8 +11,6 @@
     "content": [
       {
         "id": "spotify_use",
-        "element": "button",
-        "label": "TRANSLATE.OPEN_OR_INSTALL_SPOTIFY_TITLE",
         "description": "TRANSLATE.OPEN_OR_INSTALL_SPOTIFY_DESCRIPTION",
         "onClick": {"type":"openUrl", "url":"spotify://"}
       }
