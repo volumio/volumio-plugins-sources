@@ -123,7 +123,6 @@ ControllerSpotify.prototype.onStart = function () {
     this.applySpotifyHostsFix();
 
     this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
-
     var boundMethod = self.onPlayerNameChanged.bind(self);
     self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
 
@@ -484,7 +483,8 @@ ControllerSpotify.prototype.getMyAlbums = function (curUri) {
                     }
                     defer.resolve(response);
                 }, function (err) {
-                    self.logger.info('An error occurred while listing Spotify my albums ' + err);
+                    self.logger.error('An error occurred while listing Spotify my albums ' + err);
+                    self.handleBrowsingError(err);
                 });
             }
         );
@@ -2105,7 +2105,20 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         clearInterval(seekTimer);
         seekTimer = undefined;
         // This is commented since it might cause race conditions
-        this.state.status = 'stop';
+        // todo check if its connect or not
+        if (!this.isCurrTrackInQueue()) {
+            this.state.status = 'stop';
+        } else {
+            this.isPlabyackFromConnectDevice().then((isConnect)=>{
+                if (!isConnect) {
+                    this.state.status = 'stop';
+                    if (this.active && !this.isStopping) {
+                        this.commandRouter.servicePushState(this.state, this.servicename);
+                    }
+                }
+            })
+        }
+        //this.state.status = 'stop';
         if (this.active && !this.isStopping) {
             this.commandRouter.servicePushState(this.state, this.servicename);
         } else {
@@ -2244,14 +2257,21 @@ ControllerSpotify.prototype.ActiveState = function () {
     this.active = true;
     // Vollibrespot is currently Active (Session|device)!
     logger.info('Vollibrespot Active');
-    if (!this.iscurrService()) {
-        logger.info('Setting Volatile state to Volspotconnect2');
-        this.context.coreCommand.stateMachine.setConsumeUpdateService(undefined);
-        this.context.coreCommand.stateMachine.setVolatile({
-            service: this.servicename,
-            callback: this.unsetVol
-        });
-    }
+    this.isPlabyackFromConnectDevice().then((isConnect)=>{
+        if (isConnect) {
+            self.logger.info('SPOTIFY: Starting playback from connect device');
+        } else {
+            self.logger.info('SPOTIFY: Starting playback from Volumio');
+        }
+        if (isConnect && !this.iscurrService()) {
+            logger.info('Setting Volatile state to Volspotconnect2');
+            this.context.coreCommand.stateMachine.setConsumeUpdateService(undefined);
+            this.context.coreCommand.stateMachine.setVolatile({
+                service: this.servicename,
+                callback: this.unsetVol
+            });
+        }
+    })
     // Push state with metadata
     this.pushState();
 };
@@ -2261,22 +2281,12 @@ ControllerSpotify.prototype.DeactivateState = async function () {
 
     this.debugLog('Executing Deactivate State');
 
-    // FIXME: use a differnt check
-    // Giving up Volumio State
-    return new Promise(resolve => {
-            // Some silly race contions again. This should really be refactored!
-            // this.debugLog(`self.SinkActive  ${self.SinkActive} || self.DeviceActive ${self.DeviceActive}`);
-            if (this.SinkActive || this.DeviceActive) {
-                this.device === undefined ? logger.info('Relinquishing Volumio State')
-                : this.debugLog(`Relinquishing Volumio state, Spotify session: ${this.device.is_active}`);
-
-                this.context.coreCommand.stateMachine.unSetVolatile();
-                this.context.coreCommand.stateMachine.resetVolumioState().then(() => {
-                    this.context.coreCommand.volumioStop.bind(this.commandRouter);
-                    this.DeviceActive = false;
-                });
-            }
-    });
+    if (this.iscurrService()) {
+        this.context.coreCommand.stateMachine.resetVolumioState().then(() => {
+            this.context.coreCommand.volumioStop.bind(this.commandRouter);
+            this.DeviceActive = false;
+        });
+    }
 };
 
 ControllerSpotify.prototype.spotConnUnsetVolatile = function () {
@@ -2306,6 +2316,25 @@ ControllerSpotify.prototype.iscurrService = function () {
         return false;
     }
     return true;
+};
+
+ControllerSpotify.prototype.isCurrTrackInQueue = function () {
+    // Check what is the current Volumio service
+    var currentQueue = this.commandRouter.volumioGetQueue();
+    var currentstate = this.commandRouter.volumioGetState();
+    if (currentstate !== undefined && currentstate.service !== undefined && currentstate.service !== this.servicename) {
+        return false;
+    } else {
+        try {
+            if (currentQueue[currentstate.position].uri === currentstate.uri) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch(e){
+            return false;
+        }
+    }
 };
 
 // Workaround for non Promise aware pluginmanger
@@ -2834,4 +2863,48 @@ ControllerSpotify.prototype.applySpotifyHostsFix = function () {
             }
         }
     });
+};
+
+ControllerSpotify.prototype.isPlabyackFromConnectDevice = function () {
+    var self = this;
+    var defer = libQ.defer();
+
+    // We retrieve the current playback context:
+    // If context is defined: playback is started from spotify app: spotify connect
+    // If not, playback is started within Volumio
+    if (self.spotifyApi) {
+        self.spotifyCheckAccessToken().then(()=> {
+            superagent.get('https://api.spotify.com/v1/me/player')
+                .set("Content-Type", "application/json")
+                .set("Authorization", "Bearer " + self.accessToken)
+                .accept('application/json')
+                .then(function (results) {
+                    if (results && results.body && results.body.context && results.body.context.uri) {
+                        defer.resolve(true);
+                    } else {
+                        defer.resolve(false);
+                    }
+                })
+                .catch(function (err) {
+                    self.logger.error('Failed to retrieve context ' + err.message);
+                });
+        });
+    }
+    return defer.promise;
+};
+
+ControllerSpotify.prototype.handleBrowsingError = function (error) {
+    var self = this;
+    var defer = libQ.defer();
+
+    if (error === 'WebapiError: Forbidden') {
+        self.logger.info('Web API failed due to error forbidden, refreshing token');
+        try {
+            this.SpotConn.sendmsg(msgMap.get('ReqToken'));
+        } catch(e) {
+            self.logger.error('Failed to request new token: ' + e);
+        }
+    }
+
+    this.commandRouter.pushToastMessage('error', 'Spotify Connect API Error', error);
 };
