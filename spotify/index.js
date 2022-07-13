@@ -41,10 +41,9 @@ var currentVolumioVolume;
 var startVolume;
 var volumeDebounce;
 var currentService;
-var volatileMode;
-var currentTrackContext;
+var currentTrackContext = {};
 // Debug
-var isDebugMode = true;
+var isDebugMode = false;
 
 
 // Define the ControllerSpotify class
@@ -1307,8 +1306,8 @@ ControllerSpotify.prototype.pushState = function (state) {
     var self = this;
     self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::pushState');
     self.debugLog('Push state: ' + JSON.stringify(self.state) + ' SERVICE NAME: ' + self.servicename);
-    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ' + currentTrackContext.isConnect)
-    if (currentTrackContext.isConnect) {
+
+    if (currentTrackContext && currentTrackContext.isConnect) {
         self.context.coreCommand.stateMachine.setVolatile({
             service: self.servicename,
             callback: self.unsetVol
@@ -2077,27 +2076,17 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         // This is different from SinkActive, it will be triggered at the beginning
         // of a playback session (e.g. Playlist) while the track loads
         logger.evnt('<PlaybackActive> Device palyback is active!');
-        console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-        this.isPlaybackFromConnectDevice().then((isConnect)=>{
-            if (isConnect) {
-                volatileMode = true;
-            } else {
-                volatileMode = false
-            }
-            if (!this.active) {
-                this.volumioStop().then(() => {
-                    this.DeviceActive = true;
-                    this.state.status = 'play';
-                    this.ActiveState();
-                    this.pushState();
-                });
-            } else {
+        if (!this.active) {
+            this.volumioStop().then(() => {
                 this.DeviceActive = true;
                 this.state.status = 'play';
                 this.ActiveState();
-                this.pushState();
-            }
-        });
+            });
+        } else {
+            this.DeviceActive = true;
+            this.state.status = 'play';
+            this.ActiveState();
+        }
     });
 
     this.SpotConn.on(this.Events.SinkActive, (data) => {
@@ -2110,9 +2099,6 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                 this.checkWebApi();
                 this.state.status = 'play';
                 if (!this.active) this.ActiveState();
-                setTimeout(()=>{
-                    this.pushState();
-                }, 300);
             });
         } else {
             this.logger.info('Continuing Spotify Session');
@@ -2120,26 +2106,18 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             this.checkWebApi();
             this.state.status = 'play';
             if (!this.active) this.ActiveState();
-            this.pushState();
         }
     });
 
     this.SpotConn.on(this.Events.PlaybackInactive, (data) => {
-        console.log('7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777')
         logger.evnt('<PlaybackInactive> Device palyback is inactive');
         // Device has finished playing current queue or received a pause command
         //  overkill async, who are we waiting for?
-        console.log('VLS STATUS ' + this.VLSStatus)
-        console.log('IS STOPPING ' + this.isStopping)
-        console.log('IS ACTIVE ' + this.active)
         this.active = false;
-        volatileMode = false;
-        var isConnect = currentTrackContext.isConnect || false;
-        if (isConnect) {
+        if (currentTrackContext && currentTrackContext.isConnect) {
             this.state.status = 'pause';
             this.DeactivateState();
             this.pushState();
-            volatileMode = true;
         } else if (this.VLSStatus === 'pause' && this.state.status === 'pause') {
             this.debugLog('Device is paused');
             this.state.status = 'pause';
@@ -2181,7 +2159,6 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
 
     this.SpotConn.on(this.Events.Metadata, (meta) => {
         logger.evnt(`<Metadata> ${meta.track_name}`);
-        console.log(JSON.stringify(meta))
         // Update metadata
         const albumartId = meta.albumartId[2] === undefined ? meta.albumartId[0] : meta.albumartId[2];
         this.state.uri = `spotify:track:${meta.track_id}`;
@@ -2194,12 +2171,19 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         this.state.samplerate = this.getCurrentBitrate();
         this.state.bitdepth = '16 bit';
         this.state.bitrate = '';
+
         if (currentTrackContext && currentTrackContext.trackId !== undefined && meta !== undefined && meta.track_id !== undefined && currentTrackContext.trackId === meta.track_id && currentTrackContext.isConnect !== undefined) {
-            this.pushState();
-        } else {
-            self.isPlaybackFromConnectDevice().then((isConnect)=>{
+            if (!this.isStopping) {
                 this.pushState();
-            })
+            }
+        } else if (meta !== undefined && meta.track_id !== undefined) {
+            setTimeout(()=>{
+                this.isPlaybackFromConnectDevice(meta.track_id).then((isConnect)=>{
+                    this.pushState();
+                }).fail(function (err) {
+                    console.log('Failed to retrieve connect playback status: ' + err);
+                });
+            },500)
         }
         if (!this.isStopping) {
             this.debugLog('Pushing metadata');
@@ -2307,26 +2291,15 @@ ControllerSpotify.prototype.ActiveState = function () {
     self.active = true;
     // Vollibrespot is currently Active (Session|device)!
     logger.info('Vollibrespot Active');
-    self.isPlaybackFromConnectDevice().then((isConnect)=>{
-        if (isConnect) {
-            logger.info('SPOTIFY: Starting playback from connect device');
-        } else {
-            logger.info('SPOTIFY: Starting playback from Volumio');
-        }
-        if (isConnect && !self.iscurrService()) {
-            logger.info('Setting Volatile state to Volspotconnect2');
-            self.context.coreCommand.stateMachine.setConsumeUpdateService(undefined);
-            self.context.coreCommand.stateMachine.setVolatile({
-                service: self.servicename,
-                callback: self.unsetVol
-            });
-            self.pushState();
-        } else {
-            self.pushState();
-        }
-    }).fail(function (err) {
-        console.log('Failed to retrieve connect playback status: ' + err);
+    /*
+    self.context.coreCommand.stateMachine.setConsumeUpdateService(undefined);
+    self.context.coreCommand.stateMachine.setVolatile({
+        service: self.servicename,
+        callback: self.unsetVol
     });
+    self.pushState();
+
+     */
 };
 
 ControllerSpotify.prototype.DeactivateState = async function () {
@@ -2955,14 +2928,20 @@ ControllerSpotify.prototype.isPlaybackFromConnectDevice = function (trackId) {
                 .set("Authorization", "Bearer " + self.accessToken)
                 .accept('application/json')
                 .then((results) => {
-                    currentTrackContext = {'trackId': trackId, isConnect: undefined};
+                    if (trackId !== undefined) {
+                        currentTrackContext = {'trackId': trackId, 'isConnect': undefined};
+                    }
                     if (results && results.body && results.body.context && results.body.context.uri) {
                         self.logger.info('Is Connect Playback');
-                        currentTrackContext.isConnect = true;
+                        if (trackId !== undefined) {
+                            currentTrackContext.isConnect = true;
+                        }
                         defer.resolve(true);
                     } else {
                         self.logger.info('Is Not Connect Playback');
-                        currentTrackContext.isConnect = false;
+                        if (trackId !== undefined) {
+                            currentTrackContext.isConnect = false;
+                        }
                         defer.resolve(false);
                     }
                 })
