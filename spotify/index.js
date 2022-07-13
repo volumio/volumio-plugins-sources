@@ -2079,17 +2079,8 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         // This is different from SinkActive, it will be triggered at the beginning
         // of a playback session (e.g. Playlist) while the track loads
         logger.evnt('<PlaybackActive> Device palyback is active!');
-        if (!this.active) {
-            this.volumioStop().then(() => {
-                this.DeviceActive = true;
-                this.state.status = 'play';
-                this.ActiveState();
-            });
-        } else {
-            this.DeviceActive = true;
-            this.state.status = 'play';
-            this.ActiveState();
-        }
+        this.debugLog('SINK ACTIVE');
+        this.DeviceActive = true;
     });
 
     this.SpotConn.on(this.Events.SinkActive, (data) => {
@@ -2097,6 +2088,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         logger.evnt('<SinkActive> Sink acquired');
         if (!this.iscurrService()) {
             this.logger.info('Acquiring new spotify session');
+            this.debugLog('Acquiring new spotify session amd stopping');
             this.volumioStop().then(() => {
                 this.SinkActive = true;
                 this.checkWebApi();
@@ -2105,6 +2097,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             });
         } else {
             this.logger.info('Continuing Spotify Session');
+            this.debugLog('Acquiring new spotify session without stopping');
             this.SinkActive = true;
             this.checkWebApi();
             this.state.status = 'play';
@@ -2116,7 +2109,22 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         logger.evnt('<PlaybackInactive> Device palyback is inactive');
         // Device has finished playing current queue or received a pause command
         //  overkill async, who are we waiting for?
-        this.active = false;
+
+    });
+
+    this.SpotConn.on(this.Events.SinkInactive, (data) => {
+
+        logger.evnt('<SinkInactive> Sink released');
+        this.SinkActive = false;
+        clearInterval(seekTimer);
+        seekTimer = undefined;
+
+        this.debugLog('PLAYBACK INACTIVE ' + data)
+        this.debugLog('IS CONNECT ' + currentTrackContext);
+        this.debugLog('VLS STATUS ' + this.VLSStatus);
+        this.debugLog('STATE STATUS ' + this.state.status);
+        this.debugLog('SINK ACTIVE ' + this.SinkActive);
+
         if (currentTrackContext && currentTrackContext.isConnect) {
             this.state.status = 'pause';
             this.DeactivateState();
@@ -2125,7 +2133,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             this.debugLog('Device is paused');
             this.state.status = 'pause';
             this.pushState();
-        } else if (!this.active) {
+        } else if (!this.SinkActive) {
             this.debugLog('Device is not active. Cleaning up!');
             this.state.status = 'stop';
             this.pushState();
@@ -2138,14 +2146,6 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             }
             this.pushState();
         }
-    });
-
-    this.SpotConn.on(this.Events.SinkInactive, (data) => {
-
-        logger.evnt('<SinkInactive> Sink released');
-        this.SinkActive = false;
-        clearInterval(seekTimer);
-        seekTimer = undefined;
     });
 
     this.SpotConn.on(this.Events.DeviceInactive, (data) => {
@@ -2833,9 +2833,7 @@ ControllerSpotify.prototype.debugLog = function (stringToLog) {
     var self = this;
 
     if (isDebugMode) {
-        console.log('------------------------------------------------------');
-        console.log(stringToLog);
-        console.log('------------------------------------------------------');
+        console.log('SPOTIFY ' + stringToLog);
     }
 };
 
