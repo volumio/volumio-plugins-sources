@@ -42,6 +42,7 @@ var startVolume;
 var volumeDebounce;
 var currentService;
 var currentTrackContext = {};
+var justLoggedIn = false;
 // Debug
 var isDebugMode = false;
 
@@ -1265,6 +1266,7 @@ ControllerSpotify.prototype.getUIConfig = function () {
             uiconf.sections[2].content[7].value = self.config.get('debug');
 
             if (process.env.SHOW_SPOTIFY_ON_BROWSE_SOURCES === 'true') {
+                uiconf.sections[2].hidden = true;
                 uiconf.sections.shift();
             }
 
@@ -1307,12 +1309,13 @@ ControllerSpotify.prototype.pushState = function (state) {
     self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::pushState');
     self.debugLog('Push state: ' + JSON.stringify(self.state) + ' SERVICE NAME: ' + self.servicename);
 
+    /*
     if (currentTrackContext && currentTrackContext.isConnect) {
         self.context.coreCommand.stateMachine.setVolatile({
             service: self.servicename,
             callback: self.unsetVol
         });
-    }
+    }*/
     return self.commandRouter.servicePushState(self.state, 'spop');
 };
 
@@ -2283,6 +2286,11 @@ ControllerSpotify.prototype.checkWebApi = function () {
         this.debugLog('Invalid webAPI token, requesting a new one...');
         this.SpotConn.sendmsg(msgMap.get('ReqToken'));
     }
+    if (justLoggedIn) {
+        justLoggedIn = false;
+        this.debugLog('Newly logged in user, requesting a new one...');
+        this.SpotConn.sendmsg(msgMap.get('ReqToken'));
+    }
 };
 
 // State updates
@@ -2291,15 +2299,13 @@ ControllerSpotify.prototype.ActiveState = function () {
     self.active = true;
     // Vollibrespot is currently Active (Session|device)!
     logger.info('Vollibrespot Active');
-    /*
+
     self.context.coreCommand.stateMachine.setConsumeUpdateService(undefined);
     self.context.coreCommand.stateMachine.setVolatile({
         service: self.servicename,
         callback: self.unsetVol
     });
     self.pushState();
-
-     */
 };
 
 ControllerSpotify.prototype.DeactivateState = async function () {
@@ -2546,6 +2552,7 @@ ControllerSpotify.prototype.saveVolspotconnectAccount = function (data) {
     if (data && data.username.length && data.password.length) {
         self.config.set('username', data.username);
         self.config.set('password', data.password);
+        justLoggedIn = true;
         self.rebuildRestartDaemon()
             .then(() => defer.resolve({}))
             .catch((e) => defer.reject(new Error('saveVolspotconnectAccountError')));
