@@ -2067,11 +2067,16 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         logger.evnt('<DeviceActive> A connect session has begun');
         //this.commandRouter.pushToastMessage('info', 'Spotify Connect', 'Session is active!');
         // Do not stop Volumio playback, just notify
-
-    // self.volumioStop().then(() => {
-    //   self.state.status = 'pause';
-    //   self.ActiveState();
-    // });
+        if (!this.iscurrService()) {
+            this.logger.info('Acquiring new spotify session');
+            this.debugLog('Acquiring new spotify session amd stopping');
+            this.volumioStop().then(() => {
+                this.SinkActive = true;
+                this.checkWebApi();
+                this.state.status = 'play';
+                if (!this.active) this.ActiveState();
+            });
+        }
 });
 
     this.SpotConn.on(this.Events.PlaybackActive, (data) => {
