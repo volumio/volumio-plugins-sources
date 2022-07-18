@@ -236,6 +236,7 @@ ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
 
     if (self.spotifyAccessTokenExpiration < now) {
         self.refreshAccessToken().then((data)=>{
+            self.logger.info('Successfully Refreshed access token');
             defer.resolve('');
         }).fail((error)=>{
             self.logger.error('Failed to refresh Token: ' + error);
@@ -1944,7 +1945,7 @@ ControllerSpotify.prototype.pushUiConfig = function (broadcastUiConfig) {
                 self.commandRouter.broadcastMessage('pushUiConfig', conf);
             }
         });
-    }, 5000);
+    }, 7000);
 }
 
 ControllerSpotify.prototype.deleteCredentialsFile = function () {
@@ -2308,15 +2309,15 @@ ControllerSpotify.prototype.initWebApi = function () {
 ControllerSpotify.prototype.checkWebApi = function () {
 
     this.logger.info('Checking Spotify Web API');
-    if (!this.accessToken || this.accessToken.length === 0) {
-        this.debugLog('Invalid webAPI token, requesting a new one...');
-        this.SpotConn.sendmsg(msgMap.get('ReqToken'));
-    }
     if (justLoggedIn) {
         justLoggedIn = false;
         this.debugLog('Newly logged in user, requesting a new one...');
         this.SpotConn.sendmsg(msgMap.get('ReqToken'));
+    } else if (!this.accessToken || this.accessToken.length === 0) {
+        this.debugLog('Invalid webAPI token, requesting a new one...');
+        this.SpotConn.sendmsg(msgMap.get('ReqToken'));
     }
+
 };
 
 // State updates
