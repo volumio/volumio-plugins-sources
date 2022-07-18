@@ -2319,10 +2319,8 @@ ControllerSpotify.prototype.DeactivateState = async function () {
     this.debugLog('Executing Deactivate State');
 
     if (this.iscurrService()) {
-        this.context.coreCommand.stateMachine.resetVolumioState().then(() => {
-            this.context.coreCommand.volumioStop.bind(this.commandRouter);
-            this.DeviceActive = false;
-        });
+        this.context.coreCommand.volumioStop.bind(this.commandRouter);
+        this.DeviceActive = false;
     }
 };
 
