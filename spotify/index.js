@@ -1674,7 +1674,7 @@ ControllerSpotify.prototype.saveSpotifyAccountMyMusic = function (data) {
     self.saveVolspotconnectAccount(data, true).then(()=>{
         setTimeout(()=>{
             defer.resolve('');
-        }, 5100);
+        }, 7100);
     })
 
     return defer.promise;
@@ -2648,7 +2648,7 @@ ControllerSpotify.prototype.rebuildRestartDaemon = async function () {
         await this.VolspotconnectServiceCmds('restart');
         setTimeout(()=>{
             this.checkWebApi();
-        }, 4000)
+        }, 6000)
 
     } catch (e) {
         this.commandRouter.pushToastMessage('error', 'Spotify', `Unable to update config: ${e}`);
