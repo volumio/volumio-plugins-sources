@@ -235,24 +235,41 @@ ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
     var oldAccessToken = self.accessToken;
 
     if (self.spotifyAccessTokenExpiration < now) {
-        self.logger.info('Renewing Access Token via Daemon');
-        self.SpotConn.sendmsg(msgMap.get('ReqToken'));
-
-        // Ugly setTimeout since daemon does not work with promises
-        setTimeout(()=>{
-            if (self.accessToken && self.accessToken.length && self.accessToken !== oldAccessToken) {
-                self.logger.info('Spotify Access Token Successfully renewed');
-                defer.resolve();
-            } else {
-                self.logger.error('Failed to renew Spotify Access Token');
-            }
-        }, 3500)
+        self.refreshAccessToken().then((data)=>{
+            defer.resolve('');
+        }).fail((error)=>{
+            self.logger.error('Failed to refresh Token: ' + error);
+            defer.reject(error);
+        });
     } else {
         defer.resolve();
     }
 
     return defer.promise;
+};
 
+ControllerSpotify.prototype.refreshAccessToken = function () {
+    var self = this;
+    var defer = libQ.defer();
+    var oldAccessTokenToRefresh = self.accessToken;
+
+    self.logger.info('Renewing Access Token via Daemon');
+    self.SpotConn.sendmsg(msgMap.get('ReqToken'));
+
+    var refreshedTokenCheckTimeout = setTimeout(()=>{
+        clearInterval(refreshedTokenCheck);
+        defer.reject('Timeout');
+    }, 6000)
+    var refreshedTokenCheck = setInterval(()=>{
+        if (self.accessToken !== oldAccessTokenToRefresh) {
+            clearInterval(refreshedTokenCheck);
+            clearTimeout(refreshedTokenCheckTimeout);
+            defer.resolve('');
+        }
+
+    },100);
+
+    return defer.promise;
 };
 
 ControllerSpotify.prototype.getRoot = function () {
@@ -1241,17 +1258,7 @@ ControllerSpotify.prototype.getUIConfig = function () {
                     ]
                 };
             }
-
-            // Do we still need the initial volume setting?
-            var mixname = self.commandRouter.sharedVars.get('alsa.outputdevicemixer');
-            if ((mixname === '') || (mixname === 'None')) {
-                uiconf.sections[2].content[1].hidden = false;
-                uiconf.sections[2].content[4].hidden = false;
-            } else {
-                uiconf.sections[2].content[1].hidden = true;
-                uiconf.sections[2].content[4].hidden = true;
-            }
-
+            
             // Asking for trouble, map index to id?
             uiconf.sections[2].content[1].config.bars[0].value = self.config.get('initvol');
             uiconf.sections[2].content[2].value = self.config.get('normalvolume', false);
@@ -1662,8 +1669,15 @@ ControllerSpotify.prototype.getAlbumArt = function (data, path) {
 
 ControllerSpotify.prototype.saveSpotifyAccountMyMusic = function (data) {
     var self = this;
+    var defer = libQ.defer();
 
-    return self.saveVolspotconnectAccount(data, true)
+    self.saveVolspotconnectAccount(data, true).then(()=>{
+        setTimeout(()=>{
+            defer.resolve('');
+        }, 5100);
+    })
+
+    return defer.promise;
 }
 
 ControllerSpotify.prototype.search = function (query) {
@@ -1896,6 +1910,7 @@ ControllerSpotify.prototype.logout = function (avoidBroadcastUiConfig) {
     var broadcastUiConfig = true;
     self.isBrowsingInitialized = false;
 
+
     if (avoidBroadcastUiConfig === true){
         broadcastUiConfig = false;
     }
@@ -1924,7 +1939,7 @@ ControllerSpotify.prototype.pushUiConfig = function (broadcastUiConfig) {
 
     setTimeout(()=>{
         var config = self.getUIConfig();
-        config.then(function(conf) {
+        config.then((conf)=> {
             if (broadcastUiConfig) {
                 self.commandRouter.broadcastMessage('pushUiConfig', conf);
             }
@@ -1946,8 +1961,14 @@ ControllerSpotify.prototype.deleteCredentialsFile = function () {
 
 ControllerSpotify.prototype.logoutMyMusic = function () {
     var self=this;
+    var defer = libQ.defer();
 
-    return self.logout(true)
+    self.logout(true);
+    setTimeout(()=>{
+        defer.resolve('');
+    }, 5100);
+
+    return defer.promise;
 };
 
 ControllerSpotify.prototype.identifyThisConnectDevice = function () {
@@ -2548,9 +2569,14 @@ ControllerSpotify.prototype.createConfigFile = async function () {
     return writeFile('/tmp/volspotify.toml', conf);
 };
 
-ControllerSpotify.prototype.saveVolspotconnectAccount = function (data) {
+ControllerSpotify.prototype.saveVolspotconnectAccount = function (data, avoidBroadcastUiConfig) {
     var self = this;
     var defer = libQ.defer();
+
+    var broadcastUiConfig = true;
+    if (avoidBroadcastUiConfig === true){
+        broadcastUiConfig = false;
+    }
 
     if (data && data.username.length && data.password.length) {
         self.config.set('username', data.username);
@@ -2559,7 +2585,7 @@ ControllerSpotify.prototype.saveVolspotconnectAccount = function (data) {
         self.rebuildRestartDaemon()
             .then(() => defer.resolve({}))
             .catch((e) => defer.reject(new Error('saveVolspotconnectAccountError')));
-        self.pushUiConfig(true);
+        self.pushUiConfig(broadcastUiConfig);
         this.commandRouter.pushToastMessage('success', 'Spotify', self.getI18n('CONFIGURATION_SUCCESSFULLY_UPDATED'));
     } else {
         this.commandRouter.pushToastMessage('error', 'Spotify', self.getI18n('PROVIDE_USERNAME_AND_PASSWORD'));
@@ -2569,9 +2595,14 @@ ControllerSpotify.prototype.saveVolspotconnectAccount = function (data) {
     return defer.promise;
 };
 
-ControllerSpotify.prototype.saveVolspotconnectSettings = function (data) {
+ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBroadcastUiConfig) {
     var self = this;
     var defer = libQ.defer();
+
+    var broadcastUiConfig = true;
+    if (avoidBroadcastUiConfig === true){
+        broadcastUiConfig = false;
+    }
 
     if (data.initvol !== undefined) {
         self.config.set('initvol', data.initvol);
@@ -2600,7 +2631,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data) {
     self.rebuildRestartDaemon()
         .then(() => defer.resolve({}))
         .catch((e) => defer.reject(new Error('saveVolspotconnectAccountError')));
-    self.pushUiConfig(true);
+    self.pushUiConfig(broadcastUiConfig);
     this.commandRouter.pushToastMessage('success', 'Spotify', self.getI18n('CONFIGURATION_SUCCESSFULLY_UPDATED'));
 
     return defer.promise;
@@ -2617,7 +2648,7 @@ ControllerSpotify.prototype.rebuildRestartDaemon = async function () {
         await this.VolspotconnectServiceCmds('restart');
         setTimeout(()=>{
             this.checkWebApi();
-        }, 6000)
+        }, 4000)
 
     } catch (e) {
         this.commandRouter.pushToastMessage('error', 'Spotify', `Unable to update config: ${e}`);

@@ -97,6 +97,7 @@
           "element": "equalizer",
           "label": "TRANSLATE.INITVOL",
           "doc": "TRANSLATE.DESCINITVOL",
+          "hidden": true,
           "config": {
             "orientation": "horizontal",
             "bars": [{
@@ -144,6 +145,7 @@
           "element": "select",
           "doc": "TRANSLATE.DESCPVOLUMECTRL",
           "label": "TRANSLATE.VOLUMECTRL",
+          "hidden": true,
           "value": {
             "value": "fixed",
             "label": "TRANSLATE.VOLUMECTRL_FIXED"
