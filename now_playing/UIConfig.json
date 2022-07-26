@@ -245,12 +245,14 @@
           "albumFontSize",
           "mediaInfoFontSize",
           "seekTimeFontSize",
+          "metadataFontSize",
           "fontColors",
           "titleFontColor",
           "artistFontColor",
           "albumFontColor",
           "mediaInfoFontColor",
           "seekTimeFontColor",
+          "metadataFontColor",
           "textMargins",
           "titleMargin",
           "artistMargin",
@@ -345,6 +347,18 @@
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
           "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
           "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": "",
           "attributes": [
             { "style": "margin-bottom: 32px;" }
           ],
@@ -426,6 +440,18 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
           "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
           "value": "",
           "visibleIf": {
             "field": "fontColors",
@@ -1337,6 +1363,31 @@
             "field": "backgroundOverlay",
             "value": "customGradient"
           }
+        }
+      ]
+    },
+    {
+      "id": "section_action_panel",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_ACTION_PANEL",
+      "icon": "fa-chevron-circle-down",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveActionPanelSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "showVolumeSlider"
+        ]
+      },
+      "content": [
+        {
+          "id": "showVolumeSlider",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_VOLUME_SLIDER",
+          "value": true
         }
       ]
     },
