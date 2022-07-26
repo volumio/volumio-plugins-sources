@@ -36,8 +36,7 @@
 		"architectures": [
 			"amd64",
 			"armhf"
-		],
-		"manually_installed": true
+		]
 	},
 	"engines": {
 		"volumio": ">=3",
