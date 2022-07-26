@@ -30,6 +30,16 @@
             "label": "15 bands graphic EQ"
           },
           "options": []
+        },
+        {
+          "id": "help",
+          "element": "button",
+          "label": "Help",
+          "doc": "Help",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://docs.google.com/document/d/1nuSD2HDVBURy4Ll7L63HnFHBH28uMX3qwbws1qlOVOw/edit?usp=sharing"
+          }
         }
       ]
     },
