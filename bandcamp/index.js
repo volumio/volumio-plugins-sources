@@ -142,7 +142,7 @@ ControllerBandcamp.prototype.onStart = function() {
 };
 
 ControllerBandcamp.prototype.onStop = function() {
-    this.commandRouter.volumioRemoveToBrowseSources('Bandcamp');
+    this.commandRouter.volumioRemoveToBrowseSources('Bandcamp Discover');
 
     this.browseController = null;
     this.searchController = null;
