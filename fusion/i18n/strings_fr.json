@@ -65,7 +65,7 @@
   "LEFT_FILTER": "Filtre gauche",
   "PRESSETTING": "Preset settings",
   "RESAMPLINGQ": "Qualité du rééchantillonnage",
-  "SLOPE_RANGE": "Slope doit être un nombre entier [1-12] dans ",
+  "SLOPE_RANGE": "Slope doit être un nombre [1-12] dans ",
   "DOCCHOPREST1": "Choose value for mypreset1",
   "DOCCHOPREST2": "Choose value for mypreset2",
   "DOCCHOPREST3": "Choose value for mypreset3",

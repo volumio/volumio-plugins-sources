@@ -11,8 +11,6 @@
     "content": [
       {
         "id": "spotify_use",
-        "element": "button",
-        "label": "TRANSLATE.OPEN_OR_INSTALL_SPOTIFY_TITLE",
         "description": "TRANSLATE.OPEN_OR_INSTALL_SPOTIFY_DESCRIPTION",
         "onClick": {"type":"openUrl", "url":"spotify://"}
       }
@@ -45,6 +43,14 @@
         "label": "TRANSLATE.PASSWORD",
         "value": "",
         "options": []
+      },
+      {
+        "id":"placeholder",
+        "element": "button",
+        "label": "TRANSLATE.LOGOUT",
+        "description": "TRANSLATE.LOGOUT",
+        "onClick": {"type":"emit", "message":"callMethod", "data":{"endpoint":"music_service/spop","method":"logout","data":""}},
+        "hidden": true
       },
       {
         "id":"logout",
@@ -91,6 +97,7 @@
           "element": "equalizer",
           "label": "TRANSLATE.INITVOL",
           "doc": "TRANSLATE.DESCINITVOL",
+          "hidden": true,
           "config": {
             "orientation": "horizontal",
             "bars": [{
@@ -138,6 +145,7 @@
           "element": "select",
           "doc": "TRANSLATE.DESCPVOLUMECTRL",
           "label": "TRANSLATE.VOLUMECTRL",
+          "hidden": true,
           "value": {
             "value": "fixed",
             "label": "TRANSLATE.VOLUMECTRL_FIXED"

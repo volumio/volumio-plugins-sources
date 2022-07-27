@@ -51,7 +51,7 @@
   "Q_RANGE": "El coeficiente Q debe ser un número [0.1-40] en ",
   "BANDWIDTH_RANGE":"Falta ancho de banda en octava",
   "BANDWIDTH_SLOPE_RANGE":"Falta ancho de banda en dB/octava",
-  "SLOPE_RANGE": "La pendiente debe ser un número entero [1-12] en ",
+  "SLOPE_RANGE": "La pendiente debe ser un número [1-12] en ",
   "NO_THIRDCOEFF": "No se necesita un tercer coeficiente en ",
   "ONLY_FREQ":"Solo frecuencia requerida en ",
   "MORE_SETTINGS":"Más configuraciones",
