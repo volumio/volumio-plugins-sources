@@ -45,6 +45,33 @@
         ]
       },
       {
+        "id": "section_my_bandcamp",
+        "element": "section",
+        "label": "TRANSLATE.BANDCAMP_MY_BANDCAMP",
+        "description": "TRANSLATE.BANDCAMP_DESC_MY_BANDCAMP",
+        "icon": "fa-user",
+        "onSave": {
+          "type": "controller",
+          "endpoint": "music_service/bandcamp",
+          "method": "configSaveMyBandcampSettings"
+        },
+        "saveButton": {
+          "label": "TRANSLATE.BANDCAMP_SAVE",
+          "data": [
+            "myUsername"
+          ]
+        },
+        "content": [
+          {
+            "id": "myUsername",
+            "type": "text",
+            "element": "input",
+            "label": "TRANSLATE.BANDCAMP_USERNAME",
+            "value": ""
+          }
+        ]
+      },
+      {
         "id": "section_cache",
         "element": "section",
         "label": "TRANSLATE.BANDCAMP_SECTION_CACHE",

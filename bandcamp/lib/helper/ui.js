@@ -87,6 +87,29 @@ class UIHelper {
         return html;
     }
 
+    static constructDoubleLineTitleWithImageAndLink(params) {
+        if (!this.supportsEnhancedTitles()) {
+            return params.mainTitle;
+        }
+        let {imgSrc, mainTitle, secondaryTitle, link} = params;
+        let imgHtml = imgSrc ? `<div>
+            <img src="${imgSrc}" style="width: 48px; height: 48px; margin-right: 12px; margin-top: -3px; border-radius: 50%;"></div>`
+            : '';
+        
+        return `
+        <div style="display: flex; width: 100%; align-items: center;">
+            ${imgHtml}
+            <div style="flex-grow: 1">
+                <div>${mainTitle}</div>
+                <div style="color: #9c9c9c; font-size: 14px; padding-top: 3px;">${secondaryTitle}</div>
+            </div>
+            <div style="text-align: right; font-size: small;">
+                ${this._constructLinkItem(link)}
+            </div>
+        </div>
+        `;
+    }
+
     static supportsEnhancedTitles() {
         return !this.isManifestUI();
     }
