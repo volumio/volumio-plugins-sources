@@ -96,6 +96,7 @@
     "JELLYFIN_DATE_PLAYED": "播放日期",
     "JELLYFIN_PLAY_COUNT": "播放次数",
     "JELLYFIN_RUNTIME": "运行时间",
+    "JELLYFIN_FOLDERS": "文件夹",
     "JELLYFIN_ASCENDING": "递增",
     "JELLYFIN_DESCENDING": "降序",
     "JELLYFIN_RESET": "重设",

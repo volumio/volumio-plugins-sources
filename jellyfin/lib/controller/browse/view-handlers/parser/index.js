@@ -9,6 +9,7 @@ const GenreParser = require(__dirname + '/genre');
 const SongParser = require(__dirname + '/song');
 const CollectionParser = require(__dirname + '/collection');
 const ServerParser = require(__dirname + '/server');
+const FolderParser = require(__dirname + '/folder');
 
 let typeToClass = {
     userView: UserViewParser,
@@ -19,7 +20,8 @@ let typeToClass = {
     genre: GenreParser,
     song: SongParser,
     collection: CollectionParser,
-    server: ServerParser
+    server: ServerParser,
+    folder: FolderParser
 };
 
 let getInstance = (type, uri, curView, prevViews, apiClient) => {

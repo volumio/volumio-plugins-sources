@@ -18,8 +18,9 @@ class PlayController {
         jellyfin.getLogger().info('[jellyfin-play] clearAddPlayTrack: ' + track.uri);
 
         let self = this;
-        let song, apiClient;
+        let serverId, song, apiClient;
         return self.getSongFromTrack(track).then( (result) => {
+            serverId = result.serverId;
             song = result.song;
             apiClient = result.apiClient;
             let streamUrl = self._getStreamUrl(song, apiClient);
@@ -189,6 +190,7 @@ class PlayController {
         })
         .then( (song) => {
             return {
+                serverId,
                 apiClient,
                 song
             };
