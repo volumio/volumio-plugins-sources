@@ -37,10 +37,19 @@ class DiscoverViewHandler extends ExplodableViewHandler {
         }
         let title = mixcloud.getI18n(i18nKey, tagNames, countryName);
 
-        let featuredUri = this.getUri() + `/featured@slug=${selectedTags[0].slug}`;
-        let featuredLink = this.constructGoToViewLink(mixcloud.getI18n('MIXCLOUD_VIEW_FEATURED_SHOWS', tagNames), featuredUri);
+        let featuredLinkData = this.getSwitchViewLinkData(selectedTags);
+        let featuredLink = this.constructGoToViewLink(featuredLinkData.text, featuredLinkData.uri);
 
         return UIHelper.constructListTitleWithLink(title, featuredLink, true);
+    }
+
+    getSwitchViewLinkData(selectedTags) {
+        // "View featured { tag } shows"
+        let tagNames = selectedTags.map( t => t.name ).join(' &amp; ');
+        return {
+            uri: this.getUri() + `/featured@slug=${selectedTags[0].slug}`,
+            text: mixcloud.getI18n('MIXCLOUD_VIEW_FEATURED_SHOWS', tagNames)
+        };
     }
 
     _browseDiscoverResults() {
@@ -72,6 +81,22 @@ class DiscoverViewHandler extends ExplodableViewHandler {
                 let lists = [];               
                 lists.push(self._getParamsList(cloudcasts.selectedTags, filteredParams, discoverOptions));
                 lists.push(self._getCloudcastsList(cloudcasts));
+
+                if (!UIHelper.supportsEnhancedTitles() && !view.inSection && cloudcasts.selectedTags.length > 0) {
+                    // Compensate for loss of switch view link
+                    let switchViewLinkData = this.getSwitchViewLinkData(cloudcasts.selectedTags);
+                    let switchViewListItem = {
+                        type: 'mixcloudDummyItem',
+                        title: switchViewLinkData.text,
+                        uri: switchViewLinkData.uri,
+                        icon: 'fa fa-arrow-circle-right'
+                    };
+                    lists.push({
+                        availableListViews: ['list'],
+                        items: [ switchViewListItem ]
+                    });
+
+                }
 
                 return lists;
             });
@@ -209,7 +234,7 @@ class DiscoverViewHandler extends ExplodableViewHandler {
                 });
             });
             let title = mixcloud.getI18n(`MIXCLOUD_SELECT_${view.select.toUpperCase()}`);
-            title = UIHelper.addIconBefore(DISCOVER_OPTION_ICONS[view.select], title);
+            title = UIHelper.addIconToListTitle(DISCOVER_OPTION_ICONS[view.select], title);
             let lists = [{
                 title,
                 availableListViews: ['list'],

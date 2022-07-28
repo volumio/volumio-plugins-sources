@@ -348,7 +348,9 @@ class ConnectionManager {
 
         function afterConnected(apiClient, options = {}) {
             if (options.reportCapabilities !== false) {
-                apiClient.reportCapabilities(capabilities);
+                // Disable call to reportCapabilities as this will throw UnhandledPromiseRejectionWarnings
+                // caused by "400 - Bad Request"
+                // apiClient.reportCapabilities(capabilities);
             }
             apiClient.enableAutomaticBitrateDetection = options.enableAutomaticBitrateDetection;
 

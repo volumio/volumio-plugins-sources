@@ -71,25 +71,19 @@ class AlbumViewHandler extends ExplodableViewHandler {
         let self = this;
         let defer = libQ.defer();
 
-        // Check if we're coming from artist view.
+        // Check if we're coming from band view.
         // If not, include artist link.
         let prevViews = self.getPreviousViews();
         let lastView = prevViews[prevViews.length - 1];
-        if (lastView.name !== 'artist') {
-            // Check if artist is also a label
-            let model = self.getModel('artist');
-            model.getArtist(artist.url).then( (artist) => {
+        if (lastView.name !== 'band') {
+            let model = self.getModel('band');
+            model.getBand(artist.url).then( (band) => {
                 let baseUri = self.getUri();
                 let artistLink = {
                     icon: 'fa fa-user',
-                    title: bandcamp.getI18n('BANDCAMP_MORE_FROM', artist.name)
+                    title: bandcamp.getI18n('BANDCAMP_MORE_FROM', band.name),
+                    uri: baseUri + '/band@bandUrl=' + encodeURIComponent(band.url)
                 };
-                if (artist.isLabel) {
-                    artistLink.uri = baseUri + '/label@labelUrl=' + encodeURIComponent(artist.url);
-                }
-                else {
-                    artistLink.uri = baseUri + '/artist@artistUrl=' + encodeURIComponent(artist.url);
-                }
                 let links = {
                     availableListViews: ['list'],
                     items: [artistLink]

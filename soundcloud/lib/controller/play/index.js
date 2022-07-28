@@ -4,6 +4,7 @@ const libQ = require('kew');
 const sc = require(scPluginLibRoot + '/soundcloud');
 const Model = require(scPluginLibRoot + '/model');
 const TrackHelper = require(scPluginLibRoot + '/helper/track');
+const ViewHelper = require(scPluginLibRoot + '/helper/view');
 
 class PlayController {
 
@@ -20,19 +21,12 @@ class PlayController {
 
         let self = this;
 
-        let trackIdPrefix = 'track@trackId=';
-        let uri = track.uri.split('/');
-        let trackId;
-        if (uri[1].startsWith(trackIdPrefix)) {
-            trackId = uri[1].substring(trackIdPrefix.length);
-            if (trackId === '') {
-                trackId = undefined;
-            }
-        }
-        if (uri[0] !== 'soundcloud' || trackId == undefined) {
+        let trackUriView = ViewHelper.getViewsFromUri(track.uri).pop();
+        let trackId = trackUriView.trackId;
+        if (trackId == undefined) {
             return libQ.reject('Invalid track uri: ' + track.uri);
         }
-       
+
         let model = Model.getInstance('track');
         return model.getTrack(trackId)
         .then( (trackInfo) => {
@@ -50,6 +44,17 @@ class PlayController {
                 return self._getMediaUrl(trackInfo);
             }
         }).then( (mediaUrl) => {
+            // We setConsumeUpdateService to ignore metadata, so need to set bitrate info in the trackblock.
+            // Seriously, setConsumeUpdateService should allow us to select which info to take from the 
+            // consume update service's state (MPD in this case)...
+            // We can only guess the bitrate info from the mediaUrl. Failing that, we would have to hope
+            // MPD can provide the actual bitrate info (which is taken into account by the statemachine).
+            if (mediaUrl.includes('.128.mp3')) { // 128 kbps mp3
+                track.samplerate = '128 kbps';
+            }
+            else if (mediaUrl.includes('.64.opus')) { // 64 kbps opus
+                track.samplerate = '64 kbps';
+            }
             let safeUri = mediaUrl.replace(/"/g, '\\"');
             return safeUri;
         }).then( (streamUrl) => {
@@ -61,23 +66,33 @@ class PlayController {
     }
 
     stop() {
-        sc.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        sc.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.stop();
     };
 
     pause() {
-        sc.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        sc.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.pause();
     };
   
     resume() {
-        sc.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        sc.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.resume();
     }
   
     seek(position) {
-        sc.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        sc.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.seek(position);
+    }
+
+    next() {
+        sc.getStateMachine().setConsumeUpdateService('mpd', true, false);
+        return this.mpdPlugin.next();
+    }
+
+    previous() {
+        sc.getStateMachine().setConsumeUpdateService(undefined);
+        return sc.getStateMachine().previous();
     }
 
     _getMediaUrl(track) {
@@ -128,7 +143,7 @@ class PlayController {
             }
         })
         .then( () => {
-            sc.getStateMachine().setConsumeUpdateService('mpd', false, false);
+            sc.getStateMachine().setConsumeUpdateService('mpd', true, false);
             return mpdPlugin.sendMpdCommand('play', []);
         });
     }
