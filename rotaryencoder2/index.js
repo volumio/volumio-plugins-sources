@@ -665,7 +665,9 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 					break;
 			
 				case dialActions.indexOf("EMIT"): //4
-					self.socket.emit(self.config.get('socketCmdCW'+rotaryIndex), self.config.get('socketDataCW'+rotaryIndex));				
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command "' + self.config.get('socketCmdCCW'+rotaryIndex) +
+						'" with data "' + self.config.get('socketDataCCW'+rotaryIndex));
+					self.socket.emit(self.config.get('socketCmdCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCW'+rotaryIndex)));				
 					break;
 			
 				default:
@@ -692,7 +694,9 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 					break;
 			
 				case dialActions.indexOf("EMIT"): //4
-					self.socket.emit(self.config.get('socketCmdCCW'+rotaryIndex), self.config.get('socketDataCCW'+rotaryIndex));				
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command "' + self.config.get('socketCmdCCW'+rotaryIndex) +
+						'" with data "' + self.config.get('socketDataCCW'+rotaryIndex));
+					self.socket.emit(self.config.get('socketCmdCCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCCW'+rotaryIndex)));				
 					break;
 			
 				default:
@@ -919,7 +923,7 @@ rotaryencoder2.prototype.detachListener = function (handle){
         	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachListener: successfully killed handler process');
         	defer.resolve();
         } else {
-            self.logger.error('[ROTARYENCODER2] detachListener: could not kill handler process');
+            self.logger.error('[ROTARYENCODER2] detachListener: could not kill handler process ' + handle);
             defer.reject();
         }
 
