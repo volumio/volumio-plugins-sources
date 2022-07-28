@@ -16,14 +16,14 @@ class SearchResultParser extends BaseParser {
         switch(entity.type) {
             case 'artist':
                 data.type = 'folder';
-                data.uri = baseUri + '/artist@artistUrl=' + encodedUrl;
+                data.uri = baseUri + '/band@bandUrl=' + encodedUrl;
                 if (entity.location) {
                     data.artist = entity.location;
                 }
                 break;
             case 'label':
                 data.type = 'folder';
-                data.uri = baseUri + '/label@labelUrl=' + encodedUrl;
+                data.uri = baseUri + '/band@bandUrl=' + encodedUrl;
                 break;
             case 'album':
                 data.type = 'folder';

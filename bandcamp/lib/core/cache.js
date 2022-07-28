@@ -2,6 +2,7 @@
 
 const libQ = require('kew');
 const NodeCache = require('node-cache');
+const bcfetch = require('bandcamp-fetch');
 
 class Cache {
     constructor(ttl, maxEntries) {
@@ -47,6 +48,7 @@ class Cache {
 
     clear() {
         this._cache.flushAll();
+        bcfetch.cache.clear();
     }
 
     close() {

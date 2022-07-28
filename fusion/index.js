@@ -1,5 +1,5 @@
 /*--------------------
-FusionDsp plugin for volumio3. By balbuze April 2022
+FusionDsp plugin for volumio 3. By balbuze July 2022
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -331,15 +331,15 @@ FusionDsp.prototype.getUIConfig = function (address) {
             case ("Highpass"):
               peqlabel = "Highpass Hz,Q"
               break;
-            case ("Highpass2"):
-              peqlabel = "Highpass Hz,bandwidth Octave"
-              break;
+         //   case ("Highpass2"):
+         //     peqlabel = "Highpass Hz,bandwidth Octave"
+         //     break;
             case ("Lowpass"):
               peqlabel = "Lowpass Hz,Q"
               break;
-            case ("Lowpass2"):
-              peqlabel = "Lowpass Hz,bandwidth Octave"
-              break;
+          //  case ("Lowpass2"):
+          //    peqlabel = "Lowpass Hz,bandwidth Octave"
+          //    break;
             case ("Highpass"):
               peqlabel = "Highpass Hz,bandwidth Octave"
               break;
@@ -389,9 +389,9 @@ FusionDsp.prototype.getUIConfig = function (address) {
           { "value": "Notch", "label": "Notch Hz,Q" },
           { "value": "Notch2", "label": "Notch Hz,bandwidth Octave" },
           { "value": "Highpass", "label": "Highpass Hz,Q" },
-          { "value": "Highpass2", "label": "Highpass Hz,bandwidth Octave" },
+          // "value": "Highpass2", "label": "Highpass Hz,bandwidth Octave" },
           { "value": "Lowpass", "label": "Lowpass Hz,Q" },
-          { "value": "Lowpass2", "label": "Lowpass Hz,bandwidth Octave" },
+          //{ "value": "Lowpass2", "label": "Lowpass Hz,bandwidth Octave" },
           { "value": "HighpassFO", "label": "HighpassFO Hz" },
           { "value": "LowpassFO", "label": "LowpassFO Hz" },
           { "value": "LinkwitzTransform", "label": "Linkwitz Transform Fa Hz,Qa,FT Hz,Qt" },
@@ -479,6 +479,22 @@ FusionDsp.prototype.getUIConfig = function (address) {
                 "type": "plugin",
                 "endpoint": "audio_interface/fusiondsp",
                 "method": "removeeq",
+                "data": []
+              },
+              "visibleIf": {
+                "field": "showeq",
+                "value": true
+              }
+            },
+            {
+              "id": "removealleq",
+              "element": "button",
+              "label": self.commandRouter.getI18nString("REMOVEALL_EQ"),
+              "doc": self.commandRouter.getI18nString('REMOVEALL_EQ_DESC'),
+              "onClick": {
+                "type": "plugin",
+                "endpoint": "audio_interface/fusiondsp",
+                "method": "removealleq",
                 "data": []
               },
               "visibleIf": {
@@ -1731,6 +1747,21 @@ FusionDsp.prototype.removeeq = function () {
   self.refreshUI();
 };
 
+FusionDsp.prototype.removealleq = function () {
+  const self = this;
+
+  self.config.set('effect', true)
+  self.config.set('nbreq', 1)
+  self.config.set('mergedeq', "Eq0|None|L+R|0,0,0|")
+  self.config.set('savedmergedeq', "Eq0|None|L+R|0,0,0|")
+  self.config.set('savednbreq', 1)
+
+
+  setTimeout(function () {
+    self.createCamilladspfile()
+  }, 100);
+  self.refreshUI();
+};
 
 FusionDsp.prototype.reseteq = function () {
   const self = this;
@@ -2015,7 +2046,7 @@ FusionDsp.prototype.testclipping = function () {
   }
   const journalctl = new Journalctl(opts);
   journalctl.on('event', (event) => {
-    let pevent = event.MESSAGE.indexOf("Clipping detected");
+    const pevent = event.MESSAGE.indexOf("Clipping detected");
     if (pevent != -1) {
       let filteredMessage = event.MESSAGE.split(',').slice(0, -1).pop().replace("peak ", "").slice(0, -1);
       //self.logger.info('filteredMessage ' + filteredMessage)
@@ -2667,8 +2698,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
             }
 
-          } else if ((typer == 'Lowpass2' || typer == 'Highpass2' || typer == 'Notch2')) {
-
+         // } else if ((typer == 'Lowpass2' || typer == 'Highpass2' || typer == 'Notch2')) {
+          } else if ((typer == 'Notch2')) {
+          
             composedeq += '  ' + eqc + ':\n';
             composedeq += '    type: Biquad' + '\n';
             composedeq += '    parameters:' + '\n';
@@ -2828,15 +2860,17 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
       if (effect) {
         gainresult = (gainmaxused.toString().split(',').slice(1).sort((a, b) => a - b)).pop();
-        // self.logger.info('gainresult ' + gainresult + ' ' + typeof (+gainresult))
+        //  self.logger.info('gainresult ' + gainresult + ' ' + typeof (+gainresult))
 
 
         if (+gainresult < 0) {
           gainclipfree = -2
           self.logger.info('else 1  ' + gainclipfree)
         } else {
+          gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
 
-          gainclipfree = ('-' + (parseInt(gainresult))) //+ 2))
+          //  gainclipfree = ('-' + (parseInt(gainresult))) //+ 2))
+          //  self.logger.info('gainclipfree '+ gainclipfree)
         }
         if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
           gainclipfree = 0
@@ -3157,7 +3191,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       if (selectedsp === "convfir") {
         chunksize = 4096
       } else {
-        chunksize = 1024
+        chunksize = 4096//1024 To check if less bufferunderrun
       }
 
 
@@ -3310,7 +3344,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       if (typer == 'Highshelf' || typer == 'Lowshelf') {
 
         var s = Number(eqr[2]);
-        if ((Number.isInteger(s)) && (s > 0 && s < 13)) {
+        if ((Number.parseFloat(s)) && (s > 0 && s < 13)) {
 
         } else {
           self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('SLOPE_RANGE') + eqc)
@@ -3890,22 +3924,182 @@ FusionDsp.prototype.convertimportedeq = function () {
       test = self.config.get('mergedeq')
       var nbreq = self.config.get('nbreq') + 1;
     }
-
+    //var EQfileR = EQfile.replace(/S /g, 'S')
     var result = (EQfile.split('\n'));
+    // self.logger.info(result)
+
     for (o; o < result.length; o++) {
       if (nbreq < tnbreq) {
-        if ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1) && ((result[o].indexOf("PK") != -1) || (result[o].indexOf("LS") != -1) || (result[o].indexOf("HS") != -1)) && (result[o].indexOf('Gain   0.00 dB') == -1)) {
-          var lresult = (result[o].replace(/       /g, ' ').replace(/   /g, ' ').replace(/  /g, ' ').replace(/ON PK Fc /g, ',Peaking,').replace(/ON LS Fc /g, ',Lowshelf2,').replace(/ON HS Fc /g, ',Highshelf2,').replace(/ Hz Gain /g, ',').replace(/ dB Q /g, ','));
-          //  self.logger.info('filter in line ' + o + lresult)
-          var eqv = (lresult);
+        if ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1) && ((result[o].indexOf("PK") != -1) || (result[o].indexOf("LPQ") != -1) || (result[o].indexOf("HPQ") != -1) || (result[o].indexOf("LP1") != -1) || (result[o].indexOf("HP1") != -1) || (result[o].indexOf("LS ") != -1) || (result[o].indexOf("HS ") != -1) || (result[o].indexOf("NO") != -1) || (result[o].indexOf("LP ") != -1) || (result[o].indexOf("HP ") != -1) || (result[o].indexOf("LS 6dB") != -1) || (result[o].indexOf("HS 6dB") != -1) || (result[o].indexOf("LS 12dB") != -1) || (result[o].indexOf("HS 12dB") != -1) || (result[o].indexOf("LSQ") != -1) || (result[o].indexOf("HSQ") != -1)) && (result[o].indexOf('Gain   0.00 dB') == -1)) {
+          //if (((result[o].indexOf('Gain   0.00 dB') == -1)) && ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1))) {
+
+          var lresult0 = result[o].replace(/       /g, ' ');
+          var lresult1 = lresult0.replace(/   /g, ' ');
+          var lresult2 = lresult1.replace(/  /g, ' ')
+
+          var lresult3 = lresult2.replace(/ Hz Gain /g, ',')
+          var lresult4 = lresult3.replace(/ dB Q /g, ',')
+          var lresult5 = lresult4.replace(/ Hz Q /g, ',');
+          var lresult6 = lresult5.replace(/ Hz /g, ',');
+          var lresult7 = lresult6.replace(/:/g, ',');
+          var lresult8 = lresult7.replace(/ Q /g, ',');
+          var lresult9 = lresult8.replace(/ dB /g, ',')
+          var lresult10 = lresult9.replace(/ dB/g, ',')
+
+          var lresult = lresult10.replace(/Fc /g, ',');
+          // self.logger.info(result[0])
+
+          let eqv = (lresult);
           var param = eqv.split(',')
+          //var typeconv //= param[0]
           var correctedfreq = param[2]
           if (correctedfreq >= 22050) {
             correctedfreq = 22049
           }
-          // console.log(param)
-          var eqs = (correctedfreq + ',' + param[3] + ',' + param[4])
-          var typeconv = param[1]
+
+          if (result[o].indexOf("PK ") != -1) {
+            var paramx = lresult.replace(/ ON PK /g, 'Peaking')//Hz,db,Q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + ',' + param[3] + ',' + param[4])
+
+            // self.logger.info('filter in line ' + o + " PK " + typeconv + " vvv " + eqs)
+            //     self.logger.info('filter in line ' + o + " 0 " + param[0] + " 1 " + param[1] + " 2 " + param[2] + " 3 " + param[3] + " 4 " + param[4] + " 5 " + param[5] + " coee " + correctedfreq)
+          }
+
+          if (result[o].indexOf("LP  ") != -1) {
+            var paramx = lresult.replace(/ ON LP /g, 'Lowpass')//Hz,db,Q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + ',' + "0.7071")
+            // self.logger.info('filter in line ' + o + " LP " + typeconv + " vvv " + eqs)
+
+          }
+          if (result[o].indexOf("HP  ") != -1) {
+            var paramx = lresult.replace(/ ON HP /g, 'Highpass')//Hz,db,Q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + ',' + "0.7071")
+            // self.logger.info('filter in line ' + o + " HP " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("LS  ") != -1) {
+            var paramx = lresult.replace(/ ON LS /g, 'Lowshelf')//Hz,dB,S=0.9
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + ",0.9")
+            // self.logger.info('filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("HS  ") != -1) {
+            var paramx = lresult.replace(/ ON HS /g, 'Highshelf')//Hz,dB,S=0.9
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + ",0.9")
+            // self.logger.info('filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("NO ") != -1) {
+            var paramx = lresult.replace(/ ON NO /g, 'Notch')//Hz
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + ",1")
+            // self.logger.info('filter in line ' + o + " NO " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("LS 6dB ") != -1) {
+            var paramx = lresult.replace(/ ON LS 6dB /g, 'Lowshelf')//Hz,dB,S=0.5
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + ",0.5")
+            // self.logger.info('filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("HS 6dB ") != -1) {
+            var paramx = lresult.replace(/ ON HS 6dB /g, 'Highshelf')//Hz,dB,S=0.5
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + ",0.5")
+            // self.logger.info('filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("LS 12dB ") != -1) {
+            var paramx = lresult.replace(/ ON LS 12dB /g, 'Lowshelf')//Hz,dB,S=1
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + ",1")
+            // self.logger.info('filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("HS 12dB ") != -1) {
+            var paramx = lresult.replace(/ ON HS 12dB /g, 'Highshelf')//Hz,dB,S=1
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + ",1")
+            // self.logger.info('filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("LP1") != -1) {
+            var paramx = lresult.replace(/ ON LP1 /g, 'LowpassFO')//Hz
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq)
+            // self.logger.info('filter in line ' + o + " LP1 " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("HP1") != -1) {
+            var paramx = lresult.replace(/ ON HP1 /g, 'HighpassFO')//Hz
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq)
+            // self.logger.info('filter in line ' + o + " HP1 " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("LPQ ") != -1) {
+            var paramx = lresult.replace(/ ON LPQ /g, 'Lowpass')//12dB,Hz,Q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + ',' + param[3])
+            // self.logger.info('filter in line ' + o + " LPQ " + typeconv + " vvv " + eqs)
+
+          }
+          if (result[o].indexOf("HPQ ") != -1) {
+            var paramx = lresult.replace(/ ON HPQ /g, 'Highpass')//12dB,/Hz,Q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + ',' + param[3])
+            // self.logger.info('filter in line ' + o + " HPQ " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("LSQ") != -1) {
+            var paramx = lresult.replace(/ ON LSQ /g, 'Lowshelf2')//Hz,dB,q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + "," + param[4])
+            // self.logger.info('filter in line ' + o + " LSQ " + typeconv + " vvv " + eqs)
+
+          }
+
+          if (result[o].indexOf("HSQ") != -1) {
+            var paramx = lresult.replace(/ ON HSQ /g, 'Highshelf2')//Hz,dB,q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + "," + param[4])
+            // self.logger.info('filter in line ' + o + " HSQ " + typeconv + " vvv " + eqs)
+
+          }
+
 
           var typec = 'type' + nbreq;
           var scopec = 'scope' + nbreq;
@@ -3917,7 +4111,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             localscope = self.config.get('localscope');
           }
           test += ('Eq' + o + '|' + typeconv + '|' + localscope + '|' + eqs + '|');
-
+          //self.logger.info(test)
           self.config.set("nbreq", nbreq - 1);
           self.config.set('effect', true)
           self.config.set('usethispreset', 'no preset used');

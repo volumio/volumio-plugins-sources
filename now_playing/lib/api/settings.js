@@ -6,6 +6,7 @@ async function getSettings({namespace}) {
         case 'screen.nowPlaying':
         case 'screen.idle':
         case 'background': 
+        case 'actionPanel': 
             return np.getConfigValue(namespace, {}, true);
         case 'theme':
             return np.getConfigValue(namespace, 'default');

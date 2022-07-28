@@ -1,0 +1,29 @@
+{
+  "PLUGIN_CONFIGURATION":"Randomizer Action Buttons",
+  "SAVE":"Save",
+  "SUCCESS_TITLE":"Saved settings",
+  "SUCCESS_MESSAGE":"Successfully saved settings",
+  "ERROR_NUMBER_PLEASE_TITLE":"Must be a number.",
+  "ERROR_NUMBER_PLEASE_MESSAGE":"Please enter a number.",
+  "ERROR_QUEUE_EMPTY_TITLE":"Queue is empty...",
+  "ERROR_QUEUE_EMPTY_MESSAGE":"   ..cannot load an album.",
+  "ERROR_NOT_MPD_TITLE":"Incorrect Music Source. The track currently playing is not from Music Library, but from ",
+  "ERROR_NOT_MPD_MESSAGE":"... Randomizer is unable to load the album.",
+  "ERROR_NO_LIBRARY_FOUND_TITLE":"Unable to find a Music Library...",
+  "ERROR_NO_ALBUM_LIBRARY_MESSAGE":"   ... can not load a Random Album.",
+  "ERROR_NO_TRACKS_LIBRARY_MESSAGE":"   ... can not load Random Tracks.",
+  "ERROR_START_OF_QUEUE_TITLE":"You are at the start of the Queue", 
+  "ERROR_START_OF_QUEUE_MESSAGE":"You can not go back any further!",
+  "NO_CHANGE_TITLE":"Tracks number is unchanged",
+  "NO_CHANGE_MESSAGE":"Nothing to save..",
+  "TRACKTOALBUM_DOC":"Play the album of the currently playing track. To use with lircrc add config = node /data/plugins/user_interface/randomizer/trackToAlbum",
+  "TRACKTOALBUM_LBL":"Track to Album",
+  "RANDOMALBUM_DOC":"Load and play a random Album. To use with lircrc add config = node /data/plugins/user_interface/randomizer/randomAlbum",
+  "RANDOMALBUM_LBL":"Random Album",
+  "RANDOMTRACKS_DOC":"Load and play random tracks. To use with lircrc add config = node /data/plugins/user_interface/randomizer/randomTracks",
+  "RANDOMTRACKS_LBL":"Random Tracks",
+  "TRACKS_DOC":"Select the number of random tracks to load - the  default is 25",
+  "TRACKS_LBL":"Number of Random Tracks"
+}
+
+
