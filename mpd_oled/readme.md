@@ -1,4 +1,4 @@
-9th Feb 2021
+29th July 2022
 #	VOLUMIO MPD OLED
 
 - This plugin was designed to provide an easy way to install and configure the popular `mpd_oled` project.  You can now fully customise your display without having to go to the command line!
@@ -146,6 +146,9 @@ rm -Rf mpd_oled.zip
 
 - Initial upload for testing
 
+29th July 2022
+
+- Upgraded to volumio 3
 
 ## To do
 

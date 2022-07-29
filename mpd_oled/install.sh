@@ -13,19 +13,19 @@ sudo apt-get update
 wget -N http://pitastic.com/mpd_oled/packages/mpd_oled_volumio_install_latest.sh
 sudo bash mpd_oled_volumio_install_latest.sh
 
-
 ##############################
 # install CAVA if not present
 if [ ! -d "/home/volumio/cava" ]
 then
   echo "Installing CAVA"
-  sudo apt-get -y install git-core autoconf make libtool libfftw3-dev libasound2-dev
+
+  sudo apt -y install build-essential autoconf make libtool xxd libfftw3-dev libiniparser-dev libmpdclient-dev libi2c-dev lm-sensors
   git clone https://github.com/karlstav/cava
   cd cava
   ./autogen.sh
-  ./configure
+  ./configure --disable-input-portaudio --disable-input-sndio --disable-output-ncurses --disable-input-pulse --program-prefix=mpd_oled_
   make
-  sudo make install
+  sudo make install-strip
   cd ..
 else
   echo "CAVA already installed"
@@ -63,5 +63,5 @@ if ! grep -q "spi=on" "/boot/config.txt"; then
   fi
 fi
 
-#required to end the plugin install
+# required to end the plugin install
 echo "plugininstallend"
