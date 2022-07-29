@@ -64,11 +64,11 @@
 		"type": "string"
 	},
 	"cavaInputMethodAndSourceEnabled": {
-		"value": false,
+		"value": true,
 		"type": "boolean"
 	},
 	"cavaInputMethodAndSource": {
-		"value": "fifo,/tmp/mpd_oled_fifo",
+		"value": "fifo,/tmp/mpdoledfifo",
 		"type": "string"
 	},
 	"rotateDisplay": {
