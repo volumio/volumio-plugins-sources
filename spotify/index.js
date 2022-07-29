@@ -28,7 +28,6 @@ const logger = require('./logger');
 var seekTimer;
 var thisSpotifyConnectDeviceId;
 var spotifyApi;
-var thisDeviceIdentifier;
 var selectedBitrate;
 var accessToken;
 var spotifyAccessTokenExpiration;
@@ -1928,7 +1927,6 @@ ControllerSpotify.prototype.logout = function (avoidBroadcastUiConfig) {
     }
     self.commandRouter.pushToastMessage('success', self.getI18n('LOGOUT'), self.getI18n('LOGOUT_SUCCESSFUL'));
     self.thisSpotifyConnectDeviceId = undefined;
-    self.thisDeviceIdentifier = undefined;
     self.accessToken = undefined;
     self.spotifyAccessTokenExpiration = undefined;
     self.isBrowsingInitialized = false;
@@ -1980,7 +1978,6 @@ ControllerSpotify.prototype.identifyThisConnectDevice = function () {
     var defer = libQ.defer();
 
     var systemName = this.commandRouter.sharedVars.get('system.name');
-    var thisDeviceIdentifier = false;
 
     self.listMyDevices().then(function(devices) {
         if (devices && devices.length) {
@@ -1988,7 +1985,6 @@ ControllerSpotify.prototype.identifyThisConnectDevice = function () {
                 if (devices[i].name.toLowerCase() === systemName.toLowerCase()) {
                     self.thisSpotifyConnectDeviceId = devices[i].id;
                     self.logger.info('Idenfitied this device as Connect device: ' + self.thisSpotifyConnectDeviceId)
-                    self.thisDeviceIdentifier = true;
                 }
             }
         }
