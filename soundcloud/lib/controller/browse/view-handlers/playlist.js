@@ -206,7 +206,8 @@ class PlaylistViewHandler extends ExplodableViewHandler {
         let self = this;
 
         let view = self.getCurrentView();
-        if (!self._getBrowseSingleTargetId(view)) {
+        let targetId = self._getBrowseSingleTargetId(view);
+        if (!targetId) {
             return libQ.reject("Operation not supported");
         }
 
@@ -227,7 +228,15 @@ class PlaylistViewHandler extends ExplodableViewHandler {
         }
         options.tracksLimit = sc.getConfigValue('itemsPerPage', 47);
 
-        model[self._getModelFetchFunctionName(true)](self._getBrowseSingleTargetId(view), options).then( (entity) => {
+        model[self._getModelFetchFunctionName(true)](targetId, options).then( (entity) => {
+            // Where applicable, include target Id for goto(album)
+            if (options.type !== 'system') {
+                let targetName = self._getEntityName();
+                let fromTargetName = `from${ targetName[0].toUpperCase() + targetName.slice(1) }Id`;
+                entity.tracks.forEach( track => {
+                    track[fromTargetName] = targetId;
+                });
+            }
             defer.resolve(entity.tracks);
         }).fail( (error) => {
             defer.reject(error);

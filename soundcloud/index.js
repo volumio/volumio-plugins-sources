@@ -222,6 +222,18 @@ ControllerSoundCloud.prototype.seek = function (position) {
     return this.playController.seek(position);
 }
 
+ControllerSoundCloud.prototype.next = function () {
+    return this.playController.next();
+}
+
+ControllerSoundCloud.prototype.previous = function () {
+    return this.playController.previous();
+}
+
 ControllerSoundCloud.prototype.search = function(query) {
     return this.searchController.search(query);
+}
+
+ControllerSoundCloud.prototype.goto = function(data) {
+    return this.browseController.goto(data);
 }
