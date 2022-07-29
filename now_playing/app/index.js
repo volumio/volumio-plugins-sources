@@ -1,16 +1,23 @@
 const express = require('express');
+var cors = require('cors');
 const router = require(__dirname + '/router');
 
 const np = require(nowPlayingPluginLibRoot + '/np');
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 //app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use(router);
-app.use(express.static(__dirname + '/public'));
+app.use('/assets', express.static(__dirname + '/assets'));
+app.use('/genius_setup', express.static(__dirname + '/views/genius_setup.html'));
+app.use('/geo_coord_setup', express.static(__dirname + '/views/geo_coord_setup.html'));
+app.use('/openweathermap_setup', express.static(__dirname + '/views/openweathermap_setup.html'));
+app.use('/preview', express.static(__dirname + '/preview/build'));
+app.use(express.static(__dirname + '/client/build'));
 app.use( (req, res, next) => {
     next(404);
 });

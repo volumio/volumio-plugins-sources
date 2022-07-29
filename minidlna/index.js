@@ -161,7 +161,7 @@ minidlna.prototype.getUIConfig = function () {
 minidlna.prototype.updateUIConfig = function () {
   const self = this;
 
-  self.commandRouter.getUIConfigOnPlugin('music_service', 'minidlna', {})
+  self.commandRouter.getUIConfigOnPlugin(self.commandRouter.pluginManager.getPackageJson(__dirname).volumio_info.plugin_type, 'minidlna', {})
     .then(function (uiconf) {
       self.commandRouter.broadcastMessage('pushUiConfig', uiconf);
     });

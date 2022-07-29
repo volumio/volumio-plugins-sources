@@ -6,7 +6,6 @@
   "INCORRECT_RESPONSE":  "{0} 라디오 스트리밍 서버의 결과가 비정상적입니다.",
   "ERROR_SECRET_KEY_SERVER": "한국 라디오 방송 암호화 키 서버에 문제가 있습니다.",
   "ERROR_SECRET_KEY": "플러그인이 한국 라디오 URL을 위한 암호키를 가져올 수 없습니다.",
-  "STOP_RADIO_STATION": "라디오 전송방식 변경을 위해서는 청취중인 SBS, MBC 라디오를 반드시 메인 메뉴에서 다시 실행하세요.",
   "KBS": "KBS",
   "MBC": "MBC",
   "SBS": "SBS",
@@ -21,12 +20,19 @@
   "SBS_POWER_FM": "SBS 파워FM",
   "SBS_LOVE_FM": "SBS 러브FM",
   "SBS_INTERNET_RADIO": "SBS 인터넷 라디오",
+  "RADIO_PROGRAM": "라디오 편성표",
   "CONFIG": {
     "TITLE": "라디오 설정",
-    "RADIO_PROTOCOL": "라디오 전송 방식",
-    "PROTOCOL_SETUP_GUIDE": "설정 가이드: 라디오 플러그인 청취시 끊김현상이 있으면 아래 HTTP를 활성화(On) 하시기 바랍니다. (기본값은 HTTP 활성화입니다) ",
     "SAVE": "저장",
-    "SBS_ENABLE_HTTP": "SBS HTTP 활성화",
-    "MBC_ENABLE_HTTP": "MBC HTTP 활성화"
+    "PROGRAM": "라디오 편성표",
+    "PROGRAM_DESCRIPTION": "현재 진행중인 라디오 편성표를 조회합니다.",
+    "SAVE_SEARCH_REGION": "편성표 조회",
+    "SELECT_RADIO_CHANNEL": "라디오 채널 선택",
+    "SUPPORT_KOREAN": "한국내 후원",
+    "SUPPORT_FOREIGNER": "해외 후원",
+    "SUPPORT_KOREAN_LINK_DESCRIPTION": "'github.com' 사이트로 이동하여 카카오페이로 후원",
+    "SUPPORT_FOREIGNER_LINK_DESCRIPTION": "'PayPal.Me' 후원 사이트로 이동하여 후원",
+    "SUPPORT_PLUGIN": "플러그인 후원",
+    "SUPPORT_DESCRIPTION": "개인 라디오 플러그인을 후원하여 주시면 많은 도움이 됩니다. 감사합니다."
   }
 }

@@ -3,6 +3,7 @@
 const libQ = require('kew');
 const sc = require(scPluginLibRoot + '/soundcloud')
 const BaseViewHandler = require(__dirname + '/base');
+const ViewHelper = require(scPluginLibRoot + '/helper/view');
 
 class RootViewHandler extends BaseViewHandler {
 
@@ -48,12 +49,14 @@ class RootViewHandler extends BaseViewHandler {
             if (result.navigation.lists.length && result.navigation.lists[0].items.length) {
                 let list = result.navigation.lists[0];
 
-                list.title = `
-                <div style="width: 100%;">
-                    <div style="padding-bottom: 8px; border-bottom: 1px solid;">
-                        ${list.title}
-                    </div>
-                </div>`;
+                if (ViewHelper.supportsEnhancedTitles()) {
+                    list.title = `
+                    <div style="width: 100%;">
+                        <div style="padding-bottom: 8px; border-bottom: 1px solid;">
+                            ${list.title}
+                        </div>
+                    </div>`;
+                }
 
                 defer.resolve([list]);
             }
@@ -103,7 +106,10 @@ class RootViewHandler extends BaseViewHandler {
             items.push(this.constructNextPageItem(nextUri));
         }
         let listTitle;
-        if (index === 0) {
+        if (!ViewHelper.supportsEnhancedTitles()) {
+            listTitle = selection.title;
+        }
+        else if (index === 0) {
             listTitle = `
                 <div style="width: 100%;">
                     <div style="padding-bottom: 8px; border-bottom: 1px solid; margin-bottom: 24px;">

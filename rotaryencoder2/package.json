@@ -1,6 +1,6 @@
 {
 	"name": "rotaryencoder2",
-	"version": "1.0.10",
+	"version": "1.0.14",
 	"description": "Alternative implementation of Rotary Encoder controls using the Linux Kernel driver for Rotaries.",
 	"main": "index.js",
 	"scripts": {
@@ -20,12 +20,12 @@
 			"buster"
 		],
 		"has_alsa_contribution": false,
-		"details": "Use up to 3 rotary encoders connected to the GPIOs of a Volumio system. Uses Linux kernel level drivers based on 'dtoverlay'.<br>Also provides a function to send commands via Websock.<br>Help and hardware tipps in the <a href=\"https://volumio.github.io/docs/Plugins_User_Manuals/rotaryencoder2/Rotary_Encoder_II.html\"><u>Documentation</u></a>",
-		"changelog": "Added more configuration options for buttons (+ double press, trigger long press before release, variable timers). Changed category"
+		"details": "Use up to 3 rotary encoders connected to the GPIOs of a Volumio system. Uses Linux kernel level drivers based on 'dtoverlay'.<br>Also provides a function to send commands via Websock.<br>Help and hardware tipps in the <a href=\"https://github.com/volumio/volumio-plugins-sources/blob/master/rotaryencoder2/readme.md\"><u>Documentation</u></a>",
+		"changelog": "Fixed bug in deactivateButtons, that prevented save with certain configurations due to uncaught condition + Added documentation to Github."
 	},
 	"engines": {
-		"node": ">=8",
-		"volumio": ">=2"
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.179.0 <4.0.0"
 	},
 	"dependencies": {
 		"fs-extra": "^5.0.0",

@@ -26,6 +26,10 @@ class AlbumArtHandler {
         else if (item.Type === 'CollectionFolder' && item.CollectionType === 'music') {
             defaultImg = 'album.png';
         }
+        // Folder
+        else if ((item.Type === 'UserView' && item.CollectionType === 'folders') || item.Type === 'CollectionFolder' || item.Type === 'Folder') {
+            defaultImg = 'folder.png';
+        }
         // Music albums - fetch from web if possible (using AlbumArt plugin)
         else if (item.Type === 'MusicAlbum') {
             if (item.AlbumArtist) {
