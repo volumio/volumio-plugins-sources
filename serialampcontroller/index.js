@@ -564,7 +564,7 @@ serialampcontroller.prototype.updateVolumeSettings = function() {
     //first read the audio-device information, since we won't configure this 
     if (self.selectedAmp !=undefined && self.serialInterfaceDev != undefined && self.parser != undefined) {
         var volSettingsData = {
-            'pluginType': 'system_controller',
+            'pluginType': 'system_hardware',
             'pluginName': 'serialampcontroller',
             'volumeOverride': true
         };
@@ -818,7 +818,7 @@ serialampcontroller.prototype.updateAmpSettings = function (data) {
     self.config.set('switchInputAtPlay', (data['switch_input_at_play']));
     self.config.set('startAtPowerup', (data['start_at_powerup']));
     self.setActiveAmp()
-    .then(_=> self.commandRouter.getUIConfigOnPlugin('system_controller', 'serialampcontroller', {}))
+    .then(_=> self.commandRouter.getUIConfigOnPlugin('system_hardware', 'serialampcontroller', {}))
     .then(config => {self.commandRouter.broadcastMessage('pushUiConfig', config)})
     //configure the serial interface and open it
     .then(_ => self.openSerialPort())
