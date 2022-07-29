@@ -1,0 +1,656 @@
+{
+  "US": {
+    "country_name": "USA",
+    "country_code": "US",
+    "language_code": "en"
+  },
+  "DE": {
+    "country_name": "Germany",
+    "country_code": "DE",
+    "language_code": "de"
+  },
+  "FR": {
+    "country_name": "France",
+    "country_code": "FR",
+    "language_code": "fr"
+  },
+  "NL": {
+    "country_name": "Netherlands",
+    "country_code": "NL",
+    "language_code": "nl"
+  },
+  "KR": {
+    "country_name": "Republic Of Korea",
+    "country_code": "KR",
+    "language_code": "ko"
+  },
+  "PT": {
+    "country_name": "Portugal",
+    "country_code": "PT",
+    "language_code": "pt"
+  },
+  "SR": {
+    "country_name": "Suriname",
+    "country_code": "SR",
+    "language_code": "nl"
+  },
+  "CN": {
+    "country_name": "China",
+    "country_code": "CN",
+    "language_code": "zh"
+  },
+
+  "DZ": {
+    "country_name": "Algeria",
+    "country_code": "DZ",
+    "language_code": "ar"
+  },
+  "AO": {
+    "country_name": "Angola",
+    "country_code": "AO",
+    "language_code": "pt"
+  },
+  "AI": {
+    "country_name": "Anguilla",
+    "country_code": "AI",
+    "language_code": "en"
+  },
+  "AG": {
+    "country_name": "Antigua & Barbuda",
+    "country_code": "AG",
+    "language_code": "en"
+  },
+  "AR": {
+    "country_name": "Argentina",
+    "country_code": "AR",
+    "language_code": "es"
+  },
+  "AM": {
+    "country_name": "Armenia",
+    "country_code": "AM",
+    "language_code": "hy"
+  },
+  "AU": {
+    "country_name": "Australia",
+    "country_code": "AU",
+    "language_code": "en-AU"
+  },
+  "AT": {
+    "country_name": "Austria",
+    "country_code": "AT",
+    "language_code": "de"
+  },
+  "AZ": {
+    "country_name": "Azerbaijan",
+    "country_code": "AZ",
+    "language_code": "az"
+  },
+  "BH": {
+    "country_name": "Bahrain",
+    "country_code": "BH",
+    "language_code": "ar"
+  },
+  "BD": {
+    "country_name": "Bangladesh",
+    "country_code": "BD",
+    "language_code": "bn"
+  },
+  "BB": {
+    "country_name": "Barbados",
+    "country_code": "BB",
+    "language_code": "en"
+  },
+  "BY": {
+    "country_name": "Belarus",
+    "country_code": "BY",
+    "language_code": "be"
+  },
+  "BE": {
+    "country_name": "Belgium",
+    "country_code": "BE",
+    "language_code": "nl"
+  },
+  "BZ": {
+    "country_name": "Belize",
+    "country_code": "BZ",
+    "language_code": "en"
+  },
+  "BM": {
+    "country_name": "Bermuda",
+    "country_code": "BM",
+    "language_code": "en"
+  },
+  "BO": {
+    "country_name": "Bolivia",
+    "country_code": "BO",
+    "language_code": "es"
+  },
+  "BW": {
+    "country_name": "Botswana",
+    "country_code": "BW",
+    "language_code": "en"
+  },
+  "BR": {
+    "country_name": "Brazil",
+    "country_code": "BR",
+    "language_code": "pt"
+  },
+  "VG": {
+    "country_name": "British Virgin Islands",
+    "country_code": "VG",
+    "language_code": "en"
+  },
+  "BN": {
+    "country_name": "Brunei",
+    "country_code": "BN",
+    "language_code": "ms"
+  },
+  "BG": {
+    "country_name": "Bulgaria",
+    "country_code": "BG",
+    "language_code": "bg"
+  },
+  "CA": {
+    "country_name": "Canada",
+    "country_code": "CA",
+    "language_code": "en"
+  },
+  "KY": {
+    "country_name": "Cayman Islands",
+    "country_code": "KY",
+    "language_code": "en"
+  },
+  "CL": {
+    "country_name": "Chile",
+    "country_code": "CL",
+    "language_code": "es"
+  },
+  "CO": {
+    "country_name": "Colombia",
+    "country_code": "CO",
+    "language_code": "es"
+  },
+  "CR": {
+    "country_name": "Costa Rica",
+    "country_code": "CR",
+    "language_code": "es"
+  },
+  "CI": {
+    "country_name": "Cote D’Ivoire",
+    "country_code": "CI",
+    "language_code": "fr"
+  },
+  "HR": {
+    "country_name": "Croatia",
+    "country_code": "HR",
+    "language_code": "hr"
+  },
+  "CY": {
+    "country_name": "Cyprus",
+    "country_code": "CY",
+    "language_code": "el"
+  },
+  "CZ": {
+    "country_name": "Czech Republic",
+    "country_code": "CZ",
+    "language_code": "cs"
+  },
+  "DK": {
+    "country_name": "Denmark",
+    "country_code": "DK",
+    "language_code": "da"
+  },
+  "DM": {
+    "country_name": "Dominica",
+    "country_code": "DM",
+    "language_code": "en"
+  },
+  "DO": {
+    "country_name": "Dominican Rep.",
+    "country_code": "DO",
+    "language_code": "es"
+  },
+  "EC": {
+    "country_name": "Ecuador",
+    "country_code": "EC",
+    "language_code": "es"
+  },
+  "EG": {
+    "country_name": "Egypt",
+    "country_code": "EG",
+    "language_code": "ar"
+  },
+  "SV": {
+    "country_name": "El Salvador",
+    "country_code": "SV",
+    "language_code": "es"
+  },
+  "EE": {
+    "country_name": "Estonia",
+    "country_code": "EE",
+    "language_code": "et"
+  },
+  "FI": {
+    "country_name": "Finland",
+    "country_code": "FI",
+    "language_code": "fi"
+  },
+
+  "GH": {
+    "country_name": "Ghana",
+    "country_code": "GH",
+    "language_code": "en"
+  },
+  "GR": {
+    "country_name": "Greece",
+    "country_code": "GR",
+    "language_code": "el"
+  },
+  "GD": {
+    "country_name": "Grenada",
+    "country_code": "GD",
+    "language_code": "en"
+  },
+  "GT": {
+    "country_name": "Guatemala",
+    "country_code": "GT",
+    "language_code": "es"
+  },
+  "GY": {
+    "country_name": "Guyana",
+    "country_code": "GY",
+    "language_code": "en"
+  },
+  "HN": {
+    "country_name": "Honduras",
+    "country_code": "HN",
+    "language_code": "es"
+  },
+  "HK": {
+    "country_name": "Hong Kong",
+    "country_code": "HK",
+    "language_code": "zh"
+  },
+  "HU": {
+    "country_name": "Hungary",
+    "country_code": "HU",
+    "language_code": "hu"
+  },
+  "IS": {
+    "country_name": "Iceland",
+    "country_code": "IS",
+    "language_code": "is"
+  },
+  "IN": {
+    "country_name": "India",
+    "country_code": "IN",
+    "language_code": "en"
+  },
+  "ID": {
+    "country_name": "Indonesia",
+    "country_code": "ID",
+    "language_code": "id"
+  },
+  "IE": {
+    "country_name": "Ireland",
+    "country_code": "IE",
+    "language_code": "en"
+  },
+  "IL": {
+    "country_name": "Israel",
+    "country_code": "IL",
+    "language_code": "he"
+  },
+  "IT": {
+    "country_name": "Italy",
+    "country_code": "IT",
+    "language_code": "it"
+  },
+  "JM": {
+    "country_name": "Jamaica",
+    "country_code": "JM",
+    "language_code": "en"
+  },
+  "JP": {
+    "country_name": "Japan",
+    "country_code": "JP",
+    "language_code": "ja"
+  },
+  "JO": {
+    "country_name": "Jordan",
+    "country_code": "JO",
+    "language_code": "ar"
+  },
+  "KZ": {
+    "country_name": "Kazakstan",
+    "country_code": "KZ",
+    "language_code": "kk"
+  },
+  "KE": {
+    "country_name": "Kenya",
+    "country_code": "KE",
+    "language_code": "sw"
+  },
+  "KW": {
+    "country_name": "Kuwait",
+    "country_code": "KW",
+    "language_code": "ar"
+  },
+  "LV": {
+    "country_name": "Latvia",
+    "country_code": "LV",
+    "language_code": "lv"
+  },
+  "LB": {
+    "country_name": "Lebanon",
+    "country_code": "LB",
+    "language_code": "ar"
+  },
+  "LI": {
+    "country_name": "Liechtenstein",
+    "country_code": "LI",
+    "language_code": "de"
+  },
+  "LT": {
+    "country_name": "Lithuania",
+    "country_code": "LT",
+    "language_code": "lt"
+  },
+  "LU": {
+    "country_name": "Luxembourg",
+    "country_code": "LU",
+    "language_code": "lb"
+  },
+  "MO": {
+    "country_name": "Macau",
+    "country_code": "MO",
+    "language_code": "zh"
+  },
+  "MK": {
+    "country_name": "Macedonia",
+    "country_code": "MK",
+    "language_code": "mk"
+  },
+  "MG": {
+    "country_name": "Madagascar",
+    "country_code": "MG",
+    "language_code": "mg"
+  },
+  "MY": {
+    "country_name": "Malaysia",
+    "country_code": "MY",
+    "language_code": "ms"
+  },
+  "MV": {
+    "country_name": "Maldives",
+    "country_code": "MV",
+    "language_code": "dv"
+  },
+  "ML": {
+    "country_name": "Mali",
+    "country_code": "ML",
+    "language_code": "fr"
+  },
+  "MT": {
+    "country_name": "Malta",
+    "country_code": "MT",
+    "language_code": "mt"
+  },
+  "MU": {
+    "country_name": "Mauritius",
+    "country_code": "MU",
+    "language_code": "fr"
+  },
+  "MX": {
+    "country_name": "Mexico",
+    "country_code": "MX",
+    "language_code": "es"
+  },
+  "MD": {
+    "country_name": "Moldova, Republic Of",
+    "country_code": "MD",
+    "language_code": "ro"
+  },
+  "MS": {
+    "country_name": "Montserrat",
+    "country_code": "MS",
+    "language_code": "en"
+  },
+  "NP": {
+    "country_name": "Nepal",
+    "country_code": "NP",
+    "language_code": "ne"
+  },
+
+  "NZ": {
+    "country_name": "New Zealand",
+    "country_code": "NZ",
+    "language_code": "mi"
+  },
+  "NI": {
+    "country_name": "Nicaragua",
+    "country_code": "NI",
+    "language_code": "es"
+  },
+  "NE": {
+    "country_name": "Niger",
+    "country_code": "NE",
+    "language_code": "fr"
+  },
+  "NG": {
+    "country_name": "Nigeria",
+    "country_code": "NG",
+    "language_code": "en"
+  },
+  "NO": {
+    "country_name": "Norway",
+    "country_code": "NO",
+    "language_code": "nb"
+  },
+  "OM": {
+    "country_name": "Oman",
+    "country_code": "OM",
+    "language_code": "ar"
+  },
+  "PK": {
+    "country_name": "Pakistan",
+    "country_code": "PK",
+    "language_code": "en"
+  },
+  "PA": {
+    "country_name": "Panama",
+    "country_code": "PA",
+    "language_code": "es"
+  },
+  "PY": {
+    "country_name": "Paraguay",
+    "country_code": "PY",
+    "language_code": "es"
+  },
+  "PE": {
+    "country_name": "Peru",
+    "country_code": "PE",
+    "language_code": "es"
+  },
+  "PH": {
+    "country_name": "Philippines",
+    "country_code": "PH",
+    "language_code": "en"
+  },
+  "PL": {
+    "country_name": "Poland",
+    "country_code": "PL",
+    "language_code": "pl"
+  },
+
+  "QA": {
+    "country_name": "Qatar",
+    "country_code": "QA",
+    "language_code": "ar"
+  },
+  "RO": {
+    "country_name": "Romania",
+    "country_code": "RO",
+    "language_code": "ro"
+  },
+  "RU": {
+    "country_name": "Russia",
+    "country_code": "RU",
+    "language_code": "ru"
+  },
+  "SA": {
+    "country_name": "Saudi Arabia",
+    "country_code": "SA",
+    "language_code": "ar"
+  },
+  "SN": {
+    "country_name": "Senegal",
+    "country_code": "SN",
+    "language_code": "ar"
+  },
+  "RS": {
+    "country_name": "Serbia",
+    "country_code": "RS",
+    "language_code": "sr"
+  },
+  "SG": {
+    "country_name": "Singapore",
+    "country_code": "SG",
+    "language_code": "zh"
+  },
+  "SK": {
+    "country_name": "Slovakia",
+    "country_code": "SK",
+    "language_code": "sk"
+  },
+  "SI": {
+    "country_name": "Slovenia",
+    "country_code": "SI",
+    "language_code": "sl"
+  },
+  "ZA": {
+    "country_name": "South Africa",
+    "country_code": "ZA",
+    "language_code": "en"
+  },
+  "ES": {
+    "country_name": "Spain",
+    "country_code": "ES",
+    "language_code": "es"
+  },
+  "LK": {
+    "country_name": "Sri Lanka",
+    "country_code": "LK",
+    "language_code": "si"
+  },
+  "KN": {
+    "country_name": "St. Kitts & Nevis",
+    "country_code": "KN",
+    "language_code": "en"
+  },
+  "LC": {
+    "country_name": "St. Lucia",
+    "country_code": "LC",
+    "language_code": "en"
+  },
+  "VC": {
+    "country_name": "St. Vincent & The Grenadines",
+    "country_code": "VC",
+    "language_code": "en"
+  },
+  "SE": {
+    "country_name": "Sweden",
+    "country_code": "SE",
+    "language_code": "sv"
+  },
+  "CH": {
+    "country_name": "Switzerland",
+    "country_code": "CH",
+    "language_code": "de"
+  },
+  "TW": {
+    "country_name": "Taiwan",
+    "country_code": "TW",
+    "language_code": "zh-hant"
+  },
+  "TZ": {
+    "country_name": "Tanzania",
+    "country_code": "TZ",
+    "language_code": "sw"
+  },
+  "TH": {
+    "country_name": "Thailand",
+    "country_code": "TH",
+    "language_code": "th"
+  },
+  "BS": {
+    "country_name": "The Bahamas",
+    "country_code": "BS",
+    "language_code": "en"
+  },
+  "TT": {
+    "country_name": "Trinidad & Tobago",
+    "country_code": "TT",
+    "language_code": "en"
+  },
+  "TN": {
+    "country_name": "Tunisia",
+    "country_code": "TN",
+    "language_code": "ar"
+  },
+  "TR": {
+    "country_name": "Turkey",
+    "country_code": "TR",
+    "language_code": "tr"
+  },
+  "TC": {
+    "country_name": "Turks & Caicos",
+    "country_code": "TC",
+    "language_code": "en"
+  },
+  "UG": {
+    "country_name": "Uganda",
+    "country_code": "UG",
+    "language_code": "en"
+  },
+  "GB": {
+    "country_name": "UK",
+    "country_code": "GB",
+    "language_code": "en"
+  },
+  "UA": {
+    "country_name": "Ukraine",
+    "country_code": "UA",
+    "language_code": "uk"
+  },
+  "AE": {
+    "country_name": "United Arab Emirates",
+    "country_code": "AE",
+    "language_code": "ar"
+  },
+  "UY": {
+    "country_name": "Uruguay",
+    "country_code": "UY",
+    "language_code": "es"
+  },
+  "UZ": {
+    "country_name": "Uzbekistan",
+    "country_code": "UZ",
+    "language_code": "uz"
+  },
+  "VE": {
+    "country_name": "Venezuela",
+    "country_code": "VE",
+    "language_code": "es"
+  },
+  "VN": {
+    "country_name": "Vietnam",
+    "country_code": "VN",
+    "language_code": "vi"
+  },
+  "YE": {
+    "country_name": "Yemen",
+    "country_code": "YE",
+    "language_code": "ar"
+  }
+}

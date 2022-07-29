@@ -4,6 +4,8 @@ const libQ = require('kew');
 const mixcloud = require(mixcloudPluginLibRoot + '/mixcloud');
 const Model = require(mixcloudPluginLibRoot + '/model');
 const ViewHelper = require(mixcloudPluginLibRoot + '/helper/view');
+const miniget = require('miniget');
+const m3u8 = require('m3u8-parser');
 
 class PlayController {
 
@@ -30,23 +32,33 @@ class PlayController {
     }
 
     stop() {
-        mixcloud.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        mixcloud.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.stop();
     };
 
     pause() {
-        mixcloud.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        mixcloud.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.pause();
     };
   
     resume() {
-        mixcloud.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        mixcloud.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.resume();
     }
   
     seek(position) {
-        mixcloud.getStateMachine().setConsumeUpdateService('mpd', false, false);
+        mixcloud.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return this.mpdPlugin.seek(position);
+    }
+
+    next() {
+        mixcloud.getStateMachine().setConsumeUpdateService('mpd', true, false);
+        return this.mpdPlugin.next();
+    }
+
+    previous() {
+        mixcloud.getStateMachine().setConsumeUpdateService(undefined);
+        return mixcloud.getStateMachine().previous();
     }
 
     _getStreamUrl(track) {
@@ -73,8 +85,22 @@ class PlayController {
                     }
                 }
                 else {
-                    let safeUri = stream.replace(/"/g, '\\"');
-                    return safeUri;
+                    // We setConsumeUpdateService to ignore metadata, so statemachine will take sample rate and bit depth from
+                    // trackblock, which we don't have...At best, if stream is HLS, we try to obtain the max bit rate (bandwidth) and set it
+                    // as the sample rate. Otherwise, statemachine will obtain the bitrate from MPD but this is not always available.
+                    let fetchBitrate = libQ.resolve(null);
+                    if (cloudcast.streams.hls) {
+                        fetchBitrate = this._getBandwidthFromHLS(stream)
+                            .then( bandwidth => bandwidth ? `${ Math.floor(bandwidth / 1000) } kbps` : null );
+                    }
+
+                    return fetchBitrate.then( bitrate => {
+                        if (bitrate !== null) {
+                            track.samplerate = bitrate;
+                        }
+                        let safeUri = stream.replace(/"/g, '\\"');
+                        return safeUri;
+                    });
                 }
             });
         }
@@ -117,9 +143,31 @@ class PlayController {
             }
         })
         .then( () => {
-            mixcloud.getStateMachine().setConsumeUpdateService('mpd', false, false);
+            mixcloud.getStateMachine().setConsumeUpdateService('mpd', true, false);
             return mpdPlugin.sendMpdCommand('play', []);
         });
+    }
+
+    _getBandwidthFromHLS(streamUrl) {
+        let defer = libQ.defer();
+
+        miniget(streamUrl).text().then( body => {
+            let result = null;
+            let parser = new m3u8.Parser();
+            parser.push(body);
+            parser.end();
+            let manifest = parser.manifest || {};
+            if (Array.isArray(manifest.playlists) && manifest.playlists[0]) {
+                let attributes = manifest.playlists[0].attributes || {};
+                result = attributes.BANDWIDTH || null;
+            }
+            defer.resolve(result);
+        })
+        .catch( err => {
+            defer.resolve(null);
+        });
+
+        return defer.promise;
     }
 
 }

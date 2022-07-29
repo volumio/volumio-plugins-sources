@@ -11,7 +11,7 @@
 		"icon": "fa-circle-notch",
 		"onSave": {
 			"type": "controller",
-			"endpoint": "user_interface/rotaryencoder2",
+			"endpoint": "system_hardware/rotaryencoder2",
 			"method": "updateEncoder"
 		},
 		"saveButton": {
@@ -466,7 +466,7 @@
 		"icon": "fa-circle-notch",
 		"onSave": {
 			"type": "controller",
-			"endpoint": "user_interface/rotaryencoder2",
+			"endpoint": "system_hardware/rotaryencoder2",
 			"method": "updateEncoder"
 		},
 		"saveButton": {
@@ -921,7 +921,7 @@
 		"icon": "fa-circle-notch",
 		"onSave": {
 			"type": "controller",
-			"endpoint": "user_interface/rotaryencoder2",
+			"endpoint": "system_hardware/rotaryencoder2",
 			"method": "updateEncoder"
 		},
 		"saveButton": {
@@ -1376,7 +1376,7 @@
 		"icon": "fa-bug",
 		"onSave": {
 			"type": "controller",
-			"endpoint": "user_interface/rotaryencoder2",
+			"endpoint": "system_hardware/rotaryencoder2",
 			"method": "updateDebugSettings"
 		},
 		"saveButton": {

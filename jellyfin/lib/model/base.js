@@ -96,10 +96,16 @@ class BaseModel {
             queryOptions.Limit = options.limit;
         }
 
-        if (options.sortBy != undefined) {
+        if (options.sortBy === '__unset') {
+            delete queryOptions.SortBy;
+        }
+        else if (options.sortBy != undefined) {
             queryOptions.SortBy = options.sortBy;
         }
-        if (options.sortOrder != undefined) {
+        if (options.sortOrder === '__unset') {
+            delete queryOptions.SortOrder;
+        }
+        else if (options.sortOrder != undefined) {
             queryOptions.SortOrder = options.sortOrder;
         }
 
