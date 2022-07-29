@@ -118,20 +118,23 @@ ControllerSpotify.prototype.onStart = function () {
     var self = this;
     var defer = libQ.defer();
 
-    // SpotifyWebApi
-    this.spotifyApi = new SpotifyWebApi();
-    this.device = undefined;
-    this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
-    this.volumeListener();
-    this.applySpotifyHostsFix();
 
-    this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
-    var boundMethod = self.onPlayerNameChanged.bind(self);
-    self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
+    this.checkOldSpotifyConnectPlugin().then(() => {
+        // SpotifyWebApi
+        this.spotifyApi = new SpotifyWebApi();
+        this.device = undefined;
+        this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
+        this.volumeListener();
+        this.applySpotifyHostsFix();
 
-
-    this.init().then(() => {
-        defer.resolve();
+        this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
+        var boundMethod = self.onPlayerNameChanged.bind(self);
+        self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
+        this.init().then(() => {
+            defer.resolve();
+        });
+    }).fail(()=> {
+        defer.reject('Failed to disable Old Connect Plugin');
     });
 
     return defer.promise;
@@ -3031,5 +3034,43 @@ ControllerSpotify.prototype.clearVolumioQueueFromSpotifySongs = function () {
     setTimeout(()=>{
         defer.resolve('');
     }, 1000)
+    return defer.promise;
+};
+
+ControllerSpotify.prototype.checkOldSpotifyConnectPlugin = function () {
+    var self = this;
+    var defer = libQ.defer();
+
+    self.logger.info('Checking for old spotify connect plugin installed');
+
+    var isOldPluginEnabled = self.commandRouter.pluginManager.isEnabled('music_service', 'volspotconnect2');
+    if (isOldPluginEnabled) {
+        self.logger.error('Old Spotify Connect plugin found, disabling it');
+        self.commandRouter.disablePlugin({'category': 'music_service', 'plugin': 'volspotconnect2'}).then(()=>{
+            var responseData = {
+                title: 'SPOTIFY PLUGIN',
+                message: 'WARING! The Spotify plugin might not work properly, since you have both volspotconnect2 and Spotify plugin installed. ' +
+                    'It is strongly suggested to uninstall both plugins, restart your system and then install only the Spotify plugin from Volumio' +
+                    ' plugins store.',
+                size: 'lg',
+                buttons: [
+                    {
+                        name: self.commandRouter.getI18nString('COMMON.GOT_IT'),
+                        class: 'btn btn-info ng-scope',
+                        emit: '',
+                        payload: ''
+                    }
+                ]
+            };
+            self.commandRouter.broadcastMessage('openModal', responseData);
+            defer.resolve('');
+        }).fail(()=> {
+            self.logger.error('Failed to disable Old Connect Plugin');
+            defer.reject('');
+        });
+    } else {
+        defer.resolve('');
+    }
+
     return defer.promise;
 };

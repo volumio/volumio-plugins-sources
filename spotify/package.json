@@ -15,6 +15,7 @@
 		"prettyName": "Spotify",
 		"icon": "fa-spotify",
 		"plugin_type": "music_service",
+		"boot_priority":10,
 		"os": [
 			"buster"
 		],
