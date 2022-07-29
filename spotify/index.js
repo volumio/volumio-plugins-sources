@@ -1985,8 +1985,9 @@ ControllerSpotify.prototype.identifyThisConnectDevice = function () {
     self.listMyDevices().then(function(devices) {
         if (devices && devices.length) {
             for (var i in devices) {
-                if (devices[i].name === systemName) {
+                if (devices[i].name.toLowerCase() === systemName.toLowerCase()) {
                     self.thisSpotifyConnectDeviceId = devices[i].id;
+                    self.logger.info('Idenfitied this device as Connect device: ' + self.thisSpotifyConnectDeviceId)
                     self.thisDeviceIdentifier = true;
                 }
             }
@@ -2858,7 +2859,7 @@ ControllerSpotify.prototype.setDeviceActive = function () {
                 defer.resolve('');
             })
             .catch(function (err) {
-                self.logger.info('Failed to Set Device Active: ' + err);
+                self.logger.error('Failed to Set Device Active: ' + err + ' Device ID: ' + self.thisSpotifyConnectDeviceId);
                 defer.reject('');
             });
     })
