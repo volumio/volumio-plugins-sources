@@ -143,6 +143,10 @@
 		"LABEL": "MPD OLED na GitHub",
 		"DESC": "Navštívte projekt MPD OLED na GitHub."
 	},
+	"MPD_OLED_FORUM_LINK": {
+		"LABEL": "Plugin Feedback",
+		"DESC": "Visit this plugin's page in the Volumio community forum."
+	},
 	"DATE_FORMAT": {
 		"LABEL": "Formát dátumu",
 		"DOC": "Vyberte formát dátumu.",

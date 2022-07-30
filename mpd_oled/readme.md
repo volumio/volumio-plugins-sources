@@ -157,17 +157,20 @@ rm -Rf mpd_oled.zip
 
 ## Credits
 
-- Thanks to Adrian Rossiter for help creating the install & uninstall scripts, testing, providing the Spanish translation and for writing `mpd_oled` in the first place: <https://github.com/antiprism>  
+- Special thanks to antiprism (Adrian Rossiter) for help creating the install & uninstall scripts, testing, providing the Spanish translation and of course for writing `mpd_oled` in the first place: <https://github.com/antiprism>  
 
-- Balbuze for helping with upgrading it to Volumio 3
+- `mpd_oled` is the application that does all the hard work.  It communicates with MPD running under Volumio, reads audio spectrum data from C.A.V.A and displays it on the screen: <https://github.com/antiprism/mpd_oled>
 
-- `mpd_oled` is the application that does all the hard work.  It communicates with Volumio, reads audio spectrum data from C.A.V.A and displays it on the screen: <https://github.com/antiprism/mpd_oled>
+- Balbuze for help upgrading the plugin to Volumio 3: <https://github.com/balbuze>  
 
 - Thanks to misko903 for the Slovakian translation and for giving me the push to write this plugin: <https://github.com/misko903>
 
 - German translation by Josef and Judydudi.
 
 - Italian translation by Pasquale D'Orsi.
+
+- Thanks to everyone who helped to test the plugin and made suggestions in the Volumio community
+<https://community.volumio.org/t/plugin-mpd-oled-installation-configuration-plugin>
 
 - C.A.V.A. is a bar spectrum audio visualizer: <https://github.com/karlstav/cava>
 
