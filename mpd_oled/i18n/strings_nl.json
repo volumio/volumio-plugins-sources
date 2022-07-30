@@ -1,0 +1,157 @@
+{
+	"PLUGIN_CONFIGURATION": "MPD OLED Configuratie",
+	"PLUGIN_DESCRIPTION": "Controleer een OLED scherm via MPD OLED",
+	"PLUGIN_TOOLS": "Hulpmiddelen",
+	"PLUGIN_LINKS": "Nuttige Links",
+	"SETTINGS_SAVED": "MPD OLED instellingen zijn toegepast.",
+	"VALID_CONFIGURATION": "Valide Configuratie",
+	"INVALID_CONFIGURATION": "Invalide Configuratie",
+	"RESET_DC_ERROR": "I2C/SPI reset GPIO en SPI DC GPIO nummers moeten anders zijn.",
+	"OLED_TYPE_ERROR": "Selecteer het juiste OLED display type.",
+	"CAVA_ERROR": "Voer de juiste CAVA invoer methode en bron in.",
+	"PROCESS_START_ERROR": "Kon MPD OLED proces niet starten.  Met de volgende foutmelding: <ERROR>",
+	"PROCESS_STOP_ERROR": "Kon MPD OLED proces niet stoppen.  Met de volgende foutmelding: <ERROR>",
+	"GAP_BARS_ERROR": "Spectrum breete weergave <SPECT_WIDTH>: om <BARS> weer te geven met een opening van <GAP> heeft een minimum breete nodig van <MIN_WIDTH>. Verminder de hoeveelheid bars en/of openings maat.",
+	"SAVE": "Opslaan",
+	"OK": "Snap ik",
+	"I2C_DEVICE_SCAN": "I2C apparaten Scan",
+	"I2C_NO_TOOLS": "Kon geen I2C apparaten scan uitvoeren omdat de i2c-tools niet zijn geinstalleerd.",
+	"I2C_SCAN_ERROR": "Fout gevonden tijdens scannen van <I2C_BUS>: <ERROR>",
+	"I2C_BUS_DISABLED": "<strong>Er zijn geen apparaten gevonden op de I2C bus <I2C_BUS> omdat de bus is uitgezet.</strong>",
+	"I2C_DEVICE_LIST": "Apparaten gevonden op I2C bus <I2C_BUS> waar:<br/><br/><strong><DEVICES></strong>",
+	"I2C_DEVICES_NONE": "Geen",
+	"OLED_TYPE": {
+		"LABEL": "OLED display type",
+		"DOC": "Selecteer het verbonden OLED display type.",
+		"DEFAULT": "Selecteer..",
+		"ITEM1": "1. Adafruit SPI 128x64",
+		"ITEM3": "3. Adafruit I2C 128x64",
+		"ITEM4": "4. Seeed I2C 128x64",
+		"ITEM6": "6. SH1106 I2C 128x64",
+		"ITEM7": "7. SH1106 SPI 128x64"
+	},
+	"NUMBER_OF_BARS": {
+		"LABEL": "Staaf aantal",
+		"DOC": "Selecteer het aantal staven in de spectrum analyser.",
+		"DEFAULT": "16 (default)"
+	},
+	"GAP_BETWEEN_BARS": {
+		"LABEL": "Opening tussen de staven",
+		"DOC": "Selecteer de opennig tussen de staven (pixels).",
+		"DEFAULT": "1 (standaard)"
+	},
+	"FRAME_RATE": {
+		"LABEL": "Beeld Snelheid",
+		"DOC": "Selecteer de snelheid waarmee het display ververst wordt.(Hz)<br/><br/>Het installatie proces verhoogd de I2C snelheid naar 800 Kbit/s herstart de Raspberry Pi om de aanpassingen toe te passen.<br/><br/>Tip: Een Raspberry Pi 3 met een beeld verversings snelheid van 50Hz levert een prima resultaat op.",
+		"DEFAULT": "15 (standaard)"
+	},
+	"SCROLL_RATE": {
+		"LABEL": "Rol snelheid",
+		"DOC": "Selecteer de tekst rol snelheid (pixels/seconde).",
+		"DEFAULT": "8 (standaard)"
+	},
+	"SCROLL_DELAY": {
+		"LABEL": "Rol vertraging",
+		"DOC": "Selecteer de tekst rol vertragings snelheid (seconden).",
+		"DEFAULT": "5 (standaard)"
+	},
+	"CLOCK_FORMAT": {
+		"LABEL": "Klok formaat",
+		"DOC": "Selecteer het Klok formaat.",
+		"DEFAULT": "24h met leidende 0 (standaard)",
+		"ITEM1": "24h geen leidende 0",
+		"ITEM2": "12h met leidende 0",
+		"ITEM3": "12h geen leidende 0"
+	},
+	"PAUSE_SCREEN_TYPE": {
+		"LABEL": "Type Pause scherm",
+		"DOC": "Selecteer het pause scherm type.",
+		"DEFAULT": "Afspelen (standaard)",
+		"ITEM1": "Stop"
+	},
+	"CAVA_INPUT_METHOD_AND_SOURCE_ENABLED": {
+		"LABEL": "CAVA Configuratie",
+		"DOC": "Maakt een op maat CAVA invoer methode en bron."
+	},
+	"CAVA_INPUT_METHOD_AND_SOURCE": {
+		"LABEL": "CAVA invoer methode en bron",
+		"DOC": "Definieert de CAVA invoer methode en bron.<br/><br/>Voorbeelden:<br/><br/>fifo,/tmp/mpd_oled_fifo (Standaard)<br/>fifo,/tmp/my_fifo<br/>alsa,hw:5,0<br/>pulse"
+	},
+	"ROTATE_DISPLAY": {
+		"LABEL": "Rotate display",
+		"DOC": "Selecteer om het display 180 graden te roteren."
+	},
+	"INVERT_DISPLAY_ENABLED": {
+		"LABEL": "Display omkeren",
+		"DOC": "Black/White Omdraaien op het display."
+	},
+	"INVERT_DISPLAY_PERIOD": {
+		"LABEL": "Periode",
+		"DOC": "De frequentie waarmee het display periodiek omgedraaid wordt om inbranden te verkomen.",
+		"DEFAULT": "Uitgeschakeld (standaard)",
+		"ITEM1": "1 minuut",
+		"ITEM2": "2 minuten",
+		"ITEM3": "3 minuten",
+		"ITEM4": "6 minuten",
+		"ITEM5": "12 minuten",
+		"ITEM6": "24 minuten",
+		"ITEM7": "48 minuten",
+		"ITEM8": "1 uur",
+		"ITEM9": "2 uren",
+		"ITEM10": "3 uren",
+		"ITEM11": "6 uren"
+	},
+	"I2C_ADDRESS": {
+		"LABEL": "I2C adres",
+		"DOC": "Selecteer het I2C adres van het display.",
+		"DEFAULT": "standaard voor display"
+	},
+	"I2C_BUS": {
+		"LABEL": "I2C bus",
+		"DOC": "Selecteer de I2C bus afhankelijk van het Raspberry Pi model.<br/><br/>/dev/i2c-1 voor Model A, B Rev 2 or B+ Pi<br>/dev/i2c-0 voor het origineel Model B Rev 1.",
+		"ITEM0": "/dev/i2c-0",
+		"ITEM1": "/dev/i2c-1",
+		"DEFAULT": "/dev/i2c-1 (standaard)"
+	},
+	"SPI_RESET_GPIO_NUMBER": {
+		"LABEL": "I2C/SPI reset GPIO nummer",
+		"DOC": "Selecteer het GPIO nummer dat aan de RESET lijn verbonden is (indien beschikbaar).",
+		"DEFAULT": "25 (standaard)"
+	},
+	"SPI_DC_GPIO_NUMBER": {
+		"LABEL": "SPI DC GPIO nummer",
+		"DOC": "Selecteer het GPIO nummer welke aan de DC lijn verbonden is.",
+		"DEFAULT": "24 (standaard)"
+	},
+	"SPI_CS": {
+		"LABEL": "SPI CS GPIO nummer",
+		"DOC": "Selecteer het GPIO nummer welke aan de CS lijn verbonden is.",
+		"DEFAULT": "0 (standaard)"
+	},
+	"I2C_SCAN": {
+		"LABEL": "I2C Apparaten Scan",
+		"DESC": "Zoeken naar I2C apparaten"
+	},
+	"I2C_WIRING_LINK": {
+		"LABEL": "I2C OLED bedrading",
+		"DESC": "Aansluit diagram voor I2C OLED displays."
+	},
+	"SPI_WIRING_LINK": {
+		"LABEL": "SPI OLED bedrading",
+		"DESC": "Aansluit diagram voor SPI OLED displays."
+	},
+	"MPD_OLED_LINK": {
+		"LABEL": "MPD OLED op GitHub",
+		"DESC": "Bezoek het MPD OLED project op GitHub."
+	},
+	"MPD_OLED_FORUM_LINK": {
+		"LABEL": "Plugin Feedback",
+		"DESC": "Visit this plugin's page in the Volumio community forum."
+	},
+	"DATE_FORMAT": {
+		"LABEL": "Datum formaat",
+		"DOC": "Selecteer het datum formaat.",
+		"DEFAULT": "DD-MM-YYYY (standaard)",
+		"ITEM1": "MM-DD-YYYY"
+	}
+}
