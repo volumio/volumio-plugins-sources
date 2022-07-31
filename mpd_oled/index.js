@@ -161,7 +161,8 @@ MpdOled.prototype.onStart = function() {
 	const self = this;
 	var defer = libQ.defer();
 	self.restartProcess(false);
-	self.modprobeLoopBackDevice()
+	self.makeMpdoledFifo();
+	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
 	defer.resolve();
 	return defer.promise;
 };
@@ -176,22 +177,18 @@ MpdOled.prototype.onStop = function() {
 };
 
 
-//here we load snd_aloop module to provide a Loopback device
-MpdOled.prototype.modprobeLoopBackDevice = function () {
+// Make fifo
+MpdOled.prototype.makeMpdoledFifo = function () {
 	const self = this;
-	let defer = libQ.defer();
-	//self.hwinfo();
+	var defer = libQ.defer();
 	try {
-	  execSync("/usr/bin/sudo /sbin/modprobe snd_aloop index=7 pcm_substreams=2", {
-		uid: 1000,
-		gid: 1000
-	  });
-	  self.commandRouter.pushConsoleMessage('snd_aloop loaded');
-	  defer.resolve();
-	} catch (err) {
-	  self.logger.info('failed to load snd_aloop' + err);
+		execSync("/usr/bin/mkfifo -m 646 /tmp/mpdoledfifo", { uid: 1000, gid: 1000 });
 	}
-  };
+	catch (err) {
+		self.logger.error('Failed to create mpdoledfifo: ' + err);
+		defer.reject(err);
+	}
+};
 
 // Read config and setup UI
 MpdOled.prototype.getUIConfig = function() {
@@ -282,17 +279,6 @@ MpdOled.prototype.saveConfig = function(data){
 	// Restart mpd_oled process
 	self.restartProcess(true);
 };
-
-// ==================== Unused plugin methods ====================
-
-MpdOled.prototype.onRestart = function(){};
-MpdOled.prototype.onInstall = function (){};
-MpdOled.prototype.onUninstall = function(){};
-MpdOled.prototype.getConf = function(varName){};
-MpdOled.prototype.setConf = function(varName, varValue){};
-MpdOled.prototype.getAdditionalConf = function(type, controller, data){};
-MpdOled.prototype.setAdditionalConf = function(){};
-MpdOled.prototype.setUIConfig = function(data){};
 
 // ======================= Process control ======================
 
@@ -676,3 +662,14 @@ MpdOled.prototype.info = function(msg){
 	const self = this;
 	self.logger.info(`[MPD_OLED Plugin] ${msg}`);
 };
+
+// ==================== Unused plugin methods ====================
+
+MpdOled.prototype.onRestart = function(){};
+MpdOled.prototype.onInstall = function (){};
+MpdOled.prototype.onUninstall = function(){};
+MpdOled.prototype.getConf = function(varName){};
+MpdOled.prototype.setConf = function(varName, varValue){};
+MpdOled.prototype.getAdditionalConf = function(type, controller, data){};
+MpdOled.prototype.setAdditionalConf = function(){};
+MpdOled.prototype.setUIConfig = function(data){};
