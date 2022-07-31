@@ -1,33 +1,37 @@
 {
-  "name": "mpd_oled",
-  "version": "1.0.3",
-  "description": "Volumio plugin to install and configure MPD_OLED which displays song information and spectrum analyser on cheap OLED displays.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "supercrab",
-  "license": "ISC",
-  "volumio_info": {
-    "prettyName": "MPD OLED",
-    "icon": "fa-television",
-    "plugin_type": "user_interface",
-    "details": "Volumio plugin to install and configure MPD_OLED which displays song information and spectrum analyser on cheap OLED displays.",
-    "architectures": [
-      "armhf"
-    ],
-    "has_alsa_contribution": true
-  },
-  "dependencies": {
-    "fs-extra": "^0.28.0",
-    "kew": "^0.7.0",
-    "v-conf": "^1.4.0",
-    "sleep": "",
-    "child_process": ""
-  },
-  "engines": {
-    "node": ">=8",
-    "volumio": ">=3.126"
-  },
-  "repository": "https://github.com/volumio/volumio-plugins-sources"
+	"name": "mpd_oled",
+	"version": "1.0.3",
+	"description": "Volumio plugin to install and configure MPD_OLED which displays song information and spectrum analyser on cheap OLED displays.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "supercrab",
+	"license": "ISC",
+	"volumio_info": {
+		"prettyName": "MPD OLED",
+		"icon": "fa-television",
+		"plugin_type": "user_interface",
+		"details": "Volumio plugin to install and configure MPD_OLED which displays song information and spectrum analyser on cheap OLED displays.",
+		"architectures": [
+			"armhf"
+		],
+		"has_alsa_contribution": true,
+		"os": [
+			"buster"
+		],
+		"changelog": ""
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0",
+		"sleep": "",
+		"child_process": ""
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3.126"
+	},
+	"repository": "https://github.com/volumio/volumio-plugins-sources"
 }
