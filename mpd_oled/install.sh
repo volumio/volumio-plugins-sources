@@ -10,6 +10,8 @@ cd /home/volumio/
 # refresh packages
 echo "Updating packages"
 sudo apt-get update
+
+# Install binary of mpd_oled
 wget -N http://pitastic.com/mpd_oled/packages/mpd_oled_volumio_install_latest.sh
 sudo bash mpd_oled_volumio_install_latest.sh
 

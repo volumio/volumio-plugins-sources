@@ -1853,7 +1853,7 @@
 					"description": "TRANSLATE.I2C_WIRING_LINK.DESC",
 					"onClick": { 
 						"type" : "openUrl", 
-						"url" : "https://github.com/antiprism/mpd_oled/raw/master/doc/wiring_i2c.png?raw=true" 
+						"url" : "https://github.com/antiprism/mpd_oled/blob/master/doc/wiring_i2c.png?raw=true" 
 					}   
 				},
 				{
@@ -1863,7 +1863,7 @@
 					"description": "TRANSLATE.SPI_WIRING_LINK.DESC",
 					"onClick": { 
 						"type" : "openUrl", 
-						"url" : "https://github.com/antiprism/mpd_oled/raw/master/doc/wiring_spi.png?raw=true" 
+						"url" : "https://github.com/antiprism/mpd_oled/blob/master/doc/wiring_spi.png?raw=true" 
 					}   
 				},
 				{
@@ -1886,7 +1886,6 @@
 						"url" : "https://community.volumio.org/t/plugin-mpd-oled-installation-configuration-plugin" 
 					}   
 				}
-
 			]
 		}
 	]

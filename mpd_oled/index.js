@@ -171,25 +171,23 @@ MpdOled.prototype.onStart = function() {
 MpdOled.prototype.onStop = function() {
 	const self = this;
 	var defer = libQ.defer();
-	self.stopProcess(true);
+	self.stopProcess(false);
 	defer.resolve();
 	return defer.promise;
 };
 
 
-//here we make fifo
+// Make fifo
 MpdOled.prototype.makeMpdoledFifo = function () {
-	 const self = this;
-  var defer = libQ.defer();
-  try {
-    execSync("/usr/bin/mkfifo -m 646 /tmp/mpdoledfifo", {
-      uid: 1000,
-      gid: 1000
-    })
-  } catch (err) {
-    self.logger.error('----failed to create mpdoledfifo :' + err);
-    defer.reject(err);
-  }
+	const self = this;
+	var defer = libQ.defer();
+	try {
+		execSync("/usr/bin/mkfifo -m 646 /tmp/mpdoledfifo", { uid: 1000, gid: 1000 });
+	}
+	catch (err) {
+		self.logger.error('Failed to create mpdoledfifo: ' + err);
+		defer.reject(err);
+	}
 };
 
 // Read config and setup UI
