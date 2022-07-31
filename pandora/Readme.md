@@ -21,12 +21,12 @@ Linux users, you're fine.
 
 Then, clone the repository:
 
-`git clone https://github.com/truckershitch/volumio-plugins.git`
+`git clone https://github.com/truckershitch/volumio-plugins-sources.git`
 
 ### Optional (not recommended):
-There are two older versions archived on GitHub.  If you want to try out another branch, change to the `volumio-plugins` directory:
+There are two older versions archived on GitHub.  If you want to try out another branch, change to the `volumio-plugins-sources` directory:
 
-`cd volumio-plugins`
+`cd volumio-plugins-sources`
 
 The pianode branch is the oldest <b>and works the least</b>.  I have not tested it on the newer Volumio releases.<br/>
 <b>It may break your system.  It probably won't work.</b>
@@ -43,18 +43,18 @@ Otherwise, just continue below (don't bother with checking out anything).  To sw
 
 `git checkout master`
 
-Or you can just delete the `volumio-plugins` directory.
+Or you can just delete the `volumio-plugins-sources` directory.
 
 ## Continuing with Installation
 
 <b>To upgrade from an older plugin version:</b>
 
-`cd /path-to/volumio-plugsin/plugins/music_service/pandora`<br/>
+`cd /path-to/volumio-plugins-sources/pandora`<br/>
 `volumio plugin update`
 
 <b>For a fresh installation:</b>
 
-`cd /path-to/volumio-plugins/plugins/music_service/pandora`<br/>
+`cd /path-to/volumio-plugins-sources/pandora`<br/>
 `volumio plugin install`
 
 Both of these two commands stop for me after 100%.  I'm not sure why; if you look at `install.sh`, it's pretty empty.  Weird.  The operations succeed.
@@ -184,9 +184,30 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
    * Fixed problem fetching tracks in `handleBrowseUri`.  Call to getNewTracks is now different due to returned Promise.
    * Small logging fix in `fetchAndAddTracks`.
 
-### Versio 2.9.3
+### Version 2.9.3
    #### Changes
    * Only change was to `package.json` for Volumio 3
+
+### Version 2.10.1
+   #### Changes
+   * Stations can now be sorted by Newest, Oldest, Alphabetical or Reverse Alphabetical order.  I had the sorts ready but had not implemented them.  @HeadGeek's request put the matches under my feet.
+   * Icons were slightly changed in the browse screen.
+
+### Version 2.10.2
+   #### Changes
+   * Resized the Pandora icon to 45% of former size to better match other Volumio icons.  The former size was due to remedial image processing skills by yours truly.  Suggested by @davestlou.
+
+### Version 2.10.3
+   #### Fixes
+   * Changed Pandora icon from grayscale to black and white to fit the Volumio standard (I did not see the comment on GitHub until a few days ago).
+
+### Version 2.11.1
+   #### Fixes
+   * `PandoraHandler::thumbsDown()` was not working (`self` was declared as `const`).  Function was refactored to `PandoraHandler::thumbTrack()` and `PandoraHandler::addFeedback()` to allow for both Thumbs Up and Thumbs Down.
+   * `thumbTrack()` is now exposed / can be called from WebSocket API et al.
+   #### Changes
+   * `PandoraHandler::reportAPIError()`: refactored logging.
+   * `goPreviousNext()`: When `(nextIsThumbsDown == true && qPos == qLen - 1)` -- Fetch more tracks before removing last track from queue -- Otherwise an error might occur or playback might stop?
 
 ## Issues
 
@@ -216,4 +237,4 @@ My alpha fork of the module was rewritten to use Promises instead of callbacks, 
 * <b>@lostmyshape</b> gave me the heads-up about the Unofficial Pandora API and gave me some constructive ideas.  He was the first person to look at my code and give me help.  I also borrowed his mpd player listener callback function which really helped a lot.  Much obliged!
 * <b>@marco79cgn</b> in particular laid the groundwork for my plugin.  I shamelessly borrowed from his code in several areas.
 * The creators of the other Volumio plugins.  I tried to learn from your code.
-* <b>@downtownHippie</b> and <b>@Jim_Edwards</b> in the forum for their helpful and extensive feedback.
+* <b>@downtownHippie</b>, <b>@Jim_Edwards</b>, <b>@GlennBurnett</b> in the forum for their helpful and extensive feedback.
