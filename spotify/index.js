@@ -2243,7 +2243,6 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             startVolume = false;
             this.setSpotifyVolume(currentVolumioVolume);
         } else {
-            // TODO IMPLEMENT A VOLUME DEBOUNCE METHOD HERE
             if (Number.isInteger(vol)) {
                 currentSpotifyVolume = vol;
                 if (currentVolumioVolume !== currentSpotifyVolume) {
