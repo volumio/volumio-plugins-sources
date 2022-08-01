@@ -10,7 +10,7 @@
       "icon": "fa-cogs",
       "onSave": {
         "type": "plugin",
-        "endpoint": "user_interface/pirateaudio",
+        "endpoint": "system_hardware/pirateaudio",
         "method": "setUIConfig"
       },
       "saveButton": {

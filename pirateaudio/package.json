@@ -12,7 +12,7 @@
 	"volumio_info": {
 		"prettyName": "Pirate Audio",
 		"icon": "fa-television",
-		"plugin_type": "user_interface",
+		"plugin_type": "system_hardware",
 		"architectures": [
 			"armhf"
 		],
