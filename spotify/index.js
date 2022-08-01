@@ -39,6 +39,7 @@ var currentSpotifyVolume;
 var currentVolumioVolume;
 var startVolume;
 var volumeDebounce;
+var volumeSpotifyDebounce;
 var currentService;
 var currentTrackContext = {};
 var justLoggedIn = false;
@@ -2894,7 +2895,10 @@ ControllerSpotify.prototype.volumeListener = function () {
                 currentVolumioVolume = volume;
                 if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
                     if (self.iscurrService()) {
-                        self.setSpotifyVolume(volume);
+                        if (volumeSpotifyDebounce) {
+                            clearTimeout(volumeSpotifyDebounce);
+                        }
+                        volumeSpotifyDebounce = setTimeout(() => { self.setSpotifyVolume(volume)}, 600);
                     }
                 }
             }
