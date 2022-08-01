@@ -352,7 +352,7 @@ GPIOControl.prototype.handleEvent = function(e) {
 			self.GPIOs.forEach(function(g) {
 				if (g.pin == gpio.pin) {
 					clearTimeout(g.delayTimeoutId);
-			     		clearTimeout(g.durationTimeoutId);
+					clearTimeout(g.durationTimeoutId);
 				}
 			}
 
