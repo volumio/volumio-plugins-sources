@@ -22,6 +22,7 @@ function ControllerPandora(context) {
 
     this.pUtil = new PUtil(this);
 
+    self.loggedIn = false;
     self.stationData = {};
     self.currStation = {};
     self.lastUri = null;
@@ -69,6 +70,7 @@ ControllerPandora.prototype.onStart = function () {
     self.addToBrowseSources();
 
     return self.initializeMQTT(mqttOptions)
+        .then(() => self.initialSetup())
         .then(() => self.validateAndSetAccountOptions(pandoraHandlerOptions));
 };
 
@@ -148,18 +150,6 @@ ControllerPandora.prototype.initialSetup = function (email, password, isPandoraO
             const bandFilter = self.config.get('bandFilter', '');
             return self.pandoraHandler.setMaxStationTracks(maxStationTracks)
                 .then(() => self.pandoraHandler.setBandFilter(bandFilter));
-        })
-        .then(() => self.pandoraHandler.setAccountOptions(email, password, isPandoraOne))
-        .then(() => {
-            self.preventAuthTimeout = new PreventAuthTimeout(self);
-            return self.preventAuthTimeout.init();
-        })
-
-        .then(() => {
-            self.expireHandler = new ExpireOldTracks(self);
-            self.streamLifeChecker = new StreamLifeChecker(self);
-
-            return self.expireHandler.init();
         })
         .then(() => self.flushPandora());
 };
@@ -247,9 +237,10 @@ ControllerPandora.prototype.setAccountOptionsConf = function (accountOptions) {
         'info', 'Pandora Options', 'Account Options Saved'
     );
 
-    return self.validateAndSetAccountOptions(accountOptions)
-        .then(() => self.pUtil.timeOutToast('validateAndSetAccountOptions', 'success',
-            'Pandora Options', 'Account Options Validated', 5000));
+    // return self.validateAndSetAccountOptions(accountOptions)
+    //     .then(() => self.pUtil.timeOutToast('validateAndSetAccountOptions', 'success',
+    //         'Pandora Options', 'Account Options Validated', 5000));
+    return self.validateAndSetAccountOptions(accountOptions);
 };
 
 ControllerPandora.prototype.setPlaybackOptionsConf = function (playbackOptions) {
@@ -364,9 +355,10 @@ ControllerPandora.prototype.validateAndSetAccountOptions = function (rawOptions)
     const password = rawOptions.password;
     const isPandoraOne = rawOptions.isPandoraOne;
 
+    self.loggedIn = false; // MIGHT NOT NEED THIS
+
     if ((typeof(email) === 'undefined' || typeof(password) === 'undefined') ||
         (!email || !password)) {
-
         const msg = 'Need email address and password.  See plugin settings.';
 
         self.pUtil.timeOutToast(fnName, 'warning', 'Pandora Options', msg, 5000);
@@ -374,13 +366,28 @@ ControllerPandora.prototype.validateAndSetAccountOptions = function (rawOptions)
 
         return libQ.resolve();
     }
-    if (typeof(self.pandoraHandler) === 'undefined') { // let's go!
-        return self.initialSetup(email, password, isPandoraOne);
-    }
-    else { // set new credentials, restart auth timer
-        return self.pandoraHandler.setAccountOptions(email, password, isPandoraOne)
-            .then(() => self.preventAuthTimeout.fn());
-    }
+
+    // let's go!
+    return self.pandoraHandler.setAccountOptions(email, password, isPandoraOne)
+        .then(() => {
+            self.stationData = {};
+            self.preventAuthTimeout = new PreventAuthTimeout(self);
+
+            return self.flushPandora()
+                .then(() => self.preventAuthTimeout.init())
+                .then(() => self.pandoraHandler.pandoraLoginAndGetStations())
+                .then(() => self.pandoraHandler.getLoginStatus())
+                .then(result => {
+                    self.loggedIn = result;
+                    self.pUtil.logInfo(fnName, '***DEBUG*** self.loggedIn: ' + self.loggedIn);
+
+                    self.expireHandler = new ExpireOldTracks(self);
+                    self.streamLifeChecker = new StreamLifeChecker(self);
+
+                    return self.expireHandler.init();
+                })
+                .then(() => self.pandoraHandler.fillStationData());
+        });
 };
 
 // Playback Controls ---------------------------------------------------------------------------------------
@@ -476,6 +483,37 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
         }
     };
 
+    var responseNoLogin = {
+        navigation: {
+            'prev': { uri: uriParts.keys[0] },
+            'lists': [
+                {
+                    'availableListViews': ['list'],
+                    'items': [
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: 'Not logged into Pandora - Check Plugin Settings',
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-exclamation-triangle',
+                            uri: uriParts.keys[0]
+                        },
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: 'See Plugins -> Installed Plugins -> pandora -> Settings',
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-exclamation-triangle',
+                            uri: uriParts.keys[0]
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
     var responseSorted = {
         navigation: {
             'prev': { uri: uriParts.keys[0] },
@@ -507,6 +545,14 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
     }
 
     self.pUtil.announceFn(fnName);
+
+    // if (Object.keys(self.stationData).length === 0) {
+    if (!self.loggedIn) {
+        const errMsg = 'Not logged into Pandora Servers.  Check plugin settings and click to refresh.';
+        self.commandRouter.pushToastMessage('warning', 'Pandora', errMsg);
+
+        return libQ.resolve(responseNoLogin);
+    }
 
     return self.checkForExpiredStations() // SHOULD 'RETURN' BE REMOVED?
         .then(() => self.pandoraHandler.getStationData())
@@ -556,7 +602,7 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
 
                                 self.commandRouter.pushToastMessage('error', 'Pandora',
                                     'Failed to load tracks from ' + self.currStation.name);
-    
+
                                 return self.pUtil.generalReject(fnName, 'Failed to load tracks from ' +
                                     self.currStation.name);
                             });
@@ -1064,7 +1110,7 @@ ControllerPandora.prototype.goPreviousNext = function (fnName) {
                         .then(() => {
                             if (self.nextIsThumbsDown) { // remove unwanted track
                                 // Check if last track in queue -- MAY NOT NEED THIS
-                                if (qPos == qLen - 1) { 
+                                if (qPos == qLen - 1) {
                                     return self.fetchAndAddTracks(self.getQueueTrack().uri)
                                         .then(() => self.commandRouter.stateMachine.removeQueueItem({value: qPos}));
                                 }

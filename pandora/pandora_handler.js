@@ -89,6 +89,11 @@ PandoraHandler.prototype.setAccountOptions = function (email, password, isPandor
     return libQ.resolve();
 };
 
+PandoraHandler.prototype.getLoginStatus = function () {
+    const self = this;
+    return libQ.resolve(self.loggedIn);
+};
+
 PandoraHandler.prototype.getNewTracks = function () {
     const self = this;
     return libQ.resolve(self.newTracks);
@@ -181,23 +186,20 @@ PandoraHandler.prototype.getStationList = function () {
 PandoraHandler.prototype.pandoraLoginAndGetStations = function () {
     const self = this;
     const fnName = 'pandoraLoginAndGetStations';
+    var defer = libQ.defer();
+
     self.pUtil.announceFn(fnName);
 
     // Login with pandora anesidora object
-    function pandoraLogin() {
-        let defer = libQ.defer();
+    self.pandora.login(defer.makeNodeResolver());
 
-        self.pandora.login(defer.makeNodeResolver());
-
-        return defer.promise;
-    }
-
-    return pandoraLogin()
+    defer.promise
         .fail(err => {
             const subFnName = fnName + '::pandoraLogin';
             self.reportAPIError(subFnName, err);
+            self.loggedIn = false;
 
-            return self.pUtil.generalReject(subFnName, err);
+            defer.resolve();
         })
         .then(() => {
             let bookendMsg = '[<=- * -=>]';
@@ -214,8 +216,10 @@ PandoraHandler.prototype.pandoraLoginAndGetStations = function () {
             self.pUtil.logInfo(fnName + '::pandoraLogin', bookendMsg.replace('*', logMsg));
             self.commandRouter.pushToastMessage('success', 'Pandora Login', msg);
 
-            return libQ.resolve();
+            defer.resolve();
         });
+
+    return defer.promise;
 };
 
 PandoraHandler.prototype.fillStationData = function () {
@@ -227,8 +231,9 @@ PandoraHandler.prototype.fillStationData = function () {
         .fail(err => {
             const subFnName = fnName + '::getStationlist';
             self.reportAPIError(subFnName, err);
+            self.stationData = {};
 
-            return self.pUtil.generalReject(subFnName, err);
+            return libQ.resolve();
         })
         .then(result => {
             self.stationList = result;

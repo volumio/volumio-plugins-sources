@@ -113,7 +113,7 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
 ### Version 2.5.3:
   #### Changes
   * `Anesidora` was forked to enable premium Pandora account logins.  Thanks to @Jim_Edwards on the forum for the heads-up on premium login errors.
-  
+
   #### Fixes
   * Refresh login credentials when idle and working reporting for login errors.
 
@@ -150,7 +150,7 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
   * `ExpireOldTracks::fn` fix: Crash in vorhees() was causing a Volumio restart at the track expire interval.
   * `removeTrack` now returns a Promise if track is found unfit from removal (related to above bug).
   * If a different station track is selected from the Queue page, that track is not removed from the queue before starting playback -- it is played as expected.
-  * `fetchAndAddTracks` was refactored.  The logic is much simpler now -- less queue math.  There may have been a bug there.  
+  * `fetchAndAddTracks` was refactored.  The logic is much simpler now -- less queue math.  There may have been a bug there.
   * If a track from a different station was selected from the Queue page, its track length was at maxStationTracks, and the first of those tracks was selected, the tracks are now moved to the proper position (previously, the tracks were not moved until the next track played).
 
 ### Version 2.8.0
@@ -164,50 +164,61 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
   * `this` context is handled more cleanly in the dependent modules.  `that` is now `self` and `that.self.<ControllerPandoraFunction>` (which was defintely confusing) is now `self.context.<ControllerPandoraFunction>`.
 
 ### Version 2.8.1
-   #### Fixes
-   * `PandoraHandler::setMQTTEnabled` fix: Error in variable name caused `PandoraHandler::fillStationData` to skip publishing `self.stationData` to MQTT broker.
+  #### Fixes
+  * `PandoraHandler::setMQTTEnabled` fix: Error in variable name caused `PandoraHandler::fillStationData` to skip publishing `self.stationData` to MQTT broker.
 
 ### Version 2.9.0
-   #### Changes
-   * `PandoraHandler::setMQTTEnabled` now starts stationDataHandler timer to periodically publish station data as a JSON to MQTT if flag is enabled in options.
-   * `setCurrStationInfo` now publishes `stationName` as a JSON.
+  #### Changes
+  * `PandoraHandler::setMQTTEnabled` now starts stationDataHandler timer to periodically publish station data as a JSON to MQTT if flag is enabled in options.
+  * `setCurrStationInfo` now publishes `stationName` as a JSON.
 
 ### Version 2.9.1
-   #### Fixes
-   * Fixed the band filter processing.
-   * Cleaned up `moveStationTracks`.
-   * `PandoraHandler::setBandFilter`, `PandoraHandler::setMaxStationTracks`, and 
-     `PandoraHandler::getNewTracks` now return a Promise.
+  #### Fixes
+  * Fixed the band filter processing.
+  * Cleaned up `moveStationTracks`.
+  * `PandoraHandler::setBandFilter`, `PandoraHandler::setMaxStationTracks`, and
+    `PandoraHandler::getNewTracks` now return a Promise.
 
 ### Version 2.9.2
-   #### Fixes
-   * Fixed problem fetching tracks in `handleBrowseUri`.  Call to getNewTracks is now different due to returned Promise.
-   * Small logging fix in `fetchAndAddTracks`.
+  #### Fixes
+  * Fixed problem fetching tracks in `handleBrowseUri`.  Call to getNewTracks is now different due to returned Promise.
+  * Small logging fix in `fetchAndAddTracks`.
 
 ### Version 2.9.3
-   #### Changes
-   * Only change was to `package.json` for Volumio 3
+  #### Changes
+  * Only change was to `package.json` for Volumio 3
 
 ### Version 2.10.1
-   #### Changes
-   * Stations can now be sorted by Newest, Oldest, Alphabetical or Reverse Alphabetical order.  I had the sorts ready but had not implemented them.  @HeadGeek's request put the matches under my feet.
-   * Icons were slightly changed in the browse screen.
+  #### Changes
+  * Stations can now be sorted by Newest, Oldest, Alphabetical or Reverse Alphabetical order.  I had the sorts ready but had not implemented them.  @HeadGeek's request put the matches under my feet.
+  * Icons were slightly changed in the browse screen.
 
 ### Version 2.10.2
-   #### Changes
-   * Resized the Pandora icon to 45% of former size to better match other Volumio icons.  The former size was due to remedial image processing skills by yours truly.  Suggested by @davestlou.
+  #### Changes
+  * Resized the Pandora icon to 45% of former size to better match other Volumio icons.  The former size was due to remedial image processing skills by yours truly.  Suggested by @davestlou.
 
 ### Version 2.10.3
-   #### Fixes
-   * Changed Pandora icon from grayscale to black and white to fit the Volumio standard (I did not see the comment on GitHub until a few days ago).
+  #### Fixes
+  * Changed Pandora icon from grayscale to black and white to fit the Volumio standard (I did not see the comment on GitHub until a few days ago).
 
 ### Version 2.11.1
-   #### Fixes
-   * `PandoraHandler::thumbsDown()` was not working (`self` was declared as `const`).  Function was refactored to `PandoraHandler::thumbTrack()` and `PandoraHandler::addFeedback()` to allow for both Thumbs Up and Thumbs Down.
-   * `thumbTrack()` is now exposed / can be called from WebSocket API et al.
-   #### Changes
-   * `PandoraHandler::reportAPIError()`: refactored logging.
-   * `goPreviousNext()`: When `(nextIsThumbsDown == true && qPos == qLen - 1)` -- Fetch more tracks before removing last track from queue -- Otherwise an error might occur or playback might stop?
+  #### Fixes
+  * `PandoraHandler::thumbsDown()` was not working (`self` was declared as `const`).  Function was refactored to `PandoraHandler::thumbTrack()` and `PandoraHandler::addFeedback()` to allow for both Thumbs Up and Thumbs Down.
+  * `thumbTrack()` is now exposed / can be called from WebSocket API et al.
+  #### Changes
+  * `PandoraHandler::reportAPIError()`: refactored logging.
+  * `goPreviousNext()`: When `(nextIsThumbsDown == true && qPos == qLen - 1)` -- Fetch more tracks before removing last track from queue -- Otherwise an error might occur or playback might stop?
+
+### Version 2.11.2
+  #### Fixes
+  * `handleBrowseUri()` would not render a page if the user was not logged in to the Pandora servers / plugin settings were incorrect.  A warning toast is now sent and an information message is rendered in the browse page.  Thanks @balbuze
+  #### Changes
+  * `validateAndSetAccountOptions()` and `initialSetup()` were refactored to improve the initialization / authentication to the Pandora servers.
+  * `PandoraHandler::getLoginStatus()` function was created.
+  * `PandoraHandler::pandoraLoginAndGetStations` and `PandoraHandler::fillStationData` were refactored.
+  * `Timer` class logging now indicates delayed start status.
+  * `Timer::PreventAuthTimeout` class now delays its startup.
+
 
 ## Issues
 
