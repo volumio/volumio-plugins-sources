@@ -103,6 +103,7 @@ rm -Rf mpd_oled.zip
 * Spanish (es)
 * German (de)
 * Italian (it)
+* Dutch (nl)
 
 
 ## Last changes
