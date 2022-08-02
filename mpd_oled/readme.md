@@ -7,11 +7,11 @@
 
 [Click here to visit the mpd_oled project on GitHub](https://github.com/antiprism/mpd_oled)
 
-![I2C OLED in action](../images/oled.jpg "I2C OLED in action")
+![I2C OLED in action](images/oled.jpg "I2C OLED in action")
 
-![Plugin Screenshot 1](../images/screenshot1.png "Plugin Screenshot 1")
+![Plugin Screenshot 1](images/screenshot1.png "Plugin Screenshot 1")
 
-![Plugin Screenshot 2](../images/screenshot2.png "Plugin Screenshot 2")
+![Plugin Screenshot 2](images/screenshot2.png "Plugin Screenshot 2")
 
 ## How to install
 
