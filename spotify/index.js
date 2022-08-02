@@ -2917,12 +2917,13 @@ ControllerSpotify.prototype.volumeListener = function () {
 
 ControllerSpotify.prototype.setSpotifyVolume = function (volumePercent) {
     var self = this;
-
+    
+    currentSpotifyVolume = volumePercent;
     if (self.spotifyApi) {
         self.spotifyCheckAccessToken().then(()=> {
             self.spotifyApi.setVolume(volumePercent)
                 .then(function () {
-                    currentSpotifyVolume = volumePercent;
+
                     self.debugLog('Setting Spotify Volume ' + volumePercent);
                 }, function (err) {
                     self.debugLog('Error Setting Spotify Volume ' + err);
