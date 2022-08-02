@@ -2939,16 +2939,16 @@ ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackOb
 ControllerSpotify.prototype.applySpotifyHostsFix = function () {
     var self = this;
 
-    exec('/usr/bin/sudo /bin/chmod 777 /etc/hosts', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
-        if (error !== null) {
-            self.logger.error('Spotify Cannot set permissions for /etc/hosts: ' + error);
+    fs.readFile('/etc/hosts', 'utf8', (err, data) => {
+        if (err) {
+            self.logger.error('Failed to Read hosts file:' + err);
         } else {
-            fs.readFile('/etc/hosts', 'utf8', (err, data) => {
-                if (err) {
-                    self.logger.error('Failed to Read hosts file:' + err);
-                } else {
-                    if (!data.includes('ap-gew4.spotify.com')) {
-                        data = data + os.EOL + '#SPOTIFY HOSTS FIX' + os.EOL + '104.199.65.124  ap-gew4.spotify.com' + os.EOL;
+            if (!data.includes('ap-gew4.spotify.com') || !data.includes('ap-gue1.spotify.com')) {
+                exec('/usr/bin/sudo /bin/chmod 777 /etc/hosts', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
+                    if (error !== null) {
+                        self.logger.error('Spotify Cannot set permissions for /etc/hosts: ' + error);
+                    } else {
+                        data = data + os.EOL + '#SPOTIFY HOSTS FIX' + os.EOL + '104.199.65.124  ap-gew4.spotify.com' + os.EOL + '104.199.65.124  ap-gue1.spotify.com' +  os.EOL;
                         fs.writeFile('/etc/hosts', data, (err) => {
                             if (err) {
                                 self.logger.error('Failed to fix hosts file for Spotify: ' + err);
@@ -2957,8 +2957,8 @@ ControllerSpotify.prototype.applySpotifyHostsFix = function () {
                             }
                         });
                     }
-                }
-            });
+                });
+            }
         }
     });
 };
