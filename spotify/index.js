@@ -2232,10 +2232,16 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         var d = new Date();
         var now = d.getTime();
 
-        this.logger.info('New Spotify Access Token Received');
-        this.accessToken = token.accessToken;
-        this.spotifyAccessTokenExpiration = parseInt(token.expiresIn) * 1000 + parseInt(now);
-        this.initWebApi();
+        // Every now and then vollibrespot sends a token which does not have appropriate browsing scopes
+        // we prevent this kind of token to be sent to Volumio, otherwise it won't be able to read users data
+        if (token.scope && token.scope.includes('user-top-read')) {
+            this.logger.info('New Spotify Access Token Received');
+            this.accessToken = token.accessToken;
+            this.spotifyAccessTokenExpiration = parseInt(token.expiresIn) * 1000 + parseInt(now);
+            this.initWebApi();
+        } else {
+            this.logger.error('Received malformed Token, ignoring');
+        }
     });
 
     this.SpotConn.on(this.Events.Volume, (spvol) => {
@@ -2310,7 +2316,6 @@ ControllerSpotify.prototype.initWebApi = function () {
 };
 
 ControllerSpotify.prototype.checkWebApi = function () {
-
     this.logger.info('Checking Spotify Web API');
     if (justLoggedIn) {
         justLoggedIn = false;
