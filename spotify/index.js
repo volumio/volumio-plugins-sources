@@ -2452,12 +2452,10 @@ ControllerSpotify.prototype.createConfigFile = async function () {
     }
 
     // Authentication
-    var shared = true;
+    var shared = this.config.get('shareddevice', true);
     var username = this.config.get('username', '');
     var password = this.config.get('password', '');
-    if (username !== undefined && username.length &&  password !== undefined && password.length) {
-        shared = false;
-    }
+
     // Playback
     const normalvolume = this.config.get('normalvolume', false);
     let initvol = '0';
@@ -2627,7 +2625,11 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBr
         self.config.set('debug', data.debug);
     }
 
-    self.config.set('shareddevice', false);
+    if (data.shareddevice !== undefined) {
+        self.config.set('shareddevice', data.shareddevice);
+    }
+
+
     self.selectedBitrate = self.config.get('bitrate_number', '320').toString();
     self.rebuildRestartDaemon()
         .then(() => defer.resolve({}))

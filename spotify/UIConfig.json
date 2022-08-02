@@ -89,8 +89,7 @@
           "element": "switch",
           "doc": "If enabled, the device is useable by any user on the network. If disable, a unique user uses it",
           "label": "TRANSLATE.SHAREDDEVICE",
-          "value": false,
-          "hidden": true
+          "value": true
         },
         {
           "id": "initvol",
@@ -114,7 +113,8 @@
           "element": "switch",
           "doc": "TRANSLATE.DESCVOLNORM",
           "label": "TRANSLATE.VOLNORM",
-          "value": false
+          "value": false,
+          "hidden": true
         },
         {
           "id": "bitrate",
