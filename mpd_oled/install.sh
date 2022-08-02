@@ -65,5 +65,9 @@ if ! grep -q "spi=on" "/boot/config.txt"; then
   fi
 fi
 
+# remove temporary install scrip
+rm -f mpd_oled_volumio_install_latest.sh
+
+
 # required to end the plugin install
 echo "plugininstallend"

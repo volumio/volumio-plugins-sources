@@ -10,7 +10,7 @@
 			"icon": "fa-television",
 			"onSave": {
 				"type": "controller",
-				"endpoint": "user_interface/mpd_oled",
+				"endpoint": "system_hardware/mpd_oled",
 				"method": "saveConfig"
 			},
 			"saveButton": {
@@ -1835,7 +1835,7 @@
 					"onClick": {
 						"type": "controller", 
 						"method": "i2cScan",
-						"endpoint": "user_interface/mpd_oled"
+						"endpoint": "system_hardware/mpd_oled"
 					}
 				}
 			]
