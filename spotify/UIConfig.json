@@ -80,7 +80,8 @@
           "volume_ctrl",
           "gapless",
           "autoplay",
-          "debug"
+          "debug",
+          "icon"
         ]
       },
       "content": [
@@ -188,6 +189,29 @@
           "label": "TRANSLATE.DEBUG",
           "value": false,
           "hidden": true
+        },
+        {
+          "id": "icon",
+          "element": "select",
+          "doc": "TRANSLATE.CONNECT_DEVICE_ICON_DOC",
+          "label": "TRANSLATE.CONNECT_DEVICE_ICON",
+          "value": {
+            "value": "avr",
+            "label": "AV Receiver"
+          },
+          "options": [{
+            "value": "avr",
+            "label": "AV Receiver"
+          },
+            {
+              "value": "speaker",
+              "label": "Speaker"
+            },
+            {
+              "value": "stb",
+              "label": "Set Top Box"
+            }
+          ]
         }
       ]
     }]

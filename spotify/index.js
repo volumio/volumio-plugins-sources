@@ -1275,6 +1275,9 @@ ControllerSpotify.prototype.getUIConfig = function () {
             uiconf.sections[2].content[5].value = self.config.get('gapless', true);
             uiconf.sections[2].content[6].value = self.config.get('autoplay', true);
             uiconf.sections[2].content[7].value = self.config.get('debug');
+            var deviceIconConf = self.config.get('icon', 'avr');
+            uiconf.sections[2].content[8].value.value =  deviceIconConf;
+            uiconf.sections[2].content[8].value.label =  self.getLabelForSelect(uiconf.sections[2].content[8].options, deviceIconConf);
 
             if (process.env.SHOW_SPOTIFY_ON_BROWSE_SOURCES === 'true') {
                 uiconf.sections[2].hidden = true;
@@ -2554,7 +2557,8 @@ ControllerSpotify.prototype.createConfigFile = async function () {
         .replace('${initvol}', initvolstr)
         .replace('${autoplay}', this.config.get('autoplay', true))
         .replace('${gapless}', this.config.get('gapless', true))
-        .replace('${bitrate}', bitrateValue);
+        .replace('${bitrate}', bitrateValue)
+        .replace('${icon}', this.config.get('icon', 'avr'));
     /* eslint-enable no-template-curly-in-string */
 
     // Sanity check
@@ -2607,7 +2611,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBr
         self.config.set('initvol', data.initvol);
     }
     if (data.bitrate !== undefined && data.bitrate.value !== undefined) {
-        self.self.config.get('bitrate_number', data.bitrate.value);
+        self.config.set('bitrate_number', data.bitrate.value);
     }
     if (data.normalvolume !== undefined) {
         self.config.set('normalvolume', data.normalvolume);
@@ -2627,6 +2631,10 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBr
 
     if (data.shareddevice !== undefined) {
         self.config.set('shareddevice', data.shareddevice);
+    }
+    console.log(JSON.stringify(data))
+    if (data.icon && data.icon.value !== undefined) {
+        self.config.set('icon', data.icon.value);
     }
 
 
