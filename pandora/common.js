@@ -1,7 +1,7 @@
 /* jshint node: true, esversion: 9, unused: false */
 const serviceName = 'pandora';
 const uriParts = {
-    keys : [
+    keys: [
         '/' + serviceName,
         'stationToken=',
         'trackId='

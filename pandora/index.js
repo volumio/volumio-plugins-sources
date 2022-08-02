@@ -1,6 +1,7 @@
 /* jshint node: true, esversion: 9, unused: false */
 'use strict';
 
+var fs = require('fs-extra');
 var libQ = require('kew');
 
 var dnsSync = require('dns-sync');
@@ -21,6 +22,7 @@ function ControllerPandora(context) {
 
     this.pUtil = new PUtil(this);
 
+    self.loggedIn = false;
     self.stationData = {};
     self.currStation = {};
     self.lastUri = null;
@@ -68,6 +70,7 @@ ControllerPandora.prototype.onStart = function () {
     self.addToBrowseSources();
 
     return self.initializeMQTT(mqttOptions)
+        .then(() => self.initialSetup())
         .then(() => self.validateAndSetAccountOptions(pandoraHandlerOptions));
 };
 
@@ -115,6 +118,21 @@ ControllerPandora.prototype.flushPandora = function () {
     return libQ.resolve();
 };
 
+ControllerPandora.prototype.loadI18nStrings = function () {
+    var self = this;
+    self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+    self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+};
+
+ControllerPandora.prototype.getI18nString = function (key) {
+    var self = this;
+
+    if (self.i18nStrings['BROWSE'][key] !== undefined)
+        return self.i18nStrings['BROWSE'][key];
+    else
+        return self.i18nStringsDefaults['BROWSE'][key];
+};
+
 ControllerPandora.prototype.initialSetup = function (email, password, isPandoraOne) {
     var self = this;
 
@@ -123,6 +141,8 @@ ControllerPandora.prototype.initialSetup = function (email, password, isPandoraO
     self.pandoraHandler = new PandoraHandler(self);
     self.stationDataHandler = new StationDataPublisher(self);
 
+    self.loadI18nStrings();
+
     return self.pandoraHandler.init()
         .then(() => self.pandoraHandler.setMQTTEnabled(self.mqttEnabled))
         .then(() => {
@@ -130,18 +150,6 @@ ControllerPandora.prototype.initialSetup = function (email, password, isPandoraO
             const bandFilter = self.config.get('bandFilter', '');
             return self.pandoraHandler.setMaxStationTracks(maxStationTracks)
                 .then(() => self.pandoraHandler.setBandFilter(bandFilter));
-        })
-        .then(() => self.pandoraHandler.setAccountOptions(email, password, isPandoraOne))
-        .then(() => {
-            self.preventAuthTimeout = new PreventAuthTimeout(self);
-            return self.preventAuthTimeout.init();
-        })
-
-        .then(() => {
-            self.expireHandler = new ExpireOldTracks(self);
-            self.streamLifeChecker = new StreamLifeChecker(self);
-
-            return self.expireHandler.init();
         })
         .then(() => self.flushPandora());
 };
@@ -229,9 +237,10 @@ ControllerPandora.prototype.setAccountOptionsConf = function (accountOptions) {
         'info', 'Pandora Options', 'Account Options Saved'
     );
 
-    return self.validateAndSetAccountOptions(accountOptions)
-        .then(() => self.pUtil.timeOutToast('validateAndSetAccountOptions', 'success',
-            'Pandora Options', 'Account Options Validated', 5000));
+    // return self.validateAndSetAccountOptions(accountOptions)
+    //     .then(() => self.pUtil.timeOutToast('validateAndSetAccountOptions', 'success',
+    //         'Pandora Options', 'Account Options Validated', 5000));
+    return self.validateAndSetAccountOptions(accountOptions);
 };
 
 ControllerPandora.prototype.setPlaybackOptionsConf = function (playbackOptions) {
@@ -346,9 +355,10 @@ ControllerPandora.prototype.validateAndSetAccountOptions = function (rawOptions)
     const password = rawOptions.password;
     const isPandoraOne = rawOptions.isPandoraOne;
 
+    self.loggedIn = false; // MIGHT NOT NEED THIS
+
     if ((typeof(email) === 'undefined' || typeof(password) === 'undefined') ||
         (!email || !password)) {
-
         const msg = 'Need email address and password.  See plugin settings.';
 
         self.pUtil.timeOutToast(fnName, 'warning', 'Pandora Options', msg, 5000);
@@ -356,13 +366,28 @@ ControllerPandora.prototype.validateAndSetAccountOptions = function (rawOptions)
 
         return libQ.resolve();
     }
-    if (typeof(self.pandoraHandler) === 'undefined') { // let's go!
-        return self.initialSetup(email, password, isPandoraOne);
-    }
-    else { // set new credentials, restart auth timer
-        return self.pandoraHandler.setAccountOptions(email, password, isPandoraOne)
-            .then(() => self.preventAuthTimeout.fn());
-    }
+
+    // let's go!
+    return self.pandoraHandler.setAccountOptions(email, password, isPandoraOne)
+        .then(() => {
+            self.stationData = {};
+            self.preventAuthTimeout = new PreventAuthTimeout(self);
+
+            return self.flushPandora()
+                .then(() => self.preventAuthTimeout.init())
+                .then(() => self.pandoraHandler.pandoraLoginAndGetStations())
+                .then(() => self.pandoraHandler.getLoginStatus())
+                .then(result => {
+                    self.loggedIn = result;
+                    self.pUtil.logInfo(fnName, '***DEBUG*** self.loggedIn: ' + self.loggedIn);
+
+                    self.expireHandler = new ExpireOldTracks(self);
+                    self.streamLifeChecker = new StreamLifeChecker(self);
+
+                    return self.expireHandler.init();
+                })
+                .then(() => self.pandoraHandler.fillStationData());
+        });
 };
 
 // Playback Controls ---------------------------------------------------------------------------------------
@@ -385,8 +410,111 @@ ControllerPandora.prototype.addToBrowseSources = function () {
 ControllerPandora.prototype.handleBrowseUri = function (curUri) {
     var self = this;
     const fnName = 'handleBrowseUri';
+    const sortData = [
+        {
+            type: 'ageNew',
+            desc: 'PANDORA_BROWSE_NEW',
+            fn: (a, b) => (parseInt(a[0]) < parseInt(b[0])) ? 1 : -1
+        },
+        {
+            type: 'ageOld',
+            desc: 'PANDORA_BROWSE_OLD',
+            fn: (a, b) => (parseInt(a[0]) > parseInt(b[0])) ? 1 : -1
+        },
+        {
+            type: 'alphaFwd',
+            desc: 'PANDORA_BROWSE_ATOZ',
+            fn: (a, b) => (a[1].name > b[1].name) ? 1 : -1
+        },
+        {
+            type: 'alphaRev',
+            desc: 'PANDORA_BROWSE_ZTOA',
+            fn: (a, b) => (a[1].name < b[1].name) ? 1 : -1
+        }
+    ];
+    const sortTypeUris = sortData.map(i => uriParts.keys[0] + '/' + i.type);
 
-    var response = {
+    const responseRoot = {
+        navigation: {
+            'prev': { uri: uriParts.keys[0] },
+            'lists': [
+                {
+                    'availableListViews': ['list'],
+                    'items': [
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: self.getI18nString(sortData[0].desc),
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-folder-open-o',
+                            uri: uriParts.keys[0] + '/' + sortData[0].type
+                        },
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: self.getI18nString(sortData[1].desc),
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-folder-open-o',
+                            uri: uriParts.keys[0] + '/' + sortData[1].type
+                        },
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: self.getI18nString(sortData[2].desc),
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-folder-open-o',
+                            uri: uriParts.keys[0] + '/' + sortData[2].type
+                        },
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: self.getI18nString(sortData[3].desc),
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-folder-open-o',
+                            uri: uriParts.keys[0] + '/' + sortData[3].type
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
+    var responseNoLogin = {
+        navigation: {
+            'prev': { uri: uriParts.keys[0] },
+            'lists': [
+                {
+                    'availableListViews': ['list'],
+                    'items': [
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: 'Not logged into Pandora - Check Plugin Settings',
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-exclamation-triangle',
+                            uri: uriParts.keys[0]
+                        },
+                        {
+                            service: serviceName,
+                            type: 'station',
+                            title: 'See Plugins -> Installed Plugins -> pandora -> Settings',
+                            artist: '',
+                            album: '',
+                            icon: 'fa fa-exclamation-triangle',
+                            uri: uriParts.keys[0]
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
+    var responseSorted = {
         navigation: {
             'prev': { uri: uriParts.keys[0] },
             'lists': [
@@ -418,24 +546,26 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
 
     self.pUtil.announceFn(fnName);
 
+    // if (Object.keys(self.stationData).length === 0) {
+    if (!self.loggedIn) {
+        const errMsg = 'Not logged into Pandora Servers.  Check plugin settings and click to refresh.';
+        self.commandRouter.pushToastMessage('warning', 'Pandora', errMsg);
+
+        return libQ.resolve(responseNoLogin);
+    }
+
     return self.checkForExpiredStations() // SHOULD 'RETURN' BE REMOVED?
         .then(() => self.pandoraHandler.getStationData())
         .then(result => {
             self.stationData = result; // this looks good here
 
-            const sortFn = {
-                alphaFwd: (a, b) => (a[1].name < b[1].name) ? 1 : -1,
-                alphaRev: (a, b) => (a[1].name > b[1].name) ? 1 : -1,
-                // ageOld: (a, b) => (parseInt(a[1].id) > parseInt(b[1].id)) ? 1 : -1,
-                // ageNew: (a, b) => (parseInt(a[1].id) < parseInt(b[1].id)) ? 1 : -1,
-                ageOld: (a, b) => (parseInt(a[0]) > parseInt(b[0])) ? 1 : -1,
-                ageNew: (a, b) => (parseInt(a[0]) < parseInt(b[0])) ? 1 : -1,
-            };
-
-            if (curUri === '/pandora') {
-                const entries = Object.entries(self.stationData).sort(sortFn.ageNew);
+            if (curUri === uriParts.keys[0]) { // root response
+                return libQ.resolve(responseRoot);
+            }
+            else if (sortTypeUris.includes(curUri)) { // station sorting choice
+                const entries = Object.entries(self.stationData).sort(sortData[sortTypeUris.indexOf(curUri)].fn);
                 entries.forEach(pair => { // [key, value]
-                    response.navigation.lists[0].items.push({
+                    responseSorted.navigation.lists[0].items.push({
                         service: serviceName,
                         type: 'station',
                         artist: pair[1].artist,
@@ -443,14 +573,14 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
                         name: pair[1].name,
                         album: pair[1].album,
                         albumart: pair[1].albumart,
-                        icon: 'fa fa-folder-open-o',
+                        icon: 'fa fa-music',
                         uri: uriPrefix + pair[0]
                     });
                 });
 
-                return libQ.resolve(response);
+                return libQ.resolve(responseSorted);
             }
-            else if (curUri.match(uriStaRE) !== null) {
+            else if (curUri.match(uriStaRE) !== null) { // station chosen
                 const stationToken = curUri.match(uriStaRE)[1];
 
                 return checkForStationChange(stationToken)
@@ -471,8 +601,8 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
                                 }
 
                                 self.commandRouter.pushToastMessage('error', 'Pandora',
-                                'Failed to load tracks from ' + self.currStation.name);
-    
+                                    'Failed to load tracks from ' + self.currStation.name);
+
                                 return self.pUtil.generalReject(fnName, 'Failed to load tracks from ' +
                                     self.currStation.name);
                             });
@@ -973,13 +1103,20 @@ ControllerPandora.prototype.goPreviousNext = function (fnName) {
                         return self.stop();
                     }
                     self.setCurrQueuePos(qPos);
-                    return self.clearAddPlayTrack(self.getQueue()[qPos]);
+                    return self.clearAddPlayTrack(self.getQueue()[qPos]); // self.clearAddPlayTrack(self.getQueueTrack(qPos))
                 }
                 else if (fnName === 'next') {
                     return self.stop()
                         .then(() => {
-                            if (self.nextIsThumbsDown) {
-                                return self.commandRouter.stateMachine.removeQueueItem({value: qPos});
+                            if (self.nextIsThumbsDown) { // remove unwanted track
+                                // Check if last track in queue -- MAY NOT NEED THIS
+                                if (qPos == qLen - 1) {
+                                    return self.fetchAndAddTracks(self.getQueueTrack().uri)
+                                        .then(() => self.commandRouter.stateMachine.removeQueueItem({value: qPos}));
+                                }
+                                else {
+                                    return self.commandRouter.stateMachine.removeQueueItem({value: qPos});
+                                }
                             }
                         });
                 }
@@ -1007,10 +1144,19 @@ ControllerPandora.prototype.next = function () {
     self.pUtil.announceFn(fnName);
 
     if (self.nextIsThumbsDown) {
-        self.pandoraHandler.thumbsDownTrack(self.getQueueTrack());
+        self.pandoraHandler.thumbTrack(self.getQueueTrack(), false);
     }
 
     return self.goPreviousNext(fnName);
+};
+
+ControllerPandora.prototype.thumbTrack = function (isUp) {
+    var self = this;
+    const fnName = 'thumbTrack';
+
+    self.pUtil.announceFn(fnName);
+
+    return self.pandoraHandler.thumbTrack(self.getQueueTrack(), isUp);
 };
 
 ControllerPandora.prototype.clearAndPlayStation = function (stationJSON) {
