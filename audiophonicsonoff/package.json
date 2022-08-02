@@ -11,7 +11,7 @@
 	"volumio_info": {
 		"prettyName": "Audiophonics ON/OFF",
 		"icon": "fa fa-cogs",
-		"plugin_type": "system_controller",
+		"plugin_type": "system_hardware",
 		"os": [
 			"buster"
 		],
