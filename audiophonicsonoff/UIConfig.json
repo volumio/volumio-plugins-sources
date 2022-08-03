@@ -10,7 +10,7 @@
 		"icon": "fa-sliders",
 		"onSave": {
 			"type": "controller",
-			"endpoint": "system_controller/audiophonicsonoff",
+			"endpoint": "system_hardware/audiophonicsonoff",
 			"method": "updateButtonConfig"
 		},
 		"saveButton": {
