@@ -7,6 +7,5 @@ fi
 set -e
 pushd "$(dirname "$0")"/scripts > /dev/null
 ./uninstall_jellyfin.sh
-./uninstall_docker.sh
 popd > /dev/null
 echo "Jellyfin Server plugin uninstalled"

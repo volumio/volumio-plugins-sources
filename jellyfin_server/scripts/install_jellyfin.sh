@@ -2,73 +2,66 @@
 
 INSTALLING=1
 
-[ -z "${OPT_DIR}" ] && . common.sh
-check_root
+[ -z "${BASE_DIR}" ] && . common.sh
 
-START_ON_BUILD="0";
-
-echo "Installing ${APP_NAME} ${DOCKER_IMAGE_TAG}..."
-
-# Check if container already exists
-# If so, remove it
-if [ "$(docker ps -a --format '{{.Names}}' | grep ${DOCKER_CONTAINER_NAME})" ]; then
-    # If this is an update, and if the container is running, we 
-    # set START_ON_BUILD to "1", so that it gets started
-    # when it is rebuilt. This is because Volumio does not
-    # restart the plugin when it is updated (but then, it doesn't
-    # refresh the updated plugin files, so user should still reboot)
-    START_ON_BUILD="$(is_running)"
-    echo "Docker container '"${DOCKER_CONTAINER_NAME}"' already exists. Removing it first..."
-    docker rm --force "${DOCKER_CONTAINER_NAME}"
-fi
-
-# Create docker volumes
-if [ ! -z "${DOCKER_VOLUME_NAMES}" ]; then
-    echo "Creating volumes..."
-    for VOLUME_NAME in ${DOCKER_VOLUME_NAMES[@]}; do
-        docker volume create "${VOLUME_NAME}"
-    done
-fi
-
-# Copy scripts
-echo "Copying scripts to ${OPT_DIR}..."
-[ ! -d "${OPT_DIR}" ] && mkdir "${OPT_DIR}"
-cp install.conf "${OPT_DIR}"
-cp docker-compose.yml "${OPT_DIR}"
-cp common.sh "${OPT_DIR}"
-cp "${OPT_MAIN_SCRIPT}" "${OPT_DIR}"
-
-sed -i 's/${DOCKER_CONTAINER_NAME}/'"${DOCKER_CONTAINER_NAME}"'/' "${OPT_DIR}/docker-compose.yml"
-sed -i 's|${DOCKER_IMAGE_REPO}|'"${DOCKER_IMAGE_REPO}"'|' "${OPT_DIR}/docker-compose.yml"
-sed -i 's/${DOCKER_IMAGE_TAG}/'"${DOCKER_IMAGE_TAG}"'/' "${OPT_DIR}/docker-compose.yml"
-
-cp "${OPT_DIR}/docker-compose.yml" "${OPT_DIR}/docker-compose.yml.template"
-sed -i 's|${DOCKER_CGROUP_PARENT}|/|' "${OPT_DIR}/docker-compose.yml"
-
-# Build container
-echo "Finalizing installation..."
-cd "${OPT_DIR}"
-COMPOSE_HTTP_TIMEOUT=600 docker-compose up --no-start
-
-echo "${APP_NAME} ${DOCKER_IMAGE_TAG} installed."
-
-CURRENT_IMAGE_ID=$(docker images "${DOCKER_IMAGE_REPO}":"${DOCKER_IMAGE_TAG}" -q)
-if [ -z "${CURRENT_IMAGE_ID}" ]; then
-    echo "Warning: failed to obtain Docker image ID for ${DOCKER_IMAGE_REPO}:${DOCKER_IMAGE_TAG}!";
-else
-    REPO_OTHER_IMAGE_IDS=$(docker images "${DOCKER_IMAGE_REPO}" -q | grep -v "${CURRENT_IMAGE_ID}" || true)
-    if [ ! -z "${REPO_OTHER_IMAGE_IDS}" ]; then
-        echo "The following Docker images from repo '"${DOCKER_IMAGE_REPO}"' are found and not used by the plugin. They will be removed:"
-        echo "--------------------"
-        echo "$(docker image ls --format "{{.ID}}: {{.Repository}}:{{.Tag}}" "${DOCKER_IMAGE_REPO}" | grep -v "${CURRENT_IMAGE_ID}")"
-        echo "--------------------"
-        echo "${REPO_OTHER_IMAGE_IDS}" | while read IMAGE_ID ; do
-            docker rmi --force "${IMAGE_ID}"
-        done
+install_pkg() {
+    if [ -d "${BIN_DIR}" ]; then
+        echo_dt "${BIN_DIR} already exists. Skipping package download and installation."
+        return 0
     fi
-fi
 
-if [ "$START_ON_BUILD" == "1" ]; then
-    echo "Starting server..."
-    ./"${OPT_MAIN_SCRIPT}" start
-fi
+    ARCH="$(dpkg --print-architecture)"
+
+    if [ "${ARCH}" == "amd64" ] || [ "${ARCH}" == "armhf" ]; then
+        PKG_NAME="jellyfin_${TARGET_VERSION}_${ARCH}.tar.gz"
+        PKG_URL="https://repo.jellyfin.org/releases/server/linux/versions/stable/combined/${TARGET_VERSION}/${PKG_NAME}"
+    fi
+
+    if [ -z "${PKG_URL}" ]; then
+        echo_dt "Installation cannot proceed: Invalid architecture \"${ARCH}\""
+        (exit 1)
+    fi
+
+    PKG_TMP="$(mktemp --suffix ".tar.gz")"
+    echo_dt "Downloading package from ${PKG_URL}; saving to ${PKG_TMP}..."
+    wget -O "${PKG_TMP}" "${PKG_URL}"
+
+    mkdir -p "${BASE_DIR}"
+    chmod 755 "${BASE_DIR}"
+
+    echo_dt "Uncompressing package to ${BASE_DIR}..."
+    tar xzf "${PKG_TMP}" -C "${BASE_DIR}"
+
+    rm "${PKG_TMP}"
+
+    echo_dt "Setting up directories..."
+    mkdir -p "${DATA_DIR}" "${CACHE_DIR}" "${CONFIG_DIR}" "${LOG_DIR}"
+}
+
+install_ffmpeg() {
+    echo_dt "Installing ffmpeg..."
+
+    apt-get update && apt-get install -y ffmpeg
+}
+
+create_systemd_service() {
+    echo_dt "Setting up systemd service..."
+
+    DEST_FILE="/etc/systemd/system/jellyfin.service"
+    WORK_FILE="$(mktemp)"
+
+    cp jellyfin.service.template "${WORK_FILE}"
+    
+    sed -i 's|${BIN_DIR}|'"${BIN_DIR}"'|' "${WORK_FILE}"
+    sed -i 's|${DATA_DIR}|'"${DATA_DIR}"'|' "${WORK_FILE}"
+    sed -i 's|${CACHE_DIR}|'"${CACHE_DIR}"'|' "${WORK_FILE}"
+    sed -i 's|${CONFIG_DIR}|'"${CONFIG_DIR}"'|' "${WORK_FILE}"
+    sed -i 's|${LOG_DIR}|'"${LOG_DIR}"'|' "${WORK_FILE}"
+
+    cp "${WORK_FILE}" "${DEST_FILE}"
+    systemctl daemon-reload
+}
+
+install_pkg
+install_ffmpeg
+create_systemd_service

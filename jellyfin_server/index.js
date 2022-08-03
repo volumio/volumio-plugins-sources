@@ -4,9 +4,9 @@ const path = require('path');
 global.jellyfinServerPluginLibRoot = path.resolve(__dirname) + '/lib';
 
 const libQ = require('kew');
-const { resolveOnShieldCreated } = require('./lib/mss');
+const { jsPromiseToKew } = require(jellyfinServerPluginLibRoot + '/util');
 const js = require(jellyfinServerPluginLibRoot + '/js');
-const server = require(jellyfinServerPluginLibRoot + '/server');
+const system = require(jellyfinServerPluginLibRoot + '/system');
 
 module.exports = ControllerJellyfinServer;
 
@@ -28,33 +28,43 @@ ControllerJellyfinServer.prototype.getUIConfig = function () {
     __dirname + '/i18n/strings_en.json',
     __dirname + '/UIConfig.json')
     .then((uiconf) => {
-      const serverInfoDefer = libQ.defer();
-      js.toast('info', js.getI18n('JELLYFIN_SERVER_LOADING_INFO'));
-      server.inspect().then((result) => {
-        serverInfoDefer.resolve({
-          uiconf,
-          serverInfo: result
-        });
-      });
-      return serverInfoDefer.promise;
+      return jsPromiseToKew(system.getServiceStatus()).then((status) => [uiconf, status])
     })
-    .then(({uiconf, serverInfo}) => {
+    .then(([uiconf, status]) => {
+      return jsPromiseToKew(system.getConfig()).then((config) => [uiconf, status, config])
+    })
+    .then(([uiconf, status, config]) => {
       const infoSectionConf = uiconf.sections[0];
 
       // Info section
-      if (serverInfo.error || !serverInfo.data.State.Running) {
-        infoSectionConf.label = js.getI18n('JELLYFIN_SERVER_ERR');
-        infoSectionConf.description = serverInfo.error ? 
-            js.getI18n('JELLYFIN_SERVER_ERR_FETCH_INFO', serverInfo.message) :
-            js.getI18n('JELLYFIN_SERVER_ERR_NOT_RUNNING');
-        infoSectionConf.content = [];
+      switch (status) {
+        case 'active':
+          infoSectionConf.description = js.getI18n('JELLYFIN_SERVER_INFO_DESC_ACTIVE');
+          break;
+        case 'activating':
+          infoSectionConf.description = js.getI18n('JELLYFIN_SERVER_INFO_DESC_ACTIVATING');
+          break;
+        default:
+          infoSectionConf.description = js.getI18n('JELLYFIN_SERVER_INFO_DESC_INACTIVE');
+      }
+
+      if (status !== 'active') {
+        const viewReadme = infoSectionConf.content[2];
+        infoSectionConf.content = [viewReadme];
       }
       else {
         const thisDevice = js.getDeviceInfo();
-        const url = `${thisDevice.host}:8096`;
+        const networkConfig = config?.NetworkConfiguration || {};
+        const requireHttps = networkConfig.RequireHttps || false;
+        const host = requireHttps ? 
+          'https://' + thisDevice.host.substring(7) : thisDevice.host
+        const port = requireHttps ? 
+          (networkConfig.PublicHttpsPort || '8920')
+          :
+          (networkConfig.PublicPort || '8096');
+        const url = `${host}:${port}`;
         infoSectionConf.content[0].value = url;
         infoSectionConf.content[1].onClick.url = url;
-
       }
 
       defer.resolve(uiconf);
@@ -81,9 +91,8 @@ ControllerJellyfinServer.prototype.onStart = function () {
 
   js.init(this.context, this.config);
 
-  const doStart = () => {
   js.toast('info', js.getI18n('JELLYFIN_SERVER_STARTING'));
-  server.start()
+  system.startService()
     .then(() => {
       js.toast('success', js.getI18n('JELLYFIN_SERVER_STARTED'));
       this.serverStatus = 'started';
@@ -93,27 +102,6 @@ ControllerJellyfinServer.prototype.onStart = function () {
       js.toast('error', js.getI18n('JELLYFIN_SERVER_ERR_START', js.getErrorMessage('', e, false)));
       defer.reject(e);
     });
-  }
-
-  if (this.commandRouter.getPluginEnabled('system_hardware', 'music_services_shield')) {
-    js.getLogger().warn('[jellyfin-server] Music Services Shield plugin detected and enabled. Going to start server when shield is created.');
-    resolveOnShieldCreated().then((result) => {
-      if (result.status === 'created') {
-        js.getLogger().warn('[jellyfin-server] Music Services Shield created. Going to start server now.');
-      }
-      else if (result.status === 'timeout') {
-        js.getLogger().warn('[jellyfin-server] Timeout while waiting for Music Services Shield to be created, but going to start server anyway...');
-      }
-      doStart();
-    })
-    .catch((e) => {
-      js.toast('error', js.getI18n('JELLYFIN_SERVER_ERR_START', js.getErrorMessage('', e, false)));
-      defer.reject(e);
-    });
-  }
-  else {
-    doStart();
-  }
 
   return defer.promise;
 }
@@ -126,7 +114,7 @@ ControllerJellyfinServer.prototype.onStop = function () {
   const defer = libQ.defer();
 
   js.toast('info', js.getI18n('JELLYFIN_SERVER_STOPPING'));
-  server.stop()
+  system.stopService()
     .then(() => {
       js.toast('success', js.getI18n('JELLYFIN_SERVER_STOPPED'));
       this.serverStatus = 'stopped';
@@ -138,42 +126,4 @@ ControllerJellyfinServer.prototype.onStop = function () {
     });
 
   return defer.promise;
-}
-
-ControllerJellyfinServer.prototype.viewStats = function () {
-  const self = this;
-  js.toast('info', js.getI18n('JELLYFIN_SERVER_FETCHING_STATS'));
-  server.summary().then((result) => {
-    if (result.error) {
-      js.toast('error', js.getI18n('JELLYFIN_SERVER_ERR_FETCH_STATS', result.message));
-      return;
-    }
-    const {version, status, mem, cpu, size} = result.data;
-    const contents = `
-    <ul>
-      <li>${js.getI18n('JELLYFIN_SERVER_STAT_VERSION')}: ${version}</li>
-      <li>${js.getI18n('JELLYFIN_SERVER_STAT_STATUS')}: ${status}</li>
-      <li>${js.getI18n('JELLYFIN_SERVER_STAT_CPU')}: ${cpu}</li>
-      <li>${js.getI18n('JELLYFIN_SERVER_STAT_MEM')}: ${mem}</li>
-      <li>${js.getI18n('JELLYFIN_SERVER_STAT_SIZE')}</li>
-      <ul>
-        <li>${js.getI18n('JELLYFIN_SERVER_STAT_BASE')}: ${size.base}</li>
-        <li>${js.getI18n('JELLYFIN_SERVER_STAT_CONFIG')}: ${size.config}</li>
-        <li>${js.getI18n('JELLYFIN_SERVER_STAT_CACHE')}: ${size.cache}</li>
-      </ul>
-    </ul>
-    `;
-    const modalData = {
-      title: js.getI18n('JELLYFIN_SERVER_STATS'),
-      message: contents,
-      size: 'lg',
-      buttons: [{
-         name: 'Close',
-         class: 'btn btn-warning',
-         emit: 'closeModals',
-         payload: ''
-      },]
-   }
-   self.commandRouter.broadcastMessage("openModal", modalData);
-  });
 }

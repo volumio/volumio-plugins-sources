@@ -24,19 +24,6 @@
           }
         },
         {
-          "id": "viewStats",
-          "element": "button",
-          "label": "TRANSLATE.JELLYFIN_SERVER_VIEW_STATS",
-          "onClick": {
-            "type": "emit",
-            "message": "callMethod",
-            "data": {
-                "endpoint": "music_service/jellyfin_server",
-                "method": "viewStats"
-            }
-          }
-        },
-        {
           "id": "viewReadme",
           "element": "button",
           "label": "TRANSLATE.JELLYFIN_SERVER_VIEW_README",

@@ -1,6 +1,6 @@
 # Jellyfin Server plugin for Volumio
 
-This plugin installs a [Jellyfin](https://jellyfin.org/) media server on your Volumio device. The server runs in a [Docker](https://www.docker.com/) container when the plugin is enabled.
+This plugin installs the [Jellyfin](https://jellyfin.org/) media server app on your Volumio device. The server starts when the plugin is enabled.
 
 The plugin has been tested on Volumio 3 running on a Raspberry Pi 3b (`armhf` architecture) and x86 PC (`x86_64 / amd64` architecture). For performance reasons, do not install the plugin on devices with less than 1GB RAM. Jellyfin is not exactly lightweight and poor performance due to insufficient memory can in turn lead to stability issues.
 
@@ -8,7 +8,7 @@ The plugin has been tested on Volumio 3 running on a Raspberry Pi 3b (`armhf` ar
 
 ## Initial Setup
 
-1. Install the plugin through Volumio plugin store. Depending on your hardware and network speed, the installation process can take some time.
+1. Install the plugin through the Volumio plugin store. Depending on your hardware and network speed, the installation process can take some time.
 
 2. After installation, enable the plugin. You will be notified when the server has started.
 
@@ -52,7 +52,7 @@ To add a music library, do the following:
 
     - In the "Select Path" form, click the slash `/` to go to the root folder.
 
-    - You will see a folder called "VOLUMIO". Select it and you will see the INTERNAL, NAS and USB subfolders. These correspond to folders of the same name in Volumio's Music Library.
+    - You will see a folder called "mnt". Select it and you will see the INTERNAL, NAS and USB subfolders. These correspond to folders of the same name in Volumio's Music Library.
 
     - Navigate through the folders and click "OK" when you have reached the folder you would like to add. The contents of the folder, including its subfolders, will be scanned and found media will be added to the library.
 
@@ -100,21 +100,13 @@ It is possible, but details on how to do it **safely** is beyond the scope of th
 
 If you are thinking of configuring port forwarding on your router to direct external requests to Volumio (and the Jellyfin server running on it), then **STOP THINKING FURTHER!** Creating a zero-security passage from the World Wide Web to a zero-security device on your network is a really bad idea. Instead, research on "reverse proxy" or "setup VPN" for better ideas.
 
-**On a Raspberry Pi, when I click "View Statistics" in the plugin settings, memory usage is shown as "Unavailable". Why?** 
-
-The memory cgroup is not enabled by default on Raspberry Pi systems. To get memory usage, edit `/boot/cmdline.txt` on Volumio and add the following to the existing list of parameters:
-
-```
-cgroup_enable=memory
-```
-
-Then reboot your Volumio device.
-
-**After installing this plugin, I installed the Music Services Shield plugin but the latter reports "shielding not active on system". How do I resolve this?**
-
-If the Music Services Shield plugin is enabled while the Jellyfin Docker container is running, it will fail to create the cpusets required for shielding because of conflicts with Docker's own cpuset. To resolve this, the Music Services Shield plugin needs to be enabled first. The easiest way would be to have both plugins enabled, followed by restarting Volumio. On startup, the Jellyfin Server plugin will check if Music Services Shield is enabled and, if so, start the Jellyfin Docker container on the "unshielded" cpuset.
-
 ## Changelog
+
+0.1.3:
+- Remove use of Docker since container created from Jellyfin image fails to start on Raspberry Pi 4.
+- Jellyfin version installed: 10.8.3
+
+> If you are running a previous version of the plugin, please uninstall it first to remove the Docker-related files. If you simply "update" to this version, you will have files leftover from the previous version.
 
 0.1.2:
 - Improve compatibility with Music Services Shield plugin
