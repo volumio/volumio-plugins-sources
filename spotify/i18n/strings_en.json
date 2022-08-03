@@ -63,5 +63,7 @@
   "LOGIN_TO_ENABLE_BROWSING": "To browse your tracks, albums and playlists, login with your Spotify Credentials",
   "SPOTIFY_BROWSING": "Spotify Browsing",
   "LOGGED_IN_AS": "Logged-in as",
-  "CONFIGURATION_SUCCESSFULLY_UPDATED": "Configuration has been successfully updated"
+  "CONFIGURATION_SUCCESSFULLY_UPDATED": "Configuration has been successfully updated",
+  "CONNECT_DEVICE_ICON_DOC": "Choose which icon will show the device on your Spotify app in Connect Mode",
+  "CONNECT_DEVICE_ICON":"Device Icon"
 }

@@ -96,6 +96,7 @@
     "JELLYFIN_DATE_PLAYED": "Date Played",
     "JELLYFIN_PLAY_COUNT": "Play Count",
     "JELLYFIN_RUNTIME": "Runtime",
+    "JELLYFIN_FOLDERS": "Folders",
     "JELLYFIN_ASCENDING": "Ascending",
     "JELLYFIN_DESCENDING": "Descending",
     "JELLYFIN_RESET": "Reset",

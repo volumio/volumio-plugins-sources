@@ -1,0 +1,18 @@
+{
+	"username":{
+		"type": "string",
+		"value": ""
+	},
+	"password":{
+		"type": "string",
+		"value": ""
+	},
+	"token":{
+		"type": "string",
+		"value": ""
+	},
+	"bitrate":{
+		"type": "string",
+		"value": "64"
+	}
+}

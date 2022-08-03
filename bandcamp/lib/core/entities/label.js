@@ -1,13 +1,11 @@
 'use strict';
 
-class Label {
+const Band = require("./band");
+
+class Label extends Band {
 
     constructor(url, name, thumbnail, location) {
-        this.type = 'label';
-        this.url = url;
-        this.name = name;
-        this.thumbnail = thumbnail;
-        this.location = location;
+        super('label', url, name, thumbnail, location);
     }
 
 }

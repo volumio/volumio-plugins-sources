@@ -408,13 +408,32 @@ ControllerJellyfin.prototype.search = function(query) {
 }
 
 ControllerJellyfin.prototype.pollServers = function() {
-    this.serverPoller.start(Server.fromPluginSettings(this.getServerSettingsFromConfig()));
+    let thisDevice = this.commandRouter.executeOnPlugin('system_controller', 'volumiodiscovery', 'getThisDevice');
+    let thisDeviceUrl = new URL(thisDevice.host);
+
+    const checkUrl = (url) => {
+        let _url = new URL(url);
+        if (_url.hostname === 'localhost' || _url.hostname === '127.0.0.1') {
+            _url.hostname = thisDeviceUrl.hostname;
+        }
+        let checked = _url.toString();
+        if (checked.endsWith('/')) {
+            return checked.substring(0, checked.length - 1);
+        }
+        return checked;
+    }
+
+    let serverSettings = this.getServerSettingsFromConfig().map(setting => {
+        setting.url = checkUrl(setting.url);
+        return setting;
+    });
+
+    this.serverPoller.start(Server.fromPluginSettings(serverSettings));
 }
 
 ControllerJellyfin.prototype.goto = function(data) {
     return this.playController.getSongFromTrack(data).then( result => {
         let song = result.song;
-        console.log('goto', song);
         if (data.type === 'album' && song.AlbumId) {
             return this.browseController.browseUri(`jellyfin/${ song.ServerId }/songs@albumId=${ song.AlbumId }`);
         }

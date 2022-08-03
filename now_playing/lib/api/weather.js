@@ -247,6 +247,39 @@ function parseForecast(data) {
   return forecast.slice(1); // First day of forecast is actually current day
 }
 
+function parseHourly(data) {
+  const appUrl = np.get('pluginInfo').appUrl;
+  const hourly = [];
+  for (const hourlyData of data.hourly) {
+    const hourlyWeather = hourlyData.weather;
+    const temp = hourlyWeather.temp.cur;
+    const humidity = hourlyWeather.humidity;
+    const windSpeed = hourlyWeather.wind.speed;
+    hourly.push({
+      temp: {
+        value: temp,
+        text: getTemperatureText(temp),
+        shortText: getTemperatureText(temp, true)
+      },
+      humidity: {
+        value: humidity,
+        text: getHumidityText(humidity)
+      },
+      windSpeed: {
+        value: windSpeed,
+        text: getWindSpeedText(windSpeed)
+      },
+      iconUrl: {
+        condition: getWeatherIconUrls(appUrl, hourlyWeather.icon.raw),
+        humidity: getWeatherIconUrls(appUrl, '_humidity'),
+        windspeed: getWeatherIconUrls(appUrl, '_windSpeed'),
+      },
+      dateTimeMillis: hourlyData.dt_raw * 1000
+    });
+  }
+  return hourly;
+}
+
 async function doFetchInfo() {
   return getFetchPromise(async() => {
     const location = await api.getLocation();
@@ -256,6 +289,7 @@ async function doFetchInfo() {
       location: parseLocation(location),
       current: parseCurrent(weather),
       forecast: parseForecast(weather),
+      hourly: parseHourly(weather),
       units: currentConfig.units
     };
   });

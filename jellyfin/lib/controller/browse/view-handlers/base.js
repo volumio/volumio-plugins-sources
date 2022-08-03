@@ -376,15 +376,6 @@ class BaseViewHandler {
             let pv = allViews[i];
             if (!processedViews.includes(pv.name)) {
                 if (pv.name === 'collections') {
-                    /*let model = self.getModel('userView');
-                    let linkDataFetch = model.getUserView(pv.parentId)
-                        .then( userView => {
-                            return {
-                                uriSegment: `collections@parentId=${ pv.parentId }`,
-                                text: userView.Name
-                            };
-                        });
-                    linkPromises.push(linkDataFetch);*/
                     linkPromises.push({
                         uriSegment: `collections@parentId=${ pv.parentId }`,
                         text: jellyfin.getI18n('JELLYFIN_COLLECTIONS')
@@ -414,6 +405,17 @@ class BaseViewHandler {
                             return {
                                 uriSegment: `library@parentId=${ pv.parentId }`,
                                 text: userView.Name
+                            };
+                        });
+                    linkPromises.push(linkDataFetch);
+                }
+                else if (pv.name === 'folder') {
+                    let model = self.getModel('folder');
+                    let linkDataFetch = model.getFolder(pv.parentId)
+                        .then( folder => {
+                            return {
+                                uriSegment: `folder@parentId=${ pv.parentId }`,
+                                text: folder.Name
                             };
                         });
                     linkPromises.push(linkDataFetch);

@@ -21,12 +21,12 @@ Linux users, you're fine.
 
 Then, clone the repository:
 
-`git clone https://github.com/truckershitch/volumio-plugins.git`
+`git clone https://github.com/truckershitch/volumio-plugins-sources.git`
 
 ### Optional (not recommended):
-There are two older versions archived on GitHub.  If you want to try out another branch, change to the `volumio-plugins` directory:
+There are two older versions archived on GitHub.  If you want to try out another branch, change to the `volumio-plugins-sources` directory:
 
-`cd volumio-plugins`
+`cd volumio-plugins-sources`
 
 The pianode branch is the oldest <b>and works the least</b>.  I have not tested it on the newer Volumio releases.<br/>
 <b>It may break your system.  It probably won't work.</b>
@@ -43,18 +43,18 @@ Otherwise, just continue below (don't bother with checking out anything).  To sw
 
 `git checkout master`
 
-Or you can just delete the `volumio-plugins` directory.
+Or you can just delete the `volumio-plugins-sources` directory.
 
 ## Continuing with Installation
 
 <b>To upgrade from an older plugin version:</b>
 
-`cd /path-to/volumio-plugsin/plugins/music_service/pandora`<br/>
+`cd /path-to/volumio-plugins-sources/pandora`<br/>
 `volumio plugin update`
 
 <b>For a fresh installation:</b>
 
-`cd /path-to/volumio-plugins/plugins/music_service/pandora`<br/>
+`cd /path-to/volumio-plugins-sources/pandora`<br/>
 `volumio plugin install`
 
 Both of these two commands stop for me after 100%.  I'm not sure why; if you look at `install.sh`, it's pretty empty.  Weird.  The operations succeed.
@@ -113,7 +113,7 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
 ### Version 2.5.3:
   #### Changes
   * `Anesidora` was forked to enable premium Pandora account logins.  Thanks to @Jim_Edwards on the forum for the heads-up on premium login errors.
-  
+
   #### Fixes
   * Refresh login credentials when idle and working reporting for login errors.
 
@@ -150,7 +150,7 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
   * `ExpireOldTracks::fn` fix: Crash in vorhees() was causing a Volumio restart at the track expire interval.
   * `removeTrack` now returns a Promise if track is found unfit from removal (related to above bug).
   * If a different station track is selected from the Queue page, that track is not removed from the queue before starting playback -- it is played as expected.
-  * `fetchAndAddTracks` was refactored.  The logic is much simpler now -- less queue math.  There may have been a bug there.  
+  * `fetchAndAddTracks` was refactored.  The logic is much simpler now -- less queue math.  There may have been a bug there.
   * If a track from a different station was selected from the Queue page, its track length was at maxStationTracks, and the first of those tracks was selected, the tracks are now moved to the proper position (previously, the tracks were not moved until the next track played).
 
 ### Version 2.8.0
@@ -164,29 +164,61 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
   * `this` context is handled more cleanly in the dependent modules.  `that` is now `self` and `that.self.<ControllerPandoraFunction>` (which was defintely confusing) is now `self.context.<ControllerPandoraFunction>`.
 
 ### Version 2.8.1
-   #### Fixes
-   * `PandoraHandler::setMQTTEnabled` fix: Error in variable name caused `PandoraHandler::fillStationData` to skip publishing `self.stationData` to MQTT broker.
+  #### Fixes
+  * `PandoraHandler::setMQTTEnabled` fix: Error in variable name caused `PandoraHandler::fillStationData` to skip publishing `self.stationData` to MQTT broker.
 
 ### Version 2.9.0
-   #### Changes
-   * `PandoraHandler::setMQTTEnabled` now starts stationDataHandler timer to periodically publish station data as a JSON to MQTT if flag is enabled in options.
-   * `setCurrStationInfo` now publishes `stationName` as a JSON.
+  #### Changes
+  * `PandoraHandler::setMQTTEnabled` now starts stationDataHandler timer to periodically publish station data as a JSON to MQTT if flag is enabled in options.
+  * `setCurrStationInfo` now publishes `stationName` as a JSON.
 
 ### Version 2.9.1
-   #### Fixes
-   * Fixed the band filter processing.
-   * Cleaned up `moveStationTracks`.
-   * `PandoraHandler::setBandFilter`, `PandoraHandler::setMaxStationTracks`, and 
-     `PandoraHandler::getNewTracks` now return a Promise.
+  #### Fixes
+  * Fixed the band filter processing.
+  * Cleaned up `moveStationTracks`.
+  * `PandoraHandler::setBandFilter`, `PandoraHandler::setMaxStationTracks`, and
+    `PandoraHandler::getNewTracks` now return a Promise.
 
 ### Version 2.9.2
-   #### Fixes
-   * Fixed problem fetching tracks in `handleBrowseUri`.  Call to getNewTracks is now different due to returned Promise.
-   * Small logging fix in `fetchAndAddTracks`.
+  #### Fixes
+  * Fixed problem fetching tracks in `handleBrowseUri`.  Call to getNewTracks is now different due to returned Promise.
+  * Small logging fix in `fetchAndAddTracks`.
 
-### Versio 2.9.3
-   #### Changes
-   * Only change was to `package.json` for Volumio 3
+### Version 2.9.3
+  #### Changes
+  * Only change was to `package.json` for Volumio 3
+
+### Version 2.10.1
+  #### Changes
+  * Stations can now be sorted by Newest, Oldest, Alphabetical or Reverse Alphabetical order.  I had the sorts ready but had not implemented them.  @HeadGeek's request put the matches under my feet.
+  * Icons were slightly changed in the browse screen.
+
+### Version 2.10.2
+  #### Changes
+  * Resized the Pandora icon to 45% of former size to better match other Volumio icons.  The former size was due to remedial image processing skills by yours truly.  Suggested by @davestlou.
+
+### Version 2.10.3
+  #### Fixes
+  * Changed Pandora icon from grayscale to black and white to fit the Volumio standard (I did not see the comment on GitHub until a few days ago).
+
+### Version 2.11.1
+  #### Fixes
+  * `PandoraHandler::thumbsDown()` was not working (`self` was declared as `const`).  Function was refactored to `PandoraHandler::thumbTrack()` and `PandoraHandler::addFeedback()` to allow for both Thumbs Up and Thumbs Down.
+  * `thumbTrack()` is now exposed / can be called from WebSocket API et al.
+  #### Changes
+  * `PandoraHandler::reportAPIError()`: refactored logging.
+  * `goPreviousNext()`: When `(nextIsThumbsDown == true && qPos == qLen - 1)` -- Fetch more tracks before removing last track from queue -- Otherwise an error might occur or playback might stop?
+
+### Version 2.11.2
+  #### Fixes
+  * `handleBrowseUri()` would not render a page if the user was not logged in to the Pandora servers / plugin settings were incorrect.  A warning toast is now sent and an information message is rendered in the browse page.  Thanks @balbuze
+  #### Changes
+  * `validateAndSetAccountOptions()` and `initialSetup()` were refactored to improve the initialization / authentication to the Pandora servers.
+  * `PandoraHandler::getLoginStatus()` function was created.
+  * `PandoraHandler::pandoraLoginAndGetStations` and `PandoraHandler::fillStationData` were refactored.
+  * `Timer` class logging now indicates delayed start status.
+  * `Timer::PreventAuthTimeout` class now delays its startup.
+
 
 ## Issues
 
@@ -216,4 +248,4 @@ My alpha fork of the module was rewritten to use Promises instead of callbacks, 
 * <b>@lostmyshape</b> gave me the heads-up about the Unofficial Pandora API and gave me some constructive ideas.  He was the first person to look at my code and give me help.  I also borrowed his mpd player listener callback function which really helped a lot.  Much obliged!
 * <b>@marco79cgn</b> in particular laid the groundwork for my plugin.  I shamelessly borrowed from his code in several areas.
 * The creators of the other Volumio plugins.  I tried to learn from your code.
-* <b>@downtownHippie</b> and <b>@Jim_Edwards</b> in the forum for their helpful and extensive feedback.
+* <b>@downtownHippie</b>, <b>@Jim_Edwards</b>, <b>@GlennBurnett</b> in the forum for their helpful and extensive feedback.

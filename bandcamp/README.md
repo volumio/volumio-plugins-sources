@@ -22,6 +22,12 @@ As the name implies, the purpose of this plugin is to allow you to discover musi
 
 ## Changelog
 
+0.1.5
+- Fix: remove from browse sources on plugin stop
+
+0.1.4
+- Add "My Bandcamp" section. To enable, go to plugin settings and provide your Bandcamp username (fan account).
+
 0.1.3
 - Fixed adding current track to playlist / favorites in Playback view
 - Because of fix above, track info now shows bitrate (as obtained by MPD) instead of bit depth and sample rate
