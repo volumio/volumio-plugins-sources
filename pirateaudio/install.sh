@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Installing pirateaudio dependencies"
 # set path
-papath=/data/plugins/user_interface/pirateaudio
+papath=/data/plugins/system_hardware/pirateaudio
 
 echo "Installing pirateaudio service"
 # Copy service to the right place
@@ -13,28 +13,18 @@ sudo systemctl daemon-reload
 # enable service
 systemctl enable pirateaudio.service
 
-# remove old python 2.x depencies
-# echo "Removing old python 2.x and pip dependencies for pirateaudio plugin"
-# sudo pip uninstall -y st7789 socketIO-client
-# sudo apt-get -y remove python-pil python-pip python-numpy python-spidev python-rpi.gpio
-
 # Install the required packages via apt-get, install new python 3.x depencies
 echo "Installing new python 3.x and pip3 dependencies for pirateaudio plugin"
 sudo apt-get update
 sudo apt-get install -y python3-rpi.gpio python3-spidev python3-pip python3-pil python3-numpy
 sudo pip3 install st7789 socketIO-client
 
-# do changes to userconfig for pirate audio hat
-# echo "userconfig.txt: deleting pirate audio plugin parameters from earlier installations"
-# sudo sed -i '/### End of parameters for pirateaudio plugin ###/d' /boot/userconfig.txt
-# sudo sed -i '/gpio=13=op,dl/d' /boot/userconfig.txt
-# sudo sed -i '/gpio=20=pu/d' /boot/userconfig.txt
-# sudo sed -i '/gpio=16=pu/d' /boot/userconfig.txt
-# sudo sed -i '/### Fix for Button X, Y of pirate audio ###/d' /boot/userconfig.txt
-# sudo sed -i '/dtparam=spi=on/d' /boot/userconfig.txt
-# sudo sed -i '/gpio=25=op,dh/d' /boot/userconfig.txt
-# sudo sed -i '/dtoverlay=hifiberry-dac/d' /boot/userconfig.txt
-# sudo sed -i '/### Start of parameters for pirateaudio plugin ###/d' /boot/userconfig.txt
+# undo changes to userconfig for pirate audio hat in case of updating plugin
+sudo sed -i '/### End of parameters for pirateaudio plugin ###/d' /boot/userconfig.txt
+sudo sed -i '/gpio=13=op,dl/d' /boot/userconfig.txt
+sudo sed -i '/gpio=25=op,dh/d' /boot/userconfig.txt
+sudo sed -i '/dtparam=spi=on/d' /boot/userconfig.txt
+sudo sed -i '/### Start of parameters for pirateaudio plugin ###/d' /boot/userconfig.txt
 
 echo "userconfig.txt: adding parameters"
 sudo sed -i.bak '1 i\### End of parameters for pirateaudio plugin ###' /boot/userconfig.txt

@@ -41,7 +41,7 @@ DISP = ST7789.ST7789(
 
 
 # read json file (plugin values)
-with open('/data/configuration/user_interface/pirateaudio/config.json', 'r') as myfile:
+with open('/data/configuration/system_hardware/pirateaudio/config.json', 'r') as myfile:
     DATA = myfile.read()
 OBJ = json.loads(DATA)
 
@@ -50,9 +50,9 @@ with open('/data/configuration/miscellanea/appearance/config.json', 'r') as myla
     DATA_LANG = mylangfile.read()
 OBJ_LANG = json.loads(DATA_LANG)
 LANGCODE = OBJ_LANG['language_code']['value']
-LANGPATH = ''.join(['/data/plugins/user_interface/pirateaudio/i18n/strings_', LANGCODE, '.json'])  # v0.0.7
+LANGPATH = ''.join(['/data/plugins/system_hardware/pirateaudio/i18n/strings_', LANGCODE, '.json'])  # v0.0.7
 if os.path.exists(LANGPATH) is False:  # fallback to en as default language
-    LANGPATH = '/data/plugins/user_interface/pirateaudio/i18n/strings_en.json'
+    LANGPATH = '/data/plugins/system_hardware/pirateaudio/i18n/strings_en.json'
 
 # read json file (language file for translation)
 with open(LANGPATH, 'r') as mytransfile:
