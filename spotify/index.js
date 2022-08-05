@@ -2250,7 +2250,8 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         logger.evnt('Volume Spotify: ' + spvol + ' Volumio: ' + vol);
         if (startVolume) {
             startVolume = false;
-            this.setSpotifyVolume(currentVolumioVolume);
+            // Commented to avoid hitting rate limiting
+            // this.setSpotifyVolume(currentVolumioVolume);
         } else {
             if (Number.isInteger(vol)) {
                 currentSpotifyVolume = vol;
@@ -2259,7 +2260,8 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                         if (volumeDebounce) {
                             clearTimeout(volumeDebounce);
                         }
-                        volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
+                        // Commented to avoid hitting rate limiting 
+                        // volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
                     }
                 }
             }
