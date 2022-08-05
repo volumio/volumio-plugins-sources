@@ -2260,7 +2260,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                         if (volumeDebounce) {
                             clearTimeout(volumeDebounce);
                         }
-                        // Commented to avoid hitting rate limiting 
+                        // Commented to avoid hitting rate limiting
                         // volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
                     }
                 }
@@ -3043,12 +3043,14 @@ ControllerSpotify.prototype.clearVolumioQueueFromSpotifySongs = function () {
     self.logger.info('Clearing Spotify queue');
 
     var queue = self.commandRouter.volumioGetQueue();
-    for (var i in queue) {
-        var track = queue[i];
-        if (track && track.service === 'spop') {
-            self.commandRouter.volumioRemoveQueueItem(i+1);
+    try {
+        if (JSON.stringify(queue).includes('spop')) {
+            self.commandRouter.volumioClearQueue();
         }
+    } catch(e) {
+        self.logger.error('Failed to fetch queue for clearing spotify tracks');
     }
+
     setTimeout(()=>{
         defer.resolve('');
     }, 1000)
@@ -3092,3 +3094,4 @@ ControllerSpotify.prototype.checkOldSpotifyConnectPlugin = function () {
 
     return defer.promise;
 };
+
