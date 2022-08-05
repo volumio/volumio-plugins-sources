@@ -136,7 +136,7 @@ ControllerCalmRadio.prototype.loginToCalmRadio = function (username, password) {
 
 	self.logger.info('Log in to Calm Radio')
 
-	unirest.get(CRURLS.token+'?user='+username+'&pass='+password)
+	unirest.get(CRURLS.token+'?user='+encodeURIComponent(username)+'&pass='+encodeURIComponent(password))
 		.then((response) => {
 			if (response && 
 				response.status === 200 &&
@@ -655,7 +655,7 @@ ControllerCalmRadio.prototype.logoutFromCalmRadio = function (username, password
 	let defer = libQ.defer()
 	let self = this
 
-	unirest.get(CRURLS.check+'?user='+username+'&pass='+password)
+	unirest.get(CRURLS.check+'?user='+encodeURIComponent(username)+'&pass='+encodeURIComponent(password))
 		.then((response) => {
 			if (response && response.status == 200) {
 				this.config.set('username', '')
