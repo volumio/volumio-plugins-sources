@@ -1,6 +1,6 @@
 {
 	"name": "calmradio",
-	"version": "0.9.0",
+	"version": "0.9.5",
 	"description": "Calm Radio plugin for Volumio3",
 	"main": "index.js",
 	"scripts": {
@@ -31,7 +31,7 @@
 			"buster"
 		],
 		"details": "Calm Radio plugin for Volumio3",
-		"changelog": "",
+		"changelog": "0.9.5: corrections for some Calm Radio account issues",
 		"icon": "fa-heartbeat",
 		"architectures": [
 			"amd64",

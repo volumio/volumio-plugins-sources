@@ -7,6 +7,7 @@
     "LOGGED_OUT":"Logged out from Calm Radio",
     "LOGIN_FIRST":"You must first login to Calm Radio (plugin setting)",
     "ERROR_LOGGING_IN":"An error occurred trying to log in into Calm Radio",
+    "ERROR_LOGGING_INNOTP":"Your Calm Radio account must be a premium account",
     "ERROR_LOGGING_OUT":"An error occurred trying to log out from Calm Radio"
   },
   "CALMRADIO":{
@@ -20,7 +21,7 @@
     "LOGIN":"Login",
     "LOGOUT":"Logout",
     "SECTION_ACCOUNT":"calm radio account credentials",
-    "ACCOUNT_LOGIN_DESC":"Login to start streaming wonderful webradios",
+    "ACCOUNT_LOGIN_DESC":"Login with your PREMIUM account to enable streaming for all channels",
     "USERNAME_DOC":"Your Calm Radio account username",
     "PASSWORD_DOC":"Your Calm Radio account password",
     "SECTION_PLAYBACK":"calm radio playback settings",

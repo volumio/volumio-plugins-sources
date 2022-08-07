@@ -141,15 +141,18 @@ ControllerCalmRadio.prototype.loginToCalmRadio = function (username, password) {
 			if (response && 
 				response.status === 200 &&
 				response.body &&
-				'membership' in response.body &&
-				response.body['membership'] == 'active')
+				'membership' in response.body)
 			{
-				self.userToken = response.body['token']
-				self.config.set('username', username)
-				self.config.set('password', password)
-				self.config.set('token', response.body['token'])
-				self.config.set('loggedin',true)
-				defer.resolve()
+				if (response.body['membership'] == 'active') {
+					self.userToken = response.body['token']
+					self.config.set('username', username)
+					self.config.set('password', password)
+					self.config.set('token', response.body['token'])
+					self.config.set('loggedin', true)
+					defer.resolve()
+				} else {
+					defer.reject('NOTP')
+				}
 			} else {
 				defer.reject()
 			}	
@@ -449,7 +452,7 @@ ControllerCalmRadio.prototype.getStreamUrl = function (curUri) {
 
 	if (self.isLoggedIn()) {
 		rate = self.config.get('bitrate', '64')
-		cred = self.config.get('username') + ':' + self.config.get('token')+'@'
+		cred = encodeURIComponent(self.config.get('username')) + ':' + self.config.get('token')+'@'
 	} else {
 		rate = 'free'
 		cred = ''
@@ -458,7 +461,7 @@ ControllerCalmRadio.prototype.getStreamUrl = function (curUri) {
 
 	self.getChannelFromUri(curUri)
 		.then((chan) => {
-			let cred = self.config.get('username') + ':' + self.config.get('token')+'@'
+			let cred = encodeURIComponent(self.config.get('username')) + ':' + self.config.get('token')+'@'
 			explodeResp.uri = chan.streams[rate].replace('://','://'+cred)
 			defer.resolve(explodeResp)
 		})
@@ -619,8 +622,8 @@ ControllerCalmRadio.prototype.saveAccountCredentials = function (settings) {
 			self.commandRouter.pushToastMessage('success', self.getI18n('COMMON.LOGGED_IN'))
 			defer.resolve({})
 		})
-		.fail(() => {
-			self.commandRouter.pushToastMessage('error', self.getI18n('COMMON.ERROR_LOGGING_IN'))
+		.fail((fmsg) => {
+			self.commandRouter.pushToastMessage('error', self.getI18n('COMMON.ERROR_LOGGING_IN'+fmsg))
 			defer.reject()
 		})
 
