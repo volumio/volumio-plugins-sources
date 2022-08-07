@@ -4,6 +4,7 @@ const libQ = require('kew');
 const jellyfin = require(jellyfinPluginLibRoot + '/jellyfin');
 const Model = require(jellyfinPluginLibRoot + '/model');
 const AlbumArtHandler = require(jellyfinPluginLibRoot + '/util/albumart');
+const ui = require(jellyfinPluginLibRoot + '/util/ui');
 
 class SearchController {
 
@@ -243,9 +244,15 @@ class SearchController {
     }
 
     _getListTitle(itemName, server) {
-        let title = jellyfin.getI18n('JELLYFIN_SEARCH_LIST_TITLE', server.getName(), itemName);
-        let icon = '<img src="/albumart?sourceicon=' + encodeURIComponent('music_service/jellyfin/assets/images/jellyfin.svg') + '" style="width: 24px; height: 24px; margin-right: 8px;" />';
-        return icon + title;
+        if (ui.supportsEnhancedTitles()) {
+            let title = jellyfin.getI18n('JELLYFIN_SEARCH_LIST_TITLE', server.getName(), itemName);
+            let icon = '<img src="/albumart?sourceicon=' + encodeURIComponent('music_service/jellyfin/assets/images/jellyfin.svg') + '" style="width: 24px; height: 24px; margin-right: 8px;" />';
+            return icon + title;
+        }
+        else {
+            let title = jellyfin.getI18n('JELLYFIN_SEARCH_LIST_TITLE_PLAIN', server.getName(), itemName);
+            return title;
+        }
     }
     
 }

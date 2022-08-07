@@ -1,0 +1,15 @@
+{
+  "short_name": "Volumio Now Playing",
+  "name": "Client for Volumio Now Playing Plugin",
+  "icons": [
+    {
+      "src": "volumio-icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

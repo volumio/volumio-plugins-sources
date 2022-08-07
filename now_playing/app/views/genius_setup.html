@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        background-color: #121212;
+        color: #bebebe;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.6;
+      }
+      #contents {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1em 0;
+      }
+      h1 {
+        color: #d5d5d5;
+      }
+      ul {
+        list-style-type: square;
+      }
+      li {
+        margin: 0.8em 0;
+        margin-left: -1em;
+      }
+      li > ul > li {
+        margin-left: -0.5em;
+      }
+      a {
+        color: #2d8dfb;
+        text-decoration: none;
+      }
+    </style>    
+  </head>
+  <body>
+    <div id="contents">
+      <h1>Genius Access Token Setup Guide</h1>
+      <ol>
+        <li>First, <a href="https://genius.com/signup_or_login" target="genius">create a Genius account</a>. Genius tracks usage, so you might want to use one of your not-so-important email addresses for registration.</li>
+        <li>Next, <a href="https://genius.com/api-clients" target="genius">set up an API Client</a>. On the New API Client form:
+          <ul>
+            <li>Provide an App Name which can be anything you want (e.g. &quot;metadata-service&quot;).</li>
+            <li>For App Website URL, you can provide a random address which does not have to point to an existing website (e.g. &quot;https://somerandomwebsite.org&quot;).</li>
+            <li>Leave the other fields blank.</li>
+          </ul>
+        </li>
+        <li>After submitting the form, you will be given the Client ID and Client Secret. What you need, however, is the Client Access Token. So click the &quot;Generate Access Token&quot; link.</li>
+        <li>Finally, copy the generated Access Token and paste it into the &quot;Genius Access Token&quot; field of the plugin settings (under &quot;Metadata Service&quot;). Click &quot;Save&quot;.</li>
+      </ol>
+      <p>That&#39;s it! The metadata service should now be available when you select &quot;Info View&quot; from the menu of the Now Playing screen.</p>
+      <p>Note: The Access Token is given to you only once. If you lose it, you would have to go back to the <a href="https://genius.com/api-clients" target="genius">API Client page</a> and generate a new one.</p>
+    </div>
+  </body>
+</html>

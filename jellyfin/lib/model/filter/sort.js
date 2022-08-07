@@ -30,6 +30,17 @@ class FilterSortModel extends BaseModel {
                 { name: jellyfin.getI18n('JELLYFIN_RELEASE_DATE'), value: 'PremiereDate,AlbumArtist,Album,SortName' },
                 { name: jellyfin.getI18n('JELLYFIN_RUNTIME'), value: 'Runtime,AlbumArtist,Album,SortName' },
                 { name: jellyfin.getI18n('JELLYFIN_RANDOM'), value: 'Random,SortName' }
+            ],
+            'folder': [
+                { name: jellyfin.getI18n('JELLYFIN_NAME'), value: 'SortName' },
+                { name: jellyfin.getI18n('JELLYFIN_COMMUNITY_RATING'), value: 'CommunityRating,SortName' },
+                { name: jellyfin.getI18n('JELLYFIN_CRITIC_RATING'), value: 'CriticRating,SortName' },
+                { name: jellyfin.getI18n('JELLYFIN_DATE_ADDED'), value: 'DateCreated,SortName' },
+                { name: jellyfin.getI18n('JELLYFIN_DATE_PLAYED'), value: 'DatePlayed,SortName' },
+                { name: jellyfin.getI18n('JELLYFIN_FOLDERS'), value: 'IsFolder,SortName', default: true },
+                { name: jellyfin.getI18n('JELLYFIN_PLAY_COUNT'), value: 'PlayCount,SortName' },
+                { name: jellyfin.getI18n('JELLYFIN_RELEASE_DATE'), value: 'ProductionYear,PremiereDate,SortName' },
+                { name: jellyfin.getI18n('JELLYFIN_RUNTIME'), value: 'Runtime,SortName' }
             ]
         };
         
@@ -54,8 +65,12 @@ class FilterSortModel extends BaseModel {
     }
 
     getDefaultSelection(view) {
+        let defaultSortByIndex = this.SORT_BYS[view.name].findIndex( s => s.default );
+        if (defaultSortByIndex < 0) {
+            defaultSortByIndex = 0;
+        }
         return {
-            sortBy: this.SORT_BYS[view.name][0]['value'],
+            sortBy: this.SORT_BYS[view.name][defaultSortByIndex]['value'],
             sortOrder: this.SORT_ORDERS[0]['value']
         };
     }

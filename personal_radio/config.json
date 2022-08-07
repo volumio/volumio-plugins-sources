@@ -2,13 +2,5 @@
   "enabled": {
     "type": "boolean",
     "value": false
-  },
-  "sbsProtocol": {
-    "type": "boolean",
-    "value": "true"
-  },
-  "mbcProtocol": {
-    "type": "boolean",
-    "value": "true"
   }
 }
