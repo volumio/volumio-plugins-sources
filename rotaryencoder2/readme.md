@@ -6,11 +6,14 @@ This is an alternative implementation of a rotary encoder driver for integration
 ### Content
 * [Configuring the plugin](#configuring-the-plugin)
 * [Debouncing (tips for hardware debouncing)](#tips-for-debouncing-your-encoder)
-* [Electronic schematic (some basics)](#some-basics-about-hardware-design)
-* [Device Tree Overlays (how the plugin works)](02_Device_Tree_Overlays.md)
-* [Compatible Encoders](03_Compatible_Encoders.md)
-* [Appendix](04_Appendix.md)
+* [Some basics about Hardware Design (Pull-Up, Pull-Down, Rotary Encoders, RC-filter)](#some-basics-about-hardware-design)
+* [Debugging Instructions](#debugging-instructions)
+* [Linux Device Tree Overlay - Rotary Encoder (How the plugin works)](#linux-device-tree-overlay-rotary-encoder)
+* [Compatible Encoders](#list-of-compatible-rotary-encoders)
+* [Potential future extensions](#potential-future-extensions)
 * [Differences compared to _Rotary Encoder Plugin_ ](#differences-compared-to-rotary-encoder-plugin)
+* [Known issues and limitations](#known-issues-and-limitations)
+* [References](#references)
 
 
 
