@@ -312,6 +312,46 @@ The KY-040 used by some people on their Volumio system, is a rotary encoder sold
 I have written and tested the plugin as good as I could with the hardware available to me. However, there are many different RPi's, Rotary Encoders, Schematics etc. and it may not be working with your hardware. If you ask for support in the Plugin-Thread on the Community forum, I may ask you to help me figuring out if there is a bug.
 Below are instructions I may ask you to follow, to analyze the situation on your system.
 
+### General info to be included in Bug-reports:
+In case you want to file a bugreport or ask for help, please include:
+* Hardware you are using
+* Volumio version
+* Plugin Version
+* Peripheral hardware info (Rotary used, debouncing, GPIOs used)
+* Logfile showing complete use example with the bug (see step-by-step instructions below)
+  * Start of the plugin
+  * The sequence of use that produces the problem
+  * Stop of the plugin
+
+<details>
+<summary><b>How to generate a log (expand to read)</b></summary>
+<ol>
+<li>Acitvate logging in the <a href="http://volumio.local/plugin/system_hardware-rotaryencoder2">Plugin's settings</a> by going to the 'Debug settings' section and setting 'Logging' to 'On'. Don't forget to save
+<li>Create a log-file by either of these methods:
+<ol type="a">
+<li>via Browser
+<ol type="i">
+<li>Go to the <a href="http://volumio.local/dev">Volumio developer settings</A> and 'enable' the 'Live Log'
+<li>Go to the 'Installed Plugins' page in Volumio
+<li>Switch the Plugin 'off' - wait a few seconds - switch it 'on' again
+<li>Now do whatever you normally do to produce the error
+<li>After the error happened, switch the plugin 'off' again
+<li>Go back to the developer settings, disable the Live Log and copy the log out of the window. 
+<li>Put the log into a text file and send it to me via PN or, if you really think you need to post it here, make sure to use a <a href="https://docs.gitlab.com/ee/user/markdown.html#collapsible-section">collapsible section</a>.
+</ol>
+<li>via <code>SSH</code>:
+<ol type="i">
+<li>Log into your Volumio system using <code>SSH</code>, if you do not know how, Google is your friend
+<li>At the prompt <code>volumio@volumio:$</code> enter <code>journalctl -f</code>. This will start the logging to the terminal you are using.
+<li>Follow steps ii. - v. under a. (plugin on - produce error - plugin off)
+<li>In your Terminal, hit <code>Ctrl-C</code> to stop the logging
+<li>Copy the log out of the terminal and send it like describe in step vii. under a.
+</ol>
+</ol>
+</ol>
+</details>
+<p>
+
 ### Check if the overlays are properly installed
 Step-by-step:
 * ssh into volumio
