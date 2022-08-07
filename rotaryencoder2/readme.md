@@ -347,7 +347,7 @@ Step by step:
 If everything works fine up to 6), then the `dtoverlay` configuration works and there is probably an issue with the plugin.
 The output of `od` is structured like this:
 - Column 1: Pseudo-address of the first byte printed
-- Column 8: Direction in `signed Char` format (i.e. `ffff`=-1 and `0001`=1)
+- Column 8/9: Direction in `signed Char` format (i.e. `ffff ffff`=-1 and `0001 0000`=1)
 
 
 ## Linux Device Tree Overlay: Rotary Encoder
@@ -372,6 +372,7 @@ sudo dtoverlay -r
 ```
 
 The plugin is doing this when you change and save settings. You do not need to go to the command line.  
+Source-code of the driver [can be found here](https://github.com/raspberrypi/linux/blob/rpi-5.15.y/drivers/input/misc/rotary_encoder.c).
 
 ## List of compatible Rotary Encoders
 [back to TOC](#content)   
@@ -393,15 +394,23 @@ The list currently lists only the ALPS Encoder I used for my project. I am convi
 
 ## Differences compared to _Rotary Encoder Plugin_ 
 [back to TOC](#content)    
-The initial rotary encoder plugin by _Saiyato_ is built based on npm OnOff library and a derived onoff-rotary to read the GPIO pins of the Linux system (e.g. Raspberry Pi) and the implementation of the Gray-Code is tailored to the use of the KY040 encoder.  
+The initial rotary encoder plugin by _Saiyato_ is built based on npm OnOff library and a derived onoff-rotary to read the GPIO pins of the Linux system (e.g. Raspberry Pi).  
 With my custom made hardware using three _ALPS STEC11B03_ encoders, it worked but the response was not really satisfactory because the plugin would only respond on every second 'tick' of the encoder and would sometimes misinterpret the direction.  
 I tried to improve it with hardware debouncing (see [here](./01_Debouncing.md#tips-for-debouncing-your-encoder) for tips) and by optimizing the implementation but the result was not satisfactory.      
-I finally wrote my own implementation based on DT overlay driven rotary encoders giving me perfect results. Since the hardware debouncing is in my hardware anyway now, I did not bother to try the plugin without the Schmitt-Trigger - I guess that it would work without it, too. Feel free to leave a note, if you can confirm this.    
+I finally wrote my own implementation based on DT overlay driven rotary encoders giving me perfect results. 
 I first thought about implementing my solution into the existing plugin, but finally decided against it due to lack of time and because is rather an alternative than an extension.   
 If your system does not support DT overlays or you run into other issues, the other plugin may still be your first choice. 
 Feel free to try both Plugins and pick the one, that suits your application best.     
-If this Plugin works for you and you use a new type of encoder, it would be nice if you add your model to the list of supported devices below, so others can pick one that is working.   
-If you should observe problems, you may create an issue, but I have very limited time to look into that. I rely on enthusiasts to dig into the limitations of the plugin - the debug function in the settings is very chatty, so it should help to get to the issue fast.
+If this Plugin works for you and you use a new type of encoder, it would be nice if you drop me a note, so I can add it to the list of supported encoders.   
+If you should observe problems, you can try to post on the [community forum](https://community.volumio.org/t/plugin-rotaryencoder-ii/48538). I rely on enthusiasts to dig into the limitations of the plugin - the debug function in the settings is very chatty, so it should help to get to the issue fast.
+
+Overview of differences between plugins:     
+- Rotary Encoder original
+    - Uses npm [`onoff_rotary`](https://github.com/pichfl/onoff-rotary) under the hood, which itself basically uses two inputs configured via [`onoff`](https://github.com/fivdi/onoff) to read out the rotary. Source [can be found here](https://github.com/pichfl/onoff-rotary/blob/master/index.js)
+    - `onoff` itself uses `/sys/class/gpio` and `epoll` to monitor the inputs
+- Rotary Encoder II 
+    - Uses the Linux Kernel's `dtoverlay` to load a built-in driver for monitoring of a rotary encoder connected to two GPIO's
+   - Information [can be found here](#linux-device-tree-overlay-rotary-encoder)
 
 
 ## Known issues and limitations
