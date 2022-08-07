@@ -154,7 +154,7 @@ ControllerCalmRadio.prototype.loginToCalmRadio = function (username, password) {
 					defer.reject('NOTP')
 				}
 			} else {
-				defer.reject()
+				defer.reject('')
 			}	
 		})
 
