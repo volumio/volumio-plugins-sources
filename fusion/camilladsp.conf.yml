@@ -1,7 +1,7 @@
 
 devices:
   samplerate: ${capturesamplerate}
-  chunksize: 4096
+  chunksize: ${chunksize}
   silence_threshold: -60
   silence_timeout: 3.0
   queuelimit: 1
@@ -12,7 +12,7 @@ ${resampling}
     type: File
     channels: 2
     format: S32LE
-    filename: "/dev/stdin"
+    filename: "/tmp/fusiondspfifo"
     extra_samples: 4096
 ${composeout}
 
@@ -23,4 +23,3 @@ filters:
 ${resulteq}
 ${mixers}
 ${composedpipeline}
-  

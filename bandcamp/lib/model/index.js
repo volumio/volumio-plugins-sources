@@ -4,15 +4,15 @@ const modelInstances = {};
 
 let typeToClass = {
     album: 'album',
+    band: 'band',  // Replaces obsolete 'artist' and 'label' models
     discography: 'discography',
     discover: 'discover',
     track: 'track',
     search: 'search',
-    artist: 'artist',
-    label: 'label',
     show: 'show',
     article: 'article',
-    tag: 'tag'
+    tag: 'tag',
+    fan: 'fan'
 };
 
 let getInstance = (type) => {

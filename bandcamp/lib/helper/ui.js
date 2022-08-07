@@ -1,6 +1,7 @@
 'use strict';
 
 const bandcamp = require(bandcampPluginLibRoot + '/bandcamp');
+const fs = require('fs');
 
 class UIHelper {
 
@@ -8,10 +9,16 @@ class UIHelper {
         return `<img src="/albumart?sourceicon=${encodeURIComponent('music_service/bandcamp/assets/images/bandcamp.svg')}" style="width: 23px; height: 23px; margin-right: 8px; margin-top: -3px;" />`;
     }
     static addBandcampIconToListTitle(s) {
+        if (!this.supportsEnhancedTitles()) {
+            return s;
+        }
         return `${this.getBandcampIcon()}${s}`;
     }
 
-    static addIconBefore(faClass, s) {
+    static addIconToListTitle(faClass, s) {
+        if (!this.supportsEnhancedTitles()) {
+            return s;
+        }
         return `<i class="${faClass}" style="padding-right: 15px;"></i>${s}`;
     }
 
@@ -36,6 +43,9 @@ class UIHelper {
     }
 
     static constructListTitleWithLink(title, links, isFirstList) {
+        if (!this.supportsEnhancedTitles()) {
+            return title;
+        }
         let html = `<div style="display: flex; width: 100%; align-items: flex-end;${isFirstList ? '' : ' margin-top: -24px;'}">
                     <div>${title}</div>
                     <div style="flex-grow: 1; text-align: right; font-size: small;">`;
@@ -77,6 +87,38 @@ class UIHelper {
         return html;
     }
 
+    static constructDoubleLineTitleWithImageAndLink(params) {
+        if (!this.supportsEnhancedTitles()) {
+            return params.mainTitle;
+        }
+        let {imgSrc, mainTitle, secondaryTitle, link} = params;
+        let imgHtml = imgSrc ? `<div>
+            <img src="${imgSrc}" style="width: 48px; height: 48px; margin-right: 12px; margin-top: -3px; border-radius: 50%;"></div>`
+            : '';
+        
+        return `
+        <div style="display: flex; width: 100%; align-items: center;">
+            ${imgHtml}
+            <div style="flex-grow: 1">
+                <div>${mainTitle}</div>
+                <div style="color: #9c9c9c; font-size: 14px; padding-top: 3px;">${secondaryTitle}</div>
+            </div>
+            <div style="text-align: right; font-size: small;">
+                ${this._constructLinkItem(link)}
+            </div>
+        </div>
+        `;
+    }
+
+    static supportsEnhancedTitles() {
+        return !this.isManifestUI();
+    }
+    
+    static isManifestUI() {
+        let volumioManifestUIFlagFile = '/data/manifestUI';
+        let volumioManifestUIDisabledFile = '/data/disableManifestUI';
+        return fs.existsSync(volumioManifestUIFlagFile) && !fs.existsSync(volumioManifestUIDisabledFile);
+    }
 }
 
 UIHelper.STYLES = {

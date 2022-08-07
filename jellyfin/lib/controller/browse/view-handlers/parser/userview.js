@@ -20,6 +20,10 @@ class UserViewParser extends BaseParser {
             uri = baseUri + '/library@parentId=' + userView.Id;
             type = 'folder';
         }
+        else if (userView.Type === 'UserView' && userView.CollectionType === 'folders') {
+            uri = baseUri + '/folder@parentId=' + userView.Id;
+            type = 'streaming-category';
+        }
 
         if (uri != undefined) {
             let data = {

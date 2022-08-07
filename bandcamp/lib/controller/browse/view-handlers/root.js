@@ -9,12 +9,15 @@ class RootViewHandler extends BaseViewHandler {
     browse() {
         let self = this;
         let defer = libQ.defer();
-      
-        let fetches = [
+
+        let myUsername = bandcamp.getConfigValue('myUsername');
+        let fetches = myUsername ? [self._getFanSummary(myUsername)] : [];
+
+        fetches.push(
             self._getArticles(),
             self._getShows(),
             self._getDiscoverResults()
-        ];
+        );
 
         libQ.all(fetches).then( (results) => {
             let lists = [];
@@ -35,6 +38,10 @@ class RootViewHandler extends BaseViewHandler {
         });
 
         return defer.promise;
+    }
+
+    _getFanSummary(username) {
+        return this._getSectionLists(`${this.getUri()}/fan@username=${username}`);
     }
 
     _getArticles() {
