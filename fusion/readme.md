@@ -1,7 +1,7 @@
-November 17th 2021
+July 12th 2022
 
 
-##  For Volumio3
+##  For Volumio3 => v 3.236
 
 
 This plugin is designed to apply different type of Dsp on Volumio using [CamillaDsp](https://github.com/HEnquist/camilladsp)
@@ -11,25 +11,29 @@ Provides
 - A 15 bands graphic equalizer
 - Or a 2x15 bands graphic equalizer
 - Or a Parametric equalizer with :
-    - Up to 50 bands (peaking, lowshelf, highshelf, lowpass, highpass, notch)
+    - Up to 50 bands (peaking, lowshelf, highshelf, lowpass, highpass, notch, Linkwitz, ButterworthHighpass & ButterworthLowpass)
     - Equalizer scope for each band (L, R, L+R)
     - More than 3800 variant of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
     - import for local EQ file (must be in /data/INTERNAL/FusionDsp/peq/)
-- 3 preset
+- 5 custom preset
 - Or a convolution filters (FIR) with autoswitch samplerate for filters
     - DRC-FIR to create filter with an impulse
+- Access to CamillaDsp gui for advanced user
 
 For all 
-- Progressive Loudness effect with threshold setting - sort of equal loudness curve
+- Progressive Loudness effect with threshold setting - loudness curve based on ISO 226: 2003 standard
 - Auto gain
 - Toggle with/without effect
 - Separate volume level for left an right
-- 4 crossfeed for headphone (Bauer, Chu Moy, Jan Meier, Linkwitz)
+- 8 crossfeed for headphone (Bauer, Chu Moy, Jan Meier, Linkwitz, Natural 30deg, atural 50deg, SADIE D1, SADIE H15m)
 - Mono / stereo toggle
+- Channels input swap switch
+- Delay with automatic calculation
 - High quality resampling
 - tools to easily plays test files (pink noise, sweep) to help measurments 
 
 For PEQ equalizer, while importing file, you can add or replace values to EQ the setting.
+Supported filtter : PK, LP, HP, LP1, HP1, HS, LS, LS 6dB, HS 6dB, LS 12dB, HS 12dB, LPQ, HPQ, LSQ, HSQ, NO
 - Select the file for left channel
 - choose the scope L
 - Choose the mode REPLACE
@@ -59,9 +63,11 @@ For FIR, supported filters format
 
 ```
 text- 32/64 bits floats line (.txt) in rephase
+S16_LE- 16 bits LPCM mono (.wav) in rePhase
+S24_LE- 24 bits LPCM mono (.wav) in rePhase
+S24_LE- 32 bits LPCM mono (.wav) in rePhase
 FLOAT_LE- 32 bits floating point (.pcm)
 FLOAT64_LE- 64 bits IEEE-754 (.dbl) in rephase
-Wav Files are automatically converted in RAW format to be used
 ```
 
 Some screenshots
@@ -125,7 +131,7 @@ In webUI, enable the plugin.
 
 ## What is working :
 
-nearly everythings ;-)
+everythings it seems ;-)
 
 
 ## What is not working :
@@ -133,6 +139,200 @@ nearly everythings ;-)
 - 
 
 ### 4. Last changes
+
+July 12th 2022
+
+- Fix auto pre amp error
+- Remove wrong lowpass and highpass
+
+July 10th 2022
+
+- test chunksize 4096 with PEQ
+- PRE AMP auto tweak
+
+May 27th 2022 v1.0.16
+
+- import local for most REW exported filters
+
+May 21th 2022 v1.0.15
+
+- Add online help
+
+May 14th 2022 v1.0.14
+
+- import local now support LPQ and HPQ filter
+
+April 28th 2022 v1.0.13
+
+- Button to remove All parametric EQ in one click
+
+April 23th 2022 v1.0.12
+
+- new switch to disable automatic pre-amp
+
+April 18th 2022 v1.0.11
+
+- import local now support LS and HS filter
+
+April 12th 2022 v1.0.10
+
+- code socket handling
+
+April 9th 2022 v1.0.9
+
+- Graphics eq : new button to reset to 0
+
+April 8th 2022 v1.0.8
+
+- Typo in EN, DE
+- PureCamilla gui as systemd service
+- code cleaning
+- A filter was missing in Loudness pipeline
+
+March 31th 2022 v1.0.7
+
+- New Loudness curve adjustement to match ISO 226: 2003 standard. Thank you Petr_Dudek
+
+March 26th 2022 v1.0.6
+
+- Loudness curve adjustement. Thank you Petr_Dudek
+
+March 20th 2022 v1.0.5
+
+- Loudness curve adjustement
+
+March 13th 2022 v1.0.4
+
+- small corrections in different in different translations
+
+March 13th 2022 v1.0.3
+
+- New : Permut L&R channels input
+- DE translation correction
+- NL translation correction
+
+March 12th 2022 v1.0.1
+
+- Translation IT DE NL ES
+
+March 11th 2022 v1.0.0
+
+- first stable version!!!
+
+March 6th 2022 v0.1.33
+
+- Install on aarch64
+
+March 6th 2022 v0.1.32
+
+- Resampling values were not displayed
+
+March 5th 2022 v0.1.31
+
+- 5 preset now!
+- translation grammar
+
+March 3rd 2022 v0.1.30
+
+- small adjustements...
+
+Febuary 25th 2022 v0.1.29
+
+- New alsa pipeline using volumio-alsa-hook ! No more dropout
+- code cleaning
+- clean crossfeed list
+
+Febuary 5th 2022 v0.1.28
+
+- Conv filters rework
+- 4 new crossfeed. Thanks to [wbinek](https://github.com/wbinek) for his PR!
+
+January 30th 2022 v0.1.27
+
+- CamillaDsp gui settngs were overwritten on restart
+- Peaking Range-> bandwidth
+
+January 29th 2022 v0.1.26
+
+- CamillaDsp gui
+- Test clipping for conv +1dB
+
+January 24th 2022 v0.1.25
+
+- Big fix for auto samplerate switch
+
+January 24th 2022 v0.1.24
+
+- Reactivate wav files as convolution filters
+
+January 22th 2022 v0.1.23
+
+- Loudness fix
+- First work for CamillaDsp GUI integration
+
+January 9th 2022 v0.1.22
+
+- Code cleanning
+
+January 7th 2022 v0.1.21
+
+- Some adjustements in alsaloop...
+
+January 4th 2022 v0.1.20
+
+- Q range is now [0.1-40]
+- New filters ButterworthHighpass & ButterworthLowpass
+- Some adjustements in alsaloop
+
+January 2nd 2022 v0.1.19
+
+- tempoaray workaround for mpd issue
+
+December 25th 2021 v0.1.18
+
+- automatic delay calculation
+
+December 17th 2021 v0.1.17
+
+- fix for delay
+
+December 17th 2021 v0.1.16
+
+- add delay feature
+
+December 12th 2021 v0.1.15
+
+- add linkwitz transform filter
+
+December 11th 2021
+
+- asound cleaning
+
+December 5th 2021
+
+- work on preset
+
+December 4th 2021
+
+- better translation
+- save preset management
+- variable chunksize
+- convolution filter handling when $samplerate
+
+November 27th 2021
+
+- disable convolution for cpu armv6l
+- translation
+
+November 22nd 2021
+
+- fix armv6l install
+
+November 21th 2021
+
+- fix drc-fir install
+- fix for variable sample rate FIR filter
+- fix clipping detection
 
 November 17th 2021
 

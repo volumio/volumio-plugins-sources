@@ -5,6 +5,7 @@ const jellyfin = require(jellyfinPluginLibRoot + '/jellyfin');
 const Model = require(jellyfinPluginLibRoot + '/model')
 const Parser = require(__dirname + '/parser');
 const AlbumArtHandler = require(jellyfinPluginLibRoot + '/util/albumart');
+const ui = require(jellyfinPluginLibRoot + '/util/ui');
 
 class BaseViewHandler {
 
@@ -309,7 +310,6 @@ class BaseViewHandler {
 
     setPageTitle(view, nav) {
         let self = this;
-        let defer = libQ.defer();
         
         let getLink = data => {
             let onclick = `angular.element('#browse-page').scope().browse.fetchLibrary({uri: '${ data.uri }'})`;
@@ -349,6 +349,12 @@ class BaseViewHandler {
             itemText = jellyfin.getI18n(`JELLYFIN_${view.name.toUpperCase()}`);
         }
 
+        if (!ui.supportsEnhancedTitles()) {
+            nav.lists[0].title = itemText;
+            return libQ.resolve(nav);
+        }
+
+        let defer = libQ.defer();
         // Crumb links
         let serverLinkData = {
             uriSegment: `jellyfin/${ view.serverId }`,
@@ -370,15 +376,10 @@ class BaseViewHandler {
             let pv = allViews[i];
             if (!processedViews.includes(pv.name)) {
                 if (pv.name === 'collections') {
-                    let model = self.getModel('userView');
-                    let linkDataFetch = model.getUserView(pv.parentId)
-                        .then( userView => {
-                            return {
-                                uriSegment: `collections@parentId=${ pv.parentId }`,
-                                text: userView.Name
-                            };
-                        });
-                    linkPromises.push(linkDataFetch);
+                    linkPromises.push({
+                        uriSegment: `collections@parentId=${ pv.parentId }`,
+                        text: jellyfin.getI18n('JELLYFIN_COLLECTIONS')
+                    });
                 }
                 else if (pv.name === 'collection') {
                     let model = self.getModel('collection');
@@ -404,6 +405,17 @@ class BaseViewHandler {
                             return {
                                 uriSegment: `library@parentId=${ pv.parentId }`,
                                 text: userView.Name
+                            };
+                        });
+                    linkPromises.push(linkDataFetch);
+                }
+                else if (pv.name === 'folder') {
+                    let model = self.getModel('folder');
+                    let linkDataFetch = model.getFolder(pv.parentId)
+                        .then( folder => {
+                            return {
+                                uriSegment: `folder@parentId=${ pv.parentId }`,
+                                text: folder.Name
                             };
                         });
                     linkPromises.push(linkDataFetch);

@@ -14,12 +14,13 @@ class BrowseController {
      * - discover[@genre=...][@subgenre=...][@sortBy=...][@artistRecommendationType=...][@location=...][@format=...][@time=...][@pageRef=...]
      * - album[@albumUrl=...]
      * - search[@query=...][@itemType=...][@pageRef=...]
-     * - label[@labelUrl=...][@view=artists|discography][@pageRef=...]
-     * - artist[@artistUrl=...][@pageRef=...]
+     * - band[@bandUrl=...][band.type==='label': @view=artists|discography][@pageRef=...]*
      * - track[@trackUrl=...]
      * - shows[@showUrl=...|@pageRef=...][@view=tracks|albums]
      * - tag[@tagUrl=...][@select=...][@format=...][@location=...][@sort=...][@pageRef=...]
+     * - fan[@username=...][@view=collection|wishlist|followingArtistsAndLabels|followingGenres][@pageRef=...]
      * 
+     * *Replaces obsolete 'artist' and 'label' views
      */
     browseUri(uri) {
         bandcamp.getLogger().info('[bandcamp-browse] browseUri(' + uri + ')');

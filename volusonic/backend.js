@@ -43,13 +43,13 @@ function backend(log, config) {
     var self = this;
     var defer = libQ.defer();
 
-    var cached = cacheGet(command + id)
+    var cached = cacheGet(command + id + params)
       .then(function(cached) {
         if (cached == undefined) {
           cached = submitQuery(command + '.view?' + params)
             .then(function(cached) {
               if (cached['subsonic-response'].status != 'failed') {
-                cacheSet(command + id, cached);
+                cacheSet(command + id + params, cached);
               }
               defer.resolve(cached);
             })
