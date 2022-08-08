@@ -3,6 +3,26 @@
         "type": "string",
         "value": "EQ15"
     },
+    "purecgui": {
+        "type": "boolean",
+        "value": true
+    },
+    "autoatt": {
+        "type": "boolean",
+        "value": true
+    },
+    "permutchannel": {
+        "type": "boolean",
+        "value": false
+    },
+    "address": {
+        "type": "string",
+        "value": "127.0.0.1"
+    },
+    "contype": {
+        "type": "string",
+        "value": "Raw"
+    },
     "geq15": {
         "type": "string",
         "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
@@ -23,6 +43,14 @@
         "type": "string",
         "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
     },
+    "geq154": {
+        "type": "string",
+        "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    },
+    "geq155": {
+        "type": "string",
+        "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    },
     "x2geq151": {
         "type": "string",
         "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
@@ -32,6 +60,14 @@
         "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
     },
     "x2geq153": {
+        "type": "string",
+        "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    },
+    "x2geq154": {
+        "type": "string",
+        "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    },
+    "x2geq155": {
         "type": "string",
         "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
     },
@@ -119,6 +155,14 @@
         "type": "string",
         "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
     },
+    "mypreset4": {
+        "type": "string",
+        "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    },
+    "mypreset5": {
+        "type": "string",
+        "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+    },
     "flat": {
         "type": "string",
         "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
@@ -133,7 +177,7 @@
     },
     "bass": {
         "type": "string",
-        "value": "2,3,3,1.5,1,0.5,1.5,1,0.5,-0.5,-1,-1,1,2,2,1.5"
+        "value": "3,3,1.5,1,0.5,1.5,1,0.5,-0.5,-1,-1,1,2,2,1.5"
     },
     "voice": {
         "type": "string",
@@ -145,15 +189,73 @@
     },
     "state4preset1": {
         "type": "text",
-        "value": "None,false,false,50,0,0"
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true
+        ]
     },
     "state4preset2": {
         "type": "text",
-        "value": "None,false,false,50,0,0"
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true
+        ]
     },
     "state4preset3": {
         "type": "text",
-        "value": "None,false,false,50,0,0"
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true
+        ]
+    },
+    "state4preset4": {
+        "type": "text",
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true
+        ]
+    },
+    "state4preset5": {
+        "type": "text",
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true
+        ]
     },
     "availablefilters": {
         "type": "text",
@@ -188,13 +290,33 @@
         "type": "boolean",
         "value": true
     },
+    "delayscope": {
+        "type": "string",
+        "value": "None"
+    },
+    "delay": {
+        "type":"number",
+        "value":0
+    },
+    "manualdelay": {
+        "type": "boolean",
+        "value": false
+    },
+    "ldistance": {
+        "type":"number",
+        "value":0
+    }, 
+     "rdistance": {
+        "type":"number",
+        "value":0
+    },
     "eqfrom": {
         "type": "string",
         "value": "local"
     },
     "renpreset": {
         "type": "string",
-        "value": "choose a name"
+        "value": ""
     },
     "importeq": {
         "type": "string",
@@ -211,6 +333,14 @@
     "renpreset3": {
         "type": "string",
         "value": "mypreset3"
+    },
+    "renpreset4": {
+        "type": "string",
+        "value": "mypreset4"
+    },
+    "renpreset5": {
+        "type": "string",
+        "value": "mypreset5"
     },
     "leftlevel": {
         "type": "number",

@@ -1,6 +1,6 @@
 {
 	"name": "bandcamp",
-	"version": "0.1.2",
+	"version": "0.1.5",
 	"description": "Discover Bandcamp music",
 	"main": "index.js",
 	"scripts": {
@@ -33,7 +33,7 @@
 		"volumio": ">=3"
 	},
 	"dependencies": {
-		"bandcamp-fetch": "0.2.2-b.1",
+		"bandcamp-fetch": "0.3.1-b.1",
 		"kew": "^0.7.0",
 		"md5": "^2.3.0",
 		"node-cache": "^5.1.2",

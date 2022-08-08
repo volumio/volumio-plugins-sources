@@ -1,15 +1,12 @@
 'use strict';
 
-class Artist {
+const Band = require("./band");
+
+class Artist extends Band {
 
     constructor(url, name, thumbnail, location, label = null, isLabel = false) {
-        this.type = 'artist';
-        this.url = url;
-        this.name = name;
-        this.thumbnail = thumbnail;
-        this.location = location;
+        super('artist', url, name, thumbnail, location);
         this.label = label;
-        this.isLabel = isLabel;
     }
 
 }

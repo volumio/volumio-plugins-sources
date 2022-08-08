@@ -159,6 +159,17 @@ class DiscoverViewHandler extends BaseViewHandler {
 
         let title = UIHelper.constructListTitleWithLink(UIHelper.addBandcampIconToListTitle(bandcamp.getI18n(view.inSection ? 'BANDCAMP_DISCOVER_SHORT' : 'BANDCAMP_DISCOVER')), links, true);
 
+        if (!UIHelper.supportsEnhancedTitles()) {
+            // Compensate for loss of 'browse by tags' link
+            let browseByTagsLinkData = this._getBrowseByTagsLinkData();
+            items.push({
+                type: 'bandcampLinkItem',
+                uri: browseByTagsLinkData.uri,
+                title: browseByTagsLinkData.text,
+                icon: 'fa fa-arrow-circle-right'
+            });
+        }
+
         return {
             title,
             availableListViews: ['list'],
@@ -167,13 +178,11 @@ class DiscoverViewHandler extends BaseViewHandler {
     }
 
     _getBrowseByTagsLink() {
-        let baseUri = this.getUri();
-        let gotoPath = baseUri + '/tag';
-        let gotoText = bandcamp.getI18n('BANDCAMP_BROWSE_BY_TAGS');
+        let linkData = this._getBrowseByTagsLinkData();
         let gotoLink = {
             url: '#',
-            text: gotoText,
-            onclick: 'angular.element(\'#browse-page\').scope().browse.fetchLibrary({uri: \'' + gotoPath + '\'})',
+            text: linkData.text,
+            onclick: 'angular.element(\'#browse-page\').scope().browse.fetchLibrary({uri: \'' + linkData.uri + '\'})',
             icon: {
                 type: 'fa',
                 class: 'fa fa-arrow-circle-right',
@@ -182,6 +191,13 @@ class DiscoverViewHandler extends BaseViewHandler {
             }
         };
         return gotoLink;
+    }
+
+    _getBrowseByTagsLinkData() {
+        return {
+            uri: this.getUri() + '/tag',
+            text: bandcamp.getI18n('BANDCAMP_BROWSE_BY_TAGS')
+        }
     }
 
     _getAlbumsList(albums) {
@@ -233,7 +249,7 @@ class DiscoverViewHandler extends BaseViewHandler {
                 });
             });
             let title = bandcamp.getI18n(`BANDCAMP_SELECT_${view.select.toUpperCase()}`);
-            title = UIHelper.addIconBefore(DISCOVER_OPTION_ICONS[view.select], title);
+            title = UIHelper.addIconToListTitle(DISCOVER_OPTION_ICONS[view.select], title);
             let lists = [{
                 title,
                 availableListViews: ['list'],

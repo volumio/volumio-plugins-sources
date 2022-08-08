@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        background-color: #121212;
+        color: #bebebe;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.6;
+      }
+      #contents {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1em 0;
+      }
+      h1 {
+        color: #d5d5d5;
+      }
+      ul {
+        list-style-type: square;
+      }
+      li {
+        margin: 0.8em 0;
+        margin-left: -1em;
+      }
+      li > ul > li {
+        margin-left: -0.5em;
+      }
+      a {
+        color: #2d8dfb;
+        text-decoration: none;
+      }
+    </style>    
+  </head>
+  <body>
+    <div id="contents">
+      <h1>OpenWeatherMap API Key Setup Guide</h1>
+      <ol>
+        <li>To begin, <a href="https://home.openweathermap.org/users/sign_up" target="owm">sign up for an OpenWeatherMap account</a>.</li>
+        <li>Next, go to the <a href="https://home.openweathermap.org/api_keys" target="owm">&quot;API keys&quot; page</a>. You will see that an API key has already been created for you.</li>
+        <li>Copy the API Key and paste it into the &quot;OpenWeatherMap API Key&quot; field of the plugin settings (under &quot;Weather Service&quot;). Click &quot;Save&quot;.</li>
+      </ol>
+      <p>Finally, in the &quot;Localization&quot; section of the plugin settings, make sure you have provided the Geographic Coordinates of your location. With the coordinates and API key set, the plugin will be able to fetch weather information from OpenWeatherMap.</p>
+    </div>
+  </body>
+</html>

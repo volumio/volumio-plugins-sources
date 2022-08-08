@@ -14,6 +14,7 @@ const GenreViewHandler = require(__dirname + '/genre');
 const SongViewHandler = require(__dirname + '/song');
 const CollectionsViewHandler = require(__dirname + '/collections');
 const CollectionViewHandler = require(__dirname + '/collection');
+const FolderViewHandler = require(__dirname + '/folder');
 const AZFilterViewHandler = require(__dirname + '/filter/az');
 const GenreFilterViewHandler = require(__dirname + '/filter/genre');
 const YearFilterViewHandler = require(__dirname + '/filter/year');
@@ -152,6 +153,7 @@ ViewHandlerFactory._viewToClass = {
     'song': SongViewHandler,
     'collections': CollectionsViewHandler,
     'collection': CollectionViewHandler,
+    'folder': FolderViewHandler,
     'filter.az': AZFilterViewHandler,
     'filter.genre': GenreFilterViewHandler,
     'filter.year': YearFilterViewHandler,
