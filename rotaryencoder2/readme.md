@@ -57,6 +57,7 @@ Pick the functionality you would like for your encoder:
 - Emit websocket message<br>
 
 The Emit function opens four additional text boxes for providing the websocket commands and data for clockwise (CW) and counter-clockwise (CCW) turns. It allows, to provide commands to a websock emitter and can be used to trigger other functions inside other plugins. For example, if you have a Plugin named "MyDimmer" in the plugin category "System Hardware" controlling a Dimmer with a function `dim` taking an argument `'up'` or `'down'` you would need to put the following:
+
 **Call Function on Plugin**:
 - Command CW: `callMethod`
 - Command CCW:  `callMethod`
@@ -300,7 +301,7 @@ If you connect a DAC like e.g. HifiBerry to the Pin-Header, it will reserve some
 [back to TOC](#content)   
 Since many people report problems with wiring their rotary encoder, I'll show an example for clean wiring to your Raspberry Pi. This is not the minimal solution and you can do it with less components, but if you play with your Raspberry, it will add some safety to your schematic.
 
-![Rotary encoder with push button wired to RPi.](./img/rotary%20with%20r%20and%20c.jpg)
+![Rotary encoder with push button wired to RPi.](./img/rotary_with_r_and_c.jpg)
 *The image shows a rotary with three pull-up resistors (green), three limiting resistors (orange) and three capacitors, that reduce bounce and control the edge of the signal. For any regular rotary encoder, this is a working solution.
 The KY-040 used by some people on their Volumio system, is a rotary encoder soldered to a small PCB with two pull-up resistors already included in the same board. I indicate that by the red dashed box. If you use it, you will not need Pull-Ups for the two channels of the rotation. You may still want to add limiting resistors and decoupling capacitors to the KY-040, potentially with an extra pull-up or pull-down for the switch.*
 
