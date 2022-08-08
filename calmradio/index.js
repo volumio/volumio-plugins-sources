@@ -599,6 +599,7 @@ ControllerCalmRadio.prototype.savePlaybackSettings = function (settings) {
 	let defer = libQ.defer()
 
 	this.config.set('bitrate', settings['calmradio_bitrate']['value'])
+	self.commandRouter.pushToastMessage('success', self.getI18n('CONFIG.SAVED'))
 	defer.resolve({})
 
 	return defer.promise

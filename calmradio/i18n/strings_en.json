@@ -18,6 +18,7 @@
   },
   "CONFIG":{
     "CONFIG_SECTION_TITLE":"calm radio plugin configuration",
+    "SAVED":"Settings saved",
     "LOGIN":"Login",
     "LOGOUT":"Logout",
     "SECTION_ACCOUNT":"calm radio account credentials",

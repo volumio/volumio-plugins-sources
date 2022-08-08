@@ -1,7 +1,7 @@
 {
 	"name": "calmradio",
-	"version": "0.9.5",
-	"description": "Calm Radio plugin for Volumio3",
+	"version": "1.0.0",
+	"description": "Calm Radio plugin for Volumio 3",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -25,17 +25,18 @@
 	},
 	"volumio_info": {
 		"plugin_type": "music_service",
-		"boot_priority": 100,
+		"boot_priority": 10,
 		"prettyName": "Calm Radio",
 		"os": [
 			"buster"
 		],
-		"details": "Calm Radio plugin for Volumio3",
-		"changelog": "0.9.5: corrections for some Calm Radio account issues",
+		"details": "Calm Radio plugin for Volumio 3",
+		"changelog": "1.0.0: full, hopefully stable, release",
 		"icon": "fa-heartbeat",
 		"architectures": [
 			"amd64",
-			"armhf"
+			"armhf",
+			"i386"
 		]
 	},
 	"engines": {
