@@ -464,8 +464,8 @@
 					"label": "TRANSLATE.FRAME_RATE.LABEL",
 					"doc": "TRANSLATE.FRAME_RATE.DOC",
 					"value": {
-						"value": 15,
-						"label": "15 (default)"
+						"value": 50,
+						"label": "50 (default)"
 					},
 					"options": [
 						{
@@ -478,7 +478,7 @@
 						},
 						{
 							"value": 15,
-							"label": "TRANSLATE.FRAME_RATE.DEFAULT"
+							"label": "15"
 						},
 						{
 							"value": 20,
@@ -506,7 +506,7 @@
 						},
 						{
 							"value": 50,
-							"label": "50"
+							"label": "TRANSLATE.FRAME_RATE.DEFAULT"
 						},
 						{
 							"value": 55,

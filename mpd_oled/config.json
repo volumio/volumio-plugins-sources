@@ -24,7 +24,7 @@
 		"type": "string"
 	},
 	"frameRate": {
-		"value": 15,
+		"value": 50,
 		"type": "number"
 	},
 	"frameRateLabel": {

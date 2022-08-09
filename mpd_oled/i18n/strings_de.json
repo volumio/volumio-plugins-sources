@@ -43,7 +43,7 @@
 	"FRAME_RATE": {
 		"LABEL": "Frame rate (Bildwiederholrate)",
 		"DOC": "Wählen Sie die Bildwiederholrate (in Hz)<br/><br/>Das Plugin setup erhöht die I2C Busgeschwindigkeit auf 800 Kbit/s - jedoch erst nach dem nächsten Neustart Ihres Raspberry Pi.<br/><br/>Empfehlung: Ein Raspberry Pi 3 erzielt erfahrungsgemäß mit 50Hz das beste Ergebnis.",
-		"Voreinstellung": "15 (Voreinstellung)"
+		"Voreinstellung": "50 (Voreinstellung)"
 	},
 	"SCROLL_RATE": {
 		"LABEL": "Scroll rate (Rollgeschwindigkeit)",

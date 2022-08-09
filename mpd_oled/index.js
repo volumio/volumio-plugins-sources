@@ -1,5 +1,7 @@
-// volumio plugin refresh && volumio vrestart
+// volumio plugin refresh
 // sudo chown -R volumio mpd_oled
+// journalctl -f
+//  mpd_oled  -o 3 -b 16 -g 1 -f 60 -s 8,5 -C 0 -P p -c fifo,/tmp/mpdoledfifo -B 1 -r 25 -D 24 -S 0
 
 'use strict';
 
@@ -142,6 +144,10 @@ MpdOled.prototype.onVolumioStart = function(){
 	// Translate any default combo labels according to language
 	self.translateDefaultLabels();
 
+	// Start audio stuff
+	self.makeMpdoledFifo();
+	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
+
 	return libQ.resolve();
 };
 
@@ -161,8 +167,6 @@ MpdOled.prototype.onStart = function() {
 	const self = this;
 	var defer = libQ.defer();
 	self.restartProcess(false);
-	self.makeMpdoledFifo();
-	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
 	defer.resolve();
 	return defer.promise;
 };
@@ -285,6 +289,7 @@ MpdOled.prototype.saveConfig = function(data){
 // Restart mpd_oled process
 MpdOled.prototype.restartProcess = function(interactive){
 	const self = this;
+	self.info("Restarting process");
 	self.stopProcess(interactive, function(){
 		self.startProcess(interactive);
 	});

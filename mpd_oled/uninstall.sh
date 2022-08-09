@@ -5,24 +5,31 @@ if systemctl is-active --quiet mpd_oled; then
   systemctl stop mpd_oled
 fi
 
-# Kill mpd_oled, mpd_oled_cava and cava, just to be sure, don't restart later
+# Kill mpd_oled, mpd_oled_cava and cava
 killall --quiet cava
 killall --quiet mpd_oled_cava
 killall --quiet mpd_oled
 
-# remove cava if present
-if [ -d "/home/volumio/cava" ]
+# Remove CAVA binary
+if [ -f "/usr/local/bin/mpd_oled_cava" ]
 then
-	echo "Removing cava"
-	rm -r /home/volumio/cava
+  echo "Removing CAVA"
+  rm -f /usr/local/bin/mpd_oled_cava
+fi
+if [ -d "/usr/local/share/consolefonts" ]
+then
+  echo "Removing console fonts directory"
+  rm -r /usr/local/share/consolefonts
 fi
 
-# remove mpd_oled if present
+# Remove mpd_oled
 if [ -d "/home/volumio/mpd_oled" ]
 then
 	echo "Removing mpd_oled"
 	rm -r /home/volumio/mpd_oled
 fi
+
+sudo apt remove -y mpd-oled
 
 echo "Done!"
 

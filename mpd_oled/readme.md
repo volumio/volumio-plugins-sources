@@ -1,4 +1,4 @@
-29th July 2022
+09th Aug 2022
 #	VOLUMIO MPD OLED
 
 - This plugin was designed to provide an easy way to install and configure the popular `mpd_oled` project.  You can now fully customise your display without having to go to the command line!
@@ -9,9 +9,9 @@
 
 ![I2C OLED in action](images/oled.jpg "I2C OLED in action")
 
-![Plugin Screenshot 1](images/screenshot1.png "Plugin Screenshot 1")
+![Plugin Screenshot 1](images/screenshot1.jpg "Plugin Screenshot 1")
 
-![Plugin Screenshot 2](images/screenshot2.png "Plugin Screenshot 2")
+![Plugin Screenshot 2](images/screenshot2.jpg "Plugin Screenshot 2")
 
 ## How to install
 
@@ -107,6 +107,12 @@ rm -Rf mpd_oled.zip
 
 
 ## Last changes
+
+09th Aug 2022
+
+- Upgraded to use Volumio 3 audio system
+- Comes with bundled cava binary
+- Updated screenshots and reduced their image size
 
 26th Feb 2021
 

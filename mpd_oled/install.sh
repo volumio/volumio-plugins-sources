@@ -1,34 +1,24 @@
 #!/bin/bash
 
-# If you need to differentiate install for armhf and i386 you can get the variable like this
-#DPKG_ARCH=`dpkg --print-architecture`
-# Then use it to differentiate your install
-
 # set current directory
 cd /home/volumio/
-
-# refresh packages
-echo "Updating packages"
-sudo apt-get update
 
 # Install binary of mpd_oled
 wget -N http://pitastic.com/mpd_oled/packages/mpd_oled_volumio_install_latest.sh
 sudo bash mpd_oled_volumio_install_latest.sh
 
+# Installing i2c-tools
+echo "Installing i2c-tools for screen detection"
+sudo apt-get --assume-yes install i2c-tools
+
 ##############################
 # install CAVA if not present
-if [ ! -d "/home/volumio/cava" ]
+if [ ! -f "/usr/local/bin/mpd_oled_cava" ]
 then
   echo "Installing CAVA"
-
-  sudo apt -y install build-essential autoconf make libtool xxd libfftw3-dev libiniparser-dev libmpdclient-dev libi2c-dev lm-sensors
-  git clone https://github.com/karlstav/cava
-  cd cava
-  ./autogen.sh
-  ./configure --disable-input-portaudio --disable-input-sndio --disable-output-ncurses --disable-input-pulse --program-prefix=mpd_oled_
-  make
-  sudo make install-strip
-  cd ..
+  sudo cp ./cava /usr/local/bin/mpd_oled_cava
+  sudo mkdir /usr/local/share/consolefonts
+  sudo cp ./cava.psf /usr/local/share/consolefonts
 else
   echo "CAVA already installed"
 fi
@@ -67,7 +57,6 @@ fi
 
 # remove temporary install scrip
 rm -f mpd_oled_volumio_install_latest.sh
-
 
 # required to end the plugin install
 echo "plugininstallend"

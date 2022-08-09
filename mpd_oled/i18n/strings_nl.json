@@ -43,7 +43,7 @@
 	"FRAME_RATE": {
 		"LABEL": "Beeld Snelheid",
 		"DOC": "Selecteer de snelheid waarmee het display ververst wordt.(Hz)<br/><br/>Het installatie proces verhoogd de I2C snelheid naar 800 Kbit/s herstart de Raspberry Pi om de aanpassingen toe te passen.<br/><br/>Tip: Een Raspberry Pi 3 met een beeld verversings snelheid van 50Hz levert een prima resultaat op.",
-		"DEFAULT": "15 (standaard)"
+		"DEFAULT": "50 (standaard)"
 	},
 	"SCROLL_RATE": {
 		"LABEL": "Rol snelheid",

@@ -43,7 +43,7 @@
 	"FRAME_RATE": {
 		"LABEL": "Rýchlosť prekresľovania",
 		"DOC": "Vyberte, ako rýchlo sa bude prekresľovať displej (Hz)<br/><br/>Inštalačný proces zvýšil rýchlosť I2C na 800 Kbit/s, ale na túto zmenu musíte reštartovať svoje Raspberry Pi.<br/><br/>Tip: Raspberry Pi 3 s rýchlosťou prekresľovania 50Hz vykazuje výborné výsledky.",
-		"DEFAULT": "15 (predvolené)"
+		"DEFAULT": "50 (predvolené)"
 	},
 	"SCROLL_RATE": {
 		"LABEL": "Rýchlosť skrolovania",

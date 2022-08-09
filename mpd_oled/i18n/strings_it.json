@@ -43,7 +43,7 @@
 	"FRAME_RATE": {
 		"LABEL": "Velocita' di aggiornamento del display",
 		"DOC": "Scegli la velocita' di aggiornamento del display (Hz)<br/><br/>Il processo di installazione incrementa la velocita' I2C a 800 Kbit/s ma e' necessario riavviare il Raspberry Pi per rendere effettiva la modifica.<br/><br/>Consiglio: un Raspberry Pi 3 con un frame rate di 50Hz produce ottimi risultati.",
-		"DEFAULT": "15 (default)"
+		"DEFAULT": "50 (default)"
 	},
 	"SCROLL_RATE": {
 		"LABEL": "Velocita' di scorrimento del testo",
