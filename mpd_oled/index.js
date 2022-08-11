@@ -1,7 +1,7 @@
 // volumio plugin refresh && volumio vrestart
 // sudo chown -R volumio mpd_oled
 // journalctl -f
-//  mpd_oled  -o 3 -b 16 -g 1 -f 60 -s 8,5 -C 0 -P p -c fifo,/tmp/mpdoledfifo -B 1 -r 25 -D 24 -S 0
+// mpd_oled  -o 3 -b 16 -g 1 -f 60 -s 8,5 -C 0 -P p -c fifo,/tmp/mpdoledfifo -B 1 -r 25 -D 24 -S 0
 
 'use strict';
 
@@ -358,8 +358,16 @@ MpdOled.prototype.startProcess = function(interactive){
 		// If the process starts OK, no exit code is returned
 		self.info(`Starting mpd_oled: ${command}`);
 		exec(command, function(error, stdout, stderr){
-			errorMessage = stderr;
+
+			// This function is asychronous, which means a stderr is created
+			// when disabling the plugin as it kills the process
+			// mpd_oled outputs a message to stderr which we can legitimately ignore
+			if (stderr.match(/aborted|terminated/gi)){
+				return;
+			}
+			
 			if (stderr){
+				errorMessage = stderr;
 				self.error(`mpd_oled failed and returned: ${stderr}`);
 				if (interactive){
 					let msg = self.getI18nString("PROCESS_START_ERROR").replace("<ERROR>", stderr);

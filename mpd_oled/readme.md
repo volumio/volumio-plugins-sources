@@ -37,22 +37,8 @@ https://volumio.github.io/docs/User_Manual/SSH.html
 
 ### 2. Download and install the plugin
 
-- This process takes a few minutes on a Pi4 and much longer on a Pi0.
-- Type the following commands to download and compile the depencies and install the plugin:  
+- You should be able to find this plugin in the plugins store in the system hardware category
 
-**When you run the `volumio plugin install` command and it will output finalizing installation.   you will need to press `Ctrl + C` to finish the process.**
-
-```
-wget https://github.com/supercrab/volumio-plugins/raw/master/plugins/miscellanea/mpd_oled/mpd_oled.zip
-mkdir ./mop
-miniunzip mpd_oled.zip -d ./mop
-cd ./mop
-volumio plugin install
-volumio vrestart
-cd ..
-rm -Rf mop
-rm -Rf mpd_oled.zip
-```
 
 ### 3. Enable the plugin
 
@@ -74,21 +60,6 @@ rm -Rf mpd_oled.zip
 - If you have other I2C devices connected (that are not currently used by a driver) they will also be listed.  It is not possible to tell which devices are displays, so if multiple devices do appear in the scan, try setting the `I2C address` and `I2C Bus` drop downs for each device and click the `Save` button until you find a setting that works. 
 
 - Note: if you have HiFiBerry or similar DAC attached, it might not appear in the I2C scan because it's in use.
-
-### 6. Plugin Upgrade
-
-- If you have the plugin installed and would like to update it then, please use the following commands:  
-
-```
-wget https://github.com/supercrab/volumio-plugins/raw/master/plugins/miscellanea/mpd_oled/mpd_oled.zip
-mkdir ./mop
-miniunzip mpd_oled.zip -d ./mop
-cd ./mop
-volumio plugin refresh && volumio vrestart
-cd ..
-rm -Rf mop
-rm -Rf mpd_oled.zip
-```
 
 ## Tested on
 
@@ -112,6 +83,8 @@ rm -Rf mpd_oled.zip
 
 - Install.sh now uninstalls the mpd_oled service
 - Index.js removed the call to disable mpd_oled service
+- Fixed issue where an error message would appear when disabling the plugin
+- Updated readme.md
 
 09th Aug 2022
 
