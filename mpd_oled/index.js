@@ -1,4 +1,4 @@
-// volumio plugin refresh
+// volumio plugin refresh && volumio vrestart
 // sudo chown -R volumio mpd_oled
 // journalctl -f
 //  mpd_oled  -o 3 -b 16 -g 1 -f 60 -s 8,5 -C 0 -P p -c fifo,/tmp/mpdoledfifo -B 1 -r 25 -D 24 -S 0
@@ -144,10 +144,6 @@ MpdOled.prototype.onVolumioStart = function(){
 	// Translate any default combo labels according to language
 	self.translateDefaultLabels();
 
-	// Start audio stuff
-	self.makeMpdoledFifo();
-	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
-
 	return libQ.resolve();
 };
 
@@ -166,7 +162,14 @@ MpdOled.prototype.getConfigurationFiles = function() {
 MpdOled.prototype.onStart = function() {
 	const self = this;
 	var defer = libQ.defer();
+
+	// Get our audio stuff ready
+	self.makeMpdoledFifo();
+	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
+
+	// Stop and start mpd_oled process
 	self.restartProcess(false);
+
 	defer.resolve();
 	return defer.promise;
 };
@@ -295,43 +298,36 @@ MpdOled.prototype.restartProcess = function(interactive){
 	});
 };
 
-
 // Restart mpd_oled process
 MpdOled.prototype.stopProcess = function(interactive, callback){
 	const self = this;
 	const PROCESS_FINISH_DELAY_MS = 50;
-	const disableService = "/usr/bin/sudo /usr/sbin/service mpd_oled status && /usr/bin/sudo /bin/systemctl disable mpd_oled";
 	const killProcess = "/usr/bin/sudo /usr/bin/killall mpd_oled";
 	const killCavaProcess = "/usr/bin/sudo /usr/bin/killall cava & /usr/bin/sudo /usr/bin/killall mpd_oled_cava";
 
 	// Kill any CAVA processes
 	exec(killCavaProcess, function(error, stdout, stderr){
 
-		// Disable mpd_oled service
-		self.info(`Disabling mpd_oled service: ${disableService}`);
-		exec(disableService, function(error, stdout, stderr){
-
-			// Stop mpd_oled process
-			self.info(`Stopping mpd_oled: ${killProcess}`);
-			exec(killProcess, function(error, stdout, stderr) {
-				if (stderr){
-					if (stderr.toString().includes("no process found")){
-						self.info("mpd_oled process is not running");
-					}
-					else{
-						self.error(`Cannot stop mpd_oled process: ${stderr}`);
-						if (interactive){
-							let msg = self.getI18nString("PROCESS_STOP_ERROR").replace("<ERROR>", stderr);
-							self.commandRouter.pushToastMessage("error", self.getI18nString("PLUGIN_CONFIGURATION"), msg);
-						}
-						return;
-					}
+		// Stop mpd_oled process
+		self.info(`Stopping mpd_oled: ${killProcess}`);
+		exec(killProcess, function(error, stdout, stderr) {
+			if (stderr){
+				if (stderr.toString().includes("no process found")){
+					self.info("mpd_oled process is not running");
 				}
-				// Execute callback when finished
-				if (callback && typeof(callback) === "function") {
-					callback();
+				else{
+					self.error(`Cannot stop mpd_oled process: ${stderr}`);
+					if (interactive){
+						let msg = self.getI18nString("PROCESS_STOP_ERROR").replace("<ERROR>", stderr);
+						self.commandRouter.pushToastMessage("error", self.getI18nString("PLUGIN_CONFIGURATION"), msg);
+					}
+					return;
 				}
-			});
+			}
+			// Execute callback when finished
+			if (callback && typeof(callback) === "function") {
+				callback();
+			}
 		});
 	});
 };
@@ -552,15 +548,17 @@ MpdOled.prototype.translateDefaultLabels = function() {
 // Load language strings used by the plugin
 MpdOled.prototype.load18nStrings = function() {
 	const self = this;
-	var languageCode = this.commandRouter.sharedVars.get("language_code");
+	const languageCode = this.commandRouter.sharedVars.get("language_code");
+	const languageFile = __dirname + "/i18n/strings_" + languageCode + ".json";
+	const languageDefaultFile = __dirname + "/i18n/strings_en.json";
 
 	try {
-		self.i18nStrings = fs.readJsonSync(__dirname + "/i18n/strings_" + languageCode + ".json");
+		self.i18nStrings = fs.readJsonSync(languageFile);
 	}
 	catch (e) {
-		self.i18nStrings = fs.readJsonSync(__dirname + "/i18n/strings_en.json");
+		self.i18nStrings = fs.readJsonSync(languageDefaultFile);
 	}
-	self.i18nStringsDefaults = fs.readJsonSync(__dirname + "/i18n/strings_en.json");
+	self.i18nStringsDefaults = fs.readJsonSync(languageDefaultFile);
 };
 
 // Retrieve a language string

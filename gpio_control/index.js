@@ -344,13 +344,9 @@ GPIOControl.prototype.handleEvent = function(e) {
 	self.GPIOs.forEach(function(gpio) {
 		if (gpio.e == e){
 
-			// Clear any timers that act on the same pin
-			self.GPIOs.forEach(function(g) {
-				if (g.pin == gpio.pin) {
-					clearTimeout(g.delayTimeoutId);
-					clearTimeout(g.durationTimeoutId);
-				}
-			}
+			// Clear any previous timers
+			clearTimeout(gpio.delayTimeoutId);
+			clearTimeout(gpio.durationTimeoutId);
 
 			self.log(`*** ${e} ***`);
 			self.log(`Delaying: ${gpio.delay}ms`);

@@ -23,12 +23,6 @@ then
 fi
 
 # Remove mpd_oled
-if [ -d "/home/volumio/mpd_oled" ]
-then
-	echo "Removing mpd_oled"
-	rm -r /home/volumio/mpd_oled
-fi
-
 sudo apt remove -y mpd-oled
 
 echo "Done!"

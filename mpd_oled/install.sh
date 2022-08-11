@@ -7,6 +7,9 @@ cd /home/volumio/
 wget -N http://pitastic.com/mpd_oled/packages/mpd_oled_volumio_install_latest.sh
 sudo bash mpd_oled_volumio_install_latest.sh
 
+# Remove mpd_oled service
+sudo mpd_oled_service_uninstall
+
 # Installing i2c-tools
 echo "Installing i2c-tools for screen detection"
 sudo apt-get --assume-yes install i2c-tools
