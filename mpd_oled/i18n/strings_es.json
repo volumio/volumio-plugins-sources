@@ -146,7 +146,7 @@
 	},
 	"MPD_OLED_FORUM_LINK": {
 		"LABEL": "Plugin Feedback",
-		"DESC": "Visit this plugin's page in the Volumio community forum."
+		"DESC": "Visite la página de este complemento en el foro de la comunidad de Volumio."
 	},
 	"DATE_FORMAT": {
 		"LABEL": "Formato de fecha",
