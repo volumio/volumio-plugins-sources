@@ -1,4 +1,4 @@
-11th Aug 2022
+15th Aug 2022
 #	VOLUMIO MPD OLED
 
 - This plugin was designed to provide an easy way to install and configure the popular `mpd_oled` project.  You can now fully customise your display without having to go to the command line!
@@ -78,6 +78,11 @@ https://volumio.github.io/docs/User_Manual/SSH.html
 
 
 ## Last changes
+
+15th Aug 2022
+
+- The plugin creates a service which references a bash file in /tmp/mpd_oled_plugin.sh
+- Updated install.sh and uninstall.sh to accomodate this
 
 11th Aug 2022
 

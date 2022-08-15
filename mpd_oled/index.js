@@ -12,6 +12,9 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var sleep = require('sleep');
 
+// System daemon
+const TMP_SCRIPT = "/tmp/mpd_oled_plugin.sh"
+
 // Configuration file
 const CONFIG_FILE = "config.json";
 
@@ -163,12 +166,11 @@ MpdOled.prototype.onStart = function() {
 	const self = this;
 	var defer = libQ.defer();
 
-	// Get our audio stuff ready
 	self.makeMpdoledFifo();
 	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
-
-	// Stop and start mpd_oled process
-	self.restartProcess(false);
+	
+	// Start service
+	self.startService();
 
 	defer.resolve();
 	return defer.promise;
@@ -178,7 +180,10 @@ MpdOled.prototype.onStart = function() {
 MpdOled.prototype.onStop = function() {
 	const self = this;
 	var defer = libQ.defer();
-	self.stopProcess(false);
+
+	// Stop service
+	self.stopService();
+
 	defer.resolve();
 	return defer.promise;
 };
@@ -188,11 +193,15 @@ MpdOled.prototype.onStop = function() {
 MpdOled.prototype.makeMpdoledFifo = function () {
 	const self = this;
 	var defer = libQ.defer();
+
 	try {
-		execSync("/usr/bin/mkfifo -m 646 /tmp/mpdoledfifo", { uid: 1000, gid: 1000 });
+		execSync("/usr/bin/mkfifo -m 646 /tmp/mpdoledfifo", {
+			uid: 1000, 
+			gid: 1000 
+		});
 	}
 	catch (err) {
-		self.logger.error('Failed to create mpdoledfifo: ' + err);
+		self.logger.error(`Failed to create mpdoledfifo: ${err}`);
 		defer.reject(err);
 	}
 };
@@ -283,113 +292,100 @@ MpdOled.prototype.saveConfig = function(data){
 	self.saveElementInConfig(uiElement.invertDisplayEnabled.name, data);
 	self.saveElementInConfig(uiElement.cavaInputMethodAndSource.name, data);
 
-	// Restart mpd_oled process
-	self.restartProcess(true);
+	// Restart mpd_oled service
+	self.restartService();
+
+	self.commandRouter.pushToastMessage("success", self.getI18nString("VALID_CONFIGURATION"), self.getI18nString("SETTINGS_SAVED"));
 };
 
 // ======================= Process control ======================
 
-// Restart mpd_oled process
-MpdOled.prototype.restartProcess = function(interactive){
+// Restart the mpd_oled service
+MpdOled.prototype.restartService = function(){
 	const self = this;
-	self.info("Restarting process");
-	self.stopProcess(interactive, function(){
-		self.startProcess(interactive);
-	});
-};
+	self.stopService();
+	self.startService();
+}
 
-// Restart mpd_oled process
-MpdOled.prototype.stopProcess = function(interactive, callback){
+// Create a dynamic bash script that runs mpd_oled with the correct parameters
+MpdOled.prototype.createPluginTmpScript = function(){
 	const self = this;
-	const PROCESS_FINISH_DELAY_MS = 50;
-	const killProcess = "/usr/bin/sudo /usr/bin/killall mpd_oled";
-	const killCavaProcess = "/usr/bin/sudo /usr/bin/killall cava & /usr/bin/sudo /usr/bin/killall mpd_oled_cava";
+	const parameters = self.getParameters();
+	const content = `#!/bin/bash
+	/usr/bin/mpd_oled ${parameters}`;
 
-	// Kill any CAVA processes
-	exec(killCavaProcess, function(error, stdout, stderr){
-
-		// Stop mpd_oled process
-		self.info(`Stopping mpd_oled: ${killProcess}`);
-		exec(killProcess, function(error, stdout, stderr) {
-			if (stderr){
-				if (stderr.toString().includes("no process found")){
-					self.info("mpd_oled process is not running");
-				}
-				else{
-					self.error(`Cannot stop mpd_oled process: ${stderr}`);
-					if (interactive){
-						let msg = self.getI18nString("PROCESS_STOP_ERROR").replace("<ERROR>", stderr);
-						self.commandRouter.pushToastMessage("error", self.getI18nString("PLUGIN_CONFIGURATION"), msg);
-					}
-					return;
-				}
-			}
-			// Execute callback when finished
-			if (callback && typeof(callback) === "function") {
-				callback();
-			}
-		});
-	});
-};
-
-// Start mpd_oled process
-MpdOled.prototype.startProcess = function(interactive){
-	const self = this;
-	const PROCESS_CHECK_DELAY = 250;
-	const oledType = config.get(uiElement.oledType.name);
-	var errorMessage = "";
-
-	if (oledType == 0){
-		// We need oled_type to be defined
-		self.info("Not starting mpd_oled because oled type is not configured yet");
-	}
-	else{
-
-		// Get the command to run
-		var command = "mpd_oled " + self.getParameters();
-		
-		// Run mpd_oled with sudo if running an SPI device
-		// (Causes occasional error in UI)
-		if (oledType == 1 || oledType == 7){
-			command = "/bin/echo volumio | /usr/bin/sudo -S " + command;
+	// Create a new/overwrite bash script
+	fs.writeFile(TMP_SCRIPT, content, error => {
+		if (error) {
+			self.error(`Could not create tmp script: ${error}`);
+			return;
 		}
+		self.info(`tmp script created ${TMP_SCRIPT}`);
+	});
 
-		// Start process asynchronously
-		// If the process starts OK, no exit code is returned
-		self.info(`Starting mpd_oled: ${command}`);
-		exec(command, function(error, stdout, stderr){
-
-			// This function is asychronous, which means a stderr is created
-			// when disabling the plugin as it kills the process
-			// mpd_oled outputs a message to stderr which we can legitimately ignore
-			if (stderr.match(/aborted|terminated/gi)){
+	// Allow it to be executable
+	exec(`/usr/bin/sudo /bin/chmod +x ${TMP_SCRIPT}`,
+		(error, stdout, stderr) => {
+			if (error !== null) {
+				self.error(`Could not chmod tmp script ${error}`);
 				return;
 			}
-			
-			if (stderr){
-				errorMessage = stderr;
-				self.error(`mpd_oled failed and returned: ${stderr}`);
-				if (interactive){
-					let msg = self.getI18nString("PROCESS_START_ERROR").replace("<ERROR>", stderr);
-					self.commandRouter.pushToastMessage("error", self.getI18nString("PLUGIN_CONFIGURATION"), msg);
-				}
-			}
-		});
+			self.info(`Set execute permissions on ${TMP_SCRIPT}`);
+		}
+	);
+}
 
-		// We wait a short delay and check if there have been no errors
-		// When mpd_oled starts successfully it will continue to run and not return an exit code
-		setTimeout(
-			function(){
-				if (!errorMessage){
-					self.info("mpd_oled started OK and continues to run!");
-					if (interactive){
-						self.commandRouter.pushToastMessage("success", self.getI18nString("VALID_CONFIGURATION"), self.getI18nString("SETTINGS_SAVED"));
-					}
-				}
-			}, PROCESS_CHECK_DELAY
-		);
+// Start the mpd_oled service
+MpdOled.prototype.startService = function(){
+	const self = this;
+	const defer = libQ.defer();
+
+	// Check if the oled type has been initialised
+	if (config.get(uiElement.oledType.name) == 0){
+		self.info("Not starting mpd_oled service because oled type is not configured yet");
+		defer.resolve();
+		return defer.promise;;
 	}
-};
+
+	// Create a dynamic bash script, this is referenced by the service using a static path
+	self.createPluginTmpScript();
+
+	// Start the service command
+	exec("/usr/bin/sudo /bin/systemctl start mpd_oled_plugin.service", 
+		(error, stdout, stderr) => {
+			if (error !== null) {
+				self.error(`Could not start mpd_oled_plugin service: ${error}`);
+				defer.reject();
+				return defer.promise;;
+			}
+			defer.resolve();
+			self.info(`Started mpd_oled_plugin service`);
+		}
+	);
+
+	return defer.promise;
+}
+
+// Stop the mpd_oled service
+MpdOled.prototype.stopService = function(){
+	const self = this;
+	const defer = libQ.defer();
+
+	// Stop the service command
+	exec("/usr/bin/sudo /bin/systemctl stop mpd_oled_plugin.service", 
+		(error, stdout, stderr) => {
+			if (error !== null) {
+				self.error(`Could not stop mpd_oled_plugin service: ${error}`);
+				defer.reject();
+				return defer.promise;;
+			}
+			defer.resolve();
+			self.info(`Stopped mpd_oled_plugin service`);
+		}
+	);
+
+	return defer.promise;
+}
 
 // Generate the command line parameters for mpd_oled from configuration file
 MpdOled.prototype.getParameters = function(){

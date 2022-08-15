@@ -7,8 +7,32 @@ cd /home/volumio/
 wget -N http://pitastic.com/mpd_oled/packages/mpd_oled_volumio_install_latest.sh
 sudo bash mpd_oled_volumio_install_latest.sh
 
-# Remove mpd_oled service
-sudo mpd_oled_service_uninstall
+# Disable mpd_oled service at boot
+sudo systemctl disable mpd_oled
+
+# remove temporary install script
+rm -f mpd_oled_volumio_install_latest.sh
+
+####################################
+# create mpd_oled plugin service
+service="mpd_oled_plugin"
+
+tmp_file_name="/tmp/$service.service"
+tmp_file_contents="[Unit]
+Description=MPD OLED Plugin
+
+[Service]
+ExecStart=/tmp/mpd_oled_plugin.sh
+
+[Install]
+WantedBy=multi-user.target"
+
+echo "$tmp_file_contents" > $tmp_file_name
+
+systemctl is-active --quiet $service && systemctl stop $service
+cp -n $tmp_file_name /etc/systemd/system
+systemctl daemon-reload
+systemctl disable $service
 
 # Installing i2c-tools
 echo "Installing i2c-tools for screen detection"
@@ -57,9 +81,6 @@ if ! grep -q "spi=on" "/boot/config.txt"; then
     echo "dtparam=spi=on" >> /boot/userconfig.txt
   fi
 fi
-
-# remove temporary install scrip
-rm -f mpd_oled_volumio_install_latest.sh
 
 # required to end the plugin install
 echo "plugininstallend"

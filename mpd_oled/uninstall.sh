@@ -1,9 +1,13 @@
 #!/bin/bash
 
-# record if mpd_oled is initially running as service, and stop if running
-if systemctl is-active --quiet mpd_oled; then
-  systemctl stop mpd_oled
-fi
+# Remove plugin service
+service="mpd_oled_plugin"
+
+systemctl is-active --quiet $service && systemctl stop $service
+systemctl disable $service
+rm /etc/systemd/system/$service.service
+systemctl daemon-reload
+systemctl reset-failed
 
 # Kill mpd_oled, mpd_oled_cava and cava
 killall --quiet cava
