@@ -166,7 +166,7 @@ MpdOled.prototype.onStart = function() {
 	const self = this;
 	var defer = libQ.defer();
 
-	self.makeMpdoledFifo();
+	self.createMpdOledFifo();
 	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
 	
 	// Start service
@@ -184,13 +184,16 @@ MpdOled.prototype.onStop = function() {
 	// Stop service
 	self.stopService();
 
+	// remove fifo
+	self.removeMpdOledFifo();
+
 	defer.resolve();
 	return defer.promise;
 };
 
 
 // Make fifo
-MpdOled.prototype.makeMpdoledFifo = function () {
+MpdOled.prototype.createMpdOledFifo = function () {
 	const self = this;
 	var defer = libQ.defer();
 
@@ -202,6 +205,23 @@ MpdOled.prototype.makeMpdoledFifo = function () {
 	}
 	catch (err) {
 		self.logger.error(`Failed to create mpdoledfifo: ${err}`);
+		defer.reject(err);
+	}
+};
+
+// Remove fifo
+MpdOled.prototype.removeMpdOledFifo = function () {
+	const self = this;
+	var defer = libQ.defer();
+
+	try {
+		execSync("/bin/rm -f /tmp/mpdoledfifo", {
+			uid: 1000, 
+			gid: 1000 
+		});
+	}
+	catch (err) {
+		self.logger.error(`Failed to remove fifo: ${err}`);
 		defer.reject(err);
 	}
 };
@@ -344,7 +364,7 @@ MpdOled.prototype.startService = function(){
 	if (config.get(uiElement.oledType.name) == 0){
 		self.info("Not starting mpd_oled service because oled type is not configured yet");
 		defer.resolve();
-		return defer.promise;;
+		return defer.promise;
 	}
 
 	// Create a dynamic bash script, this is referenced by the service using a static path
