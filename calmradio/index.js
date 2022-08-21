@@ -1,3 +1,4 @@
+/*jshint -W033*/
 'use strict'
 const unirest = require('unirest')
 const libQ = require('kew')
@@ -5,10 +6,13 @@ const fs = require('fs-extra')
 const NodeCache = require('node-cache')
 
 const CRURLS = {
-		categories: 'https://api.calmradio.com/categories.json',
-		channels: 'https://api.calmradio.com/channels.json',
+		metadata: 'https://api.calmradio.com/v2/metadata.json',
+		categories: 'https://api.calmradio.com/v2/metadata.json',
+		channels2: 'https://api.calmradio.com/v2/channels.json',
+		channels: 'https://api.calmradio.com/v2/channels.json',
 		arts: 'https://arts.calmradio.com',
 		token: 'https://api.calmradio.com/get_token',
+		check2: 'https://api.calmradio.com/v2/check',
 		check: 'https://api.calmradio.com/check'
 	}
 
@@ -193,8 +197,9 @@ ControllerCalmRadio.prototype.getCalmRadioData = function (which) {
 	let self = this
 	let defer = libQ.defer()
 
-	if (self.cache.has(which)) {
-		defer.resolve(self.cache.get(which))
+	let cachn = which + '2';
+	if (self.cache.has(cachn)) {
+		defer.resolve(self.cache.get(cachn))
 	} else {
 		let wtxt = self.getI18n('CALMRADIO.'+which.toUpperCase())
 		self.commandRouter.pushToastMessage('info', self.getI18n('CALMRADIO.UPDATING').replace('%',wtxt))
@@ -202,8 +207,9 @@ ControllerCalmRadio.prototype.getCalmRadioData = function (which) {
 		let request = unirest.get(CRURLS[which])
 			.then(response => {
 				if (response && response.status === 200) {
-					self.cache.set(which, response.body)
-					defer.resolve(response.body)
+					let pdat = which=='categories' ? self.parseMetadata(response.body) : self.parseChannels(response.body)
+					self.cache.set(cachn, pdat)
+					defer.resolve(pdat)
 				} else {
 					defer.reject()
 				}
@@ -211,6 +217,46 @@ ControllerCalmRadio.prototype.getCalmRadioData = function (which) {
 	}
 
 	return defer.promise
+}
+
+
+ControllerCalmRadio.prototype.parseMetadata = function (data) {
+	let rows = []
+	let cats = []
+	for (let row of data.metadata.rows) {
+		let arow = []
+		arow['id'] = row.id
+		arow['title'] = row['title']
+		arow['cats'] = row['categories'] || [row['category']]
+		arow['art'] = row['background_art_url']
+		rows[row['id']] = arow
+	}
+	for (let cat of data.metadata.categories) {
+		let acat = []
+		acat['id'] = cat.id
+		acat['title'] = cat['title']
+		acat['img'] = cat['square_art_url'] || cat['tiny_square_art_url'] || cat['hd_square_art_url'] || cat['background_art_url']
+		acat['channels'] = cat['channels']
+		cats[cat['id']] = acat
+	}
+	return {rows: rows, cats: cats}
+}
+
+
+ControllerCalmRadio.prototype.parseChannels = function (data) {
+	let chns = []
+	for (let chn of data.channels) {
+		let achn = []
+		achn['title'] = chn['title']
+		achn['desc'] = chn['md_description'] || chn['description']
+		achn['img'] = chn['tiny_square_art_url'] || chn['square_art_url'] || chn['hd_square_art_url']
+		achn['story'] = chn['story']
+		achn['cat'] = chn['category'] || 999
+		achn['vip'] = chn['vip']
+		achn['free'] = chn['free']
+		chns[chn['id']] = achn
+	}
+	return chns
 }
 
 
@@ -223,47 +269,14 @@ ControllerCalmRadio.prototype.getChannelFromUri = function (uri) {
 
 	self.getCalmRadioData('channels')
 		.then((chans) => {
-			let found = false
-			for (let cat of chans) {
-				if (cat['category'] == catId) {
-					for (let chan of cat['channels']) {
-						if (chan['id'] == chanId) {
-							found = true
-							defer.resolve(chan)
-							break
-						}
-					}
-					break
-				}
+			if (chans[chanId]) {
+				defer.resolve(chans[chanId])
+			} else {
+				defer.reject()
 			}
-			if (!found) defer.reject()
 		})
 
 	return defer.promise
-}
-
-
-ControllerCalmRadio.prototype.getGroupName = function (groupId) {
-	let self = this
-	let gnam = `- - ${groupId} - -`
-
-	if (self.cache.has('categories')) {
-		let cats = self.cache.get('categories')
-		let found = false
-
-		for (let top of cats) {
-			for (let cat of top['categories']) {
-				if (cat['id'] == groupId) {
-					found = true
-					gnam = cat['name']
-					break
-				}
-			}
-			if (found) break
-		}
-	}
-
-	return gnam
 }
 
 
@@ -278,43 +291,68 @@ ControllerCalmRadio.prototype.handleBrowseUri = function (curUri) {
 }
 
 
-ControllerCalmRadio.prototype.doListCategories = function (bg) {
+ControllerCalmRadio.prototype.doListGroup = function (gid) {
 	let self = this
-	let cats = self.cache.get('categories')
-	let groupItems = []
-	let catt = ''
+	let meta = self.cache.get('categories2')
+	let grp = meta.rows[gid]
+	let cats = []
 
-	self.logger.info('Listing Calm Radio Categories '+bg)
-	cats.map(group => {
-		if (bg) {
-			if (bg == group['id'] && group['categories']) {
-				catt = group['name'].replace('CALMRADIO - ','')
-				group['categories'].map(sgrp => {
-					groupItems.push({
-						type: 'item-no-menu',
-						title: sgrp['name'].replace('CALMRADIO - ',''),
-						albumart: CRURLS.arts + sgrp['image'],
-						uri: `calmradio://${bg}/${sgrp['id']}`
-					})
-				})
-			}
+	self.logger.info('Listing Calm Radio Categories for Group ' + grp.title)
+	for (let cid of grp.cats) {
+		let prop = {type: 'item-no-menu', title: meta.cats[cid].title, uri: `calmradio://${gid}/${cid}`}
+		if (meta.cats[cid].img) {
+			prop.albumart = CRURLS.arts + meta.cats[cid].img
 		} else {
-			groupItems.push({
-				type: 'item-no-menu',
-				title: group['name'],
-				albumart: '/albumart?sectionimage=music_service/calmradio/icons/'+group['name']+'.png',
-				uri: `calmradio://${group['id']}`
-			})
+			prop.icon = 'fa fa-list'
 		}
-	})
+		cats.push(prop)
+	}
 
 	let browseResponse = {
 		navigation: {
 			lists: [
 				{
 					type: 'title',
-					title: 'Calm Radio ' + (bg ? (catt + ' ' + self.getI18n('CALMRADIO.GROUPS')) : self.getI18n('CALMRADIO.CATEGORIES')),
-				//	'availableListViews': ['grid', 'list'],
+					title: 'Calm Radio ' + self.getI18n('CALMRADIO.CATEGORIES'),
+					availableListViews: ['grid'],
+					items: cats
+				}]
+		}
+	}
+	self.commandRouter.translateKeys(browseResponse, self.i18nStrings, self.i18nStringsDefaults)
+
+	return browseResponse
+}
+
+
+ControllerCalmRadio.prototype.doListGroups = function () {
+	let self = this
+	let grps = self.cache.get('categories2').rows
+	let groupItems = []
+
+	self.logger.info('Listing Calm Radio Groups')
+	for (let [k, grp] of Object.entries(grps)) {
+		let guri
+		if (grp.cats.length > 1) {
+			guri = `calmradio://${grp['id']}`
+		} else {
+			guri = `calmradio://${grp['id']}/${grp.cats[0]}`
+		}
+		groupItems.push({
+			type: 'item-no-menu',
+			title: grp['title'],
+		//	icon: 'fa fa-list-alt',
+			albumart: grp['art'] ? (CRURLS.arts + grp['art']) : '/albumart?sourceicon=music_service/calmradio/icons/bluecrlogo.png',
+			uri: guri
+		})
+	}
+
+	let browseResponse = {
+		navigation: {
+			lists: [
+				{
+					type: 'title',
+					title: 'Calm Radio ' + self.getI18n('CALMRADIO.GROUPS'),
 					availableListViews: ['grid'],
 					items: groupItems
 				}]
@@ -333,7 +371,8 @@ ControllerCalmRadio.prototype.handleRootBrowseUri = function () {
 	self.logger.info('Calm Radio root browse')
 	self.getCalmRadioData('categories')
 		.then(() => {
-			defer.resolve(this.doListCategories())
+		//	defer.resolve(this.doListCategories())
+			defer.resolve(this.doListGroups())
 		})
 
 	return defer.promise
@@ -343,38 +382,38 @@ ControllerCalmRadio.prototype.handleRootBrowseUri = function () {
 ControllerCalmRadio.prototype.doListChannels = function (groupId, sterm=null) {
 	let self = this
 	self.logger.info('Calm Radio list channels for group '+groupId)
-	let chans = self.cache.get('channels')
+	let cats = self.cache.get('categories2').cats
+	let cat = cats[groupId]
+	let chans = self.cache.get('channels2')
 
 	let channelItems = []
-	let catt = this.getGroupName(groupId) + ' '
-	chans.map(cat => {
-		if (cat['category'] == groupId) {
-			cat['channels'].map(channel => {
-				if (!sterm || sterm.test(channel.title) || sterm.test(channel.description)) {
-					let chant = 'webradio'
-					let chnid = channel['id']
-					if (!self.isLoggedIn() && !channel.streams.free) {
-						chant = 'item-no-menu'
-						chnid = '-1'
-					}
-					channelItems.push({
-						type: chant,
-						title: channel['title'].replace('CALMRADIO - ',''),
-						albumart: CRURLS.arts + channel['image'],
-						uri: `calmradio://${groupId}/${chnid}`,
-						service:'calmradio'
-					})
-				}
+	let catt = cat.title + ' '
+	for (let chann of cat.channels) {
+		let channel = chans[chann]
+		if (!sterm || sterm.test(channel.title) || sterm.test(channel.desc)) {
+			let chant = 'webradio'	//channel.story ? 'song' : 'webradio'
+		//	let chnid = channel['id']
+			if (!self.isLoggedIn() && !channel.free[0]) {
+				chant = 'item-no-menu'
+			//	chnid = '-1'
+				chann = '-1'
+			}
+			channelItems.push({
+				type: chant,
+				title: channel['title'].replace('CALMRADIO - ',''),
+				albumart: CRURLS.arts + channel['img'],
+				uri: `calmradio://${groupId}/${chann}`,
+				service:'calmradio'
 			})
 		}
-	})
+	}
 
 	let browseResponse = {
 		navigation: {
 			lists: [
 				{
 					type: 'title',
-					title: 'Calm Radio ' + catt + self.getI18n('CALMRADIO.CHANNELS'),
+					title: 'Calm Radio ' + catt,	// + self.getI18n('CALMRADIO.CHANNELS'),
 					availableListViews: ['grid', 'list'],
 					items: channelItems
 				}]
@@ -391,30 +430,36 @@ ControllerCalmRadio.prototype.handleGroupBrowseUri = function (curUri) {
 	let self = this
 
 	self.logger.info('Calm Radio group browse '+curUri)
-	let groupId = curUri.split('/')[2]
-	let subgrId = curUri.split('/')[3]
 
-	if (subgrId < 0) {
-		self.commandRouter.pushToastMessage('error', self.getI18n('COMMON.LOGIN_FIRST'))
-		defer.resolve({})
-		return defer.promise
-	} else if (subgrId > 0) {
-		if (self.cache.has('channels')) {
-			defer.resolve(this.doListChannels(subgrId))
-			return defer.promise
+	let [s1,s2,grpn,catn,chnn] = curUri.split('/')
+	if (chnn) {
+		if (chnn < 0) {
+			self.commandRouter.pushToastMessage('error', self.getI18n('COMMON.LOGIN_FIRST'))
+			defer.resolve({})
 		}
+	} else if (catn) {
+		self.getCalmRadioData('channels')
+			.then(() => {
+				defer.resolve(this.doListChannels(catn))
+			})
 	} else {
-		defer.resolve(this.doListCategories(groupId))
-		return defer.promise
+		defer.resolve(this.doListGroup(grpn))
 	}
 
-	self.logger.info('Getting Calm Radio Channels for Group '+subgrId)
-	self.getCalmRadioData('channels')
-		.then(() => {
-			defer.resolve(this.doListChannels(subgrId))
-		})
-
 	return defer.promise
+}
+
+
+ControllerCalmRadio.prototype.channelUri = function (chan) {
+	let self = this
+
+	if (self.isLoggedIn()) {
+		let rate = self.config.get('bitrate', '64')
+		let cred = '?user=' + encodeURIComponent(self.config.get('username')) + '&pass=' + self.config.get('token')
+		return chan.vip[0].streams[rate] + cred
+	} else {
+		return chan.free[0].streams[128]
+	}
 }
 
 
@@ -431,9 +476,12 @@ ControllerCalmRadio.prototype.explodeUri = function (uri) {
 			defer.resolve({
 				uri: uri,
 				service: 'calmradio',
+				trackType: 'CalmRadio',
+				radioType: 'web',
 				name: chan['title'],
-				albumart: CRURLS.arts + chan['image'],
-				type: 'webradio'
+				title: chan['title'],
+				albumart: CRURLS.arts + chan['img'],
+				type: 'webradio'	//chan.story ? 'song' : 'webradio'
 			})
 		})
 
@@ -445,24 +493,18 @@ ControllerCalmRadio.prototype.getStreamUrl = function (curUri) {
 	let defer = libQ.defer()
 	let self = this
 
-	let rate, cred
 	let groupId = curUri.split('/')[2]
 	let channelId = curUri.split('/')[3]
 	self.logger.info('Calm Radio getStreamUrl for Cat ' + groupId + ' Chan ' + channelId)
 
-	if (self.isLoggedIn()) {
-		rate = self.config.get('bitrate', '64')
-		cred = encodeURIComponent(self.config.get('username')) + ':' + self.config.get('token')+'@'
-	} else {
-		rate = 'free'
-		cred = ''
-	}
 	let explodeResp = {uri: ''}
 
 	self.getChannelFromUri(curUri)
 		.then((chan) => {
-			let cred = encodeURIComponent(self.config.get('username')) + ':' + self.config.get('token')+'@'
-			explodeResp.uri = chan.streams[rate].replace('://','://'+cred)
+			explodeResp.uri = self.channelUri(chan)
+			explodeResp.title = chan.title
+			explodeResp.name = chan.title
+			console.log('STREAMURL: '+explodeResp.uri)
 			defer.resolve(explodeResp)
 		})
 
@@ -475,20 +517,36 @@ ControllerCalmRadio.prototype.clearAddPlayTrack = function (track) {
 	let defer = libQ.defer()
 
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerCalmRadio::clearAddPlayTrack')
-
+	console.log(track)
 
 	self.getStreamUrl(track.uri)
-		.then((track) => {
+		.then((turl) => {
 			return self.mpdPlugin.sendMpdCommand('stop',[])
 				.then(function() {
 					return self.mpdPlugin.sendMpdCommand('clear',[])
 				})
-				.then(function(stream) {
-					return self.mpdPlugin.sendMpdCommand('load "'+track.uri+'"',[])
-				})
-				.fail(function (e) {
-					return self.mpdPlugin.sendMpdCommand('add "'+track.uri+'"',[])
-				})
+			//	.then(function(stream) {
+			//		return self.mpdPlugin.sendMpdCommand('load "'+turl.uri+'"',[])
+			//	})
+			//	.fail(function (e) {
+			//		return self.mpdPlugin.sendMpdCommand('add "'+turl.uri+'"',[])
+			//	})
+        .then( () => {
+            return self.mpdPlugin.sendMpdCommand('addid "' + turl.uri + '"', [])
+        })
+        .then( (addIdResp) => {
+            if (addIdResp && typeof addIdResp.Id != undefined) {
+                let trackId = addIdResp.Id
+                let cmdAddTitleTag = {
+                    command: 'addtagid',
+                    parameters: [trackId, 'title', track.title]
+                }
+                return self.mpdPlugin.sendMpdCommandArray([cmdAddTitleTag])
+            }
+            else {
+                return libQ.resolve()
+            }
+        })
 				.then(function() {
 					self.commandRouter.stateMachine.setConsumeUpdateService('mpd')
 					return self.mpdPlugin.sendMpdCommand('play',[])
@@ -518,6 +576,30 @@ ControllerCalmRadio.prototype.clearAddPlayTracks = function (track) {
 }
 
 
+ControllerCalmRadio.prototype.next = function () {
+	let self = this
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerCalmRadio::next')
+	return libQ.defer().reject(new Error())
+}
+
+
+ControllerCalmRadio.prototype.previous = function () {
+	let self = this
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerCalmRadio::previous')
+	return libQ.defer().reject(new Error())
+}
+
+
+ControllerCalmRadio.prototype.seek = function (position) {
+	let self = this
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerCalmRadio::seek to '+position)
+	let sm = self.context.coreCommand.stateMachine
+	sm.setConsumeUpdateService('mpd', true, false)
+
+	return libQ.defer().reject(new Error())
+	return self.mpdPlugin.seek(position)
+}
+
 
 ControllerCalmRadio.prototype.stop = function () {
 	let self = this
@@ -527,24 +609,68 @@ ControllerCalmRadio.prototype.stop = function () {
 }
 
 
+ControllerCalmRadio.prototype.searchCategories = function (sterm) {
+	let self = this
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerCalmRadio::searchCategories')
+	let cats = self.cache.get('categories2').cats
+	let hits = []
+	for (let [k, cat] of Object.entries(cats)) {
+		if (sterm.test(cat.title)) {
+			hits.push({
+				type: 'item-no-menu',
+				icon: 'fa fa-list',
+				title: cat['title'],
+				albumart: cat['img'] ? (CRURLS.arts + cat['img']) : '/albumart?sourceicon=music_service/calmradio/icons/bluecrlogo.png',
+				uri: `calmradio://${cat['id']}`
+			})
+		}
+	}
+	return hits
+}
+
+
+ControllerCalmRadio.prototype.searchChannels = function (sterm) {
+	let self = this
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerCalmRadio::searchChannels')
+	let chans = self.cache.get('channels2')
+	let hits = []
+	for (let [k, chan] of Object.entries(chans)) {
+		if (sterm.test(chan.title) || sterm.test(chan.desc)) {
+			let chant = 'webradio'
+			let chann = k
+			if (!self.isLoggedIn() && !chan.free[0]) {
+				chant = 'item-no-menu'
+				chann = '-1'
+			}
+			hits.push({
+				type: chant,
+				title: chan['title'].replace('CALMRADIO - ',''),
+				albumart: CRURLS.arts + chan['img'],
+				uri: `calmradio://${chan.cat}/${chann}`,
+				service:'calmradio'
+			})
+		}
+	}
+	return hits
+}
+
+
 ControllerCalmRadio.prototype.search = function (text) {
 	let self = this
 	let defer = libQ.defer()
 
-	self.getCalmRadioData('channels')
-		.then((chans) => {
-			let chlst = []
-			let rgx = new RegExp(text.value, 'i')
-			chans.map(cat => {
-				chlst = chlst.concat(self.doListChannels(cat['category'], rgx).navigation.lists[0].items)
-			})
-			defer.resolve([{
-				title: 'Calm Radio',
-				icon: 'fa-heartbeat',
-				availableListViews: ['list'],
-				items: chlst
-			}])
-		})
+	let rgx = new RegExp(text.value, 'i')
+	let chlst = []
+
+	chlst = chlst.concat(self.searchCategories(rgx))
+	chlst = chlst.concat(self.searchChannels(rgx))
+
+	defer.resolve([{
+		title: 'Calm Radio',
+		icon: 'fa-heartbeat',
+		availableListViews: ['list'],
+		items: chlst
+	}])
 
 	return defer.promise
 }
