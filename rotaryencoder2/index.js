@@ -644,6 +644,7 @@ rotaryencoder2.prototype.addEventHandle = function (handle, rotaryIndex) {
 
 rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 	var self = this;
+	var data = '';
 	var action = self.config.get('dialAction'+rotaryIndex)
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emitDialCommand: '+action + ' with value ' + val + 'for Rotary: '+(rotaryIndex + 1))
 
@@ -670,8 +671,12 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 				case dialActions.indexOf("EMIT"): //4
 					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command ' + (self.config.get('socketCmdCCW'+rotaryIndex)) +
 						' with data ' + self.config.get('socketDataCCW'+rotaryIndex));
-					self.socket.emit(self.config.get('socketCmdCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCW'+rotaryIndex)));				
-					// self.socket.emit("callMethod", JSON.parse('{"endpoint":"system_hardware/eadog_lcd","method":"up","data":""}'));				
+					try {
+						data = JSON.parse(self.config.get('socketDataCW' + rotaryIndex));
+					} catch(e) {
+						data = self.config.get('socketDataCW' + rotaryIndex)
+					}
+					self.socket.emit(self.config.get('socketCmdCW'+rotaryIndex), data);				
 					break;
 			
 				default:
@@ -700,8 +705,12 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 				case dialActions.indexOf("EMIT"): //4
 					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command ' + (self.config.get('socketCmdCCW'+rotaryIndex)) +
 						' with data ' + self.config.get('socketDataCCW'+rotaryIndex));
-					self.socket.emit(self.config.get('socketCmdCCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCCW'+rotaryIndex)));				
-					// self.socket.emit("callMethod", JSON.parse('{"endpoint":"system_hardware/eadog_lcd","method":"down","data":""}'));				
+					try {
+						data = JSON.parse(self.config.get('socketDataCCW' + rotaryIndex));
+					} catch(e) {
+						data = self.config.get('socketDataCCW' + rotaryIndex)
+					}
+					self.socket.emit(self.config.get('socketCmdCCW'+rotaryIndex), data);				
 					break;
 			
 				default:
@@ -722,7 +731,11 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('pushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdPush' + rotaryIndex);
-				data = JSON.parse(self.config.get('socketDataPush' + rotaryIndex));
+				try {
+					data = JSON.parse(self.config.get('socketDataPush' + rotaryIndex));
+				} catch(e) {
+					data = self.config.get('socketDataPush' + rotaryIndex)
+				}
 			} 			
 			break;
 	
@@ -730,7 +743,11 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('longPushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdLongPush' + rotaryIndex);
-				data = JSON.parse(self.config.get('socketDataLongPush' + rotaryIndex));
+				try {
+					data = JSON.parse(self.config.get('socketDataLongPush' + rotaryIndex));
+				} catch(e) {
+					data = self.config.get('socketDataLongPush' + rotaryIndex)
+				}
 			} 			
 			break;
 	
@@ -738,7 +755,11 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('doublePushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdDoublePush' + rotaryIndex);
-				data = JSON.parse(self.config.get('socketDataDoublePush' + rotaryIndex));
+				try {
+					data = JSON.parse(self.config.get('socketDataDoublePush' + rotaryIndex));
+				} catch(e) {
+					data = self.config.get('socketDataDoublePush' + rotaryIndex)
+				}
 			} 			
 			break;
 	
