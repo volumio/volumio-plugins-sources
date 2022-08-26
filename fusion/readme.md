@@ -1,4 +1,4 @@
-July 12th 2022
+August 26th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -13,7 +13,7 @@ Provides
 - Or a Parametric equalizer with :
     - Up to 50 bands (peaking, lowshelf, highshelf, lowpass, highpass, notch, Linkwitz, ButterworthHighpass & ButterworthLowpass)
     - Equalizer scope for each band (L, R, L+R)
-    - More than 3800 variant of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
+    - More than 4100 variants of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
     - import for local EQ file (must be in /data/INTERNAL/FusionDsp/peq/)
 - 5 custom preset
 - Or a convolution filters (FIR) with autoswitch samplerate for filters
@@ -45,7 +45,7 @@ Supported filtter : PK, LP, HP, LP1, HP1, HS, LS, LS 6dB, HS 6dB, LS 12dB, HS 12
 
 Now EQ are loaded
 
-Datas follow format below (max total 50 bands). Only PK (peaking) filters are imported. From REW, export 'filter settings as text' in Filter tasks tab.
+Datas follow format below (max total 50 bands). From REW, export 'filter settings as text' in Filter tasks tab.
 
 ```
 Filter 4: ON PK Fc 48.05 Hz Gain -0.70 dB Q 23.967
