@@ -77,19 +77,23 @@
     },
     "mergedeq1": {
         "type": "string",
-        "value": ""
+        "value": "Eq0|None|L+R|0,0,0"
     },
     "mergedeq2": {
         "type": "string",
-        "value": ""
+        "value": "Eq0|None|L+R|0,0,0"
     },
     "mergedeq3": {
         "type": "string",
-        "value": ""
+        "value": "Eq0|None|L+R|0,0,0"
     },
     "mergedeq4": {
         "type": "string",
-        "value": ""
+        "value": "Eq0|None|L+R|0,0,0"
+    },
+    "mergedeq5": {
+        "type": "string",
+        "value": "Eq0|None|L+R|0,0,0"
     },
     "savednbreq": {
         "type": "number",
@@ -97,11 +101,11 @@
     },
     "savedmergedeq": {
         "type": "string",
-        "value": "Eq1|None|L+R|0,0,0"
+        "value": "Eq0|None|L+R|0,0,0"
     },
     "savedmergedeqfir": {
         "type": "string",
-        "value": "Eq1|None|L+R|0,0,0"
+        "value": "Eq0|None|L+R|0,0,0"
     },
     "savedmergedgeq15": {
         "type": "string",
@@ -140,6 +144,10 @@
         "value": 1
     },
     "p4nbreq": {
+        "type": "number",
+        "value": 1
+    },
+    "p5nbreq": {
         "type": "number",
         "value": 1
     },

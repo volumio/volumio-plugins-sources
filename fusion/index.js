@@ -1,5 +1,5 @@
 /*--------------------
-FusionDsp plugin for volumio 3. By balbuze July 2022
+FusionDsp plugin for volumio 3. By balbuze August 2022
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -1681,37 +1681,8 @@ FusionDsp.prototype.purecamillagui = function () {
   }
 
 }
-/*
-FusionDsp.prototype.installcamillagui = function () {
-  const self = this;
-  let defer = libQ.defer();
 
-  //-----------Experimental CamillaGui
-  self.config.set('purecgui', true)
 
-  try {
-
-    exec('/usr/bin/sudo /usr/bin/apt update', { uid: 1000, gid: 1000, encoding: 'utf8' });
-    defer.resolve();
-  } catch (err) {
-    self.logger.info('failed to apt update' + err);
-  }
-
-  try {
-    self.commandRouter.pushToastMessage('info', 'Takes up to 3 min')
-
-    execSync('/data/plugins/audio_interface/fusiondsp/installcamillagui.sh', {
-      uid: 1000,
-      gid: 1000
-    });
-    self.refreshUI()
-    defer.resolve();
-  } catch (err) {
-    self.logger.info('failed to install Camilla Gui' + err);
-  }
-
-}
-*/
 FusionDsp.prototype.addeq = function (data) {
   const self = this;
   var n = self.config.get('nbreq')
