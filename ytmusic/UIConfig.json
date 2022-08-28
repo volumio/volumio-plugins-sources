@@ -1,0 +1,48 @@
+{
+  "page": {
+    "label": "TRANSLATE.YTMUSIC_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "section_i18n",
+      "element": "section",
+      "label": "TRANSLATE.YTMUSIC_SECTION_I18N",
+      "icon": "fa-globe",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/ytmusic",
+        "method": "configSaveI18n"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YTMUSIC_SAVE",
+        "data": [
+          "region",
+          "language"
+        ]
+      },
+      "content": [
+        {
+          "id": "region",
+          "element": "select",
+          "label": "TRANSLATE.YTMUSIC_REGION",
+          "value": {},
+          "options": []
+        },
+        {
+          "id": "language",
+          "element": "select",
+          "label": "TRANSLATE.YTMUSIC_LANGUAGE",
+          "value": {},
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "section_sign_in",
+      "element": "section",
+      "label": "TRANSLATE.YTMUSIC_SECTION_ACCOUNT",
+      "icon": "fa-user",
+      "content": []
+    }
+  ]
+}
