@@ -11,7 +11,7 @@ class AlbumParser extends BaseParser {
       service: 'ytmusic',
       type: 'folder',
       title: data.title,
-      artist: data.subtitle || data.artistText,
+      artist: data.subtitle,
       albumart: data.thumbnail?.url,
       uri: baseUri + '/album@albumId=' + encodeURIComponent(data.id)
     }
@@ -41,7 +41,7 @@ class AlbumParser extends BaseParser {
       service: 'ytmusic',
       type: 'album',
       title: data.title,
-      artist: data.artistText || data.subtitle,
+      artist: data.subtitle,
       duration: data.songCount ? (data.songCount + ' • ' + data.totalDuration) : data.totalDuration,
       albumart: data.thumbnail?.url
     };

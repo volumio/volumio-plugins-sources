@@ -19,6 +19,12 @@ class SongParser extends BaseParser {
       uri: this.getItemUri(data)
     }
     item.uri = item.uri + `@explodeTrackData=${encodeURIComponent(JSON.stringify(explodeTrackData))}`
+
+    if (data.displayHint === 'grid') {
+      item.artist = data.subtitle;
+      delete item.album;
+    }
+
     return item;
   }
 
@@ -30,7 +36,7 @@ class SongParser extends BaseParser {
     return {
       videoId: data.id,
       title: data.title,
-      artist: data.subtitle || data.artistText,
+      artist: data.artistText || data.subtitle,
       album: data.albumText,
       albumart: data.thumbnail?.url
     };

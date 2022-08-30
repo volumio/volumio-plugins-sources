@@ -58,6 +58,14 @@ class SearchViewHandler extends FeedViewHandler {
     return bundle;
   }
 
+  getAvailableListViews(sectionIndex, contents) {
+    const items = contents.sections[sectionIndex].contents;
+    if (items?.find((item) => ['artist', 'playlist', 'album'].includes(item.type))) {
+        return 'grid';
+    }
+    return null;
+  }
+
 }
 
 module.exports = SearchViewHandler;

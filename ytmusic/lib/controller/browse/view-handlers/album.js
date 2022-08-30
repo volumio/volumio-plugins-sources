@@ -35,7 +35,7 @@ class AlbumViewHandler extends FeedViewHandler {
     const view = this.getCurrentView();
     const model = this.getModel('album');
     const album = await model.getAlbum(decodeURIComponent(view.albumId));
-    this.#albumArtist = album?.header?.artist;
+    this.#albumArtist = album?.header?.artists?.[0];
     return album;
   }
 
@@ -81,7 +81,7 @@ class AlbumViewHandler extends FeedViewHandler {
     return {
       ...item,
       albumText: album.header?.title,
-      artistText: album.header?.artistText,
+      artistText: album.header?.artistText || album.header?.subtitle,
       thumbnail: album.header?.thumbnail
     };
   }

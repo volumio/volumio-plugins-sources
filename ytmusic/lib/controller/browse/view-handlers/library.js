@@ -38,7 +38,7 @@ class LibraryViewHander extends FeedViewHandler {
       if (rootItems.length > 0) {
         result.navigation.lists.unshift({
           title: ytmusic.getI18n('YTMUSIC_LIBRARY'),
-          availableListViews: ['grid', 'list'],
+          availableListViews: ['list', 'grid'],
           items: rootItems
         });
       }
@@ -65,6 +65,14 @@ class LibraryViewHander extends FeedViewHandler {
       this.#tabs = contents.tabs;
       return contents;
     }
+  }
+
+  getAvailableListViews(sectionIndex, contents) {
+    const items = contents.sections[sectionIndex].contents;
+    if (items?.find((item) => ['libraryArtist', 'artist'].includes(item.type))) {
+        return 'grid';
+    }
+    return null;
   }
 }
 

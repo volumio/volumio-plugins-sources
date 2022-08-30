@@ -32,6 +32,9 @@ class EndpointItemParser extends BaseParser {
     if (data.thumbnail) {
       item.albumart = data.thumbnail?.url;
     }
+    else if (data.displayHint === 'didYouMean') {
+      item.icon = 'fa fa-question-circle-o';
+    }
     else {
       item.icon = this.getIconFromEndpoint(data.endpoint);
     }

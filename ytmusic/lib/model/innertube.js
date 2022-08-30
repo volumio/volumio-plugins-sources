@@ -91,12 +91,19 @@ class InnerTubeParser {
 
   static parseItem(data) {
 
-    const supportedTypes = ['video', 'song', 'PlaylistPanelVideo', 'artist', 'album', 'playlist', 'MusicNavigationButton', 'endpoint', 'library_artist'];
+    const supportedTypes = ['video', 'song', 'PlaylistPanelVideo', 'artist', 'album', 'playlist', 'MusicNavigationButton', 'endpoint', 'library_artist', 'DidYouMean'];
     if (!supportedTypes.includes(data.item_type) && !supportedTypes.includes(data.type)) {
       return null;
     }
 
     const parsed = {};
+
+    if (data.type === 'MusicResponsiveListItem' || data.type === 'PlaylistPanelVideo') {
+      parsed.displayHint = 'list';
+    }
+    else if (data.type === 'MusicTwoRowItem') {
+      parsed.displayHint = 'grid';
+    }
 
     if (data.item_type === 'video' || data.item_type === 'song' || data.type === 'PlaylistPanelVideo') {
       parsed.type = data.item_type === 'song' ? 'song' : 'video';
@@ -134,12 +141,12 @@ class InnerTubeParser {
       parsed.songCount = data.song_count;
       parsed.totalDuration = data.total_duration;
       if (data.item_type === 'album') {
-        parsed.artist = this.extractArtists(data)[0] || null;
-        parsed.artistText = parsed.artist?.name || '';
+        parsed.artists = this.extractArtists(data);
+        parsed.artistText = parsed.artists.map((artist) => artist.name).join(' & ');
       }
       else { // playlist
         parsed.author = this.extractArtists(data)[0] || null;
-        parsed.authorText = parsed.owner?.name || '';
+        parsed.authorText = parsed.author?.name || '';
       }
       parsed.thumbnail = this.extractThumbnail(data);
     }
@@ -154,6 +161,12 @@ class InnerTubeParser {
       parsed.subtitle = this.unwrapText(data.subtitle);
       parsed.thumbnail = this.extractThumbnail(data);
       parsed.endpoint = data.endpoint;
+    }
+    else if (data.type === 'DidYouMean') {
+      parsed.type = 'endpoint';
+      parsed.label = this.unwrapText(data.text) + ' ' + this.unwrapText(data.corrected_query);
+      parsed.endpoint = data.endpoint;
+      parsed.displayHint = 'didYouMean';
     }
     else {
       return null;
@@ -365,18 +378,139 @@ class InnerTubeParser {
   }
 
   static extractArtists(data) {
-    if (data.artists) {
+
+    const findRunIndexByArtistEndpointCheck = (runs) => {
+      // Find position of text run with artist endpoint
+      let runIndex = runs ? runs.findIndex((run) => run.endpoint?.browse?.id.startsWith('UC')) : -1;
+      // Get the seperator before it
+      let separator = runs?.[runIndex - 1]?.text.trim();
+      // Move back until we reach '•' or beginning
+      while (separator && separator !== '•') {
+        runIndex -= 2;
+        separator = runs?.[runIndex - 1]?.text.trim();
+      }
+      return runIndex;
+    };
+
+    const extractFromTextRuns = (runs, startIndex = 0) => {
+      const artists = [];
+      if (runs) {
+        for (let i = startIndex; i < runs.length; i += 2) {
+          const run = runs[i];
+          artists.push({
+            id: run.endpoint?.browse?.id.startsWith('UC') ? run.endpoint.browse.id : null,
+            name: run.text,
+          });
+          const nextRun = runs[i + 1];
+          if (!nextRun || nextRun.text.trim() === '•') {
+            break;
+          }
+        }
+      }
+      return artists;
+    };
+
+    if (data.type === 'MusicDetailHeader') {
+      // InnerTube does not parse multiple artists in MusicDetailHeader and also requires 
+      // artists to have endpoints. We need to do our own parsing here.
+      // However, I am not sure if the parsing logic here is foolproof or will break other 
+      // aspects of InnerTube, so I shall refrain from pushing it to InnerTube repo.
+
+      // We are going to extract artists from the subtitle, which looks something like this:
+      // [type (e.g. album, playlist)]•[artist1]&[artist2]•[year]•...
+      // The '&' is locale-specific. e.g. 'và' for Vietnamese.
+      // So to get artists, we parse each run of the subtitle starting from the one after the first dot, 
+      // until we arrive at the next '•'.
+
+      return extractFromTextRuns(data.subtitle?.runs, 2);
+    }
+
+    if ((data.item_type === 'song' || data.item_type === 'video')) {
+      if (data.type === 'MusicResponsiveListItem') {
+        // If language is set to non-English, then videos will most likely be misidentified as songs, since InnerTube
+        // determines type by checking the second flex column elements for '* views'. This is fine from the plugins' 
+        // perspective, as songs and videos are handled the same way. 
+        // However, there are some artists that do not have an endpoint and InnerTube will leave them out from 
+        // the artists / authors array. We would have to do our own parsing.
+        
+        // Songs appear to have the following columns:
+        // [title]    [artist1]&[artist2]     [album]
+
+        // Videos appear to have the following:
+        // [title]    [artist1]&[artist2] • [n views*] *Optional
+
+        // Yet in search results, songs and videos are presented as two-line stack:
+        // [title]
+        // [type (song / video)] • [artist1]&[artist2] • [album or views] • [duration]
+
+        // Let's try our best to parse from these different formats. Note that `subtitle`
+        // refers to the second column (or second line for search results).
+
+        const runIndex = findRunIndexByArtistEndpointCheck(data.subtitle?.runs);
+
+        if (runIndex >= 0) {
+          // Get artists starting from runIndex
+          return extractFromTextRuns(data.subtitle?.runs, runIndex);
+        }
+
+        // No text runs with artist endpoint - count dots and guess
+        const dotCount = data.subtitle?.runs?.filter((run) => run.text.trim() === '•').length || 0;
+        if (dotCount > 2) {  // Three or more dots - get artists starting from text run after first dot
+          return extractFromTextRuns(data.subtitle?.runs, 2);
+        }
+        else {
+          // Get artists from beginning
+          return extractFromTextRuns(data.subtitle?.runs);
+        }
+      }
+      else if (data.type === 'MusicTwoRowItem') {
+        // If language is set to non-English, then songs will most likely be misidentified as videos, since InnerTube
+        // determines type by checking if first element is 'Song'. This is fine from the plugins' perspective, as
+        // songs and videos are handled the same way. 
+        // However, there are some artists that do not have an endpoint and InnerTube will leave them out from 
+        // the artists / authors array. So again, we would have to do our own parsing.
+
+        // Songs appear to have the following subtitle:
+        // 'Song' (locale-specific) • [artist1]&[artist2]   --> endpoint.watch.music_video_type: 'MUSIC_VIDEO_TYPE_ATV'
+
+        // Videos appear to have the following:
+        // [artist1]&[artist2] • 'n views*'  *Optional - locale specific  --> endpoint.watch.music_video_type: 'MUSIC_VIDEO_TYPE_OMV / UGC...'
+
+        // Here we go...
+
+        const runIndex = findRunIndexByArtistEndpointCheck(data.subtitle?.runs);
+
+        if (runIndex >= 0) {
+          // Get artists starting from runIndex
+          return extractFromTextRuns(data.subtitle?.runs, runIndex);
+        }
+
+        // No text runs with artist endpoint - rely on music_video_type as last resort
+        if (data.endpoint?.watch?.music_video_type === 'MUSIC_VIDEO_TYPE_ATV') {
+          return extractFromTextRuns(data.subtitle?.runs, 2);
+        }
+        else {
+          return extractFromTextRuns(data.subtitle?.runs);
+        }
+      }
+    }
+
+    if (data.artists && data.artists.length > 0) {
       return data.artists.map((artist) => ({ id: artist.channel_id, name: artist.name }));
     }
-    else if (data.authors) {
+    else if (data.authors && data.authors.length > 0) {
       return data.authors.map((author) => ({ id: author.channel_id, name: author.name }));
     }
     else if (data.author) {
-      return [{ id: data.author.channel_id, name: data.author.name }];
+      if (typeof data.author === 'object') {
+        return [{ id: data.author.channel_id, name: data.author.name }];
+      }
+      else if (typeof data.author === 'string') {
+        return [{ id: null, name: data.author}];
+      }
     }
-    else {
-      return [];
-    }
+
+    return [];
   }
 
   static convertButtonToEndpoint(data) {

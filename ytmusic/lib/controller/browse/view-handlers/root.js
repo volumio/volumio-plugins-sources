@@ -34,7 +34,7 @@ class RootViewHandler extends BaseViewHandler {
     const lists = [
       {
         title: 'YouTube Music',
-        availableListViews: ['grid', 'list'],
+        availableListViews: ['list', 'grid'],
         items
       }
     ];

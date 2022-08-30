@@ -1,6 +1,5 @@
 'use strict';
 
-const ytmusic = require(ytmusicPluginLibRoot + '/ytmusic');
 const BaseParser = require(__dirname + '/base');
 
 class PlaylistParser extends BaseParser {
@@ -11,7 +10,7 @@ class PlaylistParser extends BaseParser {
       service: 'ytmusic',
       type: 'folder',
       title: data.title,
-      artist: data.subtitle || data.artistText,
+      artist: data.subtitle,
       albumart: data.thumbnail?.url,
       uri: baseUri + '/playlist@playlistId=' + encodeURIComponent(data.id)
     }
@@ -19,13 +18,12 @@ class PlaylistParser extends BaseParser {
   }
 
   parseToHeader(data) {
-    const view = this.getCurrentView();
     const header = {
       uri: 'ytmusic/playlist@playlistId=' + encodeURIComponent(data.id),
       service: 'ytmusic',
       type: 'album',
       title: data.title,
-      artist: data.subtitle || data.artistText,
+      artist: data.subtitle,
       albumart: data.thumbnail?.url
     };
 

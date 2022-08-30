@@ -57,9 +57,25 @@ class FeedViewHandler extends ExplodableViewHandler {
         }
 
         if (mainItems.length > 0) {
-          const restrictToListView = (hasSongsAndVideosOnly && !this._hasVideosOnly(section.contents)) || this._hasNoThumbnails(section.contents);
+          // Note: Volumio only enforces availableListViews = ['list']. If a list is set to ['grid'], it can still be switched to list
+          // if there are other switchable lists and the user clicks the switch view button.
+          let listView = this.getAvailableListViews(sectionIndex, contents);
+          if (!listView) {
+            if (section.contents?.every((item) => item.type === 'artist')) {
+              listView = ['grid'];
+            }
+            else if (section.contents?.every((item) => item.displayHint === 'list') || this._hasNoThumbnails(section.contents)) {
+              listView = ['list'];
+            }
+            else if (section.contents?.every((item) => item.displayHint === 'grid')) {
+              listView = ['grid'];
+            }
+            else {
+              listView = ['list', 'grid'];
+            }
+          }
           listsForSection.push({
-            availableListViews: restrictToListView ? ['list'] : ['list', 'grid'],
+            availableListViews: listView,
             items: mainItems
           });
         }
@@ -277,12 +293,12 @@ class FeedViewHandler extends ExplodableViewHandler {
     return this.getParser(data.type)?.parseToListItem(data);
   }
 
-  _hasSongsAndVideosOnly(items) {
-    return !items?.find((item) => item.type !== 'song' && item.type !== 'video');
+  getAvailableListViews(sectionIndex, contents) {
+    return null;
   }
 
-  _hasVideosOnly(items) {
-    return !items?.find((item) => item.type !== 'video');
+  _hasSongsAndVideosOnly(items) {
+    return !items?.find((item) => item.type !== 'song' && item.type !== 'video');
   }
 
   _hasNoThumbnails(items) {

@@ -14,7 +14,7 @@ class ExploreViewHandler extends FeedViewHandler {
       // 'New releases', 'Charts'... to grid + list views
       const list = result.navigation.lists?.[0];
       if (list) {
-        list.availableListViews = ['grid', 'list'];
+        list.availableListViews = ['list', 'grid'];
         list.title = list.title || ytmusic.getI18n('YTMUSIC_EXPLORE');
       }
 
