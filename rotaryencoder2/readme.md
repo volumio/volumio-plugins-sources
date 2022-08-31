@@ -5,6 +5,7 @@ This is an alternative implementation of a rotary encoder driver for integration
 
 ### Content
 * [Configuring the plugin](#configuring-the-plugin)
+* [Simple Test-Setups on a Breadboard](#test-setups)
 * [Debouncing (tips for hardware debouncing)](#tips-for-debouncing-your-encoder)
 * [Some basics about Hardware Design (Pull-Up, Pull-Down, Rotary Encoders, RC-filter)](#some-basics-about-hardware-design)
 * [Debugging Instructions](#debugging-instructions)
@@ -108,6 +109,16 @@ Available Commands:
 - System Reboot
 - Emit websocket message
 
+## Test Setups
+Below are some simple test-setups which you can try out on a Breadboard. The do not use the most sophisticated hardware debouncing, but already work very smoothly. If you want to improve debounding, refer to the next chapter with tips.
+![Simple Test-setup with a normal rotary-encoder with push-button and external pull-ups.](./img/RotaryTestSetup_Steckplatine.jpg)
+_Rotary Encoder on a Breadboard with three 10kΩ Pull-ups and a 100nF capacitor for debouncing of the switch._
+
+![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_Steckplatine.jpg)
+_KY-040 on a Breadboard with a 10kΩ Pull-up._
+
+![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_intPU_Steckplatine.jpg)
+_KY-040 on a Breadboard without Pull-up. In this setup, you have to make sure, that the internal pull-up is enabled. If it is not, you may get unreliable behavior._
 
 ## Tips for debouncing your Encoder
 [back to TOC](#content)
