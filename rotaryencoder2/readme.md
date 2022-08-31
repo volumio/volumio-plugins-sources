@@ -110,15 +110,15 @@ Available Commands:
 - Emit websocket message
 
 ## Test Setups
-Below are some simple test-setups which you can try out on a Breadboard. The do not use the most sophisticated hardware debouncing, but already work very smoothly. If you want to improve debounding, refer to the next chapter with tips.
-![Simple Test-setup with a normal rotary-encoder with push-button and external pull-ups.](./img/RotaryTestSetup_Steckplatine.jpg)
-_Rotary Encoder on a Breadboard with three 10kΩ Pull-ups and a 100nF capacitor for debouncing of the switch._
+Below are some simple test-setups which you can try out on a Breadboard. They do not use the most sophisticated hardware debouncing, but already work very smoothly. If you want to improve debouncing, refer to the next chapter with tips.    
+![Simple Test-setup with a normal rotary-encoder with push-button and external pull-ups.](./img/RotaryTestSetup_Steckplatine.jpg)    
+**Img 3:** _Rotary Encoder on a Breadboard with three 10kΩ Pull-ups and a 100nF capacitor for debouncing of the switch._
 
-![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_Steckplatine.jpg)
-_KY-040 on a Breadboard with a 10kΩ Pull-up._
+![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_Steckplatine.jpg)   
+**Img 4:** _KY-040 on a Breadboard with a 10kΩ Pull-up._
 
-![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_intPU_Steckplatine.jpg)
-_KY-040 on a Breadboard without Pull-up. In this setup, you have to make sure, that the internal pull-up is enabled. If it is not, you may get unreliable behavior._
+![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_intPU_Steckplatine.jpg)   
+**Img 5:** _KY-040 on a Breadboard without Pull-up. In this setup, you have to make sure, that the internal pull-up is enabled. If it is not, you may get unreliable behavior._
 
 ## Tips for debouncing your Encoder
 [back to TOC](#content)
@@ -128,7 +128,7 @@ Like all mechanical switches, they are not digitally flipping between on and off
 
 
 ![Oscilloscope trace of bouncing rotary.](./img/bouncy_rotary.jpg)    
-**Img 3:** _Oscilloscope trace of one channel of an ALPS rotary encoder. You can see the bouncing during the transition from off to on. The bounce here takes about 400µs. The ALPS specification allows even up to 2ms._    
+**Img 6:** _Oscilloscope trace of one channel of an ALPS rotary encoder. You can see the bouncing during the transition from off to on. The bounce here takes about 400µs. The ALPS specification allows even up to 2ms._    
 
 To filter the high frequency signals (the spikes) out, you can use a simple extension of your circuit with two resistors (R1 and R2) and a capacitor (C1) per channel.
 I use four resistors of R=10kΩ and two capacitors of C=100nF. The timeconstant for charging is     
@@ -138,26 +138,26 @@ and for discharging
 respectively (after the timeconstant has passed the charge will be on _1/e_ of its reference level).      
 
 ![Schematic of an RC-debouncing circuit for both switches](./img/RC-filter.jpg)    
-**Img 4:** _Schematic of rotary with RC-filters for debouncing. C1 gets charged via R1+R2 when the switch is open and discharged via R2 when it is closed. The same setup is copied for the second channel._
+**Img 7:** _Schematic of rotary with RC-filters for debouncing. C1 gets charged via R1+R2 when the switch is open and discharged via R2 when it is closed. The same setup is copied for the second channel._
 
 This will remove the spikes but also slow down the transition between the states of the switch. As long as it is fast enough, that usually is no issue. To estimate what 'fast enough' means, consider the number of detents of your rotary and how fast you need to turn it (mine has 30 detents per revolution and a normal user does less than half a turn per second, so worst case there is a switch every 1000/20 = 50 Milliseconds).  
 
 ![Oscilloscope trace of a transition with RC-Filter.](./img/RC-debounced.jpg)    
-**Img 5:** _Both channels with RC-filter. The transition takes 6ms now(~10 times longer, still 10 times faster than needed), but the spikes are gone. I calculated the RC values based on the ALPS spec of up to 2ms bounce. You can see, that the voltage (i.e. charge on the capacitor) has reduced from 4.3V to 4.3V/2.7 = 1.6V after about 1ms, as expected with 10kΩ and 0.1µF._   
+**Img 8:** _Both channels with RC-filter. The transition takes 6ms now(~10 times longer, still 10 times faster than needed), but the spikes are gone. I calculated the RC values based on the ALPS spec of up to 2ms bounce. You can see, that the voltage (i.e. charge on the capacitor) has reduced from 4.3V to 4.3V/2.7 = 1.6V after about 1ms, as expected with 10kΩ and 0.1µF._   
 
 ![Oscilloscope trace of a rotation of 120 degrees.](./img/RC-debounced2.jpg)    
-**Img 6:** _Both channels during a longer extra fast rotational move of about 120°. You can feel 10 'clicks' during the move shown (1/2 period per step). The speed of rotation determines the length of the peaks. When the speed increases much more, the peaks will not reach the high and low levels anymore, eventually causing problems when the GPIO can no longer distinguish a high from a low. This has to be taken into account when selecting your R and C. The turn shown is much faster, than what I expect to see from my normal user._   
+**Img 9:** _Both channels during a longer extra fast rotational move of about 120°. You can feel 10 'clicks' during the move shown (1/2 period per step). The speed of rotation determines the length of the peaks. When the speed increases much more, the peaks will not reach the high and low levels anymore, eventually causing problems when the GPIO can no longer distinguish a high from a low. This has to be taken into account when selecting your R and C. The turn shown is much faster, than what I expect to see from my normal user._   
 
 If you want more crisp transitions with full amplitude again, you can add an additional Schmitt-Trigger like the _74HC 14_ (6-channels for less than 0.50€) on top of the RC-filter. That will change your rotary encoder signal to something very sharp and defined. However, make sure that input level still passes the upper and lower threshold of the Schmitt, if you turn the button fast.
 
 ![Debouncing circuit with RC-filter + Schmitt-Trigger](./img/RC-Schmitt.jpg)    
-**Img 7:** _The output of the RC-Filter connected to an additional Schmitt-Trigger. You should add a 100nF buffer-capacitor between VCC and GND and floating inputs should be pulled to a reference potential. (both not shown here)_
+**Img 10:** _The output of the RC-Filter connected to an additional Schmitt-Trigger. You should add a 100nF buffer-capacitor between VCC and GND and floating inputs should be pulled to a reference potential. (both not shown here)_
 
 ![Oscilloscope trace of input and output of the  Schmitt-Trigger.](./img/Schmitt-Trigger.jpg)       
-**Img 8:** _Input (red) and Output (blue) of the Schmitt-Trigger. You can see, that the signal makes a very sharp transition from low to high when the input falls below the threshold. Note, that the output is inverted, but for the rotary operation that does not matter._
+**Img 11:** _Input (red) and Output (blue) of the Schmitt-Trigger. You can see, that the signal makes a very sharp transition from low to high when the input falls below the threshold. Note, that the output is inverted, but for the rotary operation that does not matter._
 
 ![Oscilloscope trace of bounding rotary.](./img/Schmitt-Trigger2.jpg)      
-**Img 9:** _Both channels with Schmitt-Trigger. A signal like from a text-book for digital logic. Note how you can even see the acceleration during the turn. The squares become shorter from left to right._   
+**Img 12:** _Both channels with Schmitt-Trigger. A signal like from a text-book for digital logic. Note how you can even see the acceleration during the turn. The squares become shorter from left to right._   
 
 
 ## Some Basics about Hardware Design
@@ -175,7 +175,7 @@ I do not claim, that this is the ultimate guide, but many of the problems report
 The image below shows quite a safe external wiring schematic for an RPi GPIO, that works in most cases, if the resistor and capacitor values are picked correctly. Below I try to explain, what to consider when picking them.
 
 ![Safe wiring of a Raspberry Pi GPIO](./img/PU_PD.jpg)
-*The left schematic shows a GPIO with a Pull-up resistor R_PU, a limiting resistor R_lim and a decoupling capacitor C. The right hand side has the same schematic but with a Pull-Down resistor instead.*
+**Img 13:** *The left schematic shows a GPIO with a Pull-up resistor R_PU, a limiting resistor R_lim and a decoupling capacitor C. The right hand side has the same schematic but with a Pull-Down resistor instead.*
 
 ### What is a Pull-Up or Pull-Down Resistor and why do I need it?
 [back to TOC](#content)   
@@ -185,7 +185,7 @@ It is called a 'floating' pin. And since it is something like a tiny capacitor o
 A floating input is undesirable, because its state is undeterminate and so is its behavior when reading it.
 This is overcome, by connecting it to either HIGH (3.3V) or LOW (0V) potential via a resistor.
 ![Schematic of a Pull-Up and a Pull-Down resistor](./img/PU_PD_simple.jpg)
-*Schematics of a simple pull-up (PU) and pull-down (PD) resistor. If the switch is open, the GPIO is on the same potential (i.e. it has the same voltage) as the reference (PU:3.3V, PD:GND). When the button is closed, a small current flows from 3.3V to GND and the potential at the GPIO changes (PU:GND, PD:3.3V). You could also interpret the combination of resistor and switch as a voltage divider, where the open switch has infinite resistance and the closed switch 0 Ohms. The full voltage will always 'drop' across the larger of the two in this case.*
+**Img 14:** *Schematics of a simple pull-up (PU) and pull-down (PD) resistor. If the switch is open, the GPIO is on the same potential (i.e. it has the same voltage) as the reference (PU:3.3V, PD:GND). When the button is closed, a small current flows from 3.3V to GND and the potential at the GPIO changes (PU:GND, PD:3.3V). You could also interpret the combination of resistor and switch as a voltage divider, where the open switch has infinite resistance and the closed switch 0 Ohms. The full voltage will always 'drop' across the larger of the two in this case.*
 
 The Raspberry Pi has integrated Pull-up and Pull-down resistors inside its microprocessor chip, which can be activated by the system at boot time. But it is also possible to connect external resistors to the pin (and there are reasons to do so). [See below](#why-does-it-matter-for-playing-with-my-raspberry-pi).
 
@@ -221,7 +221,7 @@ With the right external components, it does not matter too much, how the inputs 
 
 ![Simplified schematic of a GPIO configured as input. Output functionality is not shown for simplicity](./img/GPIO_in.jpg)
 
-*Simplified schematic of the internal wiring of a GPIO pin. Output functionality is not shown for simplicity. The input pin (GPIO) is internally connected to GND and and 3.3V via two protective diodes, for Overvoltage and ESD protection. The input itself is then connected to a Schmitt-Trigger, that has a high-impedance input. To prevent the input from floating, it can be either wired to 3.3V via the PU or to GND via the PD. Instead of a switch, the internal Pulls are activated via CMOS devices.
+**Img 15:** *Simplified schematic of the internal wiring of a GPIO pin. Output functionality is not shown for simplicity. The input pin (GPIO) is internally connected to GND and and 3.3V via two protective diodes, for Overvoltage and ESD protection. The input itself is then connected to a Schmitt-Trigger, that has a high-impedance input. To prevent the input from floating, it can be either wired to 3.3V via the PU or to GND via the PD. Instead of a switch, the internal Pulls are activated via CMOS devices.
 It is also possible, to deactivate both - the GPIO will have high impedance and may float if not externally pulled.*
 
 ### Is it a problem if I use internal and external Pull-resistors at the same time?
@@ -230,7 +230,7 @@ Even if the interal PU or PD is set, you can still connect an external PU or PD.
 
 ![GPIO with internal PU and external PD](./img/extPD_intPU.jpg)
 
-*Example of a circuit with internal Pull-up activated and external Pull-down + limiting Resistor connected. This is still working without issues, if the resistor values are matching.*
+**Img 16:** *Example of a circuit with internal Pull-up activated and external Pull-down + limiting Resistor connected. This is still working without issues, if the resistor values are matching.*
 
 What happens if you activate internal PU and connect an external PD? 
 * Switch open:
@@ -313,7 +313,7 @@ If you connect a DAC like e.g. HifiBerry to the Pin-Header, it will reserve some
 Since many people report problems with wiring their rotary encoder, I'll show an example for clean wiring to your Raspberry Pi. This is not the minimal solution and you can do it with less components, but if you play with your Raspberry, it will add some safety to your schematic.
 
 ![Rotary encoder with push button wired to RPi.](./img/rotary_with_r_and_c.jpg)
-*The image shows a rotary with three pull-up resistors (green), three limiting resistors (orange) and three capacitors, that reduce bounce and control the edge of the signal. For any regular rotary encoder, this is a working solution.
+**Img 17:** *The image shows a rotary with three pull-up resistors (green), three limiting resistors (orange) and three capacitors, that reduce bounce and control the edge of the signal. For any regular rotary encoder, this is a working solution.
 The KY-040 used by some people on their Volumio system, is a rotary encoder soldered to a small PCB with two pull-up resistors already included in the same board. I indicate that by the red dashed box. If you use it, you will not need Pull-Ups for the two channels of the rotation. You may still want to add limiting resistors and decoupling capacitors to the KY-040, potentially with an extra pull-up or pull-down for the switch.*
 
 
