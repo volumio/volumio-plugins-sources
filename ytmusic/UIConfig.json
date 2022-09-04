@@ -38,11 +38,49 @@
       ]
     },
     {
-      "id": "section_sign_in",
+      "id": "section_account",
       "element": "section",
       "label": "TRANSLATE.YTMUSIC_SECTION_ACCOUNT",
       "icon": "fa-user",
       "content": []
+    },
+    {
+      "id": "section_autoplay",
+      "element": "section",
+      "label": "TRANSLATE.YTMUSIC_SECTION_AUTOPLAY",
+      "icon": "fa-play",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/ytmusic",
+        "method": "configSaveAutoplay"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YTMUSIC_SAVE",
+        "data": [
+          "autoplay",
+          "autoplayClearQueue"
+        ]
+      },
+      "content": [
+        {
+          "id": "autoplay",
+          "element": "switch",
+          "label": "TRANSLATE.YTMUSIC_AUTOPLAY",
+          "doc": "TRANSLATE.YTMUSIC_DOC_AUTOPLAY",
+          "value": false
+        },
+        {
+          "id": "autoplayClearQueue",
+          "element": "switch",
+          "label": "TRANSLATE.YTMUSIC_AUTOPLAY_CLEAR_QUEUE",
+          "doc": "TRANSLATE.YTMUSIC_DOC_AUTOPLAY_CLEAR_QUEUE",
+          "value": false,
+          "visibleIf": {
+            "field": "autoplay",
+            "value": true
+          }
+        }
+      ]
     }
   ]
 }

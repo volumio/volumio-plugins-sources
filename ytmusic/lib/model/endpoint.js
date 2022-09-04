@@ -126,8 +126,7 @@ class EndpointModel extends InnerTubeBaseModel {
     const fullData = {
       sections: [
         {
-          contents: data?.contents || [],
-          continuation: data?.continuation || null,
+          ...(data || {}),
           isContinuation: true
         }
       ]
@@ -136,7 +135,7 @@ class EndpointModel extends InnerTubeBaseModel {
     return InnerTubeParser.parseFeed(fullData);
   }
 
-  async _getWatchContents(endpoint) {
+  async _getWatchContents(endpoint, opts) {
     const innerTube = this.getInnerTube();
     const payload = {
       playlist_id: endpoint.payload.playlistId,
@@ -148,20 +147,45 @@ class EndpointModel extends InnerTubeBaseModel {
     }
 
     if (endpoint.payload.videoId) {
-      payload.videoId = endpoint.payload.videoId;
+      payload.video_id = endpoint.payload.videoId;
+    }
+
+    if (opts?.continuation) {
+      payload.ctoken = opts.continuation.token;
     }
 
     const response = await innerTube.actions.next({ ...payload, client: 'YTMUSIC' });
     const page = Parser.parseResponse(response.data);
 
-    const playlistPanel = page?.contents_memo?.getType(PlaylistPanel)?.[0];
-
-    const fullData = {
-      items: InnerTubeParser.unwrapArray(playlistPanel?.contents) || [],
-      continuation: playlistPanel?.continuation || null
+    let contents;
+    if (!opts?.continuation) {
+      const playlistPanel = page?.contents_memo?.getType(PlaylistPanel)?.[0];
+      contents = InnerTubeParser.parseSection(playlistPanel ? {
+        ...playlistPanel,
+        isWatch: true,
+        playlistParams: payload.params
+      } : {});
+    }
+    else { // Continuation contents
+      const data = page.continuation_contents;
+      const fullData = {
+        // Continuation data does not return back the playlistId, so we specify it here
+        playlistId: payload.playlist_id,
+        ...(data || {}),
+        isContinuation: true,
+        isWatch: true,
+        playlistParams: payload.params
+      };
+      contents =  InnerTubeParser.parseSection(fullData);
     }
 
-    return InnerTubeParser.parseSection(fullData);
+    // Look for AutomixPreviewVideo and separate that from contents
+    const automixIndex = contents?.contents?.findIndex((item) => item.type === 'automix');
+    if (automixIndex >= 0) {
+      contents.automix = contents.contents.splice(automixIndex, 1)[0];
+    }
+
+    return contents;
   }
 }
 

@@ -41,12 +41,12 @@ class VideoModel extends BaseModel {
         return stream.emit('error', new InnertubeError('Streaming data not available.', { video: this, error_type: 'NO_STREAMING_DATA' }));
     
     */
-    const format = await innerTube.getStreamingData(videoId, options);
+    const format = this._chooseFormat(await innerTube.music.getInfo(videoId), options);
     
     if (format) {
       const audioBitrate = ITAG_TO_BITRATE[format.itag];
       return {
-        url: format.url,
+        url: format.decipher(innerTube.session.player),
         mimeType: format.mime_type,
         bitrate: audioBitrate ? audioBitrate + ' kbps' : null,
         sampleRate: format.audio_sample_rate,
@@ -55,6 +55,67 @@ class VideoModel extends BaseModel {
     }
 
     return null;
+  }
+
+  // Adapted from YouTube.js `youtube#VideoInfo` parser class. IMO this function
+  // should be added to `ytmusic#TrackInfo` which `Music#getInfo()` returns.
+  _chooseFormat(info, options) {
+    if (!info?.streaming_data)
+      throw new Error('Streaming data not available', { video_id: info?.basic_info.id });
+
+    const formats = [
+      ...(info.streaming_data.formats || []),
+      ...(info.streaming_data.adaptive_formats || [])
+    ];
+
+    const requires_audio = options.type ? options.type.includes('audio') : true;
+    const requires_video = options.type ? options.type.includes('video') : true;
+    const quality = options.quality || '360p';
+
+    let best_width = -1;
+
+    const is_best = [ 'best', 'bestefficiency' ].includes(quality);
+    const use_most_efficient = quality !== 'best';
+
+    let candidates = formats.filter((format) => {
+      if (requires_audio && !format.has_audio)
+        return false;
+      if (requires_video && !format.has_video)
+        return false;
+      if (options.format !== 'any' && !format.mime_type.includes(options.format || 'mp4'))
+        return false;
+      if (!is_best && format.quality_label !== quality)
+        return false;
+      if (best_width < format.width)
+        best_width = format.width;
+      return true;
+    });
+
+    if (!candidates.length) {
+      throw new Error('No matching formats found', {
+        options
+      });
+    }
+
+    if (is_best && requires_video)
+      candidates = candidates.filter((format) => format.width === best_width);
+
+    if (requires_audio && !requires_video) {
+      const audio_only = candidates.filter((format) => !format.has_video);
+      if (audio_only.length > 0) {
+        candidates = audio_only;
+      }
+    }
+
+    if (use_most_efficient) {
+      // Sort by bitrate (lower is better)
+      candidates.sort((a, b) => a.bitrate - b.bitrate);
+    } else {
+      // Sort by bitrate (higher is better)
+      candidates.sort((a, b) => b.bitrate - a.bitrate);
+    }
+
+    return candidates[0];
   }
 }
 

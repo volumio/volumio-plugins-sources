@@ -16,18 +16,8 @@ class ArtistViewHandler extends FeedViewHandler {
 
     const view = this.getCurrentView();
     const model = this.getModel('artist');
-    const songParser = this.getParser('song');
-    const videoParser = this.getParser('video');
     model.getPlayContents(decodeURIComponent(view.artistId)).then((contents) => {
-      const items = contents.contents?.filter((item) => item.type === 'song' || item.type === 'video')
-        .map((item) => {
-          const parser = item.type === 'song' ? songParser : videoParser;
-          return parser.getExplodeTrackData(item);
-        }) || [];
-        
-      // TODO: add autoplay context to uri (might have to refactor to get the 'watch' endpoint)
-
-      defer.resolve(items);
+      defer.resolve(this.getTracksOnExplodeFromSection(contents));
     })
       .catch((error) => {
         defer.reject(error);

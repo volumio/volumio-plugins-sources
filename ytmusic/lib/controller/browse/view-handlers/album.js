@@ -47,15 +47,14 @@ class AlbumViewHandler extends FeedViewHandler {
 
     const defer = libQ.defer();
     const model = this.getModel('album');
-    const songParser = this.getParser('song');
-    const videoParser = this.getParser('video');
     model.getAlbum(decodeURIComponent(view.albumId)).then((album) => {
-      const items = album.sections?.[0]?.contents?.filter((content) => content.type === 'song' || content.type === 'video')
-        .map((item) => {
-          const parser = item.type === 'song' ? songParser : videoParser;
-          return parser.getExplodeTrackData(this._fillItemInfo(item, album));
-        });
-      defer.resolve(items || []);
+      const section = album?.sections?.[0];
+      section?.contents?.forEach((item, index) => {
+        if (item.type === 'song' || item.type === 'video') {
+          section.contents[index] = this._fillItemInfo(item, album);
+        }
+      });
+      defer.resolve(this.getTracksOnExplodeFromSection(section));
     })
       .catch((error) => {
         defer.reject(error);
@@ -65,12 +64,12 @@ class AlbumViewHandler extends FeedViewHandler {
   }
 
   // Overrides FeedViewHandler.parseItemDataToListItem()
-  parseItemDataToListItem(data, sectionIndex, contents) {
+  parseItemDataToListItem(data, sectionIndex, contents, autoplayContext) {
     if (sectionIndex === 0) {
       if (data.type === 'song' || data.type === 'video') {
         // Item data lacks album / artist / thumbnail info. Complete it by taking missing info from `contents`.
         // ('contents' is the album fetched in getContents())
-        return this.getParser(data.type).parseToListItem(this._fillItemInfo(data, contents), { noAlbumart: true });
+        return this.getParser(data.type).parseToListItem(this._fillItemInfo(data, contents), { noAlbumart: true, autoplayContext });
       }
       return null;
     }

@@ -33,18 +33,8 @@ class GenericViewHandler extends FeedViewHandler {
 
     const defer = libQ.defer();
     const model = this.getModel('endpoint');
-    const songParser = this.getParser('song');
-    const videoParser = this.getParser('video');
     model.getContents(endpoint).then((contents) => {
-      const items = contents.contents?.filter((item) => item.type === 'song' || item.type === 'video')
-        .map((item) => {
-          const parser = item.type === 'song' ? songParser : videoParser;
-          return parser.getExplodeTrackData(item);
-        }) || [];
-        
-      // TODO: add autoplay context to uri (playlistId, continuation...)
-
-      defer.resolve(items);
+      defer.resolve(this.getTracksOnExplodeFromSection(contents));
     })
       .catch((error) => {
         defer.reject(error);

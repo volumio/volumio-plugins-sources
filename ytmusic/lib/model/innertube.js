@@ -19,8 +19,7 @@ class InnerTubeBaseModel extends BaseModel {
     const fullData = {
       sections: [
         {
-          contents: data?.contents || [],
-          continuation: data?.continuation || null,
+          ...(data || {}),
           isContinuation: true
         }
       ]
@@ -91,7 +90,7 @@ class InnerTubeParser {
 
   static parseItem(data) {
 
-    const supportedTypes = ['video', 'song', 'PlaylistPanelVideo', 'artist', 'album', 'playlist', 'MusicNavigationButton', 'endpoint', 'library_artist', 'DidYouMean'];
+    const supportedTypes = ['video', 'song', 'PlaylistPanelVideo', 'artist', 'album', 'playlist', 'MusicNavigationButton', 'endpoint', 'library_artist', 'DidYouMean', 'AutomixPreviewVideo'];
     if (!supportedTypes.includes(data.item_type) && !supportedTypes.includes(data.type)) {
       return null;
     }
@@ -121,6 +120,18 @@ class InnerTubeParser {
         year: data.album.year
       } : null;
       parsed.albumText = data.album?.name || '';
+      if (data.type === 'MusicResponsiveListItem') {
+        // Get watch endpoint
+        // Commented out the following line - do not get endpoint from title runs because it won't have params
+        //parsed.endpoint = data.title?.runs?.find((run) => run.endpoint?.watch?.video_id === parsed.id)?.endpoint;
+        const overlayEndpoint = this.unwrapItem(this.unwrapItem(data.overlay)?.content)?.endpoint; // Content should be a MusicPlayButton
+        if (overlayEndpoint?.watch) {
+          parsed.endpoint = overlayEndpoint;
+        }
+      }
+      else if (data.endpoint) {
+        parsed.endpoint = data.endpoint;
+      }
     }
     else if (data.item_type === 'artist') {
       parsed.type = 'artist';
@@ -168,6 +179,10 @@ class InnerTubeParser {
       parsed.endpoint = data.endpoint;
       parsed.displayHint = 'didYouMean';
     }
+    else if (data.type === 'AutomixPreviewVideo') {
+      parsed.type = 'automix';
+      parsed.endpoint = data.playlist_video?.endpoint;
+    }
     else {
       return null;
     }
@@ -192,7 +207,21 @@ class InnerTubeParser {
       dataContents = this.unwrapArray(dataContents?.[0]?.items || dataContents?.[0]?.contents);
     }
 
+    // These camel case fields are provided by the model, which may be useful for view handlers
     parsed.isContinuation = !!data.isContinuation;
+    // `params` are mostly specified in endpoints but not returned back in the response. They usually 
+    // encapsulate sorting / filtering options applied to section contents.
+    if (data.playlistParams) {
+      parsed.playlistParams = data.playlistParams;
+    }
+    parsed.isWatch = !!data.isWatch; // Whether section contents were obtained from watch / watch_playlist endpoint
+
+    // Nodes such as MusicPlaylistShelf and PlaylistPanel provide a playlistId. 
+    // Note that `playlistId` does not necessarily refer to the ID of a playlist. It can be the ID of any list of songs
+    // such as album, artist's songs, etc.
+    if (data.playlist_id) {
+      parsed.playlistId = data.playlist_id;
+    }
 
     // Section tabs
     if (dataHeader?.tabs) {

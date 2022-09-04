@@ -6,7 +6,7 @@ class SongParser extends BaseParser {
 
   parseToListItem(data, opts) {
     opts = this._parseOpts(opts);
-    const explodeTrackData = this.getExplodeTrackData(data);
+    const explodeTrackData = this.getExplodeTrackData(data, opts);
     const item = {
       service: 'ytmusic',
       type: 'song',
@@ -18,7 +18,7 @@ class SongParser extends BaseParser {
       duration: data.duration,
       uri: this.getItemUri(data)
     }
-    item.uri = item.uri + `@explodeTrackData=${encodeURIComponent(JSON.stringify(explodeTrackData))}`
+    item.uri += `@explodeTrackData=${encodeURIComponent(JSON.stringify(explodeTrackData))}`
 
     if (data.displayHint === 'grid') {
       item.artist = data.subtitle;
@@ -32,14 +32,21 @@ class SongParser extends BaseParser {
     return 'ytmusic/song@songId=' + encodeURIComponent(data.id);
   }
 
-  getExplodeTrackData(data) {
-    return {
+  // Creates a bundle that contains the data needed by explode() to 
+  // generate the final exploded item.
+  getExplodeTrackData(data, opts) {
+    const track = {
       videoId: data.id,
       title: data.title,
       artist: data.artistText || data.subtitle,
       album: data.albumText,
       albumart: data.thumbnail?.url
     };
+    if (opts.autoplayContext) {
+      track.autoplayContext = opts.autoplayContext;
+    }
+    
+    return track;
   }
 
   _parseOpts(opts = {}) {
@@ -48,6 +55,9 @@ class SongParser extends BaseParser {
     };
     if (opts.noAlbumart !== undefined) {
       result.noAlbumart = !!opts.noAlbumart;
+    }
+    if (opts.autoplayContext !== undefined) {
+      result.autoplayContext = opts.autoplayContext;
     }
     return result;
   }

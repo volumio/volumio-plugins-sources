@@ -38,6 +38,7 @@ ControllerYTMusic.prototype.getUIConfig = function () {
     .then(([uiconf, i18nOptions]) => {
       const i18nUIConf = uiconf.sections[0];
       const accountUIConf = uiconf.sections[1];
+      const autoplayUIConf = uiconf.sections[2];
 
       // i18n
       // -- region
@@ -120,6 +121,12 @@ ControllerYTMusic.prototype.getUIConfig = function () {
       }
 
       accountUIConf.description = authStatusDescription;
+
+      // Autoplay
+      const autoplay = ytmusic.getConfigValue('autoplay', false);
+      const autoplayClearQueue = ytmusic.getConfigValue('autoplayClearQueue', false);
+      autoplayUIConf.content[0].value = autoplay;
+      autoplayUIConf.content[1].value = autoplayClearQueue;
 
       defer.resolve(uiconf);
     })
@@ -252,6 +259,13 @@ ControllerYTMusic.prototype.configSaveI18n = function (data) {
 
 ControllerYTMusic.prototype.configSignOut = function () {
   Auth.signOut();
+}
+
+ControllerYTMusic.prototype.configSaveAutoplay = function (data) {
+  ytmusic.setConfigValue('autoplay', data.autoplay);
+  ytmusic.setConfigValue('autoplayClearQueue', data.autoplayClearQueue);
+
+  ytmusic.toast('success', ytmusic.getI18n('YTMUSIC_SETTINGS_SAVED'));
 }
 
 ControllerYTMusic.prototype.addToBrowseSources = function () {

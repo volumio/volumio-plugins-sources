@@ -3,6 +3,7 @@
 const libQ = require('kew');
 const ytmusic = require(ytmusicPluginLibRoot + '/ytmusic');
 const ExplodableViewHandler = require(__dirname + '/explodable');
+const AutoplayHelper = require(ytmusicPluginLibRoot + '/helper/autoplay');
 
 /**
  * View handler for feed contents consisting of sections and optional header.
@@ -27,8 +28,9 @@ class FeedViewHandler extends ExplodableViewHandler {
         const hasSongsAndVideosOnly = this._hasSongsAndVideosOnly(section.contents);
 
         // List: section main items
+        const commonAutoplayContext = AutoplayHelper.getAutoplayContext(section);
         const mainItems = section.contents?.reduce((parsed, data) => {
-          const listItem = this.parseItemDataToListItem(data, sectionIndex, contents);
+          const listItem = this.parseItemDataToListItem(data, sectionIndex, contents, commonAutoplayContext || AutoplayHelper.getAutoplayContext(data));
           if (listItem) {
             if (!hasSongsAndVideosOnly && (data.type === 'song' || data.type === 'video')) {
               // Force song or video in a list of mixed item types to 'album', so that if 
@@ -190,6 +192,7 @@ class FeedViewHandler extends ExplodableViewHandler {
       section: {
         header: section.header || null,
         title: section.title || null,
+        playlistId: section.playlistId || null,
         options: section.options || null,
         startItems: section.startItems || null,
         endItems: section.endItems || null,
@@ -262,7 +265,7 @@ class FeedViewHandler extends ExplodableViewHandler {
             continuationSection[key] = [...bundle.section[key], ...(continuationSection[key] || [])];
           }  
         });
-        ['header', 'title'].forEach((key) => {
+        ['header', 'title', 'playlistId'].forEach((key) => {
           if (bundle.section?.[key] && !continuationSection[key]) {
             continuationSection[key] = bundle.section[key];
           }  
@@ -289,7 +292,11 @@ class FeedViewHandler extends ExplodableViewHandler {
     return true;
   }
 
-  parseItemDataToListItem(data, sectionIndex, contents) {
+  parseItemDataToListItem(data, sectionIndex, contents, autoplayContext) {
+    if (data.type === 'song' || data.type === 'video') {
+      return this.getParser(data.type)?.parseToListItem(data, { autoplayContext });
+    }
+
     return this.getParser(data.type)?.parseToListItem(data);
   }
 
@@ -327,6 +334,17 @@ class FeedViewHandler extends ExplodableViewHandler {
       title = contents.title;
     }
     return title;
+  }
+
+  getTracksOnExplodeFromSection(section) {
+    const songParser = this.getParser('song');
+    const videoParser = this.getParser('video');
+    const commonAutoplayContext = AutoplayHelper.getAutoplayContext(section);
+    return section?.contents?.filter((content) => content.type === 'song' || content.type === 'video')
+      .map((item) => {
+        const parser = item.type === 'song' ? songParser : videoParser;
+        return parser.getExplodeTrackData(item, { autoplayContext: commonAutoplayContext || AutoplayHelper.getAutoplayContext(item) });
+      }) || [];
   }
 }
 

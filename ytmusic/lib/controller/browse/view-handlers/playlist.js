@@ -21,18 +21,9 @@ class PlaylistViewHandler extends FeedViewHandler {
 
     const defer = libQ.defer();
     const model = this.getModel('playlist');
-    const songParser = this.getParser('song');
-    const videoParser = this.getParser('video');
     model.getPlaylist(decodeURIComponent(view.playlistId)).then((playlist) => {
-      const items = playlist.sections?.[0]?.contents?.filter((content) => content.type === 'song' || content.type === 'video')
-        .map((item) => {
-          const parser = item.type === 'song' ? songParser : videoParser;
-          return parser.getExplodeTrackData(item);
-        }) || [];
-
-      // TODO: add autoplay context to uri (playlistId, continuation...)
-      
-      defer.resolve(items);
+      const section = playlist?.sections?.[0];
+      defer.resolve(getTracksOnExplodeFromSection(section));
     })
       .catch((error) => {
         defer.reject(error);
