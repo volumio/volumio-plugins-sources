@@ -45,14 +45,40 @@
       "content": []
     },
     {
-      "id": "section_autoplay",
+      "id": "section_browse",
       "element": "section",
-      "label": "TRANSLATE.YTMUSIC_SECTION_AUTOPLAY",
+      "label": "TRANSLATE.YTMUSIC_SECTION_BROWSE",
+      "icon": "fa-cogs",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/ytmusic",
+        "method": "configSaveBrowse"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YTMUSIC_SAVE",
+        "data": [
+          "loadFullPlaylists"
+        ]
+      },
+      "content": [
+        {
+          "id": "loadFullPlaylists",
+          "element": "switch",
+          "label": "TRANSLATE.YTMUSIC_LOAD_FULL_PLAYLISTS",
+          "doc": "TRANSLATE.YTMUSIC_DOC_LOAD_FULL_PLAYLISTS",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "section_playback",
+      "element": "section",
+      "label": "TRANSLATE.YTMUSIC_SECTION_PLAYBACK",
       "icon": "fa-play",
       "onSave": {
         "type": "controller",
         "endpoint": "music_service/ytmusic",
-        "method": "configSaveAutoplay"
+        "method": "configSavePlayback"
       },
       "saveButton": {
         "label": "TRANSLATE.YTMUSIC_SAVE",

@@ -2,6 +2,7 @@
 
 const { default: SectionList } = require("volumio-youtubei.js/dist/src/parser/classes/SectionList");
 const { InnerTubeParser, InnerTubeBaseModel } = require("./innertube");
+const Bottleneck = require('bottleneck');
 
 class PlaylistModel extends InnerTubeBaseModel {
 
@@ -30,6 +31,11 @@ class PlaylistModel extends InnerTubeBaseModel {
     }
     await Promise.all(fillSectionPromises);
 
+    if (opts?.loadAll) {
+      const mainSection = result.sections?.[0];
+      await this._loadAllSectionContents(mainSection);
+    }
+
     return result;
   }
 
@@ -38,6 +44,24 @@ class PlaylistModel extends InnerTubeBaseModel {
       const continuationResult = await this.getBrowseResultsByContinuation({ token: section.continuation });
       section.contents = continuationResult.sections[0].contents;
       section.continuation = null;
+    }
+  }
+
+  async _loadAllSectionContents(section) {
+    if (!section?.contents) {
+      return;
+    }
+    const limiter = new Bottleneck({
+      maxConcurrent: 1,
+      minTime: 333  // max 3 requests per second
+    });
+    while (section.continuation) {
+      const fetchPromise = limiter.schedule(() => this.getBrowseResultsByContinuation({ token: section.continuation }));
+      const continuationSection = (await fetchPromise)?.sections?.[0];
+      if (continuationSection?.contents) {
+        section.contents.push(...continuationSection.contents);
+      }
+      section.continuation = continuationSection?.continuation || null;
     }
   }
 }

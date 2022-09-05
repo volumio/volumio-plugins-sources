@@ -38,7 +38,8 @@ ControllerYTMusic.prototype.getUIConfig = function () {
     .then(([uiconf, i18nOptions]) => {
       const i18nUIConf = uiconf.sections[0];
       const accountUIConf = uiconf.sections[1];
-      const autoplayUIConf = uiconf.sections[2];
+      const browseUIConf = uiconf.sections[2];
+      const playbackUIConf = uiconf.sections[3];
 
       // i18n
       // -- region
@@ -122,11 +123,15 @@ ControllerYTMusic.prototype.getUIConfig = function () {
 
       accountUIConf.description = authStatusDescription;
 
-      // Autoplay
+      // Browse
+      const loadFullPlaylists = ytmusic.getConfigValue('loadFullPlaylists', false);
+      browseUIConf.content[0].value = loadFullPlaylists;
+
+      // Playback
       const autoplay = ytmusic.getConfigValue('autoplay', false);
       const autoplayClearQueue = ytmusic.getConfigValue('autoplayClearQueue', false);
-      autoplayUIConf.content[0].value = autoplay;
-      autoplayUIConf.content[1].value = autoplayClearQueue;
+      playbackUIConf.content[0].value = autoplay;
+      playbackUIConf.content[1].value = autoplayClearQueue;
 
       defer.resolve(uiconf);
     })
@@ -182,7 +187,7 @@ ControllerYTMusic.prototype.initInnerTube = function () {
   const defer = libQ.defer();
 
   const innerTube = ytmusic.get('innertube');
-  if (!innerTube) {
+  if (innerTube) {
     Auth.unregisterAuthHandlers();
     ytmusic.set('innertube', null);
   }
@@ -261,7 +266,13 @@ ControllerYTMusic.prototype.configSignOut = function () {
   Auth.signOut();
 }
 
-ControllerYTMusic.prototype.configSaveAutoplay = function (data) {
+ControllerYTMusic.prototype.configSaveBrowse = function (data) {
+  ytmusic.setConfigValue('loadFullPlaylists', data.loadFullPlaylists);
+
+  ytmusic.toast('success', ytmusic.getI18n('YTMUSIC_SETTINGS_SAVED'));
+}
+
+ControllerYTMusic.prototype.configSavePlayback = function (data) {
   ytmusic.setConfigValue('autoplay', data.autoplay);
   ytmusic.setConfigValue('autoplayClearQueue', data.autoplayClearQueue);
 

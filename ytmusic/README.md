@@ -7,6 +7,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+0.1.3
+- Add 'Load full playlists' setting
+
 0.1.2
 - Add Autoplay
 - Fix browsing and playback of uploads
