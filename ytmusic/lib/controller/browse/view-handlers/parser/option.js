@@ -7,7 +7,7 @@ const EXCLUDE_VIEW_PARAMS = ['name', 'continuation', 'endpoint'];
 class OptionParser extends BaseParser {
 
   parseToListItem(data) {
-    const selected = data.optionValues.find((ov) => ov.selected);
+    const selected = data.optionValues.find((ov) => ov.selected) || data.optionValues[0];
     const baseUri = this.getUri();
     
     const view = this.getCurrentView();

@@ -130,8 +130,10 @@ ControllerYTMusic.prototype.getUIConfig = function () {
       // Playback
       const autoplay = ytmusic.getConfigValue('autoplay', false);
       const autoplayClearQueue = ytmusic.getConfigValue('autoplayClearQueue', false);
+      const addToHistory = ytmusic.getConfigValue('addToHistory', true);
       playbackUIConf.content[0].value = autoplay;
       playbackUIConf.content[1].value = autoplayClearQueue;
+      playbackUIConf.content[2].value = addToHistory;
 
       defer.resolve(uiconf);
     })
@@ -275,6 +277,7 @@ ControllerYTMusic.prototype.configSaveBrowse = function (data) {
 ControllerYTMusic.prototype.configSavePlayback = function (data) {
   ytmusic.setConfigValue('autoplay', data.autoplay);
   ytmusic.setConfigValue('autoplayClearQueue', data.autoplayClearQueue);
+  ytmusic.setConfigValue('addToHistory', data.addToHistory);
 
   ytmusic.toast('success', ytmusic.getI18n('YTMUSIC_SETTINGS_SAVED'));
 }

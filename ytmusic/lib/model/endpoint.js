@@ -170,7 +170,7 @@ class EndpointModel extends InnerTubeBaseModel {
       const data = page.continuation_contents;
       const fullData = {
         // Continuation data does not return back the playlistId, so we specify it here
-        playlistId: payload.playlist_id,
+        playlist_id: payload.playlist_id,
         ...(data || {}),
         isContinuation: true,
         isWatch: true,

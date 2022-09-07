@@ -95,6 +95,9 @@ class InnerTubeParser {
       return null;
     }
 
+    // Special case: privately owned artists (in Library -> Artists -> Uploads) should be treated as 'library_artist'
+    const isPrivateArtist = data.item_type === 'artist' && data.id?.startsWith('FEmusic_library_privately_owned_artist');
+
     const parsed = {};
 
     if (data.type === 'MusicResponsiveListItem' || data.type === 'PlaylistPanelVideo') {
@@ -133,7 +136,7 @@ class InnerTubeParser {
         parsed.endpoint = data.endpoint;
       }
     }
-    else if (data.item_type === 'artist') {
+    else if (data.item_type === 'artist' && !isPrivateArtist) {
       parsed.type = 'artist';
       parsed.id = data.id;
       parsed.name = this.unwrapText(data.name) || this.unwrapText(data.title);
@@ -166,12 +169,15 @@ class InnerTubeParser {
       parsed.endpoint = data.endpoint;
       parsed.label = this.unwrapText(data.button_text);
     }
-    else if (data.item_type === 'endpoint' || data.item_type === 'library_artist') {
+    else if (data.item_type === 'endpoint' || data.item_type === 'library_artist' || isPrivateArtist) {
       parsed.type = data.item_type === 'endpoint' ? 'endpoint' : 'libraryArtist';
       parsed.label = this.unwrapText(data.title) || this.unwrapText(data.name);
       parsed.subtitle = this.unwrapText(data.subtitle);
       parsed.thumbnail = this.extractThumbnail(data);
       parsed.endpoint = data.endpoint;
+      if (isPrivateArtist && parsed.endpoint?.browse) {
+        parsed.endpoint.browse.page_type = 'MUSIC_PAGE_TYPE_LIBRARY_ARTIST';
+      }
     }
     else if (data.type === 'DidYouMean') {
       parsed.type = 'endpoint';

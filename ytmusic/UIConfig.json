@@ -84,7 +84,8 @@
         "label": "TRANSLATE.YTMUSIC_SAVE",
         "data": [
           "autoplay",
-          "autoplayClearQueue"
+          "autoplayClearQueue",
+          "addToHistory"
         ]
       },
       "content": [
@@ -105,6 +106,13 @@
             "field": "autoplay",
             "value": true
           }
+        },
+        {
+          "id": "addToHistory",
+          "element": "switch",
+          "label": "TRANSLATE.YTMUSIC_ADD_TO_HISTORY",
+          "doc": "TRANSLATE.YTMUSIC_DOC_ADD_TO_HISTORY",
+          "value": true
         }
       ]
     }

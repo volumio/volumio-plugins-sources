@@ -28,9 +28,9 @@ class AutoplayHelper {
         return context;
       }
 
-      const context = data.playlistId ? {
+      const context = data.playlistId && data.playlistParams ? {
         playlistId: data.playlistId,
-        params: data.playlistParams || null
+        params: data.playlistParams
       } : this._getCommonPlaylistDataFromEndpoints(data.contents);
       if (context?.playlistId) {
         const items = data.contents?.filter((item) => item.type === 'song' || item.type === 'video') || [];
@@ -47,12 +47,18 @@ class AutoplayHelper {
       }
       return null;
     }
-    else if (data.type === 'song' || data.type === 'video') {
-      return {
-        playlistId: data.endpoint?.payload?.playlistId,
-        params: data.endpoint?.payload?.params,
+    else if ((data.type === 'song' || data.type === 'video')) {
+      const context = {
         continueFromVideoId: data.id
       };
+      // `endpoint` refers to watch endpoint 
+      if (data.endpoint?.payload?.playlistId) {
+        context.playlistId = data.endpoint.payload.playlistId;
+      }
+      if (data.endpoint?.payload?.params) {
+        context.params = data.endpoint.payload.params;
+      }
+      return context;
     }
     
     return null;

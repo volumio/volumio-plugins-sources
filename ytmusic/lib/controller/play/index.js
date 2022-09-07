@@ -25,22 +25,38 @@ class PlayController {
 
   /**
    * Track uri:
-   * - ytmusic/video@videoId={...}@explodeTrackData={...}@autoplayContext={...}
+   * - ytmusic/video@videoId={...}@playlistId={...}@explodeTrackData={...}@autoplayContext={...}
    *
    */
   clearAddPlayTrack(track) {
     ytmusic.getLogger().info('[ytmusic-play] clearAddPlayTrack(): ' + track.uri);
 
     const defer = libQ.defer();
+    const trackView = this._parseTrackUri(track.uri);
 
-    this._getPlaybackData(track).then((data) => {
-      track.title = data.title;
-      track.name = data.title;
-      track.artist = data.artist;
-      track.album = data.album;
-      track.albumart = data.albumart;
-      if (data.bitrate) {
-        track.samplerate = data.bitrate;
+    if (!trackView) {
+      throw new Error('Invalid track uri: ' + track.uri);
+    }
+
+    const model = Model.getInstance('video');
+    model.getPlaybackData(trackView.videoId, trackView.playlistId).then((playbackData) => {
+      const {videoInfo, stream} = playbackData;
+      if (!videoInfo) {
+        throw new Error(`Video not found (videoId: ${trackView.videoId})`);
+      }
+
+      if (!stream || !stream.url) {
+        ytmusic.toast('error', ytmusic.getI18n('YTMUSIC_ERR_NO_STREAM', track.name));
+        throw new Error(`Stream not found (videoId: ${trackView.videoId})`);
+      }
+
+      track.title = videoInfo.title;
+      track.name = videoInfo.title;
+      track.artist = videoInfo.artistText || track.artist;
+      track.album = videoInfo.albumText || track.album;
+      track.albumart = videoInfo.thumbnail?.url || track.albumart;
+      if (stream.bitrate) {
+        track.samplerate = stream.bitrate;
       }
 
       this.lastPlayedTrackInfo = {
@@ -48,10 +64,18 @@ class PlayController {
         position: ytmusic.getStateMachine().getState().position,
       };
 
-      this._doPlay(data.streamUrl, track).then(() => {
-
+      const safeStreamUrl = stream.url.replace(/"/g, '\\"');
+      this._doPlay(safeStreamUrl, track).then(() => {
         if (ytmusic.getConfigValue('autoplay', false)) {
           this.mpdPlugin.clientMpd.on('system-player', this.autoplayListener);
+        }
+
+        if (ytmusic.getConfigValue('addToHistory', true)) {
+          try {
+            playbackData.addToHistory();
+          } catch (error) {
+            ytmusic.getLogger().error(ytmusic.getErrorMessage(`[ytmusic-play] Error: could not add to history (videoId: ${trackView.videoId}): `, error));
+          }
         }
 
         defer.resolve();
@@ -101,10 +125,10 @@ class PlayController {
   }
 
   async getGotoUri(data) {
-    const videoId = this._getVideoIdFromTrackUri(data.uri);
+    const videoId = this._parseTrackUri(data.uri)?.videoId;
     if (videoId) {
       const model = Model.getInstance('video');
-      const videoInfo = await model.getVideo(videoId);
+      const videoInfo = await model.getInfoByUpNext(videoId);
       if (!videoInfo) {
         return null;
       }
@@ -123,39 +147,7 @@ class PlayController {
     return null;
   }
 
-  async _getPlaybackData(track) {
-    const videoId = this._getVideoIdFromTrackUri(track.uri);
-    if (videoId) {
-      const model = Model.getInstance('video');
-      const [videoInfo, stream] = await Promise.all([model.getVideo(videoId), model.getStreamData(videoId)]);
-
-      if (!videoInfo) {
-        throw new Error(`Video not found (videoId: ${videoId})`);
-      }
-
-      if (!stream || !stream.url) {
-        ytmusic.toast('error', ytmusic.getI18n('YTMUSIC_ERR_NO_STREAM', track.name));
-        throw new Error(`Stream not found (videoId: ${videoId})`);
-      }
-
-      const safeUri = stream.url.replace(/"/g, '\\"');
-
-      return {
-        title: videoInfo.title,
-        artist: videoInfo.artistText || track.artist,
-        album: videoInfo.albumText || track.album,
-        albumart: videoInfo.thumbnail?.url || track.albumart,
-        duration: videoInfo.duration,
-        bitrate: stream.bitrate,
-        streamUrl: safeUri
-      };
-    }
-    else {
-      throw new Error('Invalid track uri: ' + track.uri);
-    }
-  }
-
-  _getVideoIdFromTrackUri(uri) {
+  _parseTrackUri(uri) {
     if (!uri) {
       return null;
     }
@@ -165,7 +157,12 @@ class PlayController {
       trackView = { name: null };
     }
     if (trackView.name === 'video' && trackView.videoId) {
-      return decodeURIComponent(trackView.videoId);
+      return {
+        ...trackView,
+        videoId: decodeURIComponent(trackView.videoId),
+        playlistId: trackView.playlistId ? decodeURIComponent(trackView.playlistId) : null,
+        autoplayContext: trackView.autoplayContext ? JSON.parse(decodeURIComponent(trackView.autoplayContext)) : null
+      };
     }
     return null;
   }
@@ -269,8 +266,7 @@ class PlayController {
   }
 
   async _getAutoplayItems() {
-    const trackView = this.lastPlayedTrackInfo ? ViewHelper.getViewsFromUri(this.lastPlayedTrackInfo.track.uri)[1] : null;
-    const autoplayContext = trackView?.autoplayContext ? JSON.parse(decodeURIComponent(trackView.autoplayContext)) : null;
+    const autoplayContext = this._parseTrackUri(this.lastPlayedTrackInfo?.track?.uri)?.autoplayContext;
 
     if (!autoplayContext) {
       return [];
@@ -302,6 +298,8 @@ class PlayController {
       if (automixContents?.contents) {
         contents.contents.push(...(automixContents?.contents || []));
         contents.playlistId = automixContents.playlistId;
+        contents.playlistParams = automixContents.playlistParams;
+        contents.continuation = automixContents.continuation;
       }
     }
 

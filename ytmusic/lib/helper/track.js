@@ -15,7 +15,7 @@ class TrackHelper {
 
   /**
    * Track uri:
-   * ytmusic/video@videoId={...}@explodeTrackData={...}@autoplayContext={...}
+   * ytmusic/video@videoId={...}@playlistId={...}@explodeTrackData={...}@autoplayContext={...}
    */
   static _getTrackUri(track) {
     const parts = [
@@ -26,8 +26,11 @@ class TrackHelper {
       // played.
       `explodeTrackData=${encodeURIComponent(JSON.stringify(track))}`
     ];
+    if (track.playlistId) {
+      parts.push(`playlistId=${encodeURIComponent(track.playlistId)}`);
+    }
     if (track.autoplayContext) {
-      parts.push(`autoplayContext=${encodeURIComponent(JSON.stringify(track.autoplayContext))}`)
+      parts.push(`autoplayContext=${encodeURIComponent(JSON.stringify(track.autoplayContext))}`);
     }
     return parts.join('@');
   }

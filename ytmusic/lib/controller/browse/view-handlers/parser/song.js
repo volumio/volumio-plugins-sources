@@ -42,6 +42,11 @@ class SongParser extends BaseParser {
       album: data.albumText,
       albumart: data.thumbnail?.url
     };
+    // playlistId here refers to the ID of the *watch* playlist that is associated with 
+    // the song (and gets loaded into ytmusic queue when the song is played)
+    if (data.endpoint?.payload?.playlistId) {
+      track.playlistId = data.endpoint.payload.playlistId;
+    }
     if (opts.autoplayContext) {
       track.autoplayContext = opts.autoplayContext;
     }

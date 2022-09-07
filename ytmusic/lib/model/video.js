@@ -14,9 +14,30 @@ const ITAG_TO_BITRATE = {
   '251': '160',
 };
 
+const BEST_AUDIO_FORMAT = {
+  type: 'audio',
+  format: 'any',
+  quality: 'best'
+};
+
 class VideoModel extends BaseModel {
 
-  async getVideo(videoId) {
+  async getPlaybackData(videoId, playlistId) {
+    const innerTube = this.getInnerTube();
+    const upNextInfo = await this.getInfoByUpNext(videoId);
+    const playerInfo = await innerTube.music.getInfo(videoId, playlistId);
+    const streamData = this._extractStreamDataFromPlayerInfo(playerInfo);
+
+    return {
+      videoInfo: upNextInfo,
+      stream: streamData,
+      addToHistory: () => {
+        return playerInfo.addToWatchHistory();
+      }
+    };
+  }
+
+  async getInfoByUpNext(videoId) {
     const innerTube = this.getInnerTube();
     const upNext = await innerTube.music.getUpNext(videoId);
     const data = upNext?.contents?.find((data) => data.video_id === videoId);
@@ -24,26 +45,22 @@ class VideoModel extends BaseModel {
     return InnerTubeParser.parseItem(data);
   }
 
-  async getStreamData(videoId) {
-    const innerTube = this.getInnerTube();
-    const options = {
-      type: 'audio',
-      format: 'any',
-      quality: 'best'
-    }
-
-    /** TODO: InnerTube -> VideoInfo. Throw error on these conditions.
-      if (this.playability_status === 'UNPLAYABLE')
-        return stream.emit('error', new InnertubeError('Video is unplayable', { video: this, error_type: 'UNPLAYABLE' }));
-      if (this.playability_status === 'LOGIN_REQUIRED')
-        return stream.emit('error', new InnertubeError('Video is login required', { video: this, error_type: 'LOGIN_REQUIRED' }));
-      if (!this.streaming_data)
-        return stream.emit('error', new InnertubeError('Streaming data not available.', { video: this, error_type: 'NO_STREAMING_DATA' }));
+  _extractStreamDataFromPlayerInfo(info) {
     
-    */
-    const format = this._chooseFormat(await innerTube.music.getInfo(videoId), options);
+    /** TODO: InnerTube -> VideoInfo. Throw error on these conditions.
+     if (this.playability_status === 'UNPLAYABLE')
+     return stream.emit('error', new InnertubeError('Video is unplayable', { video: this, error_type: 'UNPLAYABLE' }));
+     if (this.playability_status === 'LOGIN_REQUIRED')
+     return stream.emit('error', new InnertubeError('Video is login required', { video: this, error_type: 'LOGIN_REQUIRED' }));
+     if (!this.streaming_data)
+     return stream.emit('error', new InnertubeError('Streaming data not available.', { video: this, error_type: 'NO_STREAMING_DATA' }));
+     
+     */
+   
+    const format = this._chooseFormat(info, BEST_AUDIO_FORMAT);
     
     if (format) {
+      const innerTube = this.getInnerTube();
       const audioBitrate = ITAG_TO_BITRATE[format.itag];
       return {
         url: format.decipher(innerTube.session.player),

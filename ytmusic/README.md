@@ -7,6 +7,10 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+0.1.4
+- Bug fixes with autoplay and browsing of artists in Library -> Uploads
+- Add 'Add to history' setting
+
 0.1.3
 - Add 'Load full playlists' setting
 
