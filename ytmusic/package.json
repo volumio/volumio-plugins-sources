@@ -1,6 +1,6 @@
 {
 	"name": "ytmusic",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "YouTube Music plugin for Volumio",
 	"main": "index.js",
 	"scripts": {
@@ -35,10 +35,9 @@
 	"dependencies": {
 		"escape-html": "^1.0.3",
 		"kew": "^0.7.0",
-		"md5": "^2.3.0",
 		"string-format": "^2.0.0",
 		"v-conf": "^1.4.2",
 		"bottleneck": "^2.19.5",
-		"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.1.0-b.6"
+		"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.1.0-b.7"
 	}
 }

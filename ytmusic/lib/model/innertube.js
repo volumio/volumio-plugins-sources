@@ -90,7 +90,8 @@ class InnerTubeParser {
 
   static parseItem(data) {
 
-    const supportedTypes = ['video', 'song', 'PlaylistPanelVideo', 'artist', 'album', 'playlist', 'MusicNavigationButton', 'endpoint', 'library_artist', 'DidYouMean', 'AutomixPreviewVideo'];
+    const supportedTypes = ['video', 'song', 'PlaylistPanelVideoWrapper', 'PlaylistPanelVideo', 
+      'artist', 'album', 'playlist', 'MusicNavigationButton', 'endpoint', 'library_artist', 'DidYouMean', 'AutomixPreviewVideo'];
     if (!supportedTypes.includes(data.item_type) && !supportedTypes.includes(data.type)) {
       return null;
     }
@@ -99,6 +100,13 @@ class InnerTubeParser {
     const isPrivateArtist = data.item_type === 'artist' && data.id?.startsWith('FEmusic_library_privately_owned_artist');
 
     const parsed = {};
+
+    if (data.type === 'PlaylistPanelVideoWrapper') {
+      data = data.primary || data.counterpart?.[0];
+      if (!data) {
+        return null;
+      }
+    }
 
     if (data.type === 'MusicResponsiveListItem' || data.type === 'PlaylistPanelVideo') {
       parsed.displayHint = 'list';

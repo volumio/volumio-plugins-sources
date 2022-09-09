@@ -7,6 +7,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+0.1.5
+- Fix playback sometimes fails when signed in with YT Premium account
+
 0.1.4
 - Bug fixes with autoplay and browsing of artists in Library -> Uploads
 - Add 'Add to history' setting

@@ -40,7 +40,16 @@ class VideoModel extends BaseModel {
   async getInfoByUpNext(videoId) {
     const innerTube = this.getInnerTube();
     const upNext = await innerTube.music.getUpNext(videoId);
-    const data = upNext?.contents?.find((data) => data.video_id === videoId);
+    const data = upNext?.contents?.find((data) => {
+      if (data.type === 'PlaylistPanelVideoWrapper') {
+        if (data.primary?.video_id === videoId) {
+          return true;
+        }
+        return data.counterpart?.find((item) => item.video_id === videoId);
+      }
+      
+      return data.video_id === videoId;
+    });
 
     return InnerTubeParser.parseItem(data);
   }
