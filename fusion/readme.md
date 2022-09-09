@@ -1,4 +1,4 @@
-August 26th 2022
+September 09th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,10 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+September 09th 2022
+
+- import local PEQ fixes
 
 July 12th 2022
 
