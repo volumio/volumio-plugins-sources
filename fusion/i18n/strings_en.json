@@ -188,5 +188,9 @@
   "RESETEQ":"Reset all EQ",
   "RESETEQ_DOC":"Reset all Eq to Zero",
   "AUTO_ATT":"Automatic pre-amp",
-  "AUTO_ATT_DOC":"Automatic pre-amp to avoid clipping. If disabled, you may need to set an attenuation by hand for both channels to avoid clipping"
+  "AUTO_ATT_DOC":"Automatic pre-amp to avoid clipping. If disabled, you may need to set an attenuation by hand for both channels to avoid clipping",
+  "MUTE_LEFT_DOC":"Mute left channel",
+  "MUTE_LEFT":"Mute left",
+  "MUTE_RIGHT_DOC":"Mute right channel",
+  "MUTE_RIGHT":"Mute right"
 }

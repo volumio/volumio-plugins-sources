@@ -206,7 +206,9 @@
             0,
             0,
             "None",
-            true
+            true,
+            false,
+            false
         ]
     },
     "state4preset2": {
@@ -220,7 +222,9 @@
             0,
             0,
             "None",
-            true
+            true,
+            false,
+            false
         ]
     },
     "state4preset3": {
@@ -234,7 +238,9 @@
             0,
             0,
             "None",
-            true
+            true,
+            false,
+            false
         ]
     },
     "state4preset4": {
@@ -248,7 +254,9 @@
             0,
             0,
             "None",
-            true
+            true,
+            false,
+            false
         ]
     },
     "state4preset5": {
@@ -262,7 +270,9 @@
             0,
             0,
             "None",
-            true
+            true,
+            false,
+            false
         ]
     },
     "availablefilters": {
@@ -287,6 +297,14 @@
         "value": true
     },
     "monooutput": {
+        "type": "boolean",
+        "value": false
+    },
+    "muteleft": {
+        "type": "boolean",
+        "value": false
+    },
+    "muteright": {
         "type": "boolean",
         "value": false
     },

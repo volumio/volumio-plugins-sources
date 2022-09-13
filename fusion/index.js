@@ -961,6 +961,28 @@ FusionDsp.prototype.getUIConfig = function (address) {
             }
           },
           {
+            "id": "muteleft",
+            "element": "switch",
+            "doc": self.commandRouter.getI18nString('MUTE_LEFT_DOC'),
+            "label": self.commandRouter.getI18nString('MUTE_LEFT'),
+            "value": self.config.get('muteleft'),
+            "visibleIf": {
+              "field": "showeq",
+              "value": true
+            }
+          },
+          {
+            "id": "muteright",
+            "element": "switch",
+            "doc": self.commandRouter.getI18nString('MUTE_RIGHT_DOC'),
+            "label": self.commandRouter.getI18nString('MUTE_RIGHT'),
+            "value": self.config.get('muteright'),
+            "visibleIf": {
+              "field": "showeq",
+              "value": true
+            }
+          },
+          {
             "id": "crossfeed",
             "element": "select",
             "doc": self.commandRouter.getI18nString('CROSSFEED_DOC'),
@@ -1239,6 +1261,8 @@ FusionDsp.prototype.getUIConfig = function (address) {
       uiconf.sections[1].saveButton.data.push('rightlevel');
       uiconf.sections[1].saveButton.data.push('crossfeed');
       uiconf.sections[1].saveButton.data.push('monooutput');
+      uiconf.sections[1].saveButton.data.push('muteleft');
+      uiconf.sections[1].saveButton.data.push('muteright');
       uiconf.sections[1].saveButton.data.push('permutchannel');
 
 
@@ -1989,6 +2013,8 @@ FusionDsp.prototype.testclipping = function () {
     self.config.set('crossfeed', 'None');
     self.config.set('attenuationl', 0);
     self.config.set('attenuationr', 0);
+    self.config.set('muteleft', false);
+    self.config.set('muteright', false);
     self.config.set('testclipping', true)
     self.createCamilladspfile();
   }, 300);
@@ -2214,6 +2240,8 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       let resamplingset = self.config.get('resamplingset')
       let allowdownsamplig = true
       let autoatt = self.config.get('autoatt')
+
+
       //----compose output----
       if (testclipping) {
         var composeout = ''
@@ -2865,6 +2893,8 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       ///----mixers and pipelines generation
       var composedmixer = ''
       var composedpipeline = ''
+      let muteleft = self.config.get('muteleft')
+      let muteright = self.config.get('muteright')
 
       if ((crossconfig == 'None') && (effect)) {
         if (monooutput) {
@@ -2879,17 +2909,21 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           composedmixer += '          - channel: 0\n'
           composedmixer += '            gain: ' + +leftgainmono + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteleft + '\n'
           composedmixer += '          - channel: 1\n'
           composedmixer += '            gain: ' + +leftgainmono + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteright + '\n'
           composedmixer += '      - dest: 1\n'
           composedmixer += '        sources:\n'
           composedmixer += '          - channel: 0\n'
           composedmixer += '            gain: ' + +rightgainmono + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteleft + '\n'
           composedmixer += '          - channel: 1\n'
           composedmixer += '            gain: ' + +rightgainmono + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteright + '\n'
           composedmixer += '\n'
 
           composedpipeline += '\n'
@@ -2917,11 +2951,13 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           composedmixer += '          - channel: ' + c0 + '\n'
           composedmixer += '            gain: ' + leftgain + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteleft + '\n'
           composedmixer += '      - dest: 1\n'
           composedmixer += '        sources:\n'
           composedmixer += '          - channel: ' + c1 + '\n'
           composedmixer += '            gain: ' + rightgain + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteright + '\n'
           composedmixer += '\n'
 
           composedpipeline += '\n'
@@ -2952,21 +2988,25 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: 0\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 0\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 2\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 1\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 3\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 1\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '  stereo:\n'
         composedmixer += '    channels:\n'
         composedmixer += '      in: 4\n'
@@ -2977,17 +3017,21 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: ' + c0 + '\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteleft + '\n'
         composedmixer += '          - channel: 2\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteleft + '\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: ' + c1 + '\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteright + '\n'
         composedmixer += '          - channel: 3\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteright + '\n'
 
         composedpipeline += '\n'
         composedpipeline += 'pipeline:\n'
@@ -3042,21 +3086,25 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: 0\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 0\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 2\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 1\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 3\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 1\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '  stereo:\n'
         composedmixer += '    channels:\n'
         composedmixer += '      in: 4\n'
@@ -3067,17 +3115,21 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: ' + c0 + '\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteleft + '\n'
         composedmixer += '          - channel: 2\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteleft + '\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: ' + c1 + '\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteright + '\n'
         composedmixer += '          - channel: 3\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteright + '\n'
 
         composedpipeline += '\n'
         composedpipeline += 'pipeline:\n'
@@ -3128,11 +3180,13 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: ' + c0 + '\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: ' + c1 + '\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false'
         composedmixer += '\n'
 
         pipeliner = '      - nulleq2';
@@ -3534,6 +3588,10 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('rightlevel', data.rightlevel);
     self.config.set('monooutput', data["monooutput"]);
     self.config.set('autoatt', data["autoatt"]);
+    self.config.set('muteleft', data["muteleft"]);
+    self.config.set('muteright', data["muteright"]);
+
+
 
     //self.config.set('delayscope', (data["delayscope"].value));
 
@@ -3564,6 +3622,8 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
   let state4preset = [
     self.config.get('crossfeed'),
     self.config.get('monooutput'),
+    self.config.get('muteleft'),
+    self.config.get('muteright'),
     self.config.get('loudness'),
     self.config.get('loudnessthreshold'),
     self.config.get('leftlevel'),
@@ -3801,6 +3861,8 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set('delay', state4preset[6])
     self.config.set('delayscope', state4preset[7])
     self.config.set('autoatt', state4preset[8])
+    self.config.set('muteleft', state4preset[9]);
+    self.config.set('muteright', state4preset[10]);
 
 
 
@@ -3949,7 +4011,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + ',' + "0.7071")
-           //  self.logger.info('filter in line ' + o + " HP " + paramx)
+            //  self.logger.info('filter in line ' + o + " HP " + paramx)
 
           }
 
