@@ -7,6 +7,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+0.1.6
+- Fix plugin failing to start due to error in extracting sig decipher algorithm from player object
+
 0.1.5
 - Fix playback sometimes fails when signed in with YT Premium account
 
