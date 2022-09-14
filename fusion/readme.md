@@ -140,6 +140,12 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+September 13th 2022
+
+- new switches to mute channels
+- add Harman target curve
+- translation update
+
 September 09th 2022
 
 - import local PEQ fixes
