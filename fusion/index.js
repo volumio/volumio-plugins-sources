@@ -3622,15 +3622,15 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
   let state4preset = [
     self.config.get('crossfeed'),
     self.config.get('monooutput'),
-    self.config.get('muteleft'),
-    self.config.get('muteright'),
     self.config.get('loudness'),
     self.config.get('loudnessthreshold'),
     self.config.get('leftlevel'),
     self.config.get('rightlevel'),
     self.config.get('delay'),
     self.config.get('delayscope'),
-    self.config.get('autoatt')
+    self.config.get('autoatt'),
+    self.config.get('muteleft'),
+    self.config.get('muteright')
   ]
 
   let preset = (data['eqpresetsaved'].value);
