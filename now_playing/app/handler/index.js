@@ -6,7 +6,8 @@ const config = require(nowPlayingPluginLibRoot + '/config');
 const apiHandlers = {
     'metadata': require(nowPlayingPluginLibRoot + '/api/metadata'),
     'settings': require(nowPlayingPluginLibRoot + '/api/settings'),
-    'weather': require(nowPlayingPluginLibRoot + '/api/weather')
+    'weather': require(nowPlayingPluginLibRoot + '/api/weather'),
+    'unsplash': require(nowPlayingPluginLibRoot + '/api/unsplash')
 };
 
 async function index(req, res) {
