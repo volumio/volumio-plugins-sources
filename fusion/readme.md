@@ -1,4 +1,4 @@
-September 09th 2022
+September 16th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -140,13 +140,17 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
-September 13th 2022
+September 16th 2022 v1.0.22
+
+- Fix for distoreded sound when preset is used
+
+September 13th 2022 v1.0.21
 
 - new switches to mute channels
 - add Harman target curve
 - translation update
 
-September 09th 2022
+September 09th 2022 v1.0.20
 
 - import local PEQ fixes
 
