@@ -183,10 +183,14 @@
   "DELAY_VALUE_DOC":"Dar valor para retraso (ms)",
   "DELAY_SCOPE":"Retraso en el canal",
   "DELAY_SCOPE_DOC":"Ingrese en qué canal aplicar el retraso",
-  "PERMUT_CHANNEL": "Swap L&R channels",
-  "PERMUT_CHANNEL_DOC":"Swap L&R channels",
-  "RESETEQ":"Reset all EQ",
-  "RESETEQ_DOC":"Reset all Eq to Zero",
-  "AUTO_ATT":"Automatic pre-amp",
-  "AUTO_ATT_DOC":"Automatic pre-amp to avoid clipping. If disabled, you may need to set an attenuation by hand for both channels to avoid clipping"
+  "PERMUT_CHANNEL": "Intercambiar canales L&R",
+  "PERMUT_CHANNEL_DOC":"Intercambiar canales L&R",
+  "RESETEQ":"Restablecer todo el ecualizador",
+  "RESETEQ_DOC":"Restablecer todos los Eq a cero",
+  "AUTO_ATT":"Preamplificador automático",
+  "AUTO_ATT_DOC":"Preamplificador automático para evitar el recorte. Si está deshabilitado, es posible que deba establecer una atenuación a mano para ambos canales para evitar el recorte",
+  "MUTE_LEFT_DOC":"Silenciar canal izquierdo",
+  "MUTE_LEFT":"Silenciar a la izquierda",
+  "MUTE_RIGHT_DOC":"Silenciar canal derecho",
+  "MUTE_RIGHT":"Silenciar a la derecha"
 }

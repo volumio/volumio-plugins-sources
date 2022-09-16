@@ -183,10 +183,14 @@
   "DELAY_VALUE_DOC":"Wert für Verzögerung (ms) angeben",
   "DELAY_SCOPE":"Verzögerung auf Kanal",
   "DELAY_SCOPE_DOC":"Geben Sie ein, auf welchem ​​Kanal die Verzögerung angewendet wird",
-  "PERMUT_CHANNEL": "Swap L&R channels",
-  "PERMUT_CHANNEL_DOC":"Swap L&R channels",
-  "RESETEQ":"Reset all EQ",
-  "RESETEQ_DOC":"Reset all Eq to Zero",
-  "AUTO_ATT":"Automatic pre-amp",
-  "AUTO_ATT_DOC":"Automatic pre-amp to avoid clipping. If disabled, you may need to set an attenuation by hand for both channels to avoid clipping"
+  "PERMUT_CHANNEL": "L&R-Kanäle tauschen",
+  "PERMUT_CHANNEL_DOC":"L&R-Kanäle tauschen",
+  "RESETEQ":"Alle EQ zurücksetzen",
+  "RESETEQ_DOC":"Alle Eq auf Null zurücksetzen",
+  "AUTO_ATT":"Automatischer Vorverstärker",
+  "AUTO_ATT_DOC":"Automatischer Vorverstärker zur Vermeidung von Clipping. Wenn deaktiviert, müssen Sie möglicherweise für beide Kanäle manuell eine Dämpfung einstellen, um Clipping zu vermeiden",
+  "MUTE_LEFT_DOC":"Linken Kanal stumm schalten",
+  "MUTE_LEFT":"Links stummschalten",
+  "MUTE_RIGHT_DOC":"Rechten Kanal stumm schalten",
+  "MUTE_RIGHT":"Rechts stummschalten"
 }
