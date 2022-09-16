@@ -27,7 +27,7 @@ class PlaylistViewHandler extends FeedViewHandler {
       loadAll: !!ytmusic.getConfigValue('loadFullPlaylists', false)
     }).then((playlist) => {
       const section = playlist?.sections?.[0];
-      defer.resolve(getTracksOnExplodeFromSection(section));
+      defer.resolve(this.getTracksOnExplodeFromSection(section));
     })
       .catch((error) => {
         defer.reject(error);

@@ -7,6 +7,11 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+0.1.7
+- Fix playback of playlists through the Play button
+- Add Recap
+- Display 'Showing results for...' message in search results
+
 0.1.6
 - Fix plugin failing to start due to error in extracting sig decipher algorithm from player object
 

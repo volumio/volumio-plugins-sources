@@ -13,6 +13,7 @@ const RootViewHandler = require(__dirname + '/root');
 const LibraryViewHandler = require(__dirname + '/library');
 const OptionSelectionViewHandler = require(__dirname + '/option_select');
 const SearchViewHandler = require(__dirname + '/search');
+const RecapViewHandler = require(__dirname + '/recap');
 
 class ViewHandlerFactory {
 
@@ -36,7 +37,8 @@ ViewHandlerFactory._viewToClass = {
   'root': RootViewHandler,
   'library': LibraryViewHandler,
   'optionSelection': OptionSelectionViewHandler,
-  'search': SearchViewHandler
+  'search': SearchViewHandler,
+  'recap': RecapViewHandler
 }
 
 module.exports = ViewHandlerFactory;

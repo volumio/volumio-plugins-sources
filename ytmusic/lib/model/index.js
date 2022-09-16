@@ -12,7 +12,8 @@ const typeToClass = {
   explore: 'explore',
   library: 'library',
   config: 'config',
-  search: 'search'
+  search: 'search',
+  recap: 'recap'
 };
 
 const getInstance = (type) => {

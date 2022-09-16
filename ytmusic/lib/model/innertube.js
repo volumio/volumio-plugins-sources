@@ -91,7 +91,8 @@ class InnerTubeParser {
   static parseItem(data) {
 
     const supportedTypes = ['video', 'song', 'PlaylistPanelVideoWrapper', 'PlaylistPanelVideo', 
-      'artist', 'album', 'playlist', 'MusicNavigationButton', 'endpoint', 'library_artist', 'DidYouMean', 'AutomixPreviewVideo'];
+      'artist', 'album', 'playlist', 'MusicNavigationButton', 'endpoint', 'library_artist', 'DidYouMean', 
+      'ShowingResultsFor', 'AutomixPreviewVideo'];
     if (!supportedTypes.includes(data.item_type) && !supportedTypes.includes(data.type)) {
       return null;
     }
@@ -192,6 +193,13 @@ class InnerTubeParser {
       parsed.label = this.unwrapText(data.text) + ' ' + this.unwrapText(data.corrected_query);
       parsed.endpoint = data.endpoint;
       parsed.displayHint = 'didYouMean';
+    }
+    else if (data.type === 'ShowingResultsFor') {
+      parsed.type = 'endpoint';
+      parsed.label = this.unwrapText(data.showing_results_for) + ' ' + this.unwrapText(data.corrected_query) + 
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + this.unwrapText(data.search_instead_for) + ' ' + this.unwrapText(data.original_query);
+      parsed.endpoint = data.original_query_endpoint;
+      parsed.displayHint = 'showingResultsFor';
     }
     else if (data.type === 'AutomixPreviewVideo') {
       parsed.type = 'automix';

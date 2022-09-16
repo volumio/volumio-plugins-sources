@@ -35,6 +35,9 @@ class EndpointItemParser extends BaseParser {
     else if (data.displayHint === 'didYouMean') {
       item.icon = 'fa fa-question-circle-o';
     }
+    else if (data.displayHint === 'showingResultsFor') {
+      item.icon = 'fa fa-info-circle';
+    }
     else {
       item.icon = this.getIconFromEndpoint(data.endpoint);
     }
