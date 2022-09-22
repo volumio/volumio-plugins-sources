@@ -1,4 +1,4 @@
-September 16th 2022
+September 22th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -140,9 +140,14 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+September 22th 2022 v1.0.23
+
+- Delay settings are saved in preset
+
+
 September 16th 2022 v1.0.22
 
-- Fix for distoreded sound when preset is used
+- Fix for distorded sound when preset is used
 
 September 13th 2022 v1.0.21
 

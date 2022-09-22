@@ -3630,7 +3630,9 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.get('delayscope'),
     self.config.get('autoatt'),
     self.config.get('muteleft'),
-    self.config.get('muteright')
+    self.config.get('muteright'),
+    self.config.get('ldistance'),
+    self.config.get('rdistance')
   ]
 
   let preset = (data['eqpresetsaved'].value);
@@ -3863,7 +3865,16 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set('autoatt', state4preset[8])
     self.config.set('muteleft', state4preset[9]);
     self.config.set('muteright', state4preset[10]);
-
+    if (state4preset[11] == undefined) {
+      self.config.set('ldistance', 0);
+    } else {
+      self.config.set('ldistance', state4preset[11]);
+    }
+    if (state4preset[12] == undefined) {
+      self.config.set('rdistance', 0);
+    } else {
+      self.config.set('rdistance', state4preset[12]);
+    }
 
 
     self.commandRouter.pushToastMessage('info', spresetm + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
@@ -4186,6 +4197,8 @@ FusionDsp.prototype.convertimportedeq = function () {
     self.config.set('mergedeq', test);
     self.config.set('savednbreq', nbreq - 1)
     self.config.set('savedmergedeq', test)
+    self.config.set('autoatt', true)
+
   } catch (err) {
     self.logger.error('failed to read EQ file ' + err);
   }
