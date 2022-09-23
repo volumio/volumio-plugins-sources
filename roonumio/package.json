@@ -1,0 +1,36 @@
+{
+	"name": "roonumio",
+	"version": "1.0.0",
+	"description": "roonumio is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Dale Rider",
+	"license": "ISC",
+	"repository": "https://github.com/charliesjc/volumio-plugins-sources",
+	"volumio_info": {
+		"prettyName": "roonumio",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"has_alsa_contribution": "false",
+		"details": "roonumio is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
+		"changelog": "Lorem ipsum"
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0"
+	}
+}
