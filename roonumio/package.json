@@ -31,6 +31,9 @@
 	"dependencies": {
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
-		"v-conf": "^1.4.0"
+		"v-conf": "^1.4.0",
+		"node-roon-api": "github:roonlabs/node-roon-api",
+		"node-roon-api-transport": "github:roonlabs/node-roon-api-transport",
+		"node-roon-api-image": "github:roonlabs/node-roon-api-image"
 	}
 }

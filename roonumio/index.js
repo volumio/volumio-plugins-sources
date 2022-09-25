@@ -6,6 +6,16 @@ var exec = require('child_process').exec;
 var config = new (require('v-conf'))();
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
+var RoonApi = require("node-roon-api");
+var RoonApiTransport = require("node-roon-api-transport");
+var RoonApiImage = require("node-roon-api-image");
+
+var core;
+var transport;
+var zone;
+var zoneid;
+var roon;
+var extraData;
 
 //Define RoonBridge class
 module.exports = roonumio;
@@ -19,6 +29,112 @@ function roonumio(context) {
 
 }
 
+roonumio.prototype.roonInit = function () {
+	var self = this;
+	roon = new RoonApi({
+		// Make it look like an existing built-in Roon extension and you don't need to approve it in the UI.
+		extension_id: 'com.roonlabs.display_zone',
+		display_name: 'Roon API Display Zone',
+		display_version: "1.0.0",
+		publisher: 'Roon Labs, LLC',
+		email: 'contact@roonlabs.com',
+		log_level: 'none',
+
+
+		core_found: function (core_) {
+			core = core_;
+			transport = core.services.RoonApiTransport;
+			transport.subscribe_zones(function (response, msg) {
+				if (response == "Subscribed") {
+					self.updateZone(msg);
+					// console.log(activeZone)
+				} else if (response == "Changed") {
+					if (msg.zones_added || msg.zones_changed) {
+						self.updateZone(msg);
+					}
+					// if (msg.zones_seek_changed) {
+					// 	var now = Date.now();
+					// 	msg.zones_seek_changed.forEach(function (x) {
+					// 		// var ed = getExtraDataForZone(x.zone_id);
+					// 		// ed.seek_position = x.seek_position;
+					// 		if (x.zone_id == zone.zone_id) {
+					// 			self.updateProgress();
+
+					// 		}
+					// 	});
+					// }
+				}
+			})
+		},
+
+		core_lost: function (core_) {
+			core = undefined;
+
+		}
+	});
+
+	roon.init_services({
+		required_services: [RoonApiTransport, RoonApiImage]
+	});
+
+	roon.start_discovery();
+	self.logger.info('ROON API SUCCESSFULLY INITIALIZED')
+
+}
+
+// roonumio.prototype.getExtraDataForZone = function (zoneid) {
+// 	var self = this;
+// 	var ed = extraData[zoneid];
+// 	if (ed == null) {
+// 		ed = {};
+// 		extraData[zoneid] = ed;
+// 	}
+
+// 	return ed;
+// };
+
+roonumio.prototype.updateZone = function (msg) {
+	var self = this;
+
+	if (msg.zones) {
+		zone = (msg.zones).find(zone => {
+			return zone =
+				zone.outputs.find(output => {
+					return output =
+						output.source_controls.find(source_control => {
+							return source_control.display_name === 'E50' //parsed.outputdevicename.value or similar
+						})
+				})
+		})
+	}
+
+	if (zone) {
+		zoneid = zone.zone_id;
+		var metadata = {
+			status: zone.state ? zone.state : 'stop',
+			service: 'roon',
+			title: zone.now_playing ? zone.now_playing.three_line.line1 : '',
+			artist: zone.now_playing ? zone.now_playing.three_line.line2 : '',
+			album: zone.now_playing ? zone.now_playing.three_line.line3 : '',
+			albumart: '/albumart',
+			uri: '',
+			// icon: 'fa fa-spotify',
+			trackType: 'raat',
+			seek: zone.now_playing ? zone.now_playing.seek_position : 0,
+			duration: zone.now_playing ? zone.now_playing.length : 0,
+			samplerate: '',
+			bitdepth: '',
+			bitrate: '',
+			channels: 2
+		}
+	}
+	self.logger.error(JSON.stringify(metadata, null, ' '))
+}
+
+roonumio.prototype.updateProgress = function (msg) {
+	var self = this;
+	return
+}
 
 roonumio.prototype.onVolumioStart = function () {
 	var self = this;
@@ -31,15 +147,24 @@ roonumio.prototype.onVolumioStart = function () {
 roonumio.prototype.onStart = function () {
 	var self = this;
 	var defer = libQ.defer();
+
+	// This is for autodetecting the Zone to use in Roon
+	// Also doesn't work right now.
+	// var outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
+
 	exec('/usr/bin/sudo /bin/systemctl start roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
 			self.logger.error('Cannot start Roon Bridge ' + error);
 			defer.reject(error);
 		} else {
-			defer.resolve('');
+			self.logger.info('Roon Bridge has successfully started ')
+
 		}
 	});
 
+	self.roonInit();
+
+	defer.resolve('');
 	return defer.promise;
 };
 
@@ -59,14 +184,25 @@ roonumio.prototype.onStop = function () {
 
 roonumio.prototype.onRestart = function () {
 	var self = this;
-	exec('/usr/bin/sudo /bin/systemctl restart roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+	var defer = libQ.defer();
+	// This is for autodetecting the Zone to use in Roon
+	// Also doesn't work right now.
+	// var outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
+
+	exec('/usr/bin/sudo /bin/systemctl start roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
-			self.logger.error('Cannot restart Roon Bridge ' + error);
+			self.logger.error('Cannot start Roon Bridge ' + error);
 			defer.reject(error);
 		} else {
-			defer.resolve('');
+			self.logger.info('Roon Bridge has successfully started ')
+
 		}
 	});
+
+	self.roonInit();
+
+	defer.resolve('');
+	return defer.promise;
 };
 
 
