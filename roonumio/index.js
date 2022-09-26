@@ -26,7 +26,6 @@ msgMap.set('paused', 'paused')
 msgMap.set('loading', 'loading')
 msgMap.set('stopped', 'stop')
 
-//Define RoonBridge class
 module.exports = roonumio;
 
 function roonumio(context) {
@@ -35,6 +34,22 @@ function roonumio(context) {
 	self.context = context;
 	self.commandRouter = self.context.coreCommand;
 	self.logger = self.commandRouter.logger;
+	this.metadata = {
+		status: 'stop',
+		service: 'roonumio',
+		title: '',
+		artist: '',
+		album: '',
+		albumart: '/albumart',
+		uri: '',
+		trackType: 'Roon',
+		seek: 0,
+		duration: 0,
+		samplerate: '',
+		bitdepth: '',
+		bitrate: '',
+		channels: 2
+	}
 
 }
 
@@ -126,40 +141,41 @@ roonumio.prototype.updateZone = function (msg) {
 			})
 		}
 
-		if (zone.state == 'playing') {
-			self.setRoonActive();
-			self.prepareRoonPlayback();
-		}
-
-		if (zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
-
-		if (zone.state == 'paused' && roonIsActive && roonPausedTimer) {
-			if (Date.now() - roonPausedTimer >= 600000) {
-				roonPausedTimer = null;
-				self.setRoonInactive();
-			}
-		}
-
-		if (roonIsActive) {
-			var metadata = {
-				status: zone.state ? msgMap.get(zone.state) : 'stop',
-				service: 'roonumio',
-				title: zone.now_playing ? zone.now_playing.three_line.line1 : '',
-				artist: zone.now_playing ? zone.now_playing.three_line.line2 : '',
-				album: zone.now_playing ? zone.now_playing.three_line.line3 : '',
-				albumart: '/albumart',
-				uri: '',
-				// icon: 'fa fa-spotify',
-				trackType: 'Roon',
-				seek: zone.now_playing ? zone.now_playing.seek_position : 0,
-				duration: zone.now_playing ? zone.now_playing.length : 0,
-				samplerate: '',
-				bitdepth: '',
-				bitrate: '',
-				channels: 2
+		if (zone) {
+			if (zone.state == 'playing') {
+				self.setRoonActive();
+				self.prepareRoonPlayback();
 			}
 
-			self.pushState(metadata);
+			if (zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
+
+			if (zone.state == 'paused' && roonIsActive && roonPausedTimer) {
+				if (Date.now() - roonPausedTimer >= 600000) {
+					roonPausedTimer = null;
+					self.setRoonInactive();
+				}
+			}
+
+			if (roonIsActive) {
+
+				self.metadata.status = zone.state ? msgMap.get(zone.state) : 'stop';
+				self.metadata.service = 'roonumio';
+				self.metadata.title = zone.now_playing ? zone.now_playing.three_line.line1 : '';
+				self.metadata.artist = zone.now_playing ? zone.now_playing.three_line.line2 : '';
+				self.metadata.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
+				self.metadata.albumart = '/albumart';
+				self.metadata.uri = '';
+				self.metadata.trackType = 'Roon';
+				self.metadata.seek = zone.now_playing ? (zone.now_playing.seek_position * 1000) : 0;
+				self.metadata.duration = zone.now_playing ? zone.now_playing.length : 0;
+				self.metadata.samplerate = '';
+				self.metadata.bitdepth = '';
+				self.metadata.bitrate = '';
+				self.metadata.channels = 2;
+
+
+				self.pushState();
+			}
 		}
 	}
 
@@ -167,8 +183,8 @@ roonumio.prototype.updateZone = function (msg) {
 
 roonumio.prototype.updateProgress = function (msg) {
 	var self = this;
-
-	self.pushState({ status: 'playing', service: 'roonumio', seek: msg.seek_position })
+	self.metadata.seek = msg.seek_position * 1000;
+	self.pushState();
 }
 
 roonumio.prototype.setRoonActive = function () {
@@ -202,7 +218,6 @@ roonumio.prototype.prepareRoonPlayback = function () {
 
 roonumio.prototype.unsetVol = function () {
 	var self = this;
-
 
 	var state = self.commandRouter.stateMachine.getState();
 	if (state && state.service && state.service !== 'roonumio' && self.commandRouter.stateMachine.isVolatile) {
@@ -372,15 +387,11 @@ roonumio.prototype.clearAddPlayTrack = function (track) {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::clearAddPlayTrack');
 
-	self.commandRouter.logger.info(JSON.stringify(track));
-
-	return self.sendSpopCommand('uplay', [track.uri]);
 };
 
 roonumio.prototype.seek = function (timepos) {
 	this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::seek to ' + timepos);
 
-	return this.sendSpopCommand('seek ' + timepos, []);
 };
 
 // Stop
@@ -417,11 +428,11 @@ roonumio.prototype.parseState = function (sState) {
 };
 
 // Announce updated State
-roonumio.prototype.pushState = function (state) {
+roonumio.prototype.pushState = function () {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::pushState');
 
-	return self.commandRouter.servicePushState(state, 'roonumio');
+	return self.commandRouter.servicePushState(this.metadata, 'roonumio');
 };
 
 
