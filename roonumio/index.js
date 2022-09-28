@@ -23,8 +23,8 @@ var albumArt;
 
 const msgMap = new Map();
 msgMap.set('playing', 'play')
-msgMap.set('paused', 'paused')
-msgMap.set('loading', 'loading')
+msgMap.set('paused', 'pause')
+msgMap.set('loading', 'pause')
 msgMap.set('stopped', 'stop')
 
 module.exports = roonumio;
@@ -87,7 +87,7 @@ roonumio.prototype.roonListener = function () {
 							return zone.zone_id == zoneid
 						});
 						self.updateProgress(zone_seek);
-						self.pushState();
+						// self.pushState();
 					}
 				}
 			})
@@ -138,12 +138,13 @@ roonumio.prototype.updateMetadata = function (msg) {
 
 		zoneid = zone.zone_id
 
-	} else if (msg.zones) {
+	}
+
+	if (msg.zones) {
 		zone = (msg.zones).find(zone => {
 			return zone.zone_id === zoneid;
 		})
 	}
-
 
 	if (msg.zones_changed) {
 		zone = (msg.zones_changed).find(zone_changed => {
@@ -152,12 +153,12 @@ roonumio.prototype.updateMetadata = function (msg) {
 	}
 
 	if (zone) {
-		if (zone.state == 'playing' || roonIsActive) {
+		if (zone.state == 'playing') {
 			self.setRoonActive();
 			// self.prepareRoonPlayback();
 		}
 
-		// if (zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
+		if (zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
 
 		// if (zone.state == 'paused' && roonIsActive && roonPausedTimer) {
 		// 	if (Date.now() - roonPausedTimer >= 600000) {
@@ -169,13 +170,13 @@ roonumio.prototype.updateMetadata = function (msg) {
 		if (roonIsActive || roonPausedTimer) {
 
 			self.state.status = zone.state ? msgMap.get(zone.state) : 'play';
-			self.state.service = 'roonumio';
+			// self.state.service = 'roonumio';
 			self.state.title = zone.now_playing ? zone.now_playing.three_line.line1 : '';
 			self.state.artist = zone.now_playing ? zone.now_playing.three_line.line2 : '';
 			self.state.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
-			// self.state.albumart = '/albumart';
+			self.state.albumart = '/albumart';
 			self.state.uri = '';
-			// self.state.seek = zone.now_playing ? zone.now_playing.seek_position : 0;
+			self.state.seek = zone.now_playing ? zone.now_playing.seek_position * 1000 : 0;
 			self.state.duration = zone.now_playing ? zone.now_playing.length : 0;
 			// self.state.samplerate = '';
 			// self.state.bitdepth = '';
@@ -193,14 +194,14 @@ roonumio.prototype.updateMetadata = function (msg) {
 
 roonumio.prototype.updateProgress = function (msg) {
 	var self = this;
-	self.state.seek = msg.seek_position;
+	self.state.seek = msg.seek_position ? msg.seek_position * 1000 : self.state.seek;
 	// self.pushState();
 }
 
 roonumio.prototype.setRoonActive = function () {
 	var self = this;
 
-	roonIsActive = (roonIsActive === false) ? true : false;
+	roonIsActive = true;
 
 	if (!self.commandRouter.stateMachine.isVolatile) {
 		self.commandRouter.stateMachine.setVolatile({
@@ -213,8 +214,6 @@ roonumio.prototype.setRoonActive = function () {
 roonumio.prototype.setRoonInactive = function () {
 	var self = this;
 	roonIsActive = false;
-	zoneid = null;
-	roonPausedTimer = null;
 	//The unsetVolatile callback will be called when "stop" is pushed or called.
 };
 
@@ -334,7 +333,7 @@ roonumio.prototype.onRestart = function () {
 	// This is used when autodetecting the Zone to use in Roon
 	this.getOutputDeviceName();
 
-	exec('/usr/bin/sudo /bin/systemctl start roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+	exec('/usr/bin/sudo /bin/systemctl restart roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
 			self.logger.error('Cannot start Roon Bridge ' + error);
 			defer.reject(error);
