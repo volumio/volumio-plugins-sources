@@ -12,13 +12,14 @@ var RoonApiImage = require("node-roon-api-image");
 
 var core;
 var transport;
-var zone;
-var zoneid;
-var roon;
+var zone = null;
+var zoneid = null;
+var roon = null;
 var extraData;
 var outputdevicename = null;
 var roonIsActive = false;
 var roonPausedTimer = null;
+var albumArt;
 
 const msgMap = new Map();
 msgMap.set('playing', 'play')
@@ -34,7 +35,7 @@ function roonumio(context) {
 	self.context = context;
 	self.commandRouter = self.context.coreCommand;
 	self.logger = self.commandRouter.logger;
-	this.metadata = {
+	this.state = {
 		status: 'stop',
 		service: 'roonumio',
 		title: '',
@@ -42,7 +43,7 @@ function roonumio(context) {
 		album: '',
 		albumart: '/albumart',
 		uri: '',
-		trackType: 'Roon',
+		trackType: 'roon',
 		seek: 0,
 		duration: 0,
 		samplerate: '',
@@ -68,25 +69,25 @@ roonumio.prototype.roonListener = function () {
 		core_found: function (core_) {
 			core = core_;
 			transport = core.services.RoonApiTransport;
+			albumArt = core.services.RoonApiImage;
 			transport.subscribe_zones(function (response, msg) {
-				self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
+				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
 				if (response == "Subscribed") {
-					self.updateZone(msg);
+					self.updateMetadata(msg);
 					// console.log(activeZone)
 				} else if (response == "Changed") {
 					if (msg.zones_added || msg.zones_changed) {
-						self.updateZone(msg);
+						self.updateMetadata(msg);
 					}
 					if (msg.zones_seek_changed) {
 						// 	var now = Date.now();
-						msg.zones_seek_changed.forEach(function (x) {
+						var zone_seek = msg.zones_seek_changed.find(zone => {
 							// var ed = getExtraDataForZone(x.zone_id);
 							// ed.seek_position = x.seek_position;
-							if (x.zone_id == zoneid) {
-								self.updateProgress(x);
-
-							}
+							return zone.zone_id == zoneid
 						});
+						self.updateProgress(zone_seek);
+						self.pushState();
 					}
 				}
 			})
@@ -118,103 +119,125 @@ roonumio.prototype.roonListener = function () {
 // 	return ed;
 // };
 
-roonumio.prototype.updateZone = function (msg) {
+// TO PREVENT CONSTANT CYCLING OF THE BELOW CODE. PERHAPS IMPLEMENT A CHECK AND STORE THE ZONEID? 
+// THEN ONLY RERUN THE DEVICE CHECK ON AN ALSA RECONFIG?
+roonumio.prototype.updateMetadata = function (msg) {
 	var self = this;
 
-	if (msg.zones) {
+	// Get the zoneid for the device
+	if (msg.zones && (zoneid === null)) { //So we don't loop through this logic every single time.
 		zone = (msg.zones).find(zone => {
 			return zone =
 				zone.outputs.find(output => {
 					return output =
 						output.source_controls.find(source_control => {
-							return source_control.display_name === 'E50' //outputdevicename
+							return source_control.display_name === outputdevicename
 						})
 				})
 		})
 
+		zoneid = zone.zone_id
 
-		zoneid = zone ? zone.zone_id : zoneid; //Keep the zoneid
+	} else if (msg.zones) {
+		zone = (msg.zones).find(zone => {
+			return zone.zone_id === zoneid;
+		})
+	}
 
-		if (msg.zones_changed) {
-			zone = (msg.zones_changed).find(zone_changed => {
-				return zone_changed.zone_id === zoneid
-			})
+
+	if (msg.zones_changed) {
+		zone = (msg.zones_changed).find(zone_changed => {
+			return zone_changed.zone_id === zoneid
+		})
+	}
+
+	if (zone) {
+		if (zone.state == 'playing' || roonIsActive) {
+			self.setRoonActive();
+			// self.prepareRoonPlayback();
 		}
 
-		if (zone) {
-			if (zone.state == 'playing') {
-				self.setRoonActive();
-				self.prepareRoonPlayback();
-			}
+		// if (zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
 
-			if (zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
+		// if (zone.state == 'paused' && roonIsActive && roonPausedTimer) {
+		// 	if (Date.now() - roonPausedTimer >= 600000) {
+		// 		roonPausedTimer = null;
+		// 		self.setRoonInactive();
+		// 	}
+		// }
 
-			if (zone.state == 'paused' && roonIsActive && roonPausedTimer) {
-				if (Date.now() - roonPausedTimer >= 600000) {
-					roonPausedTimer = null;
-					self.setRoonInactive();
-				}
-			}
+		if (roonIsActive || roonPausedTimer) {
 
-			if (roonIsActive) {
+			self.state.status = zone.state ? msgMap.get(zone.state) : 'play';
+			self.state.service = 'roonumio';
+			self.state.title = zone.now_playing ? zone.now_playing.three_line.line1 : '';
+			self.state.artist = zone.now_playing ? zone.now_playing.three_line.line2 : '';
+			self.state.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
+			// self.state.albumart = '/albumart';
+			self.state.uri = '';
+			// self.state.seek = zone.now_playing ? zone.now_playing.seek_position : 0;
+			self.state.duration = zone.now_playing ? zone.now_playing.length : 0;
+			// self.state.samplerate = '';
+			// self.state.bitdepth = '';
+			// self.state.bitrate = '';
+			self.state.channels = 2;
 
-				self.metadata.status = zone.state ? msgMap.get(zone.state) : 'stop';
-				self.metadata.service = 'roonumio';
-				self.metadata.title = zone.now_playing ? zone.now_playing.three_line.line1 : '';
-				self.metadata.artist = zone.now_playing ? zone.now_playing.three_line.line2 : '';
-				self.metadata.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
-				self.metadata.albumart = '/albumart';
-				self.metadata.uri = '';
-				self.metadata.trackType = 'Roon';
-				self.metadata.seek = zone.now_playing ? (zone.now_playing.seek_position * 1000) : 0;
-				self.metadata.duration = zone.now_playing ? zone.now_playing.length : 0;
-				self.metadata.samplerate = '';
-				self.metadata.bitdepth = '';
-				self.metadata.bitrate = '';
-				self.metadata.channels = 2;
-
-
-				self.pushState();
-			}
+			self.logger.info(JSON.stringify(self.state, null, ' '));
+			self.pushState();
+			// zone = null;
 		}
 	}
+
 
 }
 
 roonumio.prototype.updateProgress = function (msg) {
 	var self = this;
-	self.metadata.seek = msg.seek_position * 1000;
-	self.pushState();
+	self.state.seek = msg.seek_position;
+	// self.pushState();
 }
 
 roonumio.prototype.setRoonActive = function () {
 	var self = this;
-	roonIsActive = true;
+
+	roonIsActive = (roonIsActive === false) ? true : false;
+
+	if (!self.commandRouter.stateMachine.isVolatile) {
+		self.commandRouter.stateMachine.setVolatile({
+			service: 'roonumio',
+			callback: self.unsetVol.bind(self)
+		})
+	}
 };
 
 roonumio.prototype.setRoonInactive = function () {
 	var self = this;
 	roonIsActive = false;
+	zoneid = null;
+	roonPausedTimer = null;
+	//The unsetVolatile callback will be called when "stop" is pushed or called.
 };
 
-roonumio.prototype.prepareRoonPlayback = function () {
-	var self = this;
+// roonumio.prototype.prepareRoonPlayback = function () {
+// 	var self = this;
 
-	var state = self.commandRouter.stateMachine.getState();
-	if (state && state.service && state.service !== 'roonumio') {
-		if (self.commandRouter.stateMachine.isVolatile) {
-			self.commandRouter.stateMachine.unSetVolatile();
-		} else {
-			self.context.coreCommand.volumioStop();
-		}
-	}
-	setTimeout(() => {
-		self.context.coreCommand.stateMachine.setVolatile({
-			service: 'roonumio',
-			callback: self.unsetVol.bind(self)
-		});
-	}, 1000);
-}
+// 	// var state = self.commandRouter.stateMachine.getState();
+// 	// if (state && state.service && state.service !== 'roonumio') {
+// 	// 	if (self.commandRouter.stateMachine.isVolatile) {
+// 	// 		self.commandRouter.stateMachine.unSetVolatile();
+// 	// 	} else {
+// 	// 		self.context.coreCommand.volumioStop();
+// 	// 	}
+// 	// }
+// 	// setTimeout(() => {
+// 	if (!self.commandRouter.stateMachine.isVolatile) {
+// 		self.commandRouter.stateMachine.setVolatile({
+// 			service: 'roonumio',
+// 			callback: self.unsetVol.bind(self)
+// 		})
+// 	}
+// 	// }, 1000);
+// }
 
 roonumio.prototype.unsetVol = function () {
 	var self = this;
@@ -228,6 +251,13 @@ roonumio.prototype.unsetVol = function () {
 		}, 1500);
 	}
 	return self.stop();
+
+};
+
+roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice changes we can do something about it here.
+	var self = this;
+
+	self.logger.info('Output device has changed');
 
 };
 
@@ -246,8 +276,13 @@ roonumio.prototype.getAdditionalConf = function (type, controller, data) {
 roonumio.prototype.setAdditionalConf = function () {
 };
 
+roonumio.prototype.getOutputDeviceName = function () {
+	var self = this;
+	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
+}
 roonumio.prototype.onVolumioStart = function () {
 	var self = this;
+	this.commandRouter.sharedVars.registerCallback('alsa.outputdevice', this.outputDeviceCallback.bind(this));
 	var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
 	this.config = new (require('v-conf'))();
 	this.config.loadFile(configFile);
@@ -259,7 +294,7 @@ roonumio.prototype.onStart = function () {
 	var defer = libQ.defer();
 
 	// This is used when autodetecting the Zone to use in Roon
-	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
+	this.getOutputDeviceName();
 
 	exec('/usr/bin/sudo /bin/systemctl start roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
@@ -280,6 +315,7 @@ roonumio.prototype.onStart = function () {
 roonumio.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
+	roon = null;
 	exec('/usr/bin/sudo /bin/systemctl stop roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
 			self.logger.error('Cannot kill Roon Bridge ' + error);
@@ -296,7 +332,7 @@ roonumio.prototype.onRestart = function () {
 	var defer = libQ.defer();
 
 	// This is used when autodetecting the Zone to use in Roon
-	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
+	this.getOutputDeviceName();
 
 	exec('/usr/bin/sudo /bin/systemctl start roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
@@ -385,19 +421,20 @@ roonumio.prototype.handleBrowseUri = function (curUri) {
 // Define a method to clear, add, and play an array of tracks
 roonumio.prototype.clearAddPlayTrack = function (track) {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::clearAddPlayTrack');
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::clearAddPlayTrack');
 
 };
 
 roonumio.prototype.seek = function (timepos) {
-	this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::seek to ' + timepos);
+	this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::seek to ' + timepos);
 
 };
 
 // Stop
 roonumio.prototype.stop = function () {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::stop');
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::stop');
+	self.setRoonInactive();
 
 
 };
@@ -405,7 +442,7 @@ roonumio.prototype.stop = function () {
 // Spop pause
 roonumio.prototype.pause = function () {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::pause');
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::pause');
 
 
 };
@@ -413,7 +450,7 @@ roonumio.prototype.pause = function () {
 // Get state
 roonumio.prototype.getState = function () {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::getState');
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::getState');
 	return self.commandRouter.stateMachine.getState();
 
 
@@ -422,7 +459,7 @@ roonumio.prototype.getState = function () {
 //Parse state
 roonumio.prototype.parseState = function (sState) {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::parseState');
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::parseState');
 
 	//Use this method to parse the state and eventually send it with the following function
 };
@@ -430,9 +467,9 @@ roonumio.prototype.parseState = function (sState) {
 // Announce updated State
 roonumio.prototype.pushState = function () {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'roonumio::pushState');
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::pushState');
 
-	return self.commandRouter.servicePushState(this.metadata, 'roonumio');
+	return self.commandRouter.servicePushState(this.state, this.state.service);
 };
 
 
@@ -446,38 +483,8 @@ roonumio.prototype.explodeUri = function (uri) {
 };
 
 roonumio.prototype.getAlbumArt = function (data, path) {
+	var self = this;
 
-	var artist, album;
-
-	if (data != undefined && data.path != undefined) {
-		path = data.path;
-	}
-
-	var web;
-
-	if (data != undefined && data.artist != undefined) {
-		artist = data.artist;
-		if (data.album != undefined)
-			album = data.album;
-		else album = data.artist;
-
-		web = '?web=' + nodetools.urlEncode(artist) + '/' + nodetools.urlEncode(album) + '/large'
-	}
-
-	var url = '/albumart';
-
-	if (web != undefined)
-		url = url + web;
-
-	if (web != undefined && path != undefined)
-		url = url + '&';
-	else if (path != undefined)
-		url = url + '?';
-
-	if (path != undefined)
-		url = url + 'path=' + nodetools.urlEncode(path);
-
-	return url;
 };
 
 
@@ -518,3 +525,133 @@ roonumio.prototype.goto = function (data) {
 
 	return defer.promise;
 };
+
+/* Example of a Zones object:
+
+{
+ "zones": [
+	{
+	 "zone_id": "1601f7a018710165756f42bbb2c86b46657e",
+	 "display_name": "DACPi",
+	 "outputs": [
+		{
+		 "output_id": "1701f7a018710165756f42bbb2c86b46657e",
+		 "zone_id": "1601f7a018710165756f42bbb2c86b46657e",
+		 "can_group_with_output_ids": [
+			"1701f7a018710165756f42bbb2c86b46657e"
+		 ],
+		 "display_name": "DACPi",
+		 "source_controls": [
+			{
+			 "control_key": "1",
+			 "display_name": "E50",
+			 "supports_standby": false,
+			 "status": "indeterminate"
+			}
+		 ]
+		}
+	 ],
+	 "state": "paused",
+	 "is_next_allowed": true,
+	 "is_previous_allowed": true,
+	 "is_pause_allowed": false,
+	 "is_play_allowed": true,
+	 "is_seek_allowed": true,
+	 "queue_items_remaining": 3,
+	 "queue_time_remaining": 709,
+	 "settings": {
+		"loop": "disabled",
+		"shuffle": false,
+		"auto_radio": true
+	 },
+	 "now_playing": {
+		"seek_position": 73,
+		"length": 237,
+		"one_line": {
+		 "line1": "Castle Park - Julian Lage"
+		},
+		"two_line": {
+		 "line1": "Castle Park",
+		 "line2": "Julian Lage"
+		},
+		"three_line": {
+		 "line1": "Castle Park",
+		 "line2": "Julian Lage",
+		 "line3": "View With A Room"
+		},
+		"image_key": "5843e4d4177374d885f6d9146420f82e",
+		"artist_image_keys": [
+		 "571aea9d5754fa472627adb52a956fc6"
+		]
+	 }
+	},
+	{
+	 "zone_id": "160196a025d51a20bcbe38e7ddb58aa91545",
+	 "display_name": "Shairport",
+	 "outputs": [
+		{
+		 "output_id": "170196a025d51a20bcbe38e7ddb58aa91545",
+		 "zone_id": "160196a025d51a20bcbe38e7ddb58aa91545",
+		 "can_group_with_output_ids": [
+			"170196a025d51a20bcbe38e7ddb58aa91545"
+		 ],
+		 "display_name": "Shairport",
+		 "volume": {
+			"type": "number",
+			"min": 1,
+			"max": 100,
+			"value": 25,
+			"step": 1,
+			"is_muted": false,
+			"hard_limit_min": 1,
+			"hard_limit_max": 100,
+			"soft_limit": 100
+		 },
+		 "source_controls": [
+			{
+			 "control_key": "1",
+			 "display_name": "Volumio",
+			 "supports_standby": false,
+			 "status": "indeterminate"
+			}
+		 ]
+		}
+	 ],
+	 "state": "paused",
+	 "is_next_allowed": true,
+	 "is_previous_allowed": true,
+	 "is_pause_allowed": false,
+	 "is_play_allowed": true,
+	 "is_seek_allowed": true,
+	 "queue_items_remaining": 15,
+	 "queue_time_remaining": 4638,
+	 "settings": {
+		"loop": "disabled",
+		"shuffle": false,
+		"auto_radio": true
+	 },
+	 "now_playing": {
+		"seek_position": 26,
+		"length": 127,
+		"one_line": {
+		 "line1": "Carol of the Bells - Tord Gustavsen / Anne Karin Sundal-Ask / Det norske jentekor / Mykola Leontovych / Peter J. Wilhousky"
+		},
+		"two_line": {
+		 "line1": "Carol of the Bells",
+		 "line2": "Tord Gustavsen / Anne Karin Sundal-Ask / Det norske jentekor / Mykola Leontovych / Peter J. Wilhousky"
+		},
+		"three_line": {
+		 "line1": "Carol of the Bells",
+		 "line2": "Tord Gustavsen / Anne Karin Sundal-Ask / Det norske jentekor / Mykola Leontovych / Peter J. Wilhousky",
+		 "line3": "2L — The MQA Experience"
+		},
+		"image_key": "77c13a11d52940bce55645d725e2bcaa",
+		"artist_image_keys": [
+		 "af35c9433ff87ac9bc20f29ffa66521a"
+		]
+	 }
+	}
+ ]
+}
+
+*/
