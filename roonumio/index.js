@@ -49,7 +49,8 @@ function roonumio(context) {
 		samplerate: '',
 		bitdepth: '',
 		bitrate: '',
-		channels: 2
+		channels: 2,
+		disableUiControls: true
 	}
 
 }
