@@ -1,6 +1,6 @@
 {
 	"name": "ytmusic",
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"description": "YouTube Music plugin for Volumio",
 	"main": "index.js",
 	"scripts": {
