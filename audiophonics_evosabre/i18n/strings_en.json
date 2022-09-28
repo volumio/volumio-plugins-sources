@@ -1,0 +1,31 @@
+{
+    "NAME": "EVO SABRE PLUGIN",
+    "PLUGIN_CONFIGURATION": "EVO SABRE",
+    "SAVE": "Save",
+    "UI": {
+        "OLED_CONTRAST_DOC": "Set the contrast for OLED#2.<br>Value must be between 0-255.",
+        "OLED_CONTRAST_LABEL": "Contrast",
+        "OLED_SCREENSAVER_DOC": "How long (in seconds) OLED#2 will keep displaying date & time before entering screen saver mode when no track is being played.",
+        "OLED_SCREENSAVER_LABEL": "Delay before screen saver",
+        "OLED_DEEPSLEEP_DOC": "How long (in seconds) OLED#2 will keep displaying its screen saver animation before entering deep sleep mode.<br>You can also disable the screen saver animation by setting this to 0.",
+        "OLED_DEEPSLEEP_LABEL": "Delay before deep sleep",
+        "OLED_RESTART_LABEL": "Restart OLED#2",
+        "OLED_RESTART_DOC": "Use this button to restart OLED#2 script.", 
+		"OLED_ENABLE": "Enable OLED#2",
+		"OLED_ENABLE_DOC": "Disable/enable the Volumio3 secondary display layer (rightmost screen)",
+		"CONFIG_UPDATE": "Configuration updated.",
+		"CONFIG_NOCHANGE": "Nothing changed in configuration.",
+		"REMOTE_ENABLE": "Enable Remote",
+		"REMOTE_ENABLE_DOC": "Disable/enable the Volumio3 remote layer (playback control). The DAC functions (source, volume) are handled by the board and cannot be disabled.",
+		"REMOTE_DIAGNOSE": "Check remote status",
+		"REMOTE_DIAGNOSE_DOC": "Click here to querry the system and diagnose the remote services if something seems to be not working as expected.",
+		"REMOTE_DIAGNOSE_OK": "Remote Configuration OK",
+		"REMOTE_DIAGNOSE_REMOTE_DETECTED": "LIRC is using the correct remote"
+    },
+    "ERRORS": {
+        "SYSTEMD_FAIL": "Failed to start the systemd service",
+		"REMOTE_DIAGNOSE_DISABLED" : "You must enable the remote service before you can query whether it is working properly. The first install also requires a reboot.",
+		"REMOTE_DIAGNOSE_ERROR" : "Fatal error with remote service. Please reboot your Evo Sabre and reinstall this plugin if you see this message again.",
+		"REMOTE_DIAGNOSE_CONFLICT" : "Something is wrong in your remote configuration. You may want to reboot your Evo Sabre to see if problem persists. If so simply reinstall this plugin and make sure there is no other plugin using the LIRC remote configuration."
+    }
+}

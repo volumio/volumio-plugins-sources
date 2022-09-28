@@ -1,0 +1,101 @@
+{
+    "page": {
+        "label": "Evo Sabre configuration"
+    },
+    "sections": [{
+            "id": "oled2_display",
+            "element": "section",
+            "label": "OLED #2 configuration",
+            "icon": "fa-television",
+            "onSave": {
+                "type": "controller",
+                "endpoint": "system_hardware/audiophonics_evo_sabre",
+                "method": "updateOledConfig"
+            },
+            "saveButton": {
+                "label": "Save",
+                "data": [
+                    "oled_active",
+                    "contrast",
+                    "sleep_after",
+                    "deep_sleep_after"
+                ]
+            },
+            "content": [{
+                    "id": "oled_active",
+                    "element": "switch",
+                    "label": "TRANSLATE.UI.OLED_ENABLE",
+                    "doc": "TRANSLATE.UI.OLED_ENABLE_DOC",
+                    "value": true
+                }, {
+                    "id": "contrast",
+                    "type": "number",
+                    "element": "input",
+                    "doc": "TRANSLATE.UI.OLED_CONTRAST_DOC",
+                    "label": "TRANSLATE.UI.OLED_CONTRAST_LABEL",
+                    "value": ""
+                }, {
+                    "id": "sleep_after",
+                    "type": "number",
+                    "element": "input",
+                    "doc": "TRANSLATE.UI.OLED_SCREENSAVER_DOC",
+                    "label": "TRANSLATE.UI.OLED_SCREENSAVER_LABEL",
+                    "value": ""
+                }, {
+                    "id": "deep_sleep_after",
+                    "type": "number",
+                    "element": "input",
+                    "doc": "TRANSLATE.UI.OLED_DEEPSLEEP_DOC",
+                    "label": "TRANSLATE.UI.OLED_DEEPSLEEP_LABEL",
+                    "value": ""
+                }, {
+                    "id": "restart_oled2",
+                    "element": "button",
+                    "label": "TRANSLATE.UI.OLED_RESTART_LABEL",
+                    "doc": "TRANSLATE.UI.OLED_RESTART_DOC",
+                    "onClick": {
+                        "type": "emit",
+                        "message": "callMethod",
+                        "data": {
+                            "endpoint": "system_hardware/audiophonics_evo_sabre",
+                            "method": "restartOled",
+                            "data": ""
+                        }
+                    }
+                }
+            ]
+        }, {
+            "id": "remote",
+            "element": "section",
+            "label": "Remote",
+            "icon": "fa-lightbulb-o",
+            "onSave": {
+                "type": "controller",
+                "endpoint": "system_hardware/audiophonics_evo_sabre",
+                "method": "updateRemoteConfig"
+            },
+            "saveButton": {
+                "label": "Save",
+                "data": ["remote_active"]
+            },
+            "content": [{
+                    "id": "remote_active",
+                    "element": "switch",
+                    "label": "TRANSLATE.UI.REMOTE_ENABLE",
+                    "doc": "TRANSLATE.UI.REMOTE_ENABLE_DOC",
+                    "value": true
+                }, {
+                    "id": "diagnose_remote",
+                    "element": "button",
+                    "label": "TRANSLATE.UI.REMOTE_DIAGNOSE",
+                    "doc": "TRANSLATE.UI.REMOTE_DIAGNOSE_DOC",
+                    "onClick": {
+                        "type": "plugin",
+                        "endpoint": "system_hardware/audiophonics_evo_sabre",
+                        "method": "diagnoseRemote"
+                    }
+                }
+            ]
+        }
+    ]
+}

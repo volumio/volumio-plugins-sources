@@ -1,0 +1,31 @@
+{
+    "NAME": "EVO SABRE PLUGIN",
+    "PLUGIN_CONFIGURATION": "EVO SABRE",
+    "SAVE": "Sauvegarder",
+    "UI": {
+        "OLED_CONTRAST_DOC": "Changer le contraste de l'écran OLED#2.<br>La valeur doit être comprise entre 0-255.",
+        "OLED_CONTRAST_LABEL": "Contraste",
+        "OLED_SCREENSAVER_DOC": "Combien de temps (en secondes) l'écran OLED#2 affiche l'heure et la date avant d'afficher l'économiseur d'écran si aucune piste n'est en cours de lecture.",
+        "OLED_SCREENSAVER_LABEL": "Économiseur d'écran.",
+        "OLED_DEEPSLEEP_DOC": "Combien de temps (en secondes) l'écran OLED#2 affiche l'économiseur d'écran avant d'entrer en mode veille.<br>Désactive l'économiseur d'écran si sa valeur est 0.",
+        "OLED_DEEPSLEEP_LABEL": "Veille",
+        "OLED_RESTART_LABEL": "Redémarrer l'écran OLED#2",
+        "OLED_RESTART_DOC": "Cliquer ici pour redémarrer le script d'écran OLED#2.", 
+		"OLED_ENABLE": "Activer OLED#2",
+		"OLED_ENABLE_DOC": "Active/désactive l'écran secondaire Volumio 3 (écran de droite).",
+		"CONFIG_UPDATE": "Mise à jour de la configuration effectuée.",
+		"CONFIG_NOCHANGE": "Aucun changement dans la nouvelle configuration.",
+		"REMOTE_ENABLE": "Activer télécommande",
+		"REMOTE_ENABLE_DOC": "Active/désactive la couche logicielle télécommande (controle de la lecture). Les fonctions du DAC (source, volume) sont gérés par le circuit et ne peuvent pas être désactivés.",
+		"REMOTE_DIAGNOSE": "Vérifier statut télécommande",
+		"REMOTE_DIAGNOSE_DOC": "Cliquer ici pour interroger le système et diagnostiquer le service de la télécommande.",
+		"REMOTE_DIAGNOSE_OK": "Configuration de la télécommande OK",
+		"REMOTE_DIAGNOSE_REMOTE_DETECTED": "LIRC communique avec le modèle correct de télécommande." 
+    },
+    "ERRORS": { 
+        "SYSTEMD_FAIL": "Echec lors du démarrage du service.",
+		"REMOTE_DIAGNOSE_DISABLED" : "Vous devez activer le service de la télécommande avant de pouvoir le diagnostiquer. La première installation de ce plugin a également besoin d'un redémarrage système.",
+		"REMOTE_DIAGNOSE_ERROR" : "Erreur fatale dans le service télécommande. Tentez de redémarrer votre Evo Sabre et réinstallez ce plugin si le problème persiste.",
+		"REMOTE_DIAGNOSE_CONFLICT" : "La configuration de la télécommande est dégradée. Tentez de redémarrer votre Evo Sabre et voyez si le problème persiste. Le cas échéant réinstallez le plugin et vérifiez qu'aucun autre plugin ne sollicite le service de la télécommande (LIRC)."
+    }
+}
