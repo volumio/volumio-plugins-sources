@@ -80,7 +80,7 @@ roonumio.prototype.roonListener = function () {
 					if (msg.zones_added || msg.zones_changed) {
 						self.updateMetadata(msg);
 					}
-					if (msg.zones_seek_changed) {
+					if (msg.zones_seek_changed && roonIsActive) {
 						// 	var now = Date.now();
 						var zone_seek = msg.zones_seek_changed.find(zone => {
 							// var ed = getExtraDataForZone(x.zone_id);
@@ -159,6 +159,7 @@ roonumio.prototype.updateMetadata = function (msg) {
 			// self.prepareRoonPlayback();
 		}
 
+		// This was a plan to have Volumio clear everything if Roon was sitting "paused" for long enough. I.e. you're gone.
 		if (zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
 
 		// if (zone.state == 'paused' && roonIsActive && roonPausedTimer) {
@@ -175,10 +176,10 @@ roonumio.prototype.updateMetadata = function (msg) {
 			self.state.title = zone.now_playing ? zone.now_playing.three_line.line1 : '';
 			self.state.artist = zone.now_playing ? zone.now_playing.three_line.line2 : '';
 			self.state.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
-			self.state.albumart = '/albumart';
+			self.state.albumart = self.getAlbumArt({ artist: self.state.artist, album: self.state.album, size: 'extralarge' });
 			self.state.uri = '';
-			self.state.seek = zone.now_playing ? zone.now_playing.seek_position * 1000 : 0;
-			self.state.duration = zone.now_playing ? zone.now_playing.length : 0;
+			self.state.seek = zone.now_playing.seek_position ? zone.now_playing.seek_position * 1000 : 0;
+			self.state.duration = zone.now_playing.length ? zone.now_playing.length : 0;
 			// self.state.samplerate = '';
 			// self.state.bitdepth = '';
 			// self.state.bitrate = '';
@@ -482,9 +483,16 @@ roonumio.prototype.explodeUri = function (uri) {
 	return defer.promise;
 };
 
-roonumio.prototype.getAlbumArt = function (data, path) {
+roonumio.prototype.getAlbumArt = function (data, path, icon) {
 	var self = this;
+	if (this.albumArtPlugin == undefined) {
+		// initialization, skipped from second call
+		this.albumArtPlugin = self.context.coreCommand.pluginManager.getPlugin('miscellanea', 'albumart');
+	}
 
+	if (this.albumArtPlugin) { return this.albumArtPlugin.getAlbumArt(data, path, icon); } else {
+		return '/albumart';
+	}
 };
 
 
