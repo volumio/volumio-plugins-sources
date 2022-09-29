@@ -294,9 +294,6 @@ audiophonicsEvoSabre.prototype.checkRemoteService = function (){
 	if( !this.config.get("remote_active") ){ 
 		return libQ.resolve( this.commandRouter.getI18nString('ERRORS.REMOTE_DIAGNOSE_DISABLED') );
 	}
-	
-	console.log("checkRemoteService")
-	
 	const defer = libQ.defer(),
 	query_service_active = function(service){  
 		return new Promise((resolve, reject) => {
@@ -340,8 +337,7 @@ audiophonicsEvoSabre.prototype.checkRemoteService = function (){
 		defer.resolve(html);
 	})
 	.catch((error)=>{
-			console.log("checkRemoteService : false", error)
-			this.commandRouter.pushToastMessage('error', "EVO SABRE : ", error);
+		this.commandRouter.pushToastMessage('error', "EVO SABRE : ", error);
 	});
 
 	return defer.promise;
