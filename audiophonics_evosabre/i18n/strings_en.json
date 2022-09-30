@@ -20,12 +20,26 @@
 		"REMOTE_DIAGNOSE": "Check remote status",
 		"REMOTE_DIAGNOSE_DOC": "Click here to querry the system and diagnose the remote services if something seems to be not working as expected.",
 		"REMOTE_DIAGNOSE_OK": "Remote Configuration OK",
-		"REMOTE_DIAGNOSE_REMOTE_DETECTED": "LIRC is using the correct remote"
+		"REMOTE_DIAGNOSE_REMOTE_DETECTED": "LIRC is using the correct remote",
+		"OPEN_PLUGDOC" : "Help for Evo Sabre Configuration",
+		"OPEN_PLUGDOC_DOC" : "Read the documentation to configure your Evo Sabre."
     },
     "ERRORS": {
         "SYSTEMD_FAIL": "Failed to start the systemd service",
 		"REMOTE_DIAGNOSE_DISABLED" : "You must enable the remote service before you can query whether it is working properly. The first install also requires a reboot.",
 		"REMOTE_DIAGNOSE_ERROR" : "Fatal error with remote service. Please reboot your Evo Sabre and reinstall this plugin if you see this message again.",
 		"REMOTE_DIAGNOSE_CONFLICT" : "Something is wrong in your remote configuration. You may want to reboot your Evo Sabre to see if problem persists. If so simply reinstall this plugin and make sure there is no other plugin using the LIRC remote configuration."
-    }
+    },
+	"DOCUMENTATION": {
+		"title" : "Configuring your Evo Sabre for Volumio",
+		"intro" : "Thank you for using this plugin for your Audiophonics Evo Sabre.<br>Installing and enabling this plugin is all you need to have the second rightmost display working with Volumio. This plugin also configures the remote control to work after a reboot.<br>Both the display and the remote can be enabled / disabled from this plugin page.",
+		"conf" :  "Volumio has a couple more options that you should be dealing with before trying to play music.  Here are a few directions to help you configure your Evo Sabre and get the best sound experience.",
+		"dac" :  "If you have not done that already during Volumio first boot Wizard, you should configure the ES9038 DAC as an audio output. Go to Settings -> Playback Options -> Audio Output (<a href=\"plugin/audio_interface-alsa_controller\">here</a>) and tell the system you are using a I2S DAC. Then select \"Audiophonics I-Sabre ES9028Q2M\" in the drop-down menu.",
+		"dsd" :  "In Settings -> Playback Options -> General Playback Options -> DSD Playback Mode, select DSD over PCM (DOP)",
+		"vol" : "In Settings -> Playback Options -> Volume Options -> Mixer Type, select \"Hardware\". Next pick \"Digital\" as option for the Mixer Control Name option just below.",
+		"mpd" :  "We recommend enabling MPD Clients Volume Control as well (also in Settings -> Playback Options -> Volume Options)",
+		"off_note_title" : "Note about the poweroff function",
+		"off_note" :  "The poweroff function on your remote control and on the Evo Sabre front panel is hardcorded within the DAC board (cannot be disabled) and does not perform a graceful shutdown on the Raspberry Pi. We strongly recommend you turn off the Evo Sabre through Volumio WebUi <strong>then</strong> use the hardware shutdown function.",
+		"moar" : "If you have issues, questions or feedback about this plugin, please use the GitHub repository dedicated to the development of this plugin (<a target='_blank' href='https://github.com/audiophonics/volumio-plugins-sources/tree/master/audiophonics_evosabre'>https://github.com/audiophonics/volumio-plugins-sources/tree/master/audiophonics_evosabre</a>)."
+	}
 }

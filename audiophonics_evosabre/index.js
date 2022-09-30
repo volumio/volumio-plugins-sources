@@ -93,18 +93,18 @@ audiophonicsEvoSabre.prototype.getUIConfig = function(){
 	
     this.commandRouter.i18nJson( target_lang_path, fallback_lang_path, config_template_path )
 		.then( (uiconf )=>{
-			uiconf.sections[0].content[0].value = this.config.get('oled_active');		
+			uiconf.sections[1].content[0].value = this.config.get('oled_active');		
 			
-			uiconf.sections[0].content[1].value = parseInt(this.config.get('contrast'));
-			uiconf.sections[0].content[1].attributes  = [{min:1, max:254}]; 
+			uiconf.sections[1].content[1].value = parseInt(this.config.get('contrast'));
+			uiconf.sections[1].content[1].attributes  = [{min:1, max:254}]; 
 			
-			uiconf.sections[0].content[2].value = parseInt(this.config.get('sleep_after'));
-			uiconf.sections[0].content[2].attributes  = [{min:1}]; 
+			uiconf.sections[1].content[2].value = parseInt(this.config.get('sleep_after'));
+			uiconf.sections[1].content[2].attributes  = [{min:1}]; 
 			
-			uiconf.sections[0].content[3].value = parseInt(this.config.get('deep_sleep_after'));
-			uiconf.sections[0].content[3].attributes  = [{min:1}]; 
+			uiconf.sections[1].content[3].value = parseInt(this.config.get('deep_sleep_after'));
+			uiconf.sections[1].content[3].attributes  = [{min:1}]; 
 
-			uiconf.sections[1].content[0].value = this.config.get('remote_active');
+			uiconf.sections[2].content[0].value = this.config.get('remote_active');
 
 			defer.resolve(uiconf);
 		})
@@ -341,5 +341,40 @@ audiophonicsEvoSabre.prototype.checkRemoteService = function (){
 	});
 
 	return defer.promise;
+};
+
+audiophonicsEvoSabre.prototype.getPluginDoc = function (){
+	let docI18n =key=>this.commandRouter.getI18nString(`DOCUMENTATION.${key}`),
+	html = `
+	<p>${docI18n("intro")}</p>
+	<p>
+		<p>${docI18n("conf")}</p>
+		<ul class='evolist'>
+			<li><p>${docI18n("dac")}</p></li>
+			<li><p>${docI18n("dsd")}</p></li>
+			<li><p>${docI18n("vol")}</p></li>
+			<li><p>${docI18n("mpd")}</p></li>
+		</ul>
+	</p>
+	<h3>${docI18n("off_note_title")}</h3>
+	<p>${docI18n("off_note")}</p>
+	<hr>
+	<p><em>${docI18n("moar")}</em></p>
+	`;
+	this.commandRouter.broadcastMessage("openModal",{
+		title: docI18n("title"),
+		message: html,
+		size: 'lg',
+		buttons: [{
+			name: 'Close',
+			class: 'btn btn-warning',
+			emit: 'closeModals',
+			payload: ''
+		}]
+	});	
+	
+	
+	
+	return libQ.resolve(html);
 };
 

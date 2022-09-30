@@ -2,7 +2,25 @@
     "page": {
         "label": "Evo Sabre configuration"
     },
-    "sections": [{
+    "sections": [
+		{
+            "id": "documentation",
+            "element": "section",
+            "label": "Doc",
+            "icon": "fa-book-o",
+            "content": [{
+                    "id": "evo_help",
+                    "element": "button",
+                    "label": "TRANSLATE.UI.OPEN_PLUGDOC",
+                    "doc": "TRANSLATE.UI.OPEN_PLUGDOC_DOC",
+                    "onClick": {
+                        "type": "plugin",
+                        "endpoint": "system_hardware/audiophonics_evo_sabre",
+                        "method": "getPluginDoc"
+                    }
+			}]
+        },
+		{
             "id": "oled2_display",
             "element": "section",
             "label": "OLED #2 configuration",
@@ -64,7 +82,8 @@
                     }
                 }
             ]
-        }, {
+        }, 
+		{
             "id": "remote",
             "element": "section",
             "label": "Remote",
