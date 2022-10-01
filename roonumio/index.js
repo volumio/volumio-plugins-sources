@@ -12,13 +12,13 @@ var RoonApiImage = require("node-roon-api-image");
 
 var core;
 var transport;
-var zone = null;
-var zoneid = null;
-var roon = null;
+var zone;
+var zoneid;
+var roon;
 var extraData;
-var outputdevicename = null;
+var outputdevicename;
 var roonIsActive = false;
-var roonPausedTimer = null;
+var roonPausedTimer;
 var albumArt;
 
 const msgMap = new Map();
@@ -73,7 +73,7 @@ roonumio.prototype.roonListener = function () {
 			albumArt = core.services.RoonApiImage;
 			transport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
-				if (response == "Subscribed") {
+				if (response == "Subscribed" && msg.zones != undefined) {
 					self.updateMetadata(msg);
 					// console.log(activeZone)
 				} else if (response == "Changed") {
@@ -81,14 +81,13 @@ roonumio.prototype.roonListener = function () {
 						self.updateMetadata(msg);
 					}
 					if (msg.zones_seek_changed && roonIsActive) {
-						// 	var now = Date.now();
-						var zone_seek = msg.zones_seek_changed.find(zone => {
-							// var ed = getExtraDataForZone(x.zone_id);
-							// ed.seek_position = x.seek_position;
-							return zone.zone_id == zoneid
+						msg.zones_seek_changed.find(zone => {
+							if (zone.zone_id === zoneid) {
+								self.state.seek = (zone.seek_position !== undefined) ? (zone.seek_position * 1000) : self.state.seek;
+							}
 						});
-						self.updateProgress(zone_seek);
 						// self.pushState();
+
 					}
 				}
 			})
@@ -109,24 +108,13 @@ roonumio.prototype.roonListener = function () {
 
 }
 
-// roonumio.prototype.getExtraDataForZone = function (zoneid) {
-// 	var self = this;
-// 	var ed = extraData[zoneid];
-// 	if (ed == null) {
-// 		ed = {};
-// 		extraData[zoneid] = ed;
-// 	}
-
-// 	return ed;
-// };
-
 // TO PREVENT CONSTANT CYCLING OF THE BELOW CODE. PERHAPS IMPLEMENT A CHECK AND STORE THE ZONEID? 
 // THEN ONLY RERUN THE DEVICE CHECK ON AN ALSA RECONFIG?
 roonumio.prototype.updateMetadata = function (msg) {
 	var self = this;
 
 	// Get the zoneid for the device
-	if (msg.zones && (zoneid === null)) { //So we don't loop through this logic every single time.
+	if ((msg.zones != null) && (zoneid == undefined)) { //So we don't loop through this logic every single time.
 		zone = (msg.zones).find(zone => {
 			return zone =
 				zone.outputs.find(output => {
@@ -137,30 +125,30 @@ roonumio.prototype.updateMetadata = function (msg) {
 				})
 		})
 
-		zoneid = zone.zone_id
+		zoneid = (zone != null && zone.zone_id != undefined) ? zone.zone_id : '';
 
 	}
 
-	if (msg.zones) {
+	if (msg.zones != null) {
 		zone = (msg.zones).find(zone => {
-			return zone.zone_id === zoneid;
+			if (zone != null && zone.zone_id != undefined) return zone.zone_id === zoneid;
 		})
 	}
 
-	if (msg.zones_changed) {
+	if (msg.zones_changed != null) {
 		zone = (msg.zones_changed).find(zone_changed => {
-			return zone_changed.zone_id === zoneid
+			if (zone != null && zone.zone_id != undefined) return zone_changed.zone_id === zoneid
 		})
 	}
 
-	if (zone) {
+	if (zone != null) {
 		if (zone.state == 'playing') {
 			self.setRoonActive();
 			// self.prepareRoonPlayback();
 		}
 
 		// This was a plan to have Volumio clear everything if Roon was sitting "paused" for long enough. I.e. you're gone.
-		if (zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
+		if (zone != null && zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
 
 		// if (zone.state == 'paused' && roonIsActive && roonPausedTimer) {
 		// 	if (Date.now() - roonPausedTimer >= 600000) {
@@ -192,12 +180,6 @@ roonumio.prototype.updateMetadata = function (msg) {
 	}
 
 
-}
-
-roonumio.prototype.updateProgress = function (msg) {
-	var self = this;
-	self.state.seek = msg.seek_position ? msg.seek_position * 1000 : self.state.seek;
-	// self.pushState();
 }
 
 roonumio.prototype.setRoonActive = function () {
@@ -262,6 +244,24 @@ roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice c
 
 };
 
+roonumio.prototype.fetchRoonArtwork = function (data) {
+	var self = this;
+	var res = {};
+
+	albumArt.get_image(data.image_key, data.options, function (msg, body) {
+
+		self.logger.error(JSON.stringify(data.image_key, null, ' '))
+		self.logger.error(JSON.stringify(data.options, null, ' '))
+		self.logger.error(JSON.stringify(msg, null, ' '))
+
+
+		// {'Content-Type': 'image/jpeg' };
+		// res.end(body, 'binary');
+	});
+
+	return res;
+}
+
 // Optional functions exposed for making development easier and more clear
 roonumio.prototype.getSystemConf = function (pluginName, varName) {
 };
@@ -280,7 +280,23 @@ roonumio.prototype.setAdditionalConf = function () {
 roonumio.prototype.getOutputDeviceName = function () {
 	var self = this;
 	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
-}
+};
+
+roonumio.prototype.addPluginRestEndpoint = function (data) {
+	var self = this;
+	return self.commandRouter.addPluginRestEndpoint(data);
+};
+
+roonumio.prototype.removePluginRestEndpoint = function (data) {
+	var self = this;
+	return self.commandRouter.removePluginRestEndpoint(data);
+};
+
+roonumio.prototype.getPluginsRestEndpoints = function () {
+	var self = this;
+	return self.commandRouter.getPluginsRestEndpoints();
+};
+
 roonumio.prototype.onVolumioStart = function () {
 	var self = this;
 	this.commandRouter.sharedVars.registerCallback('alsa.outputdevice', this.outputDeviceCallback.bind(this));
@@ -309,6 +325,8 @@ roonumio.prototype.onStart = function () {
 
 	self.roonListener();
 
+	self.addPluginRestEndpoint({ endpoint: '/albumart/roon', type: 'music_service', name: 'roonumio', method: 'fetchRoonArtwork' });
+
 	defer.resolve('');
 	return defer.promise;
 };
@@ -316,15 +334,19 @@ roonumio.prototype.onStart = function () {
 roonumio.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
-	roon = null;
+	roon = undefined;
 	exec('/usr/bin/sudo /bin/systemctl stop roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
 			self.logger.error('Cannot kill Roon Bridge ' + error);
 			defer.reject(error);
 		} else {
-			defer.resolve('');
+			self.logger.info('Roon Bridge has been successfully shutdown ')
+
 		}
 	});
+	self.removePluginRestEndpoint({ endpoint: '/albumart/roon' });
+
+	defer.resolve('');
 	return defer.promise;
 };
 
@@ -346,7 +368,7 @@ roonumio.prototype.onRestart = function () {
 	});
 
 	self.roonListener();
-
+	self.addPluginRestEndpoint({ endpoint: '/albumart/roon', type: 'music_service', name: 'roonumio', method: 'fetchRoonArtwork' });
 	defer.resolve('');
 	return defer.promise;
 };
