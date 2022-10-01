@@ -73,7 +73,7 @@ roonumio.prototype.roonListener = function () {
 			albumArt = core.services.RoonApiImage;
 			transport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
-				if (response == "Subscribed" && msg.zones != undefined) {
+				if (response == "Subscribed") {
 					self.updateMetadata(msg);
 					// console.log(activeZone)
 				} else if (response == "Changed") {
@@ -114,7 +114,7 @@ roonumio.prototype.updateMetadata = function (msg) {
 	var self = this;
 
 	// Get the zoneid for the device
-	if ((msg.zones != null) && (zoneid == undefined)) { //So we don't loop through this logic every single time.
+	if ((msg.zones || msg.zones_changed) && zoneid == undefined) { //So we don't loop through this logic every single time.
 		zone = (msg.zones).find(zone => {
 			return zone =
 				zone.outputs.find(output => {
@@ -125,30 +125,30 @@ roonumio.prototype.updateMetadata = function (msg) {
 				})
 		})
 
-		zoneid = (zone != null && zone.zone_id != undefined) ? zone.zone_id : '';
+		zoneid = (zone && zone.zone_id) ? zone.zone_id : undefined;
 
 	}
 
-	if (msg.zones != null) {
+	if (msg.zones) {
 		zone = (msg.zones).find(zone => {
-			if (zone != null && zone.zone_id != undefined) return zone.zone_id === zoneid;
+			if (zone.zone_id) return zone.zone_id === zoneid;
 		})
 	}
 
-	if (msg.zones_changed != null) {
+	if (msg.zones_changed) {
 		zone = (msg.zones_changed).find(zone_changed => {
-			if (zone != null && zone.zone_id != undefined) return zone_changed.zone_id === zoneid
+			if (zone_changed.zone_id) return zone_changed.zone_id === zoneid
 		})
 	}
 
-	if (zone != null) {
+	if (zone) {
 		if (zone.state == 'playing') {
 			self.setRoonActive();
 			// self.prepareRoonPlayback();
 		}
 
 		// This was a plan to have Volumio clear everything if Roon was sitting "paused" for long enough. I.e. you're gone.
-		if (zone != null && zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
+		if (zone && zone.state == 'paused' && roonIsActive && !roonPausedTimer) roonPausedTimer = Date.now();
 
 		// if (zone.state == 'paused' && roonIsActive && roonPausedTimer) {
 		// 	if (Date.now() - roonPausedTimer >= 600000) {
@@ -164,7 +164,7 @@ roonumio.prototype.updateMetadata = function (msg) {
 			self.state.title = zone.now_playing ? zone.now_playing.three_line.line1 : '';
 			self.state.artist = zone.now_playing ? zone.now_playing.three_line.line2 : '';
 			self.state.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
-			self.state.albumart = self.getAlbumArt({ artist: self.state.artist, album: self.state.album, size: 'extralarge' });
+			self.state.albumart = zone.now_playing.image_key;/*self.getAlbumArt({ artist: self.state.artist, album: self.state.album, size: 'extralarge' })*/;
 			self.state.uri = '';
 			self.state.seek = zone.now_playing.seek_position ? zone.now_playing.seek_position * 1000 : 0;
 			self.state.duration = zone.now_playing.length ? zone.now_playing.length : 0;
@@ -244,15 +244,13 @@ roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice c
 
 };
 
-roonumio.prototype.fetchRoonArtwork = function (data) {
+roonumio.prototype.fetchRoonArtwork = function ({ image_key, options = {} }) {
 	var self = this;
 	var res = {};
 
-	albumArt.get_image(data.image_key, data.options, function (msg, body) {
+	albumArt.get_image(image_key, function (msg, contentType, body) {
 
-		self.logger.error(JSON.stringify(data.image_key, null, ' '))
-		self.logger.error(JSON.stringify(data.options, null, ' '))
-		self.logger.error(JSON.stringify(msg, null, ' '))
+		res = { 'msg': msg, 'Content-Type': contentType, 'body': body }
 
 
 		// {'Content-Type': 'image/jpeg' };
