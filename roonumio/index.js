@@ -19,7 +19,7 @@ var extraData;
 var outputdevicename;
 var roonIsActive = false;
 var roonPausedTimer;
-var albumArt;
+
 
 const msgMap = new Map();
 msgMap.set('playing', 'play')
@@ -35,6 +35,8 @@ function roonumio(context) {
 	self.context = context;
 	self.commandRouter = self.context.coreCommand;
 	self.logger = self.commandRouter.logger;
+	self.coreip;
+	self.coreport;
 	this.state = {
 		status: 'stop',
 		service: 'roonumio',
@@ -70,7 +72,6 @@ roonumio.prototype.roonListener = function () {
 		core_found: function (core_) {
 			core = core_;
 			transport = core.services.RoonApiTransport;
-			albumArt = core.services.RoonApiImage;
 			transport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
 				if (response == "Subscribed") {
@@ -114,7 +115,7 @@ roonumio.prototype.updateMetadata = function (msg) {
 	var self = this;
 
 	// Get the zoneid for the device
-	if ((msg.zones || msg.zones_changed) && zoneid == undefined) { //So we don't loop through this logic every single time.
+	if ((msg.zones) && zoneid == undefined) { //So we don't loop through this logic every single time.
 		zone = (msg.zones).find(zone => {
 			return zone =
 				zone.outputs.find(output => {
@@ -144,7 +145,14 @@ roonumio.prototype.updateMetadata = function (msg) {
 	if (zone) {
 		if (zone.state == 'playing') {
 			self.setRoonActive();
+
 			// self.prepareRoonPlayback();
+		}
+
+		//Get the Core IP and Port. Doing it here ensures the right core is targeted.
+		if (core) {
+			self.coreip = core.moo.transport.host;
+			self.coreport = core.moo.transport.port;
 		}
 
 		// This was a plan to have Volumio clear everything if Roon was sitting "paused" for long enough. I.e. you're gone.
@@ -160,11 +168,10 @@ roonumio.prototype.updateMetadata = function (msg) {
 		if (roonIsActive || roonPausedTimer) {
 
 			self.state.status = zone.state ? msgMap.get(zone.state) : 'play';
-			// self.state.service = 'roonumio';
 			self.state.title = zone.now_playing ? zone.now_playing.three_line.line1 : '';
 			self.state.artist = zone.now_playing ? zone.now_playing.three_line.line2 : '';
 			self.state.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
-			self.state.albumart = zone.now_playing.image_key;/*self.getAlbumArt({ artist: self.state.artist, album: self.state.album, size: 'extralarge' })*/;
+			self.state.albumart = self.state.albumart = this.getAlbumArt(zone.now_playing.image_key);
 			self.state.uri = '';
 			self.state.seek = zone.now_playing.seek_position ? zone.now_playing.seek_position * 1000 : 0;
 			self.state.duration = zone.now_playing.length ? zone.now_playing.length : 0;
@@ -244,20 +251,27 @@ roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice c
 
 };
 
-roonumio.prototype.fetchRoonArtwork = function ({ image_key, options = {} }) {
+roonumio.prototype.fetchRoonArtwork = function (data) {
 	var self = this;
-	var res = {};
+	let response;
+	response = core.services.RoonApiImage.get_image(data.image_key, function (msg, content_type, body) {
 
-	albumArt.get_image(image_key, function (msg, contentType, body) {
+		if (msg != false) {
+			return msg;
+		} else {
+			return {
+				'Content-Type': content_type,
+				'Body': body
+			}
+		}
 
-		res = { 'msg': msg, 'Content-Type': contentType, 'body': body }
-
-
-		// {'Content-Type': 'image/jpeg' };
-		// res.end(body, 'binary');
 	});
 
-	return res;
+	return response;
+	// self.logger.error(JSON.stringify(response, null, ' '));
+
+
+
 }
 
 // Optional functions exposed for making development easier and more clear
@@ -503,14 +517,11 @@ roonumio.prototype.explodeUri = function (uri) {
 	return defer.promise;
 };
 
-roonumio.prototype.getAlbumArt = function (data, path, icon) {
+roonumio.prototype.getAlbumArt = function (image_key = '') {
 	var self = this;
-	if (this.albumArtPlugin == undefined) {
-		// initialization, skipped from second call
-		this.albumArtPlugin = self.context.coreCommand.pluginManager.getPlugin('miscellanea', 'albumart');
-	}
-
-	if (this.albumArtPlugin) { return this.albumArtPlugin.getAlbumArt(data, path, icon); } else {
+	if (image_key && self.coreip && self.coreport) {
+		return `http://${self.coreip}:${self.coreport}/api/image/${image_key}`
+	} else {
 		return '/albumart';
 	}
 };
