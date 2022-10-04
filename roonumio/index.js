@@ -8,17 +8,17 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var RoonApi = require("node-roon-api");
 var RoonApiTransport = require("node-roon-api-transport");
-var RoonApiImage = require("node-roon-api-image");
+const { off } = require('process');
 
 var core;
 var transport;
 var zone;
 var zoneid;
 var roon;
-var extraData;
 var outputdevicename;
 var roonIsActive = false;
 var roonPausedTimer;
+var coreFound = false;
 
 
 const msgMap = new Map();
@@ -26,6 +26,10 @@ msgMap.set('playing', 'play')
 msgMap.set('paused', 'pause')
 msgMap.set('loading', 'pause')
 msgMap.set('stopped', 'stop')
+msgMap.set('loop', true)
+msgMap.set('loop_one', true)
+msgMap.set('disabled', false)
+
 
 module.exports = roonumio;
 
@@ -52,8 +56,17 @@ function roonumio(context) {
 		bitdepth: '',
 		bitrate: '',
 		channels: 2,
-		disableUiControls: true
+		stream: false,
+		random: false,
+		repeat: false,
+		repeatSingle: false
 	}
+	self.is_next_allowed = false;
+	self.is_previous_allowed = false;
+	self.is_pause_allowed = false;
+	self.is_play_allowed = true;
+	self.is_seek_allowed = false;
+
 
 }
 
@@ -71,7 +84,7 @@ roonumio.prototype.roonListener = function () {
 
 		core_found: function (core_) {
 			core = core_;
-			transport = core.services.RoonApiTransport;
+			transport = coreFound ? coreFound.services.RoonApiTransport : core.services.RoonApiTransport;
 			transport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
 				if (response == "Subscribed") {
@@ -88,6 +101,7 @@ roonumio.prototype.roonListener = function () {
 							}
 						});
 						// self.pushState();
+						self.chooseTheRightCore();
 
 					}
 				}
@@ -101,14 +115,27 @@ roonumio.prototype.roonListener = function () {
 	});
 
 	roon.init_services({
-		required_services: [RoonApiTransport, RoonApiImage]
+		required_services: [RoonApiTransport]
 	});
 
 	roon.start_discovery();
 	self.logger.info('ROON API SUCCESSFULLY INITIALIZED')
+	self.commandRouter.pushConsoleMessage(this.state.service + '::Roon API Services Started');
+
 
 }
 
+roonumio.prototype.chooseTheRightCore = function () {
+	var self = this;
+	//Get the Core IP and Port. If you have multiple cores or even just 2 PC's running Roon, finding the right core by just looking at core.moo.transport.host will be a hit and miss.
+	if (zoneid && core.services.RoonApiTransport._zones && core.services.RoonApiTransport._zones[zoneid] && !coreFound) {
+		coreFound = core;
+		self.coreip = core.moo.transport.host;
+		self.coreport = core.moo.transport.port;
+		self.logger.error(`CORE IDENTIFIED: ${self.coreip}:${self.coreport}`)
+	}
+
+}
 // TO PREVENT CONSTANT CYCLING OF THE BELOW CODE. PERHAPS IMPLEMENT A CHECK AND STORE THE ZONEID? 
 // THEN ONLY RERUN THE DEVICE CHECK ON AN ALSA RECONFIG?
 roonumio.prototype.updateMetadata = function (msg) {
@@ -142,17 +169,13 @@ roonumio.prototype.updateMetadata = function (msg) {
 		})
 	}
 
+	self.chooseTheRightCore();
+
 	if (zone) {
 		if (zone.state == 'playing') {
 			self.setRoonActive();
 
 			// self.prepareRoonPlayback();
-		}
-
-		//Get the Core IP and Port. Doing it here ensures the right core is targeted.
-		if (core) {
-			self.coreip = core.moo.transport.host;
-			self.coreport = core.moo.transport.port;
 		}
 
 		// This was a plan to have Volumio clear everything if Roon was sitting "paused" for long enough. I.e. you're gone.
@@ -171,14 +194,36 @@ roonumio.prototype.updateMetadata = function (msg) {
 			self.state.title = zone.now_playing ? zone.now_playing.three_line.line1 : '';
 			self.state.artist = zone.now_playing ? zone.now_playing.three_line.line2 : '';
 			self.state.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
-			self.state.albumart = self.state.albumart = this.getAlbumArt(zone.now_playing.image_key);
+			self.state.albumart = this.getAlbumArt(zone.now_playing.image_key);
 			self.state.uri = '';
 			self.state.seek = zone.now_playing.seek_position ? zone.now_playing.seek_position * 1000 : 0;
 			self.state.duration = zone.now_playing.length ? zone.now_playing.length : 0;
+			self.state.stream = self.state.duration === 0 ? true : false;
+			self.state.random = zone.settings ? zone.settings.shuffle : false;
+			if (zone.settings) {
+				if (zone.settings === 'loop') {
+					self.state.repeat = true
+					self.state.repeatSingle = false
+				} else if (zone.settings === 'loop_one') {
+					self.state.repeat = true
+					self.state.repeatSingle = true
+				} else {
+					self.state.repeat = false
+					self.state.repeatSingle = false
+				}
+
+			}
+
 			// self.state.samplerate = '';
 			// self.state.bitdepth = '';
 			// self.state.bitrate = '';
 			self.state.channels = 2;
+
+			self.is_next_allowed = zone ? zone.is_next_allowed : true;
+			self.is_previous_allowed = zone ? zone.is_previous_allowed : true;
+			self.is_pause_allowed = zone ? zone.is_pause_allowed : true;
+			self.is_play_allowed = zone ? zone.is_play_allowed : false;
+			self.is_seek_allowed = zone ? zone.is_seek_allowed : true;
 
 			self.logger.info(JSON.stringify(self.state, null, ' '));
 			self.pushState();
@@ -247,32 +292,12 @@ roonumio.prototype.unsetVol = function () {
 roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice changes we can do something about it here.
 	var self = this;
 
+	coreFound = false;
+	zoneid = undefined;
+	this.getOutputDeviceName();
 	self.logger.info('Output device has changed');
 
 };
-
-roonumio.prototype.fetchRoonArtwork = function (data) {
-	var self = this;
-	let response;
-	response = core.services.RoonApiImage.get_image(data.image_key, function (msg, content_type, body) {
-
-		if (msg != false) {
-			return msg;
-		} else {
-			return {
-				'Content-Type': content_type,
-				'Body': body
-			}
-		}
-
-	});
-
-	return response;
-	// self.logger.error(JSON.stringify(response, null, ' '));
-
-
-
-}
 
 // Optional functions exposed for making development easier and more clear
 roonumio.prototype.getSystemConf = function (pluginName, varName) {
@@ -292,21 +317,6 @@ roonumio.prototype.setAdditionalConf = function () {
 roonumio.prototype.getOutputDeviceName = function () {
 	var self = this;
 	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
-};
-
-roonumio.prototype.addPluginRestEndpoint = function (data) {
-	var self = this;
-	return self.commandRouter.addPluginRestEndpoint(data);
-};
-
-roonumio.prototype.removePluginRestEndpoint = function (data) {
-	var self = this;
-	return self.commandRouter.removePluginRestEndpoint(data);
-};
-
-roonumio.prototype.getPluginsRestEndpoints = function () {
-	var self = this;
-	return self.commandRouter.getPluginsRestEndpoints();
 };
 
 roonumio.prototype.onVolumioStart = function () {
@@ -337,8 +347,6 @@ roonumio.prototype.onStart = function () {
 
 	self.roonListener();
 
-	self.addPluginRestEndpoint({ endpoint: '/albumart/roon', type: 'music_service', name: 'roonumio', method: 'fetchRoonArtwork' });
-
 	defer.resolve('');
 	return defer.promise;
 };
@@ -356,7 +364,6 @@ roonumio.prototype.onStop = function () {
 
 		}
 	});
-	self.removePluginRestEndpoint({ endpoint: '/albumart/roon' });
 
 	defer.resolve('');
 	return defer.promise;
@@ -380,7 +387,7 @@ roonumio.prototype.onRestart = function () {
 	});
 
 	self.roonListener();
-	self.addPluginRestEndpoint({ endpoint: '/albumart/roon', type: 'music_service', name: 'roonumio', method: 'fetchRoonArtwork' });
+
 	defer.resolve('');
 	return defer.promise;
 };
@@ -451,8 +458,24 @@ roonumio.prototype.handleBrowseUri = function (curUri) {
 	return response;
 };
 
+// Roon control method
+roonumio.prototype.roonControl = function (zoneid, control) {
+	var self = this;
+	var currentState = self.state.status;
 
-
+	if (zoneid != undefined && control != undefined) {
+		transport.control(zoneid, control, (err) => {
+			if (err) {
+				self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${control} command to Roon - Error: ${err}`);
+				//Otherwise Volumio sits around with a mismatched state.
+				self.state.status = currentState;
+				self.pushState()
+			} else {
+				self.commandRouter.pushConsoleMessage(`${this.state.service}::${control} command successfully sent to Roon.`);
+			}
+		})
+	}
+}
 // Define a method to clear, add, and play an array of tracks
 roonumio.prototype.clearAddPlayTrack = function (track) {
 	var self = this;
@@ -461,23 +484,49 @@ roonumio.prototype.clearAddPlayTrack = function (track) {
 };
 
 roonumio.prototype.seek = function (timepos) {
-	this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::seek to ' + timepos);
+	var self = this;
+	if (zoneid != undefined && timepos != undefined) {
+		return transport.seek(zone, 'absolute', (timepos / 1000), (err) => {
+			if (err) {
+				self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send seek command to Roon - Error: ${err}`);
+			} else {
+				self.commandRouter.pushConsoleMessage(`${this.state.service}::seek to ${timepos} command successfully sent to Roon.`);
+			}
+		})
+	}
 
 };
 
 // Stop
 roonumio.prototype.stop = function () {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::stop');
+	self.roonControl(zoneid, 'stop');
 	self.setRoonInactive();
 
 
 };
 
-// Spop pause
+// Pause
 roonumio.prototype.pause = function () {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::pause');
+	if (this.is_pause_allowed) self.roonControl(zoneid, 'pause');
+
+};
+roonumio.prototype.play = function () {
+	var self = this;
+	if (this.is_play_allowed) self.roonControl(zoneid, 'play');
+
+
+};
+roonumio.prototype.next = function () {
+	var self = this;
+	if (this.is_next_allowed) self.roonControl(zoneid, 'next');
+
+
+};
+roonumio.prototype.previous = function () {
+	var self = this;
+	if (this.is_previous_allowed) self.roonControl(zoneid, 'previous');
 
 
 };
@@ -519,16 +568,13 @@ roonumio.prototype.explodeUri = function (uri) {
 
 roonumio.prototype.getAlbumArt = function (image_key = '') {
 	var self = this;
+
 	if (image_key && self.coreip && self.coreport) {
 		return `http://${self.coreip}:${self.coreport}/api/image/${image_key}`
 	} else {
 		return '/albumart';
 	}
 };
-
-
-
-
 
 roonumio.prototype.search = function (query) {
 	var self = this;
