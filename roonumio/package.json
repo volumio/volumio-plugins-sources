@@ -1,6 +1,6 @@
 {
 	"name": "roonumio",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"description": "roonumio is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
 	"main": "index.js",
 	"scripts": {
@@ -11,7 +11,7 @@
 	"repository": "https://github.com/charliesjc/volumio-plugins-sources",
 	"volumio_info": {
 		"prettyName": "roonumio",
-		"icon": "fa-lightbulb-o",
+		"icon": "fa-music",
 		"plugin_type": "music_service",
 		"architectures": [
 			"amd64",
@@ -33,7 +33,6 @@
 		"kew": "^0.7.0",
 		"v-conf": "^1.4.0",
 		"node-roon-api": "github:roonlabs/node-roon-api",
-		"node-roon-api-transport": "github:roonlabs/node-roon-api-transport",
-		"node-roon-api-image": "github:roonlabs/node-roon-api-image"
+		"node-roon-api-transport": "github:roonlabs/node-roon-api-transport"
 	}
 }
