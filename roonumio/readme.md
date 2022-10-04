@@ -16,6 +16,8 @@ What is working so far: Album Art, Full track metadata, player controls and seek
 
 Trying to push the updated seek from Roon every second to Volumio just causes timing problems. If anyone on Volumio dev side can point me in the right direction that would be great.
 
+I still need to bundle the node-roon-api. Npm install takes an absolute age! 15-20 minutes easy on my Pi4!
+
 ## Acknowledgements
 
 This plugin was inspired and started out based entirely on Christopher Rieke's [RoonBridge plugin](https://github.com/crieke/volumio-plugins-sources), which is also a plugin for Volumio 3, but lacks any interfacing at all with Volumio.
