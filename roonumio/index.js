@@ -504,6 +504,13 @@ roonumio.prototype.stop = function () {
 	var self = this;
 	self.roonControl(zoneid, 'stop');
 	self.setRoonInactive();
+
+	var state = self.getState();
+	if (state && state.service && state.service === 'roonumio') {
+		self.logger.info(this.state.service + '::Roon Playback Stopped, clearing state');
+		self.context.coreCommand.stateMachine.resetVolumioState();
+	}
+
 	// self.commandRouter.stateMachine.playQueue.clearPlayQueue();
 
 };
