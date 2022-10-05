@@ -107,6 +107,10 @@ roonumio.prototype.roonListener = function () {
 					}
 				}
 				self.chooseTheRightCore();
+				// if (Date.now() - roonPausedTimer >= 10000) {
+				// 	roonPausedTimer = null;
+				// 	self.stop();
+				// }
 			})
 		},
 
@@ -239,13 +243,16 @@ roonumio.prototype.updateMetadata = function (msg) {
 
 roonumio.prototype.setRoonActive = function () {
 	var self = this;
+	var currentState;
 	if (!roonIsActive) {
-		self.volumioStop().then(() => {
+		currentState = self.getState();
+		if (currentState && (currentState.status === 'pause' || currentState.status === 'play') && currentState.service !== this.state.service) {
+			self.volumioStop()
 			self.commandRouter.stateMachine.playQueue.clearPlayQueue();
-			roonIsActive = true;
-		})
+		}
+		roonIsActive = true;
 
-		if (!self.commandRouter.stateMachine.isVolatile || roonIsActive) {
+		if (!self.commandRouter.stateMachine.isVolatile) {
 			self.commandRouter.stateMachine.setVolatile({
 				service: 'roonumio',
 				callback: self.unsetVol.bind(self)
@@ -255,16 +262,13 @@ roonumio.prototype.setRoonActive = function () {
 
 		this.commandRouter.pushToastMessage('info', 'Roonumio', 'Roon Bridge is active.');
 
-		// If Roon gets a play command while something is playing, the audio device is still by the other service. This makes sure it keeps playing as you requested.
-		if (self.getState().status === 'pause') setTimeout(self.play, 3000)
-
 	}
 };
 
 roonumio.prototype.setRoonInactive = function () {
 	var self = this;
 	roonIsActive = false;
-	coreFound = false;
+	// coreFound = false;
 };
 
 //The unsetVolatile callback will be called when "stop" is pushed or called.
@@ -500,20 +504,19 @@ roonumio.prototype.stop = function () {
 	var self = this;
 	self.roonControl(zoneid, 'stop');
 	self.setRoonInactive();
-
+	// self.commandRouter.stateMachine.playQueue.clearPlayQueue();
 
 };
 
 //Volumio Stop - To kill currently running services before we start ours.
 roonumio.prototype.volumioStop = function () {
 	var self = this;
-	if (!roonIsActive) {
-		self.logger.info(this.state.service + '::Stopping currently active service');
-		return this.commandRouter.volumioStop();
-	} else {
-		self.logger.warn(this.state.service + '::Not requesting volumioStop on our own service');
-	}
-	return Promise.resolve(true);
+	// if (!roonIsActive) {
+	// 	self.logger.info(this.state.service + '::Stopping currently active service');
+	return this.commandRouter.volumioStop();
+	// } else {
+	// 	self.logger.warn(this.state.service + '::Not requesting volumioStop on our own service');
+	// }
 }
 
 // Pause
