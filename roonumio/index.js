@@ -8,7 +8,6 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var RoonApi = require("node-roon-api");
 var RoonApiTransport = require("node-roon-api-transport");
-const { off } = require('process');
 
 var core;
 var transport;
@@ -20,16 +19,11 @@ var roonIsActive = false;
 var roonPausedTimer;
 var coreFound = false;
 
-
 const msgMap = new Map();
 msgMap.set('playing', 'play')
 msgMap.set('paused', 'pause')
 msgMap.set('loading', 'pause')
 msgMap.set('stopped', 'stop')
-msgMap.set('loop', true)
-msgMap.set('loop_one', true)
-msgMap.set('disabled', false)
-
 
 module.exports = roonumio;
 
@@ -83,15 +77,17 @@ roonumio.prototype.roonListener = function () {
 
 
 		core_found: function (core_) {
-			core = core_;
-			transport = coreFound ? coreFound.services.RoonApiTransport : core.services.RoonApiTransport;
+			core = coreFound ? coreFound : core_;
+			transport = core.services.RoonApiTransport;
 			transport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
 				if (response == "Subscribed") {
+					self.indentifyZone(msg);
 					self.updateMetadata(msg);
 					// console.log(activeZone)
 				} else if (response == "Changed") {
 					if (msg.zones_added || msg.zones_changed) {
+						// self.indentifyZone(msg);
 						self.updateMetadata(msg);
 					}
 					if (msg.zones_seek_changed && roonIsActive) {
@@ -101,15 +97,16 @@ roonumio.prototype.roonListener = function () {
 							}
 						});
 						// self.pushState();
-						self.chooseTheRightCore();
 
 					}
 				}
+				self.chooseTheRightCore();
 			})
 		},
 
 		core_lost: function (core_) {
 			core = undefined;
+			coreFound = false;
 
 		}
 	});
@@ -119,9 +116,8 @@ roonumio.prototype.roonListener = function () {
 	});
 
 	roon.start_discovery();
-	self.logger.info('ROON API SUCCESSFULLY INITIALIZED')
-	self.commandRouter.pushConsoleMessage(this.state.service + '::Roon API Services Started');
-
+	self.logger.info(this.state.service + '::Roon API Services Started')
+	// self.commandRouter.pushConsoleMessage(this.state.service + '::Roon API Services Started');
 
 }
 
@@ -132,15 +128,13 @@ roonumio.prototype.chooseTheRightCore = function () {
 		coreFound = core;
 		self.coreip = core.moo.transport.host;
 		self.coreport = core.moo.transport.port;
-		self.logger.error(`CORE IDENTIFIED: ${self.coreip}:${self.coreport}`)
+		self.logger.info(`${this.state.service}::Roon Core Identified: ${self.coreip}:${self.coreport}`)
 	}
 
 }
-// TO PREVENT CONSTANT CYCLING OF THE BELOW CODE. PERHAPS IMPLEMENT A CHECK AND STORE THE ZONEID? 
-// THEN ONLY RERUN THE DEVICE CHECK ON AN ALSA RECONFIG?
-roonumio.prototype.updateMetadata = function (msg) {
-	var self = this;
 
+roonumio.prototype.indentifyZone = function (msg) {
+	var self = this;
 	// Get the zoneid for the device
 	if ((msg.zones) && zoneid == undefined) { //So we don't loop through this logic every single time.
 		zone = (msg.zones).find(zone => {
@@ -156,6 +150,10 @@ roonumio.prototype.updateMetadata = function (msg) {
 		zoneid = (zone && zone.zone_id) ? zone.zone_id : undefined;
 
 	}
+}
+
+roonumio.prototype.updateMetadata = function (msg) {
+	var self = this;
 
 	if (msg.zones) {
 		zone = (msg.zones).find(zone => {
@@ -168,8 +166,6 @@ roonumio.prototype.updateMetadata = function (msg) {
 			if (zone_changed.zone_id) return zone_changed.zone_id === zoneid
 		})
 	}
-
-	self.chooseTheRightCore();
 
 	if (zone) {
 		if (zone.state == 'playing') {
@@ -225,19 +221,18 @@ roonumio.prototype.updateMetadata = function (msg) {
 			self.is_play_allowed = zone ? zone.is_play_allowed : false;
 			self.is_seek_allowed = zone ? zone.is_seek_allowed : true;
 
-			self.logger.info(JSON.stringify(self.state, null, ' '));
+			self.logger.info(`${this.state.service}::Verbose State: ${JSON.stringify(self.state, null, '')}`);
 			self.pushState();
 			// zone = null;
 		}
 	}
-
-
 }
 
 roonumio.prototype.setRoonActive = function () {
 	var self = this;
 
 	roonIsActive = true;
+	self.commandRouter.stateMachine.playQueue.clearPlayQueue();
 
 	if (!self.commandRouter.stateMachine.isVolatile) {
 		self.commandRouter.stateMachine.setVolatile({
@@ -250,29 +245,9 @@ roonumio.prototype.setRoonActive = function () {
 roonumio.prototype.setRoonInactive = function () {
 	var self = this;
 	roonIsActive = false;
+	coreFound = false;
 	//The unsetVolatile callback will be called when "stop" is pushed or called.
 };
-
-// roonumio.prototype.prepareRoonPlayback = function () {
-// 	var self = this;
-
-// 	// var state = self.commandRouter.stateMachine.getState();
-// 	// if (state && state.service && state.service !== 'roonumio') {
-// 	// 	if (self.commandRouter.stateMachine.isVolatile) {
-// 	// 		self.commandRouter.stateMachine.unSetVolatile();
-// 	// 	} else {
-// 	// 		self.context.coreCommand.volumioStop();
-// 	// 	}
-// 	// }
-// 	// setTimeout(() => {
-// 	if (!self.commandRouter.stateMachine.isVolatile) {
-// 		self.commandRouter.stateMachine.setVolatile({
-// 			service: 'roonumio',
-// 			callback: self.unsetVol.bind(self)
-// 		})
-// 	}
-// 	// }, 1000);
-// }
 
 roonumio.prototype.unsetVol = function () {
 	var self = this;
@@ -295,7 +270,7 @@ roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice c
 	coreFound = false;
 	zoneid = undefined;
 	this.getOutputDeviceName();
-	self.logger.info('Output device has changed');
+	self.logger.info(`${this.state.service}::Output device has changed`);
 
 };
 
@@ -337,10 +312,10 @@ roonumio.prototype.onStart = function () {
 
 	exec('/usr/bin/sudo /bin/systemctl start roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
-			self.logger.error('Cannot start Roon Bridge ' + error);
+			self.logger.error('::Cannot start Roon Bridge - Error: ' + error);
 			defer.reject(error);
 		} else {
-			self.logger.info('Roon Bridge has successfully started ')
+			self.logger.info('::Roon Bridge has successfully started ')
 
 		}
 	});
@@ -357,10 +332,10 @@ roonumio.prototype.onStop = function () {
 	roon = undefined;
 	exec('/usr/bin/sudo /bin/systemctl stop roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
-			self.logger.error('Cannot kill Roon Bridge ' + error);
+			self.logger.error('::Cannot kill Roon Bridge - Error: ' + error);
 			defer.reject(error);
 		} else {
-			self.logger.info('Roon Bridge has been successfully shutdown ')
+			self.logger.info('::Roon Bridge has been successfully shutdown ')
 
 		}
 	});
@@ -378,10 +353,10 @@ roonumio.prototype.onRestart = function () {
 
 	exec('/usr/bin/sudo /bin/systemctl restart roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
-			self.logger.error('Cannot start Roon Bridge ' + error);
+			self.logger.error('::Cannot start Roon Bridge - Error: ' + error);
 			defer.reject(error);
 		} else {
-			self.logger.info('Roon Bridge has successfully started ')
+			self.logger.info('::Roon Bridge has successfully started ')
 
 		}
 	});
@@ -479,7 +454,7 @@ roonumio.prototype.roonControl = function (zoneid, control) {
 // Define a method to clear, add, and play an array of tracks
 roonumio.prototype.clearAddPlayTrack = function (track) {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::clearAddPlayTrack');
+	self.commandRouter.pushConsoleMessage(this.state.service + '::clearAddPlayTrack');
 
 };
 
@@ -534,7 +509,7 @@ roonumio.prototype.previous = function () {
 // Get state
 roonumio.prototype.getState = function () {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::getState');
+	self.commandRouter.pushConsoleMessage(this.state.service + '::getState');
 	return self.commandRouter.stateMachine.getState();
 
 
@@ -543,7 +518,7 @@ roonumio.prototype.getState = function () {
 //Parse state
 roonumio.prototype.parseState = function (sState) {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::parseState');
+	self.commandRouter.pushConsoleMessage(this.state.service + '::parseState');
 
 	//Use this method to parse the state and eventually send it with the following function
 };
@@ -551,7 +526,7 @@ roonumio.prototype.parseState = function (sState) {
 // Announce updated State
 roonumio.prototype.pushState = function () {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + this.state.service + '::pushState');
+	self.commandRouter.pushConsoleMessage(this.state.service + '::pushState');
 
 	return self.commandRouter.servicePushState(this.state, this.state.service);
 };
