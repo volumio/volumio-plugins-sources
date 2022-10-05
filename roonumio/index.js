@@ -93,7 +93,13 @@ roonumio.prototype.roonListener = function () {
 					if (msg.zones_seek_changed && roonIsActive) {
 						msg.zones_seek_changed.find(zone => {
 							if (zone.zone_id === zoneid) {
-								self.state.seek = (zone.seek_position !== undefined) ? (zone.seek_position * 1000) : self.state.seek;
+								if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.state.seek) > 1500) {
+									self.state.seek = zone.seek_position * 1000;
+									self.pushState()
+								} else {
+									self.state.seek = zone.seek_position * 1000;
+								}
+
 							}
 						});
 						// self.pushState();
@@ -105,8 +111,10 @@ roonumio.prototype.roonListener = function () {
 		},
 
 		core_lost: function (core_) {
-			core = undefined;
-			coreFound = false;
+			if (core_ === coreFound && roonIsActive) {
+				self.stop();
+				//Maybe run some cleanup here as well. Meh.
+			}
 
 		}
 	});
@@ -136,7 +144,8 @@ roonumio.prototype.chooseTheRightCore = function () {
 roonumio.prototype.indentifyZone = function (msg) {
 	var self = this;
 	// Get the zoneid for the device
-	if ((msg.zones) && zoneid == undefined) { //So we don't loop through this logic every single time.
+	// I might need to do this for msg.zones_changed as well in case it get missed going down this road.
+	if ((msg.zones) && zoneid == undefined) {
 		zone = (msg.zones).find(zone => {
 			return zone =
 				zone.outputs.find(output => {
@@ -221,7 +230,7 @@ roonumio.prototype.updateMetadata = function (msg) {
 			self.is_play_allowed = zone ? zone.is_play_allowed : false;
 			self.is_seek_allowed = zone ? zone.is_seek_allowed : true;
 
-			self.logger.info(`${this.state.service}::Verbose State: ${JSON.stringify(self.state, null, '')}`);
+			self.logger.verbose(`${this.state.service}::State snapshot: ${JSON.stringify(self.state, null, '')}`);
 			self.pushState();
 			// zone = null;
 		}
@@ -230,15 +239,25 @@ roonumio.prototype.updateMetadata = function (msg) {
 
 roonumio.prototype.setRoonActive = function () {
 	var self = this;
-
-	roonIsActive = true;
-	self.commandRouter.stateMachine.playQueue.clearPlayQueue();
-
-	if (!self.commandRouter.stateMachine.isVolatile) {
-		self.commandRouter.stateMachine.setVolatile({
-			service: 'roonumio',
-			callback: self.unsetVol.bind(self)
+	if (!roonIsActive) {
+		self.volumioStop().then(() => {
+			self.commandRouter.stateMachine.playQueue.clearPlayQueue();
+			roonIsActive = true;
 		})
+
+		if (!self.commandRouter.stateMachine.isVolatile || roonIsActive) {
+			self.commandRouter.stateMachine.setVolatile({
+				service: 'roonumio',
+				callback: self.unsetVol.bind(self)
+			})
+			self.logger.info('roonumio::Setting volatile state to roonumio')
+		}
+
+		this.commandRouter.pushToastMessage('info', 'Roonumio', 'Roon Bridge is active.');
+
+		// If Roon gets a play command while something is playing, the audio device is still by the other service. This makes sure it keeps playing as you requested.
+		if (self.getState().status === 'pause') setTimeout(self.play, 3000)
+
 	}
 };
 
@@ -246,13 +265,13 @@ roonumio.prototype.setRoonInactive = function () {
 	var self = this;
 	roonIsActive = false;
 	coreFound = false;
-	//The unsetVolatile callback will be called when "stop" is pushed or called.
 };
 
+//The unsetVolatile callback will be called when "stop" is pushed or called.
 roonumio.prototype.unsetVol = function () {
 	var self = this;
 
-	var state = self.commandRouter.stateMachine.getState();
+	var state = self.getState();
 	if (state && state.service && state.service !== 'roonumio' && self.commandRouter.stateMachine.isVolatile) {
 		return self.stop();
 	} else {
@@ -267,7 +286,7 @@ roonumio.prototype.unsetVol = function () {
 roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice changes we can do something about it here.
 	var self = this;
 
-	coreFound = false;
+	// coreFound = false;
 	zoneid = undefined;
 	this.getOutputDeviceName();
 	self.logger.info(`${this.state.service}::Output device has changed`);
@@ -288,6 +307,10 @@ roonumio.prototype.getAdditionalConf = function (type, controller, data) {
 
 roonumio.prototype.setAdditionalConf = function () {
 };
+
+roonumio.prototype.checkAudioDeviceAvailable = function () {
+	return self.coreCommand.executeOnPlugin('audio_interface', 'alsa_controller', 'checkAudioDeviceAvailable', '');
+}
 
 roonumio.prototype.getOutputDeviceName = function () {
 	var self = this;
@@ -480,6 +503,18 @@ roonumio.prototype.stop = function () {
 
 
 };
+
+//Volumio Stop - To kill currently running services before we start ours.
+roonumio.prototype.volumioStop = function () {
+	var self = this;
+	if (!roonIsActive) {
+		self.logger.info(this.state.service + '::Stopping currently active service');
+		return this.commandRouter.volumioStop();
+	} else {
+		self.logger.warn(this.state.service + '::Not requesting volumioStop on our own service');
+	}
+	return Promise.resolve(true);
+}
 
 // Pause
 roonumio.prototype.pause = function () {
