@@ -79,8 +79,7 @@ roonumio.prototype.roonListener = function () {
 
 		core_found: function (core_) {
 			core = core_;
-			transport = core.services.RoonApiTransport;
-			transport.subscribe_zones(function (response, msg) {
+			core.services.RoonApiTransport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
 				if (response == "Subscribed") {
 					self.indentifyZone(msg);
@@ -141,7 +140,7 @@ roonumio.prototype.chooseTheRightCore = function () {
 		self.coreip = core.moo.transport.host ? core.moo.transport.host : '';
 		self.coreport = core.moo.transport.port ? core.moo.transport.port : '';
 		self.coreid = core.core_id ? core.core_id : '';
-		if (self.coreip && self.coreport) coreFound = true;
+		if (self.coreip && self.coreport) coreFound = core;
 		self.logger.info(`${this.state.service}::Roon Core Identified: ${self.coreip}:${self.coreport} with ID of: ${self.coreid}`)
 	}
 
@@ -470,8 +469,8 @@ roonumio.prototype.roonControl = function (zoneid, control) {
 	var self = this;
 	var currentState = self.state.status;
 
-	if (zoneid != undefined && control != undefined) {
-		transport.control(zoneid, control, (err) => {
+	if (zoneid != undefined && control != undefined && coreFound != false) {
+		coreFound.services.RoonApiTransport.control(zoneid, control, (err) => {
 			if (err) {
 				self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${control} command to Roon - Error: ${err}`);
 				//Otherwise Volumio sits around with a mismatched state.
@@ -492,8 +491,8 @@ roonumio.prototype.clearAddPlayTrack = function (track) {
 
 roonumio.prototype.seek = function (timepos) {
 	var self = this;
-	if (zoneid != undefined && timepos != undefined) {
-		return transport.seek(zone, 'absolute', (timepos / 1000), (err) => {
+	if (zoneid != undefined && timepos != undefined && coreFound != false) {
+		return coreFound.services.RoonApiTransport.seek(zone, 'absolute', (timepos / 1000), (err) => {
 			if (err) {
 				self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send seek command to Roon - Error: ${err}`);
 			} else {
