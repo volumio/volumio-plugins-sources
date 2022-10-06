@@ -4,6 +4,9 @@ This plugin has two main purposes :
 * Installing the EVO-Sabre secondary OLED display (rightmost display) to work with Volumio playback system.
 * It also installs and configures the remote control receiver to work alongside Volumio playback control.
 
+### Installation 
+A step-by-step installation guide on this page [is available here](https://www.audiophonics.fr/en/blog-diy-audio/40-new-installation-system-for-evo-sabre-under-volumio-plugin.html).
+
 
 ### Display Layer : 
 
