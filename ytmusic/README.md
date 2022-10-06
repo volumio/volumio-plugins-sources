@@ -7,6 +7,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+0.1.8
+- Fix 'More' not working for albums, singles... on artist page
+
 0.1.7
 - Fix playback of playlists through the Play button
 - Add Recap
