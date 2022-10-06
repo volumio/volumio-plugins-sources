@@ -35,6 +35,7 @@ function roonumio(context) {
 	self.logger = self.commandRouter.logger;
 	self.coreip;
 	self.coreport;
+	self.coreid;
 	this.state = {
 		status: 'stop',
 		service: 'roonumio',
@@ -77,7 +78,7 @@ roonumio.prototype.roonListener = function () {
 
 
 		core_found: function (core_) {
-			core = coreFound ? coreFound : core_;
+			core = core_;
 			transport = core.services.RoonApiTransport;
 			transport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
@@ -106,7 +107,6 @@ roonumio.prototype.roonListener = function () {
 
 					}
 				}
-				self.chooseTheRightCore();
 				// if (Date.now() - roonPausedTimer >= 10000) {
 				// 	roonPausedTimer = null;
 				// 	self.stop();
@@ -137,10 +137,12 @@ roonumio.prototype.chooseTheRightCore = function () {
 	var self = this;
 	//Get the Core IP and Port. If you have multiple cores or even just 2 PC's running Roon, finding the right core by just looking at core.moo.transport.host will be a hit and miss.
 	if (zoneid && core.services.RoonApiTransport._zones && core.services.RoonApiTransport._zones[zoneid] && !coreFound) {
-		coreFound = core;
-		self.coreip = core.moo.transport.host;
-		self.coreport = core.moo.transport.port;
-		self.logger.info(`${this.state.service}::Roon Core Identified: ${self.coreip}:${self.coreport}`)
+
+		self.coreip = core.moo.transport.host ? core.moo.transport.host : '';
+		self.coreport = core.moo.transport.port ? core.moo.transport.port : '';
+		self.coreid = core.core_id ? core.core_id : '';
+		if (self.coreip && self.coreport) coreFound = true;
+		self.logger.info(`${this.state.service}::Roon Core Identified: ${self.coreip}:${self.coreport} with ID of: ${self.coreid}`)
 	}
 
 }
@@ -161,6 +163,9 @@ roonumio.prototype.indentifyZone = function (msg) {
 		})
 
 		zoneid = (zone && zone.zone_id) ? zone.zone_id : undefined;
+		// This works much better over here. If we're busy looking at the right zone then we can only be looking at the correct core as well.
+		self.chooseTheRightCore();
+
 
 	}
 }
