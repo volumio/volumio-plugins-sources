@@ -82,7 +82,6 @@ roonumio.prototype.roonListener = function () {
 			core.services.RoonApiTransport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
 				if (response == "Subscribed") {
-					self.indentifyZone(msg);
 					self.updateMetadata(msg);
 					// console.log(activeZone)
 				} else if (response == "Changed") {
@@ -93,7 +92,7 @@ roonumio.prototype.roonListener = function () {
 					if (msg.zones_seek_changed && roonIsActive) {
 						msg.zones_seek_changed.find(zone => {
 							if (zone.zone_id === zoneid) {
-								if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.state.seek) > 1500) {
+								if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.getState().seek) > 1500) {
 									self.state.seek = zone.seek_position * 1000;
 									self.pushState()
 								} else {
@@ -150,8 +149,8 @@ roonumio.prototype.indentifyZone = function (msg) {
 	var self = this;
 	// Get the zoneid for the device
 	// I might need to do this for msg.zones_changed as well in case it get missed going down this road.
-	if ((msg.zones) && zoneid == undefined) {
-		zone = (msg.zones).find(zone => {
+	if (((msg.zones || msg.zones_changed) && zoneid == undefined) || (msg.zones_added)) {
+		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
 			return zone =
 				zone.outputs.find(output => {
 					return output =
@@ -172,15 +171,11 @@ roonumio.prototype.indentifyZone = function (msg) {
 roonumio.prototype.updateMetadata = function (msg) {
 	var self = this;
 
-	if (msg.zones) {
-		zone = (msg.zones).find(zone => {
-			if (zone.zone_id) return zone.zone_id === zoneid;
-		})
-	}
+	self.indentifyZone(msg)
 
-	if (msg.zones_changed) {
-		zone = (msg.zones_changed).find(zone_changed => {
-			if (zone_changed.zone_id) return zone_changed.zone_id === zoneid
+	if (msg.zones || msg.zones_changed || msg.zones_added) {
+		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
+			if (zone.zone_id) return zone.zone_id === zoneid;
 		})
 	}
 
