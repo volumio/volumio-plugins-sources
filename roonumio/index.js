@@ -91,7 +91,7 @@ roonumio.prototype.roonListener = function () {
 					if (msg.zones_seek_changed && roonIsActive) {
 						msg.zones_seek_changed.find(zone => {
 							if (zone.zone_id === zoneid) {
-								if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.getState().seek) > 1500) {
+								if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.state.seek) > 1500) {
 									self.state.seek = zone.seek_position * 1000;
 									self.pushState()
 								} else {
@@ -176,6 +176,7 @@ roonumio.prototype.updateMetadata = function (msg) {
 		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
 			if (zone.zone_id) return zone.zone_id === zoneid;
 		})
+		self.logger.debug('UpdateMetadata() zone: \n' + JSON.stringify(zone, null, ' '));
 	}
 
 	if (zone) {
@@ -208,10 +209,10 @@ roonumio.prototype.updateMetadata = function (msg) {
 			self.state.stream = self.state.duration === 0 ? true : false;
 			self.state.random = zone.settings ? zone.settings.shuffle : false;
 			if (zone.settings) {
-				if (zone.settings === 'loop') {
+				if (zone.settings.loop === 'loop') {
 					self.state.repeat = true
 					self.state.repeatSingle = false
-				} else if (zone.settings === 'loop_one') {
+				} else if (zone.settings.loop === 'loop_one') {
 					self.state.repeat = true
 					self.state.repeatSingle = true
 				} else {
@@ -294,7 +295,7 @@ roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice c
 	// coreFound = false; // The likelihood that the core has changed too is very low.
 	// Probably need to use get_zones and filter the zoneid and core again this way...Unless we reinitialize the RoonListener
 	this.getOutputDeviceName();
-	this.getZones();
+	// this.getZones();
 	self.logger.info(`${this.state.service}::Output device has changed`);
 
 };
@@ -489,6 +490,26 @@ roonumio.prototype.roonControl = function (zoneid, control) {
 		})
 	}
 }
+
+// Roon settings (shuffle and repeat)
+roonumio.prototype.roonSettings = function (zoneid, settings) {
+	var self = this;
+	var currentState = self.state.status;
+
+	if (zoneid != undefined && settings != undefined && coreFound != false) {
+		coreFound.services.RoonApiTransport.change_settings(zoneid, settings, (err) => {
+			if (err) {
+				self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${JSON.stringify(settings, null, '')} command to Roon - Error: ${err}`);
+				//Otherwise Volumio sits around with a mismatched state.
+				self.state.status = currentState;
+				self.pushState()
+			} else {
+				self.commandRouter.pushConsoleMessage(`${this.state.service}::${JSON.stringify(settings, null, '')} command successfully sent to Roon.`);
+			}
+		})
+	}
+
+}
 // Define a method to clear, add, and play an array of tracks
 roonumio.prototype.clearAddPlayTrack = function (track) {
 	var self = this;
@@ -537,30 +558,39 @@ roonumio.prototype.volumioStop = function () {
 	// }
 }
 
-// Pause
+// Volumio controls
 roonumio.prototype.pause = function () {
 	var self = this;
 	if (this.is_pause_allowed) self.roonControl(zoneid, 'pause');
 
 };
+
 roonumio.prototype.play = function () {
 	var self = this;
 	if (this.is_play_allowed) self.roonControl(zoneid, 'play');
 
 
 };
+
 roonumio.prototype.next = function () {
 	var self = this;
 	if (this.is_next_allowed) self.roonControl(zoneid, 'next');
-
-
 };
+
 roonumio.prototype.previous = function () {
 	var self = this;
 	if (this.is_previous_allowed) self.roonControl(zoneid, 'previous');
-
-
 };
+
+roonumio.prototype.random = function (value) {
+	var self = this;
+	self.roonSettings(zoneid, { 'shuffle': value ? true : false })
+}
+
+roonumio.prototype.repeat = function (value, repeatSingle) {
+	var self = this;
+	self.roonSettings(zoneid, { 'loop': repeatSingle && value ? 'loop_one' : value && !repeatSingle ? 'loop' : 'disabled' })
+}
 
 // Get state
 roonumio.prototype.getState = function () {
@@ -568,15 +598,6 @@ roonumio.prototype.getState = function () {
 	self.commandRouter.pushConsoleMessage(this.state.service + '::getState');
 	return self.commandRouter.stateMachine.getState();
 
-
-};
-
-//Parse state
-roonumio.prototype.parseState = function (sState) {
-	var self = this;
-	self.commandRouter.pushConsoleMessage(this.state.service + '::parseState');
-
-	//Use this method to parse the state and eventually send it with the following function
 };
 
 // Announce updated State
