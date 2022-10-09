@@ -10,7 +10,6 @@ var RoonApi = require("node-roon-api");
 var RoonApiTransport = require("node-roon-api-transport");
 
 var core;
-var transport;
 var zone;
 var zoneid;
 var roon;
@@ -294,12 +293,25 @@ roonumio.prototype.unsetVol = function () {
 roonumio.prototype.outputDeviceCallback = function () { // If the outputdevice changes we can do something about it here.
 	var self = this;
 
-	// coreFound = false;
+
+	self.stop();
 	zoneid = undefined;
+	// coreFound = false; // The likelihood that the core has changed too is very low.
+	// Probably need to use get_zones and filter the zoneid and core again this way...Unless we reinitialize the RoonListener
 	this.getOutputDeviceName();
+	this.getZones();
 	self.logger.info(`${this.state.service}::Output device has changed`);
 
 };
+
+roonumio.prototype.getZones = function () {
+	var self = this;
+	core.services.RoonApiTransport.get_zones(function (err, zones) {
+		if (!err) {
+			self.indentifyZone(zones);
+		}
+	})
+}
 
 // Optional functions exposed for making development easier and more clear
 roonumio.prototype.getSystemConf = function (pluginName, varName) {
