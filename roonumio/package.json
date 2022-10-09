@@ -1,6 +1,6 @@
 {
 	"name": "roonumio",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "roonumio is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
 	"main": "index.js",
 	"scripts": {
@@ -22,7 +22,7 @@
 		],
 		"has_alsa_contribution": "false",
 		"details": "roonumio is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
-		"changelog": "Lorem ipsum"
+		"changelog": "Added shuffle and repeat control"
 	},
 	"engines": {
 		"node": ">=8",
