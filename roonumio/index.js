@@ -204,8 +204,8 @@ roonumio.prototype.updateMetadata = function (msg) {
 			self.state.album = zone.now_playing ? zone.now_playing.three_line.line3 : '';
 			self.state.albumart = zone.now_playing ? this.getAlbumArt(zone.now_playing.image_key) : '/albumart';
 			self.state.uri = '';
-			self.state.seek = zone.now_playing.seek_position ? zone.now_playing.seek_position * 1000 : 0;
-			self.state.duration = zone.now_playing.length ? zone.now_playing.length : 0;
+			self.state.seek = zone.now_playing ? zone.now_playing.seek_position * 1000 : 0;
+			self.state.duration = zone.now_playing ? zone.now_playing.length : 0;
 			self.state.stream = self.state.duration === 0 ? true : false;
 			self.state.random = zone.settings ? zone.settings.shuffle : false;
 			if (zone.settings) {
