@@ -140,10 +140,13 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+October 12th 2022 v1.0.24
+
+- Add preset for conv mode
+
 September 22th 2022 v1.0.23
 
 - Delay settings are saved in preset
-
 
 September 16th 2022 v1.0.22
 
