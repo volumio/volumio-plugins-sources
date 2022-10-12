@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 3. By balbuze september 2022
+// FusionDsp plugin for volumio 3. By balbuze October 2022
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -29,6 +29,8 @@ const wavfolder = "/data/INTERNAL/FusionDsp/wavfiles/";
 const eq15range = [25, 40, 63, 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 6300, 10000, 16000]
 const coefQ = 1.85//Q for graphic EQ
 const sv = 34300 // sound velocity cm/s
+
+
 // Define the Parameq class
 module.exports = FusionDsp;
 
@@ -386,9 +388,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
           { "value": "Notch", "label": "Notch Hz,Q" },
           { "value": "Notch2", "label": "Notch Hz,bandwidth Octave" },
           { "value": "Highpass", "label": "Highpass Hz,Q" },
-          // "value": "Highpass2", "label": "Highpass Hz,bandwidth Octave" },
           { "value": "Lowpass", "label": "Lowpass Hz,Q" },
-          //{ "value": "Lowpass2", "label": "Lowpass Hz,bandwidth Octave" },
           { "value": "HighpassFO", "label": "HighpassFO Hz" },
           { "value": "LowpassFO", "label": "LowpassFO Hz" },
           { "value": "LinkwitzTransform", "label": "Linkwitz Transform Fa Hz,Qa,FT Hz,Qt" },
@@ -724,8 +724,8 @@ FusionDsp.prototype.getUIConfig = function (address) {
 
       } else if (selectedsp == 'convfir') {
         self.logger.info('---------convfir selected-------------')
-        uiconf.sections[2].hidden = true;
-        uiconf.sections[3].hidden = true;
+        //uiconf.sections[2].hidden = true;
+        //uiconf.sections[3].hidden = true;
         uiconf.sections[4].hidden = true;
         uiconf.sections[5].hidden = true;
         uiconf.sections[9].hidden = true;
@@ -3632,7 +3632,9 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.get('muteleft'),
     self.config.get('muteright'),
     self.config.get('ldistance'),
-    self.config.get('rdistance')
+    self.config.get('rdistance'),
+    // self.config.get('attenuationl'),
+    // self.config.get('attenuationr')
   ]
 
   let preset = (data['eqpresetsaved'].value);
@@ -3691,11 +3693,16 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.set("x2geq15" + renprestr, self.config.get('x2geq15'));
     self.config.set("geq15" + renprestr, self.config.get('geq15'));
 
-
   } else if (selectedsp == 'convfir') {
+   
+    self.config.set("leftfilter" + renprestr, self.config.get('leftfilter'));
+    self.config.set("rightfilter" + renprestr, self.config.get('rightfilter'));
+    self.config.set(('leftfilterlabel' + renprestr), self.config.get('leftfilterlabel'));
+    self.config.set(('filter_format' + renprestr), self.config.get('filter_format'));
+    self.config.set("savedmergedeqfir" + renprestr, self.config.get('mergedeq'));
 
-    self.logger.info('Nothing to do!')
   }
+
   self.config.set('state4preset' + renprestr, state4preset)
   self.logger.info('State for preset' + renprestr + ' = ' + state4preset)
   let presetmessage
@@ -3848,7 +3855,13 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set("usethispreset", preset);
 
   } else if (selectedsp == 'convfir') {
-    //   self.logger.info('aaaaaaaaaaaaaaaaaa')
+    self.config.set("usethispreset", preset);
+    self.config.set("leftfilter", self.config.get('leftfilter' + spreset));
+    self.config.set("rightfilter", self.config.get('rightfilter' + spreset));
+    self.config.set('leftfilterlabel', self.config.get('leftfilterlabel' + spreset));
+    self.config.set('filter_format', self.config.get('filter_format' + spreset))
+    self.config.set('mergedeq', self.config.get('savedmergedeqfir' + spreset))
+
   }
   if (preset == "mypreset1" || preset == "mypreset2" || preset == "mypreset3" || preset == "mypreset4" || preset == "mypreset5") {
     let state4preset = self.config.get('state4preset' + spreset)
@@ -3865,6 +3878,7 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set('autoatt', state4preset[8])
     self.config.set('muteleft', state4preset[9]);
     self.config.set('muteright', state4preset[10]);
+
     if (state4preset[11] == undefined) {
       self.config.set('ldistance', 0);
     } else {
