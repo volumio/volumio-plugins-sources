@@ -140,7 +140,7 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
-October 8th 2022 v1.0.24
+October 12th 2022 v1.0.24
 
 - Add preset for conv mode
 
