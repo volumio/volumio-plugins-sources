@@ -3694,8 +3694,10 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.set("geq15" + renprestr, self.config.get('geq15'));
 
   } else if (selectedsp == 'convfir') {
-   
+
     self.config.set("leftfilter" + renprestr, self.config.get('leftfilter'));
+    self.config.set("attenuationl" + renprestr, self.config.get('attenuationl'));
+    self.config.set("attenuationr" + renprestr, self.config.get('attenuationr'));
     self.config.set("rightfilter" + renprestr, self.config.get('rightfilter'));
     self.config.set(('leftfilterlabel' + renprestr), self.config.get('leftfilterlabel'));
     self.config.set(('filter_format' + renprestr), self.config.get('filter_format'));
@@ -3861,7 +3863,8 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set('leftfilterlabel', self.config.get('leftfilterlabel' + spreset));
     self.config.set('filter_format', self.config.get('filter_format' + spreset))
     self.config.set('mergedeq', self.config.get('savedmergedeqfir' + spreset))
-
+    self.config.set("attenuationl", self.config.get('attenuationl' + spreset));
+    self.config.set("attenuationr", self.config.get('attenuationr' + spreset));
   }
   if (preset == "mypreset1" || preset == "mypreset2" || preset == "mypreset3" || preset == "mypreset4" || preset == "mypreset5") {
     let state4preset = self.config.get('state4preset' + spreset)

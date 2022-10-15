@@ -105,27 +105,27 @@
     },
     "savedmergedeqfir": {
         "type": "string",
-        "value": "Eq0|None|L+R|0,0,0"
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
     },
     "savedmergedeqfir1": {
         "type": "string",
-        "value": "Eq0|None|L+R|0,0,0"
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
     },
      "savedmergedeqfir2": {
         "type": "string",
-        "value": "Eq0|None|L+R|0,0,0"
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
     },
      "savedmergedeqfir3": {
         "type": "string",
-        "value": "Eq0|None|L+R|0,0,0"
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
     },
      "savedmergedeqfir4": {
         "type": "string",
-        "value": "Eq0|None|L+R|0,0,0"
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
     },
     "savedmergedeqfir5": {
         "type": "string",
-        "value": "Eq0|None|L+R|0,0,0"
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
     },
     "savedmergedgeq15": {
         "type": "string",
@@ -310,8 +310,6 @@
             false,
             false,
             0,
-            0,
-            0,
             0
         ]
     },
@@ -329,8 +327,6 @@
             true,
             false,
             false,
-            0,
-            0,
             0,
             0
         ]
@@ -350,8 +346,6 @@
             false,
             false,
             0,
-            0,
-            0,
             0
         ]
     },
@@ -370,8 +364,6 @@
             false,
             false,
             0,
-            0,
-            0,
             0
         ]
     },
@@ -389,8 +381,6 @@
             true,
             false,
             false,
-            0,
-            0,
             0,
             0
         ]
@@ -553,9 +543,49 @@
         "type": "string",
         "value": "None"
     },
+    "leftfilterlabel1": {
+        "type": "string",
+        "value": "None"
+    },
+    "leftfilterlabel2": {
+        "type": "string",
+        "value": "None"
+    },
+    "leftfilterlabel3": {
+        "type": "string",
+        "value": "None"
+    },
+    "leftfilterlabel4": {
+        "type": "string",
+        "value": "None"
+    },
+    "leftfilterlabel5": {
+        "type": "string",
+        "value": "None"
+    },
     "filter_format": {
         "type": "string",
         "value": "FLOAT_LE"
+    },
+    "filter_format1": {
+        "type": "string",
+        "value": ""
+    },
+    "filter_format2": {
+        "type": "string",
+        "value": ""
+    },
+    "filter_format3": {
+        "type": "string",
+        "value": ""
+    },
+    "filter_format4": {
+        "type": "string",
+        "value": ""
+    },
+    "filter_format5": {
+        "type": "string",
+        "value": ""
     },
     "filter_size": {
         "type": "string",
