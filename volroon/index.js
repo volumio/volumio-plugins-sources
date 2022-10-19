@@ -16,7 +16,7 @@ var roon;
 var outputdevicename;
 var roonIsActive = false;
 var roonPausedTimer;
-var coreFound = false;
+var coreFound;
 
 const msgMap = new Map();
 msgMap.set('playing', 'play')
@@ -68,11 +68,11 @@ volroon.prototype.roonListener = function () {
 	var self = this;
 	roon = new RoonApi({
 		// Make it look like an existing built-in Roon extension and you don't need to approve it in the UI.
-		extension_id: 'com.roonlabs.display_zone',
-		display_name: 'Roon API Display Zone',
-		display_version: "1.0.0",
-		publisher: 'Roon Labs, LLC',
-		email: 'contact@roonlabs.com',
+		extension_id: 'com.roonlabs.display_zone', // I think I only need to keep this one constant to avoid needing auth in Roon.
+		display_name: 'volroon - Roon Bridge on Volumio',
+		display_version: "0.1.1",
+		publisher: 'Dale Rider',
+		email: 'dale@sempervirens.co.za',
 		log_level: 'none',
 
 
@@ -80,28 +80,36 @@ volroon.prototype.roonListener = function () {
 			core = core_;
 			core.services.RoonApiTransport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
-				if (response == "Subscribed") {
-					self.updateMetadata(msg);
-					// console.log(activeZone)
-				} else if (response == "Changed") {
-					if (msg.zones_added || msg.zones_changed) {
-						// self.indentifyZone(msg);
-						self.updateMetadata(msg);
+				if (response == "Subscribed" || "Changed") {
+
+					if (msg.zones || msg.zones_added || msg.zones_changed) {
+						self.indentifyZone(msg)
+							.then(self.chooseTheRightCore())
+							.then(self.updateMetadata(msg))
+						// .fail(err => {
+						// 	self.logger.info(`volroon::Metadata - ${err}`);
+						// });
+
+						// console.log(activeZone)
 					}
-					if (msg.zones_seek_changed && roonIsActive) {
-						msg.zones_seek_changed.find(zone => {
-							if (zone.zone_id === zoneid) {
-								if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.state.seek) > 1500) {
-									self.state.seek = zone.seek_position * 1000;
-									self.pushState()
-								} else {
-									self.state.seek = zone.seek_position * 1000;
+					try {
+						if (msg.zones_seek_changed && roonIsActive) {
+							msg.zones_seek_changed.find(zone => {
+								if (zone.zone_id === zoneid) {
+									if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.state.seek) > 1500) {
+										self.state.seek = zone.seek_position * 1000;
+										self.pushState()
+									} else {
+										self.state.seek = zone.seek_position * 1000;
+									}
+
 								}
+							});
+							// self.pushState();
 
-							}
-						});
-						// self.pushState();
-
+						}
+					} catch (e) {
+						self.logger.error(`volroon::Error during seek change - ${e}`);
 					}
 				}
 				// if (Date.now() - roonPausedTimer >= 10000) {
@@ -126,12 +134,12 @@ volroon.prototype.roonListener = function () {
 
 	roon.start_discovery();
 	self.logger.info(this.state.service + '::Roon API Services Started')
-	// self.commandRouter.pushConsoleMessage(this.state.service + '::Roon API Services Started');
 
 }
 
 volroon.prototype.chooseTheRightCore = function () {
 	var self = this;
+	var defer = libQ.defer()
 	//Get the Core IP and Port. If you have multiple cores or even just 2 PC's running Roon, finding the right core by just looking at core.moo.transport.host will be a hit and miss.
 	if (zoneid && core.services.RoonApiTransport._zones && core.services.RoonApiTransport._zones[zoneid] && !coreFound) {
 
@@ -140,14 +148,21 @@ volroon.prototype.chooseTheRightCore = function () {
 		self.coreid = core.core_id ? core.core_id : '';
 		if (self.coreip && self.coreport) coreFound = core;
 		self.logger.info(`${this.state.service}::Roon Core Identified: ${self.coreip}:${self.coreport} with ID of: ${self.coreid}`)
-	}
+		defer.resolve();
+	} else if (coreFound) {
+		defer.resolve();
+	} //else {
+	// defer.resolve('Core not found - continuing without it.');
+	// }
+
+	return defer.promise;
 
 }
 
 volroon.prototype.indentifyZone = function (msg) {
 	var self = this;
+	var defer = libQ.defer();
 	// Get the zoneid for the device
-	// I might need to do this for msg.zones_changed as well in case it get missed going down this road.
 	if (((msg.zones || msg.zones_changed) && zoneid == undefined) || (msg.zones_added)) {
 		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
 			return zone =
@@ -160,17 +175,16 @@ volroon.prototype.indentifyZone = function (msg) {
 		})
 
 		zoneid = (zone && zone.zone_id) ? zone.zone_id : undefined;
-		// This works much better over here. If we're busy looking at the right zone then we can only be looking at the correct core as well.
-		self.chooseTheRightCore();
-
 
 	}
+	zoneid ? defer.resolve() : defer.reject('ZoneID not found.');
+	return defer.promise;
 }
 
 volroon.prototype.updateMetadata = function (msg) {
 	var self = this;
+	var defer = libQ.defer();
 
-	self.indentifyZone(msg)
 
 	if (msg.zones || msg.zones_changed || msg.zones_added) {
 		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
@@ -183,7 +197,6 @@ volroon.prototype.updateMetadata = function (msg) {
 		if (zone.state == 'playing') {
 			self.setRoonActive();
 
-			// self.prepareRoonPlayback();
 		}
 
 		// This was a plan to have Volumio clear everything if Roon was sitting "paused" for long enough. I.e. you're gone.
@@ -235,32 +248,38 @@ volroon.prototype.updateMetadata = function (msg) {
 
 			self.logger.verbose(`${this.state.service}::State snapshot: ${JSON.stringify(self.state, null, '')}`);
 			self.pushState();
+			defer.resolve();
 			// zone = null;
 		}
 	}
+	return defer.promise;
 }
 
 volroon.prototype.setRoonActive = function () {
 	var self = this;
-	var currentState;
+
 	if (!roonIsActive) {
-		currentState = self.getState();
-		if (currentState && (currentState.status === 'pause' || currentState.status === 'play') && currentState.service !== this.state.service) {
-			self.volumioStop()
-			self.commandRouter.stateMachine.playQueue.clearPlayQueue();
+		var state = self.getState();
+		if (state && state.service && state.service !== this.state.service) {
+			if (self.commandRouter.stateMachine.isVolatile) {
+				self.commandRouter.stateMachine.unSetVolatile();
+			} else {
+				self.volumioStop();
+				self.context.coreCommand.stateMachine.resetVolumioState();
+			}
 		}
+
 		roonIsActive = true;
 
-		if (!self.commandRouter.stateMachine.isVolatile) {
+		setTimeout(() => {
 			self.commandRouter.stateMachine.setVolatile({
 				service: 'volroon',
 				callback: self.unsetVol.bind(self)
 			})
-			self.logger.info('volroon::Setting volatile state to volroon')
-		}
-
-		this.commandRouter.pushToastMessage('info', 'volroon', 'Roon Bridge is active.');
-
+			self.logger.info('volroon::Setting volatile state to volroon');
+			self.pushState();
+			this.commandRouter.pushToastMessage('info', 'volroon', 'Roon Bridge is active.');
+		}, 1000);
 	}
 };
 
@@ -368,7 +387,7 @@ volroon.prototype.onStart = function () {
 volroon.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
-	roon = undefined;
+	// roon = undefined;
 	exec('/usr/bin/sudo /bin/systemctl stop roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
 			self.logger.error('::Cannot kill Roon Bridge - Error: ' + error);
@@ -534,8 +553,11 @@ volroon.prototype.seek = function (timepos) {
 // Stop
 volroon.prototype.stop = function () {
 	var self = this;
-	self.roonControl(zoneid, 'stop');
-	self.setRoonInactive();
+
+	if (roonIsActive) {
+		self.roonControl(zoneid, 'stop');
+		self.setRoonInactive();
+	}
 
 	var state = self.getState();
 	if (state && state.service && state.service === 'volroon') {
