@@ -81,17 +81,21 @@ volroon.prototype.roonListener = function () {
 			core.services.RoonApiTransport.subscribe_zones(function (response, msg) {
 				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
 				if (response == "Subscribed" || "Changed") {
+					try {
+						if (msg.zones || msg.zones_added || msg.zones_changed) {
+							self.indentifyZone(msg)
+								.then(self.chooseTheRightCore())
+								.then(self.updateMetadata(msg))
+							// .fail(err => {
+							// 	self.logger.info(`volroon::Metadata - ${err}`);
+							// });
 
-					if (msg.zones || msg.zones_added || msg.zones_changed) {
-						self.indentifyZone(msg)
-							.then(self.chooseTheRightCore())
-							.then(self.updateMetadata(msg))
-						// .fail(err => {
-						// 	self.logger.info(`volroon::Metadata - ${err}`);
-						// });
-
-						// console.log(activeZone)
+							// console.log(activeZone)
+						}
+					} catch (err) {
+						self.logger.error(`volroon::Error in Zone - ${err}`);
 					}
+
 					try {
 						if (msg.zones_seek_changed && roonIsActive) {
 							msg.zones_seek_changed.find(zone => {
@@ -120,10 +124,10 @@ volroon.prototype.roonListener = function () {
 		},
 
 		core_lost: function (core_) {
-			if (core_ === coreFound && roonIsActive) {
-				self.stop();
-				//Maybe run some cleanup here as well. Meh.
-			}
+			// if (core_ === coreFound && roonIsActive) {
+			// 	self.stop();
+			// 	Maybe run some cleanup here as well. Meh.
+			// }
 
 		}
 	});
@@ -133,7 +137,7 @@ volroon.prototype.roonListener = function () {
 	});
 
 	roon.start_discovery();
-	self.logger.info(this.state.service + '::Roon API Services Started')
+	self.logger.info(this.state.service + '::Roon API Services Started');
 
 }
 
@@ -151,9 +155,9 @@ volroon.prototype.chooseTheRightCore = function () {
 		defer.resolve();
 	} else if (coreFound) {
 		defer.resolve();
-	} //else {
-	// defer.resolve('Core not found - continuing without it.');
-	// }
+	} else {
+		defer.resolve('Core not found - continuing without it.');
+	}
 
 	return defer.promise;
 
@@ -309,7 +313,7 @@ volroon.prototype.outputDeviceCallback = function () { // If the outputdevice ch
 	var self = this;
 
 
-	self.stop();
+	// self.stop();
 	zoneid = undefined;
 	// coreFound = false; // The likelihood that the core has changed too is very low.
 	// Probably need to use get_zones and filter the zoneid and core again this way...Unless we reinitialize the RoonListener
@@ -368,7 +372,7 @@ volroon.prototype.onStart = function () {
 	// This is used when autodetecting the Zone to use in Roon
 	this.getOutputDeviceName();
 
-	exec('/usr/bin/sudo /bin/systemctl start roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+	exec('/usr/bin/sudo /bin/systemctl restart roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
 			self.logger.error('::Cannot start Roon Bridge - Error: ' + error);
 			defer.reject(error);
@@ -387,7 +391,15 @@ volroon.prototype.onStart = function () {
 volroon.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
-	// roon = undefined;
+	core,
+		zone,
+		zoneid,
+		roon,
+		outputdevicename,
+		roonIsActive,
+		roonPausedTimer,
+		coreFound = undefined;
+
 	exec('/usr/bin/sudo /bin/systemctl stop roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
 			self.logger.error('::Cannot kill Roon Bridge - Error: ' + error);
@@ -497,16 +509,20 @@ volroon.prototype.roonControl = function (zoneid, control) {
 	var currentState = self.state.status;
 
 	if (zoneid != undefined && control != undefined && coreFound != false) {
-		coreFound.services.RoonApiTransport.control(zoneid, control, (err) => {
-			if (err) {
-				self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${control} command to Roon - Error: ${err}`);
-				//Otherwise Volumio sits around with a mismatched state.
-				self.state.status = currentState;
-				self.pushState()
-			} else {
-				self.commandRouter.pushConsoleMessage(`${this.state.service}::${control} command successfully sent to Roon.`);
-			}
-		})
+		try {
+			coreFound.services.RoonApiTransport.control(zoneid, control, (err) => {
+				if (err) {
+					self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${control} command to Roon - Error: ${err}`);
+					//Otherwise Volumio sits around with a mismatched state.
+					self.state.status = currentState;
+					self.pushState()
+				} else {
+					self.commandRouter.pushConsoleMessage(`${this.state.service}::${control} command successfully sent to Roon.`);
+				}
+			})
+		} catch (err) {
+			self.logger.error(`volroon::roonControl - ${err}`);
+		}
 	}
 }
 
@@ -516,16 +532,20 @@ volroon.prototype.roonSettings = function (zoneid, settings) {
 	var currentState = self.state.status;
 
 	if (zoneid != undefined && settings != undefined && coreFound != false) {
-		coreFound.services.RoonApiTransport.change_settings(zoneid, settings, (err) => {
-			if (err) {
-				self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${JSON.stringify(settings, null, '')} command to Roon - Error: ${err}`);
-				//Otherwise Volumio sits around with a mismatched state.
-				self.state.status = currentState;
-				self.pushState()
-			} else {
-				self.commandRouter.pushConsoleMessage(`${this.state.service}::${JSON.stringify(settings, null, '')} command successfully sent to Roon.`);
-			}
-		})
+		try {
+			coreFound.services.RoonApiTransport.change_settings(zoneid, settings, (err) => {
+				if (err) {
+					self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${JSON.stringify(settings, null, '')} command to Roon - Error: ${err}`);
+					//Otherwise Volumio sits around with a mismatched state.
+					self.state.status = currentState;
+					self.pushState()
+				} else {
+					self.commandRouter.pushConsoleMessage(`${this.state.service}::${JSON.stringify(settings, null, '')} command successfully sent to Roon.`);
+				}
+			})
+		} catch (err) {
+			self.logger.error(`volroon::roonSettings - ${err}`);
+		}
 	}
 
 }
@@ -539,13 +559,17 @@ volroon.prototype.clearAddPlayTrack = function (track) {
 volroon.prototype.seek = function (timepos) {
 	var self = this;
 	if (zoneid != undefined && timepos != undefined && coreFound != false) {
-		return coreFound.services.RoonApiTransport.seek(zone, 'absolute', (timepos / 1000), (err) => {
-			if (err) {
-				self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send seek command to Roon - Error: ${err}`);
-			} else {
-				self.commandRouter.pushConsoleMessage(`${this.state.service}::seek to ${timepos} command successfully sent to Roon.`);
-			}
-		})
+		try {
+			return coreFound.services.RoonApiTransport.seek(zone, 'absolute', (timepos / 1000), (err) => {
+				if (err) {
+					self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send seek command to Roon - Error: ${err}`);
+				} else {
+					self.commandRouter.pushConsoleMessage(`${this.state.service}::seek to ${timepos} command successfully sent to Roon.`);
+				}
+			})
+		} catch (err) {
+			self.logger.error(`volroon::roonSeek - ${err}`);
+		}
 	}
 
 };
