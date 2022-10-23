@@ -1,4 +1,4 @@
-September 22th 2022
+October 23th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,18 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+October 23th 2022 v1.0.27
+
+- Bump to camilladsp v1.0.2
+
+October 22th 2022 v1.0.26
+
+- Bump to camilladsp v1.0.2
+
+October 13th 2022 v1.0.25
+
+- Add preset for conv mode release
 
 October 12th 2022 v1.0.24
 
