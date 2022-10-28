@@ -13,7 +13,6 @@ const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
 const libQ = require('kew');
 const net = require('net');
-const Journalctl = require('journalctl');
 const path = require('path');
 const WebSocket = require('ws')
 
@@ -2006,6 +2005,7 @@ FusionDsp.prototype.testclipping = function () {
   let messageDisplayed;
   self.socket.emit('stop');
   let arrreduced;
+  let arr = [];
   let filelength = self.config.get('filter_size');
   setTimeout(function () {
     self.config.set('loudness', false);
@@ -2028,65 +2028,69 @@ FusionDsp.prototype.testclipping = function () {
       setTimeout(function () {
         execSync(cmd);
       }, 50);
-      // socket.emit('unmute', '')
+
     } catch (e) {
       self.logger.error(cmd);
     };
   }, 500);
 
-  let arr = [];
-  let opts = {
-    unit: ''
-  }
-  const journalctl = new Journalctl(opts);
-  journalctl.on('event', (event) => {
-    const pevent = event.MESSAGE.indexOf("Clipping detected");
-    if (pevent != -1) {
-      let filteredMessage = event.MESSAGE.split(',').slice(0, -1).pop().replace("peak ", "").slice(0, -1);
-      //self.logger.info('filteredMessage ' + filteredMessage)
-      let attcalculated = Math.round(Math.abs(20 * Math.log10(100 / filteredMessage)));
-
-      messageDisplayed = attcalculated;
-    } else {
-      messageDisplayed = 0;
-    }
-    arr.push(messageDisplayed);
-    arr.sort((a, b) => {
-      if (a > b) return 1;
-      if (a < b) return -1;
-      return 0;
-    });
-    let offset = 3;
-    let arrreducedr = ((arr.toString().split(',')).pop());
-    arrreduced = +arrreducedr + offset;
-  });
   setTimeout(function () {
-    //self.logger.info('arrreduced  ' + arrreduced);
-    self.config.set('attenuationl', arrreduced);
-    self.config.set('attenuationr', arrreduced);
-    self.config.set('testclipping', false)
-    self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('FILTER_LENGTH') + filelength, self.commandRouter.getI18nString('AUTO_ATTENUATION_SET') + arrreduced + ' dB');
-    self.commandRouter.pushToastMessage('info', 'Attenuation set to: ' + arrreduced + ' dB');
-    //  self.saveparameq();
-    // self.createCamilladspfile();
-    let ltest, rtest, cleftfilter, crightfilter, test
 
-    cleftfilter = filterfolder + self.config.get('leftfilter')
-    crightfilter = filterfolder + self.config.get('rightfilter')
+    let rawlog
+    try {
+      rawlog = fs.readFileSync("/tmp/camilladsp.log", "utf8");
+      var o = 0;
+      var result = (rawlog.split("\n"));
+      for (o; o < result.length; o++) {
+        if (result[o].indexOf("Clipping detected") != -1) {
 
-    ltest = ('Eq1' + '|' + 'Conv' + '|L' + cleftfilter + '|' + arrreduced + '|');
-    rtest = ('Eq2' + '|' + 'Conv' + '|R' + crightfilter + '|' + arrreduced + '|');
-    test = ltest + rtest
-    //self.logger.info('test ' + test)
-    self.config.set('mergedeq', test);
-    self.config.set('savedmergedeqfir', test)
+          let filteredMessage = result[o].replace(" dB", ",").replace("peak +", "").split(",");
+         
+          let attcalculated = filteredMessage[2]
+          messageDisplayed = Number(attcalculated);
+          self.logger.info('clipping detection gives in line ' + o + " " + messageDisplayed)
+          arr.push(messageDisplayed);
+        }
+      }
 
-    self.refreshUI();
-    self.createCamilladspfile();
+    } catch (err) {
+      self.logger.error('An error occurs while reading file');
+    }
 
-    journalctl.stop();
-  }, 2810);
-  return defer.promise;
+
+ // self.logger.info("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh " + arr);
+  arr.sort((a, b) => {
+    if (a > b) return 1;
+    if (a < b) return -1;
+    return 0;
+  });
+
+  let offset = 3;
+  let arrreducedr = ((arr.toString().split(',')).pop());
+  arrreduced = +arrreducedr + offset;
+
+  self.config.set('attenuationl', arrreduced);
+  self.config.set('attenuationr', arrreduced);
+  self.config.set('testclipping', false)
+  self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('FILTER_LENGTH') + filelength, self.commandRouter.getI18nString('AUTO_ATTENUATION_SET') + arrreduced + ' dB');
+  self.commandRouter.pushToastMessage('info', 'Attenuation set to: ' + arrreduced + ' dB');
+  
+  let ltest, rtest, cleftfilter, crightfilter, test
+
+  cleftfilter = filterfolder + self.config.get('leftfilter')
+  crightfilter = filterfolder + self.config.get('rightfilter')
+
+  ltest = ('Eq1' + '|' + 'Conv' + '|L' + cleftfilter + '|' + arrreduced + '|');
+  rtest = ('Eq2' + '|' + 'Conv' + '|R' + crightfilter + '|' + arrreduced + '|');
+  test = ltest + rtest
+  self.config.set('mergedeq', test);
+  self.config.set('savedmergedeqfir', test)
+
+  self.refreshUI();
+  self.createCamilladspfile();
+
+}, 4810);
+return defer.promise;
 
 };
 
@@ -2863,9 +2867,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           gainclipfree = -2
           self.logger.info('else 1  ' + gainclipfree)
         } else {
-          gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
+        //  gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
 
-          //  gainclipfree = ('-' + (parseInt(gainresult))) //+ 2))
+            gainclipfree = ('-' + (parseFloat(gainresult)) + 1)
           //  self.logger.info('gainclipfree '+ gainclipfree)
         }
         if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
