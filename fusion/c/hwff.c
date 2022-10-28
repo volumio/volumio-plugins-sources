@@ -3,7 +3,7 @@
  * in json formated for brutefir plugin for Volumio
  * Adapted by b@lbuze
  * compile with: gcc -o hw_params hwff.c -lasound
- * June 30th 2020
+ * October 27th 2022
  */
 
 #include <stdio.h>
@@ -33,6 +33,8 @@ static const unsigned int rates[] = {
 	96000,
 	176400,
 	192000,
+	384000,
+	768000
 };
 
 int main(int argc, char *argv[])
