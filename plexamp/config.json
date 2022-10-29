@@ -1,0 +1,18 @@
+{
+  "token": {
+	"type": "string",
+	"value": ""
+  },
+  "server": {
+	"type": "string",
+	"value": ""
+  },
+  "library": {
+	"type": "string",
+	"value": "Music"
+  },
+  "timeOut": {
+	"type": "number",
+	"value": 600
+  }
+}

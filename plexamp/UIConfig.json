@@ -1,0 +1,142 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+  "sections": [{
+    "id": "connect",
+    "element": "section",
+    "label": "TRANSLATE.PLUGIN_CRED_DESC",
+    "icon": "fa-plug",
+    "content": [
+      {
+        "id": "connected",
+        "element": "switch",
+        "value": false,
+        "label": "TRANSLATE.CONNECT_TO_PLEX"
+      },
+      {
+        "id": "getpin",
+        "element": "button",
+        "label": "TRANSLATE.GET_PIN_PROMPT",
+        "doc": "Get a fresh PIN from Plex to Link with",
+        "onClick": {
+          "type": "controller",
+          "endpoint": "music_service/plexamp",
+          "method": "getPinAndUpdateField"
+        },
+        "visibleIf": {
+          "field": "connected",
+          "value": false
+        }
+
+      },
+      {
+        "id": "linkplex",
+        "element": "button",
+        "label": "TRANSLATE.LAUNCH_PLEX_PROMPT",
+        "doc": "Link Volumio to your Plex Account using the PIN provided",
+        "onClick": {
+          "type": "openUrl",
+          "url": "https://www.plex.tv/link/"
+        },
+        "visibleIf": {
+          "field": "connected",
+          "value": false
+        }
+      }
+    ]
+  },
+    {
+      "id": "options",
+      "element": "section",
+      "label": "TRANSLATE.PLUGIN_OPTS_DESC",
+      "icon": "fa-wrench",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/plexamp",
+        "method": "savePluginOptions"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "timeOut",
+          "library"
+        ]
+      },
+      "content": [
+        {
+          "id": "library",
+          "type": "text",
+          "element": "select",
+          "value": {
+            "value": 600,
+            "label": "10mn"
+          },
+          "options": [],
+          "hidden": true,
+          "doc": "TRANSLATE.MUSIC_LIBRARY_DOC",
+          "label": "TRANSLATE.MUSIC_LIBRARY"
+        },
+        {
+          "id": "timeOut",
+          "doc": "TRANSLATE.TIME_OUT_DOC",
+          "label": "TRANSLATE.TIME_OUT",
+          "element": "select",
+          "value": {
+            "value": 600,
+            "label": "10mn"
+          },
+          "options": [{
+            "value": 300,
+            "label": "5mn"
+          },
+            {
+              "value": 600,
+              "label": "10mn"
+            },
+            {
+              "value": 1200,
+              "label": "20mn"
+            },
+            {
+              "value": 3600,
+              "label": "1h"
+            },
+            {
+              "value": 7200,
+              "label": "2h"
+            },
+            {
+              "value": 14400,
+              "label": "4h"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "headlessplexamp",
+      "element": "section",
+      "label": "TRANSLATE.PLEXAMP_INSTALL_SECTION",
+      "icon": "fa-plug",
+      "content": [
+        {
+          "element": "select",
+          "value": {
+            "value": 0,
+            "label": "Not installed"
+          },
+          "options": [{
+            "value": 0,
+            "label": "Not installed"
+          },
+            {
+              "value": 1,
+              "label": "PlexAmp (4.5.0)"
+            }
+            ]
+        }
+      ]
+    }
+  ]
+}
