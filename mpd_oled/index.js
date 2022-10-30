@@ -169,8 +169,8 @@ MpdOled.prototype.onStart = function() {
 	self.createMpdOledFifo();
 	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
 	
-	// Start service
-	self.startService();
+	// Start service (once mpd has been detected)
+	self.startServiceWhenMpdIsRunning();
 
 	defer.resolve();
 	return defer.promise;
@@ -190,7 +190,6 @@ MpdOled.prototype.onStop = function() {
 	defer.resolve();
 	return defer.promise;
 };
-
 
 // Make fifo
 MpdOled.prototype.createMpdOledFifo = function () {
@@ -332,6 +331,11 @@ MpdOled.prototype.createPluginTmpScript = function(){
 	const self = this;
 	const parameters = self.getParameters();
 	const content = `#!/bin/bash
+
+	until ps -C mpd > /dev/null; do
+		sleep 1
+	done
+
 	/usr/bin/mpd_oled ${parameters}`;
 
 	// Create a new/overwrite bash script
