@@ -169,8 +169,8 @@ MpdOled.prototype.onStart = function() {
 	self.createMpdOledFifo();
 	self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
 	
-	// Start service (once mpd has been detected)
-	self.startServiceWhenMpdIsRunning();
+	// Start service
+	self.startService();
 
 	defer.resolve();
 	return defer.promise;
@@ -203,7 +203,7 @@ MpdOled.prototype.createMpdOledFifo = function () {
 		});
 	}
 	catch (err) {
-		self.logger.error(`Failed to create mpdoledfifo: ${err}`);
+		self.error(`Failed to create mpdoledfifo: ${err}`);
 		defer.reject(err);
 	}
 };
@@ -220,7 +220,7 @@ MpdOled.prototype.removeMpdOledFifo = function () {
 		});
 	}
 	catch (err) {
-		self.logger.error(`Failed to remove fifo: ${err}`);
+		self.error(`Failed to remove fifo: ${err}`);
 		defer.reject(err);
 	}
 };
