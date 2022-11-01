@@ -16,7 +16,6 @@ rm -f mpd_oled_volumio_install_latest.sh
 ####################################
 # create mpd_oled plugin service
 service="mpd_oled_plugin"
-
 tmp_file_name="/tmp/$service.service"
 tmp_file_contents="[Unit]
 Description=MPD OLED Plugin

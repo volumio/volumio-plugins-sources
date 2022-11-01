@@ -142,11 +142,11 @@ https://volumio.github.io/docs/User_Manual/SSH.html
 
 01 Nov 2022
 
-- First release where I think it will actually work well with Volumio 3
+- First release where the plugin actually work well with Volumio 3.  The issue was not down to the plugin itself but the service that calls mpd_oled_plugin script, it needed to wait for mpd to start.  The fix was in install.sh.  I would never have found this so thanks to Darmur on the forums for finding the fix!
 
 ## To do
 
-- More translations
+- Nothing more planned.  I can relax now :)
 
 
 ## Credits
@@ -155,7 +155,9 @@ https://volumio.github.io/docs/User_Manual/SSH.html
 
 - `mpd_oled` is the application that does all the hard work.  It communicates with MPD running under Volumio, reads audio spectrum data from C.A.V.A and displays it on the screen: <https://github.com/antiprism/mpd_oled>
 
-- Balbuze & Wheaten for their help upgrading the plugin to Volumio 3: <https://github.com/balbuze>  
+- Balbuze, Wheaten, Darmur for their help upgrading the plugin to Volumio 3: <https://github.com/balbuze>
+
+- Loads of really helpful testing by michel8166 for the Volumio 3 release!
 
 - Thanks to misko903 for the Slovakian translation and for giving me the push to write this plugin: <https://github.com/misko903>
 
@@ -163,7 +165,7 @@ https://volumio.github.io/docs/User_Manual/SSH.html
 
 - Italian translation by Pasquale D'Orsi.
 
-- Thanks to everyone who helped to test the plugin and made suggestions in the Volumio community
+- Thanks to everyone who helped to test the plugin and made suggestions in my Volumio community plugin post
 <https://community.volumio.org/t/plugin-mpd-oled-installation-configuration-plugin>
 
 - C.A.V.A. is a bar spectrum audio visualizer: <https://github.com/karlstav/cava>

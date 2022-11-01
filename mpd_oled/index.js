@@ -173,6 +173,7 @@ MpdOled.prototype.onStart = function() {
 	self.startService();
 
 	defer.resolve();
+
 	return defer.promise;
 };
 
@@ -184,10 +185,11 @@ MpdOled.prototype.onStop = function() {
 	// Stop service
 	self.stopService();
 
-	// remove fifo
+	// Remove fifo
 	self.removeMpdOledFifo();
 
 	defer.resolve();
+
 	return defer.promise;
 };
 
@@ -415,7 +417,7 @@ MpdOled.prototype.getParameters = function(){
 	ret += " -b " + config.get(uiElement.numberOfBars.name);
 	ret += " -g " + config.get(uiElement.gapBetweenBars.name);
 	ret += " -f " + config.get(uiElement.frameRate.name);
-	ret += " -s " + config.get(uiElement.scrollRate.name) + "," + config.get(uiElement.scrollDelay.name);	
+	ret += " -s " + config.get(uiElement.scrollRate.name) + "," + config.get(uiElement.scrollDelay.name); 
 	ret += " -C " + config.get(uiElement.clockFormat.name);
 	ret += " -P " + config.get(uiElement.pauseScreenType.name);
 	if (config.get(uiElement.cavaInputMethodAndSourceEnabled.name)){
@@ -437,7 +439,7 @@ MpdOled.prototype.getParameters = function(){
 		ret += " -a " + config.get(uiElement.i2cAddress.name);
 	}
 	ret += " -B " + config.get(uiElement.i2cBus.name);
-	ret += " -r " + config.get(uiElement.spiResetGPIONumber.name);	
+	ret += " -r " + config.get(uiElement.spiResetGPIONumber.name);  
 	ret += " -D " + config.get(uiElement.spiDCGPIONumber.name);
 	ret += " -S " + config.get(uiElement.spiCS.name);
 	if (config.get(uiElement.dateFormat.name) == 1){
@@ -475,7 +477,7 @@ MpdOled.prototype.i2cScan = function(){
 	for (var i = 0; i < 2; i++){
 		if (i2cScan[i].exception){
 			self.commandRouter.pushToastMessage("error", self.getI18nString("I2C_DEVICE_SCAN"), i2cScan[i].exception);
-			return;	
+			return; 
 		}
 	}
 
@@ -631,6 +633,7 @@ MpdOled.prototype.userInterfaceValidationError = function(data){
 MpdOled.prototype.getUIElement = function(ui, field){
 	const self = this;
 	var lookfor = JSON.parse('{"id":"' + field + '"}');
+
 	return ui.sections[0].content.findItem(lookfor);
 };
 
@@ -638,18 +641,20 @@ MpdOled.prototype.getUIElement = function(ui, field){
 MpdOled.prototype.setSwitchElement = function(ui, field){
 	const self = this;
 	var control = self.getUIElement(ui, field);
+
 	if (control){
 		control.value = config.get(field);
 	}
 	else{
 		self.error(`Could not find switch element: ${field}`);
-	}	
+	} 
 };
 
 // Populate select UI element
 MpdOled.prototype.setSelectElement = function(ui, field, value, label){
 	const self = this;
 	var control = self.getUIElement(ui, field);
+
 	if (control){
 		control.value.value = value;
 		control.value.label = label;
@@ -663,6 +668,7 @@ MpdOled.prototype.setSelectElement = function(ui, field, value, label){
 MpdOled.prototype.setTextElement = function(ui, field){
 	const self = this;
 	var control = self.getUIElement(ui, field);
+
 	if (control){
 		control.value = config.get(field);
 	}
@@ -676,7 +682,7 @@ MpdOled.prototype.saveElementInConfig = function(field, data){
 	config.set(field, data[field]); 
 };
 
-// ========================== Logger ==========================
+// ========================== Logging==========================
 
 // Output error to log
 MpdOled.prototype.error = function(msg){
@@ -691,7 +697,6 @@ MpdOled.prototype.info = function(msg){
 };
 
 // ==================== Unused plugin methods ====================
-
 MpdOled.prototype.onRestart = function(){};
 MpdOled.prototype.onInstall = function (){};
 MpdOled.prototype.onUninstall = function(){};
