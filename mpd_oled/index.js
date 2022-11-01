@@ -332,10 +332,6 @@ MpdOled.prototype.createPluginTmpScript = function(){
 	const parameters = self.getParameters();
 	const content = `#!/bin/bash
 
-	until ps -C mpd > /dev/null; do
-		sleep 1
-	done
-
 	/usr/bin/mpd_oled ${parameters}`;
 
 	// Create a new/overwrite bash script

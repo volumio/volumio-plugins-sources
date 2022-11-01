@@ -140,6 +140,10 @@ https://volumio.github.io/docs/User_Manual/SSH.html
 
 - Upgraded to volumio 3
 
+01 Nov 2022
+
+- First release where I think it will actually work well with Volumio 3
+
 ## To do
 
 - More translations
@@ -151,7 +155,7 @@ https://volumio.github.io/docs/User_Manual/SSH.html
 
 - `mpd_oled` is the application that does all the hard work.  It communicates with MPD running under Volumio, reads audio spectrum data from C.A.V.A and displays it on the screen: <https://github.com/antiprism/mpd_oled>
 
-- Balbuze for help upgrading the plugin to Volumio 3: <https://github.com/balbuze>  
+- Balbuze & Wheaten for their help upgrading the plugin to Volumio 3: <https://github.com/balbuze>  
 
 - Thanks to misko903 for the Slovakian translation and for giving me the push to write this plugin: <https://github.com/misko903>
 

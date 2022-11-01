@@ -20,6 +20,8 @@ service="mpd_oled_plugin"
 tmp_file_name="/tmp/$service.service"
 tmp_file_contents="[Unit]
 Description=MPD OLED Plugin
+After=network.target sound.target mpd.service
+Requires=mpd.service
 
 [Service]
 ExecStart=/tmp/mpd_oled_plugin.sh
