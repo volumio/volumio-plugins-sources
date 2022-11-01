@@ -1,4 +1,4 @@
-October 28th 2022
+November 1st 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,10 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+November 1st 2022 v1.0.29
+
+- Fix camilla gui install
 
 October 28th 2022 v1.0.28
 
