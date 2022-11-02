@@ -1,4 +1,4 @@
-November 1st 2022
+November 2nd 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,10 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+November 2nd 2022 v1.0.30
+
+- Fix auto pre amp
 
 November 1st 2022 v1.0.29
 
