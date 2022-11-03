@@ -464,8 +464,8 @@
 					"label": "TRANSLATE.FRAME_RATE.LABEL",
 					"doc": "TRANSLATE.FRAME_RATE.DOC",
 					"value": {
-						"value": 15,
-						"label": "15 (default)"
+						"value": 50,
+						"label": "50 (default)"
 					},
 					"options": [
 						{
@@ -478,7 +478,7 @@
 						},
 						{
 							"value": 15,
-							"label": "TRANSLATE.FRAME_RATE.DEFAULT"
+							"label": "15"
 						},
 						{
 							"value": 20,
@@ -506,7 +506,7 @@
 						},
 						{
 							"value": 50,
-							"label": "50"
+							"label": "TRANSLATE.FRAME_RATE.DEFAULT"
 						},
 						{
 							"value": 55,
@@ -947,7 +947,11 @@
 					"element": "switch",
 					"label": "TRANSLATE.CAVA_INPUT_METHOD_AND_SOURCE_ENABLED.LABEL",
 					"doc": "TRANSLATE.CAVA_INPUT_METHOD_AND_SOURCE_ENABLED.DOC",
-					"value": false
+					"value": false,
+					"visibleIf": {
+						"field": "",
+						"value": true
+					}
 				},
 				{
 					"id": "cavaInputMethodAndSource",
@@ -955,9 +959,9 @@
 					"element": "input",
 					"label": "TRANSLATE.CAVA_INPUT_METHOD_AND_SOURCE.LABEL",
 					"doc": "TRANSLATE.CAVA_INPUT_METHOD_AND_SOURCE.DOC",
-					"value": "fifo,/tmp/mpd_oled_fifo",
+					"value": "fifo,/tmp/mpdoledfifo",
 					"visibleIf": {
-						"field": "cavaInputMethodAndSourceEnabled",
+						"field": "",
 						"value": true
 					}
 				},
@@ -1870,7 +1874,17 @@
 					"onClick": { 
 						"type" : "openUrl", 
 						"url" : "https://github.com/antiprism/mpd_oled" 
-					}
+					}   
+				},
+				{
+					"id": "mpdOledForum",
+					"element": "button",
+					"label": "TRANSLATE.MPD_OLED_FORUM_LINK.LABEL",
+					"description": "TRANSLATE.MPD_OLED_FORUM_LINK.DESC",
+					"onClick": { 
+						"type" : "openUrl", 
+						"url" : "https://community.volumio.org/t/plugin-mpd-oled-installation-configuration-plugin" 
+					}   
 				}
 			]
 		}
