@@ -22,7 +22,7 @@ if [ ! -f $INSTALLING ]; then
 		fi
 		
 		cd /home/volumio/logitechmediaserver/
-		wget https://downloads.slimdevices.com/LogitechMediaServer_v8.2.0/logitechmediaserver_8.2.0_all.deb
+		wget https://downloads.slimdevices.com/LogitechMediaServer_v8.3.0/logitechmediaserver_8.3.0_all.deb
 		echo "Download finished..."
 
 		# Move the binary to the expected directory
@@ -33,7 +33,7 @@ if [ ! -f $INSTALLING ]; then
 		
 		# Install package and dependencies
 		echo "Installing downloaded package"
-		dpkg -i logitechmediaserver_8.2.0_all.deb
+		dpkg -i logitechmediaserver_8.3.0_all.deb
 		
 		# Needed for SSL connections; e.g. github
 		apt-get install libio-socket-ssl-perl lame unzip -y
