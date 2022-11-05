@@ -174,10 +174,11 @@ function plex(log, config) {
         var self = this;
         var defer = libQ.defer();
 
-        var cached = cacheGet(JSON.stringify(options) )
+        const cacheKey = JSON.stringify(options);
+        var cached = cacheGet(cacheKey )
             .then(function(cached) {
                 if (cached === undefined) {
-                    logger.info("Plexamp: ++++++ Cache no found:" + JSON.stringify(options));
+//                    logger.info("Plexamp: ++++++ Cache no found:" + cacheKey);
                     if (client === null) defer.reject(new Error("Not connected"));
                     client.query(options)
                         .then(function(result) {
@@ -185,17 +186,22 @@ function plex(log, config) {
                             if (result.MediaContainer) {
                                 if (result.MediaContainer.Metadata) {
                                     if (result.MediaContainer.size == 1) {
-                                        cacheSet(JSON.stringify(options), result.MediaContainer.Metadata[0]);
+//                                        logger.info("Plexamp: ********** Cache set:" + cacheKey);
+                                        cacheSet(cacheKey, result.MediaContainer.Metadata[0]);
                                         defer.resolve(result.MediaContainer.Metadata[0]);
                                     } else {
-                                        cacheSet(JSON.stringify(options), result.MediaContainer.Metadata);
+//                                        logger.info("Plexamp: ********** Cache set:" + cacheKey);
+                                        cacheSet(cacheKey, result.MediaContainer.Metadata);
                                         defer.resolve(result.MediaContainer.Metadata);
                                     }
                                 } else {
-                                    cacheSet(JSON.stringify(options), result.MediaContainer);
+//                                    logger.info("Plexamp: ********** Cache set:" + cacheKey);
+                                    cacheSet(cacheKey, result.MediaContainer);
                                     defer.resolve(result.MediaContainer);
                                 }
                             } else {
+//                                logger.info("Plexamp: ********** Cache set:" + cacheKey);
+                                cacheSet(cacheKey, result);
                                 defer.resolve(result);
                             }
                         }, function (err) {
@@ -203,7 +209,7 @@ function plex(log, config) {
                             defer.reject(new Error(err.message));
                         });
                 } else {
-                    logger.info("Plexamp: ********** Cache hit:" + options);
+//                    logger.info("Plexamp: ********** Cache hit:" + cacheKey);
                     defer.resolve(cached);
                 }
             });
