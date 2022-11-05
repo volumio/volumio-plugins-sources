@@ -44,8 +44,8 @@ sudo chgrp -R volumio cgui
 sudo rm cgui-1.0.0.zip
 
 cd $LIB
-pip install git+https://github.com/HEnquist/pycamilladsp.git@v1.0.0
-pip install git+https://github.com/HEnquist/pycamilladsp-plot.git@v1.0.2
+pip3 install git+https://github.com/HEnquist/pycamilladsp.git@v1.0.0
+pip3 install git+https://github.com/HEnquist/pycamilladsp-plot.git@v1.0.2
 
 #echo "remove previous configuration"
 #if [ ! -f "/data/configuration/audio_interface/fusiondsp/config.json" ];

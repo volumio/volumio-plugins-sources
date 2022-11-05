@@ -157,7 +157,7 @@ FusionDsp.prototype.hwinfo = function () {
   let hwinfo;
   let samplerates;
   try {
-    execSync('/data/plugins/audio_interface/fusiondsp/hw_params hw:' + output_device + ' >/data/configuration/audio_interface/fusiondsp/hwinfo.json ', {
+    execSync('/data/plugins/audio_interface/fusiondsp/hw_params ' + 'volumioHw' + ' >/data/configuration/audio_interface/fusiondsp/hwinfo.json ', {
       uid: 1000,
       gid: 1000
     });
@@ -2869,7 +2869,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         } else {
         //  gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
 
-            gainclipfree = ('-' + (parseFloat(gainresult)) + 1)
+            gainclipfree = ('-' + ((parseFloat(Number(gainresult))) + 1))
           //  self.logger.info('gainclipfree '+ gainclipfree)
         }
         if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
