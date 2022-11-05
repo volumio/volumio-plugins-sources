@@ -23,7 +23,6 @@
 		],
 		"details": "Server plugin for the LMS ecosystem and smart mix plugin",
 		"changelog": "Initial version"
-	
 	},
 	"engines": {
 		"node": ">=8.11.1",
@@ -35,7 +34,7 @@
 		"ip": "^1.1.5",
 		"kew": "^0.7.0",
 		"wireless-tools": "^0.19.0"
-	},	
+	},
 	"keywords": [
 		"lms",
 		"multiroom",
