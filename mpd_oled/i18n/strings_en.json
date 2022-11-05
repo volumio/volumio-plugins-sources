@@ -43,7 +43,7 @@
 	"FRAME_RATE": {
 		"LABEL": "Frame rate",
 		"DOC": "Select the frame rate that the display will be refreshed (Hz)<br/><br/>The installation process increases the I2C speed to 800 Kbit/s but for this change to take affect you need to restart your Raspberry Pi.<br/><br/>Tip: a Raspberry Pi 3 with a frame rate of 50Hz provides great results.",
-		"DEFAULT": "15 (default)"
+		"DEFAULT": "50 (default)"
 	},
 	"SCROLL_RATE": {
 		"LABEL": "Scroll rate",
@@ -143,6 +143,10 @@
 	"MPD_OLED_LINK": {
 		"LABEL": "MPD OLED on GitHub",
 		"DESC": "Visit the MPD OLED project on GitHub."
+	},
+	"MPD_OLED_FORUM_LINK": {
+		"LABEL": "Plugin Feedback",
+		"DESC": "Visit this plugin's page in the Volumio community forum."
 	},
 	"DATE_FORMAT": {
 		"LABEL": "Date format",
