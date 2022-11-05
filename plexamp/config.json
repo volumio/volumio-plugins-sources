@@ -14,5 +14,18 @@
   "timeOut": {
 	"type": "number",
 	"value": 600
+  },
+  "local": {
+	"type": "boolean",
+	"value": true
+  },
+  "recentAddedLimit": {
+	"type": "number",
+	"value": 30
+  },
+  "recentPlayedLimit": {
+	"type": "number",
+	"value": 50
   }
+
 }

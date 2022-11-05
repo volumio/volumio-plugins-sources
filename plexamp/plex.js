@@ -23,6 +23,30 @@ function plex(log, config) {
         return (client != null);
     }
 
+    var queryLibraries = function(serverName, serverToUse, port) {
+        var defer = libQ.defer();
+        var token = config.get('token');
+        if (token) {
+             var plexServer = new PlexAPI({
+                "token": token,
+                "hostname": serverToUse,
+                "port": port
+            });
+            plexServer.find({uri:"/library/sections/"}, {type: "artist"})  // A Plex Music "Library" is organised by Artist (currently)
+                .then(function(result) {
+                    defer.resolve({
+                        "name": serverName,
+                        "hostname": serverToUse,
+                        "port": port,
+                        "libraries": result
+                    });
+                });
+        } else {
+            defer.fail("No token");
+        }
+        return defer.promise;
+    }
+
     var connect = function() {
         var defer = libQ.defer();
 
@@ -109,6 +133,36 @@ function plex(log, config) {
         }
     }
 
+    var queryAllMusicLibraries = function() {
+        var defer = libQ.defer();
+        var promises = [];	// Array to gather all the various promises
+        // Query all the servers first
+        query("/servers").then((servers) => {
+            for (var i = 0;i<servers.size; i++ ) {
+                var server = servers.Server[i];
+                // Then query the list of Music libraries on the server
+                promises.push(queryLibraries(server.name, server.address, server.port));
+            }
+            var listOfMusicLibraries = [];
+            Promise.all(promises).then(function(serverMusicLibraries) {
+                for (const serverLibrary of serverMusicLibraries) {
+                    for (const musicLibrary of serverLibrary.libraries) {
+                        listOfMusicLibraries.push({
+                            "name": serverLibrary.name,
+                            "hostname": serverLibrary.hostname,
+                            "port": serverLibrary.port,
+                            "libraryTitle": musicLibrary.title,
+                            "key": musicLibrary.key
+                        });
+                    }
+                }
+                defer.resolve(listOfMusicLibraries);
+            });
+        });
+
+        return defer.promise;
+    }
+
 
 
     /**
@@ -117,17 +171,30 @@ function plex(log, config) {
      * @returns {Promise}
      */
     var query = function(options) {
+        var self = this;
         var defer = libQ.defer();
 
-        var cached = cacheGet(options )
+        var cached = cacheGet(JSON.stringify(options) )
             .then(function(cached) {
                 if (cached === undefined) {
+                    logger.info("Plexamp: ++++++ Cache no found:" + JSON.stringify(options));
                     if (client === null) defer.reject(new Error("Not connected"));
                     client.query(options)
                         .then(function(result) {
+                            // Most query result in a Mediacontrainer and most mediacontainers contain Metadata
                             if (result.MediaContainer) {
-                                cacheSet(options, result.MediaContainer);
-                                defer.resolve(result.MediaContainer);
+                                if (result.MediaContainer.Metadata) {
+                                    if (result.MediaContainer.size == 1) {
+                                        cacheSet(JSON.stringify(options), result.MediaContainer.Metadata[0]);
+                                        defer.resolve(result.MediaContainer.Metadata[0]);
+                                    } else {
+                                        cacheSet(JSON.stringify(options), result.MediaContainer.Metadata);
+                                        defer.resolve(result.MediaContainer.Metadata);
+                                    }
+                                } else {
+                                    cacheSet(JSON.stringify(options), result.MediaContainer);
+                                    defer.resolve(result.MediaContainer);
+                                }
                             } else {
                                 defer.resolve(result);
                             }
@@ -136,6 +203,7 @@ function plex(log, config) {
                             defer.reject(new Error(err.message));
                         });
                 } else {
+                    logger.info("Plexamp: ********** Cache hit:" + options);
                     defer.resolve(cached);
                 }
             });
@@ -151,14 +219,14 @@ function plex(log, config) {
     var postQuery = function(options) {
         var defer = libQ.defer();
 
-        var cached = cacheGet(options)
+        var cached = cacheGet(JSON.stringify(options))
             .then(function(cached) {
                 if (cached === undefined) {
                     if (client === null) defer.reject(new Error("Not connected"));
                     client.postQuery(options)
                         .then(function(result) {
                             if (result.MediaContainer) {
-                                cacheSet(options , result.MediaContainer);
+                                cacheSet(JSON.stringify(options) , result.MediaContainer);
                             }
                             defer.resolve(result.MediaContainer);
                         }, function (err) {
@@ -181,14 +249,14 @@ function plex(log, config) {
     var findMusic = function(options) {
         var defer = libQ.defer();
 
-        var cached = cacheGet(options)
+        var cached = cacheGet(JSON.stringify(options))
             .then(function(cached) {
                 if (cached === undefined) {
                     if (client === null) defer.reject(new Error("Not connected"));
                     client.find(options, {type: "artist"})  // A Plex Music "Library" is organised by Artist (currently)
                         .then(function(result) {
                             if (result) {
-                                cacheSet(options , result);
+                                cacheSet(JSON.stringify(options) , result);
                             }
                             defer.resolve(result);
                         }, function (err) {
@@ -204,14 +272,14 @@ function plex(log, config) {
 
     var findPlaylists = function(options) {
         var defer = libQ.defer();
-        var cached = cacheGet(options)
+        var cached = cacheGet(JSON.stringify(options))
             .then(function(cached) {
                 if (cached === undefined) {
                     if (client === null) defer.reject(new Error("Not connected"));
                     client.find(options, {type: "playlist", playlistType: "audio"})
                         .then(function(result) {
                             if (result) {
-                                cacheSet(options , result);
+                                cacheSet(JSON.stringify(options) , result);
                             }
                             defer.resolve(result);
                         },function(err) {
@@ -241,8 +309,125 @@ function plex(log, config) {
             });
         return defer.promise;
     };
+
+    var searchForTracks = function(musicSectionKey, trackName) {
+        return query("/library/sections/" + musicSectionKey + "/search?title=" + trackName +"&type=10");
+    };
+    var searchForAlbums = function(musicSectionKey, albumName, limit) {
+        return query("/library/sections/" + musicSectionKey + "/search?title=" + albumName +"&type=9");
+    };
+    var searchForArtists = function(musicSectionKey, artistName, limit) {
+        return query("/library/sections/" + musicSectionKey + "/search?title=" + artistName +"&type=8");
+    };
+
+    var getArtistsFirstLetters = function(musicSectionKey, letter) {
+        return query({uri:"/library/sections/" + musicSectionKey + "/firstCharacter" + (letter === undefined?"":"/" + letter) +"?type=8"});
+    }
+
+    var getAlbumsFirstLetters = function(musicSectionKey, letter) {
+        return query({uri:"/library/sections/" + musicSectionKey + "/firstCharacter" + (letter === undefined?"":"/" + letter)  +"?type=9"});
+    }
+
+    var getAllArtists = function(musicSectionKey) {
+        return query({uri:"/library/sections/" + musicSectionKey + "/all?type=8"});
+    }
+
+    var getAllAlbums = function(musicSectionKey) {
+        return query({uri:"/library/sections/" + musicSectionKey + "/all?type=9"});
+    }
+
+    var getListOfMusicServers = function() {
+        return findMusic({uri:"/library/sections/"});
+    }
+
+    var getListOfRecentAddedAlbums = function(key, limit) {
+        return query({uri:"/library/recentlyAdded/" + key + "/all?type=9&sort=addedAt:desc&includeMeta=1&includeAdvanced=1", extraHeaders: {
+                "X-Plex-Container-Start": "0",
+                "X-Plex-Container-Size": limit
+            }});
+    }
+    var getListOfRecentAddedArtists = function(key, limit) {
+        return query({uri:"/library/sections/" + key + "/all?viewCount>=1&type=8&sort=addedAt:desc", extraHeaders: {
+                "X-Plex-Container-Start": "0",
+                "X-Plex-Container-Size": limit
+            }});
+    }
+
+    var getListOnDeck = function(key, limit) {
+        return query({uri:"/library/onDeck", extraHeaders: {
+                "X-Plex-Container-Start": "0",
+                "X-Plex-Container-Size": limit
+            }});
+    }
+
+
+    var getListOfRecentPlayedArtists = function(key, limit) {
+        return query({uri:"/library/sections/" + key + "/all?viewCount>=1&type=8&sort=lastViewedAt:desc", extraHeaders: {
+                "X-Plex-Container-Start": "0",
+                "X-Plex-Container-Size": limit
+            }});
+    }
+    var getListOfRecentPlayedAlbums = function(key, limit) {
+        return query({uri:"/library/sections/" + key + "/all?viewCount>=1&type=9&sort=lastViewedAt:desc", extraHeaders: {
+                "X-Plex-Container-Start": "0",
+                "X-Plex-Container-Size": limit
+            }});
+    }
+
+    var getListOfRecentPlaylists = function (key, limit) {
+        return query({uri:"/playlists/all?type=15&sort=lastViewedAt:desc&playlistType=audio", extraHeaders: {
+                "X-Plex-Container-Start": "0",
+                "X-Plex-Container-Size": limit
+            }});
+    }
+
+    var getListOfPlaylists = function(key) {
+        return findPlaylists({uri:"/playlists", key: key });
+    }
+
+    var getPlaylist = function(key, limit) {
+        return query({uri:key, extraHeaders: {
+                "X-Plex-Container-Start": "0",
+                "X-Plex-Container-Size": limit
+            }});
+    }
+    /*
+    var getAlbumsByArtist = function(artistKey) {
+        return query({uri:artistKey + "/all?type=9"});
+    }*/
+
+    var getListOfMusicLibraries = function() {
+        return findMusic({uri:"/library/sections/"});
+    }
+    var getAlbumTracks = function(key) {
+        return query("/library/metadata/" +key + "/children");
+    }
+
+    var getAlbumsByArtist = function(artistKey) {
+        return query({uri:"/library/metadata/" + artistKey + "/children"});
+    }
+
+    var getAlbumRelated = function(key) {
+        return query( "/library/metadata/" + key + "/related");
+    }
+    var getArtistRelated = function(key) {
+        return query( "/library/metadata/" + key + "/related") ;
+    }
+
+    var getArtist = function(key) {
+        return query( "/library/metadata/" +key ) ;
+    }
+    var getAlbum = function(key) {
+        return query( "/library/metadata/" + key);
+    }
+
+    var getTrack = function(key) {
+        return query( key);
+    }
     return {
         isConnected: isConnected,
+        queryLibraries: queryLibraries,
+        queryAllMusicLibraries: queryAllMusicLibraries,
         connect: connect,
         cacheGet: cacheGet,
         cacheSet: cacheSet,
@@ -252,7 +437,31 @@ function plex(log, config) {
         postQuery: postQuery,
         findMusic: findMusic,
         findPlaylists: findPlaylists,
-        getArtistArt: getArtistArt
+        getArtistArt: getArtistArt,
+        getArtistsFirstLetters:getArtistsFirstLetters,
+        getAlbumsFirstLetters: getAlbumsFirstLetters,
+        getArtistRelated:getArtistRelated,
+        getArtist: getArtist,
+        getAllArtists: getAllArtists,
+        getAllAlbums: getAllAlbums,
+        getListOfMusicServers: getListOfMusicServers,
+        getListOfRecentAddedAlbums: getListOfRecentAddedAlbums,
+        getListOfRecentAddedArtists: getListOfRecentAddedArtists,
+        getListOnDeck: getListOnDeck,
+        getListOfRecentPlayedAlbums: getListOfRecentPlayedAlbums,
+        getListOfRecentPlayedArtists:getListOfRecentPlayedArtists,
+        getListOfRecentPlaylists: getListOfRecentPlaylists,
+        getListOfPlaylists: getListOfPlaylists,
+        getPlaylist:getPlaylist,
+        getListOfMusicLibraries:getListOfMusicLibraries,
+        getAlbumsByArtist:getAlbumsByArtist,
+        getAlbumTracks: getAlbumTracks,
+        getAlbumRelated: getAlbumRelated,
+        getAlbum: getAlbum,
+        getTrack: getTrack,
+        searchForTracks: searchForTracks,
+        searchForAlbums:searchForAlbums,
+        searchForArtists:searchForArtists
     };
 
 };

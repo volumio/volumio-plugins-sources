@@ -69,13 +69,61 @@
           "type": "text",
           "element": "select",
           "value": {
-            "value": 600,
-            "label": "10mn"
+            "value": {},
+            "label": "Music"
           },
           "options": [],
           "hidden": true,
           "doc": "TRANSLATE.MUSIC_LIBRARY_DOC",
           "label": "TRANSLATE.MUSIC_LIBRARY"
+        },
+        {
+          "id": "local",
+          "element": "switch",
+          "value": true,
+          "label": "TRANSLATE.LOCAL_ACCESS",
+          "doc": "TRANSLATE.LOCAL_ACCESS_DOC",
+          "hidden": true
+        },
+        {
+          "id": "recentAddedLimit",
+          "type": "text",
+          "element": "select",
+          "value": {
+            "value": 30,
+            "label": "30 Latest albums"
+          },
+          "options": [{
+            "value": 30,
+            "label": "30 Latest albums"
+          },
+            {
+              "value": 60,
+              "label": "60 Latest albums"
+            }],
+          "doc": "TRANSLATE.RECENTLY_ADDED_DOC",
+          "label": "TRANSLATE.RECENTLY_ADDED",
+          "hidden": true
+        },
+        {
+          "id": "recentPlayedLimit",
+          "type": "text",
+          "element": "select",
+          "value": {
+            "value": 50,
+            "label": "50 Recently played albums"
+          },
+          "options": [{
+            "value": 50,
+            "label": "50 Recently played albums"
+          },
+            {
+              "value": 100,
+              "label": "Recently played albums"
+            }],
+          "doc": "TRANSLATE.RECENTLY_PLAYED_DOC",
+          "label": "TRANSLATE.RECENTLY_PLAYED",
+          "hidden": true
         },
         {
           "id": "timeOut",
@@ -132,7 +180,7 @@
           },
             {
               "value": 1,
-              "label": "PlexAmp (4.5.0)"
+              "label": "PlexAmp (4.4.0)"
             }
             ]
         }

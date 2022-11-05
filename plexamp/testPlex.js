@@ -1,7 +1,10 @@
 
 var plex = require('./plex');
-const PlexPin = require('./plexpinauth');
+var libQ = require('kew');
+var Plexcloud = require('./plexcloud');
 
+const PlexPin = require('./plexpinauth');
+require('dotenv').config()
 class Logger {
     info = (message) => {console.log(message);}
 }
@@ -22,64 +25,73 @@ var plexBackend = new plex(new Logger(), new Config());
 
 plexBackend.connect().then(function(){
 
-    plexBackend.query("/servers").then((result) => {
-        console.log(result);
-    })
+    plexBackend.queryAllMusicLibraries().then(function (libraries) {
 
-    // A couple of tests - lets look for the servers
-    getListOfMusicLibraries().then(function (result) {
-        console.log("%s running Plex Media Server %s", result.friendlyName, result.version);
+        for (const musicLibrary of libraries) {
+            console.log("Library called %s running on Plex Media Server %s", musicLibrary.library, musicLibrary.hostname);
+        }
+        var filteredMusicLibrary = libraries.filter((library) => library.libraryTitle === 'Music' && library.name === "garagevolumio");
 
-        var musicLibrary = result.filter((library) => library.title === 'Music');
-
-        doAllMusicQueryTests(musicLibrary[0].key);
-
-    }, function (err) {
-        console.error("Could not connect to server", err);
+        try {
+            doAllMusicQueryTests(filteredMusicLibrary[0].key);
+        } catch (Err) {
+            console.error(Err);
+        }
     });
-
 });
+
 
 function doAllMusicQueryTests(musicSectionKey) {
 
     /*
-    getListOfMusicServers().then((results) => {
-        for (const server of results) {
-            console.log("Music Section Title [" + server.title + "] key: [ " + server.key + " ]");
+    plexBackend.getAlbumsFirstLetters(musicSectionKey).then((results) => {
+        console.log(JSON.stringify(results));
+    });
+
+    plexBackend.getAlbumsFirstLetters(musicSectionKey, "S").then((results) => {
+        for (const album of results) {
+            console.log("Playlist Title [" + album.title + "] key: [ " + album.key + " ] Total Tracks:[ " + album.size + " ]");
         }
-    });*/
-/*
-    getListOfPlaylists(1).then((results) => {
+    });
+    */
+    /*
+    var albumKey = "113385";
+    plexBackend.getAlbumRelated(albumKey).then((albumTracks) => {
+        console.log("Related:" + JSON.stringify(albumTracks));
+        console.log("\n");
+        plexBackend.getAlbumRelated(albumKey).then((albumTracks) => {
+            console.log("Related:" + JSON.stringify(albumTracks));
+            console.log("\n");
+        });
+    });
+    */
+    /*
+    plexBackend.getListOfPlaylists(musicSectionKey).then((results) => {
         for (const playlist of results) {
             console.log("Playlist Title [" + playlist.title + "] key: [ " + playlist.key + " ] Total Tracks:[ " + playlist.leafCount + " ]");
         }
     });
     */
-    // Should be key of 12 in our example:
-/*    getListOfPlaylists(12).then((results) => {
-        for (const playlist of results) {
-            console.log("Playlist Title [" + playlist.title + "] key: [ " + playlist.key + " ] Total Tracks:[ " + playlist.leafCount + " ]");
-        }
-    });
-*/
     /*
-    getAllAlbums(musicSectionKey).then((artists)=> {
+    plexBackend.getAllAlbums(musicSectionKey).then((artists)=> {
         console.log(JSON.stringify(artists));
-    });*/
+    });
+     */
     /*
-    getAllArtists().then((artists)=> {
+    plexBackend.getAllArtists().then((artists)=> {
         console.log(JSON.stringify(artists));
     });
 
      */
-    getAlbumDetails("/library/metadata/236778/children").then((albumDetails) => {
+    /*
+    plexBackend.getAlbumDetails("113385/children").then((albumDetails) => {
        console.log(JSON.stringify(albumDetails));
     });
-    getAlbumDetails("/library/metadata/236778?related").then((albumDetails) => {
+    plexBackend.getAlbumDetails("113385/related").then((albumDetails) => {
         console.log(JSON.stringify(albumDetails));
-    });
+    });*/
     /*
-    getTrack("/library/metadata/113056").then((media) => {
+    plexBackend.getTrack("113056").then((media) => {
 
         var song = media.Metadata[0];
         var track = {
@@ -103,7 +115,7 @@ function doAllMusicQueryTests(musicSectionKey) {
     });
     */
     /*
-    getPlaylist("/playlists/110226/items").then((playlist) => {
+    plexBackend.getPlaylist("/playlists/110226/items").then((playlist) => {
         var items = [];
 
         function _formatSong(song, curUri) {
@@ -130,179 +142,80 @@ function doAllMusicQueryTests(musicSectionKey) {
     });
 */
 
+    plexBackend.searchForArtists(musicSectionKey, "Radio", 100).then(function(artistsResults) {
+        var self = this;
+        self.artistsResults = artistsResults;
+        for (const artist of artistsResults) {
+            plexBackend.getArtist( artist.ratingKey).then(function(artistDetails) {
+                console.log(JSON.stringify(artistDetails));
+//                plexBackend.getAlbumsByArtist(artist.ratingKey).then(function(albums) {
+//                    for (const album of albums) {
+//                        console.log(JSON.stringify(album));
+//                    }
+//                });
+                plexBackend.getArtist( artist.ratingKey).then(function(fromCache) {
+                    console.log("From Cache");
+                });
+            });
+        }
+    });
 
     /*
-        getListOfRecentPlaylists(12).then((results) => {
+        plexBackend.getListOfRecentPlaylists(musicSectionKey).then((results) => {
             for (const album of results) {
                 console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
             }
         });
 */
     /*
-    getListOfRecentAddedAlbums(1).then((results) => {
-        for (const album of results) {
-            console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
-        }
-    });
-     */
-/*
-    getListOfRecentPlayedAlbums(1).then((results) => {
-        for (const album of results) {
-            console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
-        }
-    });
-    getAlbumDetails("/library/metadata/112974/children").then((results) => {
-        console.log("Artist: [" + results.title1 + "] Album [" + results.title2 + "] summary: [" + results.summary + "]");
-        for (const track of results.Metadata) {
-            printTrackDetails(track);
-        }
-        getMetadata("112974").then((result) => {
-            console.log(result);
+        plexBackend.getListOfRecentAddedArtists(musicSectionKey).then((results) => {
+            for (const album of results) {
+                console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
+            }
+        });
+        plexBackend.getListOfRecentPlayedArtists(musicSectionKey).then((results) => {
+            for (const album of results) {
+                //console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
+            }
+            console.log("Recently Played:" + results.length)
+        });
+        */
+    /*
+    var albumKey = 112974;
+    plexBackend.getAlbumDetails(+albumKey).then((results) => {
+        var album = results[0];
+        console.log("Artist: [" + album.title1 + "] Album [" + album.title2 + "] summary: [" + album.summary + "]");
+
+        plexBackend.getMetadata(albumKey).then((result) => {
+            console.log("AlbumMetadata:" + JSON.stringify(result));
+        });
+
+        plexBackend.query(album.parentKey).then((metadata) => {
+            console.log("ArtistMetadata:" + JSON.stringify(metadata));
         });
     });
+
+    plexBackend.getAlbumDetails( + albumKey + "/children").then((albumTracks) => {
+        for (const track of albumTracks) {
+            printTrackDetails(track);
+        }
+    })
      */
+    var bandToFind = "Born";
+    plexBackend.searchForAlbums(musicSectionKey, bandToFind).then((results) => {
+       console.log(JSON.stringify(results));
+    });
 }
 
 function getMetadata(key) {
-    return plexBackend.query("/library/metadata/" + key + "?context=library:hub.music.recent.played");
+    return plexBackend.query( + key);
 }
 
-function  getTrack(key) {
-    var self = this;
-    return plexBackend.query(key);
-}
-
-function getListOfMusicLibraries () {
-    var self = this;
-    return plexBackend.findMusic({uri:"/library/sections/"});
-}
 
 function printTrackDetails(track) {
     console.log(" Track: " + track.title + " length:" + track.duration + " type:" + track.Media[0].audioCodec);
     console.log(" stream URL:" + track.Media[0].Part[0].key + "?download=1");
 }
-
-function getAllArtists() {
-    var self = this;
-    var musicSectionKey = 1;	// Get this from the config - It's the key of the music folder
-    return plexBackend.query({uri:"/library/sections/" + musicSectionKey + "/all?type=8", source: musicSectionKey})
-        .then(function(hub) {
-            return hub.Metadata;
-        }, function(error) {
-            console.log("Error" + error.message);
-        });
-}
-
-function getAllAlbums(musicSectionKey) {
-    var self = this;
-    return plexBackend.query({uri:"/library/sections/" + musicSectionKey + "/all?type=9"})
-        .then(function(hub) {
-            return hub.Metadata;
-        }, function(error) {
-            console.log("Error" + error.message);
-        });
-}
-
-function getListOfMusicServers() {
-    return plexBackend.findMusic({uri:"/library/sections/"});
-}
-
-function getAlbumDetails(key) {
-    return plexBackend.query(key);
-}
-/**
- * Recent Albums from Hub View (possible replace with Search sorted by date with limit)
- * @param key
- * @returns {*}
- */
-function getListOfRecentAddedAlbums(key) {
-    return plexBackend.query({uri:"/library/sections/" + key + "/all?type=9&sort=addedAt:desc", extraHeaders: {
-            "X-Plex-Container-Start": "0",
-            "X-Plex-Container-Size": "100"
-    }}).then((hub) => {
-        return hub.Metadata;
-    });
-}
-
-/**
- * type= 8 (for artists) = 9 for albums
- * @param key
- * @returns {*}
- */
-function getListOfRecentPlayedAlbums(key) {
-    return plexBackend.query({uri:"/library/sections/" + key + "/all?viewCount>=1&type=9&sort=lastViewedAt:desc", source: key, extraHeaders: {
-            "X-Plex-Container-Start": "0",
-            "X-Plex-Container-Size": "100"
-    }}).then((hub) => {
-        return hub.Metadata;
-    });
-}
-
-function getListOfRecentPlaylists(key) {
-    return plexBackend.query({uri:"/playlists/all?type=15&sort=lastViewedAt:desc&playlistType=audio"}).then((hub) => {
-        if (hub.size == 1) {
-            return hub.Hub[0].Metadata;
-        }
-        return [];
-    });
-}
-
-function getListOfPlaylists(key) {
-    return plexBackend.findPlaylists({uri:"/playlists", key: key });
-}
-
-function getPlaylist(key) {
-    return plexBackend.query(key);
-}
-
-function printMusicSectionDetils(musicSection) {
-    plexBackend.findMusic({
-        "uri": "/library/sections/" + musicSection.key + "/all",
-        extraHeaders: {
-            "X-Plex-Container-Start": "0",
-            "X-Plex-Container-Size": "100"
-        }
-    }).then(function (musicSection) {
-        console.log(musicSection);
-        for (const metadata of musicSection) {
-            console.log(metadata.title);
-        }
-    }, function (err) {
-        console.log(err);
-    });
-}
-
-function printPlaylistDetails(playlist) {
-    // Filter for audio only playlists
-    if (playlist.playlistType === 'audio') {
-        // Print title then list tracks
-        console.log("Playlist Title: [" + playlist.title + "]");
-
-        // get all the tracks in this playlist
-        plexBackend.query({
-            uri:playlist.key + "/all",
-            extraHeaders: {
-                "X-Plex-Container-Start": "0",
-                "X-Plex-Container-Size": "100"
-            }
-        }).then(function(playlistResult) {
-            for (const track of playlistResult) {
-                console.log(" Track: [" + track.title +"] Media: " + track.Media);
-            }
-        }, function(err) {
-            console.log(err);
-        });
-    }
-}
-
-function printHubDetails(hub) {
-    console.log(hub.title);
-    for (const media of hub.Metadata) {
-        console.log(media.title);
-    }
-}
-
-var Plexcloud = require('./plexcloud');
 
 
 var plexcloud = Plexcloud({
@@ -312,8 +225,12 @@ var plexcloud = Plexcloud({
     deviceName: 'RaspberryPi',
     platform: 'Volumio'
 });
+
 plexcloud.getServers(process.env.TOKEN, function (servers) {
-    console.log(JSON.stringify(servers));
+    console.log("Plex Cloud result");
+    for (const server of servers.MediaContainer.Server) {
+        console.log("ServerName:" + server.$.name);
+    }
 });
 
 /*

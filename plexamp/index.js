@@ -1,24 +1,26 @@
 'use strict';
 
 var libQ = require('kew');
-var plex = require('./plex');
-const PlexPin = require('./plexpinauth');
-const PlexCloud = require("./plexcloud");
 const fs = require("fs");
 const path = require("path");
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
+
+// Some plex libraries and modules
+var plex = require('./plex');
+const PlexPin = require('./plexpinauth');
+const PlexCloud = require("./plexcloud");
 
 
 module.exports = ControllerPlexAmp;
 function ControllerPlexAmp(context) {
 	var self = this;
 
-	this.context = context;
-	this.commandRouter = this.context.coreCommand;
-	this.logger = this.context.logger;
-	this.configManager = this.context.configManager;
-
+	self.context = context;
+	self.commandRouter = this.context.coreCommand;
+	self.logger = this.context.logger;
+	self.configManager = this.context.configManager;
+	self.musicSectionKey = null;	// This is the key for the root of the music section - needed to browse artist / albums / playlists
 }
 
 /**
@@ -28,8 +30,8 @@ function ControllerPlexAmp(context) {
 ControllerPlexAmp.prototype.onVolumioStart = function() {
 	var self = this;
 	var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
-	this.config = new (require('v-conf'))();
-	this.config.loadFile(configFile);
+	self.config = new (require('v-conf'))();
+	self.config.loadFile(configFile);
 
 	return libQ.resolve();
 }
@@ -45,13 +47,18 @@ ControllerPlexAmp.prototype.onStart = function() {
 	self.commandRouter.loadI18nStrings();
 	self.commandRouter.updateBrowseSourcesLang();
 
+	// If we have a token we should be able to connect to the server
 	self.plex.connect()
 		.then(function(){
 			self.commandRouter.logger.info("PlexAmp::Plex initialised" + self.plex);
+
+			// If we can connect it's time to add the browsable links to Volumio
 			self.addToBrowseSources();
 
-			// Once the Plex is connected we successfully started so resolve the promise
-			defer.resolve();
+			// Now set the music server key
+			self.setMusicServerKey().then(function() {
+				defer.resolve();
+			});
 		})
 		.fail(function(error){
 			self.commandRouter.logger.info("PlexAmp::Plex failed to connect");
@@ -59,6 +66,37 @@ ControllerPlexAmp.prototype.onStart = function() {
 		});
 
     return defer.promise;
+};
+ControllerPlexAmp.prototype.setMusicServerKey = function() {
+	var self = this;
+	var defer=libQ.defer();
+	// But for some of these we actually need the root 'key' from the selected music library
+	// So query all the music libraries and find the matching one based on the title
+	self.plex.queryAllMusicLibraries().then(function (libraries) {
+
+		// This should have been saved or automatically picked when we paired our alexa account
+		var libraryName = self.config.get('library');
+
+		self.logger.info("PlexAmp: *******:" + libraryName);
+
+		// Todo: fix possibility that 2 servers might have the same library name / title
+		var filteredMusicLibrary = libraries.filter((library) => library.libraryTitle === libraryName );
+		if (filteredMusicLibrary.length > 0) {
+			self.musicSectionKey = filteredMusicLibrary[0].key;
+		} else {
+			self.logger.info("Unable to find music library named: " + libraryName + " falling back to default");
+			// OK just default to the first music library found
+			if (libraries.length > 0) {
+				self.config.set("library", filteredMusicLibrary[0].libraryTitle);
+				self.musicSectionKey = filteredMusicLibrary[0].key;
+			}
+		}
+		self.logger.info("PlexAmp: ***** Key: " + filteredMusicLibrary[0].key);
+		// Once the Plex is connected we successfully started so resolve the promise
+		defer.resolve();
+	});
+
+	return defer.promise;
 };
 
 ControllerPlexAmp.prototype.onStop = function() {
@@ -92,6 +130,14 @@ ControllerPlexAmp.prototype.getI18nFile = function (langCode) {
 
 // PIN Configuration Methods -----------------------------------------------------------------------------
 
+/**
+ * This method will get a Pin from Plex and then show this to the user
+ * and wait for the user to enter it - assuming they do we get a token which we immediately
+ * save and then we can at least get connect.
+ *
+ * @param data
+ * @returns {Promise}
+ */
 ControllerPlexAmp.prototype.getPinAndUpdateField = function(data) {
 	var defer = libQ.defer();
 	var self = this;
@@ -247,20 +293,25 @@ ControllerPlexAmp.prototype.getUIConfig = function() {
 							defer.reject(new Error("No Plex Server found?"));
 						}
 						// Next query all servers and then all music libraries and show them in the list of libraries
-						self.getListOfMusicLibraries().then(function (result) {
-							self.logger.info("PlexAmp:: List music Libraries:" + JSON.stringify(result));
+						self.getListOfMusicLibraries().then(function (libraries) {
 							uiconf.sections[1].content[0].hidden = false;
-							uiconf.sections[1].content[0].value.value = library;
-							uiconf.sections[1].content[0].value.label = library;
-							result.forEach(function (libraryOpt) {
-								uiconf.sections[1].content[0].options.push({
-									value:libraryOpt.key,
-									label:libraryOpt.title
-								});
-							} );
-
-							uiconf.sections[1].content[1].value = findOption(self.config.get('timeOut'), uiconf.sections[1].content[1].options);
 							uiconf.sections[1].content[1].hidden = false;
+							uiconf.sections[1].content[2].hidden = false;
+							uiconf.sections[1].content[3].hidden = false;
+
+							for (const musicLibrary of libraries) {
+								uiconf.sections[1].content[0].options.push({
+									value:musicLibrary,
+									label:musicLibrary.libraryTitle + " on " + musicLibrary.name
+								});
+							}
+							var selectedLibrary = libraries.filter((filteredLibrary) => filteredLibrary.hostname === servers.Server[0].host && filteredLibrary.port === servers.Server[0].port && filteredLibrary.libraryTitle === library);
+
+							uiconf.sections[1].content[0].value.value = selectedLibrary[0];
+							uiconf.sections[1].content[0].value.label = selectedLibrary[0].libraryTitle + " on " + selectedLibrary.name;
+
+							uiconf.sections[1].content[4].value = findOption(self.config.get('timeOut'), uiconf.sections[1].content[4].options);
+							uiconf.sections[1].content[4].hidden = false;
 
 							defer.resolve(uiconf);
 						});
@@ -303,31 +354,13 @@ ControllerPlexAmp.prototype.setConf = function(varName, varValue) {
 	//Perform your installation tasks here
 };
 
-ControllerPlexAmp.prototype.savePluginCredentials = function(data) {
-	var self = this;
-	var defer = libQ.defer();
-
-	self.logger.info("PlexAmp::savePluginCredentials - save value: " + data['library']);
-
-	self.config.set('library', data['library']);
-	self.config.save();
-
-	// TODO: Save PIN and then use the plex pin auth library to get a token based on the PIN
-
-	self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('PLEXAMP_CREDENTIALS'), self.commandRouter.getI18nString('SAVED') + " !");
-
-	//clearing mpd queue and cache in case of server change
-	self.resetPlugin();
-
-	defer.resolve();	// TODO: Move this into the callback when Pin code added
-	return defer.promise;
-};
-
 ControllerPlexAmp.prototype.savePluginOptions = function(data) {
 	var self = this;
 	var defer = libQ.defer();
 
 	self.config.set('timeOut', data['timeOut'].value);
+	self.config.set('server', data['server'].value);
+	self.config.set('library', data['library'].value.title);
 
 	self.config.save();
 	self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('PLEXAMP_OPTIONS'), self.commandRouter.getI18nString('SAVED') + " !");
@@ -446,7 +479,7 @@ ControllerPlexAmp.prototype._formatAlbum = function(album, curUri) {
 		album: tit,
 		albumart: self.getAlbumArt(album.thumb),
 		icon: "",
-		uri: curUri + '/' + encodeURIComponent(album.key)
+		uri: curUri + '/' + encodeURIComponent(album.ratingKey)
 	}
 	return item;
 }
@@ -460,7 +493,7 @@ ControllerPlexAmp.prototype._formatArtist = function(artist, curUri) {
 		title: artist.title,
 		albumart: self.getAlbumArt(artist.thumb),
 		icon: 'fa fa-microphone',
-		uri: curUri + '/' + encodeURIComponent(artist.key)
+		uri: curUri + '/' + encodeURIComponent(artist.ratingKey)
 	}
 	return item;
 };
@@ -482,7 +515,7 @@ ControllerPlexAmp.prototype._formatPlay = function(album, artist, coverart, year
 				uri: curUri,
 				service: 'plexamp',
 				artist: artist,
-				album: artist,
+				album: album,
 				albumart: coverart,
 				year: year,
 				type: 'album',
@@ -522,130 +555,22 @@ ControllerPlexAmp.prototype._getIcon = function(path) {
 	return icon;
 }
 
-/*
- *  A Series of Wrappers around the Plex API  - extracted so I can add more options (like extra metadata and paging) specific to the
- * API call itself
- */
-
-ControllerPlexAmp.prototype.getAlbumDetails = function(key) {
-	var self = this;
-	return self.plex.query(key);
-}
-
-ControllerPlexAmp.prototype.getListOfServers = function() {
-	var self = this;
-	return self.plex.query({uri:"/servers"});
-}
-
-ControllerPlexAmp.prototype.getAlbumsByArtist = function(artistKey) {
-	var self = this;
-	return self.plex.query({uri:"/library/sections/" + artistKey + "/all?type=9"});
-
-}
-ControllerPlexAmp.prototype.getListOfMusicLibraries = function() {
-	var self = this;
-	return self.plex.findMusic({uri:"/library/sections/"});
-}
-
-ControllerPlexAmp.prototype.getArtistDetails = function(key) {
-	var self = this;
-	return self.plex.query(key);
-}
-
-ControllerPlexAmp.prototype.getTrack = function(key) {
-	var self = this;
-	return self.plex.query(key);
-}
-
-/**
- * Recent Albums from Hub View (possible replace with Search sorted by date with limit)
- * @returns {*}
- */
-ControllerPlexAmp.prototype.getListOfRecentAddedAlbums = function(key) {
-	var self = this;
-	var musicSectionKey = key;
-	return self.plex.query({uri:"/library/sections/" + musicSectionKey + "/all?type=9&sort=addedAt:desc", extraHeaders: {
-			"X-Plex-Container-Start": "0",
-			"X-Plex-Container-Size": "100"
-		}})
-		.then(function(hub) {
-			return hub.Metadata;
-		});
-}
-
-/**
- * type= 8 (for artists) = 9 for albums
- * @returns {*}
- */
-ControllerPlexAmp.prototype.getAllArtists = function(key) {
-	var self = this;
-	var musicSectionKey = key;	// Get this from the config - It's the key of the music folder
-	return self.plex.query({uri:"/library/sections/" + musicSectionKey + "/all?type=8", source: musicSectionKey})
-		.then(function(hub) {
-			return hub.Metadata;
-		});
-}
-
-ControllerPlexAmp.prototype.getAllAlbums = function(key) {
-	var self = this;
-	var musicSectionKey = key;
-	return self.plex.query({uri:"/library/sections/" + musicSectionKey + "/all?type=9", source: musicSectionKey})
-		.then(function(hub) {
-			return hub.Metadata;
-		});
-}
-
-/**
- * type= 8 (for artists) = 9 for albums
- * @returns {*}
- */
-ControllerPlexAmp.prototype.getListOfRecentPlayedAlbums = function(key) {
-	var self = this;
-	var musicSectionKey = key;
-	return self.plex.query({uri:"/library/sections/" + musicSectionKey + "/all?viewCount>=1&type=9&sort=lastViewedAt:desc", source: musicSectionKey, extraHeaders: {
-			"X-Plex-Container-Start": "0",
-			"X-Plex-Container-Size": "100"
-		}}).then(function (hub)  {
-			return hub.Metadata;
-		});
-}
-
-ControllerPlexAmp.prototype.getListOfRecentPlaylists = function(key) {
-	var self = this;
-	var musicSectionKey = key;
-	return self.plex.query({uri:"/playlists/all?type=15&sort=lastViewedAt:desc&playlistType=audio", key: musicSectionKey })
-		.then(function(hub) {
-			if (hub.size === 1) {
-				return hub.Hub[0].Metadata;
-			}
-			return [];
-		});
-}
-
-ControllerPlexAmp.prototype.getListOfPlaylists = function(key) {
-	var self = this;
-	var musicSectionKey = key;	// Get this from the config - It's the key of the music folder
-	return self.plex.findPlaylists({uri:"/playlists", key: musicSectionKey });
-}
-
-ControllerPlexAmp.prototype.getPlaylist = function(key) {
-	var self = this;
-	return self.plex.query(key);
-}
-
-
 ControllerPlexAmp.prototype.listPlaylists = function(uriParts, curUri) {
 	var self = this;
 
 	var defer = libQ.defer();
 
 	// Call Play to get a list of playlists
-	self.getListOfPlaylists()
+	self.plex.getListOfPlaylists(self.musicSectionKey)
 		.then(function(playlists) {
 			var items = [];
 
-			for (const playlist of playlists) {
-				items.push(self._formatPlaylist(playlist, curUri));
+			if (Array.isArray(playlists)) {
+				for (const playlist of playlists) {
+					items.push(self._formatPlaylist(playlist, curUri));
+				}
+			} else {
+				items.push(self._formatPlaylist(playlists, curUri));
 			}
 			defer.resolve(self._formatNav('Playlists', 'folder', self._getIcon(uriParts[1]), ['list', 'grid'], items, self._prevUri(curUri)));
 		})
@@ -670,13 +595,18 @@ ControllerPlexAmp.prototype.listNewestAlbums = function(uriParts, curUri) {
 
 	var defer = libQ.defer();
 
+	var limit = self.config.get("recentAddedLimit") || 100;
+
 	// Get list of all the newest albums
-	self.getListOfRecentAddedAlbums()
+	self.plex.getListOfRecentAddedAlbums(self.musicSectionKey, limit)
 		.then(function(albums) {
 			var items = [];
-
-			for (const album of albums) {
-				items.push(self._formatAlbum(album, curUri));
+			if (Array.isArray(albums)) {
+				for (const album of albums) {
+					items.push(self._formatAlbum(album, curUri));
+				}
+			} else {
+				items.push(self._formatAlbum(albums, curUri));
 			}
 			defer.resolve(self._formatNav('Recently Added Albums', 'folder', self._getIcon(uriParts[1]), ['list', 'grid'], items, self._prevUri(curUri)));
 		})
@@ -701,8 +631,10 @@ ControllerPlexAmp.prototype.listPlayedAlbums = function(uriParts, curUri) {
 
 	var defer = libQ.defer();
 
+	var limit = self.config.get("recentPlayedLimit") || 100;
+
 	// Get list of all the newest albums
-	self.getListOfRecentPlayedAlbums()
+	self.plex.getListOfRecentPlayedAlbums(self.musicSectionKey, limit)
 		.then(function(albums) {
 			var items = [];
 
@@ -728,6 +660,82 @@ ControllerPlexAmp.prototype.listPlayedAlbums = function(uriParts, curUri) {
 }
 
 
+ControllerPlexAmp.prototype.listNewestArtists = function(uriParts, curUri) {
+	var self = this;
+
+	var defer = libQ.defer();
+
+	var limit = self.config.get("recentAddedLimit") || 100;
+
+	self.logger.info("PlexAmp: In ListNewestArtists");
+
+	// Get list of all the newest albums
+	self.plex.getListOfRecentAddedArtists(self.musicSectionKey, limit)
+		.then(function(artists) {
+			var items = [];
+
+			if (Array.isArray(artists)) {
+				for (const artist of artists) {
+					items.push(self._formatArtist(artist, curUri));
+				}
+			} else {
+				items.push(self._formatArtist(artists, curUri));
+			}
+			defer.resolve(self._formatNav('Recently Added Artists', 'folder', self._getIcon(uriParts[1]), ['list', 'grid'], items, self._prevUri(curUri)));
+		})
+		.fail(function(error) {
+			var conErr = {
+				title: self.commandRouter.getI18nString('CON_FAILED'),
+				message: self.commandRouter.getI18nString('CON_SERVER_UNREACHABLE'),
+				size: 'lg',
+				buttons: [{
+					name: 'Ok',
+					class: 'btn btn-warning'
+				}]
+			}
+			self.commandRouter.broadcastMessage("openModal", conErr);
+		});
+
+	return defer.promise;
+}
+
+ControllerPlexAmp.prototype.listPlayedArtists = function(uriParts, curUri) {
+	var self = this;
+
+	var defer = libQ.defer();
+
+	var limit = self.config.get("recentPlayedLimit") || 100;
+
+	// Get list of all the newest albums
+	self.plex.getListOfRecentPlayedArtists(self.musicSectionKey, limit)
+		.then(function(artists) {
+			var items = [];
+
+			if (Array.isArray(artists)) {
+				for (const artist of artists) {
+					items.push(self._formatArtist(artist, curUri));
+				}
+			} else {
+				items.push(self._formatArtist(artists, curUri));
+			}
+			defer.resolve(self._formatNav('Recently Played Artists', 'folder', self._getIcon(uriParts[1]), ['list', 'grid'], items, self._prevUri(curUri)));
+		})
+		.fail(function(error) {
+			var conErr = {
+				title: self.commandRouter.getI18nString('CON_FAILED'),
+				message: self.commandRouter.getI18nString('CON_SERVER_UNREACHABLE'),
+				size: 'lg',
+				buttons: [{
+					name: 'Ok',
+					class: 'btn btn-warning'
+				}]
+			}
+			self.commandRouter.broadcastMessage("openModal", conErr);
+		});
+
+	return defer.promise;
+}
+
 /**
  * Check if we are connected and return status !!
  * @returns {Promise}
@@ -751,7 +759,7 @@ ControllerPlexAmp.prototype.rootMenu = function() {
 				uri: '/'
 			},
 			lists: [{
-				title: "Server: " + self.config.get('server'),
+				title: "Plex Server: " + self.config.get('server'),
 				icon: "fa fa-server",
 				availableListViews: ["list", "grid"],
 				items: [
@@ -785,21 +793,21 @@ ControllerPlexAmp.prototype.rootMenu = function() {
 					{
 						service: 'plexamp',
 						type: 'item-no-menu',
-						title: self.commandRouter.getI18nString('ARTISTS'),
+						title: self.commandRouter.getI18nString('NEWEST_ARTISTS'),
 						artist: '',
 						album: '',
 						icon: 'fa fa-microphone',
-						uri: 'plexamp/artists'
+						uri: 'plexamp/artistsnewest'
 					},
 					{
 						service: 'plexamp',
 						type: 'item-no-menu',
-						title: self.commandRouter.getI18nString('ALBUMS'),
+						title: self.commandRouter.getI18nString('PLAYED_ARTISTS'),
 						artist: '',
 						album: '',
-						icon: 'fa fa-play',
-						uri: 'plexamp/albums'
-					},
+						icon: 'fa fa-microphone',
+						uri: 'plexamp/artistsplayed'
+					}
 				]
 			}]
 		}
@@ -808,26 +816,6 @@ ControllerPlexAmp.prototype.rootMenu = function() {
 }
 
 
-ControllerPlexAmp.prototype.listAllAlbums = function(uriParts, curUri) {
-	var self = this;
-	var defer = libQ.defer();
-	var title;
-
-	var result = self.getAllAlbums()
-		.then( function(artist) {
-			var items = [];
-			if (artist.Metadata !== undefined) {
-				artist.Metadata.forEach(function (album) {
-					items.push(self._formatAlbum(album, curUri));
-				});
-			}
-			defer.resolve(self._formatPlay(artist.title, artist.title, self.getAlbumArt(artist.key), new Date().toLocaleDateString(), artist.duration, items, self._prevUri(curUri), curUri));
-		})
-		.fail(function(result) {
-			defer.reject(result);
-		});
-	return defer.promise;
-}
 
 ControllerPlexAmp.prototype.listTracks = function(uriParts, curUri) {
 	var self = this;
@@ -836,18 +824,22 @@ ControllerPlexAmp.prototype.listTracks = function(uriParts, curUri) {
 
 	var key = decodeURIComponent(uriParts.pop());
 
-	var result = self.getAlbumDetails(key)
-		.then( function (album) {
+	var result = self.plex.getAlbumTracks(key)
+		.then( function (tracks) {
 			var items = [];
-			if (album.Metadata !== undefined) {
-				album.Metadata.forEach(function (song) {
+			if (Array.isArray(tracks)) {
+				tracks.forEach(function (song) {
 					items.push(self._formatSong(song));
 				});
+			} else {
+				items.push(self._formatSong(tracks));
 			}
-			defer.resolve(self._formatPlay(album.title, album.parentTitle, self.getAlbumArt(album.thumb), new Date().toLocaleDateString(), album.duration, items, self._prevUri(curUri), curUri));
+			self.plex.getAlbum(key).then( function (album) {
+				defer.resolve(self._formatPlay(album.title, album.parentTitle, self.getAlbumArt(album.thumb), album.year, 0, items, self._prevUri(curUri), curUri));
+			});
 		})
 		.fail(function(result) {
-			defer.reject(new Error('playlistEntrys'));
+			defer.reject(result);
 		});
 	return defer.promise;
 }
@@ -860,51 +852,18 @@ ControllerPlexAmp.prototype.playlistEntrys = function(uriParts, curUri) {
 
 	var key = decodeURIComponent(uriParts.pop());
 
-	var result = self.getPlaylist(key)
+	// TODO: Make the playlist limit configurable
+	var result = self.plex.getPlaylist(key, 1000)
 		.then( function (playlist) {
 			var items = [];
-			if (playlist.Metadata !== undefined) {
-				playlist.Metadata.forEach(function (song) {
-					items.push(self._formatSong(song));
-				});
-			}
+			playlist.forEach(function (song) {
+				items.push(self._formatSong(song));
+			});
 			defer.resolve(self._formatPlay(playlist.title, playlist.title, self._getPlaylistCover(playlist, curUri), new Date().toLocaleDateString(), playlist.duration, items, self._prevUri(curUri), curUri));
 		})
 		.fail(function(result) {
 			defer.reject(new Error('playlistEntrys'));
 		});
-	return defer.promise;
-}
-
-
-ControllerPlexAmp.prototype.listArtists = function(uriParts, curUri) {
-	var self = this;
-
-	var defer = libQ.defer();
-
-	// Call Play to get a list of playlists
-	self.getAllArtists()
-		.then(function (artists) {
-			var items = [];
-
-			for (const artist of artists) {
-				items.push(self._formatArtist(artist, curUri));
-			}
-			defer.resolve(self._formatNav('All Artists', 'folder', self._getIcon(uriParts[1]), ['list', 'grid'], items, self._prevUri(curUri)));
-		})
-		.fail(function(error) {
-			var conErr = {
-				title: self.commandRouter.getI18nString('CON_FAILED'),
-				message: self.commandRouter.getI18nString('CON_SERVER_UNREACHABLE'),
-				size: 'lg',
-				buttons: [{
-					name: 'Ok',
-					class: 'btn btn-warning'
-				}]
-			}
-			self.commandRouter.broadcastMessage("openModal", conErr);
-		});
-
 	return defer.promise;
 }
 
@@ -914,21 +873,31 @@ ControllerPlexAmp.prototype.showArtist = function(uriParts, curUri) {
 	var defer = libQ.defer();
 	var title;
 
-	var key = decodeURIComponent(uriParts.pop());
+	var key = decodeURIComponent(uriParts.pop());	// Artist key !!
 
-	var result = self.getAlbumsByArtist(key)
-		.then( function(albums) {
+	// Get Bio of artists from Plex
+	self.plex.getArtist(key).then( function(artist) {
+
+		// Get Top Tracks from Plex
+
+		// Get Albums List from Plex
+		self.plex.getAlbumsByArtist(key).then( function(albums) {
 			var items = [];
-			if (albums.Metadata !== undefined) {
-				albums.Metadata.forEach(function (song) {
-					items.push(self._formatAlbum(song, curUri));
+			if (Array.isArray(albums)) {
+				albums.forEach(function (album) {
+					items.push(self._formatAlbum(album, curUri));
 				});
+			} else {
+				items.push(self._formatAlbum(albums, curUri));
 			}
-			defer.resolve(self._formatPlay(album.title, album.parentTitle, self.getAlbumArt(key), new Date().toLocaleDateString(), album.duration, items, self._prevUri(curUri), curUri));
-		})
-		.fail(function(result) {
-			defer.reject(new Error('playlistEntrys'));
+			// Get Related Artists from Plex
+
+			defer.resolve(self._formatPlay(artist.title, artist.parentTitle, self.getAlbumArt(key), new Date().toLocaleDateString(), artist.duration, items, self._prevUri(curUri), curUri));
 		});
+	})
+	.fail(function(result) {
+		defer.reject(result);
+	});
 	return defer.promise;
 }
 
@@ -957,9 +926,17 @@ ControllerPlexAmp.prototype.handleBrowseUri = function (curUri) {
 				} else {
 					response = self.listTracks(uriParts, curUri);
 				}
-			} else if (curUri.startsWith('plexamp/artists')) {
-				if (uriParts.length === 2) {
-					response = self.listArtists(uriParts, curUri);
+			} else if (curUri.startsWith('plexamp/artistsnewest')) {
+				if (curUri === 'plexamp/artistsnewest') {
+					response = self.listNewestArtists(uriParts, curUri);
+				} else if (uriParts.length === 3) {
+					response = self.showArtist(uriParts, curUri);
+				} else if (uriParts.length === 4) {
+					response = self.listTracks(uriParts, curUri);
+				}
+			} else if (curUri.startsWith('plexamp/artistsplayed')) {
+				if (curUri === 'plexamp/artistsplayed') {
+					response = self.listPlayedArtists(uriParts, curUri);
 				} else if (uriParts.length === 3) {
 					response = self.showArtist(uriParts, curUri);
 				} else if (uriParts.length === 4) {
@@ -970,12 +947,6 @@ ControllerPlexAmp.prototype.handleBrowseUri = function (curUri) {
 					response = self.listPlaylists(uriParts, curUri);
 				else if (uriParts.length === 3) {
 					response = self.playlistEntrys(uriParts, curUri);
-				}
-			} else if (curUri.startsWith('plexamp/albums')) {
-				if (curUri === 'plexamp/albums')
-					response = self.listAllAlbums(uriParts, curUri);
-				else if (uriParts.length === 3) {
-					response = self.listTracks(uriParts, curUri);
 				}
 			}
 			defer.resolve(response);
@@ -1046,6 +1017,7 @@ ControllerPlexAmp.prototype.clearAddPlayTrack = function(track) {
 };
 
 ControllerPlexAmp.prototype.seek = function (timepos) {
+	var self = this;
     this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerPlexAmp::seek to ' + timepos);
 
 	return self.mpdPlugin.seek(timepos);
@@ -1191,14 +1163,41 @@ ControllerPlexAmp.prototype.explodeUri = function(uri) {
 	var items = [];
 	var song;
 
-	if (!uri.startsWith('plexamp/track')) {
-		self.commandRouter.logger.info("PlexAmp:: URI???:" + uri);
+	if (uri.startsWith('plexamp/newest') || uri.startsWith('plexamp/played')) {
 
-		self.getTrack(key).then(function (media) {
-			if (media.Metadata === undefined) {
+		// We are adding a list of tracks from an album
+		self.plex.getAlbumTracks(key).then(function (tracks) {
+			if (tracks === undefined) {
 				defer.reject(new Error("Unable to get Track details: " + key));
 			} else {
-				var playable = self._getPlayable(media.Metadata[0]);
+				var playable = [];
+				for (const media of tracks) {
+					playable.push(self._getPlayable(media));
+				}
+				defer.resolve(playable);
+			}
+		})
+			.fail(function (result) {
+				defer.reject(new Error('explodeUri plexamp/track'));
+			});
+	} else if (uri.startsWith('plexamp/track')) {
+		self.plex.getTrack(key).then(function(media) {
+			if (media === undefined) {
+				defer.reject(new Error("Unable to get Track details: " + key));
+			} else {
+				var playable = self._getPlayable(media);
+				defer.resolve(playable);
+			}
+		})
+			.fail(function (result) {
+				defer.reject(new Error('explodeUri plexamp/track'));
+			});
+	} else if (uri.startsWith('plexamp/playlist')) {
+		self.plex.getPlaylist(key).then(function(media) {
+			if (media === undefined) {
+				defer.reject(new Error("Unable to get Track details: " + key));
+			} else {
+				var playable = self._getPlayable(media);
 				defer.resolve(playable);
 			}
 		})
@@ -1206,20 +1205,10 @@ ControllerPlexAmp.prototype.explodeUri = function(uri) {
 				defer.reject(new Error('explodeUri plexamp/track'));
 			});
 	} else {
-		self.getTrack(key).then(function(media) {
-			if (media.Metadata === undefined) {
-				defer.reject(new Error("Unable to get Track details: " + key));
-			} else {
-				var playable = self._getPlayable(media.Metadata[0]);
-				defer.resolve(playable);
-			}
-		})
-			.fail(function (result) {
-				defer.reject(new Error('explodeUri plexamp/track'));
-			});
+		self.logger.info("PlexAmp: Exploded URI: " + uri);
 	}
 
-	return defer.promise;
+		return defer.promise;
 };
 
 ControllerPlexAmp.prototype.getURLPrefix = function() {
@@ -1255,7 +1244,82 @@ ControllerPlexAmp.prototype.search = function (query) {
 	var self=this;
 	var defer=libQ.defer();
 
-	// Mandatory, search. You can divide the search in sections using following functions
+	var answer = [];
+	var limit = self.config.get("recentAddedLimit") || 100;
+	self.plex.searchForArtists(self.musicSectionKey, query.value, limit).then(function(artistsResults) {
+		var artists = [];
+
+//		self.logger.info("Plexamp: Artists" + JSON.stringify(artistsResults));
+
+		if (Array.isArray(artistsResults)) {
+			artistsResults.forEach(function (artist) {
+				artists.push(self._formatArtist(artist, "plexamp/artistsplayed"));
+			});
+		} else {
+			artists.push(self._formatArtist(artistsResults, "plexamp/artistsplayed"));
+		}
+
+		answer.push({
+			title: self.commandRouter.getI18nString('ARTISTS'),
+			icon: 'fa fa-microphone',
+			availableListViews: [
+				"list",
+				"grid"
+			],
+			items: artists
+		});
+
+		self.plex.searchForAlbums(self.musicSectionKey, query.value, limit).then(function(albumsResults) {
+			var albums = [];
+
+//			self.logger.info("Plexamp: Albums:" + JSON.stringify(albumsResults));
+			if (Array.isArray(albumsResults)) {
+				albumsResults.forEach(function (album) {
+					albums.push(self._formatAlbum(album, "plexamp/played"));
+				});
+			} else {
+				albums.push(self._formatAlbum(albumsResults, "plexamp/played"));
+			}
+			answer.push({
+				title: self.commandRouter.getI18nString('ALBUMS'),
+				icon: 'fa fa-play',
+				availableListViews: [
+					"list",
+					"grid"
+				],
+				items: albums
+			});
+
+			self.plex.searchForTracks(self.musicSectionKey, query.value, limit).then(function(songResults) {
+				var songs = [];
+
+//				self.logger.info("Plexamp: Songs:" +  JSON.stringify(songResults));
+
+				if (Array.isArray(songResults)) {
+					songResults.forEach(function (song) {
+						songs.push(self._formatSong(song, "plexamp/track"));
+					});
+				} else {
+					songs.push(self._formatSong(songResults, "plexamp/track"));
+				}
+				answer.push({
+					title: self.commandRouter.getI18nString('TRACKS'),
+					icon: 'fa fa-music',
+					availableListViews: [
+						"list",
+						"grid"
+					],
+					items: songs
+				});
+
+				// Finally got all the results so resolve the search
+				defer.resolve(answer);
+			});
+		});
+	}).fail(function(error){
+		self.commandRouter.logger.info(error);
+		defer.reject(error);
+	});
 
 	return defer.promise;
 };
