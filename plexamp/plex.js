@@ -334,12 +334,18 @@ function plex(log, config) {
         return query({uri:"/library/sections/" + musicSectionKey + "/firstCharacter" + (letter === undefined?"":"/" + letter)  +"?type=9"});
     }
 
-    var getAllArtists = function(musicSectionKey) {
-        return query({uri:"/library/sections/" + musicSectionKey + "/all?type=8"});
+    var getAllArtists = function(musicSectionKey, startAt, limit) {
+        return query({uri:"/library/sections/" + musicSectionKey + "/all?type=8", extraHeaders: {
+                "X-Plex-Container-Start": startAt,
+                "X-Plex-Container-Size": limit
+            }});
     }
 
-    var getAllAlbums = function(musicSectionKey) {
-        return query({uri:"/library/sections/" + musicSectionKey + "/all?type=9"});
+    var getAllAlbums = function(musicSectionKey, startAt, limit) {
+        return query({uri:"/library/sections/" + musicSectionKey + "/all?type=9", extraHeaders: {
+                "X-Plex-Container-Start": startAt,
+                "X-Plex-Container-Size": limit
+            }});
     }
 
     var getListOfMusicServers = function() {
@@ -419,16 +425,18 @@ function plex(log, config) {
     var getArtistRelated = function(key) {
         return query( "/library/metadata/" + key + "/related") ;
     }
-
+    var getArtistRadio = function(key) {
+        return query( "/library/metadata/" +key + "/station?type=10") ;
+    }
     var getArtist = function(key) {
-        return query( "/library/metadata/" +key ) ;
+        return query( "/library/metadata/" +key +"?includeExtras=1&includeOnDeck=1&includePopularLeaves=1&includeReviews=1&includeChapters=1&includeStations=1&includeExternalMedia=1") ;
     }
     var getAlbum = function(key) {
-        return query( "/library/metadata/" + key);
+        return query( "/library/metadata/" + key + "?includeExtras=1&includePopularLeaves=1&includeReviews=1");
     }
 
     var getTrack = function(key) {
-        return query( key);
+        return query( "/library/metadata/" + key);
     }
     return {
         isConnected: isConnected,
@@ -448,6 +456,7 @@ function plex(log, config) {
         getAlbumsFirstLetters: getAlbumsFirstLetters,
         getArtistRelated:getArtistRelated,
         getArtist: getArtist,
+        getArtistRadio:getArtistRadio,
         getAllArtists: getAllArtists,
         getAllAlbums: getAllAlbums,
         getListOfMusicServers: getListOfMusicServers,

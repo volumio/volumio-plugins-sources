@@ -144,30 +144,62 @@ function doAllMusicQueryTests(musicSectionKey) {
     });
 
      */
-    plexBackend.searchForTracks(musicSectionKey, "Stories for boys", 100).then(function(songResults) {
+    /*
+    plexBackend.searchForAlbums(musicSectionKey, "Born to Run", 100).then(function(albumResults) {
+        if (albumResults.size == 0) {
+            console.log("Not found");
+        } else {
+            console.log(JSON.stringify(albumResults));
+        }
+    });
+
+    plexBackend.searchForTracks(musicSectionKey, "Born to Run", 100).then(function(songResults) {
         console.log(JSON.stringify(songResults));
     });
 
-        /*
-            plexBackend.searchForArtists(musicSectionKey, "Radio", 100).then(function(artistsResults) {
-                var self = this;
-                self.artistsResults = artistsResults;
-                for (const artist of artistsResults) {
-                    plexBackend.getArtist( artist.ratingKey).then(function(artistDetails) {
-                        console.log(JSON.stringify(artistDetails));
-        //                plexBackend.getAlbumsByArtist(artist.ratingKey).then(function(albums) {
-        //                    for (const album of albums) {
-        //                        console.log(JSON.stringify(album));
-        //                    }
-        //                });
-                        plexBackend.getArtist( artist.ratingKey).then(function(fromCache) {
-                            console.log("From Cache");
-                        });
-                    });
-                }
-            });
+     */
 
-         */
+    /*
+        plexBackend.searchForArtists(musicSectionKey, "Radio", 100).then(function(artistsResults) {
+            var self = this;
+            self.artistsResults = artistsResults;
+            for (const artist of artistsResults) {
+                plexBackend.getArtist( artist.ratingKey).then(function(artistDetails) {
+                    console.log(JSON.stringify(artistDetails));
+                    plexBackend.getAlbumsByArtist(artist.ratingKey).then(function(albums) {
+                        for (const album of albums) {
+                            console.log(JSON.stringify(album));
+                        }
+                    });
+                });
+            }
+        });
+
+     */
+
+    plexBackend.getListOfPlaylists(musicSectionKey).then(function(listPlaylists) {
+       console.log(listPlaylists);
+    });
+
+    plexBackend.getPlaylist("/playlists/112752/items", 100).then(function(artistRadio) {
+        console.log(artistRadio);
+    });
+    plexBackend.getArtist("42627").then(function(artist) {
+       console.log(artist);
+
+    });
+    plexBackend.getArtistRelated("42627").then(function(artist) {
+        console.log(artist);
+    });
+    plexBackend.getAlbum("42628").then(function(album) {
+        console.log(album);
+    });
+    plexBackend.getAlbumRelated("42628").then(function(related) {
+       console.log(related);
+    });
+    plexBackend.getAlbumTracks("42628").then(function(tracks) {
+        console.log(tracks);
+    });
 
     /*
         plexBackend.getListOfRecentPlaylists(musicSectionKey).then((results) => {
