@@ -176,14 +176,24 @@ function doAllMusicQueryTests(musicSectionKey) {
         });
 
      */
+    /*
+    plexBackend.getAllArtists(musicSectionKey).then(function(allArtists) {
+       console.log("All Artists received:" + allArtists.length);
+    });
 
+     */
+/*
     plexBackend.getListOfPlaylists(musicSectionKey).then(function(listPlaylists) {
        console.log(listPlaylists);
     });
-
-    plexBackend.getPlaylist("/playlists/112752/items", 100).then(function(artistRadio) {
+*/
+    /*
+    plexBackend.getPlaylist("/playlists/110225/items", 0,1000).then(function(artistRadio) {
         console.log(artistRadio);
     });
+
+     */
+    /*
     plexBackend.getArtist("42627").then(function(artist) {
        console.log(artist);
 
@@ -191,15 +201,19 @@ function doAllMusicQueryTests(musicSectionKey) {
     plexBackend.getArtistRelated("42627").then(function(artist) {
         console.log(artist);
     });
+    */
     plexBackend.getAlbum("42628").then(function(album) {
         console.log(album);
     });
+    /*
     plexBackend.getAlbumRelated("42628").then(function(related) {
        console.log(related);
     });
     plexBackend.getAlbumTracks("42628").then(function(tracks) {
         console.log(tracks);
     });
+
+ */
 
     /*
         plexBackend.getListOfRecentPlaylists(musicSectionKey).then((results) => {

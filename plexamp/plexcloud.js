@@ -37,7 +37,7 @@ Plexcloud.prototype.getHeaders = function(options)
     return headers;
 };
 
-Plexcloud.prototype.getServers = function(token, resolve)
+Plexcloud.prototype.getServers = function(token, resolve, reject)
 {
     if (token === undefined) {
         throw Error("No token provided");
@@ -51,7 +51,9 @@ Plexcloud.prototype.getServers = function(token, resolve)
                 resolve(json);
             });
         })
-        .catch(err => {throw(err)});
+        .catch(function(err){
+            reject(err);
+        });
 };
 
 

@@ -9,7 +9,8 @@
   "CONNECT_TO_PLEX": "Connection Status",
   "GET_PIN_PROMPT": "Step 1: Get authentication PIN",
   "LAUNCH_PLEX_PROMPT": "Step 2: Authenticate PIN with Plex",
-  "PLEX_PIN": "Your Plex PIN (copy this to the clipboard so you can use it in the next step): ",
+  "PLEX_PIN_PREFIX": "Your Plex PIN : ",
+  "PLEX_PIN_DETAILS": "Note: copy this to the clipboard so you can use it in the next step",
   "PLEXAMP_OPTIONS":"Plex Options",
   "PLEXAMP_CREDENTIALS": "Plex Credentials",
   "CON_SUCCESS":"Success",
@@ -42,6 +43,9 @@
   "RECENTLY_ADDED_DOC": "When building the recently added list of albums use this value to limit results",
   "RECENTLY_PLAYED": "Recent Played Limit",
   "RECENTLY_PLAYED_DOC": "When building the recently played list of albums or artists use this value to limit results",
-  "LOCAL_ACCESS_DOC": "Access Plex locally or remotely",
-  "LOCAL_ACCESS": "Plex on Local network"
+  "LOCAL_ACCESS_DOC": "Access Plex locally or remotely - (coming soon)",
+  "LOCAL_ACCESS": "Plex on Local network",
+  "PLEXAMP_ENABLED": "Plexamp Enabled",
+  "PLEXAMP_VERSION": "Headless Version to install",
+  "LAUNCH_PLEXAMP_UI": "Launch Plexamp Configuratio UI"
 }

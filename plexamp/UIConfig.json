@@ -18,7 +18,7 @@
         "id": "getpin",
         "element": "button",
         "label": "TRANSLATE.GET_PIN_PROMPT",
-        "doc": "Get a fresh PIN from Plex to Link with",
+        "doc": "Get a fresh PIN from Plex to Link Volumio with your Plex",
         "onClick": {
           "type": "controller",
           "endpoint": "music_service/plexamp",
@@ -60,7 +60,10 @@
         "label": "TRANSLATE.SAVE",
         "data": [
           "timeOut",
-          "library"
+          "library",
+          "local",
+          "recentAddedLimit",
+          "recentPlayedLimit"
         ]
       },
       "content": [
@@ -119,7 +122,7 @@
           },
             {
               "value": 100,
-              "label": "Recently played albums"
+              "label": "100 Recently played albums"
             }],
           "doc": "TRANSLATE.RECENTLY_PLAYED_DOC",
           "label": "TRANSLATE.RECENTLY_PLAYED",
@@ -167,8 +170,22 @@
       "element": "section",
       "label": "TRANSLATE.PLEXAMP_INSTALL_SECTION",
       "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/plexamp",
+        "method": "installPlexAmp"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.INSTALL_PLEXAMP",
+        "data": [
+          "version"
+        ]
+      },
       "content": [
         {
+          "id": "version",
+          "type": "text",
+          "label": "TRANSLATE.PLEXAMP_VERSION",
           "element": "select",
           "value": {
             "value": 0,
@@ -182,8 +199,33 @@
               "value": 1,
               "label": "PlexAmp (4.4.0)"
             }
-            ]
+          ]
+        },
+        {
+          "id": "plexampEnabled",
+          "element": "switch",
+          "value": false,
+          "label": "TRANSLATE.PLEXAMP_ENABLED",
+          "visibleIf": {
+            "field": "version",
+            "value": 1
+          }
+        },
+        {
+          "id": "showplexamp",
+          "element": "button",
+          "label": "TRANSLATE.LAUNCH_PLEXAMP_UI",
+          "doc": "Launch PlexAmp configuration UI",
+          "onClick": {
+            "type": "openUrl",
+            "url": ""
+          },
+          "visibleIf": {
+            "field": "plexampEnabled",
+            "value": true
+          }
         }
+
       ]
     }
   ]

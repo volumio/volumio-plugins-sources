@@ -51,9 +51,8 @@ function plex(log, config) {
         var defer = libQ.defer();
 
         var token = config.get('token');
-        var serverURL = config.get('server');
-        var serverToUse = new URL(serverURL).hostname;    // We need a server configured for node's plex-api library
-        var port = new URL(serverURL).port;
+        var serverToUse =  config.get('server');    // We need a server configured for node's plex-api library
+        var port = config.get('port') | 32400;
 
         if (token) {    // If we have a token - lets use it to get client access to Plex and setup Monitoring and get some basic plex info
             try {
@@ -66,8 +65,6 @@ function plex(log, config) {
                     "hostname": serverToUse,
                     "port": port
                 });
-
-                logger.info("PlexAmp::connected:" + token);
 
                 setupWSMonitoring();
 
@@ -158,6 +155,9 @@ function plex(log, config) {
                 }
                 defer.resolve(listOfMusicLibraries);
             });
+        }).fail(function(error){
+            self.logger.info("PlexAmp::Plex failed to query servers " +  error);
+            defer.reject(error);
         });
 
         return defer.promise;
@@ -178,29 +178,19 @@ function plex(log, config) {
         var cached = cacheGet(cacheKey )
             .then(function(cached) {
                 if (cached === undefined) {
-//                    logger.info("Plexamp: ++++++ Cache no found:" + cacheKey);
                     if (client === null) defer.reject(new Error("Not connected"));
                     client.query(options)
                         .then(function(result) {
                             // Most query result in a Mediacontrainer and most mediacontainers contain Metadata
                             if (result.MediaContainer) {
                                 if (result.MediaContainer.Metadata) {
-                                    if (result.MediaContainer.size == 1) {
-//                                        logger.info("Plexamp: ********** Cache set:" + cacheKey);
-                                        cacheSet(cacheKey, result.MediaContainer.Metadata[0]);
-                                        defer.resolve(result.MediaContainer.Metadata[0]);
-                                    } else {
-//                                        logger.info("Plexamp: ********** Cache set:" + cacheKey);
-                                        cacheSet(cacheKey, result.MediaContainer.Metadata);
-                                        defer.resolve(result.MediaContainer.Metadata);
-                                    }
+                                    cacheSet(cacheKey, result.MediaContainer.Metadata);
+                                    defer.resolve(result.MediaContainer.Metadata);
                                 } else {
-//                                    logger.info("Plexamp: ********** Cache set:" + cacheKey);
                                     cacheSet(cacheKey, result.MediaContainer);
                                     defer.resolve(result.MediaContainer);
                                 }
                             } else {
-//                                logger.info("Plexamp: ********** Cache set:" + cacheKey);
                                 cacheSet(cacheKey, result);
                                 defer.resolve(result);
                             }
@@ -335,7 +325,7 @@ function plex(log, config) {
     }
 
     var getAllArtists = function(musicSectionKey, startAt, limit) {
-        return query({uri:"/library/sections/" + musicSectionKey + "/all?type=8", extraHeaders: {
+        return query({uri:"/library/sections/" + musicSectionKey + "/all?sort=title:asc&type=8", extraHeaders: {
                 "X-Plex-Container-Start": startAt,
                 "X-Plex-Container-Size": limit
             }});
@@ -348,9 +338,6 @@ function plex(log, config) {
             }});
     }
 
-    var getListOfMusicServers = function() {
-        return findMusic({uri:"/library/sections/"});
-    }
 
     var getListOfRecentAddedAlbums = function(key, limit) {
         return query({uri:"/library/recentlyAdded/" + key + "/all?type=9&sort=addedAt:desc&includeMeta=1&includeAdvanced=1", extraHeaders: {
@@ -397,11 +384,8 @@ function plex(log, config) {
         return findPlaylists({uri:"/playlists", key: key });
     }
 
-    var getPlaylist = function(key, limit) {
-        return query({uri:key, extraHeaders: {
-                "X-Plex-Container-Start": "0",
-                "X-Plex-Container-Size": limit
-            }});
+    var getPlaylist = function(key, startAt, limit) {
+        return query(key +"?X-Plex-Container-Start=" + startAt + "&X-Plex-Container-Size=" +limit);
     }
     /*
     var getAlbumsByArtist = function(artistKey) {
@@ -459,7 +443,6 @@ function plex(log, config) {
         getArtistRadio:getArtistRadio,
         getAllArtists: getAllArtists,
         getAllAlbums: getAllAlbums,
-        getListOfMusicServers: getListOfMusicServers,
         getListOfRecentAddedAlbums: getListOfRecentAddedAlbums,
         getListOfRecentAddedArtists: getListOfRecentAddedArtists,
         getListOnDeck: getListOnDeck,

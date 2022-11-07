@@ -7,6 +7,14 @@
 	"type": "string",
 	"value": ""
   },
+  "serverName": {
+	"type": "string",
+	"value": ""
+  },
+  "port": {
+	"type": "string",
+	"value": ""
+  },
   "library": {
 	"type": "string",
 	"value": "Music"
