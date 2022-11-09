@@ -3,13 +3,12 @@
 var exec = require('child_process').exec;
 var fs = require('fs-extra');
 var libQ = require('kew');
-var selfIP = '';
+//var selfIP = '';
 
 // Define the Dstmmix class
 module.exports = Dstmmix;
 
-function Dstmmix(context) 
-{
+function Dstmmix(context){
 	var self = this;
 	this.context = context;
 	this.commandRouter = this.context.coreCommand;
@@ -17,49 +16,46 @@ function Dstmmix(context)
 	this.configManager = this.context.configManager;
 };
 
-Dstmmix.prototype.onVolumioStart = function()
-{
-	var self = this;	
-	return libQ.resolve();	
+Dstmmix.prototype.onVolumioStart = function () {
+	const self = this;
+	let configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
+	this.config = new (require('v-conf'))();
+	this.config.loadFile(configFile);
+	return libQ.resolve();
 };
 
-Dstmmix.prototype.getConfigurationFiles = function()
-{
+Dstmmix.prototype.getConfigurationFiles = function () {
 	return ['config.json'];
 };
 
 // Plugin methods -----------------------------------------------------------------------------
-Dstmmix.prototype.onStop = function() {
+Dstmmix.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
 
 	self.stopService('logitechmediaserver')
-	.then(function(edefer)
-	{
-		defer.resolve();
-	})
-	.fail(function(e)
-	{
-		self.commandRouter.pushToastMessage('error', "Stopping failed", "Could not stop the LMS plugin in a fashionable manner, error: " + e);
-		defer.reject(new error());
-	});
+		.then(function(edefer){
+			defer.resolve();
+		})
+		.fail(function(e){
+			self.commandRouter.pushToastMessage('error', "Stopping failed", "Could not stop the LMS plugin in a fashionable manner, error: " + e);
+			defer.reject(new error());
+		});
 
 	return defer.promise;
 };
 
-Dstmmix.prototype.stop = function() {
+Dstmmix.prototype.stop = function () {
 	var self = this;
 	var defer = libQ.defer();
 	self.stopService('logitechmediaserver')
-	.then(function(edefer)
-	{
-		defer.resolve();
-	})
-	.fail(function(e)
-	{
-		self.commandRouter.pushToastMessage('error', "Stopping failed", "Could not stop the LMS plugin in a fashionable manner, error: " + e);
-		defer.reject(new error());
-	});
+		.then(function(edefer) {
+			defer.resolve();
+		})
+		.fail(function(e) {
+			self.commandRouter.pushToastMessage('error', "Stopping failed", "Could not stop the LMS plugin in a fashionable manner, error: " + e);
+			defer.reject(new error());
+		});
 
 	return defer.promise;
 };
@@ -68,64 +64,73 @@ Dstmmix.prototype.onStart = function() {
 	var self = this;
 	var defer = libQ.defer();
 	self.restartService('logitechmediaserver', true)
-	.then(function(edefer)
-	{
-		self.selfIP = self.commandRouter.getCachedIPAddresses();
-	})
-	.then(function(fdefer)
-	{
-		defer.resolve();
-	})
-	.fail(function(e)
-	{
-		self.commandRouter.pushToastMessage('error', "Startup failed", "Could not start the LMS plugin in a fashionable manner.");
-		self.logger.info("Could not start the LMS plugin in a fashionable manner.");
-		defer.reject(new error());
-	});
-
+		.then(function(edefer) {
+			self.selfIP = self.commandRouter.getCachedIPAddresses();
+		})
+		.then(function(fdefer) {
+			defer.resolve();
+		})
+		.fail(function(e) {
+			self.commandRouter.pushToastMessage('error', "Startup failed", "Could not start the LMS plugin in a fashionable manner.");
+			self.logger.info("Could not start the LMS plugin in a fashionable manner.");
+			defer.reject(new error());
+		});
+	self.getIP();
 	return defer.promise;
 };
 
-Dstmmix.prototype.onRestart = function() 
-{
+Dstmmix.prototype.onRestart = function() {
 	// Do nothing
 	self.logger.info("performing onRestart action");
 	
 	var self = this;
 };
 
-Dstmmix.prototype.onInstall = function() 
-{
+Dstmmix.prototype.onInstall = function() {
 	self.logger.info("performing onInstall action");
-	
 	var self = this;
 };
 
-Dstmmix.prototype.onUninstall = function() 
-{
+Dstmmix.prototype.onUninstall = function() {
 	// Perform uninstall tasks here!
 };
 
-Dstmmix.prototype.getUIConfig = function() {
-    var self = this;
-	var defer = libQ.defer();    
-    var lang_code = this.commandRouter.sharedVars.get('language_code');
+Dstmmix.prototype.getUIConfig = function () {
+	var self = this;
+	var defer = libQ.defer();
+	//self.logger.info("[LMS] Loading configuration...for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW " + addressip);
+
+	var lang_code = this.commandRouter.sharedVars.get('language_code');
 	self.logger.info("Loaded the previous config.");
-	self.commandRouter.i18nJson(__dirname+'/i18n/strings_' + lang_code + '.json',
+	self.commandRouter.i18nJson(__dirname + '/i18n/strings_' + lang_code + '.json',
 		__dirname + '/i18n/strings_en.json',
 		__dirname + '/UIConfig.json')
-    .then(function(uiconf)
-    {
-		self.logger.info("[LMS] Loading configuration...");
-		let consoleUrl = `http://${self.selfIP['eth0']}:9000`;
-		self.logger.info(`[LMS] Console URL: ${consoleUrl}`);
-		uiconf.sections[0].content[0].onClick.url = consoleUrl;
-		defer.resolve(uiconf);
-	})
-	.fail(function()
-	{
-		defer.reject(new Error());
-	});
+		.then(function (uiconf) {
+			//	self.logger.info("[LMS] Loading configuration...for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW " + addressip);
+			//let consoleUrl = ("http://" + addressip + ":9000");
+			//self.logger.info(`[LMS] Console URL: ${consoleUrl}`);
+			//uiconf.sections[0].content[0].onClick.url = consoleUrl;
+			//defer.resolve(uiconf);
+			var IPaddress = self.config.get('address');
+
+			uiconf.sections[0].content.push(
+				{
+					"id": "section_account_logout",
+					"element": "button",
+					"label": "Open",
+					"description": "Open LMS",
+					"onClick": {
+						"type": "openUrl",
+						"url": "http://" + IPaddress + ":9000"
+					}
+
+				}
+			)
+			defer.resolve(uiconf);
+		})
+		.fail(function () {
+			defer.reject(new Error());
+		});
 	return defer.promise;
 };
 
@@ -149,12 +154,26 @@ Dstmmix.prototype.setConf = function(conf) {
 
 // Public Methods ---------------------------------------------------------------------------------------
 
-Dstmmix.prototype.restartService = function (serviceName, boot)
-{
+
+Dstmmix.prototype.getIP = function () {
+	const self = this;
+	var address
+	var iPAddresses = self.commandRouter.executeOnPlugin('system_controller', 'network', 'getCachedIPAddresses', '');
+	if (iPAddresses && iPAddresses.eth0 && iPAddresses.eth0 != '') {
+		address = iPAddresses.eth0;
+	} else if (iPAddresses && iPAddresses.wlan0 && iPAddresses.wlan0 != '' && iPAddresses.wlan0 !== '192.168.211.1') {
+		address = iPAddresses.wlan0;
+	} else {
+		address = '127.0.0.1';
+	}
+	self.config.set('address', address)
+};
+
+Dstmmix.prototype.restartService = function (serviceName, boot) {
 	var self = this;
-	var defer=libQ.defer();
+	var defer = libQ.defer();
 	var command = "/usr/bin/sudo /bin/systemctl restart " + serviceName;
-	exec(command, {uid:1000,gid:1000}, function (error, stdout, stderr) {
+	exec(command, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error !== null) {
 			self.commandRouter.pushConsoleMessage('The following error occurred while starting ' + serviceName + ': ' + error);
 			self.commandRouter.pushToastMessage('error', "Restart failed", "Restarting " + serviceName + " failed with error: " + error);
@@ -162,7 +181,7 @@ Dstmmix.prototype.restartService = function (serviceName, boot)
 		}
 		else {
 			self.commandRouter.pushConsoleMessage(serviceName + ' started');
-			if(boot == false)
+			if (boot == false)
 				self.commandRouter.pushToastMessage('success', "Restarted " + serviceName, "Restarted " + serviceName + " for the changes to take effect.");
 			defer.resolve();
 		}
@@ -170,12 +189,11 @@ Dstmmix.prototype.restartService = function (serviceName, boot)
 	return defer.promise;
 };
 
-Dstmmix.prototype.stopService = function (serviceName)
-{
+Dstmmix.prototype.stopService = function (serviceName) {
 	var self = this;
-	var defer=libQ.defer();
+	var defer = libQ.defer();
 	var command = "/usr/bin/sudo /bin/systemctl stop " + serviceName;
-	exec(command, {uid:1000,gid:1000}, function (error, stdout, stderr) {
+	exec(command, { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error !== null) {
 			self.commandRouter.pushConsoleMessage('The following error occurred while stopping ' + serviceName + ': ' + error);
 			self.commandRouter.pushToastMessage('error', "Stopping service failed", "Stopping " + serviceName + " failed with error: " + error);
