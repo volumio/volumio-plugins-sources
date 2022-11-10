@@ -8,7 +8,7 @@
 	},
 	"author": "Ben Mitchell & Matthew Hendrix",
 	"license": "ISC",
-	"repository": "https://github.com/hendrix04/volumio-plugins.git",
+	"repository": "https://github.com/hendrix04/volumio-plugins-sources.git",
 	"volumio_info": {
 		"prettyName": "Volumio Onkyo Control",
 		"icon": "fa-volume-up",

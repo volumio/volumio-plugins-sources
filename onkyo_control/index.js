@@ -2,9 +2,6 @@
 
 const libQ = require('kew');
 const fs = require('fs-extra');
-//let config = new (require('v-conf'))();
-//let exec = require('child_process').exec;
-
 const io = require('socket.io-client');
 const eiscp = require('eiscp');
 
@@ -109,7 +106,7 @@ onkyoControl.prototype.onStart = function () {
             eiscp.connect(self.connectionOptions);
             waitToSend = 500;
         }
-        
+
         if (state.status !== self.musicState) {
 
             self.musicState = state.status;
@@ -235,7 +232,7 @@ onkyoControl.prototype.getConfigurationFiles = function () {
 
 onkyoControl.prototype.refreshUIConfig = function() {
     let self = this;
-    
+
     self.commandRouter.getUIConfigOnPlugin('system_hardware', 'onkyo_control', {}).then( config => {
         self.commandRouter.broadcastMessage('pushUiConfig', config);
     });
@@ -339,9 +336,9 @@ onkyoControl.prototype.saveConnectionConfig = function (data) {
             1: model
             2: mac
             3: port
-        */ 
+        */
         const valueParts = data['receiverSelect'].value.split('_');
-    
+
         self.config.set('receiverIP', valueParts[0]);
         self.config.set('receiverPort', valueParts[3]);
         self.config.set('receiverModel', valueParts[1]);
@@ -354,7 +351,7 @@ onkyoControl.prototype.saveConnectionConfig = function (data) {
         self.config.set('receiverModel', data['receiverModel']);
         newValues.host = data['receiverIP'];
         newValues.model = data['receiverModel'];
-        
+
         if (!data['receiverPort'] || data['receiverPort'] === '' || isNaN(data['receiverPort'])) {
             self.config.set('receiverPort', '60128');
             newValues.port = '60128';
@@ -364,20 +361,20 @@ onkyoControl.prototype.saveConnectionConfig = function (data) {
             newValues.port = data['receiverPort'];
         }
     }
-    
+
     if (!(newValues.host --- self.connectionOptions.host)) {
-        
+
         self.connectionOptions.host = newValues.host;
         self.connectionOptions.port = newValues.port;
         self.connectionOptions.model = newValues.model;
-        
+
         if (eiscp.is_connected) {
             eiscp.close();
         }
-        
+
         eiscp.connect(self.connectionOptions);
     }
-    
+
     self.commandRouter.pushToastMessage('success', self.getI18nString("SETTINGS_SAVED"), self.getI18nString("SETTINGS_SAVED_CONNECTION"));
     self.refreshUIConfig();
 
@@ -464,9 +461,9 @@ onkyoControl.prototype.callReceiver = function (args) {
         If we still aren't connected, wait 5000ms and try again.
         If we still aren't connected, give up.
     */
-        
+
     if (!eiscp.is_connected && args.waitToSend <= 5000) {
-        
+
         const waitToSend = (args.waitToSend === 500) ? 5000 : 9999;
         setTimeout(() => {
             self.callReceiver({
@@ -477,7 +474,7 @@ onkyoControl.prototype.callReceiver = function (args) {
         }, args.waitToSend);
     }
     else if (eiscp.is_connected) {
-        
+
         const zone = self.config.get('zone', 'main');
         /*
             Onkyo expects volume to be in the range of 0 - 200. To make it easier
@@ -492,7 +489,7 @@ onkyoControl.prototype.callReceiver = function (args) {
         eiscp.command(`${zone}.${args.action}=${args.value}`);
     }
     else if (!eiscp.is_connected) {
-        
+
         // Give up, there is no more
         self.logger.error("ONKYO-CONTROL: Error sending command. Not Connected");
 

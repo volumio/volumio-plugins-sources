@@ -47,8 +47,8 @@ https://volumio.github.io/docs/User_Manual/SSH.html
 2. Connect via ssh using putty or the command line ```ssh volumio@volumio.local```
 3. Download and install the plugin using the following commands:
 ```
-git clone https://github.com/hendrix04/volumio-plugins.git
-cd volumio-plugins/plugins/miscellanea/onkyo_control
+git clone https://github.com/hendrix04/volumio-plugins-sources.git
+cd volumio-plugins/plugins/system_hardware/onkyo_control
 npm install
 volumio plugin install
 ```
@@ -88,7 +88,7 @@ volumio plugin install
 ![Alt text](settings.png?raw=true "Settings and configuration")
 
 ## TODO
-There is nothing currently on the todo list. If someone has any suggestions, please [open an issue](https://github.com/hendrix04/volumio-plugins/issues).
+There is nothing currently on the todo list. If someone has any suggestions, please [open an issue](https://github.com/hendrix04/volumio-plugins-sources/issues).
 
 One of the original TODO items was to limit the input selection list based on receiver. This is not possible with current data.
 If someone wants to go through the effort of creating a mapping for all known receivers, I would be happy to incorporate it.
