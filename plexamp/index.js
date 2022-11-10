@@ -61,6 +61,8 @@ ControllerPlexAmp.prototype.onStart = function() {
 
 			// If we can connect it's time to add the browsable links to Volumio
 			self.addToBrowseSources();
+
+			defer.resolve();	// We are good to start !!
 		})
 		.fail(function(error){
 			self.logger.info("PlexAmp::Plex failed to connect");
@@ -1643,7 +1645,7 @@ ControllerPlexAmp.prototype.installPlexAmp = function (version) {
 	//----------- PlexAmp 4.4.0 script for now
 
 	try {
-/*		exec("/usr/bin/sudo /data/music_service/plexamp/installPlexAmp" + version +".sh", {
+/*		exec("/usr/bin/sudo /data/plugins/music_service/plexamp/installPlexAmp" + version +".sh", {
 			uid: 1000,
 			gid: 1000
 		});
