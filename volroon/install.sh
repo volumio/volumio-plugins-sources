@@ -54,7 +54,7 @@ case "$MACHINE_ARCH" in
 esac
 
 PACKAGE_FILE="RoonBridge_linux${ARCH}.tar.bz2"
-PACKAGE_URL="http://download.roonlabs.com/builds/${PACKAGE_FILE}"
+PACKAGE_URL="https://download.roonlabs.com/builds/${PACKAGE_FILE}"
 
 echo "Downloading $PACKAGE_FILE to $TMPDIR/$PACKAGE_FILE"
 #curl -# -o "$TMPDIR/$PACKAGE_FILE" "$PACKAGE_URL"
