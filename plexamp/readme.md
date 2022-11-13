@@ -1,7 +1,7 @@
 # Plex and PlexAmp plugin
 
 ### Version History
-- 0.1 - Initial Version with following capabilities:
+- 1.0.1 - Initial Version with following capabilities:
   1. Pair with Plex 'cloud' using Code
   2. Select a particular Music Library on a specific Plex Server
   3. Browse and play from:

@@ -1639,19 +1639,19 @@ ControllerPlexAmp.prototype.goto=function(data){
 	return defer.promise;
 };
 
-ControllerPlexAmp.prototype.installPlexAmp = function (version) {
+ControllerPlexAmp.prototype.installPlexAmp = function () {
 	const self = this;
 
 	//----------- PlexAmp 4.4.0 script for now
 
 	try {
-/*		exec("/usr/bin/sudo /data/plugins/music_service/plexamp/installPlexAmp" + version +".sh", {
+		exec("/usr/bin/sudo /data/plugins/music_service/plexamp/installPlexAmp" + version +".sh", {
 			uid: 1000,
 			gid: 1000
 		});
- */
-		self.commandRouter.pushConsoleMessage('PlexAmp Installation coming soon');
-		self.commandRouter.pushToastMessage('success', "Headless PlexAmp installation will soon be availalbe");
+
+		self.commandRouter.pushConsoleMessage('PlexAmp Installation please wait..');
+		self.commandRouter.pushToastMessage('success', "Headless PlexAmp is currently installing ..");
 
 	} catch (err) {
 		self.logger.info('failed to install PlexAmp' + err);
