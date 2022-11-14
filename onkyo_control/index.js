@@ -26,6 +26,23 @@ function onkyoControl(context) {
     self.volume = 0;
 }
 
+onkyoControl.prototype.validConnectionOptions = function () {
+
+    let self = this;
+
+    if (
+        self.connectionOptions.hasOwnProperty('port')
+        && typeof self.connectionOptions.port === 'number'
+        && self.connectionOptions.hasOwnProperty('host')
+        && typeof self.connectionOptions.host === 'string'
+    ) {
+        return true;
+    }
+    
+    return false;
+
+}
+
 onkyoControl.prototype.onVolumioStart = function () {
     const self = this;
     const configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
@@ -43,6 +60,7 @@ onkyoControl.prototype.onStart = function () {
     const defer = libQ.defer();
 
     self.socket = io.connect('http://localhost:3000');
+
     // Discover what receivers are available
     eiscp.discover({timeout: 5}, function (err, results) {
         if (err) {
@@ -50,40 +68,55 @@ onkyoControl.prototype.onStart = function () {
         }
         else {
             self.logger.debug("ONKYO-CONTROL: Found these receivers on the local network: " + JSON.stringify(results));
-            results.forEach(function (receiver) {
-                self.receivers[receiver.mac] = {
-                    "host": receiver.host,
-                    "model": receiver.model,
-                    "mac": receiver.mac,
-                    "port": receiver.port
-                };
-            });
 
-            const firstReceiver = Object.values(self.receivers)[0];
+            // Apparently even if no receivers are discovered, we still get into this area.
+            // I try to mitigate this but wrapping in a try / catch just in case.
+            try {
+                results.forEach(function (receiver) {
+                    self.receivers[receiver.mac] = {
+                        "host": receiver.host,
+                        "model": receiver.model,
+                        "mac": receiver.mac,
+                        "port": parseInt(receiver.port)
+                    };
+                });
 
-            if (self.config.get('autoDiscovery')) {
-                self.connectionOptions.port = firstReceiver.port;
-                self.connectionOptions.host = firstReceiver.host;
-                self.connectionOptions.model = firstReceiver.model;
+                const firstReceiver = (results.length > 0) ? Object.values(self.receivers)[0] : {};
+
+                if (self.config.get('autoDiscovery')) {
+                    if (results.length > 0) {
+                        self.connectionOptions.port = parseInt(firstReceiver.port);
+                        self.connectionOptions.host = firstReceiver.host;
+                        self.connectionOptions.model = firstReceiver.model;
+                    }
+                    else {
+                        self.commandRouter.pushToastMessage("info", "No Onkyo receivers found. Please manually configure.");
+                    }
+                }
+                else {
+                    self.connectionOptions.port = parseInt(self.config.get('receiverPort', firstReceiver.port));
+                    self.connectionOptions.host = self.config.get('receiverIP', firstReceiver.host);
+                    self.connectionOptions.model = self.config.get('receiverModel', firstReceiver.model);
+                }
+
+                if (self.validConnectionOptions()) {
+                    // Figure out the available zones
+                    const modelCommands = eiscp.get_model_commands(self.connectionOptions.model);
+                    Object.keys(modelCommands).forEach(zone => {
+                        self.zoneList.push(zone);
+                    });
+
+                    // Now that we have our connection options completed, let's connect.
+                    // We will want to disconnect and reconnect if the receiver option changes.
+                    eiscp.connect(self.connectionOptions);
+
+                    // Fire off a message to get an initial state back from the backend.
+                    self.socket.emit("getState");
+                }
             }
-            else {
-                self.connectionOptions.port = self.config.get('receiverPort', firstReceiver.port);
-                self.connectionOptions.host = self.config.get('receiverIP', firstReceiver.host);
-                self.connectionOptions.model = self.config.get('receiverModel', firstReceiver.model);
+            catch (error) {
+                self.commandRouter.pushToastMessage("info", "No Onkyo receivers found. Please manually configure.");
             }
-
-            // Figure out the available zones
-            const modelCommands = eiscp.get_model_commands(self.connectionOptions.model);
-            Object.keys(modelCommands).forEach(zone => {
-                self.zoneList.push(zone);
-            });
-
-            // Now that we have our connection options completed, let's connect.
-            // We will want to disconnect and reconnect if the receiver option changes.
-            eiscp.connect(self.connectionOptions);
-
-            // Fire off a message to get an initial state back from the backend.
-            self.socket.emit("getState");
 
             // Since this is a callback and the rest of the on start is synchronous,
             // consider this the end of the start function.
@@ -98,109 +131,112 @@ onkyoControl.prototype.onStart = function () {
 
     self.socket.on('pushState', function (state) {
 
-        self.logger.debug("ONKYO-CONTROL: *********** ONKYO PLUGIN STATE CHANGE ********");
-        self.logger.info("ONKYO-CONTROL: New state: " + JSON.stringify(state) + " connection: " + JSON.stringify(self.connectionOptions));
+        if (self.validConnectionOptions()) {
 
-        let waitToSend = 0;
-        if (!eiscp.is_connected) {
-            eiscp.connect(self.connectionOptions);
-            waitToSend = 500;
-        }
+            self.logger.debug("ONKYO-CONTROL: *********** ONKYO PLUGIN STATE CHANGE ********");
+            self.logger.info("ONKYO-CONTROL: New state: " + JSON.stringify(state) + " connection: " + JSON.stringify(self.connectionOptions));
 
-        if (state.status !== self.musicState) {
-
-            self.musicState = state.status;
-
-            switch (self.musicState) {
-                case 'play':
-                    // We only want to turn things on if music is playing and
-                    // the reveiver has yet to be turned on.
-                    if (self.receiverState === 'off') {
-                        if (self.config.get('powerOn')) {
-
-                            self.callReceiver({
-                                "action": 'power',
-                                "value": 'on',
-                                "waitToSend": waitToSend,
-                            });
-                        }
-
-                        if (self.config.get('setVolume')) {
-
-                            const volume = self.config.get('setVolumeValue', self.config.get('maxVolume', 100));
-                            self.volume = volume;
-
-                            // Let's tell the backend what the volume should be
-                            // as well so that we can stay in sync. Typically
-                            // after this first set, we shouldn't need to set
-                            // it again.
-                            self.socket.emit("volume", self.volume);
-
-                            self.callReceiver({
-                                "action": 'volume',
-                                "value": self.volume,
-                                "waitToSend": waitToSend,
-                            });
-                        }
-
-                        if (self.config.get('setInput')) {
-
-                            self.callReceiver({
-                                "action": 'selector',
-                                "value": self.config.get('setInputValue'),
-                                "waitToSend": waitToSend,
-                            });
-                        }
-
-                        self.receiverState = 'on';
-                    }
-
-                    break;
-                case 'stop':
-                case 'pause':
-
-                    if (self.config.get('standby', true)) {
-
-                        if (self.receiverState === 'on') {
-                            setTimeout(() => {
-
-                                // Every time we pause or stop music, we will
-                                // call into the function based on our turn off
-                                // delay setting. This will stop us from
-                                // accidentally turning the system off if we
-                                // are still using it.
-                                if (self.musicState !== 'play' && self.receiverState === 'on') {
-                                    // Update our receiver state so that if we
-                                    // do start playing music again, we can
-                                    // turn things back on.
-                                    self.receiverState = 'off';
-                                    self.callReceiver({
-                                        "action": 'power',
-                                        "value": 'standby',
-                                        "waitToSend": waitToSend,
-                                    });
-                                }
-                            }, self.config.get('standbyDelay') * 1000);
-                        }
-                    }
-
-                    break;
-                default:
-                    break;
+            let waitToSend = 0;
+            if (!eiscp.is_connected) {
+                eiscp.connect(self.connectionOptions);
+                waitToSend = 500;
             }
-        }
-        else {
-            // Throwing this in an else so that we don't accidentally
-            // overwrite the initial play volume.
-            if (self.receiverState === 'on' && self.volume !== state.volume) {
 
-                const maxVolume = self.config.get('maxVolume', 100);
-                self.volume = (state.volume) > maxVolume ? maxVolume : state.volume;
-                self.callReceiver({
-                    "action": 'volume',
-                    "value": self.volume,
-                    "waitToSend": waitToSend,
-                });
+            if (state.status !== self.musicState) {
+
+                self.musicState = state.status;
+
+                switch (self.musicState) {
+                    case 'play':
+                        // We only want to turn things on if music is playing and
+                        // the reveiver has yet to be turned on.
+                        if (self.receiverState === 'off') {
+                            if (self.config.get('powerOn')) {
+
+                                self.callReceiver({
+                                    "action": 'power',
+                                    "value": 'on',
+                                    "waitToSend": waitToSend,
+                                });
+                            }
+
+                            if (self.config.get('setVolume')) {
+
+                                const volume = self.config.get('setVolumeValue', self.config.get('maxVolume', 100));
+                                self.volume = volume;
+
+                                // Let's tell the backend what the volume should be
+                                // as well so that we can stay in sync. Typically
+                                // after this first set, we shouldn't need to set
+                                // it again.
+                                self.socket.emit("volume", self.volume);
+
+                                self.callReceiver({
+                                    "action": 'volume',
+                                    "value": self.volume,
+                                    "waitToSend": waitToSend,
+                                });
+                            }
+
+                            if (self.config.get('setInput')) {
+
+                                self.callReceiver({
+                                    "action": 'selector',
+                                    "value": self.config.get('setInputValue'),
+                                    "waitToSend": waitToSend,
+                                });
+                            }
+
+                            self.receiverState = 'on';
+                        }
+
+                        break;
+                    case 'stop':
+                    case 'pause':
+
+                        if (self.config.get('standby', true)) {
+
+                            if (self.receiverState === 'on') {
+                                setTimeout(() => {
+
+                                    // Every time we pause or stop music, we will
+                                    // call into the function based on our turn off
+                                    // delay setting. This will stop us from
+                                    // accidentally turning the system off if we
+                                    // are still using it.
+                                    if (self.musicState !== 'play' && self.receiverState === 'on') {
+                                        // Update our receiver state so that if we
+                                        // do start playing music again, we can
+                                        // turn things back on.
+                                        self.receiverState = 'off';
+                                        self.callReceiver({
+                                            "action": 'power',
+                                            "value": 'standby',
+                                            "waitToSend": waitToSend,
+                                        });
+                                    }
+                                }, self.config.get('standbyDelay') * 1000);
+                            }
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else {
+                // Throwing this in an else so that we don't accidentally
+                // overwrite the initial play volume.
+                if (self.receiverState === 'on' && self.volume !== state.volume) {
+
+                    const maxVolume = self.config.get('maxVolume', 100);
+                    self.volume = (state.volume) > maxVolume ? maxVolume : state.volume;
+                    self.callReceiver({
+                        "action": 'volume',
+                        "value": self.volume,
+                        "waitToSend": waitToSend,
+                    });
+                }
             }
         }
     });
@@ -215,7 +251,9 @@ onkyoControl.prototype.onStop = function () {
     self.running = false;
     self.logger.info("ONKYO-CONTROL: *********** ONKYO PLUGIN STOPPED ********");
 
-    eiscp.disconnect();
+    if (eiscp.is_connected) {
+        eiscp.disconnect();
+    }
     self.socket.disconnect();
 
     // Once the Plugin has successfull stopped resolve the promise
@@ -365,7 +403,7 @@ onkyoControl.prototype.saveConnectionConfig = function (data) {
     if (!(newValues.host --- self.connectionOptions.host)) {
 
         self.connectionOptions.host = newValues.host;
-        self.connectionOptions.port = newValues.port;
+        self.connectionOptions.port = parseInt(newValues.port);
         self.connectionOptions.model = newValues.model;
 
         if (eiscp.is_connected) {
@@ -456,44 +494,49 @@ onkyoControl.prototype.getI18nString = function (key) {
 
 onkyoControl.prototype.callReceiver = function (args) {
     const self = this;
-    /*
-        If we aren't connected, wait 500ms to see if we connect.
-        If we still aren't connected, wait 5000ms and try again.
-        If we still aren't connected, give up.
-    */
 
-    if (!eiscp.is_connected && args.waitToSend <= 5000) {
+    // First make sure we have valid connection info.
+    if (self.validConnectionOptions()) {
 
-        const waitToSend = (args.waitToSend === 500) ? 5000 : 9999;
-        setTimeout(() => {
-            self.callReceiver({
-                "action": args.action,
-                "value": args.value,
-                "waitToSend" : waitToSend,
-            });
-        }, args.waitToSend);
-    }
-    else if (eiscp.is_connected) {
-
-        const zone = self.config.get('zone', 'main');
         /*
-            Onkyo expects volume to be in the range of 0 - 200. To make it easier
-            for users, we will do a conversion here before sending it out.
-
-            If this becomes something that is a habit, we should refactor this a bit
-            for now since only volume needs to be manipulated for every call, we
-            will leave it here.
+            If we aren't connected, wait 500ms to see if we connect.
+            If we still aren't connected, wait 5000ms and try again.
+            If we still aren't connected, give up.
         */
-        args.value = (args.action === 'volume') ? args.value * 2 : args.value;
-        self.logger.debug(`ONKYO COMMAND: ${zone}.${args.action}=${args.value}`);
-        eiscp.command(`${zone}.${args.action}=${args.value}`);
-    }
-    else if (!eiscp.is_connected) {
 
-        // Give up, there is no more
-        self.logger.error("ONKYO-CONTROL: Error sending command. Not Connected");
+        if (!eiscp.is_connected && args.waitToSend <= 5000) {
 
-        // For giggles, try one more time to connect.
-        eiscp.connect(self.connectionOptions);
+            const waitToSend = (args.waitToSend === 500) ? 5000 : 9999;
+            setTimeout(() => {
+                self.callReceiver({
+                    "action": args.action,
+                    "value": args.value,
+                    "waitToSend" : waitToSend,
+                });
+            }, args.waitToSend);
+        }
+        else if (eiscp.is_connected) {
+
+            const zone = self.config.get('zone', 'main');
+            /*
+                Onkyo expects volume to be in the range of 0 - 200. To make it easier
+                for users, we will do a conversion here before sending it out.
+
+                If this becomes something that is a habit, we should refactor this a bit
+                for now since only volume needs to be manipulated for every call, we
+                will leave it here.
+            */
+            args.value = (args.action === 'volume') ? args.value * 2 : args.value;
+            self.logger.debug(`ONKYO COMMAND: ${zone}.${args.action}=${args.value}`);
+            eiscp.command(`${zone}.${args.action}=${args.value}`);
+        }
+        else if (!eiscp.is_connected) {
+
+            // Give up, there is no more
+            self.logger.error("ONKYO-CONTROL: Error sending command. Not Connected");
+
+            // For giggles, try one more time to connect.
+            eiscp.connect(self.connectionOptions);
+        }
     }
 }
