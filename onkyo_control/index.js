@@ -81,23 +81,33 @@ onkyoControl.prototype.onStart = function () {
                     };
                 });
 
-                const firstReceiver = (results.length > 0) ? Object.values(self.receivers)[0] : {};
+                if (results.length > 0) {
+                    const firstReceiver = Object.values(self.receivers)[0];
 
-                if (self.config.get('autoDiscovery')) {
-                    if (results.length > 0) {
+                    if (self.config.get('autoDiscovery')) {
                         self.connectionOptions.port = parseInt(firstReceiver.port);
                         self.connectionOptions.host = firstReceiver.host;
                         self.connectionOptions.model = firstReceiver.model;
                     }
                     else {
-                        self.commandRouter.pushToastMessage("info", "No Onkyo receivers found. Please manually configure.");
+                        self.connectionOptions.port = parseInt(self.config.get('receiverPort', firstReceiver.port));
+                        self.connectionOptions.host = self.config.get('receiverIP', firstReceiver.host);
+                        self.connectionOptions.model = self.config.get('receiverModel', firstReceiver.model);
                     }
                 }
-                else {
-                    self.connectionOptions.port = parseInt(self.config.get('receiverPort', firstReceiver.port));
-                    self.connectionOptions.host = self.config.get('receiverIP', firstReceiver.host);
-                    self.connectionOptions.model = self.config.get('receiverModel', firstReceiver.model);
+                else if (
+                    ! self.config.get('autoDiscovery')
+                    && self.config.get('receiverPort')
+                    && self.config.get('receiverIP')
+                ) {
+                    self.connectionOptions.port = parseInt(self.config.get('receiverPort'));
+                    self.connectionOptions.host = self.config.get('receiverIP');
+                    self.connectionOptions.model = self.config.get('receiverModel');
                 }
+                else {
+                    self.commandRouter.pushToastMessage("info", "No Onkyo receivers found. Please manually configure.");
+                }
+                
 
                 if (self.validConnectionOptions()) {
                     // Figure out the available zones
@@ -323,7 +333,9 @@ onkyoControl.prototype.getUIConfig = function () {
                 };
             }
 
-            self.zoneList.forEach(zone => {
+            // Because I hate copy / pasting code and because JS
+            // will let me do silly things...
+            function setZoneOption(zone, selectedZone) {
 
                 // Removing the "dock" zone. No clue what it is, but if
                 // anyone is looking at this in the future and wants it,
@@ -333,11 +345,22 @@ onkyoControl.prototype.getUIConfig = function () {
 
                     uiconf.sections[1].content[0].options.push(option);
 
-                    if (zone === self.config.get('zone', 'main')) {
+                    if (zone === selectedZone) {
                         uiconf.sections[1].content[0].value = option;
                     }
                 }
-            });
+            }
+
+            if (self.zoneList.length > 0) {
+                const selectedZone = self.config.get('zone', 'main');
+
+                self.zoneList.forEach(zone => {
+                    setZoneOption(zone, selectedZone);
+                });
+            }
+            else {
+                setZoneOption('main', 'main');
+            }
 
             eiscp.get_command('input-selector', function (err, results) {
                 results.forEach(function (input) {
