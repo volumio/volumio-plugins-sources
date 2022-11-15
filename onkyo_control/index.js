@@ -28,7 +28,7 @@ function onkyoControl(context) {
 
 onkyoControl.prototype.validConnectionOptions = function () {
 
-    let self = this;
+    const self = this;
 
     if (
         self.connectionOptions.hasOwnProperty('port')
@@ -41,6 +41,17 @@ onkyoControl.prototype.validConnectionOptions = function () {
     
     return false;
 
+}
+
+onkyoControl.prototype.updateZoneList = function() {
+
+    const self = this;
+
+    self.zoneList.length = 0;
+
+    Object.keys(eiscp.get_model_commands(self.connectionOptions.model)).forEach(zone => {
+        self.zoneList.push(zone);
+    });
 }
 
 onkyoControl.prototype.onVolumioStart = function () {
@@ -111,10 +122,7 @@ onkyoControl.prototype.onStart = function () {
 
                 if (self.validConnectionOptions()) {
                     // Figure out the available zones
-                    const modelCommands = eiscp.get_model_commands(self.connectionOptions.model);
-                    Object.keys(modelCommands).forEach(zone => {
-                        self.zoneList.push(zone);
-                    });
+                    self.updateZoneList();
 
                     // Now that we have our connection options completed, let's connect.
                     // We will want to disconnect and reconnect if the receiver option changes.
@@ -428,6 +436,9 @@ onkyoControl.prototype.saveConnectionConfig = function (data) {
         self.connectionOptions.host = newValues.host;
         self.connectionOptions.port = parseInt(newValues.port);
         self.connectionOptions.model = newValues.model;
+
+        // Update Zone list
+        self.updateZoneList();
 
         if (eiscp.is_connected) {
             eiscp.close();
