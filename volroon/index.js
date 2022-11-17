@@ -353,7 +353,7 @@ volroon.prototype.checkAudioDeviceAvailable = function () {
 
 volroon.prototype.getOutputDeviceName = function () {
 	var self = this;
-	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
+	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicecardname');
 };
 
 volroon.prototype.onVolumioStart = function () {
