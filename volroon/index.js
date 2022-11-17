@@ -14,6 +14,7 @@ var zone;
 var zoneid;
 var roon;
 var outputdevicename;
+var outputdevicecardname;
 var roonIsActive = false;
 var roonPausedTimer;
 var coreFound;
@@ -173,7 +174,7 @@ volroon.prototype.indentifyZone = function (msg) {
 				zone.outputs.find(output => {
 					return output =
 						output.source_controls.find(source_control => {
-							return source_control.display_name === outputdevicename
+							return source_control.display_name === (outputdevicename || outputdevicecardname)
 						})
 				})
 		})
@@ -353,7 +354,8 @@ volroon.prototype.checkAudioDeviceAvailable = function () {
 
 volroon.prototype.getOutputDeviceName = function () {
 	var self = this;
-	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicecardname');
+	outputdevicename = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicename');
+	outputdevicecardname = self.getAdditionalConf('audio_interface', 'alsa_controller', 'outputdevicecardname');
 };
 
 volroon.prototype.onVolumioStart = function () {
@@ -396,6 +398,7 @@ volroon.prototype.onStop = function () {
 		zoneid,
 		roon,
 		outputdevicename,
+		outputdevicecardname,
 		roonIsActive,
 		roonPausedTimer,
 		coreFound = undefined;
