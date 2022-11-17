@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 3. By balbuze september 2022
+// FusionDsp plugin for volumio 3. By balbuze October 2022
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -13,7 +13,6 @@ const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
 const libQ = require('kew');
 const net = require('net');
-const Journalctl = require('journalctl');
 const path = require('path');
 const WebSocket = require('ws')
 
@@ -29,6 +28,8 @@ const wavfolder = "/data/INTERNAL/FusionDsp/wavfiles/";
 const eq15range = [25, 40, 63, 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 6300, 10000, 16000]
 const coefQ = 1.85//Q for graphic EQ
 const sv = 34300 // sound velocity cm/s
+
+
 // Define the Parameq class
 module.exports = FusionDsp;
 
@@ -156,7 +157,7 @@ FusionDsp.prototype.hwinfo = function () {
   let hwinfo;
   let samplerates;
   try {
-    execSync('/data/plugins/audio_interface/fusiondsp/hw_params hw:' + output_device + ' >/data/configuration/audio_interface/fusiondsp/hwinfo.json ', {
+    execSync('/data/plugins/audio_interface/fusiondsp/hw_params ' + 'volumioHw' + ' >/data/configuration/audio_interface/fusiondsp/hwinfo.json ', {
       uid: 1000,
       gid: 1000
     });
@@ -386,9 +387,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
           { "value": "Notch", "label": "Notch Hz,Q" },
           { "value": "Notch2", "label": "Notch Hz,bandwidth Octave" },
           { "value": "Highpass", "label": "Highpass Hz,Q" },
-          // "value": "Highpass2", "label": "Highpass Hz,bandwidth Octave" },
           { "value": "Lowpass", "label": "Lowpass Hz,Q" },
-          //{ "value": "Lowpass2", "label": "Lowpass Hz,bandwidth Octave" },
           { "value": "HighpassFO", "label": "HighpassFO Hz" },
           { "value": "LowpassFO", "label": "LowpassFO Hz" },
           { "value": "LinkwitzTransform", "label": "Linkwitz Transform Fa Hz,Qa,FT Hz,Qt" },
@@ -724,8 +723,8 @@ FusionDsp.prototype.getUIConfig = function (address) {
 
       } else if (selectedsp == 'convfir') {
         self.logger.info('---------convfir selected-------------')
-        uiconf.sections[2].hidden = true;
-        uiconf.sections[3].hidden = true;
+        //uiconf.sections[2].hidden = true;
+        //uiconf.sections[3].hidden = true;
         uiconf.sections[4].hidden = true;
         uiconf.sections[5].hidden = true;
         uiconf.sections[9].hidden = true;
@@ -2006,6 +2005,7 @@ FusionDsp.prototype.testclipping = function () {
   let messageDisplayed;
   self.socket.emit('stop');
   let arrreduced;
+  let arr = [];
   let filelength = self.config.get('filter_size');
   setTimeout(function () {
     self.config.set('loudness', false);
@@ -2028,65 +2028,69 @@ FusionDsp.prototype.testclipping = function () {
       setTimeout(function () {
         execSync(cmd);
       }, 50);
-      // socket.emit('unmute', '')
+
     } catch (e) {
       self.logger.error(cmd);
     };
   }, 500);
 
-  let arr = [];
-  let opts = {
-    unit: ''
-  }
-  const journalctl = new Journalctl(opts);
-  journalctl.on('event', (event) => {
-    const pevent = event.MESSAGE.indexOf("Clipping detected");
-    if (pevent != -1) {
-      let filteredMessage = event.MESSAGE.split(',').slice(0, -1).pop().replace("peak ", "").slice(0, -1);
-      //self.logger.info('filteredMessage ' + filteredMessage)
-      let attcalculated = Math.round(Math.abs(20 * Math.log10(100 / filteredMessage)));
-
-      messageDisplayed = attcalculated;
-    } else {
-      messageDisplayed = 0;
-    }
-    arr.push(messageDisplayed);
-    arr.sort((a, b) => {
-      if (a > b) return 1;
-      if (a < b) return -1;
-      return 0;
-    });
-    let offset = 3;
-    let arrreducedr = ((arr.toString().split(',')).pop());
-    arrreduced = +arrreducedr + offset;
-  });
   setTimeout(function () {
-    //self.logger.info('arrreduced  ' + arrreduced);
-    self.config.set('attenuationl', arrreduced);
-    self.config.set('attenuationr', arrreduced);
-    self.config.set('testclipping', false)
-    self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('FILTER_LENGTH') + filelength, self.commandRouter.getI18nString('AUTO_ATTENUATION_SET') + arrreduced + ' dB');
-    self.commandRouter.pushToastMessage('info', 'Attenuation set to: ' + arrreduced + ' dB');
-    //  self.saveparameq();
-    // self.createCamilladspfile();
-    let ltest, rtest, cleftfilter, crightfilter, test
 
-    cleftfilter = filterfolder + self.config.get('leftfilter')
-    crightfilter = filterfolder + self.config.get('rightfilter')
+    let rawlog
+    try {
+      rawlog = fs.readFileSync("/tmp/camilladsp.log", "utf8");
+      var o = 0;
+      var result = (rawlog.split("\n"));
+      for (o; o < result.length; o++) {
+        if (result[o].indexOf("Clipping detected") != -1) {
 
-    ltest = ('Eq1' + '|' + 'Conv' + '|L' + cleftfilter + '|' + arrreduced + '|');
-    rtest = ('Eq2' + '|' + 'Conv' + '|R' + crightfilter + '|' + arrreduced + '|');
-    test = ltest + rtest
-    //self.logger.info('test ' + test)
-    self.config.set('mergedeq', test);
-    self.config.set('savedmergedeqfir', test)
+          let filteredMessage = result[o].replace(" dB", ",").replace("peak +", "").split(",");
+         
+          let attcalculated = filteredMessage[2]
+          messageDisplayed = Number(attcalculated);
+          self.logger.info('clipping detection gives in line ' + o + " " + messageDisplayed)
+          arr.push(messageDisplayed);
+        }
+      }
 
-    self.refreshUI();
-    self.createCamilladspfile();
+    } catch (err) {
+      self.logger.error('An error occurs while reading file');
+    }
 
-    journalctl.stop();
-  }, 2810);
-  return defer.promise;
+
+ // self.logger.info("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh " + arr);
+  arr.sort((a, b) => {
+    if (a > b) return 1;
+    if (a < b) return -1;
+    return 0;
+  });
+
+  let offset = 3;
+  let arrreducedr = ((arr.toString().split(',')).pop());
+  arrreduced = +arrreducedr + offset;
+
+  self.config.set('attenuationl', arrreduced);
+  self.config.set('attenuationr', arrreduced);
+  self.config.set('testclipping', false)
+  self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('FILTER_LENGTH') + filelength, self.commandRouter.getI18nString('AUTO_ATTENUATION_SET') + arrreduced + ' dB');
+  self.commandRouter.pushToastMessage('info', 'Attenuation set to: ' + arrreduced + ' dB');
+  
+  let ltest, rtest, cleftfilter, crightfilter, test
+
+  cleftfilter = filterfolder + self.config.get('leftfilter')
+  crightfilter = filterfolder + self.config.get('rightfilter')
+
+  ltest = ('Eq1' + '|' + 'Conv' + '|L' + cleftfilter + '|' + arrreduced + '|');
+  rtest = ('Eq2' + '|' + 'Conv' + '|R' + crightfilter + '|' + arrreduced + '|');
+  test = ltest + rtest
+  self.config.set('mergedeq', test);
+  self.config.set('savedmergedeqfir', test)
+
+  self.refreshUI();
+  self.createCamilladspfile();
+
+}, 4810);
+return defer.promise;
 
 };
 
@@ -2863,9 +2867,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           gainclipfree = -2
           self.logger.info('else 1  ' + gainclipfree)
         } else {
-          gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
+        //  gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
 
-          //  gainclipfree = ('-' + (parseInt(gainresult))) //+ 2))
+            gainclipfree = ('-' + ((parseFloat(Number(gainresult))) + 1))
           //  self.logger.info('gainclipfree '+ gainclipfree)
         }
         if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
@@ -3630,7 +3634,11 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.get('delayscope'),
     self.config.get('autoatt'),
     self.config.get('muteleft'),
-    self.config.get('muteright')
+    self.config.get('muteright'),
+    self.config.get('ldistance'),
+    self.config.get('rdistance'),
+    // self.config.get('attenuationl'),
+    // self.config.get('attenuationr')
   ]
 
   let preset = (data['eqpresetsaved'].value);
@@ -3689,11 +3697,18 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.set("x2geq15" + renprestr, self.config.get('x2geq15'));
     self.config.set("geq15" + renprestr, self.config.get('geq15'));
 
-
   } else if (selectedsp == 'convfir') {
 
-    self.logger.info('Nothing to do!')
+    self.config.set("leftfilter" + renprestr, self.config.get('leftfilter'));
+    self.config.set("attenuationl" + renprestr, self.config.get('attenuationl'));
+    self.config.set("attenuationr" + renprestr, self.config.get('attenuationr'));
+    self.config.set("rightfilter" + renprestr, self.config.get('rightfilter'));
+    self.config.set(('leftfilterlabel' + renprestr), self.config.get('leftfilterlabel'));
+    self.config.set(('filter_format' + renprestr), self.config.get('filter_format'));
+    self.config.set("savedmergedeqfir" + renprestr, self.config.get('mergedeq'));
+
   }
+
   self.config.set('state4preset' + renprestr, state4preset)
   self.logger.info('State for preset' + renprestr + ' = ' + state4preset)
   let presetmessage
@@ -3846,7 +3861,14 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set("usethispreset", preset);
 
   } else if (selectedsp == 'convfir') {
-    //   self.logger.info('aaaaaaaaaaaaaaaaaa')
+    self.config.set("usethispreset", preset);
+    self.config.set("leftfilter", self.config.get('leftfilter' + spreset));
+    self.config.set("rightfilter", self.config.get('rightfilter' + spreset));
+    self.config.set('leftfilterlabel', self.config.get('leftfilterlabel' + spreset));
+    self.config.set('filter_format', self.config.get('filter_format' + spreset))
+    self.config.set('mergedeq', self.config.get('savedmergedeqfir' + spreset))
+    self.config.set("attenuationl", self.config.get('attenuationl' + spreset));
+    self.config.set("attenuationr", self.config.get('attenuationr' + spreset));
   }
   if (preset == "mypreset1" || preset == "mypreset2" || preset == "mypreset3" || preset == "mypreset4" || preset == "mypreset5") {
     let state4preset = self.config.get('state4preset' + spreset)
@@ -3864,6 +3886,16 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set('muteleft', state4preset[9]);
     self.config.set('muteright', state4preset[10]);
 
+    if (state4preset[11] == undefined) {
+      self.config.set('ldistance', 0);
+    } else {
+      self.config.set('ldistance', state4preset[11]);
+    }
+    if (state4preset[12] == undefined) {
+      self.config.set('rdistance', 0);
+    } else {
+      self.config.set('rdistance', state4preset[12]);
+    }
 
 
     self.commandRouter.pushToastMessage('info', spresetm + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
@@ -4186,6 +4218,8 @@ FusionDsp.prototype.convertimportedeq = function () {
     self.config.set('mergedeq', test);
     self.config.set('savednbreq', nbreq - 1)
     self.config.set('savedmergedeq', test)
+    self.config.set('autoatt', true)
+
   } catch (err) {
     self.logger.error('failed to read EQ file ' + err);
   }

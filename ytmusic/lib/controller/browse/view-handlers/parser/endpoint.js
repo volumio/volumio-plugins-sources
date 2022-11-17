@@ -58,21 +58,23 @@ class EndpointItemParser extends BaseParser {
     return null;
   }
 
-  getUriFromEndpoint(endpoint) {
-    switch (endpoint?.browse?.page_type) {
-      case 'MUSIC_PAGE_TYPE_ALBUM':
-        return `/album@albumId=${encodeURIComponent(endpoint.browse.id)}`;
-      case 'MUSIC_PAGE_TYPE_PLAYLIST':
-        return `/playlist@playlistId=${encodeURIComponent(endpoint.browse.id)}`;
-      case 'MUSIC_PAGE_TYPE_ARTIST':
-        return `/artist@artistId=${encodeURIComponent(endpoint.browse.id)}`;
-      default:
-        const param = encodeURIComponent(JSON.stringify(endpoint));
-        if (endpoint.search) {
-          return `/search@endpoint=${param}`;
-        }
-        return `/generic@endpoint=${param}`;
+  getUriFromEndpoint(endpoint, ignorePageType = false) {
+    if (!ignorePageType) {
+      switch (endpoint?.browse?.page_type) {
+        case 'MUSIC_PAGE_TYPE_ALBUM':
+          return `/album@albumId=${encodeURIComponent(endpoint.browse.id)}`;
+        case 'MUSIC_PAGE_TYPE_PLAYLIST':
+          return `/playlist@playlistId=${encodeURIComponent(endpoint.browse.id)}`;
+        case 'MUSIC_PAGE_TYPE_ARTIST':
+          return `/artist@artistId=${encodeURIComponent(endpoint.browse.id)}`;
+        default:
+      }
     }
+    const param = encodeURIComponent(JSON.stringify(endpoint));
+    if (endpoint.search) {
+      return `/search@endpoint=${param}`;
+    }
+    return `/generic@endpoint=${param}`;
   }
 
   getIconFromEndpoint(endpoint) {

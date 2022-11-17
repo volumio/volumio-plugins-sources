@@ -105,7 +105,27 @@
     },
     "savedmergedeqfir": {
         "type": "string",
-        "value": "Eq0|None|L+R|0,0,0"
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
+    },
+    "savedmergedeqfir1": {
+        "type": "string",
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
+    },
+     "savedmergedeqfir2": {
+        "type": "string",
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
+    },
+     "savedmergedeqfir3": {
+        "type": "string",
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
+    },
+     "savedmergedeqfir4": {
+        "type": "string",
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
+    },
+    "savedmergedeqfir5": {
+        "type": "string",
+        "value": "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|"
     },
     "savedmergedgeq15": {
         "type": "string",
@@ -150,6 +170,86 @@
     "p5nbreq": {
         "type": "number",
         "value": 1
+    },
+    "attenuationl1": {
+        "type": "string",
+        "value": "0"
+    },
+    "attenuationr1": {
+        "type": "string",
+        "value": "0"
+    },
+    "leftfilter1": {
+        "type": "string",
+        "value": "None"
+    },
+    "rightfilter1": {
+        "type": "string",
+        "value": "None"
+    }, 
+    "attenuationl2": {
+        "type": "string",
+        "value": "0"
+    },
+    "attenuationr2": {
+        "type": "string",
+        "value": "0"
+    },
+    "leftfilter2": {
+        "type": "string",
+        "value": "None"
+    },
+    "rightfilter2": {
+        "type": "string",
+        "value": "None"
+    }, 
+    "attenuationl3": {
+        "type": "string",
+        "value": "0"
+    },
+    "attenuationr3": {
+        "type": "string",
+        "value": "0"
+    },
+    "leftfilter3": {
+        "type": "string",
+        "value": "None"
+    },
+    "rightfilter3": {
+        "type": "string",
+        "value": "None"
+    }, 
+    "attenuationl4": {
+        "type": "string",
+        "value": "0"
+    },
+    "attenuationr4": {
+        "type": "string",
+        "value": "0"
+    },
+    "leftfilter4": {
+        "type": "string",
+        "value": "None"
+    },
+    "rightfilter4": {
+        "type": "string",
+        "value": "None"
+    },
+    "attenuationl5": {
+        "type": "string",
+        "value": "0"
+    },
+    "attenuationr5": {
+        "type": "string",
+        "value": "0"
+    },
+    "leftfilter5": {
+        "type": "string",
+        "value": "None"
+    },
+    "rightfilter5": {
+        "type": "string",
+        "value": "None"
     },
     "mypreset1": {
         "type": "string",
@@ -208,7 +308,9 @@
             "None",
             true,
             false,
-            false
+            false,
+            0,
+            0
         ]
     },
     "state4preset2": {
@@ -224,7 +326,9 @@
             "None",
             true,
             false,
-            false
+            false,
+            0,
+            0
         ]
     },
     "state4preset3": {
@@ -240,7 +344,9 @@
             "None",
             true,
             false,
-            false
+            false,
+            0,
+            0
         ]
     },
     "state4preset4": {
@@ -256,7 +362,9 @@
             "None",
             true,
             false,
-            false
+            false,
+            0,
+            0
         ]
     },
     "state4preset5": {
@@ -272,7 +380,9 @@
             "None",
             true,
             false,
-            false
+            false,
+            0,
+            0
         ]
     },
     "availablefilters": {
@@ -433,9 +543,49 @@
         "type": "string",
         "value": "None"
     },
+    "leftfilterlabel1": {
+        "type": "string",
+        "value": "None"
+    },
+    "leftfilterlabel2": {
+        "type": "string",
+        "value": "None"
+    },
+    "leftfilterlabel3": {
+        "type": "string",
+        "value": "None"
+    },
+    "leftfilterlabel4": {
+        "type": "string",
+        "value": "None"
+    },
+    "leftfilterlabel5": {
+        "type": "string",
+        "value": "None"
+    },
     "filter_format": {
         "type": "string",
         "value": "FLOAT_LE"
+    },
+    "filter_format1": {
+        "type": "string",
+        "value": ""
+    },
+    "filter_format2": {
+        "type": "string",
+        "value": ""
+    },
+    "filter_format3": {
+        "type": "string",
+        "value": ""
+    },
+    "filter_format4": {
+        "type": "string",
+        "value": ""
+    },
+    "filter_format5": {
+        "type": "string",
+        "value": ""
     },
     "filter_size": {
         "type": "string",

@@ -1,4 +1,4 @@
-September 16th 2022
+November 2nd 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -129,7 +129,7 @@ rm -Rf fusion*
 
 In webUI, enable the plugin.
 
-## What is working :
+## What is working : 
 
 everythings it seems ;-)
 
@@ -140,9 +140,45 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+November 2nd 2022 v1.0.30
+
+- Fix auto pre amp
+
+November 1st 2022 v1.0.29
+
+- Fix camilla gui install
+
+October 28th 2022 v1.0.28
+
+- Bump to camilladsp v1.0.2 fix2
+- custom camillagui
+- Resample up to 768kHz
+- new clipping detection for conv
+- Refactored online help
+
+October 23th 2022 v1.0.27
+
+- Bump to camilladsp v1.0.2 fix1
+
+October 22th 2022 v1.0.26
+
+- Bump to camilladsp v1.0.2
+
+October 13th 2022 v1.0.25
+
+- Add preset for conv mode release
+
+October 12th 2022 v1.0.24
+
+- Add preset for conv mode
+
+September 22th 2022 v1.0.23
+
+- Delay settings are saved in preset
+
 September 16th 2022 v1.0.22
 
-- Fix for distoreded sound when preset is used
+- Fix for distorded sound when preset is used
 
 September 13th 2022 v1.0.21
 

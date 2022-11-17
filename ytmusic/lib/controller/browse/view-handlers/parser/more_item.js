@@ -4,9 +4,11 @@ const EndpointItemParser = require(__dirname + '/endpoint');
 
 class MoreItemParser extends EndpointItemParser {
 
+  #ignorePageType;
+
   parseToListItem(data, bundle) {
     const item = super.parseToListItem(data);
-    if (item && bundle) {
+    if (item && bundle && this.#ignorePageType) {
       item.uri += `@moreContentBundle=${encodeURIComponent(JSON.stringify(bundle))}`;
     }
 
@@ -14,7 +16,8 @@ class MoreItemParser extends EndpointItemParser {
   }
 
   getUriFromEndpoint(endpoint) {
-    const uri = super.getUriFromEndpoint(endpoint);
+    this.#ignorePageType = endpoint?.browse?.params || endpoint?.search;
+    const uri = super.getUriFromEndpoint(endpoint, this.#ignorePageType);
     return uri + '@noExplode=1';
   }
 
