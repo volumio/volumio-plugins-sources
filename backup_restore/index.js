@@ -6,6 +6,8 @@ var config = new (require('v-conf'))();
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 
+var items = ["queue", "playlist", "favourites", "configuration", "albumart"];
+var backupFile = "/data/INTERNAL/volumio_data.tgz";
 
 module.exports = backupRestore;
 function backupRestore(context) {
@@ -102,166 +104,90 @@ backupRestore.prototype.setConf = function(varName, varValue) {
 };
 
 
+// backup & restore methods
 
-// Playback Controls ---------------------------------------------------------------------------------------
-// If your plugin is not a music_sevice don't use this part and delete it
-
-
-backupRestore.prototype.addToBrowseSources = function () {
-
-	// Use this function to add your music service plugin to music sources
-    //var data = {name: 'Spotify', uri: 'spotify',plugin_type:'music_service',plugin_name:'spop'};
-    this.commandRouter.volumioAddToBrowseSources(data);
-};
-
-backupRestore.prototype.handleBrowseUri = function (curUri) {
+backupRestore.prototype.backup = function(data) {
+    var defer = libQ.defer();
     var self = this;
 
-    //self.commandRouter.logger.info(curUri);
-    var response;
+	var archiveList = " ";
+	var excludeList = "--exclude='" + backupFile + "' --exclude='/data/configuration/plugins.json'";
 
+	exec("/bin/rm " + backupFile, function (error) {});
 
-    return response;
+	items.forEach(function(item) {
+		if (data[item] == true) 
+			if (fs.existsSync("/data/" + item)) // protect against rare cases where file or directory may not exist yet
+				archiveList = archiveList + "/data/" + item + " ";	
+	});
+	
+	if (archiveList != " ")
+ 		exec("/bin/tar " + excludeList + " -zcf " + backupFile + archiveList, function (error) {
+ 			if (error == null) {
+				self.commandRouter.pushToastMessage('success',"Backup & Restore Plugin", self.commandRouter.getI18nString('COMMON.SETTINGS_SAVED_SUCCESSFULLY'));
+				defer.resolve();
+			}
+			else {
+				console.log("Backup & Restore Plugin: Compress ERROR: " + error);
+				self.commandRouter.pushToastMessage('error',"Backup & Restore Plugin", self.commandRouter.getI18nString('COMMON.SETTINGS_SAVE_ERROR'));
+				defer.reject(new Error());						
+			}	
+		});
+	
+	else
+		defer.resolve();
+
+    return defer.promise;
 };
 
 
+backupRestore.prototype.restore = function(data) {
+    var defer = libQ.defer();
+    var self = this;
+    
+    var modalData = {
+		title: "Continue to restart Volumio", 								// to be translated when possible
+		message: "It is advised to restart Volumio to leaverage new settings", // to be translated when possible
+		size: 'lg',
+		buttons: [
+			{
+				name: self.commandRouter.getI18nString('COMMON.CANCEL'),
+				class: 'btn btn-cancel',
+				emit:'',
+				payload:''
+			},
+			{
+				name: self.commandRouter.getI18nString('COMMON.CONTINUE'),
+				class: 'btn btn-info',
+				emit:'callMethod',
+				payload:{'endpoint':'system_controller/backup_restore','method':'relaunch','data':{}}
+			}
+		]
+	};
 
-// Define a method to clear, add, and play an array of tracks
-backupRestore.prototype.clearAddPlayTrack = function(track) {
-	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'backupRestore::clearAddPlayTrack');
+        
+    exec("/bin/tar -zxf " + backupFile + " --overwrite -C / ", function (error) {
+    	if (error == null) {
+			self.commandRouter.pushToastMessage('success',"Backup & Restore Plugin", self.commandRouter.getI18nString('COMMON.CONFIGURATION_UPDATE_DESCRIPTION'));
+			self.commandRouter.broadcastMessage("openModal", modalData);
+			defer.resolve();
+		}
+		else {
+			console.log("Backup & Restore Plugin: Restore ERROR: " + error);
+			self.commandRouter.pushToastMessage('error',"Backup & Restore Plugin", self.commandRouter.getI18nString('COMMON.CONFIGURATION_UPDATE_ERROR'));
+			defer.reject(new Error());
+		}
+	});
 
-	self.commandRouter.logger.info(JSON.stringify(track));
-
-	return self.sendSpopCommand('uplay', [track.uri]);
-};
-
-backupRestore.prototype.seek = function (timepos) {
-    this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'backupRestore::seek to ' + timepos);
-
-    return this.sendSpopCommand('seek '+timepos, []);
-};
-
-// Stop
-backupRestore.prototype.stop = function() {
-	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'backupRestore::stop');
-
-
-};
-
-// Spop pause
-backupRestore.prototype.pause = function() {
-	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'backupRestore::pause');
-
-
-};
-
-// Get state
-backupRestore.prototype.getState = function() {
-	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'backupRestore::getState');
-
-
-};
-
-//Parse state
-backupRestore.prototype.parseState = function(sState) {
-	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'backupRestore::parseState');
-
-	//Use this method to parse the state and eventually send it with the following function
-};
-
-// Announce updated State
-backupRestore.prototype.pushState = function(state) {
-	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'backupRestore::pushState');
-
-	return self.commandRouter.servicePushState(state, self.servicename);
+    return defer.promise;
 };
 
 
-backupRestore.prototype.explodeUri = function(uri) {
-	var self = this;
-	var defer=libQ.defer();
-
-	// Mandatory: retrieve all info for a given URI
-
-	return defer.promise;
-};
-
-backupRestore.prototype.getAlbumArt = function (data, path) {
-
-	var artist, album;
-
-	if (data != undefined && data.path != undefined) {
-		path = data.path;
-	}
-
-	var web;
-
-	if (data != undefined && data.artist != undefined) {
-		artist = data.artist;
-		if (data.album != undefined)
-			album = data.album;
-		else album = data.artist;
-
-		web = '?web=' + nodetools.urlEncode(artist) + '/' + nodetools.urlEncode(album) + '/large'
-	}
-
-	var url = '/albumart';
-
-	if (web != undefined)
-		url = url + web;
-
-	if (web != undefined && path != undefined)
-		url = url + '&';
-	else if (path != undefined)
-		url = url + '?';
-
-	if (path != undefined)
-		url = url + 'path=' + nodetools.urlEncode(path);
-
-	return url;
-};
-
-
-
-
-
-backupRestore.prototype.search = function (query) {
-	var self=this;
-	var defer=libQ.defer();
-
-	// Mandatory, search. You can divide the search in sections using following functions
-
-	return defer.promise;
-};
-
-backupRestore.prototype._searchArtists = function (results) {
-
-};
-
-backupRestore.prototype._searchAlbums = function (results) {
-
-};
-
-backupRestore.prototype._searchPlaylists = function (results) {
-
-
-};
-
-backupRestore.prototype._searchTracks = function (results) {
-
-};
-
-backupRestore.prototype.goto=function(data){
-    var self=this
-    var defer=libQ.defer()
-
-// Handle go to artist and go to album function
-
-     return defer.promise;
+backupRestore.prototype.relaunch = function() {
+    var defer = libQ.defer();
+    var self = this;
+    
+    exec("sudo /bin/systemctl restart volumio", function (error) {});
+	
+	return defer.resolve();
 };
