@@ -56,6 +56,23 @@ Plexcloud.prototype.getServers = function(token, resolve, reject)
         });
 };
 
+Plexcloud.prototype.getClaimToken = function(token, resolve, reject)
+{
+    if (token === undefined) {
+        throw Error("No token provided");
+    }
+
+    this.headers["X-Plex-token"] = token;
+
+    return request.get({url: 'https://plex.tv/api/claim/token.json', headers: this.headers})
+        .then(function(json) {
+            resolve(json);
+        })
+        .catch(function(err){
+            reject(err);
+        });
+};
+
 
 
 module.exports = Plexcloud;

@@ -1,0 +1,12 @@
+#!/usr/bin/expect
+
+set claimToken [lindex $argv 0];
+set hostname [lindex $argv 1];
+
+set timeout -1
+spawn  /home/volumio/.nvm/versions/node/v12.22.12/bin/node /data/plugins/music_service/plexamp/plexamp/js/index.js
+expect "Please visit https://plex.tv/claim and enter the claim token:"
+send -- "$claimToken\r"
+expect "Please give the player a name (e.g. Bedroom, Kitchen):"
+send -- "$hostname\r"
+expect eof

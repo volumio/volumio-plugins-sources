@@ -188,15 +188,15 @@
           "label": "TRANSLATE.PLEXAMP_VERSION",
           "element": "select",
           "value": {
-            "value": 0,
+            "value": "NA",
             "label": "Not installed"
           },
           "options": [{
-            "value": 0,
+            "value": "NA",
             "label": "Not installed"
           },
             {
-              "value": 1,
+              "value": "4_4_0",
               "label": "PlexAmp (4.4.0)"
             }
           ]

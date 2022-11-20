@@ -111,10 +111,12 @@ function plex(log, config) {
     // WS Monitoring support
     var setupWSMonitoring = function() {
         // Create a WebsocketClient with the create plex-api login and onPacket function
+        /*
         const WSClient = new PlexWebsocket.WebsocketClient(client, onPacket);
         WSClient.websocket.on("connect", function() {logger.info("PlexAPI: Connected")}); // When a successful connection is made
         WSClient.websocket.on("error", function(err) { logger.info("PlexAPI: Error\n", err)}); // When an error occurs (Will terminate program)
         WSClient.websocket.on("debug", function(message) { logger.info("PlexAPI: Debug\n", message)});
+         */
     }
 
     /**

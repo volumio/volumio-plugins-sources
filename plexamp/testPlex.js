@@ -290,6 +290,12 @@ plexcloud.getServers(process.env.TOKEN, function (servers) {
     }
 });
 
+plexcloud.getClaimToken(process.env.TOKEN, function (claimToken) {
+    console.log("Plex Cloud result" + JSON.stringify(claimToken));
+}, function error() {
+    console.log("error getting claim tokens");
+});
+
 /*
  * Get a PIN
  *

@@ -146,6 +146,22 @@ ControllerPlexAmp.prototype.getPlexCloudServers = function(token) {
 
 	return defer.promise;
 }
+
+ControllerPlexAmp.prototype.getPlexClaimToken = function() {
+	var defer = libQ.defer();
+	var self = this;
+
+	var token = self.config.get('token');	// Let assume for now if we have a token it valid
+
+	var plexcloud = PlexCloud(self.plexCloudOptions);
+	plexcloud.getClaimToken(token, function(cliamToken) {
+		defer.resolve(cliamToken);
+	}, function(error) {
+		defer.reject(error);
+	});
+
+	return defer.promise;
+}
 // PIN Configuration Methods -----------------------------------------------------------------------------
 
 /**
@@ -1639,23 +1655,36 @@ ControllerPlexAmp.prototype.goto=function(data){
 	return defer.promise;
 };
 
-ControllerPlexAmp.prototype.installPlexAmp = function () {
+ControllerPlexAmp.prototype.installPlexAmp = function(data) {
+	var defer = libQ.defer();
 	const self = this;
 
-	//----------- PlexAmp 4.4.0 script for now
+	//----------- Should be the PlexAmp 4.4.0 script for now
 
-	try {
-		exec("/usr/bin/sudo /data/plugins/music_service/plexamp/installPlexAmp" + version +".sh", {
-			uid: 1000,
-			gid: 1000
-		});
+	var version = data["version"].value;
 
-		self.commandRouter.pushConsoleMessage('PlexAmp Installation please wait..');
-		self.commandRouter.pushToastMessage('success', "Headless PlexAmp is currently installing ..");
+	// Next get a claim token using the API and get the name of this volumio instance for 'plexamp'
+	// registration
+	self.getPlexClaimToken().then(function(claimToken) {
+		try {
+            exec("/usr/bin/sudo /data/plugins/music_service/plexamp/installPlexAmp" + version +".sh " + claimToken.token , {
+                uid: 1000,
+                gid: 1000
+            });
 
-	} catch (err) {
-		self.logger.info('failed to install PlexAmp' + err);
-	}
+			self.commandRouter.pushConsoleMessage('Headless PlexAmp Installation please wait..');
+			self.commandRouter.pushToastMessage('success', "Headless PlexAmp is currently installing ..");
+			defer.resolve();
+		} catch (err) {
+			self.logger.info('failed to install PlexAmp' + err);
+			defer.reject(err);
+		}
+
+	}).fail(function(err) {
+		defer.reject(err);
+	});
+
+	return defer.promise;
 }
 
 ControllerPlexAmp.prototype.upgradePlexamp = function (version) {
@@ -1668,12 +1697,12 @@ ControllerPlexAmp.prototype.isPlexampInstalled = function () {
 	const self = this;
 
 	try {
-		var result = execSync("/usr/bin/sudo /bin/systemctl status plexamp.service", {
+		var result = execSync("/bin/systemctl is-active plexamp.service", {
 			uid: 1000,
 			gid: 1000
 		});
 		self.commandRouter.pushConsoleMessage('PlexAmp status? ' + result);
-		return true;
+		return 0 === result;
 	} catch (err) {
 		self.logger.info('failed to get status of Plexamp service: ' + err);
 	}
