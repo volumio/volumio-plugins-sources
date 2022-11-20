@@ -34,13 +34,13 @@ cp plexamp.service /etc/systemd/system/plexamp.service
 
 echo "Activating plexamp ..."
 h=$(hostname -f)
-
+chmod +x activatePlexAmp.exp
 ./activatePlexAmp.exp $1 $h
 
 # enable the plexamp.service
 echo "Enabling plexamp ..."
 
-sudo systemctl enable plexamp.service
-sudo systemctl start plexamp.service
+systemctl enable plexamp.service
+systemctl start plexamp.service
 
 echo "Headless PlexAmp installed"

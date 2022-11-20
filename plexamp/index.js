@@ -1667,7 +1667,7 @@ ControllerPlexAmp.prototype.installPlexAmp = function(data) {
 	// registration
 	self.getPlexClaimToken().then(function(claimToken) {
 		try {
-            exec("/usr/bin/sudo /data/plugins/music_service/plexamp/installPlexAmp" + version +".sh " + claimToken.token , {
+            exec("/usr/bin/sudo -S /bin/bash /data/plugins/music_service/plexamp/installPlexAmp" + version +".sh " + claimToken.token , {
                 uid: 1000,
                 gid: 1000
             });
