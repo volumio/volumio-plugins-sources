@@ -1,6 +1,6 @@
 {
 	"name": "plexamp",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Provides a plugin to link your Plex account with Volumio providing Volumio wit Plex Music and support for headless PlexAmp",
 	"main": "index.js",
 	"scripts": {
