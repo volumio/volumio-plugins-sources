@@ -8,7 +8,7 @@
 	},
 	"author": "jerome",
 	"license": "ISC",
-	"repository": "https://github.com/jeromeof/volumio-plugins/tree/master/plugins/music_service/volusonic",
+	"repository": "https://github.com/jeromeof/volumio-plugins-sources/tree/master/plexamp",
 	"volumio_info": {
 		"prettyName": "Plex and PlexAmp",
 		"icon": "fa-server",
@@ -21,7 +21,7 @@
 			"buster"
 		],
 		"details": "Plex plugin with Plex Library and PlexAmp support",
-		"changelog": "Initial Version"
+		"changelog": "Initial Version with basic plexamp script"
 	},
 	"engines": {
 		"node": ">=8",
