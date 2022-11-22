@@ -244,14 +244,26 @@ GPIOButtons.prototype.playPause = function() {
 
 //next on playlist
 GPIOButtons.prototype.next = function() {
+
+  //See if we can set a gpio pin
+  var LEDon = new Gpio(4, 'out');
+  var LEDoff = new Gpio(21, 'out');
+  LEDon.writeSync(1); // Turn relevant LED on
+  LEDoff.writeSync(0); // Turn relevant LED on
   //this.logger.info('GPIO-Buttons: next-button pressed');
-  socket.emit('next')
+  socket.emit('playPlaylist',{'name':'key1'})
 };
 
 //previous on playlist
 GPIOButtons.prototype.previous = function() {
+
+  var LEDon = new Gpio(21, 'out');
+  var LEDoff = new Gpio(4, 'out');
+  LEDon.writeSync(1); // Turn relevant LED on
+  LEDoff.writeSync(0); // Turn relevant LED on
+	
   //this.logger.info('GPIO-Buttons: previous-button pressed');
-  socket.emit('prev')
+  socket.emit('playPlaylist',{'name':'key2'})
 };
 
 //Volume up
