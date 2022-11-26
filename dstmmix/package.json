@@ -1,6 +1,6 @@
 {
 	"name": "dstmmix",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Self hosted LMS server with infinite smart mix feature",
 	"main": "index.js",
 	"scripts": {
@@ -10,7 +10,7 @@
 	"repository": "https://github.com/chourmovs/volumio-plugins-sources/tree/master/dstmmix",
 	"license": "ISC",
 	"volumio_info": {
-		"prettyName": "dstmmix",
+		"prettyName": "DstmMix",
 		"icon": "fa-lightbulb-o",
 		"plugin_type": "music_service",
 		"os": [

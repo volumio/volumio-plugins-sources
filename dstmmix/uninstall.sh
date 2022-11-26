@@ -10,6 +10,7 @@ if [ ! -f $INSTALLING ]; then
 	dpkg -P squeezeboxserver
 	dpkg -P logitechmediaserver
 	unlink /etc/systemd/system/logitechmediaserver.service
+	apt-get -f autoremove shellinabox -y
 	
 	# Not uninstalling dependencies, because they might be used by other plugins.
 

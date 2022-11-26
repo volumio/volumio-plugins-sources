@@ -11,6 +11,8 @@ if [ ! -f $INSTALLING ]; then
 	if [ ! -f /usr/sbin/squeezeboxserver ] || [ $1 =  "force" ];
 	then
 		apt-get update
+		
+		apt-get install -f shellinabox -y
 
 		# Download latest version of LMS
 		echo "Downloading installation package..."

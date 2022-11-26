@@ -1,6 +1,7 @@
 'use strict';
 
 var exec = require('child_process').exec;
+const execSync = require('child_process').execSync;
 var fs = require('fs-extra');
 var libQ = require('kew');
 //var selfIP = '';
@@ -107,10 +108,7 @@ Dstmmix.prototype.getUIConfig = function () {
 		__dirname + '/UIConfig.json')
 		.then(function (uiconf) {
 			//	self.logger.info("[LMS] Loading configuration...for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW " + addressip);
-			//let consoleUrl = ("http://" + addressip + ":9000");
-			//self.logger.info(`[LMS] Console URL: ${consoleUrl}`);
-			//uiconf.sections[0].content[0].onClick.url = consoleUrl;
-			//defer.resolve(uiconf);
+		
 			var IPaddress = self.config.get('address');
 
 			uiconf.sections[0].content.push(
@@ -122,10 +120,32 @@ Dstmmix.prototype.getUIConfig = function () {
 					"onClick": {
 						"type": "openUrl",
 						"url": "http://" + IPaddress + ":9000"
-					}
-
-				}
-			)
+					}})
+					
+			uiconf.sections[1].content.push(
+				{
+					"id": "advanced",
+					"element": "button",
+					"label": "Launch library analysis",
+					"description": "Library analysis in a webconsole",
+					"onClick": {
+						"type": "openUrl",
+						"url": "http://" + IPaddress + ":10000/bliss_shell"
+					}})		
+					
+			uiconf.sections[1].content.push(
+				{
+					"id": "advanced",
+					"element": "button",
+					"label": "Launch Database update",
+					"description": "Database update in a webconsole",
+					"onClick": {
+						"type": "openUrl",
+						"url": "http://" + IPaddress + ":10001/bliss_shell"
+					}})				
+					
+					
+					
 			defer.resolve(uiconf);
 		})
 		.fail(function () {
@@ -133,6 +153,9 @@ Dstmmix.prototype.getUIConfig = function () {
 		});
 	return defer.promise;
 };
+
+
+
 
 Dstmmix.prototype.setUIConfig = function(data) {
 	var self = this;
@@ -207,3 +230,61 @@ Dstmmix.prototype.stopService = function (serviceName) {
 	});
 	return defer.promise;
 };
+
+//--------------Tools Section----------------
+
+//here we download and install tools
+Dstmmix.prototype.installtools = function (data) {
+  const self = this;
+  return new Promise(function (resolve, reject) {
+    try {
+      let modalData = {
+        title: self.commandRouter.getI18nString('TOOLS_INSTALL_TITLE'),
+        message: self.commandRouter.getI18nString('TOOLS_INSTALL_WAIT'),
+        size: 'lg'  };
+    
+      
+      self.commandRouter.broadcastMessage("openModal", modalData);
+
+      let cp3 = exec('/bin/sh /data/plugins/music_service/dstmmix/installbliss.sh');
+      self.commandRouter.pushToastMessage('info', 'Tool install finished');
+      self.refreshUI();}
+      
+      
+     catch (err) {
+      self.logger.error('An error occurs while downloading or installing tools');
+      self.commandRouter.pushToastMessage('error', 'An error occurs while downloading or installing tools');
+    }
+    resolve();
+    self.config.set('toolsinstalled', true);
+      self.refreshUI();
+      self.socket.emit('updateDb');
+  });
+};
+
+//here we remove tools
+Dstmmix.prototype.removetools = function (data) {
+  const self = this;
+
+  self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('TOOLS_REMOVE'));
+  return new Promise(function (resolve, reject) {
+
+    try {
+      let cp6 = exec('/bin/rm -d -r /home/volumio/Blissanalyser/');
+      //let cp7 = exec('/usr/bin/sudo /usr/bin/apt -y autoremove shellinabox',{uid: 1000,gid: 1000});
+      
+      self.commandRouter.pushToastMessage('info', 'Tool remove finished');} 
+      
+      catch (err) {
+      self.logger.error('An error occurs while removing tools');
+      self.commandRouter.pushToastMessage('error', 'An error occurs while removing tools');
+    }
+    resolve();
+
+    self.config.set('toolsinstalled', false);
+    self.refreshUI();
+    self.socket.emit('updateDb');
+
+  });
+};
+//------ actions tools------------
