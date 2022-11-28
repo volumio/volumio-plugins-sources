@@ -1,13 +1,13 @@
 {
 	"name": "volroon",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "volroon is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Dale Rider",
-	"license": "ISC",
+	"license": "GPL-3.0",
 	"repository": "https://github.com/charliesjc/volumio-plugins-sources",
 	"volumio_info": {
 		"prettyName": "volroon",
@@ -22,7 +22,7 @@
 		],
 		"has_alsa_contribution": "false",
 		"details": "volroon is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
-		"changelog": "Added shuffle and repeat control"
+		"changelog": "Fix: Stray var causing a crash on uninstall"
 	},
 	"engines": {
 		"node": ">=8",
