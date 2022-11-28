@@ -2,9 +2,19 @@
 var plex = require('./plex');
 var libQ = require('kew');
 var Plexcloud = require('./plexcloud');
-
+var ping = require ("net-ping");
 const PlexPin = require('./plexpinauth');
 require('dotenv').config()
+
+
+var plexcloud = Plexcloud({
+    identifier: '983-ADC-213-BGF-132',
+    product: 'Volumio-PlexAmp',
+    version: '1.0',
+    deviceName: 'RaspberryPi',
+    platform: 'Volumio'
+});
+
 class Logger {
     info = (message) => {console.log(message);}
 }
@@ -13,6 +23,7 @@ class Config  {
         this.map = {
             "token": process.env.TOKEN,
             "server": process.env.HOSTNAME,
+            "port": process.env.PORT
         };
     }
     get = (key) => {
@@ -20,24 +31,46 @@ class Config  {
     };
 }
 
+/*
+        query("/servers").then((servers) => {
+ */
+
 
 var plexBackend = new plex(new Logger(), new Config());
 
 plexBackend.connect().then(function(){
 
-    plexBackend.queryAllMusicLibraries().then(function (libraries) {
+    plexcloud.getServers(process.env.TOKEN, function (servers) {
+        console.log("Plex Cloud result");
+        var promises = [];	// Array to gather all the various promises
 
-        for (const musicLibrary of libraries) {
-            console.log("Library called %s running on Plex Media Server %s", musicLibrary.library, musicLibrary.hostname);
+        for (const server of servers.MediaContainer.Server) {
+            console.log("ServerName:" + server.$.name);
+            promises.push(plexBackend.ping(server.$.name, server.$.localAddresses, server.$.port));
         }
-        var filteredMusicLibrary = libraries.filter((library) => library.libraryTitle === 'Music' && library.name === "garagevolumio");
 
-        try {
-            doAllMusicQueryTests(filteredMusicLibrary[0].key);
-        } catch (Err) {
-            console.error(Err);
-        }
+
+        Promise.allSettled(promises).then(function(results) {
+            const servers = results.filter(result => result.status === 'fulfilled').map(result => result.value);
+            plexBackend.queryAllMusicLibraries(servers).then(function (libraries) {
+
+                for (const musicLibrary of libraries) {
+                    console.log("Library called %s running on Plex Media Server %s", musicLibrary.name, musicLibrary.hostname);
+                }
+                var filteredMusicLibrary = libraries.filter((library) => library.libraryTitle === 'Music' && library.name === "Ballygoran");
+
+                try {
+                    doAllMusicQueryTests(filteredMusicLibrary[0].key);
+                } catch (Err) {
+                    console.error(Err);
+                }
+            });
+        });
+    }, function(errorMessage) {
+        console.log("Error:" + errorMessage);
     });
+
+
 });
 
 
@@ -54,17 +87,23 @@ function doAllMusicQueryTests(musicSectionKey) {
         }
     });
     */
-    /*
-    var albumKey = "113385";
+    var albumKey = "249959";
     plexBackend.getAlbumRelated(albumKey).then((albumTracks) => {
         console.log("Related:" + JSON.stringify(albumTracks));
-        console.log("\n");
-        plexBackend.getAlbumRelated(albumKey).then((albumTracks) => {
-            console.log("Related:" + JSON.stringify(albumTracks));
-            console.log("\n");
+        var similarAlbums = filterMetadataFromHub(albumTracks.Hub, "hub.external.album.similar.sonically");
+        similarAlbums.forEach(function (album) {
+            console.log(JSON.stringify(album));
         });
     });
-    */
+
+    function filterMetadataFromHub(hubs, context) {
+        for (const hub of hubs ) {
+            if (hub.context === context) {
+                return hub.Metadata;
+            }
+        }
+        return [];
+    }
     /*
     plexBackend.getListOfPlaylists(musicSectionKey).then((results) => {
         for (const playlist of results) {
@@ -202,7 +241,7 @@ function doAllMusicQueryTests(musicSectionKey) {
         console.log(artist);
     });
     */
-    plexBackend.getAlbum("42628").then(function(album) {
+    plexBackend.getAlbum("249959").then(function(album) {
         console.log(album);
     });
     /*
@@ -222,19 +261,22 @@ function doAllMusicQueryTests(musicSectionKey) {
             }
         });
 */
-    /*
-        plexBackend.getListOfRecentAddedArtists(musicSectionKey).then((results) => {
-            for (const album of results) {
-                console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
-            }
-        });
-        plexBackend.getListOfRecentPlayedArtists(musicSectionKey).then((results) => {
-            for (const album of results) {
-                //console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
-            }
-            console.log("Recently Played:" + results.length)
-        });
-        */
+    plexBackend.getListOfRecentAddedAlbums(musicSectionKey, 100).then((results) => {
+        for (const album of results) {
+            console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
+        }
+    });
+    plexBackend.getListOfRecentAddedArtists(musicSectionKey).then((results) => {
+        for (const artist of results) {
+            console.log("Music Section Artist [" + artist.title + "] key: [ " + album.key + " ]");
+        }
+    });
+    plexBackend.getListOfRecentPlayedArtists(musicSectionKey).then((results) => {
+        for (const album of results) {
+            //console.log("Music Section Title [" + album.title + "] artist:[" + album.parentTitle + "] key: [ " + album.key + " ]");
+        }
+        console.log("Recently Played:" + results.length)
+    });
     /*
     var albumKey = 112974;
     plexBackend.getAlbumDetails(+albumKey).then((results) => {
@@ -274,27 +316,13 @@ function printTrackDetails(track) {
     console.log(" stream URL:" + track.Media[0].Part[0].key + "?download=1");
 }
 
-
-var plexcloud = Plexcloud({
-    identifier: '983-ADC-213-BGF-132',
-    product: 'Volumio-PlexAmp',
-    version: '1.0',
-    deviceName: 'RaspberryPi',
-    platform: 'Volumio'
-});
-
-plexcloud.getServers(process.env.TOKEN, function (servers) {
-    console.log("Plex Cloud result");
-    for (const server of servers.MediaContainer.Server) {
-        console.log("ServerName:" + server.$.name);
-    }
-});
-
+/*
 plexcloud.getClaimToken(process.env.TOKEN, function (claimToken) {
     console.log("Plex Cloud result" + JSON.stringify(claimToken));
 }, function error() {
     console.log("error getting claim tokens");
 });
+ */
 
 /*
  * Get a PIN

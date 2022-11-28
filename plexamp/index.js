@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
+var ping = require ("net-ping");
 
 // Some plex libraries and modules
 var plex = require('./plex');
@@ -92,6 +93,7 @@ ControllerPlexAmp.prototype.setMusicServerKey = function() {
 			if (libraries.length > 0) {
 				self.config.set("library", filteredMusicLibrary[0].libraryTitle);
 				self.config.set("key", filteredMusicLibrary[0].key);
+				self.config.set("port", filteredMusicLibrary[0].port);
 				self.config.save();
 			}
 		}
@@ -234,33 +236,40 @@ ControllerPlexAmp.prototype.getPinAndUpdateField = function(data) {
 								// Only because old Node JS Plex API library needs a server before it will work -
 								// So we are using our own Plex Cloud library to query the list of servers and pick the first one
 								self.getPlexCloudServers(token).then(function (servers) {
-									// Lets default to the first server
+									// Find the first server that is alive in the list:
 									var serverDetails = servers[0].$;
-									self.config.set('server', serverDetails.localAddresses);
-									self.config.set('serverName', serverDetails.name);
-									self.config.set('port', serverDetails.port);
-									self.config.save();
+									var session = ping.createSession ();
 
-									self.plex.connect().then(function(){
+									var serverAddress = serverDetails.address;
+									session.pingHost (serverAddress, function (error, target) {
+										if (error) {
+											self.logger.info("Failed to ping server" + serverAddress + ": " + error.toString());
+										} else {
+											self.config.set('server', serverAddress);	// Lets use remote address
+											self.config.set('serverName', serverDetails.name);
+											self.config.set('port', serverDetails.port);
+											self.config.save();
 
-										self.addToBrowseSources();
+											self.plex.connect().then(function() {
 
-										self.setMusicServerKey().then(function() {
+												self.addToBrowseSources();
 
-											self.refreshUIConfig();
-											defer.resolve(uiconf);
+												self.setMusicServerKey().then(function() {
 
-										}).fail(function(error){
-											self.logger.info("PlexAmp::Plex failed to get a Music server key");
-											defer.reject(error);
-										});
-									})
-										.fail(function(error){
-											self.logger.info("PlexAmp::Plex failed to connect");
-											defer.reject(error);
-										});
+													self.refreshUIConfig();
+													defer.resolve(uiconf);
+
+												}).fail(function(error){
+													self.logger.info("PlexAmp::Plex failed to get a Music server key");
+													defer.reject(error);
+												});
+											}).fail(function(error){
+												self.logger.info("PlexAmp::Plex failed to connect");
+												defer.reject(error);
+											});
+										}
+									});
 								});
-
 							}// failed getting token
 							else if (res.token === false) {
 								self.logger.info('PlexAmp: Timeout! no Token');
@@ -1139,14 +1148,15 @@ ControllerPlexAmp.prototype.showAlbum = function(uriParts, curUri) {
 				similarAlbums.forEach(function (album) {
 					albs.push(self._formatAlbum(album, "plexamp/artistsnewest/" + album.parentRatingKey ));
 				});
-				var albums = {
-					title: self.commandRouter.getI18nString('SIMILAR_ALBUMS'),
-					type: 'folder',
-					availableListViews: ['list', 'grid'],
-					items: albs
+				if (albs.length > 0) {
+					var albums = {
+						title: self.commandRouter.getI18nString('SIMILAR_ALBUMS'),
+						type: 'folder',
+						availableListViews: ['list', 'grid'],
+						items: albs
+					}
+					nav.navigation['lists'].push(albums);
 				}
-				nav.navigation['lists'].push(albums);
-
 				defer.resolve(nav);
 			});
 		});
@@ -1490,7 +1500,7 @@ ControllerPlexAmp.prototype.explodeUri = function(uri) {
 					albumPromises.push(self.plex.getAlbumTracks(album.ratingKey));
 				}
 				var playable = [];
-				Promise.all(albumPromises).then(function (arrayAlbums) {
+				Promise.allSettled(albumPromises).then(function (arrayAlbums) {
 					self.logger.info(JSON.stringify(arrayAlbums));
 					for (const albumTracks of arrayAlbums) {
 						for (const media of albumTracks) {

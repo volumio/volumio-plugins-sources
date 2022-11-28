@@ -32,17 +32,21 @@ function plex(log, config) {
                 "hostname": serverToUse,
                 "port": port
             });
-            plexServer.find({uri:"/library/sections/"}, {type: "artist"})  // A Plex Music "Library" is organised by Artist (currently)
-                .then(function(result) {
+            plexServer.find({uri: "/library/sections/"}, {type: "artist"})  // A Plex Music "Library" is organised by Artist (currently)
+                .then(function (result) {
                     defer.resolve({
                         "name": serverName,
                         "hostname": serverToUse,
                         "port": port,
                         "libraries": result
                     });
+                })
+                .catch(function(error) {
+                    log.info("Unable to query music libraires:" + error.message);
+                    defer.reject("Error finding libraries:" + error.message);
                 });
         } else {
-            defer.fail("No token");
+            defer.reject("No token");
         }
         return defer.promise;
     }
@@ -132,34 +136,30 @@ function plex(log, config) {
         }
     }
 
-    var queryAllMusicLibraries = function() {
+    var queryAllMusicLibraries = function(servers) {
         var defer = libQ.defer();
         var promises = [];	// Array to gather all the various promises
         // Query all the servers first
-        query("/servers").then((servers) => {
-            for (var i = 0;i<servers.size; i++ ) {
-                var server = servers.Server[i];
-                // Then query the list of Music libraries on the server
-                promises.push(queryLibraries(server.name, server.address, server.port));
-            }
-            var listOfMusicLibraries = [];
-            Promise.all(promises).then(function(serverMusicLibraries) {
-                for (const serverLibrary of serverMusicLibraries) {
-                    for (const musicLibrary of serverLibrary.libraries) {
-                        listOfMusicLibraries.push({
-                            "name": serverLibrary.name,
-                            "hostname": serverLibrary.hostname,
-                            "port": serverLibrary.port,
-                            "libraryTitle": musicLibrary.title,
-                            "key": musicLibrary.key
-                        });
-                    }
+        for (var i = 0;i<servers.length; i++ ) {
+            var server = servers[i];
+            // Then query the list of Music libraries on the server
+            promises.push(queryLibraries(server.name, server.address, server.port));
+        }
+        var listOfMusicLibraries = [];
+        Promise.allSettled(promises).then(function(results) {
+            const serverMusicLibraries = results.filter(result => result.status === 'fulfilled').map(result => result.value);
+            for (const serverLibrary of serverMusicLibraries) {
+                for (const musicLibrary of serverLibrary.libraries) {
+                    listOfMusicLibraries.push({
+                        "name": serverLibrary.name,
+                        "hostname": serverLibrary.hostname,
+                        "port": serverLibrary.port,
+                        "libraryTitle": musicLibrary.title,
+                        "key": musicLibrary.key
+                    });
                 }
-                defer.resolve(listOfMusicLibraries);
-            });
-        }).fail(function(error){
-            self.logger.info("PlexAmp::Plex failed to query servers " +  error);
-            defer.reject(error);
+            }
+            defer.resolve(listOfMusicLibraries);
         });
 
         return defer.promise;
@@ -342,13 +342,13 @@ function plex(log, config) {
 
 
     var getListOfRecentAddedAlbums = function(key, limit) {
-        return query({uri:"/library/recentlyAdded/" + key + "/all?type=9&sort=addedAt:desc&includeMeta=1&includeAdvanced=1", extraHeaders: {
+        return query({uri:"/library/sections/"+ key + "/recentlyAdded?type=9&sort=addedAt:desc", extraHeaders: {
                 "X-Plex-Container-Start": "0",
                 "X-Plex-Container-Size": limit
             }});
     }
     var getListOfRecentAddedArtists = function(key, limit) {
-        return query({uri:"/library/sections/" + key + "/all?viewCount>=1&type=8&sort=addedAt:desc", extraHeaders: {
+        return query({uri:"/library/sections/" + key + "/recentlyAdded?type=8&sort=addedAt:desc", extraHeaders: {
                 "X-Plex-Container-Start": "0",
                 "X-Plex-Container-Size": limit
             }});
@@ -424,10 +424,26 @@ function plex(log, config) {
     var getTrack = function(key) {
         return query( "/library/metadata/" + key);
     }
+    var ping = function(name, serverAddress, port) {
+        var defer = libQ.defer();
+        var ping = require ("net-ping");
+        var session = ping.createSession ();
+        session.pingHost (serverAddress, function (error, target) {
+            if (error) {
+                console.log(serverAddress + ": " + error.toString());
+                defer.reject(error.toString());
+            } else {
+                console.log(serverAddress + ": Alive");
+                defer.resolve({"name": name, "address": serverAddress, port: port})
+            }
+        });
+        return defer.promise;
+    }
     return {
         isConnected: isConnected,
         queryLibraries: queryLibraries,
         queryAllMusicLibraries: queryAllMusicLibraries,
+        ping: ping,
         connect: connect,
         cacheGet: cacheGet,
         cacheSet: cacheSet,
