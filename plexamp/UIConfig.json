@@ -22,7 +22,7 @@
         "onClick": {
           "type": "controller",
           "endpoint": "music_service/plexamp",
-          "method": "getPinAndUpdateField"
+          "method": "getPinAndUpdateConfig"
         },
         "visibleIf": {
           "field": "connected",

@@ -59,26 +59,17 @@ function plex(log, config) {
         var port = config.get('port') | 32400;
 
         if (token) {    // If we have a token - lets use it to get client access to Plex and setup Monitoring and get some basic plex info
-            try {
 
-                // Authenticate first again the myplex.tv - to get the local server if we haven't selected a server to use
+            // Plex API client - lets just use a token we saved after the PIN authentication
+            client = new PlexAPI({
+                "token": token,
+                "hostname": serverToUse,
+                "port": port
+            });
 
-                // Plex API client - lets just use a token we saved after the PIN authentication
-                client = new PlexAPI({
-                    "token": token,
-                    "hostname": serverToUse,
-                    "port": port
-                });
+            //setupWSMonitoring();
 
-                setupWSMonitoring();
-
-                defer.resolve();
-            }
-            catch (e) {
-                logger.info("Failed to connect:" + e);
-                client = null;
-                defer.reject("Failed to connect with Token")
-            }
+            defer.resolve();
         } else {
             logger.info("No Token - please link Plex Account");
             client = null;
@@ -115,12 +106,10 @@ function plex(log, config) {
     // WS Monitoring support
     var setupWSMonitoring = function() {
         // Create a WebsocketClient with the create plex-api login and onPacket function
-        /*
         const WSClient = new PlexWebsocket.WebsocketClient(client, onPacket);
         WSClient.websocket.on("connect", function() {logger.info("PlexAPI: Connected")}); // When a successful connection is made
         WSClient.websocket.on("error", function(err) { logger.info("PlexAPI: Error\n", err)}); // When an error occurs (Will terminate program)
         WSClient.websocket.on("debug", function(message) { logger.info("PlexAPI: Debug\n", message)});
-         */
     }
 
     /**
@@ -145,6 +134,7 @@ function plex(log, config) {
             // Then query the list of Music libraries on the server
             promises.push(queryLibraries(server.name, server.address, server.port));
         }
+
         var listOfMusicLibraries = [];
         Promise.allSettled(promises).then(function(results) {
             const serverMusicLibraries = results.filter(result => result.status === 'fulfilled').map(result => result.value);
@@ -164,8 +154,6 @@ function plex(log, config) {
 
         return defer.promise;
     }
-
-
 
     /**
      * Main query method on the plex-API - key that we cache the result
