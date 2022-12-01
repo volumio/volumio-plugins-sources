@@ -1,4 +1,17 @@
 {
-  "PLUGIN_CONFIGURATION":"Example Plugin Configuration",
-  "SAVE":"Save"
+  "PLUGIN_CONFIGURATION": "volroon Configuration",
+  "SAVE": "Save",
+  "ROON_VITALS_SECTION": "Roon Vitals",
+  "ROON_DETAILS": "Auto-detected settings:",
+  "CORE_NAME": "Roon Core:",
+  "NOT_DETECTED": "Not Detected",
+  "CORE_HOST": "Roon Core Host:",
+  "CORE_ZONE": "Roon Zone:",
+  "CORE_OUTPUTDEVICE": "Roon Output Device:",
+  "OUTPUTDEVICE_DESC": "This is the \"raw\" output name that you have selected in Volumio. It may look properly formatted, or in the case of some I2S DACS, it may be all lowercase and contain periods or underscores. You need to select the same device in Roon in order for the metadata and album art to be displayed in Volumio.",
+  "CORE_ZONE_DESC": "This is the friendly name you have given your selected audio device in Roon. This WILL show as 'Not Detected' if you haven't activated a zone in Roon that uses a device connected to Volumio.",
+  "CORE_HOST_DESC": "IP address and port of your auto-detected Roon Core. This is mostly informative, and is the address used for album art. If this isn't detected then you will only see track info with no album art. This WILL show as 'Not Detected' if you haven't activated a zone in Roon that uses a device connected to Volumio.",
+  "CORE_NAME_DESC": "The name of your auto-detected Roon Core. It should be familiar. This WILL show as 'Not Detected' if you haven't activated a zone in Roon that uses a device connected to Volumio.",
+  "HOWTO_SECTION": "How to use this plugin:",
+  "HOWTO_DESC": "Your Roon playback zone/device and the one you have selected in Volumio need to match in order for the metadata functions of this plugin to work. Use the Roon Vitals below to help you select the correct zone/device. If you can't get anything to show below despite setting Roon up correctly, then look in Roon Settings -> Extensions, in some rare cases you may need to authorize this manually."
 }

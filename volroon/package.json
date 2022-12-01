@@ -1,14 +1,14 @@
 {
 	"name": "volroon",
-	"version": "0.1.2",
-	"description": "volroon is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
+	"version": "0.1.3",
+	"description": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Dale Rider",
 	"license": "GPL-3.0",
-	"repository": "https://github.com/charliesjc/volumio-plugins-sources",
+	"repository": "https://github.com/charliesjc/volroon",
 	"volumio_info": {
 		"prettyName": "volroon",
 		"icon": "fa-music",
@@ -21,7 +21,7 @@
 			"buster"
 		],
 		"has_alsa_contribution": "false",
-		"details": "volroon is a Roon Bridge for Volumio 3 and mimics the functionality of a Roon Display. i.e. there is track metadata and control of Roon from Volumio.",
+		"details": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
 		"changelog": "Fix: Stray var causing a crash on uninstall"
 	},
 	"engines": {
