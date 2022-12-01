@@ -12,6 +12,7 @@ var RoonApiTransport = require("node-roon-api-transport");
 var core;
 var zone;
 var zoneid;
+var zonename;
 var roon;
 var outputdevicename;
 var roonIsActive = false;
@@ -32,9 +33,11 @@ function volroon(context) {
 	self.context = context;
 	self.commandRouter = self.context.coreCommand;
 	self.logger = self.commandRouter.logger;
+	self.configManager = self.context.configManager;
 	self.coreip;
 	self.coreport;
 	self.coreid;
+	self.corename;
 	this.state = {
 		status: 'stop',
 		service: 'volroon',
@@ -70,7 +73,7 @@ volroon.prototype.roonListener = function () {
 		// Make it look like an existing built-in Roon extension and you don't need to approve it in the UI.
 		extension_id: 'com.roonlabs.display_zone', // I think I only need to keep this one constant to avoid needing auth in Roon.
 		display_name: 'volroon - Roon Bridge on Volumio',
-		display_version: "0.1.2",
+		display_version: '0.1.3',
 		publisher: 'Dale Rider',
 		email: 'dale@sempervirens.co.za',
 		log_level: 'none',
@@ -79,41 +82,41 @@ volroon.prototype.roonListener = function () {
 		core_found: function (core_) {
 			core = core_;
 			core.services.RoonApiTransport.subscribe_zones(function (response, msg) {
-				// self.logger.error('Roon zone printout: \n' + JSON.stringify(msg, null, ' '));
-				if (response == "Subscribed" || "Changed") {
-					try {
-						if (msg.zones || msg.zones_added || msg.zones_changed) {
-							self.indentifyZone(msg)
-								.then(self.chooseTheRightCore())
-								.then(self.updateMetadata(msg))
-							// .fail(err => {
-							// 	self.logger.info(`volroon::Metadata - ${err}`);
-							// });
 
-							// console.log(activeZone)
-						}
-					} catch (err) {
-						self.logger.error(`volroon::Error in Zone - ${err}`);
+				if (response && (response == "Subscribed" || response == "Changed")) {
+
+					if (msg && (msg.zones || msg.zones_added || msg.zones_changed)) {
+						self.indentifyZone(msg)
+							.then(() => {
+								self.chooseTheRightCore()
+							})
+							.then(() => {
+								self.updateMetadata(msg)
+							})
+							.fail(err => {
+								self.logger.error(`volroon::Metadata - ${err}`);
+							});
+
+
 					}
 
-					try {
-						if (msg.zones_seek_changed && roonIsActive) {
+					if (msg && msg.zones_seek_changed && roonIsActive) {
+						try {
 							msg.zones_seek_changed.find(zone => {
 								if (zone.zone_id === zoneid) {
-									if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.state.seek) > 1500) {
-										self.state.seek = zone.seek_position * 1000;
-										self.pushState()
-									} else {
-										self.state.seek = zone.seek_position * 1000;
-									}
+									// if (zone.seek_position && Math.abs((zone.seek_position * 1000) - self.state.seek) > 1500) {
+									// 	self.state.seek = zone.seek_position * 1000;
+									// 	self.pushState()
+									// } else {
+									self.state.seek = zone.seek_position * 1000;
+									// }
 
 								}
 							});
 							// self.pushState();
-
+						} catch (e) {
+							self.logger.error(`volroon::Seek change - ${e}`);
 						}
-					} catch (e) {
-						self.logger.error(`volroon::Error during seek change - ${e}`);
 					}
 				}
 				// if (Date.now() - roonPausedTimer >= 10000) {
@@ -124,10 +127,6 @@ volroon.prototype.roonListener = function () {
 		},
 
 		core_lost: function (core_) {
-			// if (core_ === coreFound && roonIsActive) {
-			// 	self.stop();
-			// 	Maybe run some cleanup here as well. Meh.
-			// }
 
 		}
 	});
@@ -150,13 +149,15 @@ volroon.prototype.chooseTheRightCore = function () {
 		self.coreip = core.moo.transport.host ? core.moo.transport.host : '';
 		self.coreport = core.moo.transport.port ? core.moo.transport.port : '';
 		self.coreid = core.core_id ? core.core_id : '';
+		self.corename = core.display_name ? core.display_name : '';
+
 		if (self.coreip && self.coreport) coreFound = core;
 		self.logger.info(`${this.state.service}::Roon Core Identified: ${self.coreip}:${self.coreport} with ID of: ${self.coreid}`)
 		defer.resolve();
 	} else if (coreFound) {
 		defer.resolve();
 	} else {
-		defer.resolve('Core not found - continuing without it.');
+		defer.resolve(); //Resolve anyway because we don't need the core to show track info, only album art.
 	}
 
 	return defer.promise;
@@ -166,6 +167,7 @@ volroon.prototype.chooseTheRightCore = function () {
 volroon.prototype.indentifyZone = function (msg) {
 	var self = this;
 	var defer = libQ.defer();
+
 	// Get the zoneid for the device
 	if (((msg.zones || msg.zones_changed) && zoneid == undefined) || (msg.zones_added)) {
 		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
@@ -179,9 +181,11 @@ volroon.prototype.indentifyZone = function (msg) {
 		})
 
 		zoneid = (zone && zone.zone_id) ? zone.zone_id : undefined;
+		zonename = (zone && zone.display_name) ? zone.display_name : undefined;
+
 
 	}
-	zoneid ? defer.resolve() : defer.reject('ZoneID not found.');
+	zoneid ? defer.resolve(zoneid) : defer.reject();
 	return defer.promise;
 }
 
@@ -189,12 +193,11 @@ volroon.prototype.updateMetadata = function (msg) {
 	var self = this;
 	var defer = libQ.defer();
 
-
 	if (msg.zones || msg.zones_changed || msg.zones_added) {
 		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
 			if (zone.zone_id) return zone.zone_id === zoneid;
 		})
-		self.logger.debug('UpdateMetadata() zone: \n' + JSON.stringify(zone, null, ' '));
+		self.logger.debug('volroon::updateMetadata zone: \n' + JSON.stringify(zone, null, ' '));
 	}
 
 	if (zone) {
@@ -253,7 +256,7 @@ volroon.prototype.updateMetadata = function (msg) {
 			self.logger.verbose(`${this.state.service}::State snapshot: ${JSON.stringify(self.state, null, '')}`);
 			self.pushState();
 			defer.resolve();
-			// zone = null;
+
 		}
 	}
 	return defer.promise;
@@ -309,16 +312,13 @@ volroon.prototype.unsetVol = function () {
 
 };
 
-volroon.prototype.outputDeviceCallback = function () { // If the outputdevice changes we can do something about it here.
+volroon.prototype.outputDeviceCallback = function () { // Callback registered to alsa.outputdevice sharedVars - update the device on this end to stay in sync with Roon
 	var self = this;
 
-
-	// self.stop();
 	zoneid = undefined;
-	// coreFound = false; // The likelihood that the core has changed too is very low.
-	// Probably need to use get_zones and filter the zoneid and core again this way...Unless we reinitialize the RoonListener
+
 	this.getOutputDeviceName();
-	// this.getZones();
+
 	self.logger.info(`${this.state.service}::Output device has changed`);
 
 };
@@ -348,6 +348,9 @@ volroon.prototype.setAdditionalConf = function () {
 };
 
 volroon.prototype.checkAudioDeviceAvailable = function () {
+	// I am looking at a way to be able to check the audio device before Roon starts playing and generates an error
+	// on that end. Unlikely, though, because RoonBridge is self-contained and closed source.
+
 	return self.coreCommand.executeOnPlugin('audio_interface', 'alsa_controller', 'checkAudioDeviceAvailable', '');
 }
 
@@ -371,10 +374,13 @@ volroon.prototype.getOutputDeviceName = function () {
 
 volroon.prototype.onVolumioStart = function () {
 	var self = this;
+
 	this.commandRouter.sharedVars.registerCallback('alsa.outputdevice', this.outputDeviceCallback.bind(this));
+
 	var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
 	this.config = new (require('v-conf'))();
 	this.config.loadFile(configFile);
+	this.loadI18n();
 	return libQ.resolve();
 };
 
@@ -385,7 +391,7 @@ volroon.prototype.onStart = function () {
 	// This is used when autodetecting the Zone to use in Roon
 	this.getOutputDeviceName();
 
-	exec('/usr/bin/sudo /bin/systemctl restart roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
+	exec('/usr/bin/sudo /bin/systemctl start roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
 			self.logger.error('::Cannot start Roon Bridge - Error: ' + error);
 			defer.reject(error);
@@ -404,14 +410,6 @@ volroon.prototype.onStart = function () {
 volroon.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
-	// core,
-	// 	zone,
-	// 	zoneid,
-	// 	roon,
-	// 	outputdevicename,
-	// 	roonIsActive,
-	// 	roonPausedTimer,
-	// 	coreFound = undefined;
 
 	exec('/usr/bin/sudo /bin/systemctl stop roonbridge.service', { uid: 1000, gid: 1000 }, function (error, stdout, stderr) {
 		if (error) {
@@ -452,6 +450,41 @@ volroon.prototype.onRestart = function () {
 
 
 // Configuration Methods -----------------------------------------------------------------------------
+// loadI18n and getI18n functions from Spotify plugin (https://github.com/volumio/volumio-plugins-sources/tree/master/spotify)
+volroon.prototype.loadI18n = function () {
+	var self = this;
+
+	try {
+		var language_code = this.commandRouter.sharedVars.get('language_code');
+		self.i18n = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + ".json");
+	} catch (e) {
+		self.i18n = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+	}
+
+	self.i18nDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+};
+
+volroon.prototype.getI18n = function (key) {
+	var self = this;
+
+	if (key.indexOf('.') > 0) {
+		var mainKey = key.split('.')[0];
+		var secKey = key.split('.')[1];
+		if (self.i18n[mainKey][secKey] !== undefined) {
+			return self.i18n[mainKey][secKey];
+		} else {
+			return self.i18nDefaults[mainKey][secKey];
+		}
+
+	} else {
+		if (self.i18n[key] !== undefined) {
+			return self.i18n[key];
+		} else {
+			return self.i18nDefaults[key];
+		}
+
+	}
+};
 
 volroon.prototype.getUIConfig = function () {
 	var defer = libQ.defer();
@@ -463,6 +496,15 @@ volroon.prototype.getUIConfig = function () {
 		__dirname + '/i18n/strings_en.json',
 		__dirname + '/UIConfig.json')
 		.then(function (uiconf) {
+
+
+			self.configManager.setUIConfigParam(uiconf, 'sections[1].content[0].value', self.corename ? self.corename : self.getI18n('NOT_DETECTED'));
+
+			self.configManager.setUIConfigParam(uiconf, 'sections[1].content[1].value', (self.coreip && self.coreport) ? `${self.coreip}:${self.coreport}` : self.getI18n('NOT_DETECTED'));
+
+			self.configManager.setUIConfigParam(uiconf, 'sections[1].content[2].value', zonename ? zonename : self.getI18n('NOT_DETECTED'));
+
+			self.configManager.setUIConfigParam(uiconf, 'sections[1].content[3].value', outputdevicename ? outputdevicename : self.getI18n('NOT_DETECTED'));
 
 
 			defer.resolve(uiconf);
@@ -562,12 +604,6 @@ volroon.prototype.roonSettings = function (zoneid, settings) {
 	}
 
 }
-// Define a method to clear, add, and play an array of tracks
-volroon.prototype.clearAddPlayTrack = function (track) {
-	var self = this;
-	self.commandRouter.pushConsoleMessage(this.state.service + '::clearAddPlayTrack');
-
-};
 
 volroon.prototype.seek = function (timepos) {
 	var self = this;
