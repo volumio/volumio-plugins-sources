@@ -229,53 +229,91 @@ GPIOButtons.prototype.listener = function(action,err,value){
 
 //Play / Pause
 GPIOButtons.prototype.playPause = function() {
-  //this.logger.info('GPIO-Buttons: Play/pause button pressed');
-  socket.emit('getState','');
-  socket.once('pushState', function (state) {
-    if(state.status=='play' && state.service=='webradio'){
-      socket.emit('stop');
-    } else if(state.status=='play'){
-      socket.emit('pause');
-    } else {
-      socket.emit('play');
-    }
-  });
+  //See if we can set a gpio pin
+  var LEDon = new Gpio(27, 'out');
+  var LEDoff1 = new Gpio(9, 'out');
+  var LEDoff2 = new Gpio(6, 'out');
+  var LEDoff3 = new Gpio(16, 'out');
+  var LEDoff4 = new Gpio(26, 'out');
+  LEDon.writeSync(1); // Turn relevant LED on
+  LEDoff1.writeSync(0); // Turn relevant LED off
+  LEDoff2.writeSync(0); // Turn relevant LED off
+  LEDoff3.writeSync(0); // Turn relevant LED off
+  LEDoff4.writeSync(0); // Turn relevant LED off
+  //this.logger.info('GPIO-Buttons: next-button pressed');
+  socket.emit('playPlaylist',{'name':'key1'})
 };
 
 //next on playlist
 GPIOButtons.prototype.next = function() {
 
   //See if we can set a gpio pin
-  var LEDon = new Gpio(4, 'out');
-  var LEDoff = new Gpio(21, 'out');
+  //See if we can set a gpio pin
+  var LEDon = new Gpio(9, 'out');
+  var LEDoff1 = new Gpio(27, 'out');
+  var LEDoff2 = new Gpio(6, 'out');
+  var LEDoff3 = new Gpio(16, 'out');
+  var LEDoff4 = new Gpio(26, 'out');
   LEDon.writeSync(1); // Turn relevant LED on
-  LEDoff.writeSync(0); // Turn relevant LED on
+  LEDoff1.writeSync(0); // Turn relevant LED off
+  LEDoff2.writeSync(0); // Turn relevant LED off
+  LEDoff3.writeSync(0); // Turn relevant LED off
+  LEDoff4.writeSync(0); // Turn relevant LED off
   //this.logger.info('GPIO-Buttons: next-button pressed');
-  socket.emit('playPlaylist',{'name':'key1'})
+  socket.emit('playPlaylist',{'name':'key2'})
 };
 
 //previous on playlist
 GPIOButtons.prototype.previous = function() {
 
-  var LEDon = new Gpio(21, 'out');
-  var LEDoff = new Gpio(4, 'out');
+  //See if we can set a gpio pin
+  var LEDon = new Gpio(6, 'out');
+  var LEDoff1 = new Gpio(9, 'out');
+  var LEDoff2 = new Gpio(27, 'out');
+  var LEDoff3 = new Gpio(16, 'out');
+  var LEDoff4 = new Gpio(26, 'out');
   LEDon.writeSync(1); // Turn relevant LED on
-  LEDoff.writeSync(0); // Turn relevant LED on
+  LEDoff1.writeSync(0); // Turn relevant LED off
+  LEDoff2.writeSync(0); // Turn relevant LED off
+  LEDoff3.writeSync(0); // Turn relevant LED off
+  LEDoff4.writeSync(0); // Turn relevant LED off
 	
   //this.logger.info('GPIO-Buttons: previous-button pressed');
-  socket.emit('playPlaylist',{'name':'key2'})
+  socket.emit('playPlaylist',{'name':'key3'})
 };
 
 //Volume up
-GPIOButtons.prototype.volumeUp = function() {
-  //this.logger.info('GPIO-Buttons: Vol+ button pressed');
-  socket.emit('volume','+');
+  //See if we can set a gpio pin
+  var LEDon = new Gpio(16, 'out');
+  var LEDoff1 = new Gpio(9, 'out');
+  var LEDoff2 = new Gpio(6, 'out');
+  var LEDoff3 = new Gpio(27, 'out');
+  var LEDoff4 = new Gpio(26, 'out');
+  LEDon.writeSync(1); // Turn relevant LED on
+  LEDoff1.writeSync(0); // Turn relevant LED off
+  LEDoff2.writeSync(0); // Turn relevant LED off
+  LEDoff3.writeSync(0); // Turn relevant LED off
+  LEDoff4.writeSync(0); // Turn relevant LED off
+	
+  //this.logger.info('GPIO-Buttons: previous-button pressed');
+  socket.emit('playPlaylist',{'name':'key4'})
 };
 
 //Volume down
-GPIOButtons.prototype.volumeDown = function() {
-  //this.logger.info('GPIO-Buttons: Vol- button pressed\n');
-  socket.emit('volume','-');
+  //See if we can set a gpio pin
+  var LEDon = new Gpio(26, 'out');
+  var LEDoff1 = new Gpio(9, 'out');
+  var LEDoff2 = new Gpio(6, 'out');
+  var LEDoff3 = new Gpio(16, 'out');
+  var LEDoff4 = new Gpio(27, 'out');
+  LEDon.writeSync(1); // Turn relevant LED on
+  LEDoff1.writeSync(0); // Turn relevant LED off
+  LEDoff2.writeSync(0); // Turn relevant LED off
+  LEDoff3.writeSync(0); // Turn relevant LED off
+  LEDoff4.writeSync(0); // Turn relevant LED off
+	
+  //this.logger.info('GPIO-Buttons: previous-button pressed');
+  socket.emit('playPlaylist',{'name':'key5'})
 };
 
 //shutdown
