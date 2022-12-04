@@ -283,6 +283,7 @@ GPIOButtons.prototype.previous = function() {
 };
 
 //Volume up
+GPIOButtons.prototype.volumeUp = function() {
   //See if we can set a gpio pin
   var LEDon = new Gpio(16, 'out');
   var LEDoff1 = new Gpio(9, 'out');
@@ -300,6 +301,7 @@ GPIOButtons.prototype.previous = function() {
 };
 
 //Volume down
+GPIOButtons.prototype.volumeDown = function() {
   //See if we can set a gpio pin
   var LEDon = new Gpio(26, 'out');
   var LEDoff1 = new Gpio(9, 'out');
