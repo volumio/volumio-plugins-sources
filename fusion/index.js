@@ -63,6 +63,7 @@ FusionDsp.prototype.onStart = function () {
     self.purecamillagui();
     self.getIP();
     self.socket = io.connect('http://localhost:3000');
+    self.reportFusionEnabled();
   }, 2000);
 
   // if mixer set to none, do not show loudness settings
@@ -100,6 +101,8 @@ FusionDsp.prototype.onStop = function () {
   }, function (error, stdout, stderr) {
     if (error) {
       self.logger.info('Error in killing FusionDsp')
+    } else {
+      self.reportFusionDisabled();
     }
   });
   defer.resolve();
@@ -4482,4 +4485,23 @@ FusionDsp.prototype.sendvolumelevel = function () {
     self.config.set('loudnessGain', Number.parseFloat(loudnessGain).toFixed(2))
     self.createCamilladspfile()
   })
+}
+
+FusionDsp.prototype.reportFusionEnabled = function () {
+  const self = this;
+
+  self.logger.info('Reporting Fusion DSP Enabled');
+  var fusionDSPElementsData = { "id": "fusiondspeq", "sub_type": "dsp_plugin", "preset": "FusionDSP", "quality": "enhanced" };
+  try {
+    self.commandRouter.addDSPSignalPathElement(fusionDSPElementsData);
+  } catch(e) {}
+}
+
+FusionDsp.prototype.reportFusionDisabled = function () {
+  const self = this;
+
+  self.logger.info('Reporting Fusion DSP Disabled');
+  try {
+    self.commandRouter.removeDSPSignalPathElement({ "id": "fusiondspeq"});
+  } catch(e) {}
 }
