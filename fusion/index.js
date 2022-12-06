@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 3. By balbuze October 2022
+// FusionDsp plugin for volumio 3. By balbuze December 2022
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
