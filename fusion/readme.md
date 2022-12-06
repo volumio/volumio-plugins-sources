@@ -140,6 +140,10 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+December 06th 2022 v1.0.31
+
+-  Report DSP properties on fusion DSP 
+
 November 2nd 2022 v1.0.30
 
 - Fix auto pre amp
