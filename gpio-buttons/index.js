@@ -232,7 +232,7 @@ GPIOButtons.prototype.playPause = function() {
   //See if we can set a gpio pin
   var LEDon = new Gpio(27, 'out');
   var LEDoff1 = new Gpio(9, 'out');
-  var LEDoff2 = new Gpio(6, 'out');
+  var LEDoff2 = new Gpio(24, 'out');
   var LEDoff3 = new Gpio(16, 'out');
   var LEDoff4 = new Gpio(26, 'out');
   LEDon.writeSync(1); // Turn relevant LED on
@@ -251,7 +251,7 @@ GPIOButtons.prototype.next = function() {
   //See if we can set a gpio pin
   var LEDon = new Gpio(9, 'out');
   var LEDoff1 = new Gpio(27, 'out');
-  var LEDoff2 = new Gpio(6, 'out');
+  var LEDoff2 = new Gpio(24, 'out');
   var LEDoff3 = new Gpio(16, 'out');
   var LEDoff4 = new Gpio(26, 'out');
   LEDon.writeSync(1); // Turn relevant LED on
@@ -267,7 +267,7 @@ GPIOButtons.prototype.next = function() {
 GPIOButtons.prototype.previous = function() {
 
   //See if we can set a gpio pin
-  var LEDon = new Gpio(6, 'out');
+  var LEDon = new Gpio(24, 'out');
   var LEDoff1 = new Gpio(9, 'out');
   var LEDoff2 = new Gpio(27, 'out');
   var LEDoff3 = new Gpio(16, 'out');
@@ -287,7 +287,7 @@ GPIOButtons.prototype.volumeUp = function() {
   //See if we can set a gpio pin
   var LEDon = new Gpio(16, 'out');
   var LEDoff1 = new Gpio(9, 'out');
-  var LEDoff2 = new Gpio(6, 'out');
+  var LEDoff2 = new Gpio(24, 'out');
   var LEDoff3 = new Gpio(27, 'out');
   var LEDoff4 = new Gpio(26, 'out');
   LEDon.writeSync(1); // Turn relevant LED on
@@ -305,7 +305,7 @@ GPIOButtons.prototype.volumeDown = function() {
   //See if we can set a gpio pin
   var LEDon = new Gpio(26, 'out');
   var LEDoff1 = new Gpio(9, 'out');
-  var LEDoff2 = new Gpio(6, 'out');
+  var LEDoff2 = new Gpio(24, 'out');
   var LEDoff3 = new Gpio(16, 'out');
   var LEDoff4 = new Gpio(27, 'out');
   LEDon.writeSync(1); // Turn relevant LED on
