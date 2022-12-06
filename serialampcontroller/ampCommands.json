@@ -161,7 +161,7 @@
                     "reqSource":"get_current_source!",
                     "reqVolume":"get_volume!",
                     "reqMute":"get_mute_status!",
-                    "reqModel":"get_product_type!"
+                    "reqModel":""
                 }
         },
         {

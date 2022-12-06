@@ -347,7 +347,7 @@ serialampcontroller.prototype.openSerialPort = function (){
                         if (typeof(data) == 'string' && self.selectedAmp !== undefined && self.selectedAmp.responses !== undefined && self.selectedAmp.responses.length > 0) {
                             var cmdFound = false;
                             self.selectedAmp.responses.forEach(response => {
-                                match = data.match(new RegExp(response.rx,'i'));
+                                let match = data.match(new RegExp(response.rx,'i'));
                                 if (match !==null) {
                                     cmdFound = true;
                                     if (match.length==1){
@@ -368,6 +368,7 @@ serialampcontroller.prototype.openSerialPort = function (){
                     })
                     //determine the current settings of the amp
                     self.getAmpStatus();
+                    self.updateVolumeSettings();
                 });
                 if (self.debugLogging) self.logger.error('[SERIALAMPCONTROLLER] openSerialPort: Now trying to open port');
                 self.port.open(err=>{
@@ -865,24 +866,35 @@ serialampcontroller.prototype.loadI18nStrings = function() {
 serialampcontroller.prototype.getVolumeObject = function() {
 // returns the current amplifier settings in an object that volumio can use
     var volume = {};
+    var defer = libQ.defer();
     var self = this;
 
+    volume.mute = self.ampStatus.mute;
+    volume.disableVolumeControl = false;
     if (self.config.get('mapTo100')) {
         //calculate the equivalent volume on a 0...100 scale
         volume.vol = parseInt(((self.ampStatus.volume-self.config.get('minVolume'))/(self.config.get('maxVolume')-self.config.get('minVolume'))*100))
         //user can still set values outside allowed window on the amp directly
         volume.vol = Math.min(100,volume.vol);
         volume.vol = Math.max(0,volume.vol);
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] getVolumeObject: ' + JSON.stringify(volume));
+        return libQ.resolve(volume)
+        .then(function (volume) {
+          defer.resolve(volume);
+          self.commandRouter.volumioupdatevolume(volume);
+        });
     } else {
         volume.vol = self.ampStatus.volume;
         volume.vol = Math.min(100,volume.vol);
         volume.vol = Math.max(0,volume.vol);
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] getVolumeObject: ' + JSON.stringify(volume));
+        return libQ.resolve(volume)
+        .then(function (volume) {
+          defer.resolve(volume);
+          self.commandRouter.volumioupdatevolume(volume);
+        });
     }
-    volume.mute = self.ampStatus.mute;
-    volume.disableVolumeControl = false;
-	if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] getVolumeObject: ' + JSON.stringify(volume));
-
-    return volume;
+    return defer.promise;
 };
 
 serialampcontroller.prototype.volumioupdatevolume = function() {
@@ -892,5 +904,6 @@ serialampcontroller.prototype.volumioupdatevolume = function() {
 
 serialampcontroller.prototype.retrievevolume = function () {
     var self = this;
+	if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] retrieveVolume: ');
     return self.getVolumeObject();
 }
