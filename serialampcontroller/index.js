@@ -570,9 +570,22 @@ serialampcontroller.prototype.updateVolumeSettings = function() {
             'volumeOverride': true
         };
         volSettingsData.device = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'outputdevice');
-        volSettingsData.name = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getAlsaCards', '')[volSettingsData.device].name;
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] updateVolumeSettings: getAlsaCards ' + JSON.stringify(volSettingsData.device));
+        let alsaCards = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getAlsaCards', '');
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] updateVolumeSettings: getAlsaCards ' + JSON.stringify(alsaCards));
+        if (alsaCards!=undefined) {
+            let card = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getAlsaCards', '').filter(element => element.id == volSettingsData.device)
+            if (card.length > 0) {
+                volSettingsData.name = card[0].name
+            } else {
+                volSettingsData.name = '';
+            }
+        } else {
+            volSettingsData.name = '';
+        }
         volSettingsData.devicename = self.config.get('ampType');
         volSettingsData.mixer = self.config.get('ampType');
+        volSettingsData.mixertype = 'hardware';
         volSettingsData.maxvolume = self.config.get('maxVolume');
         volSettingsData.volumecurve = '';
         volSettingsData.volumesteps = self.config.get('volumeSteps');
