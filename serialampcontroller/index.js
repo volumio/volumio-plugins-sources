@@ -72,7 +72,7 @@ serialampcontroller.prototype.onStart = function() {
     .then(_ => self.openSerialPort())
     //update Volume Settings and announce the updated settings to Volumio
     .then(_ => self.alsavolume(this.config.get('startupVolume')))
-    .then(_ => self.updateVolumeSettings())
+    .then(_ => self.initVolumeSettings())
 	// Once the Plugin has successfull started resolve the promise
     .then(function(){
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onStart: successfully started plugin');
@@ -161,6 +161,7 @@ serialampcontroller.prototype.onStop = function() {
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onStop: closed serial Port');        
         });
     }
+    self.resetVolumeSettings();
     defer.resolve();
 
     return defer.promise;
@@ -368,7 +369,7 @@ serialampcontroller.prototype.openSerialPort = function (){
                     })
                     //determine the current settings of the amp
                     self.getAmpStatus();
-                    self.updateVolumeSettings();
+                    self.initVolumeSettings();
                 });
                 if (self.debugLogging) self.logger.error('[SERIALAMPCONTROLLER] openSerialPort: Now trying to open port');
                 self.port.open(err=>{
@@ -433,46 +434,48 @@ serialampcontroller.prototype.sendCommand  = function(...cmd) {
 
     var cmdString = '';
     if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] sendCommand: send " + cmd);
-    switch (cmd[0]) {
-        case  "powerOn": 
-            cmdString = cmdString + self.selectedAmp.commands.powerOn;
-            break;
-        case  "powerToggle": 
-            cmdString = cmdString + self.selectedAmp.commands.powerToggle;
-            break;
-        case  "volUp": 
-            cmdString = cmdString + self.selectedAmp.commands.volUp;
-            break;
-        case  "volDown": 
-            cmdString = cmdString + self.selectedAmp.commands.volDown;
-            break;
-        case  "volValue": 
-            cmdString = cmdString + self.selectedAmp.commands.volValue;
-            var count = (cmdString.match(/#/g) || []).length;
-            if (count > 0) {
-                var re = new RegExp("#".repeat(count));
-                cmdString = cmdString.replace(re,parseInt(cmd[1]).toString().padStart(count,"0"));
-            } else {
-                self.logger.error('[SERIALAMPCONTROLLER] sendCommand: volValue command string has no ## characters. Do not know how to send volume value.')
-                defer.reject()
-            }
-            break;
-        case  "mute": 
-            cmdString = cmdString + self.selectedAmp.commands.mute;
-            break;
-        case  "muteOn": 
-            cmdString = cmdString + self.selectedAmp.commands.muteOn;
-            break;
-        case  "muteOff": 
-            cmdString = cmdString + self.selectedAmp.commands.muteOff;
-            break;
-        case  "source": 
-            // cmdString = cmdString + self.selectedAmp.commands.source;
-            // var count = (cmdString.match(/#/g) || []).length;
-            cmdString =  self.selectedAmp.sourceCmd[self.selectedAmp.sources.indexOf(cmd[1])];
-            break;
-        default:
-            break;
+    if (self.selectedAmp != undefined) {
+        switch (cmd[0]) {
+            case  "powerOn": 
+                cmdString = cmdString + self.selectedAmp.commands.powerOn;
+                break;
+            case  "powerToggle": 
+                cmdString = cmdString + self.selectedAmp.commands.powerToggle;
+                break;
+            case  "volUp": 
+                cmdString = cmdString + self.selectedAmp.commands.volUp;
+                break;
+            case  "volDown": 
+                cmdString = cmdString + self.selectedAmp.commands.volDown;
+                break;
+            case  "volValue": 
+                cmdString = cmdString + self.selectedAmp.commands.volValue;
+                var count = (cmdString.match(/#/g) || []).length;
+                if (count > 0) {
+                    var re = new RegExp("#".repeat(count));
+                    cmdString = cmdString.replace(re,parseInt(cmd[1]).toString().padStart(count,"0"));
+                } else {
+                    self.logger.error('[SERIALAMPCONTROLLER] sendCommand: volValue command string has no ## characters. Do not know how to send volume value.')
+                    defer.reject()
+                }
+                break;
+            case  "mute": 
+                cmdString = cmdString + self.selectedAmp.commands.mute;
+                break;
+            case  "muteOn": 
+                cmdString = cmdString + self.selectedAmp.commands.muteOn;
+                break;
+            case  "muteOff": 
+                cmdString = cmdString + self.selectedAmp.commands.muteOff;
+                break;
+            case  "source": 
+                // cmdString = cmdString + self.selectedAmp.commands.source;
+                // var count = (cmdString.match(/#/g) || []).length;
+                cmdString =  self.selectedAmp.sourceCmd[self.selectedAmp.sources.indexOf(cmd[1])];
+                break;
+            default:
+                break;
+        }
     }
     if (self.port !== undefined && cmdString!==''){
         if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] sendCommand: now sending cmdString: " + cmdString);
@@ -501,7 +504,7 @@ var self = this;
             }
             if (self.ampStatus.power = 'off') {
                 self.alsavolume(this.config.get('startupVolume')) 
-                .then(_ => self.updateVolumeSettings())                
+                .then(_ => self.initVolumeSettings())                
             }
             self.messageReceived.emit('power', 'on');
             self.ampStatus.power='on';
@@ -557,7 +560,7 @@ var self = this;
 };
 
 //update the volumio Volume Settings, mainly makes this an Override plugin
-serialampcontroller.prototype.updateVolumeSettings = function() {
+serialampcontroller.prototype.initVolumeSettings = function() {
 	var self = this;
     var defer = libQ.defer();
 
@@ -570,11 +573,11 @@ serialampcontroller.prototype.updateVolumeSettings = function() {
             'volumeOverride': true
         };
         volSettingsData.device = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'outputdevice');
-        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] updateVolumeSettings: getAlsaCards ' + JSON.stringify(volSettingsData.device));
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] initVolumeSettings: getAlsaCards ' + JSON.stringify(volSettingsData.device));
         let alsaCards = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getAlsaCards', '');
-        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] updateVolumeSettings: getAlsaCards ' + JSON.stringify(alsaCards));
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] initVolumeSettings: getAlsaCards ' + JSON.stringify(alsaCards));
         if (alsaCards!=undefined) {
-            let card = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getAlsaCards', '').filter(element => element.id == volSettingsData.device)
+            let card = alsaCards.filter(element => element.id == volSettingsData.device)
             if (card.length > 0) {
                 volSettingsData.name = card[0].name
             } else {
@@ -585,26 +588,122 @@ serialampcontroller.prototype.updateVolumeSettings = function() {
         }
         volSettingsData.devicename = self.config.get('ampType');
         volSettingsData.mixer = self.config.get('ampType');
-        volSettingsData.mixertype = 'hardware';
         volSettingsData.maxvolume = self.config.get('maxVolume');
         volSettingsData.volumecurve = '';
         volSettingsData.volumesteps = self.config.get('volumeSteps');
         volSettingsData.currentmute = self.volume.mute;
         self.commandRouter.volumioUpdateVolumeSettings(volSettingsData)
         .then(resp => {
-            if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] updateVolumeSettings: " + JSON.stringify(volSettingsData + ' ' + resp));
+            if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] initVolumeSettings: " + JSON.stringify(volSettingsData + ' ' + resp));
             defer.resolve();
         })
         .fail(err => {
-            self.logger.error("[SERIALAMPCONTROLLER] updateVolumeSettings: volumioUpdateVolumeSettings failed:" + err );
+            self.logger.error("[SERIALAMPCONTROLLER] initVolumeSettings: volumioUpdateVolumeSettings failed:" + err );
             defer.reject(err)
         })
     } else {
-        if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] updateVolumeSettings: Amp, serial Interface not yet set or listener not yet active.");
+        if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] initVolumeSettings: Amp, serial Interface not yet set or listener not yet active.");
         defer.resolve();
     }
     return defer.promise;
 };
+
+serialampcontroller.prototype.resetVolumeSettings = function() {
+	var self = this;
+    var defer = libQ.defer();
+
+    //Prepare the data for resetting the Volume Settings
+    //first read the audio-device information, since we won't configure this 
+    if (self.selectedAmp !=undefined && self.serialInterfaceDev != undefined && self.parser != undefined) {
+        var volSettingsData = {};
+        volSettingsData.device = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'outputdevice');
+        volSettingsData.mixer = '';
+        volSettingsData.devicename = '';
+        volSettingsData.mixertype = 'None';
+        volSettingsData.maxvolume = 100;
+        volSettingsData.volumecurve = 'logarithmic';
+        volSettingsData.volumesteps = 1;
+        volSettingsData.currentmute = true;
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] resetVolumeSettings: getAlsaCards ' + JSON.stringify(volSettingsData.device));
+        let alsaCards = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getAlsaCards', '');
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] resetVolumeSettings: getAlsaCards ' + JSON.stringify(alsaCards));
+        if (alsaCards!=undefined) {
+            let card = alsaCards.filter(element => element.id == volSettingsData.device)
+            if (card.length > 0) {
+                volSettingsData.name = card[0].name
+            } else {
+                volSettingsData.name = '';
+            }
+        } else {
+            volSettingsData.name = '';
+        }
+        self.commandRouter.volumioUpdateVolumeSettings(volSettingsData)
+        .then(resp => {
+            if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] resetVolumeSettings: " + JSON.stringify(volSettingsData) + ' ' + resp);
+            defer.resolve();
+        })
+        .fail(err => {
+            self.logger.error("[SERIALAMPCONTROLLER] resetVolumeSettings: volumioUpdateVolumeSettings failed:" + err );
+            defer.reject(err)
+        })
+    } else {
+        if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] resetVolumeSettings: Volume settings have been reset.");
+        defer.resolve();
+    }
+    return defer.promise;
+};
+
+//update the volumio Volume Settings, mainly makes this an Override plugin
+serialampcontroller.prototype.updateVolumeSettings = function(data) {
+	var self = this;
+    var defer = libQ.defer();
+
+    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] updateVolumeSettings: received ' + JSON.stringify(data));
+    //Prepare the data for updating the Volume Settings
+    //first read the audio-device information, since we won't configure this 
+    // if (self.selectedAmp !=undefined && self.serialInterfaceDev != undefined && self.parser != undefined) {
+    //     var volSettingsData = {
+    //         'pluginType': 'system_hardware',
+    //         'pluginName': 'serialampcontroller',
+    //         'volumeOverride': true
+    //     };
+    //     volSettingsData.device = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'outputdevice');
+    //     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] initVolumeSettings: getAlsaCards ' + JSON.stringify(volSettingsData.device));
+    //     let alsaCards = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getAlsaCards', '');
+    //     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] initVolumeSettings: getAlsaCards ' + JSON.stringify(alsaCards));
+    //     if (alsaCards!=undefined) {
+    //         let card = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getAlsaCards', '').filter(element => element.id == volSettingsData.device)
+    //         if (card.length > 0) {
+    //             volSettingsData.name = card[0].name
+    //         } else {
+    //             volSettingsData.name = '';
+    //         }
+    //     } else {
+    //         volSettingsData.name = '';
+    //     }
+    //     volSettingsData.devicename = self.config.get('ampType');
+    //     volSettingsData.mixer = self.config.get('ampType');
+    //     volSettingsData.maxvolume = self.config.get('maxVolume');
+    //     volSettingsData.volumecurve = '';
+    //     volSettingsData.volumesteps = self.config.get('volumeSteps');
+    //     volSettingsData.currentmute = self.volume.mute;
+    //     self.commandRouter.volumioUpdateVolumeSettings(volSettingsData)
+    //     .then(resp => {
+    //         if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] initVolumeSettings: " + JSON.stringify(volSettingsData + ' ' + resp));
+    //         defer.resolve();
+    //     })
+    //     .fail(err => {
+    //         self.logger.error("[SERIALAMPCONTROLLER] initVolumeSettings: volumioUpdateVolumeSettings failed:" + err );
+    //         defer.reject(err)
+    //     })
+    // } else {
+    //     if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] initVolumeSettings: Amp, serial Interface not yet set or listener not yet active.");
+    //     defer.resolve();
+    // }
+    // return defer.promise;
+    return self.retrievevolume();
+};
+
 
 //used to send status requests to the amp. If the requested messageType is not available, 
 //the functions just plots an error message and returns
@@ -803,7 +902,7 @@ serialampcontroller.prototype.updateSerialSettings = function (data) {
     self.openSerialPort()
     //update Volume Settings and announce the updated settings to Volumio
     .then(_ => self.alsavolume(this.config.get('startupVolume')))
-    .then(_ => self.updateVolumeSettings())
+    .then(_ => self.initVolumeSettings())
     .then(_=> {
         defer.resolve();
         self.commandRouter.pushToastMessage('success', self.getI18nString('TOAST_SAVE_SUCCESS'), self.getI18nString('TOAST_SERIAL_SAVE'));
@@ -838,7 +937,7 @@ serialampcontroller.prototype.updateAmpSettings = function (data) {
     .then(_ => self.openSerialPort())
     //update Volume Settings and announce the updated settings to Volumio
     .then(_ => self.alsavolume(this.config.get('startupVolume')))
-    .then(_ => self.updateVolumeSettings())
+    .then(_ => self.initVolumeSettings())
     .then(_=> {
         defer.resolve();        
         self.commandRouter.pushToastMessage('success', self.getI18nString('TOAST_SAVE_SUCCESS'), self.getI18nString('TOAST_AMP_SAVE'));
