@@ -11,7 +11,7 @@
   	"INSTALL_TOOLS": "Install tools",
   	"DESC_INSTALL_TOOLS": "Install tools to help measurements. PLEASE WAIT UNTIL UI IS REFRESHED",
   	"TOOLS_INSTALL_TITLE": "Install in progress",
-  	"TOOLS_INSTALL_WAIT": "Your are going to download about 17Mo. Please WAIT until this page is refreshed (about 40 sec).",
+  	"TOOLS_INSTALL_WAIT": "Your are going to download about 5Mo. Please WAIT until a message of completion appear then press ESC (about 40 sec).",
   	"TOOLS_REMOVE": "Deleting files",
   	"PLAY_SELECTED_FILE": "Play selected file",
   	"DOC_TOOLS_FILE_TO_PLAY": "Choose a file to play. Must be located in /INTERNAL/FusionDsp/tools/",

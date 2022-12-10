@@ -246,7 +246,7 @@ Dstmmix.prototype.installtools = function (data) {
       
       self.commandRouter.broadcastMessage("openModal", modalData);
 
-      let cp3 = exec('/bin/sh /data/plugins/music_service/dstmmix/installbliss.sh');
+      let cp3 = execSync('/bin/sh /data/plugins/music_service/dstmmix/installbliss.sh');
       self.commandRouter.pushToastMessage('info', 'Tool install finished');
       self.refreshUI();}
       
@@ -270,7 +270,7 @@ Dstmmix.prototype.removetools = function (data) {
   return new Promise(function (resolve, reject) {
 
     try {
-      let cp6 = exec('/bin/rm -d -r /home/volumio/Blissanalyser/');
+      let cp6 = execSync('/bin/rm -d -r /home/volumio/Blissanalyser/');
       //let cp7 = exec('/usr/bin/sudo /usr/bin/apt -y autoremove shellinabox',{uid: 1000,gid: 1000});
       
       self.commandRouter.pushToastMessage('info', 'Tool remove finished');} 
