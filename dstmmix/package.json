@@ -1,6 +1,6 @@
 {
 	"name": "dstmmix",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Self hosted LMS server with infinite smart mix feature",
 	"main": "index.js",
 	"scripts": {

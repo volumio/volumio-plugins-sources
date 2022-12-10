@@ -126,12 +126,25 @@ Dstmmix.prototype.getUIConfig = function () {
 				{
 					"id": "advanced",
 					"element": "button",
-					"label": "Launch",
-					"description": "Open Bliss webconsole",
+					"label": "Launch library analysis",
+					"description": "Library analysis in a webconsole",
 					"onClick": {
 						"type": "openUrl",
 						"url": "http://" + IPaddress + ":10000/bliss_shell"
 					}})		
+					
+			uiconf.sections[1].content.push(
+				{
+					"id": "advanced",
+					"element": "button",
+					"label": "Launch Database update",
+					"description": "Database update in a webconsole",
+					"onClick": {
+						"type": "openUrl",
+						"url": "http://" + IPaddress + ":10001/bliss_shell"
+					}})				
+					
+					
 					
 			defer.resolve(uiconf);
 		})

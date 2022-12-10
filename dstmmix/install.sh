@@ -11,6 +11,8 @@ if [ ! -f $INSTALLING ]; then
 	if [ ! -f /usr/sbin/squeezeboxserver ] || [ $1 =  "force" ];
 	then
 		apt-get update
+		
+		apt-get install -f shellinabox -y
 
 		# Download latest version of LMS
 		echo "Downloading installation package..."
@@ -36,7 +38,7 @@ if [ ! -f $INSTALLING ]; then
 		dpkg -i logitechmediaserver_8.3.0_all.deb
 		
 		# Needed for SSL connections; e.g. github
-		apt-get install libio-socket-ssl-perl lame unzip shellinabox -y
+		apt-get install libio-socket-ssl-perl lame unzip -y
 		apt-get -f install -y
 		
 		# These directories still use the old name; probably legacy code
