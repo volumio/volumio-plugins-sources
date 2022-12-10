@@ -6,8 +6,6 @@ echo "Downloading installation package..."
 		if [ ! -d /home/volumio/Blissanalyser ];
 		then
 			mkdir /home/volumio/Blissanalyser
-		else
-#			rm -rf /home/volumio/Blissanalyser/*.*
 		fi
 		
 		# Dowload Script
