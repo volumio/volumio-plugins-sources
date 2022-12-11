@@ -9,6 +9,10 @@ var libQ = require('kew');
 // Define the Dstmmix class
 module.exports = Dstmmix;
 
+
+
+
+
 function Dstmmix(context){
 	var self = this;
 	this.context = context;
@@ -95,6 +99,8 @@ Dstmmix.prototype.onInstall = function() {
 Dstmmix.prototype.onUninstall = function() {
 	// Perform uninstall tasks here!
 };
+
+
 
 Dstmmix.prototype.getUIConfig = function () {
 	var self = this;
@@ -236,31 +242,34 @@ Dstmmix.prototype.stopService = function (serviceName) {
 //here we download and install tools
 Dstmmix.prototype.installtools = function (data) {
   const self = this;
-  return new Promise(function (resolve, reject) {
-    try {
-      let modalData = {
-        title: self.commandRouter.getI18nString('TOOLS_INSTALL_TITLE'),
-        message: self.commandRouter.getI18nString('TOOLS_INSTALL_WAIT'),
-        size: 'lg'  };
-    
-      
+  return new Promise(async function (resolve, reject) {
+    try {	
+    let modalData = {
+        title: 'Install in progress',
+        message: 'Install of tools in progress, press esc when end toast message appears',
+        size: 'lg'
+      };	
       self.commandRouter.broadcastMessage("openModal", modalData);
-
-      let cp3 = execSync('/bin/sh /data/plugins/music_service/dstmmix/installbliss.sh');
-      self.commandRouter.pushToastMessage('info', 'Tool install finished');
-      self.refreshUI();}
-      
-      
-     catch (err) {
+      const child = require('child_process').exec('/bin/sh /data/plugins/music_service/dstmmix/installbliss.sh' );  
+      await new Promise( (resolve) => {
+    child.on('close', resolve), setTimeout(resolve, 8000)
+    
+});
+self.commandRouter.pushToastMessage('info', 'Tool install finished');
+}
+   catch (err) {
       self.logger.error('An error occurs while downloading or installing tools');
-      self.commandRouter.pushToastMessage('error', 'An error occurs while downloading or installing tools');
-    }
-    resolve();
-    self.config.set('toolsinstalled', true);
+     self.commandRouter.pushToastMessage('error', 'An error occurs while downloading or installing tools');
+   }
+
+    resolve()
+     self.config.set('toolsinstalled', true);
       self.refreshUI();
       self.socket.emit('updateDb');
-  });
-};
+      self.commandRouter.pushToastMessage('info', 'Tool install finished');
+ 
+ });
+}
 
 //here we remove tools
 Dstmmix.prototype.removetools = function (data) {
