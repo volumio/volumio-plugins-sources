@@ -1,6 +1,5 @@
 ## Bliss installation script
 
-echo "Downloading installation package..."
 
 		# check and create DIR
 		if [ ! -d /home/volumio/Blissanalyser ];
@@ -14,10 +13,17 @@ echo "Downloading installation package..."
 		cd /home/volumio/Blissanalyser/
 		wget -O bliss-analyser https://dl.rexnvs.com/dl/bliss-analyser%20primo%20ARMf71
 		wget -O LICENCEBliss https://dl.rexnvs.com/dl/LICENSE
-		wget -O config.ini https://dl.rexnvs.com/dl/config.ini
-		
-		# Install shellinabox
-#		sudo apt-get -f install shellinabox -y
+	
+				
+				
+		if [ `find /media -type f | wc -l` -eq 0 ] ;
+		then
+			wget -O config.ini https://dl.rexnvs.com/dl/config.ini
+			echo "media on NAS"
+		else
+			wget -O config.ini https://dl.rexnvs.com/dl/configusb.ini
+			echo "media on usb"		
+		fi
 		
 	
 		# Fix rights issue for preference, cache and log directory, needs execute right for prefs
@@ -29,4 +35,3 @@ echo "Downloading installation package..."
 		# create a web shell for bliss upload
 		shellinaboxd -t -b -p 10001 --no-beep -s '/bliss_shell/:volumio:volumio:/:/home/volumio/Blissanalyser/bliss-analyser upload -c /home/volumio/Blissanalyser/config.ini'
 		
-echo "Downloading finished..."

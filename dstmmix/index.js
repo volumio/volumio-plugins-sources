@@ -4,7 +4,7 @@ var exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
 var fs = require('fs-extra');
 var libQ = require('kew');
-//var selfIP = '';
+
 
 // Define the Dstmmix class
 module.exports = Dstmmix;
@@ -71,6 +71,7 @@ Dstmmix.prototype.onStart = function() {
 	self.restartService('logitechmediaserver', true)
 		.then(function(edefer) {
 			self.selfIP = self.commandRouter.getCachedIPAddresses();
+			let cp7 = exec('/bin/sh /data/plugins/music_service/dstmmix/shellbox.sh');
 		})
 		.then(function(fdefer) {
 			defer.resolve();
@@ -87,6 +88,7 @@ Dstmmix.prototype.onStart = function() {
 Dstmmix.prototype.onRestart = function() {
 	// Do nothing
 	self.logger.info("performing onRestart action");
+	let cp7 = exec('/bin/sh /data/plugins/music_service/dstmmix/shellbox.sh');
 	
 	var self = this;
 };
@@ -198,6 +200,7 @@ Dstmmix.prototype.getIP = function () {
 	self.config.set('address', address)
 };
 
+
 Dstmmix.prototype.restartService = function (serviceName, boot) {
 	var self = this;
 	var defer = libQ.defer();
@@ -246,7 +249,7 @@ Dstmmix.prototype.installtools = function (data) {
     try {	
     let modalData = {
         title: 'Install in progress',
-        message: 'Install of tools in progress, press esc when end toast message appears',
+        message: 'Install of tools in progress, press "ESC" when end toast message appears at the bottom of the page.',
         size: 'lg'
       };	
       self.commandRouter.broadcastMessage("openModal", modalData);
@@ -270,30 +273,3 @@ self.commandRouter.pushToastMessage('info', 'Tool install finished');
  
  });
 }
-
-//here we remove tools
-Dstmmix.prototype.removetools = function (data) {
-  const self = this;
-
-  self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('TOOLS_REMOVE'));
-  return new Promise(function (resolve, reject) {
-
-    try {
-      let cp6 = execSync('/bin/rm -d -r /home/volumio/Blissanalyser/');
-      //let cp7 = exec('/usr/bin/sudo /usr/bin/apt -y autoremove shellinabox',{uid: 1000,gid: 1000});
-      
-      self.commandRouter.pushToastMessage('info', 'Tool remove finished');} 
-      
-      catch (err) {
-      self.logger.error('An error occurs while removing tools');
-      self.commandRouter.pushToastMessage('error', 'An error occurs while removing tools');
-    }
-    resolve();
-
-    self.config.set('toolsinstalled', false);
-    self.refreshUI();
-    self.socket.emit('updateDb');
-
-  });
-};
-//------ actions tools------------

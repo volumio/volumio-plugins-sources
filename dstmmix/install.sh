@@ -12,6 +12,7 @@ if [ ! -f $INSTALLING ]; then
 	then
 		apt-get update
 		
+		echo "Installing ShellInAbox..."
 		apt-get install -f shellinabox -y
 
 		# Download latest version of LMS
