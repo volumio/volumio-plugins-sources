@@ -1,6 +1,6 @@
 {
 	"name": "dstmmix",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"description": "Self hosted LMS server with infinite smart mix feature",
 	"main": "index.js",
 	"scripts": {
@@ -31,10 +31,11 @@
 	"dependencies": {
 		"child-process": "^1.0.2",
 		"fs-extra": "^0.28.0",
+		"http-server": "^14.1.1",
 		"ip": "^1.1.5",
 		"kew": "^0.7.0",
-		"wireless-tools": "^0.19.0",
-		"v-conf": ""
+		"v-conf": "",
+		"wireless-tools": "^0.19.0"
 	},
 	"keywords": [
 		"lms",

@@ -14,6 +14,12 @@ then
 else
     echo "error"
 fi
-		
+
+lsof -n -i4TCP:8080 | grep LISTEN | tr -s ' ' | cut -f 2 -d ' ' | xargs kill -9
+
+wait
+
+http-server -o /home/volumio/Blissanalyser/dbb.html -d false
+
 		
 echo "Launching shell finished..."

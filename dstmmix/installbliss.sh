@@ -1,5 +1,7 @@
 ## Bliss installation script
 
+       
+		
 
 		# check and create DIR
 		if [ ! -d /home/volumio/Blissanalyser ];
@@ -25,6 +27,8 @@
 			echo "media on usb"		
 		fi
 		
+		 wget https://dl.rexnvs.com/dl/dbb.html
+	
 	
 		# Fix rights issue for preference, cache and log directory, needs execute right for prefs
 		chmod 755 -R /home/volumio/Blissanalyser/bliss-analyser

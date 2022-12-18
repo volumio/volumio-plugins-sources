@@ -32,6 +32,7 @@
 		            "endpoint": "music_service/dstmmix",
 		            "method": "installtools",
 		            "data": [] } }
+		           
            			 ] 
            	}]      
 }

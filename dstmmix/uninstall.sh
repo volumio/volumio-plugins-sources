@@ -11,7 +11,6 @@ if [ ! -f $INSTALLING ]; then
 	dpkg -P logitechmediaserver
 	unlink /etc/systemd/system/logitechmediaserver.service
 	apt-get -f autoremove shellinabox -y
-	rm -rf /home/volumio/Blissanalyser/*.*
 	
 	# Not uninstalling dependencies, because they might be used by other plugins.
 

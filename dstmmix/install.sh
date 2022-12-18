@@ -14,6 +14,9 @@ if [ ! -f $INSTALLING ]; then
 		
 		echo "Installing ShellInAbox..."
 		apt-get install -f shellinabox -y
+		
+		echo "Installing http-server..."
+		npm install --global http-server
 
 		# Download latest version of LMS
 		echo "Downloading installation package..."

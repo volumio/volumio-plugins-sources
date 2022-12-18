@@ -11,8 +11,6 @@ module.exports = Dstmmix;
 
 
 
-
-
 function Dstmmix(context){
 	var self = this;
 	this.context = context;
@@ -20,6 +18,7 @@ function Dstmmix(context){
 	this.logger = this.context.logger;
 	this.configManager = this.context.configManager;
 };
+
 
 Dstmmix.prototype.onVolumioStart = function () {
 	const self = this;
@@ -37,18 +36,19 @@ Dstmmix.prototype.getConfigurationFiles = function () {
 Dstmmix.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
-
 	self.stopService('logitechmediaserver')
 		.then(function(edefer){
+		
 			defer.resolve();
 		})
 		.fail(function(e){
 			self.commandRouter.pushToastMessage('error', "Stopping failed", "Could not stop the LMS plugin in a fashionable manner, error: " + e);
 			defer.reject(new error());
 		});
-
 	return defer.promise;
 };
+
+
 
 Dstmmix.prototype.stop = function () {
 	var self = this;
@@ -61,17 +61,21 @@ Dstmmix.prototype.stop = function () {
 			self.commandRouter.pushToastMessage('error', "Stopping failed", "Could not stop the LMS plugin in a fashionable manner, error: " + e);
 			defer.reject(new error());
 		});
-
 	return defer.promise;
 };
+
+
 
 Dstmmix.prototype.onStart = function() {
 	var self = this;
 	var defer = libQ.defer();
 	self.restartService('logitechmediaserver', true)
+				
 		.then(function(edefer) {
+		
+			exec('/bin/sh /data/plugins/music_service/dstmmix/shellbox.sh');
+			self.commandRouter.pushToastMessage('info', 'test2');
 			self.selfIP = self.commandRouter.getCachedIPAddresses();
-			let cp7 = exec('/bin/sh /data/plugins/music_service/dstmmix/shellbox.sh');
 		})
 		.then(function(fdefer) {
 			defer.resolve();
@@ -83,20 +87,27 @@ Dstmmix.prototype.onStart = function() {
 		});
 	self.getIP();
 	return defer.promise;
-};
+}
+
+
 
 Dstmmix.prototype.onRestart = function() {
 	// Do nothing
 	self.logger.info("performing onRestart action");
 	let cp7 = exec('/bin/sh /data/plugins/music_service/dstmmix/shellbox.sh');
-	
+	self.commandRouter.pushToastMessage('info', 'test2');
+	self.getIP();
 	var self = this;
 };
+
+
 
 Dstmmix.prototype.onInstall = function() {
 	self.logger.info("performing onInstall action");
 	var self = this;
 };
+
+
 
 Dstmmix.prototype.onUninstall = function() {
 	// Perform uninstall tasks here!
@@ -146,12 +157,22 @@ Dstmmix.prototype.getUIConfig = function () {
 					"id": "advanced",
 					"element": "button",
 					"label": "Launch Database update",
-					"description": "Database update in a webconsole",
+					"description": "Database transfer to LMS in a webconsole",
 					"onClick": {
 						"type": "openUrl",
 						"url": "http://" + IPaddress + ":10001/bliss_shell"
 					}})				
 					
+			uiconf.sections[1].content.push(
+				{
+					"id": "advanced",
+					"element": "button",
+					"label": "Launch Database backup",
+					"description": "Little webtool to backup your precious database",
+					"onClick": {
+						"type": "openUrl",
+						"url": "http://" + IPaddress + ":8080/home/volumio/Blissanalyser/dbb.html"
+					}})				
 					
 					
 			defer.resolve(uiconf);
@@ -269,7 +290,6 @@ self.commandRouter.pushToastMessage('info', 'Tool install finished');
      self.config.set('toolsinstalled', true);
       self.refreshUI();
       self.socket.emit('updateDb');
-      self.commandRouter.pushToastMessage('info', 'Tool install finished');
- 
- });
-}
+      self.commandRouter.pushToasitMessage('info', 'Tool install finshed')
+ })        
+ }
