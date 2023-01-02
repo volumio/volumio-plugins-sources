@@ -74,7 +74,7 @@ volroon.prototype.roonListener = function () {
 		// Make it look like an existing built-in Roon extension and you don't need to approve it in the UI.
 		extension_id: 'com.roonlabs.display_zone', // I think I only need to keep this one constant to avoid needing auth in Roon.
 		display_name: 'volroon - Roon Bridge on Volumio',
-		display_version: '0.1.4',
+		display_version: '1.0.0',
 		publisher: 'Dale Rider',
 		email: 'dale@sempervirens.co.za',
 		log_level: 'none',
@@ -86,7 +86,7 @@ volroon.prototype.roonListener = function () {
 
 				if (response && (response == "Subscribed" || response == "Changed")) {
 
-					if (msg && (msg.zones || msg.zones_added || msg.zones_changed)) {
+					if (msg?.zones || msg?.zones_added || msg?.zones_changed) {
 						self.indentifyZone(msg)
 							.then(() => {
 								self.chooseTheRightCore()
@@ -172,22 +172,17 @@ volroon.prototype.indentifyZone = function (msg) {
 	var defer = libQ.defer();
 
 	// Get the zoneid for the device
-	if (((msg.zones || msg.zones_changed) && zoneid == undefined) || (msg.zones_added)) {
-		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
-			return zone =
-				zone.outputs.find(output => {
-					return output =
-						output.source_controls.find(source_control => {
-							return source_control.display_name === outputdevicename
-						})
-				})
+	if ((zoneid == undefined) || (msg?.zones_added)) {
+		// let zone = [...msg?.zones?.values()].find((zone) => zone?.outputs[0]?.source_controls[0]?.display_name === device);
+		zone = [...((msg?.zones ? msg.zones : msg?.zones_changed ? msg.zones_changed : msg?.zones_added)).values()].find(zone => {
+			return zone?.outputs[0]?.source_controls[0]?.display_name === outputdevicename
 		})
 
-		zoneid = (zone && zone.zone_id) ? zone.zone_id : undefined;
-		zonename = (zone && zone.display_name) ? zone.display_name : undefined;
-
+		zoneid = zone?.zone_id;
+		zonename = zone?.display_name;
 
 	}
+
 	zoneid ? defer.resolve(zoneid) : defer.reject();
 	return defer.promise;
 }
@@ -196,12 +191,12 @@ volroon.prototype.updateMetadata = function (msg) {
 	var self = this;
 	var defer = libQ.defer();
 
-	if (msg.zones || msg.zones_changed || msg.zones_added) {
-		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
-			if (zone.zone_id) return zone.zone_id === zoneid;
-		})
-		self.logger.debug('volroon::updateMetadata zone: \n' + JSON.stringify(zone, null, ' '));
-	}
+
+	zone = (msg?.zones ? msg.zones : msg?.zones_changed ? msg?.zones_changed : msg.zones_added).find(zone => {
+		return zone?.zone_id === zoneid;
+	})
+	self.logger.debug('volroon::updateMetadata zone: \n' + JSON.stringify(zone, null, ' '));
+
 
 	if (zone) {
 		if (zone.state == 'playing') {
@@ -573,13 +568,15 @@ volroon.prototype.roonControl = function (zoneid, control) {
 					self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${control} command to Roon - Error: ${err}`);
 					//Otherwise Volumio sits around with a mismatched state.
 					self.state.status = currentState;
-					self.pushState()
+					self.pushState();
 				} else {
 					self.commandRouter.pushConsoleMessage(`${this.state.service}::${control} command successfully sent to Roon.`);
 				}
 			})
 		} catch (err) {
 			self.logger.error(`volroon::roonControl - ${err}`);
+			self.state.status = currentState;
+			self.pushState();
 		}
 	}
 }
@@ -596,13 +593,16 @@ volroon.prototype.roonSettings = function (zoneid, settings) {
 					self.commandRouter.pushConsoleMessage(`${this.state.service}::Unable to send ${JSON.stringify(settings, null, '')} command to Roon - Error: ${err}`);
 					//Otherwise Volumio sits around with a mismatched state.
 					self.state.status = currentState;
-					self.pushState()
+					self.pushState();
 				} else {
 					self.commandRouter.pushConsoleMessage(`${this.state.service}::${JSON.stringify(settings, null, '')} command successfully sent to Roon.`);
 				}
 			})
 		} catch (err) {
 			self.logger.error(`volroon::roonSettings - ${err}`);
+			//Otherwise Volumio sits around with a mismatched state.
+			self.state.status = currentState;
+			self.pushState();
 		}
 	}
 

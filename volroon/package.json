@@ -1,6 +1,6 @@
 {
 	"name": "volroon",
-	"version": "0.1.4",
+	"version": "1.0.0",
 	"description": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
 	"main": "index.js",
 	"scripts": {
@@ -22,10 +22,10 @@
 		],
 		"has_alsa_contribution": "false",
 		"details": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
-		"changelog": "Fix: Stray var causing a crash on uninstall"
+		"changelog": "Switch to proper version 1. "
 	},
 	"engines": {
-		"node": ">=8",
+		"node": ">=14",
 		"volumio": ">=3"
 	},
 	"dependencies": {
