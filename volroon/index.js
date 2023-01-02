@@ -74,7 +74,7 @@ volroon.prototype.roonListener = function () {
 		// Make it look like an existing built-in Roon extension and you don't need to approve it in the UI.
 		extension_id: 'com.roonlabs.display_zone', // I think I only need to keep this one constant to avoid needing auth in Roon.
 		display_name: 'volroon - Roon Bridge on Volumio',
-		display_version: '1.0.0',
+		display_version: '1.0.1',
 		publisher: 'Dale Rider',
 		email: 'dale@sempervirens.co.za',
 		log_level: 'none',
@@ -172,10 +172,15 @@ volroon.prototype.indentifyZone = function (msg) {
 	var defer = libQ.defer();
 
 	// Get the zoneid for the device
-	if ((zoneid == undefined) || (msg?.zones_added)) {
-		// let zone = [...msg?.zones?.values()].find((zone) => zone?.outputs[0]?.source_controls[0]?.display_name === device);
-		zone = [...((msg?.zones ? msg.zones : msg?.zones_changed ? msg.zones_changed : msg?.zones_added)).values()].find(zone => {
-			return zone?.outputs[0]?.source_controls[0]?.display_name === outputdevicename
+	if (((msg.zones || msg.zones_changed) && zoneid == undefined) || (msg.zones_added)) {
+		zone = (msg.zones ? msg.zones : msg.zones_changed ? msg.zones_changed : msg.zones_added).find(zone => {
+			return zone =
+				zone.outputs.find(output => {
+					return output =
+						output.source_controls.find(source_control => {
+							return source_control.display_name === outputdevicename
+						})
+				})
 		})
 
 		zoneid = zone?.zone_id;

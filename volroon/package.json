@@ -1,6 +1,6 @@
 {
 	"name": "volroon",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
 	"main": "index.js",
 	"scripts": {
@@ -22,7 +22,7 @@
 		],
 		"has_alsa_contribution": "false",
 		"details": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
-		"changelog": "Switch to proper version 1. "
+		"changelog": "Undid a previous refactor that broke meta if you were using a Roon group."
 	},
 	"engines": {
 		"node": ">=14",
