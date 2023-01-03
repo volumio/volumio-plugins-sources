@@ -74,7 +74,7 @@ volroon.prototype.roonListener = function () {
 		// Make it look like an existing built-in Roon extension and you don't need to approve it in the UI.
 		extension_id: 'com.roonlabs.display_zone', // I think I only need to keep this one constant to avoid needing auth in Roon.
 		display_name: 'volroon - Roon Bridge on Volumio',
-		display_version: '1.0.1',
+		display_version: '1.0.2',
 		publisher: 'Dale Rider',
 		email: 'dale@sempervirens.co.za',
 		log_level: 'none',
@@ -270,6 +270,7 @@ volroon.prototype.setRoonActive = function () {
 
 	if (!roonIsActive) {
 		var state = self.getState();
+		self.commandRouter.volumioClearQueue();
 		if (state && state.service && state.service !== this.state.service) {
 			if (self.commandRouter.stateMachine.isVolatile) {
 				self.commandRouter.stateMachine.unSetVolatile();
@@ -643,7 +644,7 @@ volroon.prototype.stop = function () {
 	var state = self.getState();
 	if (state && state.service && state.service === 'volroon') {
 		self.logger.info(this.state.service + '::Roon Playback Stopped, clearing state');
-		self.context.coreCommand.stateMachine.resetVolumioState();
+		self.commandRouter.stateMachine.resetVolumioState();
 	}
 
 	// self.commandRouter.stateMachine.playQueue.clearPlayQueue();
