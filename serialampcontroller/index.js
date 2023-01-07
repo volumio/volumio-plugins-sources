@@ -328,7 +328,7 @@ serialampcontroller.prototype.openSerialPort = function (){
 
                 //lookup the path to the selected device
                 self.serialInterfaceDev = self.serialDevices.filter(dev => {
-                    return dev.pnpId === self.config.get('serialInterfaceDev')
+                    return (dev.pnpId === self.config.get('serialInterfaceDev') || dev.manufacturer === self.config.get('serialInterfaceDev'))
                 });
                 if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: connect to ' + self.serialInterfaceDev[0].path +' configured with: ' + JSON.stringify(self.serialOptions));
                 self.port = new SerialPort(self.serialInterfaceDev[0].path, self.serialOptions);
@@ -418,7 +418,7 @@ serialampcontroller.prototype.listSerialDevices = function() {
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: ' + JSON.stringify(ports));
             self.serialDevices = ports;
             self.serialDevices = self.serialDevices.filter(function(dev){
-                return (dev.pnpId !== "undefined" && dev.path !== "/dev/ttyAMA0"); 
+                return ((dev.pnpId !== undefined || dev.manufacturer !== undefined) && dev.path !== "/dev/ttyAMA0"); 
             })
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: found ' + self.serialDevices.length + ' devices.' + JSON.stringify(self.serialDevices));
             defer.resolve();
