@@ -1,4 +1,4 @@
-November 2nd 2022
+December 23th 2022
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,15 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+December 23th 2022 v1.0.32
+
+- Swap channels parameter saved in presets
+- move fusiondsp.service in /etc/systemd/system/multi-user.target.wants/
+
+December 06th 2022 v1.0.31
+
+-  Report DSP properties on fusion DSP 
 
 November 2nd 2022 v1.0.30
 
