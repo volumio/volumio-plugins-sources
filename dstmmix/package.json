@@ -1,9 +1,9 @@
 {
 	"name": "dstmmix",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"description": "Self hosted LMS server with infinite smart mix feature",
 	"main": "index.js",
-	"scripts": {
+	"scripts": {"start": "node index.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "chourmovs",

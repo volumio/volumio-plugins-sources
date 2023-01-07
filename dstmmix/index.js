@@ -72,10 +72,7 @@ Dstmmix.prototype.onStart = function() {
 	self.restartService('logitechmediaserver', true)
 				
 		.then(function(edefer) {
-		
 			exec('/bin/sh /data/plugins/music_service/dstmmix/shellbox.sh');
-			self.commandRouter.pushToastMessage('info', 'test2');
-			self.selfIP = self.commandRouter.getCachedIPAddresses();
 		})
 		.then(function(fdefer) {
 			defer.resolve();
@@ -95,8 +92,6 @@ Dstmmix.prototype.onRestart = function() {
 	// Do nothing
 	self.logger.info("performing onRestart action");
 	let cp7 = exec('/bin/sh /data/plugins/music_service/dstmmix/shellbox.sh');
-	self.commandRouter.pushToastMessage('info', 'test2');
-	self.getIP();
 	var self = this;
 };
 
