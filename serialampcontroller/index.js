@@ -199,11 +199,18 @@ serialampcontroller.prototype.getUIConfig = function() {
             selected = 0;
             for (var n = 0; n < self.serialDevices.length; n++)
             {
+                if (self.serialDevices[n].pnpId != undefined) {
+                    let devLabel = self.serialDevices[n].pnpId
+                } else if (self.serialDevices[n].manufacturer != undefined){
+                    let devLabel = self.serialDevices[n].manufacturer
+                } else {
+                    self.logger.error('[SERIALAMPCONTROLLER] getUIConfig: serialDevice has no pnpId and no Manufacturer name.');
+                }
                 self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', {
                     value: n+1,
-                    label: self.serialDevices[n].pnpId
+                    label: devLabel
                 });
-                if (self.serialDevices[n].pnpId == serialFromConfig) {
+                if (devLabel == serialFromConfig) {
                     selected = n+1;
                 }
             };
