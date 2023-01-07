@@ -1,8 +1,9 @@
+#!/bin/bash
 ## Bliss installation script
 
-
+	
 		# check and create DIR
-		if [ ! -d /home/volumio/Blissanalyser ];
+		if [ ! -d /home/volumio/Blissanalyser ]
 		then
 			mkdir /home/volumio/Blissanalyser
 		fi
@@ -12,12 +13,15 @@
 
 		cd /home/volumio/Blissanalyser/
 		
-		arch=$(uname -m)
-		if [[ $arch == *86* ]]; then
-		    echo "X64 Architecture"
+		arch=$(lscpu | awk 'FNR == 1 {print $2}')
+
+		if [ $arch = "x86_64" ]
+		 then
+		    echo "X86 Architecture"
 		wget -O bliss-analyser https://dl.rexnvs.com/dl/bliss-analyser%20x86     
 				    
-		elif  [[ $arch == arm* ]]; then
+		elif  [ $arch = "armv7l" ] || [ $arch = "armv6l" ] 
+		 then
 		    echo "ARM Architecture"
 		wget -O bliss-analyser https://dl.rexnvs.com/dl/bliss-analyser%20primo%20ARMf71    
 		fi  
@@ -27,7 +31,7 @@
 
 
 		# Download ini file based on music location
-		if [ `find /media -type f | wc -l` -eq 0 ] ;
+		if [ `find /media -type f | wc -l` -eq 0 ]
 		then
 			wget -O config.ini https://dl.rexnvs.com/dl/config.ini
 			echo "media on NAS"
