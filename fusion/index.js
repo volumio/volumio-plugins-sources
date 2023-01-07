@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 3. By balbuze October 2022
+// FusionDsp plugin for volumio 3. By balbuze December 2022
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -63,6 +63,7 @@ FusionDsp.prototype.onStart = function () {
     self.purecamillagui();
     self.getIP();
     self.socket = io.connect('http://localhost:3000');
+    self.reportFusionEnabled();
   }, 2000);
 
   // if mixer set to none, do not show loudness settings
@@ -100,6 +101,8 @@ FusionDsp.prototype.onStop = function () {
   }, function (error, stdout, stderr) {
     if (error) {
       self.logger.info('Error in killing FusionDsp')
+    } else {
+      self.reportFusionDisabled();
     }
   });
   defer.resolve();
@@ -2045,7 +2048,7 @@ FusionDsp.prototype.testclipping = function () {
         if (result[o].indexOf("Clipping detected") != -1) {
 
           let filteredMessage = result[o].replace(" dB", ",").replace("peak +", "").split(",");
-         
+
           let attcalculated = filteredMessage[2]
           messageDisplayed = Number(attcalculated);
           self.logger.info('clipping detection gives in line ' + o + " " + messageDisplayed)
@@ -2058,39 +2061,39 @@ FusionDsp.prototype.testclipping = function () {
     }
 
 
- // self.logger.info("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh " + arr);
-  arr.sort((a, b) => {
-    if (a > b) return 1;
-    if (a < b) return -1;
-    return 0;
-  });
+    // self.logger.info("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh " + arr);
+    arr.sort((a, b) => {
+      if (a > b) return 1;
+      if (a < b) return -1;
+      return 0;
+    });
 
-  let offset = 3;
-  let arrreducedr = ((arr.toString().split(',')).pop());
-  arrreduced = +arrreducedr + offset;
+    let offset = 3;
+    let arrreducedr = ((arr.toString().split(',')).pop());
+    arrreduced = +arrreducedr + offset;
 
-  self.config.set('attenuationl', arrreduced);
-  self.config.set('attenuationr', arrreduced);
-  self.config.set('testclipping', false)
-  self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('FILTER_LENGTH') + filelength, self.commandRouter.getI18nString('AUTO_ATTENUATION_SET') + arrreduced + ' dB');
-  self.commandRouter.pushToastMessage('info', 'Attenuation set to: ' + arrreduced + ' dB');
-  
-  let ltest, rtest, cleftfilter, crightfilter, test
+    self.config.set('attenuationl', arrreduced);
+    self.config.set('attenuationr', arrreduced);
+    self.config.set('testclipping', false)
+    self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('FILTER_LENGTH') + filelength, self.commandRouter.getI18nString('AUTO_ATTENUATION_SET') + arrreduced + ' dB');
+    self.commandRouter.pushToastMessage('info', 'Attenuation set to: ' + arrreduced + ' dB');
 
-  cleftfilter = filterfolder + self.config.get('leftfilter')
-  crightfilter = filterfolder + self.config.get('rightfilter')
+    let ltest, rtest, cleftfilter, crightfilter, test
 
-  ltest = ('Eq1' + '|' + 'Conv' + '|L' + cleftfilter + '|' + arrreduced + '|');
-  rtest = ('Eq2' + '|' + 'Conv' + '|R' + crightfilter + '|' + arrreduced + '|');
-  test = ltest + rtest
-  self.config.set('mergedeq', test);
-  self.config.set('savedmergedeqfir', test)
+    cleftfilter = filterfolder + self.config.get('leftfilter')
+    crightfilter = filterfolder + self.config.get('rightfilter')
 
-  self.refreshUI();
-  self.createCamilladspfile();
+    ltest = ('Eq1' + '|' + 'Conv' + '|L' + cleftfilter + '|' + arrreduced + '|');
+    rtest = ('Eq2' + '|' + 'Conv' + '|R' + crightfilter + '|' + arrreduced + '|');
+    test = ltest + rtest
+    self.config.set('mergedeq', test);
+    self.config.set('savedmergedeqfir', test)
 
-}, 4810);
-return defer.promise;
+    self.refreshUI();
+    self.createCamilladspfile();
+
+  }, 4810);
+  return defer.promise;
 
 };
 
@@ -2867,9 +2870,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           gainclipfree = -2
           self.logger.info('else 1  ' + gainclipfree)
         } else {
-        //  gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
+          //  gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
 
-            gainclipfree = ('-' + ((parseFloat(Number(gainresult))) + 1))
+          gainclipfree = ('-' + ((parseFloat(Number(gainresult))) + 1))
           //  self.logger.info('gainclipfree '+ gainclipfree)
         }
         if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
@@ -3637,8 +3640,7 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.get('muteright'),
     self.config.get('ldistance'),
     self.config.get('rdistance'),
-    // self.config.get('attenuationl'),
-    // self.config.get('attenuationr')
+    self.config.get('permutchannel')
   ]
 
   let preset = (data['eqpresetsaved'].value);
@@ -3896,6 +3898,7 @@ FusionDsp.prototype.usethispreset = function (data) {
     } else {
       self.config.set('rdistance', state4preset[12]);
     }
+    self.config.set('permutchannel', state4preset[13]);
 
 
     self.commandRouter.pushToastMessage('info', spresetm + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
@@ -4482,4 +4485,23 @@ FusionDsp.prototype.sendvolumelevel = function () {
     self.config.set('loudnessGain', Number.parseFloat(loudnessGain).toFixed(2))
     self.createCamilladspfile()
   })
+}
+
+FusionDsp.prototype.reportFusionEnabled = function () {
+  const self = this;
+
+  self.logger.info('Reporting Fusion DSP Enabled');
+  var fusionDSPElementsData = { "id": "fusiondspeq", "sub_type": "dsp_plugin", "preset": "FusionDSP", "quality": "enhanced" };
+  try {
+    self.commandRouter.addDSPSignalPathElement(fusionDSPElementsData);
+  } catch (e) { }
+}
+
+FusionDsp.prototype.reportFusionDisabled = function () {
+  const self = this;
+
+  self.logger.info('Reporting Fusion DSP Disabled');
+  try {
+    self.commandRouter.removeDSPSignalPathElement({ "id": "fusiondspeq" });
+  } catch (e) { }
 }
