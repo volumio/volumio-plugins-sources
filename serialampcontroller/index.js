@@ -197,12 +197,13 @@ serialampcontroller.prototype.getUIConfig = function() {
             //serial_interface section
             var serialFromConfig = self.config.get('serialInterfaceDev')
             selected = 0;
+            let devLabel = ''
             for (var n = 0; n < self.serialDevices.length; n++)
             {
                 if (self.serialDevices[n].pnpId != undefined) {
-                    let devLabel = self.serialDevices[n].pnpId
+                    devLabel = self.serialDevices[n].pnpId
                 } else if (self.serialDevices[n].manufacturer != undefined){
-                    let devLabel = self.serialDevices[n].manufacturer
+                    devLabel = self.serialDevices[n].manufacturer
                 } else {
                     self.logger.error('[SERIALAMPCONTROLLER] getUIConfig: serialDevice has no pnpId and no Manufacturer name.');
                 }
@@ -300,6 +301,7 @@ serialampcontroller.prototype.setConf = function(varName, varValue) {
 serialampcontroller.prototype.openSerialPort = function (){
     var self = this;
     var defer = libQ.defer();
+    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: starting');
     if ((self.config.get('serialInterfaceDev')!==undefined) && 
         (self.config.get('serialInterfaceDev')!=='...') &&
         (Object.keys(self.selectedAmp).length > 0))  {
@@ -334,10 +336,11 @@ serialampcontroller.prototype.openSerialPort = function (){
                 self.serialOptions.xany = self.selectedAmp.xany;
 
                 //lookup the path to the selected device
+                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: check for ' + self.config.get('serialInterfaceDev') + ' in ' + JSON.stringify(self.serialDevices));
                 self.serialInterfaceDev = self.serialDevices.filter(dev => {
                     return (dev.pnpId === self.config.get('serialInterfaceDev') || dev.manufacturer === self.config.get('serialInterfaceDev'))
                 });
-                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: connect to ' + self.serialInterfaceDev[0].path +' configured with: ' + JSON.stringify(self.serialOptions));
+                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: connect to ' + JSON.stringify(self.serialInterfaceDev) +' configured with: ' + JSON.stringify(self.serialOptions));
                 self.port = new SerialPort(self.serialInterfaceDev[0].path, self.serialOptions);
                 if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: Connection established.');
                 self.port.on('close', ()=>{
@@ -422,10 +425,11 @@ serialampcontroller.prototype.listSerialDevices = function() {
 
     SerialPort.list().then(
         ports => {
-            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: ' + JSON.stringify(ports));
             self.serialDevices = ports;
+            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: ' + JSON.stringify(self.serialDevices));
             self.serialDevices = self.serialDevices.filter(function(dev){
-                return ((dev.pnpId !== undefined || dev.manufacturer !== undefined) && dev.path !== "/dev/ttyAMA0"); 
+                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: ' + JSON.stringify(dev));
+                return ((dev.pnpId !== undefined || dev.manufacturer !== undefined) && dev.path !== undefined && dev.path !== "/dev/ttyAMA0"); 
             })
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] listSerialDevices: found ' + self.serialDevices.length + ' devices.' + JSON.stringify(self.serialDevices));
             defer.resolve();
@@ -468,7 +472,7 @@ serialampcontroller.prototype.sendCommand  = function(...cmd) {
                     cmdString = cmdString.replace(re,parseInt(cmd[1]).toString().padStart(count,"0"));
                 } else {
                     self.logger.info('[SERIALAMPCONTROLLER] sendCommand: volValue command string has no ## characters. Do not know how to send volume value.')
-                    defer.reject()
+                    cmdString = '';
                 }
                 break;
             case  "mute": 
