@@ -193,7 +193,41 @@
             ],
             "statusRequests": {
             }
+        },
+        {
+            "vendor": "Cambridge",
+            "model":"CXA61",
+            "baudRate": 9600,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+            "sources": ["A1","A2","A3","A4","D1","D2","D3","MP3","Bluetooth","USB"],
+            "sourceCmd": ["#3,04,00","#3,04,01","#3,04,02","#3,04,03","#3,04,04","#3,04,05","#3,04,06","#3,04,10","#3,04,14","#3,04,16"],
+            "sourceRespPostfix": ["00","01","02","03","04","05","06","10","14","16"],
+            "delimiter": "\n",
+            "commands": {
+                "powerOn": "#01,02,01",
+                "muteOn": "#1,04,01",
+                "muteOff": "#1,04,00"
+            },
+            "responses": [
+                {"rx": "#02,01,01", "cmd": ["respPowerOn"]},
+                {"rx": "#02,01,00", "cmd": ["respPowerOff"]},
+                {"rx": "#02,03,01", "cmd": ["respMuteOn"]},
+                {"rx": "#02,03,00", "cmd": ["respMuteOff"]},
+                {"rx": "#04,01,([0-9]*)", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                "reqPower":"#01,01",
+                "reqSource":"#03,01",
+                "reqVolume":"",
+                "reqMute":"#01,03",
+                "reqModel":"#13,02"
+            }
         }
-
       ]
 }
