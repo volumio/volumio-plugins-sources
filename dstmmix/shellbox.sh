@@ -19,7 +19,9 @@ lsof -n -i4TCP:8080 | grep LISTEN | tr -s ' ' | cut -f 2 -d ' ' | xargs kill -9
 
 wait
 
-http-server -o /home/volumio/Blissanalyser/dbb.html -d false
+# http-server -o /home/volumio/Blissanalyser/dbb.html -d false
+
+cd /home/volumio/Blissanalyser && php -S 0.0.0.0:10005 -c php.ini
 
 
 echo "Launching shell finished..."

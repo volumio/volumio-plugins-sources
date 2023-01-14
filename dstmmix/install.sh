@@ -16,7 +16,9 @@ if [ ! -f $INSTALLING ]; then
 		apt-get install -f shellinabox -y
 
 		echo "Installing http-server..."
-		npm install --global http-server
+#		npm install --global http-server
+		apt-get install -f php -y
+		
 		
 		# Download latest version of LMS
 		echo "Downloading installation package..."

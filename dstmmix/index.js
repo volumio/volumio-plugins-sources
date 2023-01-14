@@ -166,7 +166,7 @@ Dstmmix.prototype.getUIConfig = function () {
 					"description": "Little webtool to backup your precious database",
 					"onClick": {
 						"type": "openUrl",
-						"url": "http://" + IPaddress + ":8080/home/volumio/Blissanalyser/dbb.html"
+						"url": "http://" + IPaddress + ":10005"
 					}})				
 					
 					
