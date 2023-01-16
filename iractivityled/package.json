@@ -27,9 +27,9 @@
 		"volumio": ">=3"
 	},
 	"dependencies": {
-		"fs-extra": "^0.28.0",
+		"fs-extra": "^11.1.0",
 		"kew": "^0.7.0",
 		"onoff": "^6.0.3",
-		"v-conf": "^1.4.0"
+		"v-conf": "^1.4.3"
 	}
 }
