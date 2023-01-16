@@ -1,0 +1,15 @@
+{
+    "gpionum":{
+        "type": "number",
+        "value": 22
+    },
+	"activestate":{
+        "type": "number",
+        "value": 0
+    },
+    "interval":{
+        "type": "number",
+        "value": 500
+    }
+}
+
