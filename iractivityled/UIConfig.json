@@ -1,0 +1,81 @@
+{
+	"page": {
+		"label": "TRANSLATE.PLUGIN_CONFIGURATION"
+	},
+	"sections": [
+		{
+			"id": "section_settings",
+			"element": "section",
+			"label": "TRANSLATE.PLUGIN_SECTION_TITLE",
+			"icon": "fa-plug",
+			"onSave": {
+				"type": "controller",
+				"endpoint": "system_hardware/iractivityled",
+				"method": "saveSettings"
+			},
+			"saveButton": {
+				"label": "TRANSLATE.SAVE",
+				"data": [
+					"output",
+					"gpionum",
+					"interval",
+					"cycles"
+				]
+			},
+			"content": [
+				{
+					"id": "output",
+					"element": "select",
+					"doc": "TRANSLATE.OUTPUT_DOC",
+					"label": "TRANSLATE.OUTPUT_LBL",
+					"value": {
+						"value": "led1",
+						"label": "PWR"
+					},
+					"options": [
+						{
+							"value": "led1",
+							"label": "PWR"
+						},
+						{
+							"value": "led0",
+							"label": "ACT"
+						},
+						{
+							"value": "gpio",
+							"label": "GPIO"
+						}
+					]
+				},
+				{
+					"id": "gpionum",
+					"element": "input",
+					"type": "number",
+					"doc": "TRANSLATE.GPIONUM_DOC",
+					"label": "TRANSLATE.GPIONUM_LBL",
+					"visibleIf": {
+						"field": "output",
+						"value": "gpio"
+					},
+					"value": 22
+				},
+				{
+					"id": "interval",
+					"element": "input",
+					"type": "number",
+					"doc": "TRANSLATE.INTERVAL_DOC",
+					"label": "TRANSLATE.INTERVAL_LBL",
+					"value": 50
+				},
+				{
+					"id": "cycles",
+					"element": "input",
+					"type": "number",
+					"doc": "TRANSLATE.CYCLES_DOC",
+					"label": "TRANSLATE.CYCLES_LBL",
+					"value": 4
+				}
+			]
+		}
+	]
+}

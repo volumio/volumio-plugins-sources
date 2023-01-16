@@ -1,0 +1,19 @@
+{
+    "output":{
+        "type": "text",
+        "value": "led1"
+    },
+	"gpionum":{
+        "type": "number",
+        "value": 21
+    },
+    "interval":{
+        "type": "number",
+        "value": 70
+    },
+	"cycles":{
+        "type": "number",
+        "value": 3
+    }
+}
+
