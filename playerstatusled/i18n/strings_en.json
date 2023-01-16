@@ -1,0 +1,19 @@
+{
+	"PLUGIN_CONFIGURATION": "Player Status LED configuration",
+	"PLUGIN_SECTION_TITLE": "Player Status LED settings",
+	"SAVE": "Save",
+	"SUCCESS_TITLE": "Saved settings",
+	"SUCCESS_MESSAGE": "Successfully saved settings",
+
+	"GPIONUM_DOC": "Enter GPIO number LED is wired to",
+	"GPIONUM_LBL": "GPIO Number",
+	"ACTIVESTATE_DOC": "Enter GPIO active state. 0 = LED wired to power and GPIO",
+	"ACTIVESTATE_LBL": "GPIO active state",
+	"INTERVAL_DOC": "Enter the number of miliseconds between led state changes",
+	"INTERVAL_LBL": "Blink interval",
+
+	"ERROR_OUT_OF_RANGE_TITLE": " value out of range",
+	"ERROR_OUT_OF_RANGE_MESSAGE": "Enter a number between ",
+
+	"ERROR_NOT_FOUND_TITLE": " not found"
+}
