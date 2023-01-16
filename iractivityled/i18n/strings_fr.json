@@ -1,0 +1,23 @@
+{
+	"PLUGIN_CONFIGURATION": "configuration de Player Status Led",
+	"PLUGIN_SECTION_TITLE": "Paramètres de Player Status Led",
+	"SAVE": "Enregistrer",
+	"SUCCESS_TITLE": "Paramètres enregistrés",
+	"SUCCESS_MESSAGE": "Enregistrement réussi",
+	"ERROR_TITLE": "Erreur",
+	"ERROR_MESSAGE": "Erreur d'enregistrement des paramètres",
+
+	"OUTPUT_DOC": "LED qui indique l'activité IR. LED intégrées (PWR, ACT) ou LED externe sur GPIO",
+	"OUTPUT_LBL": "LED",
+	"GPIONUM_DOC": "Le numréro de GPIO sur lequel la LED est branchée",
+	"GPIONUM_LBL": "Numéro GPIO",
+	"INTERVAL_DOC": "Le nombre de milisecondes entre les changements d'états de la led",
+	"INTERVAL_LBL": "Interval de clignotement",
+	"CYCLES_DOC": "Nombre de cycles de clignotement",
+	"CYCLES_LBL": "Cycles de clignotement",
+
+	"ERROR_OUT_OF_RANGE_TITLE": " valeur hors plage",
+	"ERROR_OUT_OF_RANGE_MESSAGE": "Entrez un nombre entre ",
+
+	"ERROR_NOT_FOUND_TITLE": " pas trouvé"
+}
