@@ -5,7 +5,7 @@
 	- Stop: LED off. 
 	- Play: LED on.
 	- Pause: blink LED.
-- While Pause is not available in Volumio web UI, it is supported by the API and remote controls.
+- Pause is supported by the API and remote controls.
 - Blink rate is adjustable.
 - Tested on Raspberry Pi 4 B.
 - Intended for Volumio players with no display.
