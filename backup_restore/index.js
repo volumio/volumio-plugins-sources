@@ -191,3 +191,4 @@ backupRestore.prototype.relaunch = function() {
 	
 	return defer.resolve();
 };
+
