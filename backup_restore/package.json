@@ -1,6 +1,6 @@
 {
 	"name": "backup_restore",
-	"version": "0.7.3",
+	"version": "0.7.4",
 	"description": "This plugin allows you to locally backup Volumio data (playlists, settings, etc.) and restore later. Fork of macmpi for VOlumio3.",
 	"main": "index.js",
 	"scripts": {
