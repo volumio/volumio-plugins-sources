@@ -310,7 +310,8 @@
             false,
             false,
             0,
-            0
+            0,
+            false
         ]
     },
     "state4preset2": {
@@ -328,7 +329,8 @@
             false,
             false,
             0,
-            0
+            0,
+            false
         ]
     },
     "state4preset3": {
@@ -346,7 +348,8 @@
             false,
             false,
             0,
-            0
+            0,
+            false
         ]
     },
     "state4preset4": {
@@ -364,7 +367,8 @@
             false,
             false,
             0,
-            0
+            0,
+            false
         ]
     },
     "state4preset5": {
@@ -382,7 +386,8 @@
             false,
             false,
             0,
-            0
+            0,
+            false
         ]
     },
     "availablefilters": {
