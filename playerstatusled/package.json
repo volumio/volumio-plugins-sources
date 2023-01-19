@@ -1,6 +1,6 @@
 {
 	"name": "playerstatusled",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Indicate player status via gpio LED: On while playing, Blink on pause, Off on stop",
 	"main": "index.js",
 	"scripts": {
@@ -30,7 +30,7 @@
 		"fs-extra": "^11.1.0",
 		"kew": "^0.7.0",
 		"onoff": "^6.0.3",
-		"socket.io-client": "^4.5.4",
+		"socket.io-client": "^1.4.5",
 		"v-conf": "^1.4.3"
 	}
 }
