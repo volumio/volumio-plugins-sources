@@ -1,0 +1,5 @@
+.gitignore
+node_modules
+*.zip
+package-lock.json
+readme.md
