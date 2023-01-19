@@ -25,19 +25,19 @@ function IrActivityLedController(context) {
 }
 
 IrActivityLedController.prototype.onVolumioStart = function () {
-    var self = this;
+	var self = this;
 	
-    var configFile = self.commandRouter.pluginManager.getConfigurationFile(self.context, 'config.json');
+	var configFile = self.commandRouter.pluginManager.getConfigurationFile(self.context, 'config.json');
 	self.config = new (require('v-conf'))(); // this needs to be here to load config, not in global var declarations.
-    self.config.loadFile(configFile);
+	self.config.loadFile(configFile);
 	self.log('Initialized');
 	
-    return libQ.resolve();
+	return libQ.resolve();
 };
 
 IrActivityLedController.prototype.onStart = function () {
-    var self = this;
-    var defer = libQ.defer();
+	var self = this;
+	var defer = libQ.defer();
 
 	self.load18nStrings();  
 
@@ -57,7 +57,7 @@ IrActivityLedController.prototype.onStart = function () {
 };
 
 IrActivityLedController.prototype.onStop = function () {
-    var self = this;
+	var self = this;
 
 	if (ipcSocket) {
 		ipcSocket.removeAllListeners();
@@ -65,7 +65,7 @@ IrActivityLedController.prototype.onStop = function () {
 		ipcSocket = undefined; // indicate to the connection callback the plugin is disabled. Otherwise connection attempts will continue.
 	}
 	
-    return self.releaseLed();
+	return self.releaseLed();
 };
 
 
@@ -74,7 +74,7 @@ IrActivityLedController.prototype.onStop = function () {
 // ir_controller takes a while to start, lirc is restarted in the process. When lirc is restarted socket closes.
 // Number of attempts and delay between those are somewhat arbitrary, on Pi 4 lirc settle time is just below 2s.
 IrActivityLedController.prototype.socketConnect = function (attempt = 0) {
-    var self = this;  
+	var self = this;  
 	var defer = libQ.defer();
 	
 	const maxAttempts = 20;	// this callback will be executed repeatedly until connection is established or max tries exceeded.
@@ -93,7 +93,7 @@ IrActivityLedController.prototype.socketConnect = function (attempt = 0) {
 		// instead of rejecting the promise launch another attempt after a delay.
 		// Calling resolve with a pending promise causes promise to wait on the passed promise.
 		setTimeout(() => defer.resolve(self.socketConnect(++attempt, defer)), 300);	// recursion
-    };
+	};
 	
 	const connectHandler = function(data) { // 'connect' listener, once. 'connect' is emitted when a socket connection is established.
 		self.log('Connected to lirc socket');
@@ -107,7 +107,7 @@ IrActivityLedController.prototype.socketConnect = function (attempt = 0) {
 			self.socketConnect();
 		});
 		defer.resolve();
-    };
+	};
 	
 	ipcSocket.once('error', errorHandler);
 	
@@ -126,7 +126,7 @@ IrActivityLedController.prototype.socketConnect = function (attempt = 0) {
 } 
 
 IrActivityLedController.prototype.handleIrData = function(data) {
-    var self = this;
+	var self = this;
 	
 	self.log('ir command received: ' + data);
 
@@ -175,7 +175,7 @@ function blinkGpioLed(cycle = 0, state) {
 
 // initialize LED selected in the config
 IrActivityLedController.prototype.initLed = function() {
-    var self = this;
+	var self = this;
 	var defer = libQ.defer();
 
 	if (self.config.get('output') == 'gpio') {
@@ -210,7 +210,7 @@ IrActivityLedController.prototype.initLed = function() {
 // If plugin is disabled while connecting to a socket or blinking (long async processes), attempt is made to terminate those.
 // One cycle can still execute after plugin disabling and a race condition may occur when restoring the default state.
 IrActivityLedController.prototype.releaseLed  = function() {
-    var self = this;
+	var self = this;
 	var defer = libQ.defer();
 
 	if(!led) return libQ.resolve();
@@ -269,9 +269,9 @@ IrActivityLedController.prototype.log = function(s) {
 // Settings Methods -----------------------------------------------------------------------------
 
 IrActivityLedController.prototype.saveSettings = function (data) {
-    var self = this;
+	var self = this;
 
-    try {
+	try {
 		if (isNaN(data['gpionum']) || data['gpionum'] < 0 || data['gpionum'] > 200) {
 			throw new Error (self.getI18nString('GPIONUM_LBL') + self.getI18nString('ERROR_OUT_OF_RANGE_TITLE') + '. ' + self.getI18nString('ERROR_OUT_OF_RANGE_MESSAGE') + '0 - 200' );
 		}
@@ -298,31 +298,31 @@ IrActivityLedController.prototype.saveSettings = function (data) {
 			.then(() => self.commandRouter.pushToastMessage('success', self.getI18nString('SUCCESS_TITLE'), 
 				self.getI18nString('SUCCESS_MESSAGE')))
 			.fail((err) => self.commandRouter.pushToastMessage('error', self.getI18nString('ERROR_MESSAGE'), err.toString()));
-    } catch(err) { // some errors require toString() to be properly displayed by the toast msg.
+	} catch(err) { // some errors require toString() to be properly displayed by the toast msg.
 		self.commandRouter.pushToastMessage('error', self.getI18nString('ERROR_MESSAGE'), err.toString());
-    }
+	}
 };
 
 IrActivityLedController.prototype.load18nStrings = function () {
-    var self = this;
+	var self = this;
 
-    try {
-        var language_code = this.commandRouter.sharedVars.get('language_code');
-        self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + '.json');
-    } catch (e) {
-        self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
-    }
+	try {
+		var language_code = this.commandRouter.sharedVars.get('language_code');
+		self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + '.json');
+	} catch (e) {
+		self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+	}
 
-    self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+	self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
 };
 
 IrActivityLedController.prototype.getI18nString = function (key) {
-    var self = this;
+	var self = this;
 
-    if (self.i18nStrings[key] !== undefined)
-        return self.i18nStrings[key];
-    else
-        return self.i18nStringsDefaults[key];
+	if (self.i18nStrings[key] !== undefined)
+		return self.i18nStrings[key];
+	else
+		return self.i18nStringsDefaults[key];
 };
 
 // Configuration Methods -----------------------------------------------------------------------------
@@ -338,31 +338,31 @@ function getLabelForSelect(options, key) {
 }
 
 IrActivityLedController.prototype.getUIConfig = function () {
-    var self = this;
+	var self = this;
 	var defer = libQ.defer();
 
-    const lang_code = this.commandRouter.sharedVars.get('language_code');
+	const lang_code = this.commandRouter.sharedVars.get('language_code');
 
-    self.commandRouter.i18nJson(__dirname+'/i18n/strings_'+lang_code+'.json',
-        __dirname+'/i18n/strings_en.json',
-        __dirname + '/UIConfig.json')
-        .then(function(uiconf)
-        {
-            uiconf.sections[0].content[0].value.value = self.config.get('output', 'led1'); // default value ensures settings work on fresh install
-            uiconf.sections[0].content[0].value.label = getLabelForSelect(self.configManager.getValue(uiconf, 'sections[0].content[0].options'), self.config.get('output', 'PWR')); // get label instead of value
+	self.commandRouter.i18nJson(__dirname+'/i18n/strings_'+lang_code+'.json',
+		__dirname+'/i18n/strings_en.json',
+		__dirname + '/UIConfig.json')
+		.then(function(uiconf)
+		{
+			uiconf.sections[0].content[0].value.value = self.config.get('output', 'led1'); // default value ensures settings work on fresh install
+			uiconf.sections[0].content[0].value.label = getLabelForSelect(self.configManager.getValue(uiconf, 'sections[0].content[0].options'), self.config.get('output', 'PWR')); // get label instead of value
 			uiconf.sections[0].content[1].value = self.config.get('gpionum', 21); // default value ensures settings work on fresh install
-            //uiconf.sections[0].content[1].value.label = self.config.get('gpionum', 21).toString();
-            uiconf.sections[0].content[2].value = self.config.get('interval', 70);
+			//uiconf.sections[0].content[1].value.label = self.config.get('gpionum', 21).toString();
+			uiconf.sections[0].content[2].value = self.config.get('interval', 70);
 			uiconf.sections[0].content[3].value = self.config.get('cycles', 3);
-            defer.resolve(uiconf);
-        })
-        .fail(function(err)
-        {
-            self.logger.error(`Failed to parse UI Configuration page for plugin ${pluginName}: ${err}`); 
+			defer.resolve(uiconf);
+		})
+		.fail(function(err)
+		{
+			self.logger.error(`Failed to parse UI Configuration page for plugin ${pluginName}: ${err}`); 
 			defer.reject(err);
-        });
+		});
 
-    return defer.promise;
+	return defer.promise;
 };
 
 IrActivityLedController.prototype.getConfigurationFiles = function () {
