@@ -1,6 +1,6 @@
 {
 	"name": "playerstatusled",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Indicate player status via gpio LED: On while playing, Blink on pause, Off on stop",
 	"main": "index.js",
 	"scripts": {
