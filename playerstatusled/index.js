@@ -62,7 +62,7 @@ StatusLedController.prototype.onStop = function () {
 		clearInterval(led.timerId);
 	}
 		
-	socket.off('pushState'); // socket.off() removes all listeners
+	socket.removeAllListeners();
 	socket.disconnect();
 
 	self.releaseLed();
