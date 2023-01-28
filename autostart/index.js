@@ -60,6 +60,9 @@ AutoStart.prototype.onStart = function () {
         },
         autostartDelay);
 
+    // Once the Plugin has successfull started resolve the promise
+    defer.resolve();
+
     return defer.promise;
 };
 
@@ -127,14 +130,6 @@ AutoStart.prototype.saveOptions = function (data) {
     this.logger.info('AutoStart - settings saved');
 
     return libQ.resolve();
-};
-
-AutoStart.prototype.onInstall = function () {
-    var self = this;
-};
-
-AutoStart.prototype.onUninstall = function () {
-    var self = this;
 };
 
 AutoStart.prototype.getConfigurationFiles = function () {
