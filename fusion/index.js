@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 3. By balbuze December 2022
+// FusionDsp plugin for volumio 3. By balbuze January 2023
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -3218,9 +3218,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
       var chunksize
       if (selectedsp === "convfir") {
-        chunksize = 4096
+        chunksize = 4800
       } else {
-        chunksize = 4096//1024 To check if less bufferunderrun
+        chunksize = 4800//1024 To check if less bufferunderrun
       }
 
 
