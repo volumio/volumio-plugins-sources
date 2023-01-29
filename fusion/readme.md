@@ -1,4 +1,4 @@
-December 23th 2022
+January 29th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,11 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+December 29th 2023 v1.0.33
+
+- chunksize set to 4800 for HW compatibility
+
 
 December 23th 2022 v1.0.32
 
