@@ -833,7 +833,7 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] buttonAction: button of rotary ' + (rotaryIndex + 1) + ' emit ' + cmd +';'+data);
 			self.socket.emit(cmd,data);
 			break;
-		case btnActions.indexOf("EMIT"): //14
+		case btnActions.indexOf("TOGGLEFUSION"): //14
 			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] buttonAction: button of rotary ' + (rotaryIndex + 1) + ' toggle Fusion DSP');
 			this.fusionState = !this.fusionState;
 			var method = this.fusionState?'enableeffect':'disableeffect';
