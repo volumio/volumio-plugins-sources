@@ -49,6 +49,7 @@ const btnActions = new Array(
 	"SHUTDOWN",
 	"REBOOT",
 	"EMIT",
+	"TOGGLEFUSION"
 );
 
 module.exports = rotaryencoder2;
@@ -87,6 +88,7 @@ rotaryencoder2.prototype.onStart = function() {
 	self.pushDownTime= new Array(maxRotaries).fill(0,0,maxRotaries);
 	self.btnLastEdge = new Array(maxRotaries).fill(-1,0,maxRotaries);
 	self.pressed = new Array(maxRotaries).fill(false,0,maxRotaries);
+	self.fusionState = false;
 	self.status=null;
 	self.loadI18nStrings();
 
@@ -830,6 +832,16 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 		case btnActions.indexOf("EMIT"): //13
 			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] buttonAction: button of rotary ' + (rotaryIndex + 1) + ' emit ' + cmd +';'+data);
 			self.socket.emit(cmd,data);
+			break;
+		case btnActions.indexOf("EMIT"): //14
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] buttonAction: button of rotary ' + (rotaryIndex + 1) + ' toggle Fusion DSP');
+			this.fusionState = !this.fusionState;
+			var method = this.fusionState?'enableeffect':'disableeffect';
+			self.socket.emit('callMethod',{
+				'endpoint':'audio_interface/fusiondsp',
+				'method': method,
+				'data':[]
+			});
 			break;
 	
 		default:

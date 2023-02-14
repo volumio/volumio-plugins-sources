@@ -26,6 +26,7 @@
     "SEEK":"Suche im Titel",
     "SCROLL":"Scrollen",
     "EMIT":"Websocket Nachricht senden",
+    "TOGGLEFUSION":"Fusion DSP an/aus",
     "SOCKCMDCCW":"Kommando GUZS",
     "SOCKDATACCW":"Daten GUZS",
     "SOCKCMDCW":"Kommando UZS",

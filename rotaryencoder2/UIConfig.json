@@ -249,6 +249,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
@@ -333,6 +337,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
@@ -426,6 +434,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
@@ -704,6 +716,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
@@ -788,6 +804,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
@@ -881,6 +901,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
@@ -1159,6 +1183,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
@@ -1243,6 +1271,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
@@ -1336,6 +1368,10 @@
 				{
 					"value": 13,
 					"label": "TRANSLATE.ROTARYENCODER2.EMIT"
+				},
+				{
+					"value": 14,
+					"label": "TRANSLATE.ROTARYENCODER2.TOGGLEFUSION"
 				}
 				]        
 			},	
