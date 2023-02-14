@@ -49,7 +49,7 @@ const btnActions = new Array(
 	"SHUTDOWN",
 	"REBOOT",
 	"EMIT",
-	"TOGGLEFUSION"
+	"TOGGLEFUSION",
 );
 
 module.exports = rotaryencoder2;
