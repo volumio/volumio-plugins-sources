@@ -3981,6 +3981,13 @@ FusionDsp.prototype.convertimportedeq = function () {
   try {
     EQfile = fs.readFileSync(filepath, "utf8");
     //let nbreq = 1;
+    if (EQfilef == 'autoeq') {
+      // EQfile = EQfile.replace(/LS/g, "LSQ")
+      // EQfile = EQfile.replace(/HS/g, "HSQ")
+      var EQfile = EQfile
+        .replace(/LS/g, "LSQ")
+        .replace(/HS/g, "HSQ")
+    }
     var o = 0;
     if (addreplace) {
 
@@ -3996,24 +4003,11 @@ FusionDsp.prototype.convertimportedeq = function () {
     for (o; o < result.length; o++) {
       if (nbreq < tnbreq) {
         if ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1) && ((result[o].indexOf("PK") != -1) || (result[o].indexOf("LPQ") != -1) || (result[o].indexOf("HPQ") != -1) || (result[o].indexOf("LP1") != -1) || (result[o].indexOf("HP1") != -1) || (result[o].indexOf("LS ") != -1) || (result[o].indexOf("HS ") != -1) || (result[o].indexOf("NO") != -1) || (result[o].indexOf("LP ") != -1) || (result[o].indexOf("HP ") != -1) || (result[o].indexOf("LS 6dB") != -1) || (result[o].indexOf("HS 6dB") != -1) || (result[o].indexOf("LS 12dB") != -1) || (result[o].indexOf("HS 12dB") != -1) || (result[o].indexOf("LSQ") != -1) || (result[o].indexOf("LSC") != -1) || (result[o].indexOf("HSQ") != -1) || (result[o].indexOf("HSC") != -1)) && (result[o].indexOf('Gain   0.00 dB') == -1)) {
-          //if (((result[o].indexOf('Gain   0.00 dB') == -1)) && ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1))) {
 
-          var lresult0 = result[o].replace(/       /g, ' ');
-          var lresult1 = lresult0.replace(/   /g, ' ');
-          var lresult2 = lresult1.replace(/  /g, ' ')
-
-          var lresult3 = lresult2.replace(/ Hz Gain /g, ',')
-          var lresult4 = lresult3.replace(/ dB Q /g, ',')
-          var lresult5 = lresult4.replace(/ Hz Q /g, ',');
-          var lresult6 = lresult5.replace(/ Hz /g, ',');
-          var lresult7 = lresult6.replace(/:/g, ',');
-          var lresult8 = lresult7.replace(/ Q /g, ',');
-          var lresult9 = lresult8.replace(/ dB /g, ',')
-          var lresult10 = lresult9.replace(/ dB/g, ',')
-          var lresult11 = lresult10.replace(/ Hz/g, ',');
-
-          var lresult = lresult11.replace(/Fc /g, ',');
-          // self.logger.info(result[0])
+          var lresult = result[o]
+            .replace(/\s\s+/g, ' ')
+            .replace(/ Hz Gain | dB Q | Hz Q | Hz |:| Q | dB |Fc /g, ',')
+            .replace(/ dB/g, ',');
 
           let eqv = (lresult);
           var param = eqv.split(',')
@@ -4183,7 +4177,6 @@ FusionDsp.prototype.convertimportedeq = function () {
             // self.logger.info('filter in line ' + o + " HSQ " + typeconv + " vvv " + eqs)
 
           }
-
 
           var typec = 'type' + nbreq;
           var scopec = 'scope' + nbreq;
