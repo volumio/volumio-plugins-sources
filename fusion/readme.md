@@ -1,4 +1,4 @@
-January 29th 2023
+February 22th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -13,16 +13,16 @@ Provides
 - Or a Parametric equalizer with :
     - Up to 50 bands (peaking, lowshelf, highshelf, lowpass, highpass, notch, Linkwitz, ButterworthHighpass & ButterworthLowpass)
     - Equalizer scope for each band (L, R, L+R)
-    - More than 4100 variants of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
+    - More than 4300 variants of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
     - import for local EQ file (must be in /data/INTERNAL/FusionDsp/peq/)
-- 5 custom preset
 - Or a convolution filters (FIR) with autoswitch samplerate for filters
     - DRC-FIR to create filter with an impulse
 - Access to CamillaDsp gui for advanced user
 
 For all 
 - Progressive Loudness effect with threshold setting - loudness curve based on ISO 226: 2003 standard
-- Auto gain
+- 5 custom presets
+- Auto pre-amp
 - Toggle with/without effect
 - Separate volume level for left an right
 - 8 crossfeed for headphone (Bauer, Chu Moy, Jan Meier, Linkwitz, Natural 30deg, atural 50deg, SADIE D1, SADIE H15m)
@@ -139,6 +139,17 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+February 22th 2023 v1.0.35
+
+- shelve filters from AutoEQ were not imported with the correct type
+
+February 17th 2023 v1.0.34
+
+- verbosity debug for CamillaDsp logs
+- code cleaning
+- Reenable output menu in Camilla Gui
+- headphones list updated 
 
 December 29th 2023 v1.0.33
 
