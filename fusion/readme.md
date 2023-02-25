@@ -1,4 +1,4 @@
-February 22th 2023
+February 25th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -139,6 +139,10 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+February 23th 2023 v1.0.36
+
+- fix in asound causing hanging 
 
 February 22th 2023 v1.0.35
 
