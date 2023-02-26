@@ -4,7 +4,7 @@ const ytmusic = require(ytmusicPluginLibRoot + '/ytmusic');
 const Auth = require(ytmusicPluginLibRoot + '/utils/auth');
 const FeedViewHandler = require(__dirname + '/feed');
 
-class RecapViewHandler extends FeedViewHandler {
+class HistoryViewHandler extends FeedViewHandler {
 
   browse() {
     if (Auth.getAuthStatus().status !== Auth.SIGNED_IN) {
@@ -16,9 +16,9 @@ class RecapViewHandler extends FeedViewHandler {
   }
 
   async getContents() {
-    const model = this.getModel('recap');
-    return model.getRecap();
+    const model = this.getModel('history');
+    return model.getHistory();
   }
 }
 
-module.exports = RecapViewHandler;
+module.exports = HistoryViewHandler;

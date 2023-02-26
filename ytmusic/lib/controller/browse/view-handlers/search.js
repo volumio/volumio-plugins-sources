@@ -32,7 +32,7 @@ class SearchViewHandler extends FeedViewHandler {
     const model = this.getModel('search');
     if (view.endpoint) {
       const endpoint = JSON.parse(decodeURIComponent(view.endpoint));
-      this.#title = ytmusic.getI18n('YTMUSIC_SEARCH_TITLE', escape(endpoint.search.query));
+      this.#title = ytmusic.getI18n('YTMUSIC_SEARCH_TITLE', escape(endpoint.payload.query));
       return model.getSearchResultsByEndpoint(endpoint, {
         continuation: view.continuation ? JSON.parse(decodeURIComponent(view.continuation)) : null
       });

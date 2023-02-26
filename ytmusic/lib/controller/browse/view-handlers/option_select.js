@@ -18,7 +18,8 @@ class OptionSelectionViewHandler extends BaseViewHandler {
 
     const lists = [];
     const optionValues = option.optionValues.reduce((parsed, data) => {
-      const listItem = parser.parseToListItem(data, baseUri, prevUri);
+      const passback = view.passback ? JSON.parse(decodeURIComponent(view.passback)) : null;
+      const listItem = parser.parseToListItem(data, baseUri, prevUri, passback);
       if (listItem) {
         parsed.push(listItem);
       }

@@ -19,8 +19,9 @@ class ArtistModel extends EndpointModel {
     const innerTube = this.getInnerTube();
     const artist = await innerTube.music.getArtist(artistId);
     const playButton = artist?.header?.play_button;
-    if (playButton?.endpoint?.watch) {
-      return this.getContents(playButton.endpoint);
+    const endpoint = InnerTubeParser.sanitizeEndpoint(playButton?.endpoint);
+    if (endpoint?.actionType === 'watch') {
+      return this.getContents(endpoint);
     }
     throw new Error('Endpoint missing or invalid');
   }
