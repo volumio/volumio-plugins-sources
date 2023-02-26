@@ -30,7 +30,7 @@ if [ ! -f $INSTALLING ]; then
 		fi
 
 		cd /home/volumio/logitechmediaserver/
-		wget https://downloads.slimdevices.com/LogitechMediaServer_v8.3.0/logitechmediaserver_8.3.0_all.deb
+		wget https://downloads.slimdevices.com/LogitechMediaServer_v8.3.1/logitechmediaserver_8.3.1_all.deb
 		echo "Download finished..."
 
 		# Move the binary to the expected directory

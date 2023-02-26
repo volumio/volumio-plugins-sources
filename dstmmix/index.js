@@ -129,19 +129,33 @@ Dstmmix.prototype.getUIConfig = function () {
 				{
 					"id": "section_account_logout",
 					"element": "button",
-					"label": "Open",
-					"description": "Open LMS",
+					"label": "Open LMS",
+					"description": "Open Logitech mediaserver in a webpage",
 					"onClick": {
 						"type": "openUrl",
 						"url": "http://" + IPaddress + ":9000"
 					}})
+					
+			uiconf.sections[0].content.push(
+				{
+					"id": "installupdate",
+		          	"element": "button",
+		          	"label": "Install LMS update",
+		          	"description": "Check and Install LMS update (8.3.1)",
+		          	"onClick": {
+		            "type": "plugin",
+		            "endpoint": "music_service/dstmmix",
+		            "method": "installupdate",
+		            "data": [] }
+					})	
+			
 					
 			uiconf.sections[1].content.push(
 				{
 					"id": "advanced",
 					"element": "button",
 					"label": "Launch library analysis",
-					"description": "Library analysis in a webconsole",
+					"description": "Bliss analyse your library (500-1000 files/hours) , output in a webconsole",
 					"onClick": {
 						"type": "openUrl",
 						"url": "http://" + IPaddress + ":10000/bliss_shell"
@@ -152,7 +166,7 @@ Dstmmix.prototype.getUIConfig = function () {
 					"id": "advanced",
 					"element": "button",
 					"label": "Launch Database update",
-					"description": "Database transfer to LMS in a webconsole",
+					"description": "Transfer your database to LMS, output in a webconsole",
 					"onClick": {
 						"type": "openUrl",
 						"url": "http://" + IPaddress + ":10001/bliss_shell"
@@ -265,7 +279,7 @@ Dstmmix.prototype.installtools = function (data) {
     try {	
     let modalData = {
         title: 'Install in progress',
-        message: 'Install of tools in progress, press "ESC" when end toast message appears at the bottom of the page.',
+        message: 'Install of tools in progress, press "ESC" when end toast message appears in the page.',
         size: 'lg'
       };	
       self.commandRouter.broadcastMessage("openModal", modalData);
@@ -286,5 +300,36 @@ self.commandRouter.pushToastMessage('info', 'Tool install finished');
       self.refreshUI();
       self.socket.emit('updateDb');
       self.commandRouter.pushToasitMessage('info', 'Tool install finshed')
+ })        
+ }
+ 
+ 
+ Dstmmix.prototype.installupdate = function (data) {
+  const self = this;
+  return new Promise(async function (resolve, reject) {
+    try {	
+    let modalData = {
+        title: 'Update in progress',
+        message: 'Install of update in progress, press "ESC" when end toast message appears in the page.',
+        size: 'lg'
+      };	
+      self.commandRouter.broadcastMessage("openModal", modalData);
+      const child = require('child_process').exec('/bin/bash /data/plugins/music_service/dstmmix/update.sh' );  
+      await new Promise( (resolve) => {
+    child.on('close', resolve), setTimeout(resolve, 8000)
+    
+});
+self.commandRouter.pushToastMessage('info', 'Tool update finished');
+}
+   catch (err) {
+      self.logger.error('An error occurs while downloading or updating tools');
+     self.commandRouter.pushToastMessage('error', 'An error occurs while downloading or updating tools');
+   }
+
+    resolve()
+     self.config.set('toolsupdated', true);
+      self.refreshUI();
+      self.socket.emit('updateDb');
+      self.commandRouter.pushToasitMessage('info', 'Tool update finshed')
  })        
  }

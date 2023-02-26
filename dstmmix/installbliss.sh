@@ -41,13 +41,6 @@
 		fi
 
 
-    	# Download upload html static file
-#		 wget -O index.php https://dl.rexnvs.com/dl/index.php
-#		 wget -O php.ini https://dl.rexnvs.com/dl/php.ini
-#		 wget -O download.php https://dl.rexnvs.com/dl/download.php
-#		 wget -O upload.php https://dl.rexnvs.com/dl/upload.php
-#		 wget -O backup-restore.png https://dl.rexnvs.com/dl/backup-restore.png
-#		 wget -O download.png https://dl.rexnvs.com/dl/download.png
 		
 		wget -O php.zip https://dl.rexnvs.com/dl/phpdown.zip
 		miniunzip -o php.zip
