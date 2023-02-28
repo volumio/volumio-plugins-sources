@@ -44,7 +44,7 @@ var currentService;
 var currentTrackContext = {};
 var justLoggedIn = false;
 // Debug
-var isDebugMode = true;
+var isDebugMode = false;
 
 
 // Define the ControllerSpotify class
@@ -1306,19 +1306,32 @@ ControllerSpotify.prototype.getUIConfig = function () {
 // Define a method to clear, add, and play an array of tracks
 ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
     var self = this;
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    console.log("clearAddPlayTrack")
-    console.log(track)
     self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::clearAddPlayTrack');
     
     self.ignorePlaybackInactive = true;
     setTimeout(() => {
         self.ignorePlaybackInactive = false;
-    }, 1000)
+    }, 2000)
+
+    var queue = self.commandRouter.volumioGetQueue();
+
+    var uriList = [];
+    var addToTrackList = false;
+
+    if (queue && queue.length > 0) {
+        for (var i = 0; i < queue.length; i++) {
+            if (queue[i].uri === track.uri) {
+                addToTrackList = true;
+            }
+            if (addToTrackList) {
+                uriList.push(queue[i].uri);
+            }
+        }
+    }
     
     try {
         self.setDeviceActive().then(function() {
-            return self.playTrackFromWebAPI(track.uri);
+            return self.playTrackFromWebAPI(uriList, track.uri);
         })
     } catch(e) {
         self.logger.error('Failed to play spotify track: ' + e);
@@ -2005,8 +2018,6 @@ ControllerSpotify.prototype.identifyThisConnectDevice = function () {
 
     self.listMyDevices().then(function(devices) {
         if (devices && devices.length) {
-            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            console.log(devices)
             for (var i in devices) {
                 if (devices[i].name.toLowerCase() === systemName.toLowerCase()) {
                     self.thisSpotifyConnectDeviceId = devices[i].id;
@@ -2134,11 +2145,9 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         logger.evnt('<PlaybackActive> Device palyback is active!');
         this.debugLog('SINK ACTIVE');
         this.DeviceActive = true;
-        this.ignorePlaybackInactive = false;
     });
 
     this.SpotConn.on(this.Events.SinkActive, (data) => {
-        this.ignorePlaybackInactive = false;
         // Sink is active when actual playback starts
         logger.evnt('<SinkActive> Sink acquired');
         if (!this.iscurrService()) {
@@ -2169,8 +2178,6 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
     });
 
     this.SpotConn.on(this.Events.PlaybackInactive, (data) => {
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        console.log("PlaybackInactive!")
     
         logger.evnt('<PlaybackInactive> PlaybackInactive');
         this.SinkActive = false;
@@ -2195,11 +2202,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             if (!this.ignorePlaybackInactive) {
                 this.state.status = 'stop';
                 this.pushState();
-            } else {
-                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                console.log("IGNORING PlaybackInactive!")
             }
-
         } else {
             this.debugLog(`Device Session is_active: ${this.active}`);
             if (this.active) {
@@ -2224,14 +2227,6 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
     });
 
     this.SpotConn.on(this.Events.Metadata, (meta) => {
-
-        if (this.state.title !== meta.track_name) {
-            //We are receiving a new track, in order to prevent a loop we will ignore the SinkInactive message
-            this.ignorePlaybackInactive = true;
-            setTimeout(() => {
-                this.ignorePlaybackInactive = false;
-            }, 500)
-        }
 
         logger.evnt(`<Metadata> ${meta.track_name}`);
         // Update metadata
@@ -2746,14 +2741,23 @@ ControllerSpotify.prototype.awawitSpocon = function (type) {
 ControllerSpotify.prototype.stop = function () {
     var defer = libQ.defer();
     logger.info('Spotify Received stop');
-    this.isStopping = true;
-    this.SpotConn.sendmsg(msgMap.get('Pause'));
 
-    setTimeout(()=>{
+
+
+    libQ.delay(0)
+    .then( () => {
+        this.isStopping = true;
+        this.SpotConn.sendmsg(msgMap.get('Pause'));
+    })
+    .delay(1000)
+    .then( () => {
         this.active = false;
         this.isStopping = false;
         defer.resolve('');
-    }, 500)
+    })
+
+
+
 
     return defer.promise;
 };
@@ -2893,7 +2897,7 @@ ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data
     return this.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
 };
 
-ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUri) {
+ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris, index) {
     var self = this;
     this.spotifyCheckAccessToken().then(()=>{
         superagent.put('https://api.spotify.com/v1/me/player/play')
@@ -2901,7 +2905,8 @@ ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUri) {
             .set("Authorization", "Bearer " + this.accessToken)
             .send({
                 device_id: self.thisSpotifyConnectDeviceId,
-                uris : [trackUri],
+                uris : trackUris,
+                // offset : {"uri": index},
                 position_ms: 0
             })
             .accept('application/json')
@@ -2970,8 +2975,6 @@ ControllerSpotify.prototype.volumeListener = function () {
                 currentVolumioVolume = volume;
                 if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
                     if (self.iscurrService() && !self.volumeBlocked) {
-                        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                        console.log("VOLUME");
                         if (volumeSpotifyDebounce) {
                             clearTimeout(volumeSpotifyDebounce);
                         }
