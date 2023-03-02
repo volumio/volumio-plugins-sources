@@ -1,4 +1,4 @@
-February 25th 2023
+March 02 25th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -8,6 +8,7 @@ This plugin is designed to apply different type of Dsp on Volumio using [Camilla
 
 
 Provides
+- A simple 3 bands eq, no other features
 - A 15 bands graphic equalizer
 - Or a 2x15 bands graphic equalizer
 - Or a Parametric equalizer with :
@@ -139,6 +140,11 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+March 2nd 2023 v1.0.37
+
+- 3 bands simple eq
+- HighshelfFO and LowshelfFO for PEQ
 
 February 23th 2023 v1.0.36
 
