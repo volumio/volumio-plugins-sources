@@ -4,6 +4,8 @@
   "APPLY": "Appliquer",
   "DOCEQ": "Régler la valeur pour chaque bande de fréquence (dB)",
   "ADD_EQ": "Ajouter un égaliseur",
+  "HELP-LABEL":"Aide",
+  "EQ3_LABEL":"Egaliseur Graphic simple à 3 bandes",
   "EQ_DOC": "<h4>Valeurs pour égaliseur</h4><br><br>Les valeurs sont séparées par des virgules : \",\"</br>Plus d'infos : https://github.com/HEnquist/camilladsp",
   "GET_IT": "OK",
   "BIQUAD_COMBO_ORDER":"Doit être [2,4,6,8,12,14,16] dans ",
