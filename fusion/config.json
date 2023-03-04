@@ -1,7 +1,7 @@
 {
     "selectedsp": {
         "type": "string",
-        "value": "EQ15"
+        "value": "EQ3"
     },
     "purecgui": {
         "type": "boolean",
