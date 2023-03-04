@@ -1,4 +1,4 @@
-March 02 25th 2023
+March 04th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -20,7 +20,7 @@ Provides
     - DRC-FIR to create filter with an impulse
 - Access to CamillaDsp gui for advanced user
 
-For all 
+For all (except EQ3)
 - Progressive Loudness effect with threshold setting - loudness curve based on ISO 226: 2003 standard
 - 5 custom presets
 - Auto pre-amp
@@ -140,6 +140,11 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+March 4th 2023 v1.0.38
+
+- reduce cmilla verbosity
+- translation for EQ3
 
 March 2nd 2023 v1.0.37
 

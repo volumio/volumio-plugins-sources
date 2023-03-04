@@ -34,7 +34,7 @@
         {
           "id": "help",
           "element": "button",
-          "label": "Help",
+          "label": "TRANSLATE.HELP_LABEL",
           "doc": "Help",
           "onClick": {
             "type": "openUrl",

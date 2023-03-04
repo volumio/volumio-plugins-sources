@@ -269,7 +269,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
           self.logger.info('Convolution disabled for cpu armv6l !');
           var dspoptions = [{
             "value": "EQ3",
-            "label": "EQ3"//self.commandRouter.getI18nString('EQ15_LABEL')
+            "label": self.commandRouter.getI18nString('EQ3_LABEL')
           },
           {
             "value": "EQ15",
@@ -794,8 +794,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
                     "max": 10,
                     "step": "0.5",
                     "value": geq3.split(',')[0],
-                    "ticksLabels": [
-                      "Bass"
+                    "ticksLabels": [self.commandRouter.getI18nString('EQ3_LOW')
                     ],
                     "tooltip": "show"
                   },
@@ -804,8 +803,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
                     "max": 10,
                     "step": "0.5",
                     "value": geq3.split(',')[1],
-                    "ticksLabels": [
-                      "Mid"
+                    "ticksLabels": [self.commandRouter.getI18nString('EQ3_MID')
                     ],
                     "tooltip": "show"
                   }, {
@@ -813,8 +811,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
                     "max": 10,
                     "step": "0.5",
                     "value": geq3.split(',')[2],
-                    "ticksLabels": [
-                      "High"
+                    "ticksLabels": [self.commandRouter.getI18nString('EQ3_HIGH')
                     ],
                     "tooltip": "show"
                   }
