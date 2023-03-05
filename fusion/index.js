@@ -1746,34 +1746,36 @@ FusionDsp.prototype.choosedsp = function (data) {
 
   if (selectedsp === 'EQ3') {
     //self.config.set("showstate") = self.config.get("showeq")
-    let state4eq3 = self.config.get('state4eq3')
+    //let state4eq3 = self.config.get('state4eq3')
 
     self.config.set('nbreq', 3)
-    self.config.set('mergedeq', self.config.get('savedmergedgeqx3'))
-    self.config.set('geq3', self.config.get('savedgeq3'))
-    self.config.set('crossfeed', state4eq3[0])
-    self.config.set('monooutput', state4eq3[1])
-    self.config.set('loudness', state4eq3[2])
-    self.config.set('loudnessthreshold', state4eq3[3])
-    self.config.set('leftlevel', state4eq3[4])
-    self.config.set('rightlevel', state4eq3[5])
-    self.config.set('delay', state4eq3[6])
-    self.config.set('delayscope', state4eq3[7])
-    self.config.set('autoatt', state4eq3[8])
-    self.config.set('muteleft', state4eq3[9]);
-    self.config.set('muteright', state4eq3[10]);
-
-    if (state4eq3[11] == undefined) {
-      self.config.set('ldistance', 0);
+    if
+      (self.config.get('savedmergedgeqx3') == undefined) {
+      self.config.set('mergedeq', '0,0,0')
     } else {
-      self.config.set('ldistance', state4eq3[11]);
+      self.config.set('mergedeq', self.config.get('savedmergedgeqx3'))
     }
-    if (state4eq3[12] == undefined) {
-      self.config.set('rdistance', 0);
+    if
+      (self.config.get('savedgeq3') == undefined) {
+      self.config.set('geq3', '0,0,0')
     } else {
-      self.config.set('rdistance', state4eq3[12]);
+      self.config.set('geq3', self.config.get('savedgeq3'))
     }
-    self.config.set('permutchannel', state4eq3[13]);
+   // self.config.set('geq3', self.config.get('savedgeq3'))
+    self.config.set('crossfeed', "None")
+    self.config.set('monooutput', false)
+    self.config.set('loudness', false)
+    self.config.set('loudnessthreshold', 50)
+    self.config.set('leftlevel', 0)
+    self.config.set('rightlevel', 0)
+    self.config.set('delay', 0)
+    self.config.set('delayscope', "None")
+    self.config.set('autoatt', true)
+    self.config.set('muteleft', false)
+    self.config.set('muteright', false)
+    self.config.set('ldistance', 0)
+    self.config.set('rdistance', 0)
+    self.config.set('permutchannel', false)
     self.config.set('moresettings', false)
 
   } else if (selectedsp === 'EQ15') {
@@ -2868,7 +2870,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
             }
 
-          } else if ( typer == 'LowshelfFO'|| typer == 'HighshelfFO') {
+          } else if (typer == 'LowshelfFO' || typer == 'HighshelfFO') {
 
             composedeq += '  ' + eqc + ':\n';
             composedeq += '    type: Biquad' + '\n';
@@ -2889,7 +2891,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
               pipelineR = '      - ' + eqc + '\n';
 
             }
-          
+
           } else if ((typer == 'LowpassFO' || typer == 'HighpassFO')) {
 
             composedeq += '  ' + eqc + ':\n';
@@ -3526,7 +3528,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
         }
 
       }
-      if (typer == 'Peaking' || typer == 'Highshelf' || typer == 'Lowshelf'||typer == 'LowshelfFO' || typer == 'HighshelfFO') {
+      if (typer == 'Peaking' || typer == 'Highshelf' || typer == 'Lowshelf' || typer == 'LowshelfFO' || typer == 'HighshelfFO') {
 
         var g = Number(eqr[1]);
         if ((Number.parseFloat(g)) && (g > -20.1 && g < 20.1)) {
@@ -3548,7 +3550,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
         }
       }
 
-      if (typer == 'Highpass' || typer == 'Lowpass' || typer == 'Notch' || typer == 'Highpass2' || typer == 'Lowpass2' || typer == 'Notch2' || typer == 'ButterworthHighpass' || typer == 'ButterworthLowpass'||typer == 'LowshelfFO' || typer == 'HighshelfFO') {
+      if (typer == 'Highpass' || typer == 'Lowpass' || typer == 'Notch' || typer == 'Highpass2' || typer == 'Lowpass2' || typer == 'Notch2' || typer == 'ButterworthHighpass' || typer == 'ButterworthLowpass' || typer == 'LowshelfFO' || typer == 'HighshelfFO') {
 
         var q = eqr[2];
         if (q != undefined) {
@@ -3561,7 +3563,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
         }
       }
 
-      if (typer == 'HighpassFO' || typer == 'LowpassFO' ) {
+      if (typer == 'HighpassFO' || typer == 'LowpassFO') {
 
         var q = eqr[1];
         self.logger.info('last value ' + q)
