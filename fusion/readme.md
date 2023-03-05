@@ -1,4 +1,4 @@
-March 04th 2023
+March 05th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -140,6 +140,11 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+
+March 5th 2023 v1.0.39
+
+- fix for EQ3 not available after update
 
 March 4th 2023 v1.0.38
 
