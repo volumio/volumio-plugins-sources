@@ -222,6 +222,7 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
 ### Version 2.12.1
   #### Fixes
   * The `resume()` function was fixed.  The Volumio `state.status` object key was not being updated to 'play'.  Pausing and resuming should work much better now.  Thanks to @GlennBurnett in the forums for pinpointing this old bug.
+  * Stopping / Deactivating the plugin will (should!) clear the "ghost" album cover thumbnail and metadata from Volumio's GUI.  @downtownHippie asked me to fix this a long time ago and it was bugging me even before he mentioned it.  I have been chasing this bug for years now and I hope that it is finally gone!
 
 ## Issues
 

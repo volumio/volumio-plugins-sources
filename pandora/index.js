@@ -1010,6 +1010,7 @@ ControllerPandora.prototype.stop = function () {
     self.pUtil.announceFn('stop');
 
     return self.mpdPlugin.stop()
+        .then(() => self.mpdPlugin.clear())
         .then(() => {
             self.state.status = 'stop';
             return self.pushState(self.state);
