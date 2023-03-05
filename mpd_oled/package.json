@@ -1,32 +1,26 @@
 {
 	"name": "mpd_oled",
-	"version": "1.0.0",
+	"version": "1.1.1",
 	"description": "Volumio plugin to install and configure MPD_OLED which displays song information and spectrum analyser on cheap OLED displays.",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"author": "supercrab",
+	"author": "supercrab, antiprism, balbuze",
 	"license": "ISC",
-	"repository": "https://github.com/supercrab",
 	"volumio_info": {
 		"prettyName": "MPD OLED",
 		"icon": "fa-television",
 		"plugin_type": "system_hardware",
+		"details": "Volumio plugin to install and configure MPD_OLED which displays song information and spectrum analyser on cheap OLED displays.",
 		"architectures": [
 			"armhf"
 		],
+		"has_alsa_contribution": true,
 		"os": [
 			"buster"
 		],
-		"details": "Volumio plugin to install and configure MPD_OLED which displays song information and spectrum analyser on cheap OLED displays.",
-		"changelog": "Released 3 Feb 2021",
-		"boot_priority": 1,
-                "has_alsa_contribution": true
-	},
-	"engines": {
-		"node": ">=14.15.4",
-		"volumio": ">=3.163.0"
+		"changelog": "Released 15 Aug 2022"
 	},
 	"dependencies": {
 		"fs-extra": "^0.28.0",
@@ -34,5 +28,10 @@
 		"v-conf": "^1.4.0",
 		"sleep": "",
 		"child_process": ""
-	}
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3.126"
+	},
+	"repository": "https://github.com/volumio/volumio-plugins-sources"
 }

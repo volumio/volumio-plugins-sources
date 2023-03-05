@@ -484,11 +484,11 @@ rotaryencoder2.prototype.activateButtons = function (rotaryIndexArray) {
 						gpio = parseInt(gpio);
 						var debounce = self.config.get('pinPushDebounce'+rotaryIndex);
 						if (!Number.isInteger(debounce)){
-							debounce = 0
+							debounce = 50
 						} else {
 							debounce = parseInt(debounce);
 						};
-						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] activateButtons: Now assign push button: ' + (rotaryIndex + 1));
+						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] activateButtons: Now assign push button: ' + (rotaryIndex + 1) + ', debounce: ' + debounce);
 						self.buttons[rotaryIndex] = new Gpio(gpio, 'in', 'both', {debounceTimeout: debounce});
 						self.buttons[rotaryIndex].watch((err,value) => {
 							if (err) {
@@ -592,9 +592,12 @@ rotaryencoder2.prototype.deactivateButtons = function (rotaryIndexArray) {
 						self.buttons[rotaryIndex].unexport();
 						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: deactivated button ' + (rotaryIndex + 1) + '.(' + self.buttons[rotaryIndex] +')');
 						defer.resolve();	
-					}						
+					} else {
+						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' has no GPIO configured.');
+						defer.resolve();
+					}				
 				} else {
-					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' is disabled.');
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] deactivateButtons: button ' + (rotaryIndex + 1) + ' is not configured.');
 					defer.resolve();
 				}
 
@@ -665,7 +668,10 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 					break;
 			
 				case dialActions.indexOf("EMIT"): //4
-					self.socket.emit(self.config.get('socketCmdCW'+rotaryIndex), self.config.get('socketDataCW'+rotaryIndex));				
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command ' + (self.config.get('socketCmdCCW'+rotaryIndex)) +
+						' with data ' + self.config.get('socketDataCCW'+rotaryIndex));
+					self.socket.emit(self.config.get('socketCmdCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCW'+rotaryIndex)));				
+					// self.socket.emit("callMethod", JSON.parse('{"endpoint":"system_hardware/eadog_lcd","method":"up","data":""}'));				
 					break;
 			
 				default:
@@ -692,7 +698,10 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 					break;
 			
 				case dialActions.indexOf("EMIT"): //4
-					self.socket.emit(self.config.get('socketCmdCCW'+rotaryIndex), self.config.get('socketDataCCW'+rotaryIndex));				
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command ' + (self.config.get('socketCmdCCW'+rotaryIndex)) +
+						' with data ' + self.config.get('socketDataCCW'+rotaryIndex));
+					self.socket.emit(self.config.get('socketCmdCCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCCW'+rotaryIndex)));				
+					// self.socket.emit("callMethod", JSON.parse('{"endpoint":"system_hardware/eadog_lcd","method":"down","data":""}'));				
 					break;
 			
 				default:
@@ -713,7 +722,7 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('pushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdPush' + rotaryIndex);
-				data = self.config.get('socketDataPush' + rotaryIndex);
+				data = JSON.parse(self.config.get('socketDataPush' + rotaryIndex));
 			} 			
 			break;
 	
@@ -721,7 +730,7 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('longPushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdLongPush' + rotaryIndex);
-				data = self.config.get('socketDataLongPush' + rotaryIndex);
+				data = JSON.parse(self.config.get('socketDataLongPush' + rotaryIndex));
 			} 			
 			break;
 	
@@ -729,7 +738,7 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 			var action = self.config.get('doublePushAction'+rotaryIndex)
 			if (action == btnActions.indexOf("EMIT")) {
 				cmd = self.config.get('socketCmdDoublePush' + rotaryIndex);
-				data = self.config.get('socketDataDoublePush' + rotaryIndex);
+				data = JSON.parse(self.config.get('socketDataDoublePush' + rotaryIndex));
 			} 			
 			break;
 	
@@ -919,7 +928,7 @@ rotaryencoder2.prototype.detachListener = function (handle){
         	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachListener: successfully killed handler process');
         	defer.resolve();
         } else {
-            self.logger.error('[ROTARYENCODER2] detachListener: could not kill handler process');
+            self.logger.error('[ROTARYENCODER2] detachListener: could not kill handler process ' + handle);
             defer.reject();
         }
 

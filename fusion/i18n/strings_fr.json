@@ -4,8 +4,13 @@
   "APPLY": "Appliquer",
   "DOCEQ": "Régler la valeur pour chaque bande de fréquence (dB)",
   "ADD_EQ": "Ajouter un égaliseur",
+  "HELP_LABEL":"Aide",
+  "EQ3_LABEL":"Egaliseur Graphique simple à 3 bandes",
   "EQ_DOC": "<h4>Valeurs pour égaliseur</h4><br><br>Les valeurs sont séparées par des virgules : \",\"</br>Plus d'infos : https://github.com/HEnquist/camilladsp",
   "GET_IT": "OK",
+  "EQ3_LOW":"Basse",
+  "EQ3_MID":"Médium",
+  "EQ3_HIGH":"Aigu",
   "BIQUAD_COMBO_ORDER":"Doit être [2,4,6,8,12,14,16] dans ",
   "DSPTYPE": "Type de DSP",
   "EQ15_LABEL":"Egaliseur graphique 15 bandes",
@@ -188,5 +193,9 @@
   "RESETEQ":"Remettre à 0",
   "RESETEQ_DOC":"Remettre à 0 tous le EQ",
   "AUTO_ATT":"Pré-amp automatique",
-  "AUTO_ATT_DOC":"Atténuation réglée automatiquement pour éviter le clipping. Si désactivé, appliquez une atténuation manuellement pour les deux canaux"
+  "AUTO_ATT_DOC":"Atténuation réglée automatiquement pour éviter le clipping. Si désactivé, appliquez une atténuation manuellement pour les deux canaux",
+  "MUTE_LEFT_DOC":"Mettre le canal gauche  en sourdine",
+  "MUTE_LEFT":"Gauche muet",
+  "MUTE_RIGHT_DOC":"Mettre le canal droit en sourdine",
+  "MUTE_RIGHT":"Droite muet"
 }

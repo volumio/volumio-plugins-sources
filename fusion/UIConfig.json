@@ -34,11 +34,11 @@
         {
           "id": "help",
           "element": "button",
-          "label": "Help",
+          "label": "TRANSLATE.HELP_LABEL",
           "doc": "Help",
           "onClick": {
             "type": "openUrl",
-            "url": "https://docs.google.com/document/d/1nuSD2HDVBURy4Ll7L63HnFHBH28uMX3qwbws1qlOVOw/edit?usp=sharing"
+            "url": "https://docs.google.com/document/d/e/2PACX-1vRhU4i830YaaUlB6-FiDAdvl69T3Iej_9oSbNTeSpiW0DlsyuTLSv5IsVSYMmkwbFvNbdAT0Tj6Yjjh/pub"
           }
         }
       ]

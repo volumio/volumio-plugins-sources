@@ -80,7 +80,8 @@
           "volume_ctrl",
           "gapless",
           "autoplay",
-          "debug"
+          "debug",
+          "icon"
         ]
       },
       "content": [
@@ -89,8 +90,7 @@
           "element": "switch",
           "doc": "If enabled, the device is useable by any user on the network. If disable, a unique user uses it",
           "label": "TRANSLATE.SHAREDDEVICE",
-          "value": false,
-          "hidden": true
+          "value": true
         },
         {
           "id": "initvol",
@@ -114,7 +114,8 @@
           "element": "switch",
           "doc": "TRANSLATE.DESCVOLNORM",
           "label": "TRANSLATE.VOLNORM",
-          "value": false
+          "value": false,
+          "hidden": true
         },
         {
           "id": "bitrate",
@@ -188,6 +189,29 @@
           "label": "TRANSLATE.DEBUG",
           "value": false,
           "hidden": true
+        },
+        {
+          "id": "icon",
+          "element": "select",
+          "doc": "TRANSLATE.CONNECT_DEVICE_ICON_DOC",
+          "label": "TRANSLATE.CONNECT_DEVICE_ICON",
+          "value": {
+            "value": "avr",
+            "label": "AV Receiver"
+          },
+          "options": [{
+            "value": "avr",
+            "label": "AV Receiver"
+          },
+            {
+              "value": "speaker",
+              "label": "Speaker"
+            },
+            {
+              "value": "stb",
+              "label": "Set Top Box"
+            }
+          ]
         }
       ]
     }]

@@ -1,5 +1,5 @@
 /*--------------------
-FusionDsp plugin for volumio 3. By balbuze July 2022
+// FusionDsp plugin for volumio 3. By balbuze March 2023
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -13,7 +13,6 @@ const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
 const libQ = require('kew');
 const net = require('net');
-const Journalctl = require('journalctl');
 const path = require('path');
 const WebSocket = require('ws')
 
@@ -27,8 +26,13 @@ const hrtffilterpath = "/data/plugins/audio_interface/fusiondsp/hrtf-filters/";
 const toolspath = "INTERNAL/FusionDsp/tools/";
 const wavfolder = "/data/INTERNAL/FusionDsp/wavfiles/";
 const eq15range = [25, 40, 63, 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 6300, 10000, 16000]
+const eq3range = [185, 1300, 5500]
 const coefQ = 1.85//Q for graphic EQ
+const coefQ3 = [0.82, 0.4, 0.82]//Q for graphic EQ3
+const eq3type = ["Lowshelf2", "Peaking", "Highshelf2"]
 const sv = 34300 // sound velocity cm/s
+
+
 // Define the Parameq class
 module.exports = FusionDsp;
 
@@ -62,6 +66,7 @@ FusionDsp.prototype.onStart = function () {
     self.purecamillagui();
     self.getIP();
     self.socket = io.connect('http://localhost:3000');
+    self.reportFusionEnabled();
   }, 2000);
 
   // if mixer set to none, do not show loudness settings
@@ -99,6 +104,8 @@ FusionDsp.prototype.onStop = function () {
   }, function (error, stdout, stderr) {
     if (error) {
       self.logger.info('Error in killing FusionDsp')
+    } else {
+      self.reportFusionDisabled();
     }
   });
   defer.resolve();
@@ -156,7 +163,7 @@ FusionDsp.prototype.hwinfo = function () {
   let hwinfo;
   let samplerates;
   try {
-    execSync('/data/plugins/audio_interface/fusiondsp/hw_params hw:' + output_device + ' >/data/configuration/audio_interface/fusiondsp/hwinfo.json ', {
+    execSync('/data/plugins/audio_interface/fusiondsp/hw_params ' + 'volumioHw' + ' >/data/configuration/audio_interface/fusiondsp/hwinfo.json ', {
       uid: 1000,
       gid: 1000
     });
@@ -198,6 +205,10 @@ FusionDsp.prototype.getUIConfig = function (address) {
       //let dspoptions
       let selectedsp = self.config.get('selectedsp');
       switch (selectedsp) {
+
+        case ("EQ3"):
+          var dsplabel = self.commandRouter.getI18nString('EQ3_LABEL')
+          break;
         case ("EQ15"):
           var dsplabel = self.commandRouter.getI18nString('EQ15_LABEL')
           break;
@@ -220,6 +231,10 @@ FusionDsp.prototype.getUIConfig = function (address) {
         if (err) {
           self.logger.info('<< convolution filters enabled');
           var dspoptions = [{
+            "value": "EQ3",
+            "label": self.commandRouter.getI18nString('EQ3_LABEL')
+          },
+          {
             "value": "EQ15",
             "label": self.commandRouter.getI18nString('EQ15_LABEL')
           },
@@ -253,6 +268,10 @@ FusionDsp.prototype.getUIConfig = function (address) {
           self.logger.info('>>>>>>>>>>>>> armv6l')
           self.logger.info('Convolution disabled for cpu armv6l !');
           var dspoptions = [{
+            "value": "EQ3",
+            "label": self.commandRouter.getI18nString('EQ3_LABEL')
+          },
+          {
             "value": "EQ15",
             "label": self.commandRouter.getI18nString('EQ15_LABEL')
           },
@@ -331,23 +350,26 @@ FusionDsp.prototype.getUIConfig = function (address) {
             case ("Highpass"):
               peqlabel = "Highpass Hz,Q"
               break;
-         //   case ("Highpass2"):
-         //     peqlabel = "Highpass Hz,bandwidth Octave"
-         //     break;
+            //   case ("Highpass2"):
+            //     peqlabel = "Highpass Hz,bandwidth Octave"
+            //     break;
             case ("Lowpass"):
               peqlabel = "Lowpass Hz,Q"
               break;
-          //  case ("Lowpass2"):
-          //    peqlabel = "Lowpass Hz,bandwidth Octave"
-          //    break;
-            case ("Highpass"):
-              peqlabel = "Highpass Hz,bandwidth Octave"
-              break;
+            //  case ("Lowpass2"):
+            //    peqlabel = "Lowpass Hz,bandwidth Octave"
+            //    break;
             case ("LowpassFO"):
               peqlabel = "LowpassFO Hz"
               break;
             case ("HighpassFO"):
               peqlabel = "HighpassFO Hz"
+              break;
+            case ("LowshelfFO"):
+              peqlabel = "LowshelfFO Hz,dB"
+              break;
+            case ("HighshelfFO"):
+              peqlabel = "HighshelfFO Hz,dB"
               break;
             case ("Notch"):
               peqlabel = "Notch Hz,Q"
@@ -386,12 +408,12 @@ FusionDsp.prototype.getUIConfig = function (address) {
           { "value": "Lowshelf2", "label": "Lowshelf Hz,dB,Q" },
           { "value": "Highshelf", "label": "Highshelf Hz,dB,slope dB/Octave" },
           { "value": "Highshelf2", "label": "Highshelf Hz,dB,Q" },
+          { "value": "LowshelfFO", "label": "LowshelfFO Hz,dB" },
+          { "value": "HighshelfFO", "label": "HighshelfFO Hz,dB" },
           { "value": "Notch", "label": "Notch Hz,Q" },
           { "value": "Notch2", "label": "Notch Hz,bandwidth Octave" },
           { "value": "Highpass", "label": "Highpass Hz,Q" },
-          // "value": "Highpass2", "label": "Highpass Hz,bandwidth Octave" },
           { "value": "Lowpass", "label": "Lowpass Hz,Q" },
-          //{ "value": "Lowpass2", "label": "Lowpass Hz,bandwidth Octave" },
           { "value": "HighpassFO", "label": "HighpassFO Hz" },
           { "value": "LowpassFO", "label": "LowpassFO Hz" },
           { "value": "LinkwitzTransform", "label": "Linkwitz Transform Fa Hz,Qa,FT Hz,Qt" },
@@ -723,12 +745,91 @@ FusionDsp.prototype.getUIConfig = function (address) {
           }
         )
         //----End EQ15-------------
+      } else if (selectedsp == 'EQ3') {
+        //------------EQ 3 section---------
+
+        uiconf.sections[1].content[0].hidden = true;
+        uiconf.sections[1].content[1].hidden = true;
+        uiconf.sections[1].content[2].hidden = true;
+        uiconf.sections[1].content[3].hidden = true;
+        uiconf.sections[1].content[4].hidden = true;
+        // uiconf.sections[1].content[7].hidden = true;
+        //   uiconf.sections[1].content[6].hidden = true;
+
+
+        uiconf.sections[2].hidden = true;
+        uiconf.sections[3].hidden = true;
+
+        uiconf.sections[4].hidden = true;
+        uiconf.sections[5].hidden = true;
+        uiconf.sections[6].hidden = true;
+
+        uiconf.sections[7].hidden = true;
+        uiconf.sections[8].hidden = true;
+        uiconf.sections[9].hidden = true;
+
+
+
+        selectedsp == 'EQ3'
+        var listeq3 = ['geq3']
+        var neq = self.commandRouter.getI18nString('LANDRCHAN')//self.commandRouter.getI18nString('EQ3_LABEL')
+
+
+        for (var i in listeq3) {
+          //  let neq = eqtext.split(',')[i]
+
+          let geq3 = self.config.get(listeq3[i])
+          uiconf.sections[1].content.push(
+            {
+              "id": listeq3[i],
+              "element": "equalizer",
+              "label": neq,
+              "description": "",
+              "doc": self.commandRouter.getI18nString('DOCEQ'),
+              "config": {
+                "orientation": "vertical",
+                "bars": [
+                  {
+                    "min": -10,
+                    "max": 10,
+                    "step": "0.5",
+                    "value": geq3.split(',')[0],
+                    "ticksLabels": [self.commandRouter.getI18nString('EQ3_LOW')
+                    ],
+                    "tooltip": "show"
+                  },
+                  {
+                    "min": -10,
+                    "max": 10,
+                    "step": "0.5",
+                    "value": geq3.split(',')[1],
+                    "ticksLabels": [self.commandRouter.getI18nString('EQ3_MID')
+                    ],
+                    "tooltip": "show"
+                  }, {
+                    "min": -10,
+                    "max": 10,
+                    "step": "0.5",
+                    "value": geq3.split(',')[2],
+                    "ticksLabels": [self.commandRouter.getI18nString('EQ3_HIGH')
+                    ],
+                    "tooltip": "show"
+                  }
+                ]
+              }
+            }
+
+          )
+          uiconf.sections[1].saveButton.data.push(listeq3[i]);
+        }
+
+        //----End EQ3-------------
         //----------------------convfir section-------------------
 
       } else if (selectedsp == 'convfir') {
         self.logger.info('---------convfir selected-------------')
-        uiconf.sections[2].hidden = true;
-        uiconf.sections[3].hidden = true;
+        //uiconf.sections[2].hidden = true;
+        //uiconf.sections[3].hidden = true;
         uiconf.sections[4].hidden = true;
         uiconf.sections[5].hidden = true;
         uiconf.sections[9].hidden = true;
@@ -848,7 +949,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
 
       //---------------more settings---------------------
       var moresettings = self.config.get('moresettings')
-      if (moresettings == false) {
+      if ((moresettings == false) && (selectedsp != "EQ3")) {
         uiconf.sections[1].content.push(
           {
             "id": "moresettings",
@@ -868,7 +969,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
             }
           }
         )
-      } else if (moresettings) {
+      } else if ((moresettings) && (selectedsp != "EQ3")) {
         uiconf.sections[1].content.push(
           {
             "id": "lesssettings",
@@ -958,6 +1059,28 @@ FusionDsp.prototype.getUIConfig = function (address) {
             "doc": self.commandRouter.getI18nString('PERMUT_CHANNEL_DOC'),
             "label": self.commandRouter.getI18nString('PERMUT_CHANNEL'),
             "value": self.config.get('permutchannel'),
+            "visibleIf": {
+              "field": "showeq",
+              "value": true
+            }
+          },
+          {
+            "id": "muteleft",
+            "element": "switch",
+            "doc": self.commandRouter.getI18nString('MUTE_LEFT_DOC'),
+            "label": self.commandRouter.getI18nString('MUTE_LEFT'),
+            "value": self.config.get('muteleft'),
+            "visibleIf": {
+              "field": "showeq",
+              "value": true
+            }
+          },
+          {
+            "id": "muteright",
+            "element": "switch",
+            "doc": self.commandRouter.getI18nString('MUTE_RIGHT_DOC'),
+            "label": self.commandRouter.getI18nString('MUTE_RIGHT'),
+            "value": self.config.get('muteright'),
             "visibleIf": {
               "field": "showeq",
               "value": true
@@ -1228,32 +1351,38 @@ FusionDsp.prototype.getUIConfig = function (address) {
           }
         )
       }
-      uiconf.sections[1].content.push(
-        {
-          "id": "showeq",
-          "element": "switch",
-          "doc": self.commandRouter.getI18nString('SHOW_SETTINGS_DOC'),
-          "label": self.commandRouter.getI18nString('SHOW_SETTINGS'),
-          "value": self.config.get('showeq')
+      if (selectedsp != "EQ3") {
+
+        uiconf.sections[1].content.push(
+
+          {
+            "id": "showeq",
+            "element": "switch",
+            "doc": self.commandRouter.getI18nString('SHOW_SETTINGS_DOC'),
+            "label": self.commandRouter.getI18nString('SHOW_SETTINGS'),
+            "value": self.config.get('showeq')
+          }
+        )
+
+        uiconf.sections[1].saveButton.data.push('autoatt');
+        uiconf.sections[1].saveButton.data.push('leftlevel');
+        uiconf.sections[1].saveButton.data.push('rightlevel');
+        uiconf.sections[1].saveButton.data.push('crossfeed');
+        uiconf.sections[1].saveButton.data.push('monooutput');
+        uiconf.sections[1].saveButton.data.push('muteleft');
+        uiconf.sections[1].saveButton.data.push('muteright');
+        uiconf.sections[1].saveButton.data.push('permutchannel');
+
+
+
+
+        if (self.config.get('showloudness')) {
+          uiconf.sections[1].saveButton.data.push('loudness');
+          uiconf.sections[1].saveButton.data.push('loudnessthreshold');
         }
-      )
-      uiconf.sections[1].saveButton.data.push('autoatt');
-      uiconf.sections[1].saveButton.data.push('leftlevel');
-      uiconf.sections[1].saveButton.data.push('rightlevel');
-      uiconf.sections[1].saveButton.data.push('crossfeed');
-      uiconf.sections[1].saveButton.data.push('monooutput');
-      uiconf.sections[1].saveButton.data.push('permutchannel');
-
-
-
-
-      if (self.config.get('showloudness')) {
-        uiconf.sections[1].saveButton.data.push('loudness');
-        uiconf.sections[1].saveButton.data.push('loudnessthreshold');
+        // }
+        uiconf.sections[1].saveButton.data.push('showeq');
       }
-      // }
-      uiconf.sections[1].saveButton.data.push('showeq');
-
 
       self.logger.info(' Dsp mode set is ' + selectedsp)
 
@@ -1614,22 +1743,62 @@ FusionDsp.prototype.refreshUI = function () {
 FusionDsp.prototype.choosedsp = function (data) {
   const self = this;
   let selectedsp = (data['selectedsp'].value)
-  if (selectedsp === 'EQ15') {
+
+  if (selectedsp === 'EQ3') {
+    //self.config.set("showstate") = self.config.get("showeq")
+    //let state4eq3 = self.config.get('state4eq3')
+
+    self.config.set('nbreq', 3)
+    if
+      (self.config.get('savedmergedgeqx3') == undefined) {
+      self.config.set('mergedeq', '0,0,0')
+    } else {
+      self.config.set('mergedeq', self.config.get('savedmergedgeqx3'))
+    }
+    if
+      (self.config.get('savedgeq3') == undefined) {
+      self.config.set('geq3', '0,0,0')
+    } else {
+      self.config.set('geq3', self.config.get('savedgeq3'))
+    }
+   // self.config.set('geq3', self.config.get('savedgeq3'))
+    self.config.set('crossfeed', "None")
+    self.config.set('monooutput', false)
+    self.config.set('loudness', false)
+    self.config.set('loudnessthreshold', 50)
+    self.config.set('leftlevel', 0)
+    self.config.set('rightlevel', 0)
+    self.config.set('delay', 0)
+    self.config.set('delayscope', "None")
+    self.config.set('autoatt', true)
+    self.config.set('muteleft', false)
+    self.config.set('muteright', false)
+    self.config.set('ldistance', 0)
+    self.config.set('rdistance', 0)
+    self.config.set('permutchannel', false)
+    self.config.set('moresettings', false)
+
+  } else if (selectedsp === 'EQ15') {
+    self.config.set("showeq", true)
+
     self.config.set('nbreq', 15)
     self.config.set('mergedeq', self.config.get('savedmergedgeq15'))
     self.config.set('geq15', self.config.get('savedgeq15'))
 
   } else if (selectedsp === '2XEQ15') {
+    self.config.set("showeq", true)
     self.config.set('nbreq', 30)
     self.config.set('geq15', self.config.get('savedx2geq15l'))
     self.config.set('mergedeq', self.config.get('savedmergedeqx2geq15'))
     self.config.set('x2geq15', self.config.get('savedx2geq15r'))
 
   } else if (selectedsp === 'PEQ') {
+    self.config.set("showeq", true)
     self.config.set('nbreq', self.config.get('savednbreq'))
     self.config.set('mergedeq', self.config.get('savedmergedeq'))
 
   } else if (selectedsp === 'convfir') {
+    self.config.set("showeq", true)
     self.config.set('nbreq', 2),
       self.config.set('mergedeq', self.config.get('savedmergedeqfir'))
 
@@ -1681,37 +1850,8 @@ FusionDsp.prototype.purecamillagui = function () {
   }
 
 }
-/*
-FusionDsp.prototype.installcamillagui = function () {
-  const self = this;
-  let defer = libQ.defer();
 
-  //-----------Experimental CamillaGui
-  self.config.set('purecgui', true)
 
-  try {
-
-    exec('/usr/bin/sudo /usr/bin/apt update', { uid: 1000, gid: 1000, encoding: 'utf8' });
-    defer.resolve();
-  } catch (err) {
-    self.logger.info('failed to apt update' + err);
-  }
-
-  try {
-    self.commandRouter.pushToastMessage('info', 'Takes up to 3 min')
-
-    execSync('/data/plugins/audio_interface/fusiondsp/installcamillagui.sh', {
-      uid: 1000,
-      gid: 1000
-    });
-    self.refreshUI()
-    defer.resolve();
-  } catch (err) {
-    self.logger.info('failed to install Camilla Gui' + err);
-  }
-
-}
-*/
 FusionDsp.prototype.addeq = function (data) {
   const self = this;
   var n = self.config.get('nbreq')
@@ -2014,6 +2154,7 @@ FusionDsp.prototype.testclipping = function () {
   let messageDisplayed;
   self.socket.emit('stop');
   let arrreduced;
+  let arr = [];
   let filelength = self.config.get('filter_size');
   setTimeout(function () {
     self.config.set('loudness', false);
@@ -2021,6 +2162,8 @@ FusionDsp.prototype.testclipping = function () {
     self.config.set('crossfeed', 'None');
     self.config.set('attenuationl', 0);
     self.config.set('attenuationr', 0);
+    self.config.set('muteleft', false);
+    self.config.set('muteright', false);
     self.config.set('testclipping', true)
     self.createCamilladspfile();
   }, 300);
@@ -2034,47 +2177,53 @@ FusionDsp.prototype.testclipping = function () {
       setTimeout(function () {
         execSync(cmd);
       }, 50);
-      // socket.emit('unmute', '')
+
     } catch (e) {
       self.logger.error(cmd);
     };
   }, 500);
 
-  let arr = [];
-  let opts = {
-    unit: ''
-  }
-  const journalctl = new Journalctl(opts);
-  journalctl.on('event', (event) => {
-    const pevent = event.MESSAGE.indexOf("Clipping detected");
-    if (pevent != -1) {
-      let filteredMessage = event.MESSAGE.split(',').slice(0, -1).pop().replace("peak ", "").slice(0, -1);
-      //self.logger.info('filteredMessage ' + filteredMessage)
-      let attcalculated = Math.round(Math.abs(20 * Math.log10(100 / filteredMessage)));
+  setTimeout(function () {
 
-      messageDisplayed = attcalculated;
-    } else {
-      messageDisplayed = 0;
+    let rawlog
+    try {
+      rawlog = fs.readFileSync("/tmp/camilladsp.log", "utf8");
+      var o = 0;
+      var result = (rawlog.split("\n"));
+      for (o; o < result.length; o++) {
+        if (result[o].indexOf("Clipping detected") != -1) {
+
+          let filteredMessage = result[o].replace(" dB", ",").replace("peak +", "").split(",");
+
+          let attcalculated = filteredMessage[2]
+          messageDisplayed = Number(attcalculated);
+          self.logger.info('clipping detection gives in line ' + o + " " + messageDisplayed)
+          arr.push(messageDisplayed);
+        }
+      }
+
+    } catch (err) {
+      self.logger.error('An error occurs while reading file');
     }
-    arr.push(messageDisplayed);
+
+
+    // self.logger.info("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh " + arr);
     arr.sort((a, b) => {
       if (a > b) return 1;
       if (a < b) return -1;
       return 0;
     });
+
     let offset = 3;
     let arrreducedr = ((arr.toString().split(',')).pop());
     arrreduced = +arrreducedr + offset;
-  });
-  setTimeout(function () {
-    //self.logger.info('arrreduced  ' + arrreduced);
+
     self.config.set('attenuationl', arrreduced);
     self.config.set('attenuationr', arrreduced);
     self.config.set('testclipping', false)
     self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('FILTER_LENGTH') + filelength, self.commandRouter.getI18nString('AUTO_ATTENUATION_SET') + arrreduced + ' dB');
     self.commandRouter.pushToastMessage('info', 'Attenuation set to: ' + arrreduced + ' dB');
-    //  self.saveparameq();
-    // self.createCamilladspfile();
+
     let ltest, rtest, cleftfilter, crightfilter, test
 
     cleftfilter = filterfolder + self.config.get('leftfilter')
@@ -2083,15 +2232,13 @@ FusionDsp.prototype.testclipping = function () {
     ltest = ('Eq1' + '|' + 'Conv' + '|L' + cleftfilter + '|' + arrreduced + '|');
     rtest = ('Eq2' + '|' + 'Conv' + '|R' + crightfilter + '|' + arrreduced + '|');
     test = ltest + rtest
-    //self.logger.info('test ' + test)
     self.config.set('mergedeq', test);
     self.config.set('savedmergedeqfir', test)
 
     self.refreshUI();
     self.createCamilladspfile();
 
-    journalctl.stop();
-  }, 2810);
+  }, 4810);
   return defer.promise;
 
 };
@@ -2246,6 +2393,8 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       let resamplingset = self.config.get('resamplingset')
       let allowdownsamplig = true
       let autoatt = self.config.get('autoatt')
+
+
       //----compose output----
       if (testclipping) {
         var composeout = ''
@@ -2698,9 +2847,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
             }
 
-         // } else if ((typer == 'Lowpass2' || typer == 'Highpass2' || typer == 'Notch2')) {
+            // } else if ((typer == 'Lowpass2' || typer == 'Highpass2' || typer == 'Notch2')) {
           } else if ((typer == 'Notch2')) {
-          
+
             composedeq += '  ' + eqc + ':\n';
             composedeq += '    type: Biquad' + '\n';
             composedeq += '    parameters:' + '\n';
@@ -2720,6 +2869,29 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
               pipelineR = '      - ' + eqc + '\n';
 
             }
+
+          } else if (typer == 'LowshelfFO' || typer == 'HighshelfFO') {
+
+            composedeq += '  ' + eqc + ':\n';
+            composedeq += '    type: Biquad' + '\n';
+            composedeq += '    parameters:' + '\n';
+            composedeq += '      type: ' + typer + '\n';
+            composedeq += '      freq: ' + eqv[0] + '\n';
+            composedeq += '      gain: ' + eqv[1] + '\n';
+            composedeq += '' + '\n';
+            gainmax = ',' + eqv[1]
+            if (scoper == 'L') {
+              pipelineL = '      - ' + eqc + '\n';
+
+            } else if (scoper == 'R') {
+              pipelineR = '      - ' + eqc + '\n';
+
+            } else if (scoper == 'L+R') {
+              pipelineL = '      - ' + eqc + '\n';
+              pipelineR = '      - ' + eqc + '\n';
+
+            }
+
           } else if ((typer == 'LowpassFO' || typer == 'HighpassFO')) {
 
             composedeq += '  ' + eqc + ':\n';
@@ -2867,9 +3039,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           gainclipfree = -2
           self.logger.info('else 1  ' + gainclipfree)
         } else {
-          gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
+          //  gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
 
-          //  gainclipfree = ('-' + (parseInt(gainresult))) //+ 2))
+          gainclipfree = ('-' + ((parseFloat(Number(gainresult))) + 1))
           //  self.logger.info('gainclipfree '+ gainclipfree)
         }
         if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
@@ -2897,6 +3069,8 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       ///----mixers and pipelines generation
       var composedmixer = ''
       var composedpipeline = ''
+      let muteleft = self.config.get('muteleft')
+      let muteright = self.config.get('muteright')
 
       if ((crossconfig == 'None') && (effect)) {
         if (monooutput) {
@@ -2911,17 +3085,21 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           composedmixer += '          - channel: 0\n'
           composedmixer += '            gain: ' + +leftgainmono + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteleft + '\n'
           composedmixer += '          - channel: 1\n'
           composedmixer += '            gain: ' + +leftgainmono + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteright + '\n'
           composedmixer += '      - dest: 1\n'
           composedmixer += '        sources:\n'
           composedmixer += '          - channel: 0\n'
           composedmixer += '            gain: ' + +rightgainmono + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteleft + '\n'
           composedmixer += '          - channel: 1\n'
           composedmixer += '            gain: ' + +rightgainmono + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteright + '\n'
           composedmixer += '\n'
 
           composedpipeline += '\n'
@@ -2949,11 +3127,13 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           composedmixer += '          - channel: ' + c0 + '\n'
           composedmixer += '            gain: ' + leftgain + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteleft + '\n'
           composedmixer += '      - dest: 1\n'
           composedmixer += '        sources:\n'
           composedmixer += '          - channel: ' + c1 + '\n'
           composedmixer += '            gain: ' + rightgain + '\n'
           composedmixer += '            inverted: false\n'
+          composedmixer += '            mute: ' + muteright + '\n'
           composedmixer += '\n'
 
           composedpipeline += '\n'
@@ -2984,21 +3164,25 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: 0\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 0\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 2\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 1\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 3\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 1\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '  stereo:\n'
         composedmixer += '    channels:\n'
         composedmixer += '      in: 4\n'
@@ -3009,17 +3193,21 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: ' + c0 + '\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteleft + '\n'
         composedmixer += '          - channel: 2\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteleft + '\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: ' + c1 + '\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteright + '\n'
         composedmixer += '          - channel: 3\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteright + '\n'
 
         composedpipeline += '\n'
         composedpipeline += 'pipeline:\n'
@@ -3074,21 +3262,25 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: 0\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 0\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 2\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 1\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 3\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: 1\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '  stereo:\n'
         composedmixer += '    channels:\n'
         composedmixer += '      in: 4\n'
@@ -3099,17 +3291,21 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: ' + c0 + '\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteleft + '\n'
         composedmixer += '          - channel: 2\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteleft + '\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: ' + c1 + '\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteright + '\n'
         composedmixer += '          - channel: 3\n'
         composedmixer += '            gain: 0\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: ' + muteright + '\n'
 
         composedpipeline += '\n'
         composedpipeline += 'pipeline:\n'
@@ -3160,11 +3356,13 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedmixer += '          - channel: ' + c0 + '\n'
         composedmixer += '            gain: ' + leftgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false\n'
         composedmixer += '      - dest: 1\n'
         composedmixer += '        sources:\n'
         composedmixer += '          - channel: ' + c1 + '\n'
         composedmixer += '            gain: ' + rightgain + '\n'
         composedmixer += '            inverted: false\n'
+        composedmixer += '            mute: false'
         composedmixer += '\n'
 
         pipeliner = '      - nulleq2';
@@ -3189,9 +3387,9 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
       var chunksize
       if (selectedsp === "convfir") {
-        chunksize = 4096
+        chunksize = 4800
       } else {
-        chunksize = 4096//1024 To check if less bufferunderrun
+        chunksize = 4800//1024 To check if less bufferunderrun
       }
 
 
@@ -3330,7 +3528,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
         }
 
       }
-      if (typer == 'Peaking' || typer == 'Highshelf' || typer == 'Lowshelf') {
+      if (typer == 'Peaking' || typer == 'Highshelf' || typer == 'Lowshelf' || typer == 'LowshelfFO' || typer == 'HighshelfFO') {
 
         var g = Number(eqr[1]);
         if ((Number.parseFloat(g)) && (g > -20.1 && g < 20.1)) {
@@ -3352,7 +3550,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
         }
       }
 
-      if (typer == 'Highpass' || typer == 'Lowpass' || typer == 'Notch' || typer == 'Highpass2' || typer == 'Lowpass2' || typer == 'Notch2' || typer == 'ButterworthHighpass' || typer == 'ButterworthLowpass') {
+      if (typer == 'Highpass' || typer == 'Lowpass' || typer == 'Notch' || typer == 'Highpass2' || typer == 'Lowpass2' || typer == 'Notch2' || typer == 'ButterworthHighpass' || typer == 'ButterworthLowpass' || typer == 'LowshelfFO' || typer == 'HighshelfFO') {
 
         var q = eqr[2];
         if (q != undefined) {
@@ -3405,6 +3603,23 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('savednbreq', nbreq - skipeqn)
     self.config.set('savedmergedeq', test)
 
+  } else if (selectedsp == 'EQ3') {
+    let geq3 = (data['geq3'])
+    self.config.set('geq3', geq3);
+
+    eqr = geq3
+    self.logger.info('setting EQ3 values ' + eqr)
+    for (let o in eqr) {
+      // for(let q in coefQ3){
+      //   let qa =coefQ3[q]
+      // let ceq3type = eq3type[o]
+
+      let eqval = geq3[o]
+      test += ('Eq' + o + '|' + eq3type[o] + '|L+R|' + eq3range[o] + ',' + eqval + ',' + coefQ3[o] + '|');
+      // }
+    }
+    self.config.set('savedmergedgeqx3', test)
+    self.config.set('savedgeq3', self.config.get('geq3'))
 
   } else if (selectedsp == 'EQ15') {
     let geq15 = (data['geq15'])
@@ -3566,6 +3781,10 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('rightlevel', data.rightlevel);
     self.config.set('monooutput', data["monooutput"]);
     self.config.set('autoatt', data["autoatt"]);
+    self.config.set('muteleft', data["muteleft"]);
+    self.config.set('muteright', data["muteright"]);
+
+
 
     //self.config.set('delayscope', (data["delayscope"].value));
 
@@ -3602,7 +3821,12 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.get('rightlevel'),
     self.config.get('delay'),
     self.config.get('delayscope'),
-    self.config.get('autoatt')
+    self.config.get('autoatt'),
+    self.config.get('muteleft'),
+    self.config.get('muteright'),
+    self.config.get('ldistance'),
+    self.config.get('rdistance'),
+    self.config.get('permutchannel')
   ]
 
   let preset = (data['eqpresetsaved'].value);
@@ -3661,11 +3885,18 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.set("x2geq15" + renprestr, self.config.get('x2geq15'));
     self.config.set("geq15" + renprestr, self.config.get('geq15'));
 
-
   } else if (selectedsp == 'convfir') {
 
-    self.logger.info('Nothing to do!')
+    self.config.set("leftfilter" + renprestr, self.config.get('leftfilter'));
+    self.config.set("attenuationl" + renprestr, self.config.get('attenuationl'));
+    self.config.set("attenuationr" + renprestr, self.config.get('attenuationr'));
+    self.config.set("rightfilter" + renprestr, self.config.get('rightfilter'));
+    self.config.set(('leftfilterlabel' + renprestr), self.config.get('leftfilterlabel'));
+    self.config.set(('filter_format' + renprestr), self.config.get('filter_format'));
+    self.config.set("savedmergedeqfir" + renprestr, self.config.get('mergedeq'));
+
   }
+
   self.config.set('state4preset' + renprestr, state4preset)
   self.logger.info('State for preset' + renprestr + ' = ' + state4preset)
   let presetmessage
@@ -3818,7 +4049,14 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set("usethispreset", preset);
 
   } else if (selectedsp == 'convfir') {
-    //   self.logger.info('aaaaaaaaaaaaaaaaaa')
+    self.config.set("usethispreset", preset);
+    self.config.set("leftfilter", self.config.get('leftfilter' + spreset));
+    self.config.set("rightfilter", self.config.get('rightfilter' + spreset));
+    self.config.set('leftfilterlabel', self.config.get('leftfilterlabel' + spreset));
+    self.config.set('filter_format', self.config.get('filter_format' + spreset))
+    self.config.set('mergedeq', self.config.get('savedmergedeqfir' + spreset))
+    self.config.set("attenuationl", self.config.get('attenuationl' + spreset));
+    self.config.set("attenuationr", self.config.get('attenuationr' + spreset));
   }
   if (preset == "mypreset1" || preset == "mypreset2" || preset == "mypreset3" || preset == "mypreset4" || preset == "mypreset5") {
     let state4preset = self.config.get('state4preset' + spreset)
@@ -3833,7 +4071,20 @@ FusionDsp.prototype.usethispreset = function (data) {
     self.config.set('delay', state4preset[6])
     self.config.set('delayscope', state4preset[7])
     self.config.set('autoatt', state4preset[8])
+    self.config.set('muteleft', state4preset[9]);
+    self.config.set('muteright', state4preset[10]);
 
+    if (state4preset[11] == undefined) {
+      self.config.set('ldistance', 0);
+    } else {
+      self.config.set('ldistance', state4preset[11]);
+    }
+    if (state4preset[12] == undefined) {
+      self.config.set('rdistance', 0);
+    } else {
+      self.config.set('rdistance', state4preset[12]);
+    }
+    self.config.set('permutchannel', state4preset[13]);
 
 
     self.commandRouter.pushToastMessage('info', spresetm + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
@@ -3916,6 +4167,13 @@ FusionDsp.prototype.convertimportedeq = function () {
   try {
     EQfile = fs.readFileSync(filepath, "utf8");
     //let nbreq = 1;
+    if (EQfilef == 'autoeq') {
+      // EQfile = EQfile.replace(/LS/g, "LSQ")
+      // EQfile = EQfile.replace(/HS/g, "HSQ")
+      var EQfile = EQfile
+        .replace(/LS/g, "LSQ")
+        .replace(/HS/g, "HSQ")
+    }
     var o = 0;
     if (addreplace) {
 
@@ -3930,24 +4188,12 @@ FusionDsp.prototype.convertimportedeq = function () {
 
     for (o; o < result.length; o++) {
       if (nbreq < tnbreq) {
-        if ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1) && ((result[o].indexOf("PK") != -1) || (result[o].indexOf("LPQ") != -1) || (result[o].indexOf("HPQ") != -1) || (result[o].indexOf("LP1") != -1) || (result[o].indexOf("HP1") != -1) || (result[o].indexOf("LS ") != -1) || (result[o].indexOf("HS ") != -1) || (result[o].indexOf("NO") != -1) || (result[o].indexOf("LP ") != -1) || (result[o].indexOf("HP ") != -1) || (result[o].indexOf("LS 6dB") != -1) || (result[o].indexOf("HS 6dB") != -1) || (result[o].indexOf("LS 12dB") != -1) || (result[o].indexOf("HS 12dB") != -1) || (result[o].indexOf("LSQ") != -1) || (result[o].indexOf("HSQ") != -1)) && (result[o].indexOf('Gain   0.00 dB') == -1)) {
-          //if (((result[o].indexOf('Gain   0.00 dB') == -1)) && ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1))) {
+        if ((result[o].indexOf("Filter") != -1) && (result[o].indexOf("None") == -1) && ((result[o].indexOf("PK") != -1) || (result[o].indexOf("LPQ") != -1) || (result[o].indexOf("HPQ") != -1) || (result[o].indexOf("LP1") != -1) || (result[o].indexOf("HP1") != -1) || (result[o].indexOf("LS ") != -1) || (result[o].indexOf("HS ") != -1) || (result[o].indexOf("NO") != -1) || (result[o].indexOf("LP ") != -1) || (result[o].indexOf("HP ") != -1) || (result[o].indexOf("LS 6dB") != -1) || (result[o].indexOf("HS 6dB") != -1) || (result[o].indexOf("LS 12dB") != -1) || (result[o].indexOf("HS 12dB") != -1) || (result[o].indexOf("LSQ") != -1) || (result[o].indexOf("LSC") != -1) || (result[o].indexOf("HSQ") != -1) || (result[o].indexOf("HSC") != -1)) && (result[o].indexOf('Gain   0.00 dB') == -1)) {
 
-          var lresult0 = result[o].replace(/       /g, ' ');
-          var lresult1 = lresult0.replace(/   /g, ' ');
-          var lresult2 = lresult1.replace(/  /g, ' ')
-
-          var lresult3 = lresult2.replace(/ Hz Gain /g, ',')
-          var lresult4 = lresult3.replace(/ dB Q /g, ',')
-          var lresult5 = lresult4.replace(/ Hz Q /g, ',');
-          var lresult6 = lresult5.replace(/ Hz /g, ',');
-          var lresult7 = lresult6.replace(/:/g, ',');
-          var lresult8 = lresult7.replace(/ Q /g, ',');
-          var lresult9 = lresult8.replace(/ dB /g, ',')
-          var lresult10 = lresult9.replace(/ dB/g, ',')
-
-          var lresult = lresult10.replace(/Fc /g, ',');
-          // self.logger.info(result[0])
+          var lresult = result[o]
+            .replace(/\s\s+/g, ' ')
+            .replace(/ Hz Gain | dB Q | Hz Q | Hz |:| Q | dB |Fc /g, ',')
+            .replace(/ dB/g, ',');
 
           let eqv = (lresult);
           var param = eqv.split(',')
@@ -3967,24 +4213,24 @@ FusionDsp.prototype.convertimportedeq = function () {
             //     self.logger.info('filter in line ' + o + " 0 " + param[0] + " 1 " + param[1] + " 2 " + param[2] + " 3 " + param[3] + " 4 " + param[4] + " 5 " + param[5] + " coee " + correctedfreq)
           }
 
-          if (result[o].indexOf("LP  ") != -1) {
-            var paramx = lresult.replace(/ ON LP /g, 'Lowpass')//Hz,db,Q
+          if (result[o].indexOf("LP ") != -1) {
+            var paramx = lresult.replace(/ ON LP /g, 'Lowpass')//Hz,Q
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + ',' + "0.7071")
             // self.logger.info('filter in line ' + o + " LP " + typeconv + " vvv " + eqs)
 
           }
-          if (result[o].indexOf("HP  ") != -1) {
-            var paramx = lresult.replace(/ ON HP /g, 'Highpass')//Hz,db,Q
+          if (result[o].indexOf("HP ") != -1) {
+            var paramx = lresult.replace(/ ON HP /g, 'Highpass')//Hz,Q
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + ',' + "0.7071")
-            // self.logger.info('filter in line ' + o + " HP " + typeconv + " vvv " + eqs)
+            //  self.logger.info('filter in line ' + o + " HP " + paramx)
 
           }
 
-          if (result[o].indexOf("LS  ") != -1) {
+          if (result[o].indexOf("LS ") != -1) {
             var paramx = lresult.replace(/ ON LS /g, 'Lowshelf')//Hz,dB,S=0.9
             var param = paramx.split(',')
             var typeconv = param[1]
@@ -3993,7 +4239,7 @@ FusionDsp.prototype.convertimportedeq = function () {
 
           }
 
-          if (result[o].indexOf("HS  ") != -1) {
+          if (result[o].indexOf("HS ") != -1) {
             var paramx = lresult.replace(/ ON HS /g, 'Highshelf')//Hz,dB,S=0.9
             var param = paramx.split(',')
             var typeconv = param[1]
@@ -4091,6 +4337,15 @@ FusionDsp.prototype.convertimportedeq = function () {
 
           }
 
+          if (result[o].indexOf("LSC") != -1) {
+            var paramx = lresult.replace(/ ON LSC /g, 'Lowshelf2')//Hz,dB,q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + "," + param[4])
+            // self.logger.info('filter in line ' + o + " LSQ " + typeconv + " vvv " + eqs)
+
+          }
+
           if (result[o].indexOf("HSQ") != -1) {
             var paramx = lresult.replace(/ ON HSQ /g, 'Highshelf2')//Hz,dB,q
             var param = paramx.split(',')
@@ -4100,6 +4355,14 @@ FusionDsp.prototype.convertimportedeq = function () {
 
           }
 
+          if (result[o].indexOf("HSC") != -1) {
+            var paramx = lresult.replace(/ ON HSC /g, 'Highshelf2')//Hz,dB,q
+            var param = paramx.split(',')
+            var typeconv = param[1]
+            var eqs = (correctedfreq + "," + param[3] + "," + param[4])
+            // self.logger.info('filter in line ' + o + " HSQ " + typeconv + " vvv " + eqs)
+
+          }
 
           var typec = 'type' + nbreq;
           var scopec = 'scope' + nbreq;
@@ -4137,6 +4400,8 @@ FusionDsp.prototype.convertimportedeq = function () {
     self.config.set('mergedeq', test);
     self.config.set('savednbreq', nbreq - 1)
     self.config.set('savedmergedeq', test)
+    self.config.set('autoatt', true)
+
   } catch (err) {
     self.logger.error('failed to read EQ file ' + err);
   }
@@ -4399,4 +4664,23 @@ FusionDsp.prototype.sendvolumelevel = function () {
     self.config.set('loudnessGain', Number.parseFloat(loudnessGain).toFixed(2))
     self.createCamilladspfile()
   })
+}
+
+FusionDsp.prototype.reportFusionEnabled = function () {
+  const self = this;
+
+  self.logger.info('Reporting Fusion DSP Enabled');
+  var fusionDSPElementsData = { "id": "fusiondspeq", "sub_type": "dsp_plugin", "preset": "FusionDSP", "quality": "enhanced" };
+  try {
+    self.commandRouter.addDSPSignalPathElement(fusionDSPElementsData);
+  } catch (e) { }
+}
+
+FusionDsp.prototype.reportFusionDisabled = function () {
+  const self = this;
+
+  self.logger.info('Reporting Fusion DSP Disabled');
+  try {
+    self.commandRouter.removeDSPSignalPathElement({ "id": "fusiondspeq" });
+  } catch (e) { }
 }

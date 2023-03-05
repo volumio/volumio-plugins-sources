@@ -28,7 +28,6 @@ const logger = require('./logger');
 var seekTimer;
 var thisSpotifyConnectDeviceId;
 var spotifyApi;
-var thisDeviceIdentifier;
 var selectedBitrate;
 var accessToken;
 var spotifyAccessTokenExpiration;
@@ -40,6 +39,7 @@ var currentSpotifyVolume;
 var currentVolumioVolume;
 var startVolume;
 var volumeDebounce;
+var volumeSpotifyDebounce;
 var currentService;
 var currentTrackContext = {};
 var justLoggedIn = false;
@@ -118,20 +118,23 @@ ControllerSpotify.prototype.onStart = function () {
     var self = this;
     var defer = libQ.defer();
 
-    // SpotifyWebApi
-    this.spotifyApi = new SpotifyWebApi();
-    this.device = undefined;
-    this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
-    this.volumeListener();
-    this.applySpotifyHostsFix();
 
-    this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
-    var boundMethod = self.onPlayerNameChanged.bind(self);
-    self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
+    this.checkOldSpotifyConnectPlugin().then(() => {
+        // SpotifyWebApi
+        this.spotifyApi = new SpotifyWebApi();
+        this.device = undefined;
+        this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
+        this.volumeListener();
+        this.applySpotifyHostsFix();
 
-
-    this.init().then(() => {
-        defer.resolve();
+        this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
+        var boundMethod = self.onPlayerNameChanged.bind(self);
+        self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
+        this.init().then(() => {
+            defer.resolve();
+        });
+    }).fail(()=> {
+        defer.reject('Failed to disable Old Connect Plugin');
     });
 
     return defer.promise;
@@ -506,6 +509,7 @@ ControllerSpotify.prototype.getMyAlbums = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify my albums ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -555,6 +559,7 @@ ControllerSpotify.prototype.getMyTracks = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify my tracks ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -603,6 +608,7 @@ ControllerSpotify.prototype.getTopArtists = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify my artists ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -654,6 +660,7 @@ ControllerSpotify.prototype.getTopTracks = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify top tracks ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -705,6 +712,7 @@ ControllerSpotify.prototype.getRecentTracks = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify recent tracks ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -753,6 +761,7 @@ ControllerSpotify.prototype.featuredPlaylists = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify featured playlists ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -841,6 +850,7 @@ ControllerSpotify.prototype.listWebNew = function (curUri) {
             }, function (err) {
                 self.logger.error('An error occurred while listing Spotify new albums ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             });
         });
 
@@ -927,6 +937,7 @@ ControllerSpotify.prototype.listWebCategories = function (curUri) {
             }, function (err) {
                 self.logger.error('An error occurred while listing Spotify categories ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             });
         });
 
@@ -977,6 +988,7 @@ ControllerSpotify.prototype.listWebCategory = function (curUri) {
             }, function (err) {
                 self.logger.error('An error occurred while listing Spotify playlist category ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             });
         });
 
@@ -1272,6 +1284,9 @@ ControllerSpotify.prototype.getUIConfig = function () {
             uiconf.sections[2].content[5].value = self.config.get('gapless', true);
             uiconf.sections[2].content[6].value = self.config.get('autoplay', true);
             uiconf.sections[2].content[7].value = self.config.get('debug');
+            var deviceIconConf = self.config.get('icon', 'avr');
+            uiconf.sections[2].content[8].value.value =  deviceIconConf;
+            uiconf.sections[2].content[8].value.label =  self.getLabelForSelect(uiconf.sections[2].content[8].options, deviceIconConf);
 
             if (process.env.SHOW_SPOTIFY_ON_BROWSE_SOURCES === 'true') {
                 uiconf.sections[2].hidden = true;
@@ -1362,6 +1377,7 @@ ControllerSpotify.prototype.getAlbumTracks = function (id) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify album tracks ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -1458,6 +1474,7 @@ ControllerSpotify.prototype.getArtistTopTracks = function (id) {
             }), function (err) {
                 self.logger.error('An error occurred while listing Spotify artist tracks ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             }
         });
 
@@ -1742,6 +1759,7 @@ ControllerSpotify.prototype.search = function (query) {
             }, function (err) {
                 self.logger.error('An error occurred while searching ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             });
         });
 
@@ -1925,7 +1943,6 @@ ControllerSpotify.prototype.logout = function (avoidBroadcastUiConfig) {
     }
     self.commandRouter.pushToastMessage('success', self.getI18n('LOGOUT'), self.getI18n('LOGOUT_SUCCESSFUL'));
     self.thisSpotifyConnectDeviceId = undefined;
-    self.thisDeviceIdentifier = undefined;
     self.accessToken = undefined;
     self.spotifyAccessTokenExpiration = undefined;
     self.isBrowsingInitialized = false;
@@ -1977,14 +1994,13 @@ ControllerSpotify.prototype.identifyThisConnectDevice = function () {
     var defer = libQ.defer();
 
     var systemName = this.commandRouter.sharedVars.get('system.name');
-    var thisDeviceIdentifier = false;
 
     self.listMyDevices().then(function(devices) {
         if (devices && devices.length) {
             for (var i in devices) {
-                if (devices[i].name === systemName) {
+                if (devices[i].name.toLowerCase() === systemName.toLowerCase()) {
                     self.thisSpotifyConnectDeviceId = devices[i].id;
-                    self.thisDeviceIdentifier = true;
+                    self.logger.info('Idenfitied this device as Connect device: ' + self.thisSpotifyConnectDeviceId)
                 }
             }
         }
@@ -2209,7 +2225,14 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         } else if (meta !== undefined && meta.track_id !== undefined) {
             setTimeout(()=>{
                 this.isPlaybackFromConnectDevice(meta.track_id).then((isConnect)=>{
-                    this.pushState();
+                    if (isConnect) {
+                        this.logger.info('New connect session, clearing queue');
+                        this.clearVolumioQueueFromSpotifySongs().then(()=>{
+                            this.pushState();
+                        });
+                    } else {
+                        this.pushState();
+                    }
                 }).fail(function (err) {
                     console.log('Failed to retrieve connect playback status: ' + err);
                 });
@@ -2228,10 +2251,23 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         var d = new Date();
         var now = d.getTime();
 
-        this.logger.info('New Spotify Access Token Received');
-        this.accessToken = token.accessToken;
-        this.spotifyAccessTokenExpiration = parseInt(token.expiresIn) * 1000 + parseInt(now);
-        this.initWebApi();
+        // Every now and then vollibrespot sends a token which does not have appropriate browsing scopes
+        // we prevent this kind of token to be sent to Volumio, otherwise it won't be able to read users data
+        if (this.isUserLoggedIn()) {
+            if (token.scope && token.scope.includes('user-top-read')) {
+                this.logger.info('New Spotify Access Token Received');
+                this.accessToken = token.accessToken;
+                this.spotifyAccessTokenExpiration = parseInt(token.expiresIn) * 1000 + parseInt(now);
+                this.initWebApi();
+            } else {
+                this.logger.error('Received malformed Token, ignoring');
+            }
+        } else {
+            this.logger.info('New Spotify Access Token Received');
+            this.accessToken = token.accessToken;
+            this.spotifyAccessTokenExpiration = parseInt(token.expiresIn) * 1000 + parseInt(now);
+            this.initWebApi();
+        }
     });
 
     this.SpotConn.on(this.Events.Volume, (spvol) => {
@@ -2240,9 +2276,9 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         logger.evnt('Volume Spotify: ' + spvol + ' Volumio: ' + vol);
         if (startVolume) {
             startVolume = false;
-            this.setSpotifyVolume(currentVolumioVolume);
+            // Commented to avoid hitting rate limiting
+            // this.setSpotifyVolume(currentVolumioVolume);
         } else {
-            // TODO IMPLEMENT A VOLUME DEBOUNCE METHOD HERE
             if (Number.isInteger(vol)) {
                 currentSpotifyVolume = vol;
                 if (currentVolumioVolume !== currentSpotifyVolume) {
@@ -2250,7 +2286,8 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                         if (volumeDebounce) {
                             clearTimeout(volumeDebounce);
                         }
-                        volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
+                        // Commented to avoid hitting rate limiting
+                        // volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
                     }
                 }
             }
@@ -2307,7 +2344,6 @@ ControllerSpotify.prototype.initWebApi = function () {
 };
 
 ControllerSpotify.prototype.checkWebApi = function () {
-
     this.logger.info('Checking Spotify Web API');
     if (justLoggedIn) {
         justLoggedIn = false;
@@ -2452,12 +2488,10 @@ ControllerSpotify.prototype.createConfigFile = async function () {
     }
 
     // Authentication
-    var shared = true;
+    var shared = this.config.get('shareddevice', true);
     var username = this.config.get('username', '');
     var password = this.config.get('password', '');
-    if (username !== undefined && username.length &&  password !== undefined && password.length) {
-        shared = false;
-    }
+
     // Playback
     const normalvolume = this.config.get('normalvolume', false);
     let initvol = '0';
@@ -2556,7 +2590,8 @@ ControllerSpotify.prototype.createConfigFile = async function () {
         .replace('${initvol}', initvolstr)
         .replace('${autoplay}', this.config.get('autoplay', true))
         .replace('${gapless}', this.config.get('gapless', true))
-        .replace('${bitrate}', bitrateValue);
+        .replace('${bitrate}', bitrateValue)
+        .replace('${icon}', this.config.get('icon', 'avr'));
     /* eslint-enable no-template-curly-in-string */
 
     // Sanity check
@@ -2609,7 +2644,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBr
         self.config.set('initvol', data.initvol);
     }
     if (data.bitrate !== undefined && data.bitrate.value !== undefined) {
-        self.self.config.get('bitrate_number', data.bitrate.value);
+        self.config.set('bitrate_number', data.bitrate.value);
     }
     if (data.normalvolume !== undefined) {
         self.config.set('normalvolume', data.normalvolume);
@@ -2627,7 +2662,15 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBr
         self.config.set('debug', data.debug);
     }
 
-    self.config.set('shareddevice', false);
+    if (data.shareddevice !== undefined) {
+        self.config.set('shareddevice', data.shareddevice);
+    }
+    console.log(JSON.stringify(data))
+    if (data.icon && data.icon.value !== undefined) {
+        self.config.set('icon', data.icon.value);
+    }
+
+
     self.selectedBitrate = self.config.get('bitrate_number', '320').toString();
     self.rebuildRestartDaemon()
         .then(() => defer.resolve({}))
@@ -2855,7 +2898,7 @@ ControllerSpotify.prototype.setDeviceActive = function () {
                 defer.resolve('');
             })
             .catch(function (err) {
-                self.logger.info('Failed to Set Device Active: ' + err);
+                self.logger.error('Failed to Set Device Active: ' + err + ' Device ID: ' + self.thisSpotifyConnectDeviceId);
                 defer.reject('');
             });
     })
@@ -2894,7 +2937,10 @@ ControllerSpotify.prototype.volumeListener = function () {
                 currentVolumioVolume = volume;
                 if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
                     if (self.iscurrService()) {
-                        self.setSpotifyVolume(volume);
+                        if (volumeSpotifyDebounce) {
+                            clearTimeout(volumeSpotifyDebounce);
+                        }
+                        volumeSpotifyDebounce = setTimeout(() => { self.setSpotifyVolume(volume)}, 600);
                     }
                 }
             }
@@ -2904,12 +2950,13 @@ ControllerSpotify.prototype.volumeListener = function () {
 
 ControllerSpotify.prototype.setSpotifyVolume = function (volumePercent) {
     var self = this;
-
+    
+    currentSpotifyVolume = volumePercent;
     if (self.spotifyApi) {
         self.spotifyCheckAccessToken().then(()=> {
             self.spotifyApi.setVolume(volumePercent)
                 .then(function () {
-                    currentSpotifyVolume = volumePercent;
+
                     self.debugLog('Setting Spotify Volume ' + volumePercent);
                 }, function (err) {
                     self.debugLog('Error Setting Spotify Volume ' + err);
@@ -2936,16 +2983,16 @@ ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackOb
 ControllerSpotify.prototype.applySpotifyHostsFix = function () {
     var self = this;
 
-    exec('/usr/bin/sudo /bin/chmod 777 /etc/hosts', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
-        if (error !== null) {
-            self.logger.error('Spotify Cannot set permissions for /etc/hosts: ' + error);
+    fs.readFile('/etc/hosts', 'utf8', (err, data) => {
+        if (err) {
+            self.logger.error('Failed to Read hosts file:' + err);
         } else {
-            fs.readFile('/etc/hosts', 'utf8', (err, data) => {
-                if (err) {
-                    self.logger.error('Failed to Read hosts file:' + err);
-                } else {
-                    if (!data.includes('ap-gew4.spotify.com')) {
-                        data = data + os.EOL + '#SPOTIFY HOSTS FIX' + os.EOL + '104.199.65.124  ap-gew4.spotify.com' + os.EOL;
+            if (!data.includes('ap-gew4.spotify.com') || !data.includes('ap-gue1.spotify.com')) {
+                exec('/usr/bin/sudo /bin/chmod 777 /etc/hosts', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
+                    if (error !== null) {
+                        self.logger.error('Spotify Cannot set permissions for /etc/hosts: ' + error);
+                    } else {
+                        data = data + os.EOL + '#SPOTIFY HOSTS FIX' + os.EOL + '104.199.65.124  ap-gew4.spotify.com' + os.EOL + '104.199.65.124  ap-gue1.spotify.com' +  os.EOL;
                         fs.writeFile('/etc/hosts', data, (err) => {
                             if (err) {
                                 self.logger.error('Failed to fix hosts file for Spotify: ' + err);
@@ -2954,8 +3001,8 @@ ControllerSpotify.prototype.applySpotifyHostsFix = function () {
                             }
                         });
                     }
-                }
-            });
+                });
+            }
         }
     });
 };
@@ -3022,14 +3069,55 @@ ControllerSpotify.prototype.clearVolumioQueueFromSpotifySongs = function () {
     self.logger.info('Clearing Spotify queue');
 
     var queue = self.commandRouter.volumioGetQueue();
-    for (var i in queue) {
-        var track = queue[i];
-        if (track && track.service === 'spop') {
-            self.commandRouter.volumioRemoveQueueItem(i+1);
+    try {
+        if (JSON.stringify(queue).includes('spop')) {
+            self.commandRouter.volumioClearQueue();
         }
+    } catch(e) {
+        self.logger.error('Failed to fetch queue for clearing spotify tracks');
     }
+
     setTimeout(()=>{
         defer.resolve('');
     }, 1000)
     return defer.promise;
 };
+
+ControllerSpotify.prototype.checkOldSpotifyConnectPlugin = function () {
+    var self = this;
+    var defer = libQ.defer();
+
+    self.logger.info('Checking for old spotify connect plugin installed');
+
+    var isOldPluginEnabled = self.commandRouter.pluginManager.isEnabled('music_service', 'volspotconnect2');
+    if (isOldPluginEnabled) {
+        self.logger.error('Old Spotify Connect plugin found, disabling it');
+        self.commandRouter.disablePlugin({'category': 'music_service', 'plugin': 'volspotconnect2'}).then(()=>{
+            var responseData = {
+                title: 'SPOTIFY PLUGIN',
+                message: 'WARING! The Spotify plugin might not work properly, since you have both volspotconnect2 and Spotify plugin installed. ' +
+                    'It is strongly suggested to uninstall both plugins, restart your system and then install only the Spotify plugin from Volumio' +
+                    ' plugins store.',
+                size: 'lg',
+                buttons: [
+                    {
+                        name: self.commandRouter.getI18nString('COMMON.GOT_IT'),
+                        class: 'btn btn-info ng-scope',
+                        emit: '',
+                        payload: ''
+                    }
+                ]
+            };
+            self.commandRouter.broadcastMessage('openModal', responseData);
+            defer.resolve('');
+        }).fail(()=> {
+            self.logger.error('Failed to disable Old Connect Plugin');
+            defer.reject('');
+        });
+    } else {
+        defer.resolve('');
+    }
+
+    return defer.promise;
+};
+
