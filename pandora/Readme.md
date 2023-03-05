@@ -219,6 +219,9 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
   * `Timer` class logging now indicates delayed start status.
   * `Timer::PreventAuthTimeout` class now delays its startup.
 
+### Version 2.12.1
+  #### Fixes
+  * The `resume()` function was fixed.  The Volumio `state.status` object key was not being updated to 'play'.  Pausing and resuming should work much better now.  Thanks to @GlennBurnett in the forums for pinpointing this old bug.
 
 ## Issues
 

@@ -1044,9 +1044,11 @@ ControllerPandora.prototype.resume = function () {
 
 
     return self.mpdPlugin.resume()
-        .then(() => self.streamLifeChecker.init());
-        // .then(() => self.mpdPlugin.getState())
-        // .then(state => self.pushState(state));
+        .then(() => self.streamLifeChecker.init())
+        .then(() => {
+            self.state.status = 'play';
+            return self.state.pushState(self.state);
+        });
 };
 
 // enforce slight delay with media controls to avoid traffic jam
