@@ -252,4 +252,4 @@ My alpha fork of the module was rewritten to use Promises instead of callbacks, 
 * <b>@lostmyshape</b> gave me the heads-up about the Unofficial Pandora API and gave me some constructive ideas.  He was the first person to look at my code and give me help.  I also borrowed his mpd player listener callback function which really helped a lot.  Much obliged!
 * <b>@marco79cgn</b> in particular laid the groundwork for my plugin.  I shamelessly borrowed from his code in several areas.
 * The creators of the other Volumio plugins.  I tried to learn from your code.
-* <b>@downtownHippie</b>, <b>@Jim_Edwards</b>, <b>@GlennBurnett</b> in the forum for their helpful and extensive feedback.
+* <b>@downtownHippie</b>, <b>@Jim_Edwards</b>, <b>@GlennBurnett</b> and <b>@davestlou</b> in the forum for their helpful and extensive feedback.
