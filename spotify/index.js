@@ -60,6 +60,7 @@ function ControllerSpotify(context) {
     this.configManager = this.context.configManager;
     // We use a caching manager to speed up the presentation of root page
     this.browseCache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
+    this.ignorePlaybackInactive = false;
 
     // Volatile for metadata
     this.unsetVol = () => {
@@ -181,7 +182,6 @@ ControllerSpotify.prototype.closeSpotifyConnectDaemonConnections = function () {
 
 ControllerSpotify.prototype.handleBrowseUri = function (curUri) {
     var self = this;
-
     self.commandRouter.logger.info('In handleBrowseUri, curUri=' + curUri);
     var response;
 
@@ -1307,10 +1307,31 @@ ControllerSpotify.prototype.getUIConfig = function () {
 ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
     var self = this;
     self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::clearAddPlayTrack');
+    
+    self.ignorePlaybackInactive = true;
+    setTimeout(() => {
+        self.ignorePlaybackInactive = false;
+    }, 2000)
 
+    var queue = self.commandRouter.volumioGetQueue();
+
+    var uriList = [];
+    var addToTrackList = false;
+
+    if (queue && queue.length > 0) {
+        for (var i = 0; i < queue.length; i++) {
+            if (queue[i].uri === track.uri) {
+                addToTrackList = true;
+            }
+            if (addToTrackList) {
+                uriList.push(queue[i].uri);
+            }
+        }
+    }
+    
     try {
         self.setDeviceActive().then(function() {
-            return self.playTrackFromWebAPI(track.uri);
+            return self.playTrackFromWebAPI(uriList, track.uri);
         })
     } catch(e) {
         self.logger.error('Failed to play spotify track: ' + e);
@@ -2146,28 +2167,28 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             this.state.status = 'play';
             if (!this.active) this.ActiveState();
         }
+    }); 
+
+    this.SpotConn.on(this.Events.PlaybackLoading, (data) => {
+        logger.evnt('<PlaybackLoading> Device palyback is loading');
+    });
+
+    this.SpotConn.on(this.Events.TrackChanged, (data) => {
+        logger.evnt('<TrackChanged> ');
     });
 
     this.SpotConn.on(this.Events.PlaybackInactive, (data) => {
-        logger.evnt('<PlaybackInactive> Device palyback is inactive');
-        // Device has finished playing current queue or received a pause command
-        //  overkill async, who are we waiting for?
-
-    });
-
-    this.SpotConn.on(this.Events.SinkInactive, (data) => {
-
-        logger.evnt('<SinkInactive> Sink released');
+    
+        logger.evnt('<PlaybackInactive> PlaybackInactive');
         this.SinkActive = false;
         clearInterval(seekTimer);
         seekTimer = undefined;
-
-        this.debugLog('PLAYBACK INACTIVE ' + data)
-        this.debugLog('IS CONNECT ' + currentTrackContext);
+    
+        this.debugLog('IS CONNECT ' + currentTrackContext.isConnect);
         this.debugLog('VLS STATUS ' + this.VLSStatus);
         this.debugLog('STATE STATUS ' + this.state.status);
         this.debugLog('SINK ACTIVE ' + this.SinkActive);
-
+    
         if (currentTrackContext && currentTrackContext.isConnect) {
             this.state.status = 'pause';
             this.DeactivateState();
@@ -2177,9 +2198,11 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             this.state.status = 'pause';
             this.pushState();
         } else if (!this.SinkActive) {
-            this.debugLog('Device is not active. Cleaning up!');
-            this.state.status = 'stop';
-            this.pushState();
+            //this.debugLog('Device is not active. Cleaning up!');
+            if (!this.ignorePlaybackInactive) {
+                this.state.status = 'stop';
+                this.pushState();
+            }
         } else {
             this.debugLog(`Device Session is_active: ${this.active}`);
             if (this.active) {
@@ -2189,7 +2212,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             }
             this.pushState();
         }
-    });
+    });    
 
     this.SpotConn.on(this.Events.DeviceInactive, (data) => {
         // Connect session has been exited
@@ -2204,6 +2227,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
     });
 
     this.SpotConn.on(this.Events.Metadata, (meta) => {
+
         logger.evnt(`<Metadata> ${meta.track_name}`);
         // Update metadata
         const albumartId = meta.albumartId[2] === undefined ? meta.albumartId[0] : meta.albumartId[2];
@@ -2277,17 +2301,21 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         if (startVolume) {
             startVolume = false;
             // Commented to avoid hitting rate limiting
-            // this.setSpotifyVolume(currentVolumioVolume);
+            this.setSpotifyVolume(currentVolumioVolume);
         } else {
             if (Number.isInteger(vol)) {
                 currentSpotifyVolume = vol;
                 if (currentVolumioVolume !== currentSpotifyVolume) {
                     if (this.iscurrService()) {
+                        this.volumeBlocked = true;
+                        setTimeout(() => {
+                            this.volumeBlocked = false;
+                        }, 1000);
                         if (volumeDebounce) {
                             clearTimeout(volumeDebounce);
                         }
                         // Commented to avoid hitting rate limiting
-                        // volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
+                        volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
                     }
                 }
             }
@@ -2665,7 +2693,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBr
     if (data.shareddevice !== undefined) {
         self.config.set('shareddevice', data.shareddevice);
     }
-    console.log(JSON.stringify(data))
+
     if (data.icon && data.icon.value !== undefined) {
         self.config.set('icon', data.icon.value);
     }
@@ -2713,14 +2741,23 @@ ControllerSpotify.prototype.awawitSpocon = function (type) {
 ControllerSpotify.prototype.stop = function () {
     var defer = libQ.defer();
     logger.info('Spotify Received stop');
-    this.isStopping = true;
-    this.SpotConn.sendmsg(msgMap.get('Pause'));
 
-    setTimeout(()=>{
+
+
+    libQ.delay(0)
+    .then( () => {
+        this.isStopping = true;
+        this.SpotConn.sendmsg(msgMap.get('Pause'));
+    })
+    .delay(1000)
+    .then( () => {
         this.active = false;
         this.isStopping = false;
         defer.resolve('');
-    }, 500)
+    })
+
+
+
 
     return defer.promise;
 };
@@ -2860,16 +2897,16 @@ ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data
     return this.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
 };
 
-ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUri) {
+ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris, index) {
     var self = this;
-
     this.spotifyCheckAccessToken().then(()=>{
         superagent.put('https://api.spotify.com/v1/me/player/play')
             .set("Content-Type", "application/json")
             .set("Authorization", "Bearer " + this.accessToken)
             .send({
                 device_id: self.thisSpotifyConnectDeviceId,
-                uris : [trackUri],
+                uris : trackUris,
+                // offset : {"uri": index},
                 position_ms: 0
             })
             .accept('application/json')
@@ -2898,6 +2935,7 @@ ControllerSpotify.prototype.setDeviceActive = function () {
                 defer.resolve('');
             })
             .catch(function (err) {
+                //TODO, get new device id
                 self.logger.error('Failed to Set Device Active: ' + err + ' Device ID: ' + self.thisSpotifyConnectDeviceId);
                 defer.reject('');
             });
@@ -2936,7 +2974,7 @@ ControllerSpotify.prototype.volumeListener = function () {
                 }
                 currentVolumioVolume = volume;
                 if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
-                    if (self.iscurrService()) {
+                    if (self.iscurrService() && !self.volumeBlocked) {
                         if (volumeSpotifyDebounce) {
                             clearTimeout(volumeSpotifyDebounce);
                         }
