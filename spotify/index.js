@@ -2693,7 +2693,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBr
     if (data.shareddevice !== undefined) {
         self.config.set('shareddevice', data.shareddevice);
     }
-    console.log(JSON.stringify(data))
+
     if (data.icon && data.icon.value !== undefined) {
         self.config.set('icon', data.icon.value);
     }
