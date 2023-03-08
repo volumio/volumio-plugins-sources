@@ -2301,7 +2301,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         if (startVolume) {
             startVolume = false;
             // Commented to avoid hitting rate limiting
-            this.setSpotifyVolume(currentVolumioVolume);
+            //this.setSpotifyVolume(currentVolumioVolume);
         } else {
             if (Number.isInteger(vol)) {
                 currentSpotifyVolume = vol;
@@ -2315,7 +2315,8 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                             clearTimeout(volumeDebounce);
                         }
                         // Commented to avoid hitting rate limiting
-                        volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
+                        // This is just an extra precaution, probably not related
+                        //volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
                     }
                 }
             }
@@ -2978,7 +2979,10 @@ ControllerSpotify.prototype.volumeListener = function () {
                         if (volumeSpotifyDebounce) {
                             clearTimeout(volumeSpotifyDebounce);
                         }
-                        volumeSpotifyDebounce = setTimeout(() => { self.setSpotifyVolume(volume)}, 600);
+                        volumeSpotifyDebounce = setTimeout(() => {
+                            // Commented to avoid rate limit
+                            //self.setSpotifyVolume(volume)
+                        }, 600);
                     }
                 }
             }
