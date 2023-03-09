@@ -41,7 +41,7 @@ if [ ! -f $INSTALLING ]; then
 
 		# Install package and dependencies
 		echo "Installing downloaded package"
-		dpkg --force-depends --install logitechmediaserver_8.3.0_all.deb
+		dpkg --force-depends --install logitechmediaserver_8.3.1_all.deb
 
 		# Needed for SSL connections; e.g. github
 		apt-get install libio-socket-ssl-perl lame unzip -y
