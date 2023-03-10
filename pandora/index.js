@@ -1210,7 +1210,10 @@ ControllerPandora.prototype.pushState = function (state) {
     state.samplerate = '44.1 KHz';
     self.commandRouter.servicePushState(state, serviceName);
 
-    return self.commandRouter.stateMachine.setConsumeUpdateService('pandora');
+    // self.commandRouter.stateMachine.setConsumeUpdateService('pandora');
+    self.commandRouter.stateMachine.setConsumeUpdateService('mpd', true, false);
+
+    return libQ.resolve();
 };
 
 ControllerPandora.prototype.explodeUri = function (uri) {
