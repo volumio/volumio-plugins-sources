@@ -143,11 +143,9 @@ Dstmmix.prototype.getUIConfig = function () {
 		          	"label": "Install LMS update",
 		          	"description": "Check and Install LMS update (8.3.1)",
 		          	"onClick": {
-		            "type": "plugin",
-		            "endpoint": "music_service/dstmmix",
-		            "method": "installupdate",
-		            "data": [] }
-					})	
+                    		"type": "openUrl",
+                    		"url": "http://" + IPaddress + ":10002/update"
+                     }})
 			
 					
 			uiconf.sections[1].content.push(
@@ -300,36 +298,5 @@ self.commandRouter.pushToastMessage('info', 'Tool install finished');
       self.refreshUI();
       self.socket.emit('updateDb');
       self.commandRouter.pushToasitMessage('info', 'Tool install finshed')
- })        
- }
- 
- 
- Dstmmix.prototype.installupdate = function (data) {
-  const self = this;
-  return new Promise(async function (resolve, reject) {
-    try {	
-    let modalData = {
-        title: 'Update in progress',
-        message: 'Install of update in progress, press "ESC" when end toast message appears in the page.',
-        size: 'lg'
-      };	
-      self.commandRouter.broadcastMessage("openModal", modalData);
-      const child = require('child_process').exec('/bin/bash /data/plugins/music_service/dstmmix/update.sh' );  
-      await new Promise( (resolve) => {
-    child.on('close', resolve), setTimeout(resolve, 8000)
-    
-});
-self.commandRouter.pushToastMessage('info', 'Tool update finished');
-}
-   catch (err) {
-      self.logger.error('An error occurs while downloading or updating tools');
-     self.commandRouter.pushToastMessage('error', 'An error occurs while downloading or updating tools');
-   }
-
-    resolve()
-     self.config.set('toolsupdated', true);
-      self.refreshUI();
-      self.socket.emit('updateDb');
-      self.commandRouter.pushToasitMessage('info', 'Tool update finshed')
  })        
  }
