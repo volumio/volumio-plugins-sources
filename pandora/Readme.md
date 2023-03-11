@@ -224,6 +224,7 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
   * The `resume()` function was fixed.  The Volumio `state.status` object key was not being updated to 'play'.  Pausing and resuming should work much better now.  Thanks to @GlennBurnett in the forums for pinpointing this old bug.
   * Stopping / Deactivating the plugin will (should!) clear the "ghost" album cover thumbnail and metadata from Volumio's GUI.  @downtownHippie asked me to fix this a long time ago and it was bugging me even before he mentioned it.  I have been chasing this bug for years now and I hope that it is finally gone!
   * Fixed an error in `pushState()` that wasn't updating the status correctly after a pause. Thanks to @GlennBurnett who alerted me to this issue and helped me fix it.
+  * The "No results" red error toast when choosing a station has been fixed -- there was no final "response" returned from `handleBrowseUri()`.
 
 ## Issues
 
