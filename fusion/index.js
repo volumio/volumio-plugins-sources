@@ -80,14 +80,14 @@ FusionDsp.prototype.onStart = function () {
   } else {
     self.config.set('showloudness', true)
   }
-  //
-
+  
   setTimeout(function () {
     self.createCamilladspfile()
     if (self.config.get('loudness')) {
       self.sendvolumelevel()
     }
   }, 2000);
+
   defer.resolve();
   return defer.promise;
 };
@@ -1761,7 +1761,7 @@ FusionDsp.prototype.choosedsp = function (data) {
     } else {
       self.config.set('geq3', self.config.get('savedgeq3'))
     }
-   // self.config.set('geq3', self.config.get('savedgeq3'))
+    // self.config.set('geq3', self.config.get('savedgeq3'))
     self.config.set('crossfeed', "None")
     self.config.set('monooutput', false)
     self.config.set('loudness', false)
@@ -2123,12 +2123,21 @@ FusionDsp.prototype.areSampleswitch = function () {
     let filterNameForSwapc = filterNameShort + swapWord + fileExt;
     let filterNameForSwap = filterNameShort + "$samplerate$" + fileExt;
     // self.logger.info('sample switch possible !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + filterNameForSwap)
-
-    if (fs.exists(filterfolder + filterNameForSwap)) {
-      return [true, filterNameForSwap]
-    } else {
-      return false
-    }
+    try {
+      if (fs.existsSync(filterfolder + filterNameForSwap)) {
+        return [true, filterNameForSwap];
+      }
+      return [false, null];
+    } catch (e) {
+      self.logger.error(cmd);
+    };
+    /*
+        if (fs.exists(filterfolder + filterNameForSwap)) {
+          return [true, filterNameForSwap]
+        } else {
+          return false
+        }
+        */
   };
   let leftResultExist = isFileExist(leftFilter1, '96000');
   let toSaveLeftResult = leftResultExist[1];
@@ -2147,16 +2156,19 @@ FusionDsp.prototype.areSampleswitch = function () {
   self.refreshUI()
 };
 
-//------------Here we detect if clipping occurs while playing and gives a suggestion of setting...------
+//------------Here we detect if clipping occurs while playing ------
 FusionDsp.prototype.testclipping = function () {
   const self = this;
   let defer = libQ.defer();
   let messageDisplayed;
-  self.socket.emit('stop');
   let arrreduced;
   let arr = [];
   let filelength = self.config.get('filter_size');
+  let track = '/data/plugins/audio_interface/fusiondsp/testclipping/testclipping.wav';
+
   setTimeout(function () {
+    self.socket.emit('pause');
+
     self.config.set('loudness', false);
     self.config.set('monooutput', false);
     self.config.set('crossfeed', 'None');
@@ -2165,12 +2177,12 @@ FusionDsp.prototype.testclipping = function () {
     self.config.set('muteleft', false);
     self.config.set('muteright', false);
     self.config.set('testclipping', true)
+
     self.createCamilladspfile();
   }, 300);
 
   setTimeout(function () {
 
-    let track = '/data/plugins/audio_interface/fusiondsp/testclipping/testclipping.wav';
     try {
       let cmd = ('/usr/bin/aplay -c2 --device=volumio ' + track);
       self.commandRouter.pushToastMessage('info', 'Clipping detection in progress...');
@@ -2181,7 +2193,7 @@ FusionDsp.prototype.testclipping = function () {
     } catch (e) {
       self.logger.error(cmd);
     };
-  }, 500);
+  }, 1500);
 
   setTimeout(function () {
 
@@ -2197,7 +2209,7 @@ FusionDsp.prototype.testclipping = function () {
 
           let attcalculated = filteredMessage[2]
           messageDisplayed = Number(attcalculated);
-          self.logger.info('clipping detection gives in line ' + o + " " + messageDisplayed)
+          self.logger.info('clipping detection gives values in line ' + o + " " + messageDisplayed)
           arr.push(messageDisplayed);
         }
       }
@@ -2206,8 +2218,6 @@ FusionDsp.prototype.testclipping = function () {
       self.logger.error('An error occurs while reading file');
     }
 
-
-    // self.logger.info("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh " + arr);
     arr.sort((a, b) => {
       if (a > b) return 1;
       if (a < b) return -1;
@@ -2222,7 +2232,6 @@ FusionDsp.prototype.testclipping = function () {
     self.config.set('attenuationr', arrreduced);
     self.config.set('testclipping', false)
     self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('FILTER_LENGTH') + filelength, self.commandRouter.getI18nString('AUTO_ATTENUATION_SET') + arrreduced + ' dB');
-    self.commandRouter.pushToastMessage('info', 'Attenuation set to: ' + arrreduced + ' dB');
 
     let ltest, rtest, cleftfilter, crightfilter, test
 
@@ -2238,7 +2247,7 @@ FusionDsp.prototype.testclipping = function () {
     self.refreshUI();
     self.createCamilladspfile();
 
-  }, 4810);
+  }, 8110);
   return defer.promise;
 
 };
@@ -2370,10 +2379,13 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       var leftlevel = self.config.get('leftlevel')
       var rightlevel = self.config.get('rightlevel')
       //----fIr VARIABLES----
-      let filter1 = self.config.get('leftfilter');
-      let filter2 = self.config.get('rightfilter');
+      let leftfilter = self.config.get('leftfilter');
+      let filter1 = leftfilter
+      let rightfilter = self.config.get('rightfilter');
+      let filter2 = rightfilter
       var attenuation = self.config.get('attenuationl');
       var testclipping = self.config.get('testclipping')
+    
       // var smpl_rate = self.config.get('smpl_rate')
       var filter_format = self.config.get('filter_format')
       let val = self.dfiltertype(obj);
@@ -2393,7 +2405,6 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       let resamplingset = self.config.get('resamplingset')
       let allowdownsamplig = true
       let autoatt = self.config.get('autoatt')
-
 
       //----compose output----
       if (testclipping) {
@@ -3418,8 +3429,56 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
   return defer.promise;
 };
+/*
+//----------------------here we check if conv filters still exist-- NOT IN USE!!!
+FusionDsp.prototype.checkconvexist = function () {
+  const self = this;
+  let defer = libQ.defer();
+  let leftfilter = self.config.get("leftfilter")
+  let rightfilter = self.config.get("rightfilter")
 
+  if (leftfilter != "None" || rightfilter != "None") {
+    //we check if the file for filter still exists
+    try {
+      const leftFilterPath = path.join(filterfolder, leftfilter);
+      const rightFilterPath = path.join(filterfolder, rightfilter);
 
+      const leftFilterExists = fs.existsSync(leftFilterPath);
+      const rightFilterExists = fs.existsSync(rightFilterPath);
+      return new Promise((resolve, reject) => {
+        if (leftFilterExists && rightFilterExists) {
+          // self.logger.info('__________________YES_files ok');
+          self.refreshUI();
+          resolve(yes);
+
+          //return [true, null];
+        } else {
+          self.logger.error('__________________NO__A file is missing');
+          self.commandRouter.pushToastMessage('error', "One filter file is missing!, please reselect it! ");
+          self.config.set("leftfilter", "None")
+          self.config.set("leftfilterlabel", "None")
+          self.config.set("rightfilter", "None")
+          self.config.set('attenuationl', 0);
+          self.config.set('attenuationr', 0);
+          self.config.set("savedmergedeqfir", "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|");
+          self.config.set("mergedeq", "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|");
+
+          self.refreshUI();
+          setTimeout(function () {
+            self.createCamilladspfile()
+          }, 800);
+          self.logger.error('__________________STOP NOW__');
+          reject(er)
+          //  return [false, null];
+        }
+      })
+    } catch (e) {
+      self.logger.error(e);
+    }
+  }
+
+};
+*/
 //----------------------here we save eqs config.json
 FusionDsp.prototype.saveparameq = function (data, obj) {
   const self = this;
@@ -3660,6 +3719,44 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     let leftfilter = (data['leftfilter'].value);
     let rightfilter = (data['rightfilter'].value);
 
+    //    self.checkconvexist()
+    
+    if (leftfilter != "None" || rightfilter != "None") {
+      //we check if the file for filter still exists
+      try {
+        const leftFilterPath = path.join(filterfolder, leftfilter);
+        const rightFilterPath = path.join(filterfolder, rightfilter);
+
+        const leftFilterExists = fs.existsSync(leftFilterPath);
+        const rightFilterExists = fs.existsSync(rightFilterPath);
+        //   return new Promise((resolve, reject) => {
+        if (leftFilterExists && rightFilterExists) {
+          self.logger.info('__________________YES_files ok');
+
+        } else {
+          self.logger.error('__________________NO__A file is missing');
+          self.commandRouter.pushToastMessage('error', "One filter file is missing!, please reselect it! ");
+          self.config.set("leftfilter", "None")
+          self.config.set("leftfilterlabel", "None")
+          self.config.set("rightfilter", "None")
+          self.config.set("filter_format", "TEXT")
+          self.config.set('attenuationl', 0);
+          self.config.set('attenuationr', 0);
+          self.config.set("savedmergedeqfir", "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|");
+          self.config.set("mergedeq", "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|");
+          setTimeout(function () {
+            self.createCamilladspfile()
+          }, 100);
+          self.logger.error('__________________STOP NOW__');
+          self.refreshUI();
+          return [false, null];
+        }
+      } catch (e) {
+        self.logger.error(e);
+      }
+    }
+
+
     let filtername //= self.config.get('leftfilterlabel');
     let filext = (data['leftfilter'].value).split('.').pop().toString();
 
@@ -3707,10 +3804,12 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       if (leftfilter == 'None') {
         typerl = 'None'
         attenuationl = 0
+        self.config.set('attenuationl', attenuationl);
       }
       if (rightfilter == 'None') {
         typerr = 'None'
         attenuationr = 0
+        self.config.set('attenuationr', attenuationr);
       }
       ltest = ('Eq1' + '|' + typerl + '|L' + cleftfilter + '|' + attenuationl + '|');
       rtest = ('Eq2' + '|' + typerr + '|R' + crightfilter + '|' + attenuationr + '|');
