@@ -1,4 +1,4 @@
-March 05th 2023
+March 125th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -141,6 +141,9 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+March 12th 2023 v1.0.40
+
+- FIR clipping detection fix
 
 March 5th 2023 v1.0.39
 
