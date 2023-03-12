@@ -11,16 +11,16 @@
 		# Download Script
 		chmod 755 -R /home/volumio/Blissanalyser/
 
-		cd /home/volumio/Blissanalyser/
+		cd /home/volumio/Blissanalyser/ || exit
 		
 		arch=$(lscpu | awk 'FNR == 1 {print $2}')
 
-		if [ $arch = "x86_64" ]
+		if [ "$arch" = "x86_64" ]
 		 then
 		    echo "X86 Architecture"
 		wget -O bliss-analyser https://dl.rexnvs.com/dl/bliss-analyser%20x86     
 				    
-		elif  [ $arch = "armv7l" ] || [ $arch = "armv6l" ] 
+		elif  [ "$arch" = "armv7l" ] || [ "$arch" = "armv6l" ]
 		 then
 		    echo "ARM Architecture"
 		wget -O bliss-analyser https://dl.rexnvs.com/dl/bliss-analyser%20primo%20ARMf71    
@@ -31,7 +31,8 @@
 
 
 		# Download ini file based on music location
-		if [ `find /media -type f | wc -l` -eq 0 ]
+		# shellcheck disable=SC2046
+		if [ $(find /media -type f | wc -l) -eq 0 ]
 		then
 			wget -O config.ini https://dl.rexnvs.com/dl/config.ini
 			echo "media on NAS"
