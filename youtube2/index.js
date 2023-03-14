@@ -1,416 +1,417 @@
 'use strict';
 
-const path = require('path');
-global.yt2PluginLibRoot = path.resolve(__dirname) + '/lib';
-
 const libQ = require('kew');
-const yt2 = require(yt2PluginLibRoot + '/youtube2');
-const BrowseController = require(yt2PluginLibRoot + '/controller/browse');
-const SearchController = require(yt2PluginLibRoot + '/controller/search');
-const PlayController = require(yt2PluginLibRoot + '/controller/play');
-const UIConfigHelper = require(yt2PluginLibRoot + '/helper/uiconfig');
+const yt2 = require('./lib/youtube2');
+const { default: InnerTube } = require('volumio-youtubei.js');
+const Auth = require('./lib/utils/auth');
+const { BrowseController, PlayController, SearchController } = require('./lib/controller');
+const ViewHelper = require('./lib/helper/view');
+const Model = require('./lib/model');
 
 module.exports = ControllerYouTube2;
 
+
 function ControllerYouTube2(context) {
-	this.context = context;
-	this.commandRouter = this.context.coreCommand;
-	this.logger = this.context.logger;
-    this.configManager = this.context.configManager;
+  this.context = context;
+  this.commandRouter = this.context.coreCommand;
+  this.logger = this.context.logger;
+  this.configManager = this.context.configManager;
 }
 
-ControllerYouTube2.prototype.getUIConfig = function() {
-    let self = this;
-    let defer = libQ.defer();
+ControllerYouTube2.prototype.getUIConfig = function () {
+  const defer = libQ.defer();
 
-    let lang_code = self.commandRouter.sharedVars.get('language_code');
+  const langCode = this.commandRouter.sharedVars.get('language_code');
+  const loadConfigPromises = [
+    this.commandRouter.i18nJson(__dirname + '/i18n/strings_' + langCode + '.json',
+      __dirname + '/i18n/strings_en.json',
+      __dirname + '/UIConfig.json'),
+    this.getConfigI18nOptions()
+  ];
 
-    self.commandRouter.i18nJson(__dirname + '/i18n/strings_' + lang_code + '.json',
-        __dirname + '/i18n/strings_en.json',
-        __dirname + '/UIConfig.json')
-    .then( (uiconf) => {
-        let dataRetrievalUIConf= uiconf.sections[0];
-        let gapiStatusUIConf = uiconf.sections[1];
-        let navUIConf = uiconf.sections[2];
-        let playbackUIConf = uiconf.sections[3];
-        let cacheUIConf = uiconf.sections[4];
-        let addFrontPageSectionUIConf = uiconf.sections[5];
+  const authStatus = Auth.getAuthStatus();
+  if (authStatus.status === Auth.SIGNED_IN) {
+    loadConfigPromises.push(this.getConfigAccountInfo());
+  }
+  else {
+    loadConfigPromises.push(libQ.resolve(null));
+  }
 
-        // Remove addFrontPageSectionUIConf (will add it back after all current
-        // front page sections)
-        uiconf.sections.splice(5, 1);
+  const configModel = Model.getInstance('config');
 
-        // Data Retrieval section
-        let method = yt2.getConfigValue('dataRetrievalMethod', 'scraping');
-        let credentials = yt2.getConfigValue('gapiCredentials', {}, true);
-        let clientId = credentials.clientId ? credentials.clientId : '';
-        let clientSecret = credentials.clientSecret ? credentials.clientSecret : '';
-        let languageOptions = UIConfigHelper.getLanguageOptions();
-        let regionOptions = UIConfigHelper.getRegionOptions();
-        dataRetrievalUIConf.content[0].value = {
-            value: method,
-            label: method === 'gapi' ? yt2.getI18n('YOUTUBE2_METHOD_GAPI') : yt2.getI18n('YOUTUBE2_METHOD_SCRAPING')
-        }
-        dataRetrievalUIConf.content[1].value = clientId;
-        dataRetrievalUIConf.content[2].value = clientSecret;
-        dataRetrievalUIConf.content[3].value = languageOptions.selected;
-        dataRetrievalUIConf.content[3].options = languageOptions.options;
-        dataRetrievalUIConf.content[4].value = regionOptions.selected;
-        dataRetrievalUIConf.content[4].options = regionOptions.options;
+  libQ.all(loadConfigPromises)
+    .then(([uiconf, i18nOptions, account]) => {
+      const i18nUIConf = uiconf.sections[0];
+      const accountUIConf = uiconf.sections[1];
+      const browseUIConf = uiconf.sections[2];
+      const playbackUIConf = uiconf.sections[3];
 
-        // Google YouTube API Client Status section
-        let removeAccessUIConf = false;
-        if (yt2.getConfigValue('dataRetrievalMethod', 'scraping') !== 'gapi') {
-            removeAccessUIConf = true;
-        }
-        else if (self.accessStatus === yt2.ACCESS_STATUS_PROCESSING) {
-            gapiStatusUIConf.description =  yt2.getI18n('YOUTUBE2_ACCESS_DESC_PROCESSING');
-        }
-        else if (self.accessStatus === yt2.ACCESS_STATUS_ERROR) {
-            gapiStatusUIConf.description =  yt2.getI18n('YOUTUBE2_ACCESS_DESC_ERROR');
-        }
-        else if (self.accessStatus === yt2.ACCESS_STATUS_GRANTED) {
-            gapiStatusUIConf.description =  yt2.getI18n('YOUTUBE2_ACCESS_DESC_GRANTED');
-        }
-        else if (self.accessStatus === yt2.ACCESS_STATUS_PENDING_GRANT) {
-            gapiStatusUIConf.description =  yt2.getI18n('YOUTUBE2_ACCESS_DESC_GRANT');
-            gapiStatusUIConf.content = [
-                {
-                    id: 'verificationUrl',
-                    type: 'text',
-                    element: 'input',
-                    label: yt2.getI18n('YOUTUBE2_VERIFICATION_URL'),
-                    value: self.accessStatusData.grantAccessPageInfo.verification_url
-                },
-                {
-                    id:'openVerificationUrl',
-                    element: 'button',
-                    label: yt2.getI18n('YOUTUBE2_GO_TO_VERIFICATION_URL'),
-                    onClick: {
-                        type: 'openUrl',
-                        url: self.accessStatusData.grantAccessPageInfo.verification_url
-                    }
-                },
-                {
-                    id: 'code',
-                    type: 'text',
-                    element: 'input',
-                    label: yt2.getI18n('YOUTUBE2_CODE'),
-                    value: self.accessStatusData.grantAccessPageInfo.user_code
-                },
-            ];
+      // i18n
+      // -- region
+      i18nUIConf.content[0].label = i18nOptions.options.region.label;
+      i18nUIConf.content[0].options = i18nOptions.options.region.optionValues;
+      i18nUIConf.content[0].value = i18nOptions.selected.region;
+      i18nUIConf.content[1].label = i18nOptions.options.language.label;
+      i18nUIConf.content[1].options = i18nOptions.options.language.optionValues;
+      i18nUIConf.content[1].value = i18nOptions.selected.language;
+
+      // Account
+      const authStatus = Auth.getAuthStatus();
+      let authStatusDescription;
+      switch (authStatus.status) {
+        case Auth.SIGNED_IN:
+          if (account) {
+            authStatusDescription = yt2.getI18n('YOUTUBE2_AUTH_STATUS_SIGNED_IN_AS', account.name);
+          }
+          else {
+            authStatusDescription = yt2.getI18n('YOUTUBE2_AUTH_STATUS_SIGNED_IN');
+          }
+          break;
+        case Auth.SIGNING_IN:
+          authStatusDescription = yt2.getI18n('YOUTUBE2_AUTH_STATUS_SIGNING_IN');
+          break;
+        case Auth.ERROR:
+          authStatusDescription = yt2.getI18n('YOUTUBE2_AUTH_STATUS_ERROR',
+            yt2.getErrorMessage('', authStatus.error, false));
+          break;
+        default:  // Auth.SIGNED_OUT
+          authStatusDescription = yt2.getI18n('YOUTUBE2_AUTH_STATUS_SIGNED_OUT');
+      }
+
+      if (authStatus.status === Auth.SIGNED_OUT) {
+        if (authStatus.verificationInfo) {
+          authStatusDescription += ' ' + yt2.getI18n('YOUTUBE2_AUTH_STATUS_CODE_READY');
+
+          accountUIConf.content = [
+            {
+              id: 'verificationUrl',
+              type: 'text',
+              element: 'input',
+              label: yt2.getI18n('YOUTUBE2_VERIFICATION_URL'),
+              value: authStatus.verificationInfo.verification_url
+            },
+            {
+              id: 'openVerificationUrl',
+              element: 'button',
+              label: yt2.getI18n('YOUTUBE2_GO_TO_VERIFICATION_URL'),
+              onClick: {
+                type: 'openUrl',
+                url: authStatus.verificationInfo.verification_url
+              }
+            },
+            {
+              id: 'code',
+              type: 'text',
+              element: 'input',
+              label: yt2.getI18n('YOUTUBE2_DEVICE_CODE'),
+              value: authStatus.verificationInfo.user_code
+            },
+          ];
         }
         else {
-            removeAccessUIConf = true;
+          authStatusDescription += ' ' + yt2.getI18n('YOUTUBE2_AUTH_STATUS_CODE_PENDING');
         }
+      }
+      else if (authStatus.status === Auth.SIGNED_IN) {
+        accountUIConf.content = [
+          {
+            id: 'signOut',
+            element: 'button',
+            label: yt2.getI18n('YOUTUBE2_SIGN_OUT'),
+            onClick: {
+              type: 'emit',
+              message: 'callMethod',
+              data: {
+                endpoint: 'music_service/youtube2',
+                method: 'configSignOut'
+              }
+            }
+          }
+        ];
+      }
 
-        // Navigation section
-        let itemsPerPage = yt2.getConfigValue('itemsPerPage', 47);
-        let combinedSearchResults = yt2.getConfigValue('combinedSearchResults', 11);
-        navUIConf.content[0].value = itemsPerPage;
-        navUIConf.content[1].value = combinedSearchResults;
+      accountUIConf.description = authStatusDescription;
 
-        // Playback section
-        let autoplay = yt2.getConfigValue('autoplay', false);
-        playbackUIConf.content[0].value = autoplay;
+      // Browse
+      const rootContentType = yt2.getConfigValue('rootContentType', 'full');
+      const rootContentTypeOptions = configModel.getRootContentTypeOptions();
+      const loadFullPlaylists = yt2.getConfigValue('loadFullPlaylists', false);
+      browseUIConf.content[0].options = rootContentTypeOptions;
+      browseUIConf.content[0].value = rootContentTypeOptions.find((o) => o.value === rootContentType);
+      browseUIConf.content[1].value = loadFullPlaylists;
 
-        // Cache section
-        let cacheMaxEntries = yt2.getConfigValue('cacheMaxEntries', 5000);
-        let cacheTTL = yt2.getConfigValue('cacheTTL', 1800);
-        let cacheEntryCount = yt2.getCache().getEntryCount();
-        cacheUIConf.content[0].value = cacheMaxEntries;
-        cacheUIConf.content[1].value = cacheTTL;
-        cacheUIConf.description = cacheEntryCount > 0 ? yt2.getI18n('YOUTUBE2_CACHE_STATS', cacheEntryCount, Math.round(yt2.getCache().getMemoryUsageInKB()).toLocaleString()) : yt2.getI18n('YOUTUBE2_CACHE_EMPTY');
+      // Playback
+      const autoplay = yt2.getConfigValue('autoplay', false);
+      const autoplayClearQueue = yt2.getConfigValue('autoplayClearQueue', false);
+      const addToHistory = yt2.getConfigValue('addToHistory', true);
+      const liveStreamQuality = yt2.getConfigValue('liveStreamQuality', 'auto');
+      const liveStreamQualityOptions = configModel.getLiveStreamQualityOptions();
+      playbackUIConf.content[0].value = autoplay;
+      playbackUIConf.content[1].value = autoplayClearQueue;
+      playbackUIConf.content[2].value = addToHistory;
+      playbackUIConf.content[3].options = liveStreamQualityOptions;
+      playbackUIConf.content[3].value = liveStreamQualityOptions.find((o) => o.value === liveStreamQuality);
 
-        // Remove Google YouTube API Client Status section?
-        if (removeAccessUIConf) {
-            uiconf.sections.splice(1, 1);
-        }
-
-        // Add current front page sections
-        let frontPageSections = yt2.getConfigValue('frontPageSections', [], true);
-        let uiconfFrontPageSections = UIConfigHelper.constructFrontPageSections(frontPageSections);
-        uiconf.sections.push(...uiconfFrontPageSections);
-
-        // Add addFrontPageSectionUIConf back
-        uiconf.sections.push(addFrontPageSectionUIConf);
-
-        defer.resolve(uiconf);
+      defer.resolve(uiconf);
     })
-    .fail( (error) => {
-            yt2.getLogger().error('[youtube2] getUIConfig(): Cannot populate YouTube2 configuration - ' + error);
-            defer.reject(new Error());
-        }
+    .fail((error) => {
+      yt2.getLogger().error('[youtube2] getUIConfig(): Cannot populate YouTube2 configuration - ' + error);
+      defer.reject(Error());
+    }
     );
 
-    return defer.promise;
+  return defer.promise;
 };
 
-ControllerYouTube2.prototype.configSaveDataRetrieval = function(data) {
-    this.config.set('language', data['language'].value);
-    this.config.set('region', data['region'].value);
+ControllerYouTube2.prototype.onVolumioStart = function () {
+  const configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
+  this.config = new (require('v-conf'))();
+  this.config.loadFile(configFile);
 
-    let oldMethod = this.config.get('dataRetrievalMethod', 'scraping');
-    let newMethod = data['method'].value;
-    if (newMethod === 'gapi') {
-        if (data['clientId'] == undefined || data['clientId'].trim() === '') {
-            yt2.toast('error', yt2.getI18n('YOUTUBE2_PROVIDE_CLIENT_ID'));
-            return;
-        }
-        if (data['clientSecret'] == undefined || data['clientSecret'].trim() === '') {
-            yt2.toast('error', yt2.getI18n('YOUTUBE2_PROVIDE_CLIENT_SECRET'));
-            return;
-        }
-        let credentials = {
-            clientId: data['clientId'],
-            clientSecret: data['clientSecret']
-        };
-        this.config.set('gapiCredentials', JSON.stringify(credentials));
-    }
-    this.config.set('dataRetrievalMethod', newMethod);
-
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
-
-    if (oldMethod !== newMethod) {
-        this.refreshUIConfig(true);
-    }
+  return libQ.resolve();
 }
 
-ControllerYouTube2.prototype.configSaveNav = function(data) {
-    let itemsPerPage = parseInt(data['itemsPerPage'], 10);
-    let combinedSearchResults = parseInt(data['combinedSearchResults'], 10);
-    if (!itemsPerPage) {
-        yt2.toast('error', yt2.getI18n('YOUTUBE2_SETTINGS_ERR_ITEMS_PER_PAGE'));
-        return;
-    }
-    if (!combinedSearchResults) {
-        yt2.toast('error', yt2.getI18n('YOUTUBE2_SETTINGS_ERR_COMBINED_SEARCH_RESULTS'));
-        return;
-    }
+ControllerYouTube2.prototype.onStart = function () {
+  const defer = libQ.defer();
 
-    this.config.set('itemsPerPage', itemsPerPage);
-    this.config.set('combinedSearchResults', combinedSearchResults);
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));   
+  yt2.init(this.context, this.config);
+
+  this.browseController = new BrowseController();
+  this.searchController = new SearchController();
+  this.playController = new PlayController();
+
+  this.initInnerTube().then(() => {
+    this.addToBrowseSources();
+    defer.resolve();
+  });
+
+  return defer.promise;
+};
+
+ControllerYouTube2.prototype.onStop = function () {
+  this.commandRouter.volumioRemoveToBrowseSources('YouTube2');
+
+  this.browseController = null;
+  this.searchController = null;
+  this.playController = null;
+
+  Auth.unregisterAuthHandlers();
+
+  yt2.reset();
+
+  return libQ.resolve();
+};
+
+ControllerYouTube2.prototype.initInnerTube = function () {
+  const defer = libQ.defer();
+
+  const innerTube = yt2.get('innertube');
+  if (innerTube) {
+    Auth.unregisterAuthHandlers();
+    yt2.set('innertube', null);
+  }
+
+  InnerTube.create().then((innerTube) => {
+    yt2.set('innertube', innerTube);
+    this.applyI18nConfigToInnerTube();
+    Auth.registerAuthHandlers();
+    Auth.signIn();
+    defer.resolve(innerTube);
+  })
+    .catch((error) => {
+      defer.reject(error);
+    });
+
+  return defer.promise;
 }
 
-ControllerYouTube2.prototype.configSavePlayback = function(data) {
-    this.config.set('autoplay', data['autoplay']);
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
+ControllerYouTube2.prototype.applyI18nConfigToInnerTube = function () {
+  const innerTube = yt2.get('innertube');
+  if (innerTube) {
+    const region = yt2.getConfigValue('region', 'US');
+    const language = yt2.getConfigValue('language', 'en');
+
+    innerTube.session.context.client.gl = region;
+    innerTube.session.context.client.hl = language;
+  }
 }
 
-ControllerYouTube2.prototype.configSaveCacheSettings = function(data) {
-    let cacheMaxEntries = parseInt(data['cacheMaxEntries'], 10);
-    let cacheTTL = parseInt(data['cacheTTL'], 10);
-    if (cacheMaxEntries < 1000) {
-        yt2.toast('error', yt2.getI18n('YOUTUBE2_SETTINGS_ERR_CACHE_MAX_ENTRIES'));
-        return;
-    }
-    if (cacheTTL < 600) {
-        yt2.toast('error', yt2.getI18n('YOUTUBE2_SETTINGS_ERR_CACHE_TTL'));
-        return;
-    }
-
-    this.config.set('cacheMaxEntries', cacheMaxEntries);
-    this.config.set('cacheTTL', cacheTTL);
-
-    yt2.getCache().setMaxEntries(cacheMaxEntries);
-    yt2.getCache().setTTL(cacheTTL);
-
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
-    this.refreshUIConfig();
+ControllerYouTube2.prototype.getConfigurationFiles = function () {
+  return ['config.json'];
 }
 
-ControllerYouTube2.prototype.configClearCache = function() {
-    yt2.getCache().clear();
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_CACHE_CLEARED'));
-    this.refreshUIConfig();
-}
+ControllerYouTube2.prototype.getConfigI18nOptions = function () {
+  const defer = libQ.defer();
 
-ControllerYouTube2.prototype.configAddFrontPageSection = function(data) {
-    if (data['keywords'] == undefined || data['keywords'].trim() === '') {
-        yt2.toast('error', yt2.getI18n('YOUTUBE2_PROVIDE_KEYWORDS'));
-        return;
-    }
-    let itemCount = parseInt(data['itemCount'], 10);
-    if (!itemCount) {
-        yt2.toast('error', yt2.getI18n('YOUTUBE2_SETTINGS_ERR_ITEM_COUNT'));
-        return;
-    }
-
-    let newSection = {
-        enabled: true,
-        title: data['title'],
-        sortOrder: data['sortOrder'],
-        itemType: data['itemType'].value,
-        keywords: data['keywords'].trim(),
-        itemCount: itemCount
+  const model = Model.getInstance('config');
+  model.getI18nOptions().then((options) => {
+    const selectedValues = {
+      region: yt2.getConfigValue('region', 'US'),
+      language: yt2.getConfigValue('language', 'en')
     };
-    let sections = yt2.getConfigValue('frontPageSections', [], true);
-    sections.push(newSection);
-    UIConfigHelper.sortFrontPageSections(sections);
-    this.config.set('frontPageSections', JSON.stringify(sections));
+    const selected = {};
+    ['region', 'language'].forEach((key) => {
+      selected[key] = options[key].optionValues.find((ov) => ov.value === selectedValues[key]) || { label: '', value: selectedValues[key] };
+    });
 
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_SECTION_ADDED'));
-    this.refreshUIConfig(true);
+    defer.resolve({
+      options,
+      selected
+    });
+  });
+
+  return defer.promise;
 }
 
-ControllerYouTube2.prototype.configUpdateFrontPageSection = function(data) {
-    if (data['keywords'] == undefined || data['keywords'].trim() === '') {
-        yt2.toast('error', yt2.getI18n('YOUTUBE2_PROVIDE_KEYWORDS'));
-        return;
-    }
-    let itemCount = parseInt(data['itemCount'], 10);
-    if (!itemCount) {
-        yt2.toast('error', yt2.getI18n('YOUTUBE2_SETTINGS_ERR_ITEM_COUNT'));
-        return;
-    }
+ControllerYouTube2.prototype.getConfigAccountInfo = function () {
+  const defer = libQ.defer();
 
-    let updateSection = {
-        enabled: data['enabled'],
-        title: data['title'],
-        sortOrder: data['sortOrder'],
-        itemType: data['itemType'].value,
-        keywords: data['keywords'].trim(),
-        itemCount: itemCount
-    };
-    let sections = yt2.getConfigValue('frontPageSections', [], true);
-    let index = parseInt(data['index'], 10);
-    sections.splice(index, 1);
-    sections.push(updateSection);
-    UIConfigHelper.sortFrontPageSections(sections);
-    this.config.set('frontPageSections', JSON.stringify(sections));
+  const model = Model.getInstance('account');
+  model.getInfo().then((account) => {
+    defer.resolve(account);
+  })
+    .catch((error) => {
+      defer.resolve(null);
+    });
 
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_SECTION_UPDATED'));
-    this.refreshUIConfig();
+  return defer.promise;
 }
 
-ControllerYouTube2.prototype.configRemoveFrontPageSection = function(index) {
-    let sections = yt2.getConfigValue('frontPageSections', [], true);
-    sections.splice(index, 1);
-    this.config.set('frontPageSections', JSON.stringify(sections));
+ControllerYouTube2.prototype.configSaveI18n = function (data) {
+  const oldRegion = yt2.getConfigValue('region');
+  const oldLanguage = yt2.getConfigValue('language');
+  const region = data.region.value;
+  const language = data.language.value;
 
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_SECTION_REMOVED'));
-    this.refreshUIConfig(true);
+  if (oldRegion !== region || oldLanguage !== language) {
+    yt2.setConfigValue('region', region);
+    yt2.setConfigValue('language', language);
+
+    this.applyI18nConfigToInnerTube();
+    Model.getInstance('config').clearCache();
+    yt2.refreshUIConfig();
+  }
+
+  yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
 }
 
-ControllerYouTube2.prototype.refreshUIConfig = function(sectionsChanged) {
-    let self = this;
-    
-    if (sectionsChanged) { // section added or removed
-        // 'pushUiConfig' does not work properly when sections are added or removed
-        // (some fields will display the wrong values). Reload UI instead.
-        self.commandRouter.reloadUi();
-    }
-    else {
-        self.commandRouter.getUIConfigOnPlugin('music_service', 'youtube2', {}).then( (config) => {
-            self.commandRouter.broadcastMessage('pushUiConfig', config);
-        });
-    }
+ControllerYouTube2.prototype.configSignOut = function () {
+  Auth.signOut();
 }
 
-ControllerYouTube2.prototype.onVolumioStart = function() {
-	let configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
-	this.config = new (require('v-conf'))();
-    this.config.loadFile(configFile);
+ControllerYouTube2.prototype.configSaveBrowse = function (data) {
+  yt2.setConfigValue('rootContentType', data.rootContentType.value);
+  yt2.setConfigValue('loadFullPlaylists', data.loadFullPlaylists);
 
-    return libQ.resolve();
+  yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
 }
 
-ControllerYouTube2.prototype.onStart = function() {
-    let self = this;
+ControllerYouTube2.prototype.configSavePlayback = function (data) {
+  yt2.setConfigValue('autoplay', data.autoplay);
+  yt2.setConfigValue('autoplayClearQueue', data.autoplayClearQueue);
+  yt2.setConfigValue('addToHistory', data.addToHistory);
+  yt2.setConfigValue('liveStreamQuality', data.liveStreamQuality.value);
 
-    yt2.init(self.context, self.config);
-    if (!self.accessStatusListener) {
-        self.accessStatusListener = (status, data) => {
-            self.accessStatus = status;
-            self.accessStatusData = data;
-            self.refreshUIConfig();
-        }
-
-        yt2.on('accessStatusChanged', self.accessStatusListener);
-    }
-    
-    self.browseController = new BrowseController();
-    self.playController = new PlayController();
-    self.searchController = new SearchController();
-
-    self.addToBrowseSources();
-
-    return libQ.resolve();
-};
-
-ControllerYouTube2.prototype.onStop = function() {
-
-    this.commandRouter.volumioRemoveToBrowseSources('YouTube2');
-
-    this.browseController = null;
-    this.playController = null;
-    this.searchController = null;
-
-    yt2.reset();
-
-    return libQ.resolve();
-};
-
-ControllerYouTube2.prototype.getConfigurationFiles = function() {
-    return ['config.json'];
+  yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
 }
 
 ControllerYouTube2.prototype.addToBrowseSources = function () {
-	let data = {
-        name: 'YouTube2',
-        uri: 'youtube2',
-        plugin_type: 'music_service',
-        plugin_name: 'youtube2',
-        albumart: '/albumart?sourceicon=music_service/youtube2/assets/images/youtube.svg'
-    };
-	this.commandRouter.volumioAddToBrowseSources(data);
+  const source = {
+    name: 'YouTube2',
+    uri: 'youtube2',
+    plugin_type: 'music_service',
+    plugin_name: 'youtube2',
+    albumart: '/albumart?sourceicon=music_service/youtube2/assets/images/youtube.svg'
+  };
+  this.commandRouter.volumioAddToBrowseSources(source);
 };
 
-ControllerYouTube2.prototype.handleBrowseUri = function(uri) {
-    return this.browseController.browseUri(uri);
+ControllerYouTube2.prototype.handleBrowseUri = function (uri) {
+  const defer = libQ.defer();
+
+  this.browseController.browseUri(uri).then((result) => {
+    defer.resolve(result);
+  })
+    .catch((error) => {
+      defer.reject(error);
+    });
+
+  return defer.promise;
 }
 
 ControllerYouTube2.prototype.explodeUri = function (uri) {
-    return this.browseController.explodeUri(uri);
+  const defer = libQ.defer();
+
+  this.browseController.explodeUri(uri).then((result) => {
+    defer.resolve(result);
+  })
+    .catch((error) => {
+      defer.reject(error);
+    });
+
+  return defer.promise;
 };
 
-ControllerYouTube2.prototype.clearAddPlayTrack = function(track) {  
-    return this.playController.clearAddPlayTrack(track);
+ControllerYouTube2.prototype.clearAddPlayTrack = function (track) {
+  return this.playController.clearAddPlayTrack(track);
 }
 
 ControllerYouTube2.prototype.stop = function () {
-    return this.playController.stop();
+  return this.playController.stop();
 };
 
 ControllerYouTube2.prototype.pause = function () {
-    return this.playController.pause();
+  return this.playController.pause();
 };
-  
+
 ControllerYouTube2.prototype.resume = function () {
-    return this.playController.resume();
-}
-  
-ControllerYouTube2.prototype.seek = function (position) {
-    return this.playController.seek(position);
+  return this.playController.resume();
 }
 
 ControllerYouTube2.prototype.next = function () {
-    return this.playController.next();
+  return this.playController.next();
 }
 
 ControllerYouTube2.prototype.previous = function () {
-    return this.playController.previous();
+  return this.playController.previous();
 }
 
-ControllerYouTube2.prototype.search = function(query) {
-    return this.searchController.search(query);
+ControllerYouTube2.prototype.seek = function (position) {
+  return this.playController.seek(position);
 }
 
-/*ControllerYouTube2.prototype.prefetch = function (trackBlock) {
-    return this.playController.prefetch(trackBlock);
-};*/
+ControllerYouTube2.prototype.goto = function (data) {
+  const defer = libQ.defer();
 
-ControllerYouTube2.prototype.goto = function(data) {
-    return this.browseController.goto(data);
+  this.playController.getGotoUri(data).then((uri) => {
+    if (uri) {
+      defer.resolve(this.browseController.browseUri(uri));
+    }
+    else {
+      const view = ViewHelper.getViewsFromUri(data.uri)?.[1];
+      const trackData = view?.explodeTrackData ? JSON.parse(decodeURIComponent(view.explodeTrackData)) : null;
+      const trackTitle = trackData?.title;
+      let errMsg;
+      if (data.type === 'album') {
+        errMsg = trackTitle ? yt2.getI18n('YOUTUBE2_ERR_GOTO_PLAYLIST_NOT_FOUND_FOR', trackTitle) :
+          yt2.getI18n('YOUTUBE2_ERR_GOTO_PLAYLIST_NOT_FOUND');
+      }
+      else if (data.type === 'artist') {
+        errMsg = trackTitle ? yt2.getI18n('YOUTUBE2_ERR_GOTO_CHANNEL_NOT_FOUND_FOR', trackTitle) :
+          yt2.getI18n('YOUTUBE2_ERR_GOTO_CHANNEL_NOT_FOUND');
+      }
+      else {
+        errMsg = yt2.getI18n('YOUTUBE2_ERR_GOTO_UNKNOWN_TYPE', data.type);
+      }
+      
+      yt2.toast('error', errMsg);
+      defer.reject(Error(errMsg));
+    }
+  });
+
+  return defer.promise;
+}
+
+ControllerYouTube2.prototype.search = function (query) {
+  return this.searchController.search(query);
 }
