@@ -141,6 +141,11 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+
+March 12th 2023 v1.0.41
+
+- FIR switchable filter files fix
+
 March 12th 2023 v1.0.40
 
 - FIR clipping detection fix
