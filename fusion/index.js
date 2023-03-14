@@ -2122,22 +2122,29 @@ FusionDsp.prototype.areSampleswitch = function () {
     let filterNameShort = filterName.slice(0, -9);
     let filterNameForSwapc = filterNameShort + swapWord + fileExt;
     let filterNameForSwap = filterNameShort + "$samplerate$" + fileExt;
+   
+
     // self.logger.info('sample switch possible !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + filterNameForSwap)
+    /*
     try {
+      
       if (fs.existsSync(filterfolder + filterNameForSwap)) {
-        return [true, filterNameForSwap];
+        return [true, filterNameForSwap]
       }
-      return [false, null];
+      return false
+      
     } catch (e) {
       self.logger.error(cmd);
     };
-    /*
+    */
+    
+   
         if (fs.exists(filterfolder + filterNameForSwap)) {
           return [true, filterNameForSwap]
         } else {
           return false
         }
-        */
+        
   };
   let leftResultExist = isFileExist(leftFilter1, '96000');
   let toSaveLeftResult = leftResultExist[1];
@@ -3737,7 +3744,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
           self.logger.error('__________________NO__A file is missing');
           self.commandRouter.pushToastMessage('error', "One filter file is missing!, please reselect it! ");
           self.config.set("leftfilter", "None")
-          self.config.set("leftfilterlabel", "None")
+         // self.config.set("leftfilterlabel", "None")
           self.config.set("rightfilter", "None")
           self.config.set("filter_format", "TEXT")
           self.config.set('attenuationl', 0);
