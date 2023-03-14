@@ -314,6 +314,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('MY_MUSIC'),
+                    "isCategoryView": true,
                     "items": [
                         {
                             service: 'spop',
@@ -386,6 +387,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('FEATURED_PLAYLISTS'),
+                    "isCompactView": true,
                     "items": results[0].navigation.lists[0].items
                 },
                 {
@@ -394,6 +396,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('WHATS_NEW'),
+                    "isCompactView": true,
                     "items": results[1].navigation.lists[0].items
                 },
                 {
@@ -402,6 +405,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('GENRES_AND_MOODS'),
+                    "isCompactView": true,
                     "items": results[2].navigation.lists[0].items
                 }
             ];
@@ -1017,10 +1021,25 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
                             "availableListViews": [
                                 "list"
                             ],
-                            "items": []
+                            "items": [],
+                            "title": "Top tracks"
+                        },
+                        {
+                            "availableListViews": [
+                                "list",
+                                "grid"
+                            ],
+                            "items": [],
+                            "title": "Albums"
+                        },
+                        {
+                            "availableListViews": [
+                                "list"
+                            ],
+                            "items": [],
+                            "title": "Related Artists"
                         }
-                    ],
-
+                    ]                
                 }
             };
             var spotifyDefer = self.listArtistTracks(artistId);
@@ -1030,27 +1049,39 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
                 }
                 return response;
             })
-                .then(function (data) {
-                    var response = data;
-                    var spotifyDefer = self.getArtistRelatedArtists(artistId);
-                    spotifyDefer.then(function (results) {
-                        response.navigation.lists[0].items.push({type: 'title', title: 'Related Artists'});
-                        for (var i in results) {
-                            response.navigation.lists[0].items.push(results[i]);
-                        }
-                    })
-                    return response;
-                })
-                .then(function (data) {
-                    var spotifyDefer = self.getArtistInfo(artistId);
-                    spotifyDefer.then(function (results) {
-                        response.navigation.info = results;
-                        response.navigation.info.uri = curUri;
-                        response.navigation.info.service = 'spop';
+            .then(function (results) {
+                return self.listArtistAlbums(artistId);
+            })
+            .then(function (results) {
+                for (var i in results) {
+                    response.navigation.lists[1].items.push(results[i]);
+                }
+                return response;
+            })            
+            .then(function (results) {
+                return self.getArtistInfo(artistId);
+            })
+            .then(function (results) {
+                response.navigation.info = results;
+                response.navigation.info.uri = curUri;
+                response.navigation.info.service = 'spop';
 
-                        defer.resolve(response);
-                    })
-                });
+                
+                return response;
+            })
+            .then(function (results) {
+                return self.getArtistRelatedArtists(artistId);
+            })
+            .then(function (results) {
+                for (var i in results) {
+                    response.navigation.lists[2].items.push(results[i]);
+                }
+                defer.resolve(response);
+                return response;
+            })
+            .catch(function (error) {
+                defer.resolve(response);
+            });            
         });
 
     return defer.promise;
@@ -1062,34 +1093,41 @@ ControllerSpotify.prototype.listArtistTracks = function (id) {
 
     var defer = libQ.defer();
 
-    var list = [{type: 'title', title: 'Top Tracks'}];
+    var list = [];
 
     var spotifyDefer = self.getArtistTopTracks(id);
     spotifyDefer.then(function (data) {
         for (var i in data) {
             list.push(data[i]);
         }
-        return list;
+        defer.resolve(list);
+    });        
+
+    return defer.promise;
+};
+
+ControllerSpotify.prototype.listArtistAlbums = function (id) {
+
+    var self = this;
+
+    var defer = libQ.defer();
+
+    var spotifyDefer = self.spotifyApi.getArtistAlbums(id);
+    spotifyDefer.then(function (results) {
+        var response = [];
+        for (var i in results.body.items) {
+            var album = results.body.items[i];
+            response.push({
+                service: 'spop',
+                type: 'folder',
+                title: album.name,
+                albumart: self._getAlbumArt(album),
+                uri: album.uri,
+            });
+        }
+        defer.resolve(response);
     })
-        .then(function (data) {
-            var spotifyDefer = self.spotifyApi.getArtistAlbums(id);
-            spotifyDefer.then(function (results) {
-                var title = {type: 'title', title: 'Albums'};
-                var response = data;
-                response.push(title);
-                for (var i in results.body.items) {
-                    var album = results.body.items[i];
-                    response.push({
-                        service: 'spop',
-                        type: 'folder',
-                        title: album.name,
-                        albumart: self._getAlbumArt(album),
-                        uri: album.uri,
-                    });
-                }
-                defer.resolve(response);
-            })
-        });
+
 
     return defer.promise;
 };
@@ -1538,8 +1576,17 @@ ControllerSpotify.prototype.getAlbumInfo = function (id) {
                 if (results && results.body && results.body.name) {
                     info.album = results.body.name;
                     info.artist = results.body.artists[0].name;
+                    
                     info.albumart = results.body.images[0].url;
                     info.type = 'album';
+                }
+                return results.body.artists[0].id;
+            }).then(function (artist) {
+                return self.spotifyApi.getArtist(artist);
+            }).then(function (artistResults) {
+                if (artistResults && artistResults.body && artistResults.body.name) {
+                    info.artistImage = artistResults.body.images[0].url;
+                    info.artistUri = artistResults.body.uri;
                 }
                 defer.resolve(info);
             }), function (err) {
