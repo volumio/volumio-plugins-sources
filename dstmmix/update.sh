@@ -4,6 +4,10 @@ echo ""
 echo "Check LMS update status... "
 echo ""
 
+if [ ! -d "/home/volumio/Blissanalyser" ]; then
+mkdir /home/volumio/Blissanalyser
+fi
+
 cd /home/volumio/Blissanalyser || exit
 
 ## create update file (possibly to be touched to latest version )

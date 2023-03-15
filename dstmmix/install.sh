@@ -15,8 +15,7 @@ if [ ! -f $INSTALLING ]; then
 		echo "Installing ShellInAbox..."
 		apt-get install -f shellinabox -y
 
-		echo "Installing http-server..."
-#		npm install --global http-server
+		echo "Installing php-server..."
 		apt-get install -f php -y
 		
 		

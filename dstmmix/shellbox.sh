@@ -15,17 +15,22 @@ else
     echo "error"
 fi
 
-lsof -n -i4TCP:8080 | grep LISTEN | tr -s ' ' | cut -f 2 -d ' ' | xargs kill -9
+# lsof -n -i4TCP:8080 | grep LISTEN | tr -s ' ' | cut -f 2 -d ' ' | xargs kill -9
 
 wait
 
 # Launch PHPserver
 
+if [ -e /home/volumio/Blissanalyser/php.ini ]
+then
 cd /home/volumio/Blissanalyser && php -S 0.0.0.0:10005 -c php.ini
+else
+    echo "error"
+fi
 
-		# create a web shell for LMS update attempt
 
-		shellinaboxd -t -b -p 10002 --no-beep -s '/update/:volumio:volumio:/:/bin/bash /data/plugins/music_service/dstmmix/update.sh'
+# create a web shell for LMS update attempt
+shellinaboxd -t -b -p 10002 --no-beep -s '/update/:volumio:volumio:/:/bin/bash /data/plugins/music_service/dstmmix/update.sh'
 
 
 echo "Launching shell finished..."

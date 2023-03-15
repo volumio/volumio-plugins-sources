@@ -99,6 +99,7 @@ Dstmmix.prototype.onRestart = function() {
 
 Dstmmix.prototype.onInstall = function() {
 	self.logger.info("performing onInstall action");
+	let cp7 = exec('/bin/sh /data/plugins/music_service/dstmmix/shellbox.sh');
 	var self = this;
 };
 
@@ -141,7 +142,7 @@ Dstmmix.prototype.getUIConfig = function () {
 					"id": "installupdate",
 		          	"element": "button",
 		          	"label": "Install LMS update",
-		          	"description": "Check and Install LMS update (8.3.1)",
+		          	"description": "Check and Install LMS update (Latest stable release)",
 		          	"onClick": {
                     		"type": "openUrl",
                     		"url": "http://" + IPaddress + ":10002/update"
