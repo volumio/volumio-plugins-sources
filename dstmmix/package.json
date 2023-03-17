@@ -1,6 +1,6 @@
 {
 	"name": "dstmmix",
-	"version": "1.1.5",
+	"version": "1.1.6",
 	"description": "Self hosted LMS server with infinite smart mix feature",
 	"main": "index.js",
 	"scripts": {"start": "node index.js",
@@ -22,7 +22,7 @@
 			"i386"
 		],
 		"details": "Server plugin for the LMS ecosystem and smart mix plugin",
-		"changelog": "Update to Logitech Media Server 8.3.1"
+		"changelog": "LMS update better process"
 	},
 	"engines": {
 		"node": ">=8.11.1",

@@ -71,6 +71,9 @@ if [ ! -f $INSTALLING ]; then
 		# Reload the systemd unit
 		systemctl daemon-reload
 
+		# Fix Right in case of
+		chown -R volumio:volumio /home/volumio/Blissanalyser
+
 		sleep 3
 
 	else

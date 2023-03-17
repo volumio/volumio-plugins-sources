@@ -11,7 +11,7 @@ fi
 cd /home/volumio/Blissanalyser || exit
 
 ## create update file (possibly to be touched to latest version )
-
+chmod 755 -R /home/volumio/Blissanalyser/
 rm -f LMS*.txt
 
 wget -q -r -np -nd https://dl.rexnvs.com/dl/update/ -P /home/volumio/Blissanalyser/ -A *.txt
