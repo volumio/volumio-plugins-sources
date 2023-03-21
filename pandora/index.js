@@ -1113,13 +1113,15 @@ ControllerPandora.prototype.goPreviousNext = function (fnName) {
                         qPos = (qPos + qLen - 1) % qLen;
                     }
                     else { // random previous
-                        return self.stop();
+                        // return self.stop();
+                        return self.clearAddPlayTrack();
                     }
                     self.setCurrQueuePos(qPos);
                     return self.clearAddPlayTrack(self.getQueue()[qPos]); // self.clearAddPlayTrack(self.getQueueTrack(qPos))
                 }
                 else if (fnName === 'next') {
-                    return self.stop()
+                    // return self.stop()
+                    return self.clearAddPlayTrack()
                         .then(() => {
                             if (self.nextIsThumbsDown) { // remove unwanted track
                                 // Check if last track in queue -- MAY NOT NEED THIS
@@ -1134,7 +1136,8 @@ ControllerPandora.prototype.goPreviousNext = function (fnName) {
                         });
                 }
                 else { // 'skip' (bad uri lookup / stream ended)
-                    return self.stop(); // play next consecutive/random track
+                    // return self.stop(); // play next consecutive/random track
+                    return self.clearAddPlayTrack();
                 }
             }
             return libQ.resolve();
@@ -1157,7 +1160,8 @@ ControllerPandora.prototype.next = function () {
     self.pUtil.announceFn(fnName);
 
     if (self.nextIsThumbsDown) {
-        self.pandoraHandler.thumbTrack(self.getQueueTrack(), false);
+        return self.pandoraHandler.thumbTrack(self.getQueueTrack(), false)
+            .then(() => self.goPreviousNext(fnName));
     }
 
     return self.goPreviousNext(fnName);
