@@ -61,6 +61,9 @@ function ControllerSpotify(context) {
     // We use a caching manager to speed up the presentation of root page
     this.browseCache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
     this.ignorePlaybackInactive = false;
+    this.startPlaybackOnInactiveState = false;
+    this.waitDeviceActive = true;
+    self.stopTimeout = null;
 
     // Volatile for metadata
     this.unsetVol = () => {
@@ -77,6 +80,8 @@ ControllerSpotify.prototype.onVolumioStart = function () {
     this.config = new (require('v-conf'))();
     this.config.loadFile(configFile);
     this.loadI18n();
+
+    
 
     return libQ.resolve();
 }
@@ -125,9 +130,8 @@ ControllerSpotify.prototype.onStart = function () {
         this.spotifyApi = new SpotifyWebApi();
         this.device = undefined;
         this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
-        this.volumeListener();
         this.applySpotifyHostsFix();
-
+        self.commandRouter.addCallback('volumioPushState', self.processState.bind(self));
         this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
         var boundMethod = self.onPlayerNameChanged.bind(self);
         self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
@@ -244,6 +248,9 @@ ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
         }).fail((error)=>{
             self.logger.error('Failed to refresh Token: ' + error);
             defer.reject(error);
+        }).catch((error)=>{
+            self.logger.error('Failed to refresh Token: ' + error);
+            defer.reject(error);
         });
     } else {
         defer.resolve();
@@ -314,6 +321,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('MY_MUSIC'),
+                    "isCategoryView": true,
                     "items": [
                         {
                             service: 'spop',
@@ -386,6 +394,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('FEATURED_PLAYLISTS'),
+                    "isCompactView": true,
                     "items": results[0].navigation.lists[0].items
                 },
                 {
@@ -394,6 +403,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('WHATS_NEW'),
+                    "isCompactView": true,
                     "items": results[1].navigation.lists[0].items
                 },
                 {
@@ -402,6 +412,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('GENRES_AND_MOODS'),
+                    "isCompactView": true,
                     "items": results[2].navigation.lists[0].items
                 }
             ];
@@ -1017,10 +1028,25 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
                             "availableListViews": [
                                 "list"
                             ],
-                            "items": []
+                            "items": [],
+                            "title": "Top tracks"
+                        },
+                        {
+                            "availableListViews": [
+                                "list",
+                                "grid"
+                            ],
+                            "items": [],
+                            "title": "Albums"
+                        },
+                        {
+                            "availableListViews": [
+                                "list"
+                            ],
+                            "items": [],
+                            "title": "Related Artists"
                         }
-                    ],
-
+                    ]                
                 }
             };
             var spotifyDefer = self.listArtistTracks(artistId);
@@ -1030,27 +1056,39 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
                 }
                 return response;
             })
-                .then(function (data) {
-                    var response = data;
-                    var spotifyDefer = self.getArtistRelatedArtists(artistId);
-                    spotifyDefer.then(function (results) {
-                        response.navigation.lists[0].items.push({type: 'title', title: 'Related Artists'});
-                        for (var i in results) {
-                            response.navigation.lists[0].items.push(results[i]);
-                        }
-                    })
-                    return response;
-                })
-                .then(function (data) {
-                    var spotifyDefer = self.getArtistInfo(artistId);
-                    spotifyDefer.then(function (results) {
-                        response.navigation.info = results;
-                        response.navigation.info.uri = curUri;
-                        response.navigation.info.service = 'spop';
+            .then(function (results) {
+                return self.listArtistAlbums(artistId);
+            })
+            .then(function (results) {
+                for (var i in results) {
+                    response.navigation.lists[1].items.push(results[i]);
+                }
+                return response;
+            })            
+            .then(function (results) {
+                return self.getArtistInfo(artistId);
+            })
+            .then(function (results) {
+                response.navigation.info = results;
+                response.navigation.info.uri = curUri;
+                response.navigation.info.service = 'spop';
 
-                        defer.resolve(response);
-                    })
-                });
+                
+                return response;
+            })
+            .then(function (results) {
+                return self.getArtistRelatedArtists(artistId);
+            })
+            .then(function (results) {
+                for (var i in results) {
+                    response.navigation.lists[2].items.push(results[i]);
+                }
+                defer.resolve(response);
+                return response;
+            })
+            .catch(function (error) {
+                defer.resolve(response);
+            });            
         });
 
     return defer.promise;
@@ -1062,34 +1100,41 @@ ControllerSpotify.prototype.listArtistTracks = function (id) {
 
     var defer = libQ.defer();
 
-    var list = [{type: 'title', title: 'Top Tracks'}];
+    var list = [];
 
     var spotifyDefer = self.getArtistTopTracks(id);
     spotifyDefer.then(function (data) {
         for (var i in data) {
             list.push(data[i]);
         }
-        return list;
+        defer.resolve(list);
+    });        
+
+    return defer.promise;
+};
+
+ControllerSpotify.prototype.listArtistAlbums = function (id) {
+
+    var self = this;
+
+    var defer = libQ.defer();
+
+    var spotifyDefer = self.spotifyApi.getArtistAlbums(id);
+    spotifyDefer.then(function (results) {
+        var response = [];
+        for (var i in results.body.items) {
+            var album = results.body.items[i];
+            response.push({
+                service: 'spop',
+                type: 'folder',
+                title: album.name,
+                albumart: self._getAlbumArt(album),
+                uri: album.uri,
+            });
+        }
+        defer.resolve(response);
     })
-        .then(function (data) {
-            var spotifyDefer = self.spotifyApi.getArtistAlbums(id);
-            spotifyDefer.then(function (results) {
-                var title = {type: 'title', title: 'Albums'};
-                var response = data;
-                response.push(title);
-                for (var i in results.body.items) {
-                    var album = results.body.items[i];
-                    response.push({
-                        service: 'spop',
-                        type: 'folder',
-                        title: album.name,
-                        albumart: self._getAlbumArt(album),
-                        uri: album.uri,
-                    });
-                }
-                defer.resolve(response);
-            })
-        });
+
 
     return defer.promise;
 };
@@ -1308,6 +1353,8 @@ ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
     var self = this;
     self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::clearAddPlayTrack');
     
+    clearTimeout(self.stopTimeout);
+
     self.ignorePlaybackInactive = true;
     setTimeout(() => {
         self.ignorePlaybackInactive = false;
@@ -1330,9 +1377,9 @@ ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
     }
     
     try {
-        self.setDeviceActive().then(function() {
-            return self.playTrackFromWebAPI(uriList, track.uri);
-        })
+        self.uriList = uriList;
+        self.startPlaybackOnInactiveState = true;
+        self.setDeviceActive();
     } catch(e) {
         self.logger.error('Failed to play spotify track: ' + e);
     }
@@ -1538,8 +1585,17 @@ ControllerSpotify.prototype.getAlbumInfo = function (id) {
                 if (results && results.body && results.body.name) {
                     info.album = results.body.name;
                     info.artist = results.body.artists[0].name;
+                    
                     info.albumart = results.body.images[0].url;
                     info.type = 'album';
+                }
+                return results.body.artists[0].id;
+            }).then(function (artist) {
+                return self.spotifyApi.getArtist(artist);
+            }).then(function (artistResults) {
+                if (artistResults && artistResults.body && artistResults.body.name) {
+                    info.artistImage = artistResults.body.images[0].url;
+                    info.artistUri = artistResults.body.uri;
                 }
                 defer.resolve(info);
             }), function (err) {
@@ -2178,45 +2234,57 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
     });
 
     this.SpotConn.on(this.Events.PlaybackInactive, (data) => {
-    
         logger.evnt('<PlaybackInactive> PlaybackInactive');
-        this.SinkActive = false;
-        clearInterval(seekTimer);
-        seekTimer = undefined;
-    
-        this.debugLog('IS CONNECT ' + currentTrackContext.isConnect);
-        this.debugLog('VLS STATUS ' + this.VLSStatus);
-        this.debugLog('STATE STATUS ' + this.state.status);
-        this.debugLog('SINK ACTIVE ' + this.SinkActive);
-    
-        if (currentTrackContext && currentTrackContext.isConnect) {
-            this.state.status = 'pause';
-            this.DeactivateState();
-            this.pushState();
-        } else if (this.VLSStatus === 'pause' && this.state.status === 'pause') {
-            this.debugLog('Device is paused');
-            this.state.status = 'pause';
-            this.pushState();
-        } else if (!this.SinkActive) {
-            //this.debugLog('Device is not active. Cleaning up!');
-            if (!this.ignorePlaybackInactive) {
-                this.state.status = 'stop';
+        if (this.startPlaybackOnInactiveState) {
+            if (this.waitDeviceActive) {
+                this.waitDeviceActive = false;
+                setTimeout(() => {  this.playTrackFromWebAPI(this.uriList);   }, 1000)
+            } else {
+                this.playTrackFromWebAPI(this.uriList); 
+            }
+            this.startPlaybackOnInactiveState = false;
+        } else {            
+            this.SinkActive = false;
+            clearInterval(seekTimer);
+            seekTimer = undefined;
+        
+            this.debugLog('IS CONNECT ' + currentTrackContext.isConnect);
+            this.debugLog('VLS STATUS ' + this.VLSStatus);
+            this.debugLog('STATE STATUS ' + this.state.status);
+            this.debugLog('SINK ACTIVE ' + this.SinkActive);
+        
+            if (currentTrackContext && currentTrackContext.isConnect) {
+                this.state.status = 'pause';
+                this.DeactivateState();
+                this.pushState();
+            } else if (this.VLSStatus === 'pause' && this.state.status === 'pause') {
+                this.debugLog('Device is paused');
+                this.state.status = 'pause';
+                this.pushState();
+            } else if (!this.SinkActive) {
+                //this.debugLog('Device is not active. Cleaning up!');
+                if (!this.ignorePlaybackInactive) {
+                    this.state.status = 'stop';
+                    this.pushState();
+                }
+            } else {
+                this.debugLog(`Device Session is_active: ${this.active}`);
+                if (this.active) {
+                    this.state.status = 'play';
+                } else {
+                    this.state.status = 'stop';
+                }
                 this.pushState();
             }
-        } else {
-            this.debugLog(`Device Session is_active: ${this.active}`);
-            if (this.active) {
-                this.state.status = 'play';
-            } else {
-                this.state.status = 'stop';
-            }
-            this.pushState();
         }
+        
     });    
+
 
     this.SpotConn.on(this.Events.DeviceInactive, (data) => {
         // Connect session has been exited
         logger.evnt('<DeviceInactive> Connect Session has ended');
+
         this.DeactivateState();
     });
 
@@ -2300,8 +2368,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         logger.evnt('Volume Spotify: ' + spvol + ' Volumio: ' + vol);
         if (startVolume) {
             startVolume = false;
-            // Commented to avoid hitting rate limiting
-            //this.setSpotifyVolume(currentVolumioVolume);
+            this.setSpotifyVolume(currentVolumioVolume);
         } else {
             if (Number.isInteger(vol)) {
                 currentSpotifyVolume = vol;
@@ -2314,9 +2381,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                         if (volumeDebounce) {
                             clearTimeout(volumeDebounce);
                         }
-                        // Commented to avoid hitting rate limiting
-                        // This is just an extra precaution, probably not related
-                        //volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
+                        volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
                     }
                 }
             }
@@ -2408,6 +2473,7 @@ ControllerSpotify.prototype.DeactivateState = async function () {
     if (this.iscurrService()) {
         this.context.coreCommand.volumioStop.bind(this.commandRouter);
         this.DeviceActive = false;
+        this.waitDeviceActive = true;
     }
 };
 
@@ -2740,25 +2806,24 @@ ControllerSpotify.prototype.awawitSpocon = function (type) {
 
 // Plugin methods for the Volumio state machine
 ControllerSpotify.prototype.stop = function () {
+    var self = this;
     var defer = libQ.defer();
     logger.info('Spotify Received stop');
 
+    self.ignorePlaybackInactive = true;
 
-
-    libQ.delay(0)
-    .then( () => {
+    self.stopTimeout = setTimeout(() => {
+        self.ignorePlaybackInactive = false;
         this.isStopping = true;
         this.SpotConn.sendmsg(msgMap.get('Pause'));
-    })
-    .delay(1000)
-    .then( () => {
-        this.active = false;
-        this.isStopping = false;
-        defer.resolve('');
-    })
 
+        setTimeout(() => {
+            this.active = false;
+            this.isStopping = false;
+        }, 1000);
+    }, 500);
 
-
+    defer.resolve('');
 
     return defer.promise;
 };
@@ -2898,7 +2963,7 @@ ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data
     return this.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
 };
 
-ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris, index) {
+ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris) {
     var self = this;
     this.spotifyCheckAccessToken().then(()=>{
         superagent.put('https://api.spotify.com/v1/me/player/play')
@@ -2907,13 +2972,13 @@ ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris, index) {
             .send({
                 device_id: self.thisSpotifyConnectDeviceId,
                 uris : trackUris,
-                // offset : {"uri": index},
                 position_ms: 0
             })
             .accept('application/json')
             .then(function (results) {
             })
             .catch(function (err) {
+                console.log(err)
                 self.logger.info('An error occurred while starting playback ' + err.message);
             });
     });
@@ -2954,57 +3019,37 @@ ControllerSpotify.prototype.debugLog = function (stringToLog) {
     }
 };
 
-ControllerSpotify.prototype.volumeListener = function () {
+ControllerSpotify.prototype.processState = function (state) {
     var self = this;
 
-    if (socket) {
-        socket.disconnect();
-        socket = undefined;
-    }
-    socket= io.connect('http://localhost:3000');
-    socket.on("connect", function(){
-        socket.on("pushState", function(state) {
-            if (state && state.volume !== undefined && state.mute !== undefined && Number.isInteger(state.volume)) {
-                let volume = parseInt(state.volume);
-                let mute = state.mute;
-                if (mute) {
-                    volume = 0;
+    if (state && state.volume !== undefined && state.mute !== undefined && Number.isInteger(state.volume)) {
+        let volume = parseInt(state.volume);
+        let mute = state.mute;
+        if (mute) {
+            volume = 0;
+        }
+        if (state.service !== undefined) {
+            currentService = state.service;
+        }
+        currentVolumioVolume = volume;
+        if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
+            if (self.iscurrService() && !self.volumeBlocked) {
+                if (volumeSpotifyDebounce) {
+                    clearTimeout(volumeSpotifyDebounce);
                 }
-                if (state.service !== undefined) {
-                    currentService = state.service;
-                }
-                currentVolumioVolume = volume;
-                if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
-                    if (self.iscurrService() && !self.volumeBlocked) {
-                        if (volumeSpotifyDebounce) {
-                            clearTimeout(volumeSpotifyDebounce);
-                        }
-                        volumeSpotifyDebounce = setTimeout(() => {
-                            // Commented to avoid rate limit
-                            //self.setSpotifyVolume(volume)
-                        }, 600);
-                    }
-                }
+                volumeSpotifyDebounce = setTimeout(() => {
+                    self.setSpotifyVolume(volume);
+                }, 600);
             }
-        });
-    });
-};
+        }
+
+    }
+}
 
 ControllerSpotify.prototype.setSpotifyVolume = function (volumePercent) {
-    var self = this;
-    
+    var self = this;    
     currentSpotifyVolume = volumePercent;
-    if (self.spotifyApi) {
-        self.spotifyCheckAccessToken().then(()=> {
-            self.spotifyApi.setVolume(volumePercent)
-                .then(function () {
-
-                    self.debugLog('Setting Spotify Volume ' + volumePercent);
-                }, function (err) {
-                    self.debugLog('Error Setting Spotify Volume ' + err);
-                });
-        });
-    }
+    self.SpotConn.sendVolume(volumePercent);
 };
 
 ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackObj) {
