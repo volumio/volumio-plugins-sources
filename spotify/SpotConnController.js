@@ -115,6 +115,14 @@ class SpotConnEvents extends EventEmitter {
     }
   }
 
+  sendVolume (volume) {
+    // Attempting to send a message back via udp
+    // logger.debug('FE => ', msg);
+    this._udpsource.send(Buffer.from([0x9, volume]), 5031, 'localhost', (err) =>
+      err ? logger.error('Error sending message: ', err) : null
+    );
+  }
+
   sendmsg (msg) {
     // Attempting to send a message back via udp
     // logger.debug('FE => ', msg);

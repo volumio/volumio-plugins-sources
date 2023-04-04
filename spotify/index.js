@@ -61,6 +61,9 @@ function ControllerSpotify(context) {
     // We use a caching manager to speed up the presentation of root page
     this.browseCache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
     this.ignorePlaybackInactive = false;
+    this.startPlaybackOnInactiveState = false;
+    this.waitDeviceActive = true;
+    self.stopTimeout = null;
 
     // Volatile for metadata
     this.unsetVol = () => {
@@ -77,6 +80,8 @@ ControllerSpotify.prototype.onVolumioStart = function () {
     this.config = new (require('v-conf'))();
     this.config.loadFile(configFile);
     this.loadI18n();
+
+    
 
     return libQ.resolve();
 }
@@ -127,7 +132,6 @@ ControllerSpotify.prototype.onStart = function () {
         this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
         this.volumeListener();
         this.applySpotifyHostsFix();
-
         this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
         var boundMethod = self.onPlayerNameChanged.bind(self);
         self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
@@ -242,6 +246,9 @@ ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
             self.logger.info('Successfully Refreshed access token');
             defer.resolve('');
         }).fail((error)=>{
+            self.logger.error('Failed to refresh Token: ' + error);
+            defer.reject(error);
+        }).catch((error)=>{
             self.logger.error('Failed to refresh Token: ' + error);
             defer.reject(error);
         });
@@ -1346,6 +1353,8 @@ ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
     var self = this;
     self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::clearAddPlayTrack');
     
+    clearTimeout(self.stopTimeout);
+
     self.ignorePlaybackInactive = true;
     setTimeout(() => {
         self.ignorePlaybackInactive = false;
@@ -1368,9 +1377,9 @@ ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
     }
     
     try {
-        self.setDeviceActive().then(function() {
-            return self.playTrackFromWebAPI(uriList, track.uri);
-        })
+        self.uriList = uriList;
+        self.startPlaybackOnInactiveState = true;
+        self.setDeviceActive();
     } catch(e) {
         self.logger.error('Failed to play spotify track: ' + e);
     }
@@ -2225,45 +2234,57 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
     });
 
     this.SpotConn.on(this.Events.PlaybackInactive, (data) => {
-    
         logger.evnt('<PlaybackInactive> PlaybackInactive');
-        this.SinkActive = false;
-        clearInterval(seekTimer);
-        seekTimer = undefined;
-    
-        this.debugLog('IS CONNECT ' + currentTrackContext.isConnect);
-        this.debugLog('VLS STATUS ' + this.VLSStatus);
-        this.debugLog('STATE STATUS ' + this.state.status);
-        this.debugLog('SINK ACTIVE ' + this.SinkActive);
-    
-        if (currentTrackContext && currentTrackContext.isConnect) {
-            this.state.status = 'pause';
-            this.DeactivateState();
-            this.pushState();
-        } else if (this.VLSStatus === 'pause' && this.state.status === 'pause') {
-            this.debugLog('Device is paused');
-            this.state.status = 'pause';
-            this.pushState();
-        } else if (!this.SinkActive) {
-            //this.debugLog('Device is not active. Cleaning up!');
-            if (!this.ignorePlaybackInactive) {
-                this.state.status = 'stop';
+        if (this.startPlaybackOnInactiveState) {
+            if (this.waitDeviceActive) {
+                this.waitDeviceActive = false;
+                setTimeout(() => {  this.playTrackFromWebAPI(this.uriList);   }, 1000)
+            } else {
+                this.playTrackFromWebAPI(this.uriList); 
+            }
+            this.startPlaybackOnInactiveState = false;
+        } else {            
+            this.SinkActive = false;
+            clearInterval(seekTimer);
+            seekTimer = undefined;
+        
+            this.debugLog('IS CONNECT ' + currentTrackContext.isConnect);
+            this.debugLog('VLS STATUS ' + this.VLSStatus);
+            this.debugLog('STATE STATUS ' + this.state.status);
+            this.debugLog('SINK ACTIVE ' + this.SinkActive);
+        
+            if (currentTrackContext && currentTrackContext.isConnect) {
+                this.state.status = 'pause';
+                this.DeactivateState();
+                this.pushState();
+            } else if (this.VLSStatus === 'pause' && this.state.status === 'pause') {
+                this.debugLog('Device is paused');
+                this.state.status = 'pause';
+                this.pushState();
+            } else if (!this.SinkActive) {
+                //this.debugLog('Device is not active. Cleaning up!');
+                if (!this.ignorePlaybackInactive) {
+                    this.state.status = 'stop';
+                    this.pushState();
+                }
+            } else {
+                this.debugLog(`Device Session is_active: ${this.active}`);
+                if (this.active) {
+                    this.state.status = 'play';
+                } else {
+                    this.state.status = 'stop';
+                }
                 this.pushState();
             }
-        } else {
-            this.debugLog(`Device Session is_active: ${this.active}`);
-            if (this.active) {
-                this.state.status = 'play';
-            } else {
-                this.state.status = 'stop';
-            }
-            this.pushState();
         }
+        
     });    
+
 
     this.SpotConn.on(this.Events.DeviceInactive, (data) => {
         // Connect session has been exited
         logger.evnt('<DeviceInactive> Connect Session has ended');
+
         this.DeactivateState();
     });
 
@@ -2455,6 +2476,7 @@ ControllerSpotify.prototype.DeactivateState = async function () {
     if (this.iscurrService()) {
         this.context.coreCommand.volumioStop.bind(this.commandRouter);
         this.DeviceActive = false;
+        this.waitDeviceActive = true;
     }
 };
 
@@ -2787,25 +2809,24 @@ ControllerSpotify.prototype.awawitSpocon = function (type) {
 
 // Plugin methods for the Volumio state machine
 ControllerSpotify.prototype.stop = function () {
+    var self = this;
     var defer = libQ.defer();
     logger.info('Spotify Received stop');
 
+    self.ignorePlaybackInactive = true;
 
-
-    libQ.delay(0)
-    .then( () => {
+    self.stopTimeout = setTimeout(() => {
+        self.ignorePlaybackInactive = false;
         this.isStopping = true;
         this.SpotConn.sendmsg(msgMap.get('Pause'));
-    })
-    .delay(1000)
-    .then( () => {
-        this.active = false;
-        this.isStopping = false;
-        defer.resolve('');
-    })
 
+        setTimeout(() => {
+            this.active = false;
+            this.isStopping = false;
+        }, 1000);
+    }, 500);
 
-
+    defer.resolve('');
 
     return defer.promise;
 };
@@ -2945,7 +2966,7 @@ ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data
     return this.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
 };
 
-ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris, index) {
+ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris) {
     var self = this;
     this.spotifyCheckAccessToken().then(()=>{
         superagent.put('https://api.spotify.com/v1/me/player/play')
@@ -2954,13 +2975,13 @@ ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris, index) {
             .send({
                 device_id: self.thisSpotifyConnectDeviceId,
                 uris : trackUris,
-                // offset : {"uri": index},
                 position_ms: 0
             })
             .accept('application/json')
             .then(function (results) {
             })
             .catch(function (err) {
+                console.log(err)
                 self.logger.info('An error occurred while starting playback ' + err.message);
             });
     });
