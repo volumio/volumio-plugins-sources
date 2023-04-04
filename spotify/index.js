@@ -130,8 +130,8 @@ ControllerSpotify.prototype.onStart = function () {
         this.spotifyApi = new SpotifyWebApi();
         this.device = undefined;
         this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
-        this.volumeListener();
         this.applySpotifyHostsFix();
+        self.commandRouter.addCallback('volumioPushState', self.processState.bind(self));
         this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
         var boundMethod = self.onPlayerNameChanged.bind(self);
         self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
@@ -2368,8 +2368,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         logger.evnt('Volume Spotify: ' + spvol + ' Volumio: ' + vol);
         if (startVolume) {
             startVolume = false;
-            // Commented to avoid hitting rate limiting
-            //this.setSpotifyVolume(currentVolumioVolume);
+            this.setSpotifyVolume(currentVolumioVolume);
         } else {
             if (Number.isInteger(vol)) {
                 currentSpotifyVolume = vol;
@@ -2382,9 +2381,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                         if (volumeDebounce) {
                             clearTimeout(volumeDebounce);
                         }
-                        // Commented to avoid hitting rate limiting
-                        // This is just an extra precaution, probably not related
-                        //volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
+                        volumeDebounce = setTimeout(() => { this.commandRouter.volumiosetvolume(vol)}, 500);
                     }
                 }
             }
@@ -3022,57 +3019,37 @@ ControllerSpotify.prototype.debugLog = function (stringToLog) {
     }
 };
 
-ControllerSpotify.prototype.volumeListener = function () {
+ControllerSpotify.prototype.processState = function (state) {
     var self = this;
 
-    if (socket) {
-        socket.disconnect();
-        socket = undefined;
-    }
-    socket= io.connect('http://localhost:3000');
-    socket.on("connect", function(){
-        socket.on("pushState", function(state) {
-            if (state && state.volume !== undefined && state.mute !== undefined && Number.isInteger(state.volume)) {
-                let volume = parseInt(state.volume);
-                let mute = state.mute;
-                if (mute) {
-                    volume = 0;
+    if (state && state.volume !== undefined && state.mute !== undefined && Number.isInteger(state.volume)) {
+        let volume = parseInt(state.volume);
+        let mute = state.mute;
+        if (mute) {
+            volume = 0;
+        }
+        if (state.service !== undefined) {
+            currentService = state.service;
+        }
+        currentVolumioVolume = volume;
+        if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
+            if (self.iscurrService() && !self.volumeBlocked) {
+                if (volumeSpotifyDebounce) {
+                    clearTimeout(volumeSpotifyDebounce);
                 }
-                if (state.service !== undefined) {
-                    currentService = state.service;
-                }
-                currentVolumioVolume = volume;
-                if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
-                    if (self.iscurrService() && !self.volumeBlocked) {
-                        if (volumeSpotifyDebounce) {
-                            clearTimeout(volumeSpotifyDebounce);
-                        }
-                        volumeSpotifyDebounce = setTimeout(() => {
-                            // Commented to avoid rate limit
-                            //self.setSpotifyVolume(volume)
-                        }, 600);
-                    }
-                }
+                volumeSpotifyDebounce = setTimeout(() => {
+                    self.setSpotifyVolume(volume);
+                }, 600);
             }
-        });
-    });
-};
+        }
+
+    }
+}
 
 ControllerSpotify.prototype.setSpotifyVolume = function (volumePercent) {
-    var self = this;
-    
+    var self = this;    
     currentSpotifyVolume = volumePercent;
-    if (self.spotifyApi) {
-        self.spotifyCheckAccessToken().then(()=> {
-            self.spotifyApi.setVolume(volumePercent)
-                .then(function () {
-
-                    self.debugLog('Setting Spotify Volume ' + volumePercent);
-                }, function (err) {
-                    self.debugLog('Error Setting Spotify Volume ' + err);
-                });
-        });
-    }
+    self.SpotConn.sendVolume(volumePercent);
 };
 
 ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackObj) {
