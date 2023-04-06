@@ -1872,7 +1872,6 @@ ControllerSpotify.prototype._searchArtists = function (results) {
 };
 
 ControllerSpotify.prototype._searchAlbums = function (results) {
-
     var list = [];
 
     for (var i in results.body.albums.items) {
@@ -1881,11 +1880,16 @@ ControllerSpotify.prototype._searchAlbums = function (results) {
         if (album.hasOwnProperty('images') && album.images.length > 0) {
             albumart = album.images[0].url;
         }
-        ;
+        var artist = '';
+        if (album.artists && album.artists[0] && album.artists[0].name) {
+            artist = album.artists[0].name;
+        }
+        
         list.push({
             service: 'spop',
             type: 'folder',
             title: album.name,
+            artist: artist,
             albumart: albumart,
             uri: album.uri,
         });
