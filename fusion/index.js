@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 3. By balbuze March 2023
+// FusionDsp plugin for volumio 3. By balbuze April 2023
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -67,6 +67,7 @@ FusionDsp.prototype.onStart = function () {
     self.getIP();
     self.socket = io.connect('http://localhost:3000');
     self.reportFusionEnabled();
+    self.checksamplerate();
   }, 2000);
 
   // if mixer set to none, do not show loudness settings
@@ -80,7 +81,7 @@ FusionDsp.prototype.onStart = function () {
   } else {
     self.config.set('showloudness', true)
   }
-  
+
   setTimeout(function () {
     self.createCamilladspfile()
     if (self.config.get('loudness')) {
@@ -140,7 +141,7 @@ FusionDsp.prototype.loadalsastuff = function () {
   const self = this;
   var defer = libQ.defer();
   try {
-    execSync("/usr/bin/mkfifo -m 646 /tmp/fusiondspfifo", {
+    execSync("/bin/touch /tmp/sr.log && /bin/chmod 666 /tmp/sr.log && /bin/touch /tmp/camilladsp.log && /bin/chmod 666 /tmp/camilladsp.log && /usr/bin/mkfifo -m 646 /tmp/fusiondspfifo", {
       uid: 1000,
       gid: 1000
     })
@@ -229,7 +230,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
       // No convolution if cpu is armv6l
       fs.access("/data/plugins/audio_interface/fusiondsp/cpuarmv6l", fs.F_OK, (err) => {
         if (err) {
-          self.logger.info('<< convolution filters enabled');
+          self.logger.info('<< convolution filters available');
           var dspoptions = [{
             "value": "EQ3",
             "label": self.commandRouter.getI18nString('EQ3_LABEL')
@@ -266,7 +267,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
           };
         } else {
           self.logger.info('>>>>>>>>>>>>> armv6l')
-          self.logger.info('Convolution disabled for cpu armv6l !');
+          self.logger.info('Convolution not available for cpu armv6l !');
           var dspoptions = [{
             "value": "EQ3",
             "label": self.commandRouter.getI18nString('EQ3_LABEL')
@@ -307,15 +308,11 @@ FusionDsp.prototype.getUIConfig = function (address) {
         uiconf.sections[7].hidden = true;
         uiconf.sections[9].hidden = true;
 
-
-
         let n = 1
         let eqval = self.config.get('mergedeq')
         let subtypex = eqval.toString().split('|')
 
-
         for (n; n <= ncontent; n++) {
-
 
           let typeinui = subtypex[((n - 1) * 4) + 1]
           let peqlabel
@@ -350,15 +347,9 @@ FusionDsp.prototype.getUIConfig = function (address) {
             case ("Highpass"):
               peqlabel = "Highpass Hz,Q"
               break;
-            //   case ("Highpass2"):
-            //     peqlabel = "Highpass Hz,bandwidth Octave"
-            //     break;
             case ("Lowpass"):
               peqlabel = "Lowpass Hz,Q"
               break;
-            //  case ("Lowpass2"):
-            //    peqlabel = "Lowpass Hz,bandwidth Octave"
-            //    break;
             case ("LowpassFO"):
               peqlabel = "LowpassFO Hz"
               break;
@@ -388,8 +379,6 @@ FusionDsp.prototype.getUIConfig = function (address) {
               break;
             default: "None"
           }
-          //}
-
 
           let scopeinui = subtypex[((n - 1) * 4) + 2]
           if (scopeinui == undefined) {
@@ -2012,7 +2001,6 @@ FusionDsp.prototype.autocalculdelay = function () {
     self.config.set('ldistance', 0)
     self.config.set('rdistance', 0)
   }
-
 };
 
 FusionDsp.prototype.autocaldistancedelay = function () {
@@ -2036,7 +2024,6 @@ FusionDsp.prototype.autocaldistancedelay = function () {
     self.config.set('ldistance', 0)
     self.config.set('rdistance', 0)
   }
-
 };
 
 FusionDsp.prototype.getConfigurationFiles = function () {
@@ -2122,29 +2109,13 @@ FusionDsp.prototype.areSampleswitch = function () {
     let filterNameShort = filterName.slice(0, -9);
     let filterNameForSwapc = filterNameShort + swapWord + fileExt;
     let filterNameForSwap = filterNameShort + "$samplerate$" + fileExt;
-   
 
-    // self.logger.info('sample switch possible !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + filterNameForSwap)
-    /*
-    try {
-      
-      if (fs.existsSync(filterfolder + filterNameForSwap)) {
-        return [true, filterNameForSwap]
-      }
+    if (fs.exists(filterfolder + filterNameForSwap)) {
+      return [true, filterNameForSwap]
+    } else {
       return false
-      
-    } catch (e) {
-      self.logger.error(cmd);
-    };
-    */
-    
-   
-        if (fs.exists(filterfolder + filterNameForSwap)) {
-          return [true, filterNameForSwap]
-        } else {
-          return false
-        }
-        
+    }
+
   };
   let leftResultExist = isFileExist(leftFilter1, '96000');
   let toSaveLeftResult = leftResultExist[1];
@@ -2360,11 +2331,34 @@ FusionDsp.prototype.dfiltertype = function (data) {
 
 };
 
+FusionDsp.prototype.checksamplerate = function () {
+  const self = this;
+  self.socket.on('pushState', function (data) {
+    self.createCamilladspfile()
+
+  });
+};
+
 //------------Here we build CmaillaDsp config file----------------------------------------------
 
 FusionDsp.prototype.createCamilladspfile = function (obj) {
   const self = this;
   let defer = libQ.defer();
+  var hcurrentsamplerate
+
+  try {
+    hcurrentsamplerate = fs.readFileSync("/tmp/sr.log", "utf8");
+
+  }
+  catch (error) {
+    console.error('Error fetching file:', error);
+  };
+  if (!hcurrentsamplerate) {
+    hcurrentsamplerate = "22050"
+  }
+  self.logger.info('Detected sample rate ======== ' + hcurrentsamplerate);
+
+
   if (self.config.get('selectedsp') == 'purecgui') {
     return;
   }
@@ -2392,7 +2386,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       let filter2 = rightfilter
       var attenuation = self.config.get('attenuationl');
       var testclipping = self.config.get('testclipping')
-    
+
       // var smpl_rate = self.config.get('smpl_rate')
       var filter_format = self.config.get('filter_format')
       let val = self.dfiltertype(obj);
@@ -2448,29 +2442,13 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
             break;
           default: "++"
         }
-        /*-------for future use
-        socket.on('pushState', function (data) {
-          var currentsamplerate = data.samplerate
-          if ((currentsamplerate == undefined) || (currentsamplerate == "")) {
-            currentsamplerate = "48000"
-          }
-          self.logger.info('Detected samplerate ==xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx======== ' + typeof (currentsamplerate))
-          var currentcorrectedsamplerate = currentsamplerate.replace("44.1 kHz", "44100").replace("48 kHz", "48000").replace("88.2 KHz", "88200").replace("96 kHz", "96000").replace("176.4 KHz", "176400").replace("192 KHz", "192000")
-          self.logger.info('Detected corrected samplerate ==xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx======== ' + currentcorrectedsamplerate)
-          if (currentcorrectedsamplerate >= resamplingset ){
-            self.logger.info('Nothing to do with samplerate ==xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx======== ')
-          }
-
-        })
-        */
+      
         capturesamplerate = resamplingset;
         composeddevice += '  enable_resampling: true\n';
         composeddevice += '  resampler_type: ' + type + '\n';
         composeddevice += '  capture_samplerate: ' + resamplingset;
       } else if (enableresampling == false) {
         composeddevice = '\n';
-
-
       }
       //------crossfeed section------
 
@@ -2726,315 +2704,315 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           var coef;
           var eqc = 'eq' + o;
 
-          if ((typer == 'Highshelf' || typer == 'Lowshelf')) {
+          if (eqv[0] < hcurrentsamplerate / 2) {
 
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '      slope: ' + eqv[2] + '\n';
-            composedeq += '      gain: ' + eqv[1] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + eqv[1];
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
+            if ((typer == 'Highshelf' || typer == 'Lowshelf')) {
 
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '      slope: ' + eqv[2] + '\n';
+              composedeq += '      gain: ' + eqv[1] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + eqv[1];
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
 
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+              }
+            }
+            if ((typer == 'Highshelf2' || typer == 'Lowshelf2')) {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer.slice(0, -1) + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '      q: ' + eqv[2] + '\n';
+              composedeq += '      gain: ' + eqv[1] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + eqv[1];
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+              }
+            } else if (typer == 'Peaking') {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '      q: ' + eqv[2] + '\n';
+              composedeq += '      gain: ' + eqv[1] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + eqv[1];
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+              }
+
+            } else if (typer == 'Peaking2') {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer.slice(0, -1) + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '      bandwidth: ' + eqv[2] + '\n';
+              composedeq += '      gain: ' + eqv[1] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + eqv[1];
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+              }
+
+            } else if (typer == 'Conv') {
+              var convtype = self.config.get('convtype')
+              filterr = eval('filter' + o)
+
+              var composedeq = '';
+              composedeq += '  conv' + [o] + ':\n';
+              composedeq += '    type: Conv' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + convtype + '\n';
+              composedeq += '      filename: ' + filterfolder + filterr + '\n';
+              if (convtype != 'Wav') {
+                composedeq += '      format: ' + self.config.get("filter_format") + '\n';
+              }
+              //composedeq += '      ' + skipval + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + convatt
+
+              if (testclipping) {
+                gainmax = ',0'
+              }
+
+              if (o == 1) {
+                pipelineL = '      - conv1\n'
+              }
+              if (o == 2) {
+                pipelineR = '      - conv2\n'
+              }
+
+              //result += composedeq
+
+            } else if ((typer == 'Lowpass' || typer == 'Highpass' || typer == 'Notch')) {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '      q: ' + eqv[1] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + 0
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+
+              }
+
+            } else if ((typer == 'Notch2')) {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer.slice(0, -1) + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '      bandwidth: ' + eqv[1] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + 0
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+
+              }
+
+            } else if (typer == 'LowshelfFO' || typer == 'HighshelfFO') {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '      gain: ' + eqv[1] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + eqv[1]
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+
+              }
+
+            } else if ((typer == 'LowpassFO' || typer == 'HighpassFO')) {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + 0
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+
+              }
+            } else if (typer == 'LinkwitzTransform') {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: Biquad' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer + '\n';
+              composedeq += '      freq_act: ' + eqv[0] + '\n';
+              composedeq += '      q_act: ' + eqv[1] + '\n';
+              composedeq += '      freq_target: ' + eqv[2] + '\n';
+              composedeq += '      q_target: ' + eqv[3] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + 0
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+
+              }
+
+            } else if (typer == 'ButterworthHighpass' || typer == 'ButterworthLowpass') {
+
+              composedeq += '  ' + eqc + ':\n';
+              composedeq += '    type: BiquadCombo' + '\n';
+              composedeq += '    parameters:' + '\n';
+              composedeq += '      type: ' + typer + '\n';
+              composedeq += '      freq: ' + eqv[0] + '\n';
+              composedeq += '      order: ' + eqv[1] + '\n';
+              composedeq += '' + '\n';
+              gainmax = ',' + 0
+              if (scoper == 'L') {
+                pipelineL = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'R') {
+                pipelineR = '      - ' + eqc + '\n';
+
+              } else if (scoper == 'L+R') {
+                pipelineL = '      - ' + eqc + '\n';
+                pipelineR = '      - ' + eqc + '\n';
+
+              }
+
+            } else if (typer == 'None') {
+
+              composedeq = ''
+              pipelineL = ''
+              pipelineR = ''
+              gainmax = ',' + 0
+
+            }
+
+
+            var outlpipeline, outrpipeline;
+            result += composedeq
+            outlpipeline += pipelineL
+            outrpipeline += pipelineR
+            pipelinelr = outlpipeline.slice(17)
+            pipelinerr = outrpipeline.slice(17)
+            if (loudness == false) {
+
+              if (pipelinelr == '') {
+                pipelinelr = 'nulleq2'
+              }
+
+              if (pipelinerr == '') {
+                pipelinerr = 'nulleq2'
+              }
+            }
+            gainmaxused += gainmax
+            if (self.config.get('loudness') && effect) {
+              pipelinelr += '      - highshelf\n';
+              pipelinelr += '      - peakloudness\n';
+              pipelinelr += '      - peakloudness2\n';
+              pipelinelr += '      - peakloudness3\n';
+              pipelinelr += '      - lowshelf\n';
+              pipelinerr += '      - highshelf\n';
+              pipelinerr += '      - peakloudness\n';
+              pipelinerr += '      - peakloudness2\n';
+              pipelinerr += '      - peakloudness3\n';
+              pipelinerr += '      - lowshelf\n';
+            }
+            if (delayscope != 'None') {
+              if (delayscope == 'L') {
+                pipelinelr += '' + '\n';
+
+                pipelinelr += '      - delayG' + '\n';
+
+              } else if (delayscope == 'R') {
+                pipelinerr += '' + '\n';
+                pipelinerr += '      - delayG' + '\n';
+
+              } else if (delayscope == 'L+R') {
+                pipelinelr += '' + '\n';
+                pipelinelr += '      - delayG' + '\n';
+                pipelinerr += '' + '\n';
+                pipelinerr += '      - delayG' + '\n';
+              }
+
             }
           }
-          if ((typer == 'Highshelf2' || typer == 'Lowshelf2')) {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer.slice(0, -1) + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '      q: ' + eqv[2] + '\n';
-            composedeq += '      gain: ' + eqv[1] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + eqv[1];
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-            }
-          } else if (typer == 'Peaking') {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '      q: ' + eqv[2] + '\n';
-            composedeq += '      gain: ' + eqv[1] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + eqv[1];
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-            }
-
-          } else if (typer == 'Peaking2') {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer.slice(0, -1) + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '      bandwidth: ' + eqv[2] + '\n';
-            composedeq += '      gain: ' + eqv[1] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + eqv[1];
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-            }
-
-          } else if (typer == 'Conv') {
-            var convtype = self.config.get('convtype')
-            filterr = eval('filter' + o)
-
-            var composedeq = '';
-            composedeq += '  conv' + [o] + ':\n';
-            composedeq += '    type: Conv' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + convtype + '\n';
-            composedeq += '      filename: ' + filterfolder + filterr + '\n';
-            if (convtype != 'Wav') {
-              composedeq += '      format: ' + self.config.get("filter_format") + '\n';
-            }
-            //composedeq += '      ' + skipval + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + convatt
-
-            if (testclipping) {
-              gainmax = ',0'
-            }
-
-            if (o == 1) {
-              pipelineL = '      - conv1\n'
-            }
-            if (o == 2) {
-              pipelineR = '      - conv2\n'
-            }
-
-            //result += composedeq
-
-          } else if ((typer == 'Lowpass' || typer == 'Highpass' || typer == 'Notch')) {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '      q: ' + eqv[1] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + 0
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-
-            }
-
-            // } else if ((typer == 'Lowpass2' || typer == 'Highpass2' || typer == 'Notch2')) {
-          } else if ((typer == 'Notch2')) {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer.slice(0, -1) + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '      bandwidth: ' + eqv[1] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + 0
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-
-            }
-
-          } else if (typer == 'LowshelfFO' || typer == 'HighshelfFO') {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '      gain: ' + eqv[1] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + eqv[1]
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-
-            }
-
-          } else if ((typer == 'LowpassFO' || typer == 'HighpassFO')) {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + 0
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-
-            }
-          } else if (typer == 'LinkwitzTransform') {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: Biquad' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer + '\n';
-            composedeq += '      freq_act: ' + eqv[0] + '\n';
-            composedeq += '      q_act: ' + eqv[1] + '\n';
-            composedeq += '      freq_target: ' + eqv[2] + '\n';
-            composedeq += '      q_target: ' + eqv[3] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + 0
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-
-            }
-
-          } else if (typer == 'ButterworthHighpass' || typer == 'ButterworthLowpass') {
-
-            composedeq += '  ' + eqc + ':\n';
-            composedeq += '    type: BiquadCombo' + '\n';
-            composedeq += '    parameters:' + '\n';
-            composedeq += '      type: ' + typer + '\n';
-            composedeq += '      freq: ' + eqv[0] + '\n';
-            composedeq += '      order: ' + eqv[1] + '\n';
-            composedeq += '' + '\n';
-            gainmax = ',' + 0
-            if (scoper == 'L') {
-              pipelineL = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'R') {
-              pipelineR = '      - ' + eqc + '\n';
-
-            } else if (scoper == 'L+R') {
-              pipelineL = '      - ' + eqc + '\n';
-              pipelineR = '      - ' + eqc + '\n';
-
-            }
-
-          } else if (typer == 'None') {
-
-            composedeq = ''
-            pipelineL = ''
-            pipelineR = ''
-            gainmax = ',' + 0
-
-          }
-
-
-          var outlpipeline, outrpipeline;
-          result += composedeq
-          outlpipeline += pipelineL
-          outrpipeline += pipelineR
-          pipelinelr = outlpipeline.slice(17)
-          pipelinerr = outrpipeline.slice(17)
-          if (loudness == false) {
-
-            if (pipelinelr == '') {
-              pipelinelr = 'nulleq2'
-            }
-
-            if (pipelinerr == '') {
-              pipelinerr = 'nulleq2'
-            }
-          }
-          gainmaxused += gainmax
-          if (self.config.get('loudness') && effect) {
-            pipelinelr += '      - highshelf\n';
-            pipelinelr += '      - peakloudness\n';
-            pipelinelr += '      - peakloudness2\n';
-            pipelinelr += '      - peakloudness3\n';
-            pipelinelr += '      - lowshelf\n';
-            pipelinerr += '      - highshelf\n';
-            pipelinerr += '      - peakloudness\n';
-            pipelinerr += '      - peakloudness2\n';
-            pipelinerr += '      - peakloudness3\n';
-            pipelinerr += '      - lowshelf\n';
-            //    self.logger.info('loudness pipeline set')
-          }
-          if (delayscope != 'None') {
-            if (delayscope == 'L') {
-              pipelinelr += '' + '\n';
-
-              pipelinelr += '      - delayG' + '\n';
-
-            } else if (delayscope == 'R') {
-              pipelinerr += '' + '\n';
-              pipelinerr += '      - delayG' + '\n';
-
-            } else if (delayscope == 'L+R') {
-              pipelinelr += '' + '\n';
-              pipelinelr += '      - delayG' + '\n';
-              pipelinerr += '' + '\n';
-              pipelinerr += '      - delayG' + '\n';
-            }
-
-          }
-
         };
 
       };
@@ -3426,7 +3404,10 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           defer.reject(new Error(err));
         else defer.resolve();
       });
-      self.sendCommandToCamilla()
+      setTimeout(function () {
+
+        self.sendCommandToCamilla()
+      }, 1000);
 
     });
 
@@ -3644,8 +3625,6 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       }
     }
 
-
-
     let skipeqn = 0;
     for (var xo = 1; xo < (nbreq + 1); xo++) {
       var o = xo
@@ -3727,7 +3706,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     let rightfilter = (data['rightfilter'].value);
 
     //    self.checkconvexist()
-    
+
     if (leftfilter != "None" || rightfilter != "None") {
       //we check if the file for filter still exists
       try {
@@ -3744,7 +3723,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
           self.logger.error('__________________NO__A file is missing');
           self.commandRouter.pushToastMessage('error', "One filter file is missing!, please reselect it! ");
           self.config.set("leftfilter", "None")
-         // self.config.set("leftfilterlabel", "None")
+          // self.config.set("leftfilterlabel", "None")
           self.config.set("rightfilter", "None")
           self.config.set("filter_format", "TEXT")
           self.config.set('attenuationl', 0);
@@ -3890,8 +3869,6 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('muteleft', data["muteleft"]);
     self.config.set('muteright', data["muteright"]);
 
-
-
     //self.config.set('delayscope', (data["delayscope"].value));
 
     if (self.config.get('showloudness')) {
@@ -4027,7 +4004,6 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
 
   return defer.promise;
 };
-
 
 FusionDsp.prototype.usethispreset = function (data) {
   const self = this;

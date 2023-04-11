@@ -1,4 +1,4 @@
-March 125th 2023
+April 9thth 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -141,6 +141,10 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+
+March 12th 2023 v1.0.44
+
+- fix filter if freq < sr/2
 
 March 12th 2023 v1.0.41
 
