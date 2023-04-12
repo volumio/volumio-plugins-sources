@@ -1,6 +1,6 @@
 {
 	"name": "ytcr",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "YouTube Cast Receiver for Volumio",
 	"main": "index.js",
 	"scripts": {
@@ -34,12 +34,12 @@
 	},
 	"dependencies": {
 		"kew": "^0.7.0",
-		"mpd-api": "^1.1.0",
+		"mpd-api": "^1.1.2",
 		"network-interfaces": "^1.1.0",
+		"node-fetch": "^2.6.9",
 		"string-format": "^2.0.0",
 		"v-conf": "^1.4.2",
-		"ytdl-core": "^4.9.1",
-		"request": "^2.88.2",
-		"yt-cast-receiver": "0.1.1-b"
+		"yt-cast-receiver": "0.1.2",
+		"ytdl-core": "^4.11.2"
 	}
 }
