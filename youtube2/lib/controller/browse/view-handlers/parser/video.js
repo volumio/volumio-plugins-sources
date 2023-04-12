@@ -1,25 +1,36 @@
 'use strict';
 
-const yt2 = require(yt2PluginLibRoot + '/youtube2');
-const BaseParser = require(__dirname + '/base');
+const BaseParser = require('./base');
 
 class VideoParser extends BaseParser {
 
-    parseToListItem(video) {
-        let baseUri = this.getUri();
+  parseToListItem(data) {
+    const explodeTrackData = this.getExplodeTrackData(data);
+    const item = {
+      service: 'youtube2',
+      type: 'song',
+      title: explodeTrackData.title,
+      artist: explodeTrackData.artist,
+      albumart: explodeTrackData.albumart,
+      duration: data.duration,
+      uri: 'youtube2/video@explodeTrackData=' + encodeURIComponent(JSON.stringify(explodeTrackData))
+    };
 
-        let data = {
-            'service': 'youtube2',
-            'type': 'song',
-            'title': video.title,
-            'artist': video.channel.title,
-            'album': yt2.getI18n('YOUTUBE2_VIDEO_PARSER_ALBUM'),
-            'albumart': video.thumbnail,
-            'uri': baseUri + '/video@videoId=' + video.id,
-            'duration': video.duration
-        }
-        return data;
-    }
+    return item;
+  }
+
+  // Creates a bundle that contains the data needed by explode() to 
+  // generate the final exploded item.
+  getExplodeTrackData(data) {
+    const track = {
+      title: data.title,
+      artist: data.author?.name || data.viewCount,
+      albumart: data.thumbnail,
+      endpoint: data.endpoint // watch endpoint
+    };
+   
+    return track;
+  }
 }
 
 module.exports = VideoParser;

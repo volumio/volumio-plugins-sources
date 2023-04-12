@@ -1,320 +1,347 @@
 'use strict';
 
 const libQ = require('kew');
-const yt2 = require(yt2PluginLibRoot + '/youtube2');
-const VideoHelper = require(yt2PluginLibRoot + '/helper/video');
-const ViewHelper = require(yt2PluginLibRoot + '/helper/view');
+const yt2 = require('../../youtube2');
+const Model = require('../../model');
+const ViewHelper = require('../../helper/view');
+const TrackHelper = require('../../helper/track');
+const Parser = require('../browse/view-handlers/parser');
 
 class PlayController {
 
-    constructor() {
-        let self = this;
+  constructor() {
+    this.mpdPlugin = yt2.getMpdPlugin();
 
-        self.mpdPlugin = yt2.getMpdPlugin();
-        
-        self.autoplayListener = () => {
-            self.mpdPlugin.getState().then( (state) => {
-                if (state.status === 'stop') {
-                    self._handleAutoplay();
-                    self.mpdPlugin.clientMpd.removeListener('system-player', self.autoplayListener);
-                }
+    this.autoplayListener = () => {
+      this.mpdPlugin.getState().then((state) => {
+        if (state.status === 'stop') {
+          this._handleAutoplay();
+          this.removeAutoplayListener();
+        }
+      });
+    }
+  }
+
+  removeAutoplayListener() {
+    this.mpdPlugin.clientMpd.removeListener('system-player', this.autoplayListener);
+  }
+
+  /**
+   * Track uri:
+   * - youtube2/video@endpoint={...}@explodeTrackData={...}
+   *
+   */
+  clearAddPlayTrack(track) {
+    yt2.getLogger().info('[youtube2-play] clearAddPlayTrack(): ' + track.uri);
+
+    const defer = libQ.defer();
+    const trackUriData = this._parseTrackUri(track.uri);
+
+    if (!trackUriData) {
+      throw Error('Invalid track uri: ' + track.uri);
+    }
+
+    const videoId = trackUriData.endpoint.payload.videoId;
+    const model = Model.getInstance('video');
+    model.getInfo(videoId).then((videoInfo) => {
+
+      if (!videoInfo) {
+        throw Error(`Could not obtain video info (videoId: ${videoId})`);
+      }
+
+      const stream = videoInfo.stream;
+
+      if (!stream?.url) {
+        yt2.toast('error', yt2.getI18n('YOUTUBE2_ERR_NO_STREAM', track.name));
+        throw Error(`Stream not found (videoId: ${videoId})`);
+      }
+
+      track.title = videoInfo.title || track.title;
+      track.name = videoInfo.title || track.title;
+      track.artist = videoInfo.author?.name || track.artist;
+      track.albumart = videoInfo.thumbnail || track.albumart;
+      if (stream.bitrate) {
+        track.samplerate = stream.bitrate;
+      }
+
+      this.lastPlayedTrackInfo = {
+        track,
+        position: yt2.getStateMachine().getState().position,
+      };
+
+      const safeStreamUrl = stream.url.replace(/"/g, '\\"');
+      this._doPlay(safeStreamUrl, track).then(() => {
+        if (yt2.getConfigValue('autoplay', false)) {
+          this.mpdPlugin.clientMpd.on('system-player', this.autoplayListener);
+        }
+
+        if (yt2.getConfigValue('addToHistory', true)) {
+          try {
+            videoInfo.addToHistory();
+          } catch (error) {
+            yt2.getLogger().error(yt2.getErrorMessage(`[youtube2-play] Error: could not add to history (videoId: ${videoId}): `, error));
+          }
+        }
+
+        defer.resolve();
+      })
+        .fail((error) => {
+          defer.reject(error);
+        });
+    })
+      .catch((error) => {
+        yt2.getLogger().error(yt2.getErrorMessage('[youtube2-play] clearAddPlayTrack() error', error));
+        defer.reject(error);
+      })
+
+    return defer.promise;
+  }
+
+  stop() {
+    this.removeAutoplayListener();
+    yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
+    return this.mpdPlugin.stop();
+  };
+
+  pause() {
+    yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
+    return this.mpdPlugin.pause();
+  };
+
+  resume() {
+    yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
+    return this.mpdPlugin.resume();
+  }
+
+  seek(position) {
+    yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
+    return this.mpdPlugin.seek(position);
+  }
+
+  next() {
+    yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
+    return this.mpdPlugin.next();
+  }
+
+  previous() {
+    yt2.getStateMachine().setConsumeUpdateService(undefined);
+    return yt2.getStateMachine().previous();
+  }
+
+  async getGotoUri(data) {
+    if (data.type === 'album') {
+      const playlistId = this._parseTrackUri(data.uri)?.endpoint?.payload?.playlistId;
+      if (playlistId) {
+        const endpoint = {
+          type: 'browse',
+          payload: {
+            browseId: (!playlistId.startsWith('VL') ? 'VL' : '') + playlistId
+          }
+        };
+        return `youtube2/generic@endpoint=${encodeURIComponent(JSON.stringify(endpoint))}`;
+      }
+    }
+    else if (data.type === 'artist') {
+      const videoId = this._parseTrackUri(data.uri)?.endpoint?.payload?.videoId;
+      if (videoId) {
+        const model = Model.getInstance('video');
+        const videoInfo = await model.getInfo(videoId);
+        const channelId = videoInfo?.author?.channelId;
+        if (channelId) {
+          const endpoint = {
+            type: 'browse',
+            payload: {
+              browseId: channelId
+            }
+          };
+          return `youtube2/generic@endpoint=${encodeURIComponent(JSON.stringify(endpoint))}`;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  _parseTrackUri(uri) {
+    if (!uri) {
+      return null;
+    }
+
+    const views = ViewHelper.getViewsFromUri(uri);
+    const trackView = views[1];
+
+    if (!trackView || trackView.name !== 'video' || !trackView.endpoint) {
+      return null;
+    }
+
+    const endpoint = JSON.parse(decodeURIComponent(trackView.endpoint));
+    if (endpoint.type === 'watch') {
+      return {
+        ...trackView,
+        endpoint
+      };
+    }
+
+    return null;
+  }
+
+  _doPlay(streamUrl, track) {
+    const mpdPlugin = this.mpdPlugin;
+    return mpdPlugin.sendMpdCommand('stop', [])
+      .then(() => {
+        return mpdPlugin.sendMpdCommand('clear', []);
+      })
+      .then(() => {
+        return mpdPlugin.sendMpdCommand('addid "' + streamUrl + '"', []);
+      })
+      .then((addIdResp) => {
+        if (addIdResp && typeof addIdResp.Id != undefined) {
+          const trackUrl = addIdResp.Id;
+
+          const mpdCommands = [{
+            command: 'addtagid',
+            parameters: [trackUrl, 'title', track.title]
+          }];
+
+          if (track.album) {
+            mpdCommands.push({
+              command: 'addtagid',
+              parameters: [trackUrl, 'album', track.album]
             });
-        }
-    }
+          }
 
-    /**
-     * Track uri:
-     * youtube2/video[@autoplay=1]@videoId={videoId}[@fromPlaylistId=...]
-     */
-    clearAddPlayTrack(track) {
-        yt2.getLogger().info('[youtube2-play] clearAddPlayTrack: ' + track.uri);
-        let self = this;
+          if (track.artist) {
+            mpdCommands.push({
+              command: 'addtagid',
+              parameters: [trackUrl, 'artist', track.artist]
+            });
+          }
 
-        let trackUriView = ViewHelper.getViewsFromUri(track.uri).pop();
-        let videoId = trackUriView.videoId;
-        let autoplay = trackUriView.autoplay != undefined;
-        if (videoId == undefined) {
-            let err = 'Invalid track uri: ' + track.uri;
-            yt2.toast('error', err);
-            return libQ.reject(err);
-        }
-
-        yt2.getLogger().info(`[youtube2-play] clearAddPlayTrack - videoId: ${ videoId }, autoplay: ${ autoplay }, fromPlaylistId: ${ trackUriView.fromPlaylistId }`);
-        let streamUrl;
-        return VideoHelper.getPlaybackInfo(videoId).then( (info) => {
-            streamUrl = info.audioUrl.replace(/"/g, '\\"');  // safe uri
-            let mixPlaylist = autoplay && self.lastPlaybackInfo && self.lastPlaybackInfo.mixPlaylist ? self.lastPlaybackInfo.mixPlaylist : undefined;
-            self.lastPlaybackInfo = {
-                videoId: videoId,
-                track: track,
-                position: yt2.getStateMachine().getState().position,
-                upNextVideoId: info.upNextVideoId,
-                relatedVideos: info.relatedVideos,
-                mixPlaylist: mixPlaylist
-            };
-            // We setConsumeUpdateService to ignore metadata, so we set the track's samplerate to bitrate here.
-            // Note that while sample rate can be included in info, the bit depth is not available until
-            // the stream is actually played. Thanks to the logic of statemachine (which is illogical),
-            // when setConsumeUpdateService is set to ignore metadata, the state always obtain 
-            // bitdepth / samplerate from track in the queue, and just won't fall back to using those 
-            // provided by the consume service (MPD) if the track doesn't contain this data.
-            track.samplerate = info.bitrate;
-            return streamUrl;
-        }).then( (streamUrl) => {
-            return self._doPlay(streamUrl, track);
-        }).then( (mpdPlayResult) => {
-            if (yt2.getConfigValue('autoplay', false)) {
-                self.mpdPlugin.clientMpd.on('system-player', self.autoplayListener);
-            }
-            return mpdPlayResult;
-        }).fail( (error) => {
-            yt2.getLogger().error('[youtube2-play] clearAddPlayTrack() error');
-            yt2.getLogger().error(error.message || error);
-            if (error.message) {
-                yt2.toast('error', `Cannot play track: ${ error.message }`);
-            }
-            else if (error.statusCode === 429) {
-                yt2.toast('error', 'Cannot play track: HTTP status 429 - Too Many Requests');
-            }
-            else {
-                yt2.toast('error', error);
-            }
-            return libQ.reject(error);
-        });
-    }
-
-    stop() {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
-        return this.mpdPlugin.stop();
-    };
-
-    pause() {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
-        return this.mpdPlugin.pause();
-    };
-  
-    resume() {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
-        return this.mpdPlugin.resume();
-    }
-  
-    seek(position) {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
-        return this.mpdPlugin.seek(position);
-    }
-
-    next() {
-        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
-        return this.mpdPlugin.next();
-    }
-
-    previous() {
-        yt2.getStateMachine().setConsumeUpdateService(undefined);
-        return yt2.getStateMachine().previous();
-    }
-
-    _doPlay(streamUrl, track) {
-        let mpdPlugin = this.mpdPlugin;
-
-        return mpdPlugin.sendMpdCommand('stop', [])
-        .then( () => {
-            return mpdPlugin.sendMpdCommand('clear', []);
-        })
-        .then( () => {
-            // Send 'addid' command instead of 'add' to get mpd's Id of the song added.
-            // We can then add tags using mpd's song Id.
-            return mpdPlugin.sendMpdCommand('addid "' + streamUrl + '"', []);
-        })
-        .then( (addIdResp) => {
-            if (addIdResp && typeof addIdResp.Id != undefined) {
-                let songId = addIdResp.Id;
-                let cmdAddTitleTag = {
-                    command: 'addtagid',
-                    parameters: [songId, 'title', track.title]
-                };
-                let cmdAddAlbumTag = {
-                    command: 'addtagid',
-                    parameters: [songId, 'album', track.album]
-                }
-                let cmdAddArtistTag = {
-                    command: 'addtagid',
-                    parameters: [songId, 'artist', track.artist]
-                }
-
-                return mpdPlugin.sendMpdCommandArray([cmdAddTitleTag, cmdAddAlbumTag, cmdAddArtistTag]);
-            }
-            else {
-                return libQ.resolve();
-            }
-        })
-        .then( () => {
-            yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
-            return mpdPlugin.sendMpdCommand('play', []);
-        });
-    }
-
-    _handleAutoplay() {
-        let self = this;
-        let lastPlaybackItemPosition = self._getLastPlaybackItemPosition();
-
-        if (lastPlaybackItemPosition < 0) {
-            return;
-        }
-
-        let stateMachine = yt2.getStateMachine(),
-            state = stateMachine.getState(),
-            isLastTrack = stateMachine.getQueue().length - 1 === lastPlaybackItemPosition,
-            currentPositionChanged = state.position !== lastPlaybackItemPosition, // true if client clicks on another item in the queue
-            queueItemRemoved = false;
-        
-        const isLastPlaybackAutoplayItem = () => {
-            if (self.lastPlaybackInfo.track.service === 'youtube2') {
-                let lastPlaybackView = ViewHelper.getViewsFromUri(self.lastPlaybackInfo.track.uri).pop();
-                return lastPlaybackView.autoplay != undefined;
-            }
-            return false;
-        }
-           
-        if (isLastPlaybackAutoplayItem()) {
-            yt2.getLogger().info(`[youtube2-play] _handleAutoPlay(): Removing autoplayed video from queue (position ${lastPlaybackItemPosition})`);
-            stateMachine.removeQueueItem({ value: lastPlaybackItemPosition });
-            queueItemRemoved = true;
-        }
-
-        let autoplay;
-        let noAutoplayConditions = !yt2.getConfigValue('autoplay', false) || currentPositionChanged || !isLastTrack || state.random || state.repeat || state.repeatSingle;
-        
-        if (noAutoplayConditions) {
-            autoplay = libQ.resolve(null);
+          return mpdPlugin.sendMpdCommandArray(mpdCommands);
         }
         else {
-            autoplay = self._getAutoplayVideoId();
+          return libQ.resolve();
         }
+      })
+      .then(() => {
+        yt2.getStateMachine().setConsumeUpdateService('mpd', true, false);
+        return mpdPlugin.sendMpdCommand('play', []);
+      });
+  }
 
-        autoplay.then( (autoplayVideoId) => {
-            if (autoplayVideoId === null) {
-                delete self.lastPlaybackInfo.mixPlaylist;
-                if (queueItemRemoved && !currentPositionChanged && !isLastTrack) { 
-                    // Playback stopped without client request
-                    // StateMachine will try to play the next track after this function exits, but if
-                    // autoplay item has been removed from queue, StateMachine will somehow obtain 
-                    // track info with null fields (even at the same track position as the autoplay item
-                    // prior to removal). We force StateMachine to play the next track here.
-                    // Note that we don't need to do this if the playback was stopped because
-                    // client clicked on another item in the queue, because the StateMachine
-                    // would obtain the correct track info before this function is entered (i.e.
-                    // before autoplay item is removed).
-                    // Hacky, but seems to work.
-                    stateMachine.play(state.position);
-                }
-                if (!noAutoplayConditions) {
-                    yt2.getLogger().info('[youtube2-play] _handleAutoplay(): No video available for autoplay');
-                }
-                return;
-            }
-            else {
-                // Add autoplay video to queue
-                let autoplayQueueItem = {
-                    service: 'youtube2',
-                    uri: 'youtube2/video@autoplay=1@videoId=' + autoplayVideoId
-                };
-                stateMachine.addQueueItems([autoplayQueueItem]).then( (result) => {
-                    yt2.getLogger().info(`[youtube2-play] _handleAutoplay(): Start autoplaying video ${autoplayVideoId}`);
-
-                    // Hacky way to prevent autoplay label from displaying
-                    // in the player status (the label contains html tags that
-                    // will be shown as escaped string)
-                    let queue = stateMachine.getQueue();
-                    let addedQueueItem = queue[result.firstItemIndex];
-                    // let titleWithAutoplayLabel = addedQueueItem.name;  *See remark
-                    addedQueueItem.name = addedQueueItem.title; // 'title' has no autoplay label
-
-                    stateMachine.play(result.firstItemIndex).then( () => {
-                        // Reinstate queue item name
-                       // addedQueueItem.name = titleWithAutoplayLabel;  *See remark
-                    });
-
-                    // Remark:
-                    // Commented out because with setConsumeUpdateService to ignore metadata, the title 
-                    // returned in the state will be taken from the queue item (trackblock). If we reinstate
-                    // the queue item to show the Autoplay label, the HTML tags will get escaped in the UI's trackbar.
-                    // Unfortunately, not reinstating the Autoplay label will cause the label to disappear if the 
-                    // UI is refreshed. Perhaps we should move the label to the Album field without formatting?
-                });
-            }
-        });
+  async _handleAutoplay() {
+    const lastPlayedQueueIndex = this._findLastPlayedTrackQueueIndex();
+    if (lastPlayedQueueIndex < 0) {
+      return;
     }
 
-    _getLastPlaybackItemPosition() {
-        if (!this.lastPlaybackInfo) {
-            return -1;
-        }
+    const stateMachine = yt2.getStateMachine(),
+      state = stateMachine.getState(),
+      isLastTrack = stateMachine.getQueue().length - 1 === lastPlayedQueueIndex,
+      currentPositionChanged = state.position !== lastPlayedQueueIndex; // true if client clicks on another item in the queue
 
-        let queue = yt2.getStateMachine().getQueue(),
-            uri = this.lastPlaybackInfo.track.uri,
-            upTo = this.lastPlaybackInfo.position;
+    const noAutoplayConditions = !yt2.getConfigValue('autoplay', false) || currentPositionChanged || !isLastTrack || state.random || state.repeat || state.repeatSingle;
+    const getAutoplayItemsPromise = noAutoplayConditions ? Promise.resolve(null) : this._getAutoplayItems();
 
-        for (let i = upTo; i >= 0; i--) {
-            let queueItem = queue[i];
-            if (queueItem && queueItem.uri === uri) {
-                return i;
-            }
-        }
-
-        return -1;
+    if (!noAutoplayConditions) {
+      yt2.toast('info', yt2.getI18n('YOUTUBE2_AUTOPLAY_FETCH'));
     }
 
-    _getAutoplayVideoId() {
-        let self = this;
-        let defer = libQ.defer();
-        
-        // Return the video Id for autoplay in the following order of preference:
-        // 1. If Mix Playlist available, the Id of the next video in the list
-        // 2. If related videos available, the Id of a random video in the list
-        // 3. The Id of the 'Up Next' video (last resort - can easily encounter a loop)
-        let getMixPlaylistInfo;
-        let lastMixPlaylist = self.lastPlaybackInfo.mixPlaylist;
-        if (lastMixPlaylist && lastMixPlaylist.items.length > lastMixPlaylist.currentIndex + 1) {
-            getMixPlaylistInfo = libQ.resolve(lastMixPlaylist);
-        }
-        else if (lastMixPlaylist) {
-            getMixPlaylistInfo = VideoHelper.refreshMixPlaylist(lastMixPlaylist, self.lastPlaybackInfo.videoId);
+    const items = await getAutoplayItemsPromise;
+    if (items?.length > 0) {
+      // Add items to queue and play
+      const clearQueue = yt2.getConfigValue('autoplayClearQueue', false);
+      if (clearQueue) {
+        stateMachine.clearQueue();
+      }
+      stateMachine.addQueueItems(items).then((result) => {
+        if (items.length > 1) {
+          yt2.toast('success', yt2.getI18n('YOUTUBE2_AUTOPLAY_ADDED', items.length));
         }
         else {
-            getMixPlaylistInfo = VideoHelper.getMixPlaylist(self.lastPlaybackInfo.videoId);
+          yt2.toast('success', yt2.getI18n('YOUTUBE2_AUTOPLAY_ADDED_SINGLE', items[0].title));
         }
-        getMixPlaylistInfo.then( (mixPlaylist) => {
-            if (mixPlaylist && mixPlaylist.items.length > mixPlaylist.currentIndex + 1) {
-                mixPlaylist.currentIndex++;
-                let nextVideoId = mixPlaylist.items[mixPlaylist.currentIndex].id;
-                self.lastPlaybackInfo.mixPlaylist = mixPlaylist;
-                yt2.getLogger().info(`[youtube2-play] _getAutoplayVideoId(): resolving to next video in Mix Playlist (video Id: ${nextVideoId} ... Mix playlist Id: ${mixPlaylist.id} ... index: ${mixPlaylist.currentIndex} / ${mixPlaylist.items.length - 1})`);
-                defer.resolve(nextVideoId);
-            }
-            else if (self.lastPlaybackInfo.relatedVideos && self.lastPlaybackInfo.relatedVideos.length > 0) {
-                delete self.lastPlaybackInfo.mixPlaylist;
-                let rndIndex = self._getRandomInt(0, self.lastPlaybackInfo.relatedVideos.length);
-                let nextVideoId = self.lastPlaybackInfo.relatedVideos[rndIndex].id;
-                yt2.getLogger().info(`[youtube2-play] _getAutoplayVideoId(): resolving to related video (Id: ${nextVideoId})`);
-                defer.resolve(nextVideoId);
-            }
-            else {
-                delete self.lastPlaybackInfo.mixPlaylist;
-                yt2.getLogger().info(`[youtube2-play] _getAutoplayVideoId(): resolving to 'Up Next' video (Id: ${self.lastPlaybackInfo.upNextVideoId})`);
-                defer.resolve(self.lastPlaybackInfo.upNextVideoId);
-            }
-        });
+        stateMachine.play(result.firstItemIndex);
+      });
+    }
+    else if (!noAutoplayConditions) {
+      yt2.toast('info', yt2.getI18n('YOUTUBE2_AUTOPLAY_NO_ITEMS'));
+    }
+  }
 
-        return defer.promise;
+  _findLastPlayedTrackQueueIndex() {
+    if (!this.lastPlayedTrackInfo) {
+      return -1;
     }
 
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-    _getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+    const queue = yt2.getStateMachine().getQueue();
+    const trackUri = this.lastPlayedTrackInfo.track.uri;
+    const endIndex = this.lastPlayedTrackInfo.position;
+
+    for (let i = endIndex; i >= 0; i--) {
+      if (queue[i]?.uri === trackUri) {
+        return i;
+      }
     }
 
+    return -1;
+  }
+
+  async _getAutoplayItems() {
+    const lastPlayedEndpoint = this._parseTrackUri(this.lastPlayedTrackInfo?.track?.uri)?.endpoint;
+
+    if (!lastPlayedEndpoint?.payload?.videoId) {
+      return [];
+    }
+    
+    const autoplayPayload = {
+      videoId: lastPlayedEndpoint.payload.videoId
+    };
+    if (lastPlayedEndpoint.payload.playlistId) {
+      autoplayPayload.playlistId = lastPlayedEndpoint.payload.playlistId;
+
+      if (lastPlayedEndpoint.payload.index) {
+        autoplayPayload.playlistIndex = lastPlayedEndpoint.payload.index;
+      }
+    }
+    if (lastPlayedEndpoint.payload.params) {
+      autoplayPayload.params = lastPlayedEndpoint.payload.params;
+    }
+    
+    const autoplayFetchEndpoint = {
+      type: 'watch',
+      payload: autoplayPayload
+    };
+
+    const endpointModel = Model.getInstance('endpoint');
+    const contents = await endpointModel.getContents(autoplayFetchEndpoint);
+
+    const autoplayItems = [];
+    if (contents?.playlist) {
+      const currentIndex = contents.playlist.currentIndex || 0;
+      const itemsAfter = contents.playlist.items.slice(currentIndex + 1).filter((item) => item.type === 'video');
+      autoplayItems.push(...itemsAfter);
+    }
+    if (autoplayItems.length === 0 && contents.autoplay?.payload?.videoId) {
+      const videoModel = Model.getInstance('video');
+      // contents.autoplay is just an endpoint, so we need to get video info (title, author...) from it
+      const videoInfo = await videoModel.getInfo(contents.autoplay.payload.videoId);
+      autoplayItems.push({
+        type: 'video',
+        title: videoInfo.title,
+        author: videoInfo.author,
+        thumbnail: videoInfo.thumbnail,
+        endpoint: contents.autoplay 
+      });
+    }
+
+    if (autoplayItems.length > 0) {
+      const videoParser = Parser.getInstance('video');
+      return autoplayItems.map((item) => TrackHelper.parseToQueueItem(videoParser.getExplodeTrackData(item)));
+    }
+
+    return [];
+  }
 }
 
 module.exports = PlayController;
