@@ -5,9 +5,10 @@ const EndpointModel = require(__dirname + '/endpoint');
 class SearchModel extends EndpointModel {
 
   async getSearchResultsByQuery(query) {
-    const endpoint = { 
-      search: {
-        query 
+    const endpoint = {
+      actionType: 'search',
+      payload: {
+        query
       }
     };
     return this.getSearchResultsByEndpoint(endpoint);

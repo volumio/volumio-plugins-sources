@@ -16,7 +16,7 @@ class MoreItemParser extends EndpointItemParser {
   }
 
   getUriFromEndpoint(endpoint) {
-    this.#ignorePageType = endpoint?.browse?.params || endpoint?.search;
+    this.#ignorePageType = (endpoint.actionType === 'browse' && endpoint.payload.params) || endpoint.actionType === 'search';
     const uri = super.getUriFromEndpoint(endpoint, this.#ignorePageType);
     return uri + '@noExplode=1';
   }
