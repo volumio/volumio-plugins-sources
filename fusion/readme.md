@@ -1,4 +1,4 @@
-April 9thth 2023
+April 12th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -141,8 +141,13 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+April 14th 2023 v1.0.45
 
-March 12th 2023 v1.0.44
+- misc warning for DRC fir, local import
+- update - fix filter if freq < sr/2
+- tools update
+
+April 12th 2023 v1.0.44
 
 - fix filter if freq < sr/2
 

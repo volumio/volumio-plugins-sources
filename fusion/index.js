@@ -29,7 +29,7 @@ const eq15range = [25, 40, 63, 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 
 const eq3range = [185, 1300, 5500]
 const coefQ = 1.85//Q for graphic EQ
 const coefQ3 = [0.82, 0.4, 0.82]//Q for graphic EQ3
-const eq3type = ["Lowshelf2", "Peaking", "Highshelf2"]
+const eq3type = ["Lowshelf2", "Peaking", "Highshelf2"] //Filter type for EQ3
 const sv = 34300 // sound velocity cm/s
 
 
@@ -1680,7 +1680,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
         fs.readdir('/data/' + toolspath, function (err, bitem) {
           let filetools = '' + bitem;
 
-          let bitems = filetools.split(',');
+          let bitems = filetools.replace('folder.png', '').slice(0, -1).split(',');
 
           //console.log(bitems)
           for (let i in bitems) {
@@ -2442,7 +2442,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
             break;
           default: "++"
         }
-      
+
         capturesamplerate = resamplingset;
         composeddevice += '  enable_resampling: true\n';
         composeddevice += '  resampler_type: ' + type + '\n';
@@ -3417,56 +3417,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
   return defer.promise;
 };
-/*
-//----------------------here we check if conv filters still exist-- NOT IN USE!!!
-FusionDsp.prototype.checkconvexist = function () {
-  const self = this;
-  let defer = libQ.defer();
-  let leftfilter = self.config.get("leftfilter")
-  let rightfilter = self.config.get("rightfilter")
 
-  if (leftfilter != "None" || rightfilter != "None") {
-    //we check if the file for filter still exists
-    try {
-      const leftFilterPath = path.join(filterfolder, leftfilter);
-      const rightFilterPath = path.join(filterfolder, rightfilter);
-
-      const leftFilterExists = fs.existsSync(leftFilterPath);
-      const rightFilterExists = fs.existsSync(rightFilterPath);
-      return new Promise((resolve, reject) => {
-        if (leftFilterExists && rightFilterExists) {
-          // self.logger.info('__________________YES_files ok');
-          self.refreshUI();
-          resolve(yes);
-
-          //return [true, null];
-        } else {
-          self.logger.error('__________________NO__A file is missing');
-          self.commandRouter.pushToastMessage('error', "One filter file is missing!, please reselect it! ");
-          self.config.set("leftfilter", "None")
-          self.config.set("leftfilterlabel", "None")
-          self.config.set("rightfilter", "None")
-          self.config.set('attenuationl', 0);
-          self.config.set('attenuationr', 0);
-          self.config.set("savedmergedeqfir", "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|");
-          self.config.set("mergedeq", "Eq1|None|L/data/INTERNAL/FusionDsp/filters/None|0|Eq2|None|R/data/INTERNAL/FusionDsp/filters/None|0|");
-
-          self.refreshUI();
-          setTimeout(function () {
-            self.createCamilladspfile()
-          }, 800);
-          self.logger.error('__________________STOP NOW__');
-          reject(er)
-          //  return [false, null];
-        }
-      })
-    } catch (e) {
-      self.logger.error(e);
-    }
-  }
-
-};
-*/
 //----------------------here we save eqs config.json
 FusionDsp.prototype.saveparameq = function (data, obj) {
   const self = this;
@@ -4167,23 +4118,16 @@ FusionDsp.prototype.usethispreset = function (data) {
       self.config.set('rdistance', state4preset[12]);
     }
     self.config.set('permutchannel', state4preset[13]);
-
-
     self.commandRouter.pushToastMessage('info', spresetm + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
   } else {
     self.commandRouter.pushToastMessage('info', spreset + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
   }
 
-
   setTimeout(function () {
     self.refreshUI();
-
     self.createCamilladspfile()
-
-
   }, 500);
   return defer.promise;
-
 };
 
 FusionDsp.prototype.importeq = function (data) {
@@ -4222,8 +4166,12 @@ FusionDsp.prototype.importlocal = function (data) {
     self.commandRouter.pushToastMessage('error', 'Choose a file')
     return;
   }
+  if (file.includes(' ')) {
+    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('WARN_SPACE_INFILTER'));
+    self.logger.error("File name can't contains a space!")
+    return;
+  }
   self.config.set('eqfrom', data['importlocal'].value);
-  //self.config.set('localfile', data[]);
   self.config.set('localscope', data['localscope'].value);
   self.config.set('addreplace', data['addreplace']);
   self.convertimportedeq();
@@ -4461,24 +4409,19 @@ FusionDsp.prototype.convertimportedeq = function () {
           self.config.set('effect', true)
           self.config.set('usethispreset', 'no preset used');
 
-
           setTimeout(function () {
             self.refreshUI();
-
             self.createCamilladspfile()
             self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('EQ_LOADED_USED'))
-
           }, 300);
         } else {
           //nothing to do...
-
         }
       } else {
         self.logger.info('Max eq reached')
         self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('MAX_EQ_REACHED'));
       }
     }
-    //  self.logger.info('test bbbbbbbb' + test)
     self.config.set('mergedeq', test);
     self.config.set('savednbreq', nbreq - 1)
     self.config.set('savedmergedeq', test)
@@ -4505,17 +4448,14 @@ FusionDsp.prototype.updatelist = function (data) {
       gid: 1000
     });
     self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('LIST_SUCCESS_UPDATED'))
-
+    self.refreshUI();
     defer.resolve();
   } catch (err) {
     self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('LIST_FAIL_UPDATE'))
-
     self.logger.error('failed to  download file ' + err);
   }
-
   return defer.promise;
 }
-
 
 FusionDsp.prototype.resampling = function (data) {
   const self = this;
@@ -4525,8 +4465,7 @@ FusionDsp.prototype.resampling = function (data) {
     self.logger.error('Resampling must be disabled in playback settings in order to enable this feature');
     self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('RESAMPLING_WARN'));
     self.refreshUI();
-
-    return
+    return;
   } else {
     let selectedsp = self.config.get('selectedsp')
     if (selectedsp == "convfir") {
@@ -4559,6 +4498,16 @@ FusionDsp.prototype.resampling = function (data) {
 FusionDsp.prototype.fileconvert = function (data) {
   const self = this;
   let defer = libQ.defer();
+  if (data['filetoconvert'].value.includes(' ')) {
+    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('WARN_SPACE_INFILTER'));
+    self.logger.error("File name can't contains a space!")
+    return;
+  }
+  if (data['tc'].value.includes(' ')) {
+    self.commandRouter.pushToastMessage('error', 'No space allowed in Target curve name');
+    self.logger.error("Target curve name can't contains a space!")
+    return;
+  }
   self.config.set('filetoconvert', data['filetoconvert'].value);
   self.config.set('tc', data['tc'].value);
   self.config.set('drcconfig', data['drcconfig'].value);
@@ -4677,9 +4626,10 @@ FusionDsp.prototype.installtools = function (data) {
       self.config.set('toolsfiletoplay', self.commandRouter.getI18nString('TOOLS_CHOOSE_FILE'));
       self.config.set('toolsinstalled', true);
       self.refreshUI();
-      self.socket.emit('updateDb');
+      setTimeout(function () {
 
-
+        self.socket.emit('updateDb');
+      }, 1500)
     } catch (err) {
       self.logger.error('An error occurs while downloading or installing tools');
       self.commandRouter.pushToastMessage('error', 'An error occurs while downloading or installing tools');
