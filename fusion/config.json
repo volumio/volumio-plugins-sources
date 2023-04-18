@@ -678,5 +678,369 @@
     "moresettings": {
         "type": "boolean",
         "value": false
+    },
+    "EQ15state4preset1": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "EQ15state4preset2": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "EQ15state4preset3": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "EQ15state4preset4": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "EQ15state4preset5": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "2XEQ15state4preset1": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "2XEQ15state4preset2": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "2XEQ15state4preset3": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "2XEQ15state4preset4": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "2XEQ15state4preset5": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "PEQstate4preset1": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "PEQstate4preset2": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "PEQstate4preset3": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "PEQstate4preset4": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "PEQstate4preset5": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "convtype": {
+        "type": "string",
+        "value": "Raw"
+    },
+    "convfirstate4preset1": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "convfirstate4preset2": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "convfirstate4preset3": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "convfirstate4preset4": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
+    },
+    "convfirstate4preset5": {
+        "value": [
+            "None",
+            false,
+            false,
+            50,
+            0,
+            0,
+            0,
+            "None",
+            true,
+            false,
+            false,
+            0,
+            0,
+            false
+        ]
     }
 }
