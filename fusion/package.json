@@ -1,6 +1,6 @@
 {
   "name": "fusiondsp",
-  "version": "1.0.45",
+  "version": "1.0.46",
   "description": "A complete Dsp centre for Volumio3",
   "main": "index.js",
   "repository": "https://github.com/balbuze/volumio-plugins/tree/alsa_modular/plugins/audio_interface/FusionDsp",
@@ -16,7 +16,7 @@
     "os": [
       "buster"
     ],
-    "changelog": "Fix filter if freq <sr/2, add misc. warning ",
+    "changelog": "Preset naming for each mode ",
     "details": "Multimode Dsp, with graphic equalizer, parametric equalizer, FIR filters, Loudness, AutoEq profile for headphone and more",
     "architectures": [
       "armhf",

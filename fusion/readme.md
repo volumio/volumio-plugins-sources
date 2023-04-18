@@ -141,6 +141,11 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+April 17th 2023 v1.0.46
+
+- Preset naming for each mode
+- log messages cleaning
+
 April 14th 2023 v1.0.45
 
 - misc warning for DRC fir, local import
