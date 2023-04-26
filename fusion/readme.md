@@ -1,4 +1,4 @@
-April 12th 2023
+April 26th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -140,6 +140,13 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+April 26th 2023 v1.0.47
+
+- Preset naming for each mode
+- log messages cleaning
+- internal tweaks
+
 
 April 17th 2023 v1.0.46
 
