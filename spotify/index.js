@@ -248,9 +248,6 @@ ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
         }).fail((error)=>{
             self.logger.error('Failed to refresh Token: ' + error);
             defer.reject(error);
-        }).catch((error)=>{
-            self.logger.error('Failed to refresh Token: ' + error);
-            defer.reject(error);
         });
     } else {
         defer.resolve();
