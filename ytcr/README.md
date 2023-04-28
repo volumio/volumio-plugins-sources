@@ -4,6 +4,10 @@ Plugin that enables Volumio to act a YouTube Cast receiver device. Supports cast
 
 # Changelog
 
+1.0.2
+- Remove commented-out code
+- Remove links from package author because they don't look good when shown in Volumio plugin store
+
 1.0.1
 - Add i18n settings
 - Add option to clear persisted data

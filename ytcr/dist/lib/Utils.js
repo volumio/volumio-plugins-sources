@@ -21,7 +21,6 @@ function jsPromiseToKew(promise) {
 exports.jsPromiseToKew = jsPromiseToKew;
 function kewToJSPromise(promise) {
     // Guard against a JS promise from being passed to this function.
-    // E.g. Spotify Connect's stop()
     if (typeof promise.catch === 'function' && typeof promise.fail === undefined) {
         // JS promise - return as is
         return promise;

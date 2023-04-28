@@ -141,19 +141,6 @@ export default class MPDPlayer extends Player {
       }
 
       return resolved;
-
-      /*       Return this.resolveOnMPDStatusChanged(
-                this.#mpdClient.api.playback.playid.bind(this, songId), 'player',
-                { state: 'play', songid: videoInfo.mpdSongId }
-              )
-                .then(async (mpdStatus) => {
-                  this.#currentVideoInfo = videoInfo;
-                  await this.notifyVolumeChanged();
-                  await this.notifyPlayed();
-                  return mpdStatus;
-                })
-                .then(mpdStatus => this.getState(mpdStatus))
-                .then(playerState => this.eventEmitter.emit('stateChanged', playerState, { triggeredBy: 'play' }))*/
     }
 
     this.logger.debug(`[ytcr] MPDPlayer failed to play ${video.id}: ${videoInfo.errMsg}`);
@@ -375,13 +362,8 @@ export default class MPDPlayer extends Player {
         //Let playbackFinished = false;
         if (!songIdInfo) {
           this.logger.debug('[ytcr] Current playback finished.');
-          //PlaybackFinished = true;
           await this.next();
         }
-        //This.eventEmitter.emit('stateChanged', playerState, { triggeredBy: 'playbackFinished' });
-      }
-      else {
-        //This.eventEmitter.emit('stateChanged', playerState, { triggeredBy: 'external' });
       }
     }
   }

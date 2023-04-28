@@ -90,18 +90,6 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
                 __classPrivateFieldSet(this, _MPDPlayer_currentVideoInfo, videoInfo, "f");
             }
             return resolved;
-            /*       Return this.resolveOnMPDStatusChanged(
-                      this.#mpdClient.api.playback.playid.bind(this, songId), 'player',
-                      { state: 'play', songid: videoInfo.mpdSongId }
-                    )
-                      .then(async (mpdStatus) => {
-                        this.#currentVideoInfo = videoInfo;
-                        await this.notifyVolumeChanged();
-                        await this.notifyPlayed();
-                        return mpdStatus;
-                      })
-                      .then(mpdStatus => this.getState(mpdStatus))
-                      .then(playerState => this.eventEmitter.emit('stateChanged', playerState, { triggeredBy: 'play' }))*/
         }
         this.logger.debug(`[ytcr] MPDPlayer failed to play ${video.id}: ${videoInfo.errMsg}`);
         this.emit('error', {
@@ -367,13 +355,8 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
             //Let playbackFinished = false;
             if (!songIdInfo) {
                 this.logger.debug('[ytcr] Current playback finished.');
-                //PlaybackFinished = true;
                 await this.next();
             }
-            //This.eventEmitter.emit('stateChanged', playerState, { triggeredBy: 'playbackFinished' });
-        }
-        else {
-            //This.eventEmitter.emit('stateChanged', playerState, { triggeredBy: 'external' });
         }
     }
 };
