@@ -1,0 +1,84 @@
+
+begin
+prog = irexec
+button = KEY_POWER
+config = /bin/systemctl poweroff
+end
+
+begin
+prog = irexec
+button = disc_skip
+config = /usr/local/bin/volumio volume minus
+end
+
+begin
+prog = irexec
+button = KEY_EJECTCLOSECD
+config = /usr/local/bin/volumio volume plus
+end
+
+begin
+prog = irexec
+button = disc
+config = /usr/local/bin/volumio volume toggle
+end
+
+begin
+prog = irexec
+button = KEY_PLAY
+config = /usr/local/bin/volumio play
+end
+
+begin
+prog = irexec
+button = KEY_STOP
+config = /usr/local/bin/volumio stop
+end
+
+begin
+prog = irexec
+button = KEY_PAUSE
+config = /usr/local/bin/volumio pause
+end
+
+bbegin
+prog = irexec
+button = KEY_PREVIOUS
+config = /usr/local/bin/volumio previous
+end
+
+begin
+prog = irexec
+button = KEY_NEXT
+config = /usr/local/bin/volumio next
+end
+
+begin
+prog = irexec
+button = KEY_REWIND
+config = /usr/local/bin/volumio seek minus
+end
+
+begin
+prog = irexec
+button = KEY_FASTFORWARD
+config = /usr/local/bin/volumio seek plus
+end
+
+begin
+prog = irexec
+button = KEY_CLEAR 
+config = /usr/local/bin/volumio clear
+end
+
+begin
+prog = irexec
+button = KEY_SHUFFLE 
+config = /usr/local/bin/volumio random
+end
+
+begin
+prog = irexec
+button = KEY_AGAIN
+config = /usr/local/bin/volumio repeat
+end
