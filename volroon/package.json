@@ -21,7 +21,7 @@
 			"buster"
 		],
 		"has_alsa_contribution": "false",
-		"details": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
+		"details": "THIS LATEST VERSION REQUIRES YOU TO REAUTHORIZE IN ROON!!! Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
 		"changelog": "Updated Roon Extension ID."
 	},
 	"engines": {
