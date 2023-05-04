@@ -6,7 +6,7 @@ const EXCLUDE_VIEW_PARAMS = ['name', 'continuation', 'endpoint'];
 
 class OptionParser extends BaseParser {
 
-  parseToListItem(data) {
+  parseToListItem(data, opts) {
     const selected = data.optionValues.find((ov) => ov.selected) || data.optionValues[0];
     const baseUri = this.getUri();
     
@@ -21,6 +21,12 @@ class OptionParser extends BaseParser {
       icon: 'fa fa-angle-down',
       uri: baseUri + `/optionSelection@option=${encodeURIComponent(JSON.stringify(data))}@genericViewUri=${encodeURIComponent(genericViewUri)}`
     }
+
+    if (opts?.passback) {
+      // Data to be passed back with option value selection
+      item.uri += `@passback=${encodeURIComponent(JSON.stringify(opts.passback))}`;
+    }
+
     return item;
   }
 }

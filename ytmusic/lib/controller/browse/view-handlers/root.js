@@ -32,8 +32,8 @@ class RootViewHandler extends BaseViewHandler {
       {
         service: 'ytmusic',
         type: 'ytmusicRootItem',
-        title: ytmusic.getI18n('YTMUSIC_RECAP'),
-        uri: 'ytmusic/recap',
+        title: ytmusic.getI18n('YTMUSIC_HISTORY'),
+        uri: 'ytmusic/history',
         icon: 'fa fa-history'
       }
     ];

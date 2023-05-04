@@ -2,14 +2,20 @@
 
 const BaseParser = require(__dirname + '/base');
 
+const ENDPOINT_ACTION_TYPES = ['browse', 'search', 'continuation'];
+
 class OptionValueParser extends BaseParser {
 
-  parseToListItem(data, baseUri, prevUri) {
+  parseToListItem(data, baseUri, prevUri, passback) {
     const view = this.getCurrentView();
     let valueUri;
-    if (data.endpoint?.browse || data.endpoint?.search) {
-      const genericViewUri = view.genericViewUri ? decodeURIComponent(view.genericViewUri ) : 'generic';
+    if (ENDPOINT_ACTION_TYPES.includes(data.endpoint?.actionType)) {
+      const genericViewUri = view.genericViewUri ? decodeURIComponent(view.genericViewUri) : 'generic';
       valueUri = `${baseUri}/${genericViewUri}@endpoint=${encodeURIComponent(JSON.stringify(data.endpoint))}`;
+
+      if (passback) {
+        valueUri += `@${passback.name}=${encodeURIComponent(JSON.stringify(passback.data))}`;
+      }
     }
     else if (data.selected) {
       valueUri = prevUri;

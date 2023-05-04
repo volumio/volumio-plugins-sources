@@ -1,36 +1,38 @@
 'use strict';
 
-const yt2 = require(yt2PluginLibRoot + '/youtube2');
-const BaseParser = require(__dirname + '/base');
+const BaseParser = require('./base');
 
 class ChannelParser extends BaseParser {
 
-    parseToListItem(channel) {
-        let baseUri = this.getUri();
+  parseToListItem(data) {
+    const baseUri = this.getUri();
+    const item = {
+      service: 'youtube2',
+      type: 'folder',
+      title: data.name,
+      artist: data.subscribers,
+      albumart: data.thumbnail,
+      uri: baseUri + '/generic@endpoint=' + encodeURIComponent(JSON.stringify(data.endpoint))
+    }
+    return item;
+  }
+
+  parseToHeader(data) {
+    const header = {
+      uri: 'youtube2/generic@endpoint=' + encodeURIComponent(JSON.stringify(data.endpoint)),
+      service: 'youtube2',
+      type: 'album',
+      title: data.title,
+      duration: data.subtitles?.join(' • '),
+      albumart: data.thumbnail
+    };
+
+    if (data.description) {
+      header.artist = data.description;
+    }
     
-        let data = {
-            'service': 'youtube2',
-            'type': 'folder',
-            'title': channel.title,
-            'album': yt2.getI18n('YOUTUBE2_CHANNEL_PARSER_ALBUM'),
-            'albumart': channel.thumbnail,
-            'uri': baseUri + '/playlists@channelId=' + channel.id
-        }
-        return data;
-    }
-
-    parseToHeader(item) {
-        let baseUri = this.getUri();
-
-        return {
-            'uri': baseUri,
-            'service': 'youtube2',
-            'type': 'song',
-            'title': item.title,
-            'artist': item.description,
-            'albumart': item.thumbnail
-        };
-    }
+    return header;
+  }
 }
 
 module.exports = ChannelParser;
