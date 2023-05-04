@@ -1,7 +1,7 @@
 {
 	"name": "volroon",
-	"version": "1.0.3",
-	"description": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio. Make sure to authorize in Roon settings -> Extensions.",
+	"version": "1.0.4",
+	"description": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -22,7 +22,7 @@
 		],
 		"has_alsa_contribution": "false",
 		"details": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
-		"changelog": "Fixes to the stop command."
+		"changelog": "Updated Roon Extension ID."
 	},
 	"engines": {
 		"node": ">=14",

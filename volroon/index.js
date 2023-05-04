@@ -4,7 +4,6 @@ var libQ = require('kew');
 var fs = require('fs-extra');
 var exec = require('child_process').exec;
 var config = new (require('v-conf'))();
-var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var RoonApi = require("node-roon-api");
 var RoonApiTransport = require("node-roon-api-transport");
@@ -70,10 +69,9 @@ function volroon(context) {
 volroon.prototype.roonListener = function () {
 	var self = this;
 	roon = new RoonApi({
-		// Make it look like an existing built-in Roon extension and you don't need to approve it in the UI.
-		extension_id: 'com.roonlabs.display_zone', // I think I only need to keep this one constant to avoid needing auth in Roon.
+		extension_id: 'com.sempervirens.volroon',
 		display_name: 'volroon - Roon Bridge on Volumio',
-		display_version: '1.0.3',
+		display_version: '1.0.4',
 		publisher: 'Dale Rider',
 		email: 'dale@sempervirens.co.za',
 		log_level: 'none',
