@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"author": "Saiyato & Lars",
+	"author": "Saiyato & Lars Grootkarzijn",
 	"license": "GPL-3.0",
 	"volumio_info": {
 		"prettyName": "Logitech Media Server",
