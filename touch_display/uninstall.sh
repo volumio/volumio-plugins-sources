@@ -16,6 +16,7 @@ else # on other hardware
   apt-get -y purge --auto-remove chromium
   apt-get -y purge --auto-remove openbox
   apt-get -y purge --auto-remove xinit
+  rm /usr/bin/chromium-browser
 fi
 
 echo "Deleting /opt/volumiokiosk.sh"
