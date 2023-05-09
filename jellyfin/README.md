@@ -17,6 +17,11 @@ You can add multiple servers, each with multple user accounts, and those that ar
 
 #### Changelog
 
+1.0.2
+- [Fixed] Login err when server config contains different URLs pointing to same server
+- [Fixed] Login err when server is removed, followed by adding it back
+- [Changed] Only show one entry on landing page per user/server pair (where server URL is different for each pair but points to the same server)
+
 1.0.1
 - [Changed] More checks in validating 'Add Server' input
 - [Fixed] Miscellaneous login issues

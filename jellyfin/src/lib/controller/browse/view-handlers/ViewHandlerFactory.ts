@@ -1,6 +1,5 @@
 import ConnectionManager from '../../../connection/ConnectionManager';
 import ServerConnection from '../../../connection/ServerConnection';
-import Server from '../../../entities/Server';
 import AlbumViewHandler from './AlbumViewHandler';
 import ArtistViewHandler from './ArtistViewHandler';
 import BaseViewHandler from './BaseViewHandler';
@@ -13,7 +12,6 @@ import PlaylistViewHandler from './PlaylistViewHandler';
 import RootViewHandler from './RootViewHandler';
 import View from './View';
 import ViewHelper from './ViewHelper';
-import jellyfin from '../../../JellyfinContext';
 import UserViewViewHandler from './UserViewViewHandler';
 import SongViewHandler from './SongViewHandler';
 import CollectionsViewHandler from './CollectionsViewHandler';
@@ -57,15 +55,14 @@ export default class ViewHandlerFactory {
     }
 
     let connection: ServerConnection | null = null;
-    if (currentView.serverId) {
+    if (currentView.serverId && currentView.username) {
       if (connectionTarget instanceof ConnectionManager) {
-        const onlineServers = jellyfin.get<Server[]>('onlineServers', []);
-        const server = onlineServers.find((server) => server.id === currentView.serverId);
-        if (!server) {
+        const targetServer = ServerHelper.getOnlineServerByIdAndUsername(currentView.serverId, currentView.username);
+        if (!targetServer) {
           throw Error('Server unavailable');
         }
         connection = await connectionTarget.getAuthenticatedConnection(
-          server, currentView.username || '', ServerHelper.fetchPasswordFromConfig.bind(ServerHelper));
+          targetServer, currentView.username, ServerHelper.fetchPasswordFromConfig.bind(ServerHelper));
       }
       else {
         connection = connectionTarget;

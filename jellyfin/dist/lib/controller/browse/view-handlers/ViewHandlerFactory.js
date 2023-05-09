@@ -14,7 +14,6 @@ const LibraryViewHandler_1 = __importDefault(require("./LibraryViewHandler"));
 const PlaylistViewHandler_1 = __importDefault(require("./PlaylistViewHandler"));
 const RootViewHandler_1 = __importDefault(require("./RootViewHandler"));
 const ViewHelper_1 = __importDefault(require("./ViewHelper"));
-const JellyfinContext_1 = __importDefault(require("../../../JellyfinContext"));
 const UserViewViewHandler_1 = __importDefault(require("./UserViewViewHandler"));
 const SongViewHandler_1 = __importDefault(require("./SongViewHandler"));
 const CollectionsViewHandler_1 = __importDefault(require("./CollectionsViewHandler"));
@@ -48,14 +47,13 @@ class ViewHandlerFactory {
             throw Error('Invalid URI: no parseable view.');
         }
         let connection = null;
-        if (currentView.serverId) {
+        if (currentView.serverId && currentView.username) {
             if (connectionTarget instanceof ConnectionManager_1.default) {
-                const onlineServers = JellyfinContext_1.default.get('onlineServers', []);
-                const server = onlineServers.find((server) => server.id === currentView.serverId);
-                if (!server) {
+                const targetServer = ServerHelper_1.default.getOnlineServerByIdAndUsername(currentView.serverId, currentView.username);
+                if (!targetServer) {
                     throw Error('Server unavailable');
                 }
-                connection = await connectionTarget.getAuthenticatedConnection(server, currentView.username || '', ServerHelper_1.default.fetchPasswordFromConfig.bind(ServerHelper_1.default));
+                connection = await connectionTarget.getAuthenticatedConnection(targetServer, currentView.username, ServerHelper_1.default.fetchPasswordFromConfig.bind(ServerHelper_1.default));
             }
             else {
                 connection = connectionTarget;

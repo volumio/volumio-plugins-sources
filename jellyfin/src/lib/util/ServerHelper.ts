@@ -43,6 +43,19 @@ export default class ServerHelper {
     return sanitized;
   }
 
+  static getOnlineServerByIdAndUsername(id: string, username: string): Server | null {
+    const onlineServers = jellyfin.get<Server[]>('onlineServers', []);
+    const serversMatchingId = onlineServers.filter((server) => server.id === id);
+    if (serversMatchingId.length === 0) {
+      return null;
+    }
+    const serverConfEntries = ServerHelper.getServersFromConfig();
+    const result = serversMatchingId.find((server) => serverConfEntries.find(
+      (conf) => ServerHelper.getConnectionUrl(conf.url) === server.connectionUrl && conf.username === username));
+
+    return result || null;
+  }
+
   static generateConnectionId(username: string, serverId: string): string;
   static generateConnectionId(username: string, server: Server): string;
   static generateConnectionId(username: string, serverTarget: string | Server): string {

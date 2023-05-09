@@ -18,16 +18,24 @@ export default class RootViewHandler extends BaseViewHandler<RootView> {
     const serverConfEntries = ServerHelper.getServersFromConfig();
     const onlineServers = jellyfin.get<Server[]>('onlineServers', []);
 
+    const displayedEntries: string[] = [];
+
     const listItems = onlineServers.reduce<RenderedListItem[]>((result, server) => {
       const serverConfs = serverConfEntries.filter(
         (conf) => ServerHelper.getConnectionUrl(conf.url) === server.connectionUrl);
       serverConfs.forEach((conf) => {
-        const rendered = renderer.renderToListItem({
-          ...server,
-          username: conf.username
-        });
-        if (rendered) {
-          result.push(rendered);
+        // Where user adds double server entries to config (with same username + different
+        // URLs pointing to same server), display only one.
+        const connectionId = ServerHelper.generateConnectionId(conf.username, server.id);
+        if (!displayedEntries.includes(connectionId)) {
+          const rendered = renderer.renderToListItem({
+            ...server,
+            username: conf.username
+          });
+          if (rendered) {
+            result.push(rendered);
+            displayedEntries.push(connectionId);
+          }
         }
       });
       return result;

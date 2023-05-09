@@ -88,6 +88,12 @@ export default class ConnectionManager extends EventEmitter {
       catch (error: any) {
         jellyfin.getLogger().error(`[jellyfin-conn] Logout error: ${connection.username}@${connection.server.name}: ${error.message}, Server info: `, connection.server);
       }
+      finally {
+        const i = this.#connections.indexOf(connection);
+        if (i >= 0) {
+          this.#connections.splice(i, 1);
+        }
+      }
     }
   }
 

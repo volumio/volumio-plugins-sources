@@ -32,6 +32,16 @@ class ServerHelper {
         }
         return sanitized;
     }
+    static getOnlineServerByIdAndUsername(id, username) {
+        const onlineServers = JellyfinContext_1.default.get('onlineServers', []);
+        const serversMatchingId = onlineServers.filter((server) => server.id === id);
+        if (serversMatchingId.length === 0) {
+            return null;
+        }
+        const serverConfEntries = ServerHelper.getServersFromConfig();
+        const result = serversMatchingId.find((server) => serverConfEntries.find((conf) => ServerHelper.getConnectionUrl(conf.url) === server.connectionUrl && conf.username === username));
+        return result || null;
+    }
     static generateConnectionId(username, serverTarget) {
         if (typeof serverTarget === 'string') {
             return `${encodeURIComponent(username)}@${encodeURIComponent(serverTarget)}`;

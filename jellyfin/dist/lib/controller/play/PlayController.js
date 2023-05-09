@@ -130,8 +130,7 @@ class PlayController {
         if (!songId || !username || !serverId) {
             throw Error(`Invalid track uri: ${track.uri}`);
         }
-        const onlineServers = JellyfinContext_1.default.get('onlineServers', []);
-        const targetServer = onlineServers.find((server) => server.id === serverId);
+        const targetServer = ServerHelper_1.default.getOnlineServerByIdAndUsername(serverId, username);
         if (!targetServer) {
             throw Error('Server unavailable');
         }

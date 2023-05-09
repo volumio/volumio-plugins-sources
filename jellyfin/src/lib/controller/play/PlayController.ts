@@ -6,7 +6,6 @@ import { getPlaystateApi } from '@jellyfin/sdk/lib/utils/api/playstate-api';
 import ConnectionManager from '../../connection/ConnectionManager';
 import ServerConnection from '../../connection/ServerConnection';
 import { Song } from '../../entities';
-import Server from '../../entities/Server';
 import jellyfin from '../../JellyfinContext';
 import Model, { ModelType } from '../../model';
 import { ExplodedTrackInfo } from '../browse/view-handlers/Explodable';
@@ -251,9 +250,7 @@ export default class PlayController {
       throw Error(`Invalid track uri: ${track.uri}`);
     }
 
-    const onlineServers = jellyfin.get<Server[]>('onlineServers', []);
-    const targetServer = onlineServers.find((server) => server.id === serverId);
-
+    const targetServer = ServerHelper.getOnlineServerByIdAndUsername(serverId, username);
     if (!targetServer) {
       throw Error('Server unavailable');
     }

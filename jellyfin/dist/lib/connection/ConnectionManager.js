@@ -68,6 +68,12 @@ class ConnectionManager extends events_1.default {
             catch (error) {
                 JellyfinContext_1.default.getLogger().error(`[jellyfin-conn] Logout error: ${connection.username}@${connection.server.name}: ${error.message}, Server info: `, connection.server);
             }
+            finally {
+                const i = __classPrivateFieldGet(this, _ConnectionManager_connections, "f").indexOf(connection);
+                if (i >= 0) {
+                    __classPrivateFieldGet(this, _ConnectionManager_connections, "f").splice(i, 1);
+                }
+            }
         }
     }
     findConnection(server, username, authenticated = false) {
