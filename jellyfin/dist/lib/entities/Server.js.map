@@ -1,0 +1,1 @@
+{"version":3,"file":"Server.js","sourceRoot":"","sources":["../../../src/lib/entities/Server.ts"],"names":[],"mappings":"","sourcesContent":["import { EntityType } from '../entities';\nimport BaseEntity from '../entities/BaseEntity';\n\ninterface Server extends BaseEntity {\n  type: EntityType.Server,\n  url: string;\n  connectionUrl: string;\n}\n\nexport default Server;\n"]}

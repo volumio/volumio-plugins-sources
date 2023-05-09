@@ -1,0 +1,1 @@
+{"version":3,"file":"Genre.js","sourceRoot":"","sources":["../../../src/lib/entities/Genre.ts"],"names":[],"mappings":"","sourcesContent":["import { EntityType } from '.';\nimport BaseEntity from './BaseEntity';\n\ninterface Genre extends BaseEntity {\n  type: EntityType.Genre;\n}\n\nexport default Genre;\n"]}

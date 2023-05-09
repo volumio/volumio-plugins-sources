@@ -1,28 +1,27 @@
 # Jellyfin plugin for Volumio
 
-Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested with Jellyfin 10.6.4 to 10.7.6.
-
-This repository has two branches:
-
-1. The `master` branch is targeted towards Volumio 3.
-2. The `volumio-2.x` branch is targeted towards Volumio 2.x.
-
-The focus is on the `master` branch. The `volumio-2.x` branch will only be maintained if it is practically feasible and still worthwhile to do so.
+Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested with Jellyfin 10.8.3.
 
 #### Adding a Jellyfin Server
 
-A Jellyfin server can be on the same network as your Volumio device, or it can be remote (of course, you would have to configure the server so that it is accessible from the Internet). You can add a server in the ```Add a Server``` section of the plugin settings.
+A Jellyfin server can be on the same network as your Volumio device, or it can be remote (of course, you would have to configure the server so that it is accessible from the Internet). You can add a server in the "Add a Server" section of the plugin settings.
 
 
 *Make sure you provide the full server address. "http://www.myjellyfinserver.com:8096" would be a valid example, but leaving out the "http://" will render it invalid.*
 
-You can add multiple servers, and those that are reachable will appear when you click ```Jellyfin``` in the left menu. Choose a server to login and start browsing your music collections. Enjoy!
+You can add multiple servers, each with multple user accounts, and those that are reachable will appear on the plugin landing page.
 
 #### Notes
 
-- Audio is served through Direct Streaming. This means when you play a song, it will be streamed to Volumio in its original format without any modifications. This gives you the highest sound quality possible but, if you are streaming from a remote server, then you should consider whether you have a fast-enough Internet connection with unlimited data.
+- Audio is served through Direct Streaming. This means when you play a song, it will be streamed to Volumio in its original format without any modifications. This gives you the highest sound quality possible but, if you are streaming from a remote server, then you should consider whether your Internet connection has sufficient bandwidth to handle the traffic.
 
 #### Changelog
+
+1.0.0
+- [Changed] Rewrite in Typescript and use Jellyfin SDK for API calls
+- [Added] Support for multiple user accounts on same Jellyfin server
+- [Added] Gapless playback
+- [Added] Report playback state to Jellyfin server
 
 0.1.8
 - [Added] Folder View support
