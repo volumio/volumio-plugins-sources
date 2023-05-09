@@ -94,7 +94,7 @@ _ConnectionManager_sdkInitInfo = new WeakMap(), _ConnectionManager_connections =
     if (!conn) {
         if (!username) { // For legacy URIs without multi-user support
             const serverConfEntries = ServerHelper_1.default.getServersFromConfig();
-            const serverConf = serverConfEntries.find((conf) => conf.url === server.url);
+            const serverConf = serverConfEntries.find((conf) => ServerHelper_1.default.getConnectionUrl(conf.url) === server.connectionUrl);
             if (serverConf) {
                 username = serverConf.username;
             }

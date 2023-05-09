@@ -96,7 +96,7 @@ export default class ConnectionManager extends EventEmitter {
     if (!conn) {
       if (!username) { // For legacy URIs without multi-user support
         const serverConfEntries = ServerHelper.getServersFromConfig();
-        const serverConf = serverConfEntries.find((conf) => conf.url === server.url);
+        const serverConf = serverConfEntries.find((conf) => ServerHelper.getConnectionUrl(conf.url) === server.connectionUrl);
         if (serverConf) {
           username = serverConf.username;
         }

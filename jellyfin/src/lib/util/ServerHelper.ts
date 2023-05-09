@@ -17,8 +17,17 @@ export default class ServerHelper {
 
   static fetchPasswordFromConfig(server: Server, username: string): string {
     const serverConfEntries = this.getServersFromConfig();
-    const serverConf = serverConfEntries.find((conf) => conf.url === server.url && conf.username === username);
+    const serverConf = serverConfEntries.find(
+      (conf) => this.getConnectionUrl(conf.url) === server.connectionUrl && conf.username === username);
     return serverConf?.password || '';
+  }
+
+  static hasServerConfig(username: string, host: string): boolean {
+    const matchUrl = this.getConnectionUrl(host);
+    const serverConfEntries = this.getServersFromConfig();
+    const serverConf = serverConfEntries.find(
+      (conf) => this.getConnectionUrl(conf.url) === matchUrl && conf.username === username);
+    return !!serverConf;
   }
 
   static getConnectionUrl(url: string): string {

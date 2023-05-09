@@ -56,6 +56,8 @@
     "JELLYFIN_SEARCH_LIST_TITLE_PLAIN": "Jellyfin: {} - {}",
     "JELLYFIN_SPECIFY_HOST": "必須提供主機網址",
     "JELLYFIN_INVALID_HOST": "主機網址無效",
+    "JELLYFIN_SPECIFY_USERNAME": "必須提供帳號",
+    "JELLYFIN_SERVER_CONF_EXISTS": "設置裡已存在 {}@{}",
     "JELLYFIN_SERVER_ADDED": "成功新增伺服器",
     "JELLYFIN_SERVER_REMOVED": "成功刪除伺服器",
     "JELLYFIN_SETTINGS_SAVED": "成功儲存設定",

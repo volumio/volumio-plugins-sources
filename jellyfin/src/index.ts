@@ -158,6 +158,7 @@ class ControllerJellyfin {
 
     let url;
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       url = (new URL(host)).toString();
     }
     catch (error) {
@@ -165,12 +166,22 @@ class ControllerJellyfin {
       return;
     }
 
-    const username = data['username'] || '';
+    const username = data['username']?.trim() || '';
     const password = data['password'] || '';
+
+    if (username === '') {
+      jellyfin.toast('error', jellyfin.getI18n('JELLYFIN_SPECIFY_USERNAME'));
+      return;
+    }
+
+    if (ServerHelper.hasServerConfig(username, host)) {
+      jellyfin.toast('error', jellyfin.getI18n('JELLYFIN_SERVER_CONF_EXISTS', username, host));
+      return;
+    }
 
     const servers = ServerHelper.getServersFromConfig();
     servers.push({
-      url,
+      url: host,
       username: username,
       password: password
     });

@@ -17,6 +17,10 @@ You can add multiple servers, each with multple user accounts, and those that ar
 
 #### Changelog
 
+1.0.1
+- [Changed] More checks in validating 'Add Server' input
+- [Fixed] Miscellaneous login issues
+
 1.0.0
 - [Changed] Rewrite in Typescript and use Jellyfin SDK for API calls
 - [Added] Support for multiple user accounts on same Jellyfin server

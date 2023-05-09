@@ -56,6 +56,8 @@
     "JELLYFIN_SEARCH_LIST_TITLE_PLAIN": "Jellyfin: {} - {}",
     "JELLYFIN_SPECIFY_HOST": "必须提供主机网址",
     "JELLYFIN_INVALID_HOST": "主机网址无效",
+    "JELLYFIN_SPECIFY_USERNAME": "必须提供帐号",
+    "JELLYFIN_SERVER_CONF_EXISTS": "设置里已存在 {}@{}",
     "JELLYFIN_SERVER_ADDED": "成功新增伺服器",
     "JELLYFIN_SERVER_REMOVED": "成功删除伺服器",
     "JELLYFIN_SETTINGS_SAVED": "成功储存设定",

@@ -56,6 +56,8 @@
     "JELLYFIN_SEARCH_LIST_TITLE_PLAIN": "Jellyfin: {} - {}",
     "JELLYFIN_SPECIFY_HOST": "You must specify a host",
     "JELLYFIN_INVALID_HOST": "Invalid host URL",
+    "JELLYFIN_SPECIFY_USERNAME": "You must specify a username",
+    "JELLYFIN_SERVER_CONF_EXISTS": "{}@{} already exists in config",
     "JELLYFIN_SERVER_ADDED": "Server added",
     "JELLYFIN_SERVER_REMOVED": "Server removed",
     "JELLYFIN_SETTINGS_SAVED": "Settings saved",

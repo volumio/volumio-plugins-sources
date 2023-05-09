@@ -7,6 +7,7 @@ export interface ServerConfEntry {
 export default class ServerHelper {
     static getServersFromConfig(): ServerConfEntry[];
     static fetchPasswordFromConfig(server: Server, username: string): string;
+    static hasServerConfig(username: string, host: string): boolean;
     static getConnectionUrl(url: string): string;
     static generateConnectionId(username: string, serverId: string): string;
     static generateConnectionId(username: string, server: Server): string;

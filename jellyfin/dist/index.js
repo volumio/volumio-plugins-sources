@@ -148,17 +148,26 @@ class ControllerJellyfin {
         }
         let url;
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             url = (new URL(host)).toString();
         }
         catch (error) {
             JellyfinContext_1.default.toast('error', JellyfinContext_1.default.getI18n('JELLYFIN_INVALID_HOST'));
             return;
         }
-        const username = data['username'] || '';
+        const username = data['username']?.trim() || '';
         const password = data['password'] || '';
+        if (username === '') {
+            JellyfinContext_1.default.toast('error', JellyfinContext_1.default.getI18n('JELLYFIN_SPECIFY_USERNAME'));
+            return;
+        }
+        if (ServerHelper_1.default.hasServerConfig(username, host)) {
+            JellyfinContext_1.default.toast('error', JellyfinContext_1.default.getI18n('JELLYFIN_SERVER_CONF_EXISTS', username, host));
+            return;
+        }
         const servers = ServerHelper_1.default.getServersFromConfig();
         servers.push({
-            url,
+            url: host,
             username: username,
             password: password
         });
