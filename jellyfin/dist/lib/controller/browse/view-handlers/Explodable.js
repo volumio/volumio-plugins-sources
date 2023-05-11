@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Explodable = void 0;
 const model_1 = require("../../../model");
-const ViewHelper_1 = __importDefault(require("./ViewHelper"));
+const SongHelper_1 = __importDefault(require("../../../util/SongHelper"));
 function Explodable(Base) {
     return class ExplodableViewHandler extends Base {
         async explode() {
@@ -110,18 +110,11 @@ function Explodable(Base) {
             return null;
         }
         /**
-         * Track uri:
+         * Track uri is the canonical uri of the song:
          * jellyfin/{username}@{serverId}/song@songId={songId}
          */
         _getTrackUri(song) {
-            if (this.serverConnection) {
-                const songView = {
-                    name: 'song',
-                    songId: song.id
-                };
-                return `jellyfin/${this.serverConnection.id}/${ViewHelper_1.default.constructUriSegmentFromView(songView)}`;
-            }
-            return null;
+            return SongHelper_1.default.getCanonicalUri(song, this.serverConnection);
         }
     };
 }

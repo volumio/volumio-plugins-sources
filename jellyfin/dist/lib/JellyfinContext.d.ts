@@ -20,8 +20,10 @@ declare class JellyfinContext {
     getAlbumArtPlugin(): any;
     getMpdPlugin(): any;
     getStateMachine(): any;
+    getPlaylistManager(): any;
     reset(): void;
     getI18n(key: string, ...formatValues: any[]): string;
+    get volumioCoreCommand(): any;
 }
 declare const _default: JellyfinContext;
 export default _default;

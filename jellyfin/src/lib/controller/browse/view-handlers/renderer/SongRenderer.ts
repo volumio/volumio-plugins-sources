@@ -19,7 +19,8 @@ export default class SongRenderer extends BaseRenderer<Song> {
       album: data.album?.name,
       duration: data.duration,
       uri: `${this.uri}/${ViewHelper.constructUriSegmentFromView(songView)}`,
-      albumart: this.getAlbumArt(data)
+      albumart: this.getAlbumArt(data),
+      favorite: data.favorite
     };
   }
 

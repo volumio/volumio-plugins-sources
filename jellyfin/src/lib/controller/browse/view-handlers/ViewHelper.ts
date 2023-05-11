@@ -72,7 +72,9 @@ export default class ViewHelper {
 
     const skip = [ 'name', 'startIndex', 'serverId', 'username', 'saveFilter', 'noExplode' ];
     Object.keys(view).filter((key) => !skip.includes(key)).forEach((key) => {
-      segment += `@${key}=${encodeURIComponent(view[key])}`;
+      if (view[key] !== undefined) {
+        segment += `@${key}=${encodeURIComponent(view[key])}`;
+      }
     });
 
     if (view.startIndex) {

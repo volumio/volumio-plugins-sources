@@ -1,45 +1,89 @@
 "use strict";
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _AlbumViewHandler_instances, _AlbumViewHandler_getList;
 Object.defineProperty(exports, "__esModule", { value: true });
 const entities_1 = require("../../../entities");
 const model_1 = require("../../../model");
 const FilterableViewHandler_1 = __importDefault(require("./FilterableViewHandler"));
 const JellyfinContext_1 = __importDefault(require("../../../JellyfinContext"));
 const Explodable_1 = require("./Explodable");
-const ViewHelper_1 = __importDefault(require("./ViewHelper"));
 const FilterModel_1 = require("../../../model/filter/FilterModel");
+const models_1 = require("@jellyfin/sdk/lib/generated-client/models");
 class AlbumViewHandler extends FilterableViewHandler_1.default {
+    constructor() {
+        super(...arguments);
+        _AlbumViewHandler_instances.add(this);
+    }
     async browse() {
         const prevUri = this.constructPrevUri();
         const view = this.currentView;
         const { lists, modelQueryParams } = await this.handleFilters();
         if (view.search && view.collatedSearchResults) {
             modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('searchAlbumsResultCount', 11);
+            const searchResultsMoreView = {
+                ...this.currentView,
+                collatedSearchResults: undefined
+            };
+            lists.push(await __classPrivateFieldGet(this, _AlbumViewHandler_instances, "m", _AlbumViewHandler_getList).call(this, modelQueryParams, undefined, searchResultsMoreView, 'more'));
         }
-        const model = this.getModel(model_1.ModelType.Album);
-        const renderer = this.getRenderer(entities_1.EntityType.Album);
-        const albums = await model.getAlbums(modelQueryParams);
-        const listItems = albums.items.map((album) => renderer.renderToListItem(album)).filter((item) => item);
-        if (albums.nextStartIndex) {
-            if (view.search && view.collatedSearchResults && this.serverConnection) {
-                const albumView = {
-                    name: 'albums',
-                    search: view.search
-                };
-                const moreUri = `jellyfin/${this.serverConnection.id}/${ViewHelper_1.default.constructUriSegmentFromView(albumView)}`;
-                listItems.push(this.constructMoreItem(moreUri));
+        else if (view.artistId || view.albumArtistId) {
+            const listType = view.artistAlbumListType || 'all';
+            const showAlbumList = listType === 'all' || listType === 'albums';
+            const showAppearsOnList = listType === 'all' || listType === 'appearsOn';
+            const albumNextView = { ...this.currentView, artistAlbumListType: 'albums' };
+            const appearsOnNextView = { ...this.currentView, artistAlbumListType: 'appearsOn' };
+            const sortBy = 'PremiereDate,ProductionYear,Sortname';
+            const sortOrder = models_1.SortOrder.Descending;
+            let albumList, appearsOnList;
+            if (view.artistId) {
+                albumList = showAlbumList ? await __classPrivateFieldGet(this, _AlbumViewHandler_instances, "m", _AlbumViewHandler_getList).call(this, {
+                    ...modelQueryParams,
+                    artistIds: undefined,
+                    albumArtistIds: view.artistId,
+                    sortBy,
+                    sortOrder
+                }, JellyfinContext_1.default.getI18n('JELLYFIN_ALBUMS'), albumNextView) : null;
+                appearsOnList = showAppearsOnList ? await __classPrivateFieldGet(this, _AlbumViewHandler_instances, "m", _AlbumViewHandler_getList).call(this, {
+                    ...modelQueryParams,
+                    artistIds: undefined,
+                    excludeItemIds: view.artistId,
+                    contributingArtistIds: view.artistId,
+                    sortBy,
+                    sortOrder
+                }, JellyfinContext_1.default.getI18n('JELLYFIN_APPEARS_ON'), appearsOnNextView) : null;
             }
             else {
-                const nextUri = this.constructNextUri(albums.nextStartIndex);
-                listItems.push(this.constructNextPageItem(nextUri));
+                albumList = showAlbumList ? await __classPrivateFieldGet(this, _AlbumViewHandler_instances, "m", _AlbumViewHandler_getList).call(this, {
+                    ...modelQueryParams,
+                    sortBy,
+                    sortOrder
+                }, JellyfinContext_1.default.getI18n('JELLYFIN_ALBUMS'), albumNextView) : null;
+                appearsOnList = showAppearsOnList ? await __classPrivateFieldGet(this, _AlbumViewHandler_instances, "m", _AlbumViewHandler_getList).call(this, {
+                    ...modelQueryParams,
+                    albumArtistIds: undefined,
+                    excludeItemIds: view.albumArtistId,
+                    contributingArtistIds: view.albumArtistId,
+                    sortBy,
+                    sortOrder
+                }, JellyfinContext_1.default.getI18n('JELLYFIN_APPEARS_ON'), appearsOnNextView) : null;
+            }
+            if (albumList?.items.length) {
+                lists.push(albumList);
+            }
+            if (appearsOnList?.items.length) {
+                lists.push(appearsOnList);
             }
         }
-        lists.push({
-            availableListViews: listItems.length > 0 ? ['list', 'grid'] : ['list'],
-            items: listItems
-        });
+        else {
+            lists.push(await __classPrivateFieldGet(this, _AlbumViewHandler_instances, "m", _AlbumViewHandler_getList).call(this, modelQueryParams));
+        }
         let header;
         if (view.artistId || view.albumArtistId) {
             const artistModel = this.getModel(model_1.ModelType.Artist);
@@ -120,5 +164,29 @@ class AlbumViewHandler extends FilterableViewHandler_1.default {
         return result;
     }
 }
+_AlbumViewHandler_instances = new WeakSet(), _AlbumViewHandler_getList = async function _AlbumViewHandler_getList(modelQueryParams, title, nextView, nextType = 'nextPage') {
+    const model = this.getModel(model_1.ModelType.Album);
+    const renderer = this.getRenderer(entities_1.EntityType.Album);
+    const albums = await model.getAlbums(modelQueryParams);
+    const listItems = albums.items.map((album) => renderer.renderToListItem(album)).filter((item) => item);
+    if (albums.nextStartIndex) {
+        if (!nextView) {
+            nextView = this.currentView;
+        }
+        if (nextType === 'more') {
+            const moreUri = this.constructNextUri(0, nextView);
+            listItems.push(this.constructMoreItem(moreUri));
+        }
+        else {
+            const nextUri = this.constructNextUri(albums.nextStartIndex, nextView);
+            listItems.push(this.constructNextPageItem(nextUri));
+        }
+    }
+    return {
+        availableListViews: listItems.length > 0 ? ['list', 'grid'] : ['list'],
+        items: listItems,
+        title
+    };
+};
 exports.default = (0, Explodable_1.Explodable)(AlbumViewHandler);
 //# sourceMappingURL=AlbumViewHandler.js.map

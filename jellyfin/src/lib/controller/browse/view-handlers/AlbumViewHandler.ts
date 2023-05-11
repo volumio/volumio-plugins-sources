@@ -3,17 +3,19 @@ import { ModelType } from '../../../model';
 import FilterableViewHandler, { FilterableViewConfig } from './FilterableViewHandler';
 import { RenderedListItem } from './renderer/BaseRenderer';
 import View from './View';
-import { RenderedPage, RenderedPageContents } from './ViewHandler';
+import { RenderedList, RenderedPage, RenderedPageContents } from './ViewHandler';
 import jellyfin from '../../../JellyfinContext';
 import { Explodable } from './Explodable';
-import ViewHelper from './ViewHelper';
 import { FilterType } from '../../../model/filter/FilterModel';
+import { GetItemsParams } from '../../../model/BaseModel';
+import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
 
 export interface AlbumView extends View {
   name: 'albums';
   parentId?: string;
   artistId?: string;
   albumArtistId?: string;
+  artistAlbumListType?: 'albums' | 'appearsOn' | 'all';
   search?: string;
   genreId?: string;
   collatedSearchResults?: '1';
@@ -29,33 +31,65 @@ class AlbumViewHandler extends FilterableViewHandler<AlbumView> {
 
     if (view.search && view.collatedSearchResults) {
       modelQueryParams.limit = jellyfin.getConfigValue('searchAlbumsResultCount', 11);
+      const searchResultsMoreView = {
+        ...this.currentView,
+        collatedSearchResults: undefined
+      };
+      lists.push(await this.#getList(modelQueryParams, undefined, searchResultsMoreView, 'more'));
     }
+    else if (view.artistId || view.albumArtistId) {
+      const listType = view.artistAlbumListType || 'all';
+      const showAlbumList = listType === 'all' || listType === 'albums';
+      const showAppearsOnList = listType === 'all' || listType === 'appearsOn';
+      const albumNextView = { ...this.currentView, artistAlbumListType: 'albums' };
+      const appearsOnNextView = { ...this.currentView, artistAlbumListType: 'appearsOn' };
+      const sortBy = 'PremiereDate,ProductionYear,Sortname';
+      const sortOrder = SortOrder.Descending;
+      let albumList, appearsOnList;
+      if (view.artistId) {
+        albumList = showAlbumList ? await this.#getList({
+          ...modelQueryParams,
+          artistIds: undefined,
+          albumArtistIds: view.artistId,
+          sortBy,
+          sortOrder
+        }, jellyfin.getI18n('JELLYFIN_ALBUMS'), albumNextView) : null;
 
-    const model = this.getModel(ModelType.Album);
-    const renderer = this.getRenderer(EntityType.Album);
-    const albums = await model.getAlbums(modelQueryParams);
-    const listItems = albums.items.map((album) =>
-      renderer.renderToListItem(album)).filter((item) => item) as RenderedListItem[];
-
-    if (albums.nextStartIndex) {
-      if (view.search && view.collatedSearchResults && this.serverConnection) {
-        const albumView: AlbumView = {
-          name: 'albums',
-          search: view.search
-        };
-        const moreUri = `jellyfin/${this.serverConnection.id}/${ViewHelper.constructUriSegmentFromView(albumView)}`;
-        listItems.push(this.constructMoreItem(moreUri));
+        appearsOnList = showAppearsOnList ? await this.#getList({
+          ...modelQueryParams,
+          artistIds: undefined,
+          excludeItemIds: view.artistId,
+          contributingArtistIds: view.artistId,
+          sortBy,
+          sortOrder
+        }, jellyfin.getI18n('JELLYFIN_APPEARS_ON'), appearsOnNextView) : null;
       }
       else {
-        const nextUri = this.constructNextUri(albums.nextStartIndex);
-        listItems.push(this.constructNextPageItem(nextUri));
+        albumList = showAlbumList ? await this.#getList({
+          ...modelQueryParams,
+          sortBy,
+          sortOrder
+        }, jellyfin.getI18n('JELLYFIN_ALBUMS'), albumNextView) : null;
+
+        appearsOnList = showAppearsOnList ? await this.#getList({
+          ...modelQueryParams,
+          albumArtistIds: undefined,
+          excludeItemIds: view.albumArtistId,
+          contributingArtistIds: view.albumArtistId,
+          sortBy,
+          sortOrder
+        }, jellyfin.getI18n('JELLYFIN_APPEARS_ON'), appearsOnNextView) : null;
+      }
+      if (albumList?.items.length) {
+        lists.push(albumList);
+      }
+      if (appearsOnList?.items.length) {
+        lists.push(appearsOnList);
       }
     }
-
-    lists.push({
-      availableListViews: listItems.length > 0 ? [ 'list', 'grid' ] : [ 'list' ],
-      items: listItems
-    });
+    else {
+      lists.push(await this.#getList(modelQueryParams));
+    }
 
     let header;
     if (view.artistId || view.albumArtistId) {
@@ -89,6 +123,34 @@ class AlbumViewHandler extends FilterableViewHandler<AlbumView> {
 
     return {
       navigation: pageContents
+    };
+  }
+
+  async #getList(modelQueryParams: GetItemsParams, title?: string, nextView?: View, nextType: 'nextPage' | 'more' = 'nextPage'): Promise<RenderedList> {
+    const model = this.getModel(ModelType.Album);
+    const renderer = this.getRenderer(EntityType.Album);
+    const albums = await model.getAlbums(modelQueryParams);
+    const listItems = albums.items.map((album) =>
+      renderer.renderToListItem(album)).filter((item) => item) as RenderedListItem[];
+
+    if (albums.nextStartIndex) {
+      if (!nextView) {
+        nextView = this.currentView;
+      }
+      if (nextType === 'more') {
+        const moreUri = this.constructNextUri(0, nextView);
+        listItems.push(this.constructMoreItem(moreUri));
+      }
+      else {
+        const nextUri = this.constructNextUri(albums.nextStartIndex, nextView);
+        listItems.push(this.constructNextPageItem(nextUri));
+      }
+    }
+
+    return {
+      availableListViews: listItems.length > 0 ? [ 'list', 'grid' ] : [ 'list' ],
+      items: listItems,
+      title
     };
   }
 

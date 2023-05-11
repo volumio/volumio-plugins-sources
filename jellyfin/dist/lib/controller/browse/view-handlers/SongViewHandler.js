@@ -67,21 +67,31 @@ class SongViewHandler extends FilterableViewHandler_1.default {
             availableListViews: listViewOnly || listItems.length === 0 ? ['list'] : ['list', 'grid'],
             items: listItems
         });
-        let header, headerData, headerRenderer;
+        let header;
         if (isAlbum) {
             const albumModel = this.getModel(model_1.ModelType.Album);
-            headerData = await albumModel.getAlbum(albumId);
-            headerRenderer = this.getRenderer(entities_1.EntityType.Album);
-            if (headerData) {
-                header = headerRenderer.renderToHeader(headerData);
+            const album = await albumModel.getAlbum(albumId);
+            const albumRenderer = this.getRenderer(entities_1.EntityType.Album);
+            if (album) {
+                header = albumRenderer.renderToHeader(album);
+            }
+            if (album) {
+                const similarAlbums = await albumModel.getSimilarAlbums({ album });
+                if (similarAlbums.length > 0) {
+                    lists.push({
+                        title: JellyfinContext_1.default.getI18n('JELLYFIN_MORE_LIKE_THIS'),
+                        availableListViews: ['list', 'grid'],
+                        items: similarAlbums.map((album) => albumRenderer.renderToListItem(album)).filter((item) => item)
+                    });
+                }
             }
         }
         else if (isPlaylist) {
             const playlistModel = this.getModel(model_1.ModelType.Playlist);
-            headerData = await playlistModel.getPlaylist(playlistId);
-            headerRenderer = this.getRenderer(entities_1.EntityType.Playlist);
-            if (headerData) {
-                header = headerRenderer.renderToHeader(headerData);
+            const playlist = await playlistModel.getPlaylist(playlistId);
+            if (playlist) {
+                const playlistRenderer = this.getRenderer(entities_1.EntityType.Playlist);
+                header = playlistRenderer.renderToHeader(playlist);
             }
         }
         const pageContents = {

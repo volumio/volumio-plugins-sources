@@ -114,6 +114,9 @@ class JellyfinContext {
     getStateMachine() {
         return __classPrivateFieldGet(this, _JellyfinContext_pluginContext, "f").coreCommand.stateMachine;
     }
+    getPlaylistManager() {
+        return __classPrivateFieldGet(this, _JellyfinContext_pluginContext, "f").coreCommand.playListManager;
+    }
     reset() {
         __classPrivateFieldSet(this, _JellyfinContext_pluginContext, null, "f");
         __classPrivateFieldSet(this, _JellyfinContext_pluginConfig, null, "f");
@@ -136,6 +139,9 @@ class JellyfinContext {
             str = (0, string_format_1.default)(str, ...formatValues);
         }
         return str;
+    }
+    get volumioCoreCommand() {
+        return __classPrivateFieldGet(this, _JellyfinContext_pluginContext, "f")?.coreCommand || null;
     }
 }
 _JellyfinContext_singletons = new WeakMap(), _JellyfinContext_data = new WeakMap(), _JellyfinContext_pluginContext = new WeakMap(), _JellyfinContext_pluginConfig = new WeakMap(), _JellyfinContext_i18n = new WeakMap(), _JellyfinContext_i18nDefaults = new WeakMap(), _JellyfinContext_i18CallbackRegistered = new WeakMap(), _JellyfinContext_playerNameCallbackRegistered = new WeakMap(), _JellyfinContext_instances = new WeakSet(), _JellyfinContext_getSingleton = function _JellyfinContext_getSingleton(key, getValue) {

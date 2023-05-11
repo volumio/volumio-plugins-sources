@@ -29,17 +29,17 @@ export declare function Explodable<V extends View, TBase extends Constructor<V>>
         _parseSongForExplode(song: Song): Promise<ExplodedTrackInfo | null>;
         _getAudioStreamMetadata(song: Song): AudioStreamMetadata | null;
         /**
-         * Track uri:
+         * Track uri is the canonical uri of the song:
          * jellyfin/{username}@{serverId}/song@songId={songId}
          */
         _getTrackUri(song: Song): string | null;
-        "__#16@#uri": string;
-        "__#16@#currentView": V;
-        "__#16@#previousViews": View[];
-        "__#16@#connection": import("../../../connection/ServerConnection").default | null;
-        "__#16@#models": Record<any, import("../../../model/BaseModel").default>;
-        "__#16@#renderers": Record<any, import("./renderer/BaseRenderer").default<import("../../../entities/BaseEntity").default> | null>;
-        "__#16@#albumArtHandler": import("../../../util/AlbumArtHandler").default;
+        "__#17@#uri": string;
+        "__#17@#currentView": V;
+        "__#17@#previousViews": View[];
+        "__#17@#connection": import("../../../connection/ServerConnection").default | null;
+        "__#17@#models": Record<any, import("../../../model/BaseModel").default>;
+        "__#17@#renderers": Record<any, import("./renderer/BaseRenderer").default<import("../../../entities/BaseEntity").default> | null>;
+        "__#17@#albumArtHandler": import("../../../util/AlbumArtHandler").default;
         browse(): Promise<import("./ViewHandler").RenderedPage>;
         readonly uri: string;
         readonly currentView: V;
@@ -67,7 +67,7 @@ export declare function Explodable<V extends View, TBase extends Constructor<V>>
         getRenderer(type: import("../../../entities").EntityType.Song): import("./renderer/SongRenderer").default;
         getRenderer(type: import("../../../entities").EntityType.UserView): import("./renderer/UserViewRenderer").default;
         constructPrevUri(): string;
-        constructNextUri(startIndex?: number | undefined): string;
+        constructNextUri(startIndex?: number | undefined, nextView?: View | undefined): string;
         constructNextPageItem(nextUri: string, title?: string | undefined): import("./renderer/BaseRenderer").RenderedListItem;
         constructMoreItem(moreUri: string, title?: string | undefined): import("./renderer/BaseRenderer").RenderedListItem;
         getModelQueryParams(bundle?: Record<string, any> | undefined): import("../../../model/BaseModel").GetItemsParams;

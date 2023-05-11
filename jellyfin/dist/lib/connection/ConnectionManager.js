@@ -98,16 +98,6 @@ _ConnectionManager_sdkInitInfo = new WeakMap(), _ConnectionManager_connections =
 }, _ConnectionManager_getOrCreateConnection = function _ConnectionManager_getOrCreateConnection(server, username) {
     const conn = this.findConnection(server, username);
     if (!conn) {
-        if (!username) { // For legacy URIs without multi-user support
-            const serverConfEntries = ServerHelper_1.default.getServersFromConfig();
-            const serverConf = serverConfEntries.find((conf) => ServerHelper_1.default.getConnectionUrl(conf.url) === server.connectionUrl);
-            if (serverConf) {
-                username = serverConf.username;
-            }
-            else {
-                throw Error('No server found in config');
-            }
-        }
         // We can't use the same device ID to login multiple users simultaneously
         // On same Jellyfin server. Doing so will log out the previous users.
         // Before we generate a new device ID, check if we have cached one for the user.

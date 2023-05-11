@@ -37,22 +37,26 @@ class SearchController {
         }
         const serverConfEntries = ServerHelper_1.default.getServersFromConfig();
         const onlineServers = JellyfinContext_1.default.get('onlineServers', []);
+        const searchedConnectionIds = [];
         const searchUris = serverConfEntries.reduce((uris, conf) => {
             const server = onlineServers.find((server) => ServerHelper_1.default.getConnectionUrl(conf.url) === server.connectionUrl);
             if (server) {
                 const targetConnectionId = ServerHelper_1.default.generateConnectionId(conf.username, server);
-                const baseView = {
-                    search: query.value,
-                    collatedSearchResults: '1'
-                };
-                if (searchAlbums) {
-                    uris.push(`jellyfin/${targetConnectionId}/${ViewHelper_1.default.constructUriSegmentFromView({ ...baseView, name: 'albums' })}`);
-                }
-                if (searchArtists) {
-                    uris.push(`jellyfin/${targetConnectionId}/${ViewHelper_1.default.constructUriSegmentFromView({ ...baseView, name: 'artists' })}`);
-                }
-                if (searchSongs) {
-                    uris.push(`jellyfin/${targetConnectionId}/${ViewHelper_1.default.constructUriSegmentFromView({ ...baseView, name: 'songs' })}`);
+                if (!searchedConnectionIds.includes(targetConnectionId)) {
+                    const baseView = {
+                        search: query.value,
+                        collatedSearchResults: '1'
+                    };
+                    if (searchAlbums) {
+                        uris.push(`jellyfin/${targetConnectionId}/${ViewHelper_1.default.constructUriSegmentFromView({ ...baseView, name: 'albums' })}`);
+                    }
+                    if (searchArtists) {
+                        uris.push(`jellyfin/${targetConnectionId}/${ViewHelper_1.default.constructUriSegmentFromView({ ...baseView, name: 'artists' })}`);
+                    }
+                    if (searchSongs) {
+                        uris.push(`jellyfin/${targetConnectionId}/${ViewHelper_1.default.constructUriSegmentFromView({ ...baseView, name: 'songs' })}`);
+                    }
+                    searchedConnectionIds.push(targetConnectionId);
                 }
             }
             return uris;

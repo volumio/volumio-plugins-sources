@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_connectionManager, _PlayController_mpdPlayerStateListener, _PlayController_monitoredPlaybacks, _PlayController_addMpdPlayerStateListener, _PlayController_removeMpdPlayerStateListener, _PlayController_mpdAddTags, _PlayController_getStreamUrl, _PlayController_doPlay, _PlayController_markPlayed, _PlayController_millisecondsToTicks, _PlayController_apiReportPlayback, _PlayController_handleMpdPlayerEvent;
+var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_connectionManager, _PlayController_mpdPlayerStateListener, _PlayController_monitoredPlaybacks, _PlayController_volumioPushStateListener, _PlayController_volumioPushStateHandler, _PlayController_addListeners, _PlayController_removeListeners, _PlayController_mpdAddTags, _PlayController_getStreamUrl, _PlayController_doPlay, _PlayController_markPlayed, _PlayController_millisecondsToTicks, _PlayController_apiReportPlayback, _PlayController_handleMpdPlayerEvent, _VolumioPushStateListener_lastState;
 Object.defineProperty(exports, "__esModule", { value: true });
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -54,10 +54,14 @@ class PlayController {
         _PlayController_connectionManager.set(this, void 0);
         _PlayController_mpdPlayerStateListener.set(this, void 0);
         _PlayController_monitoredPlaybacks.set(this, void 0);
+        _PlayController_volumioPushStateListener.set(this, void 0);
+        _PlayController_volumioPushStateHandler.set(this, void 0);
         __classPrivateFieldSet(this, _PlayController_mpdPlugin, JellyfinContext_1.default.getMpdPlugin(), "f");
         __classPrivateFieldSet(this, _PlayController_connectionManager, connectionManager, "f");
         __classPrivateFieldSet(this, _PlayController_mpdPlayerStateListener, null, "f");
         __classPrivateFieldSet(this, _PlayController_monitoredPlaybacks, { current: null, pending: null }, "f");
+        __classPrivateFieldSet(this, _PlayController_volumioPushStateListener, null, "f");
+        __classPrivateFieldSet(this, _PlayController_volumioPushStateHandler, null, "f");
     }
     /**
      * Track uri:
@@ -68,7 +72,7 @@ class PlayController {
         const { song, connection } = await this.getSongFromTrack(track);
         const streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection);
         __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl };
-        __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_addMpdPlayerStateListener).call(this);
+        __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_addListeners).call(this);
         await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_doPlay).call(this, streamUrl, track);
         await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_markPlayed).call(this, song, connection);
     }
@@ -103,7 +107,7 @@ class PlayController {
         return JellyfinContext_1.default.getStateMachine().previous();
     }
     dispose() {
-        __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_removeMpdPlayerStateListener).call(this);
+        __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_removeListeners).call(this);
         __classPrivateFieldSet(this, _PlayController_monitoredPlaybacks, { current: null, pending: null }, "f");
     }
     // Returns kew promise!
@@ -147,18 +151,30 @@ class PlayController {
     }
 }
 exports.default = PlayController;
-_PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = new WeakMap(), _PlayController_mpdPlayerStateListener = new WeakMap(), _PlayController_monitoredPlaybacks = new WeakMap(), _PlayController_instances = new WeakSet(), _PlayController_addMpdPlayerStateListener = function _PlayController_addMpdPlayerStateListener() {
-    if (__classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f")) {
-        return;
-    }
-    __classPrivateFieldSet(this, _PlayController_mpdPlayerStateListener, __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_handleMpdPlayerEvent).bind(this), "f");
-    __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f").clientMpd.on('system-player', __classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f"));
-}, _PlayController_removeMpdPlayerStateListener = function _PlayController_removeMpdPlayerStateListener() {
+_PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = new WeakMap(), _PlayController_mpdPlayerStateListener = new WeakMap(), _PlayController_monitoredPlaybacks = new WeakMap(), _PlayController_volumioPushStateListener = new WeakMap(), _PlayController_volumioPushStateHandler = new WeakMap(), _PlayController_instances = new WeakSet(), _PlayController_addListeners = function _PlayController_addListeners() {
     if (!__classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f")) {
-        return;
+        __classPrivateFieldSet(this, _PlayController_mpdPlayerStateListener, __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_handleMpdPlayerEvent).bind(this), "f");
+        __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f").clientMpd.on('system-player', __classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f"));
     }
-    __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f").clientMpd.removeListener('system-player', __classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f"));
-    __classPrivateFieldSet(this, _PlayController_mpdPlayerStateListener, null, "f");
+    if (!__classPrivateFieldGet(this, _PlayController_volumioPushStateListener, "f")) {
+        const psl = __classPrivateFieldSet(this, _PlayController_volumioPushStateListener, new VolumioPushStateListener(), "f");
+        __classPrivateFieldSet(this, _PlayController_volumioPushStateHandler, psl.handleVolumioPushState.bind(psl), "f");
+        JellyfinContext_1.default.volumioCoreCommand?.addCallback('volumioPushState', __classPrivateFieldGet(this, _PlayController_volumioPushStateHandler, "f"));
+    }
+}, _PlayController_removeListeners = function _PlayController_removeListeners() {
+    if (__classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f")) {
+        __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f").clientMpd.removeListener('system-player', __classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f"));
+        __classPrivateFieldSet(this, _PlayController_mpdPlayerStateListener, null, "f");
+    }
+    if (__classPrivateFieldGet(this, _PlayController_volumioPushStateListener, "f")) {
+        const listeners = JellyfinContext_1.default.volumioCoreCommand?.callbacks?.['volumioPushState'] || [];
+        const index = listeners.indexOf(__classPrivateFieldGet(this, _PlayController_volumioPushStateHandler, "f"));
+        if (index >= 0) {
+            JellyfinContext_1.default.volumioCoreCommand.callbacks['volumioPushState'].splice(index, 1);
+        }
+        __classPrivateFieldSet(this, _PlayController_volumioPushStateHandler, null, "f");
+        __classPrivateFieldSet(this, _PlayController_volumioPushStateListener, null, "f");
+    }
 }, _PlayController_mpdAddTags = function _PlayController_mpdAddTags(mpdAddIdResponse, track) {
     const songId = mpdAddIdResponse?.Id;
     // Set tags so that songs show the same title, album and artist as Jellyfin.
@@ -331,14 +347,19 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = n
         playbackInfo.lastReport = { type: reportType, seek: reportPayload.seek };
         return __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_apiReportPlayback).call(this, { ...reportPayload, type: reportType });
     };
+    const __refreshPlayerViewHeartIcon = (favorite) => {
+        JellyfinContext_1.default.getStateMachine().emitFavourites({ favourite: favorite });
+    };
     const mpdState = await (0, util_1.kewToJSPromise)(__classPrivateFieldGet(this, _PlayController_mpdPlugin, "f").getState());
     // Current stream has not changed
     if (mpdState.uri === __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").current?.streamUrl) {
+        __refreshPlayerViewHeartIcon(__classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").current.song.favorite);
         await __apiReportPlayback(__classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").current, mpdState.status);
     }
     // Stream previously fetched by the plugin and pending playback is now played
     else if (mpdState.uri === __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending?.streamUrl) {
         const pending = __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending;
+        __refreshPlayerViewHeartIcon(pending.song.favorite);
         if (__classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").current && __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").current.lastStatus !== 'stop') {
             await __apiReportPlayback(__classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").current, 'stop');
         }
@@ -354,4 +375,26 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = n
         await __apiReportPlayback(__classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").current, 'stop');
     }
 };
+/**
+ * VolumioPushStateListener exists only to call StateMachine's checkFavourites() when active service changes from 'jellyfin'.
+ * The `checkFavorites()` method which will then refresh the 'heart' icon based on whether `state.uri` exists in Volumio favorites.
+ * This method is supposed to be called within StateMachine's `pushState()`, but this never happens because it is chained to
+ * Volumio commandRouter's `volumioPushState()`, which returns a promise that never resolves due to rest_api plugin not returning a promise
+ * within its own pushState().
+ * We only call `checKFavourites()` when the service has changed from 'jellyfin' to something else. This is to reinstate the 'heart' icon
+ * to Volumio's default behaviour (which should always be 'off' given its current broken implementation).
+ */
+class VolumioPushStateListener {
+    constructor() {
+        _VolumioPushStateListener_lastState.set(this, void 0);
+        __classPrivateFieldSet(this, _VolumioPushStateListener_lastState, null, "f");
+    }
+    handleVolumioPushState(state) {
+        if (__classPrivateFieldGet(this, _VolumioPushStateListener_lastState, "f")?.service === 'jellyfin' && state.service !== 'jellyfin') {
+            JellyfinContext_1.default.getStateMachine().checkFavourites(state);
+        }
+        __classPrivateFieldSet(this, _VolumioPushStateListener_lastState, state, "f");
+    }
+}
+_VolumioPushStateListener_lastState = new WeakMap();
 //# sourceMappingURL=PlayController.js.map

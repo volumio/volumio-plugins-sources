@@ -4,16 +4,19 @@ import FilterableViewHandler, { FilterableViewConfig } from './FilterableViewHan
 import { RenderedListItem } from './renderer/BaseRenderer';
 import View from './View';
 import { RenderedPage, RenderedPageContents } from './ViewHandler';
+import { GetItemsParams } from '../../../model/BaseModel';
 export interface AlbumView extends View {
     name: 'albums';
     parentId?: string;
     artistId?: string;
     albumArtistId?: string;
+    artistAlbumListType?: 'albums' | 'appearsOn' | 'all';
     search?: string;
     genreId?: string;
     collatedSearchResults?: '1';
 }
 declare class AlbumViewHandler extends FilterableViewHandler<AlbumView> {
+    #private;
     browse(): Promise<RenderedPage>;
     protected getFilterableViewConfig(): FilterableViewConfig;
     getSongsOnExplode(): Promise<Song[]>;
@@ -24,13 +27,13 @@ declare const _default: {
         _parseSongForExplode(song: Song): Promise<import("./Explodable").ExplodedTrackInfo | null>;
         _getAudioStreamMetadata(song: Song): import("./Explodable").AudioStreamMetadata | null;
         _getTrackUri(song: Song): string | null;
-        "__#16@#uri": string;
-        "__#16@#currentView": View;
-        "__#16@#previousViews": View[];
-        "__#16@#connection": import("../../../connection/ServerConnection").default | null;
-        "__#16@#models": Record<any, import("../../../model/BaseModel").default>;
-        "__#16@#renderers": Record<any, import("./renderer/BaseRenderer").default<import("../../../entities/BaseEntity").default> | null>;
-        "__#16@#albumArtHandler": import("../../../util/AlbumArtHandler").default;
+        "__#17@#uri": string;
+        "__#17@#currentView": View;
+        "__#17@#previousViews": View[];
+        "__#17@#connection": import("../../../connection/ServerConnection").default | null;
+        "__#17@#models": Record<any, import("../../../model/BaseModel").default>;
+        "__#17@#renderers": Record<any, import("./renderer/BaseRenderer").default<import("../../../entities/BaseEntity").default> | null>;
+        "__#17@#albumArtHandler": import("../../../util/AlbumArtHandler").default;
         browse(): Promise<RenderedPage>;
         readonly uri: string;
         readonly currentView: View;
@@ -58,10 +61,10 @@ declare const _default: {
         getRenderer(type: EntityType.Song): import("./renderer/SongRenderer").default;
         getRenderer(type: EntityType.UserView): import("./renderer/UserViewRenderer").default;
         constructPrevUri(): string;
-        constructNextUri(startIndex?: number | undefined): string;
+        constructNextUri(startIndex?: number | undefined, nextView?: View | undefined): string;
         constructNextPageItem(nextUri: string, title?: string | undefined): RenderedListItem;
         constructMoreItem(moreUri: string, title?: string | undefined): RenderedListItem;
-        getModelQueryParams(bundle?: Record<string, any> | undefined): import("../../../model/BaseModel").GetItemsParams;
+        getModelQueryParams(bundle?: Record<string, any> | undefined): GetItemsParams;
         getAlbumArt<T extends import("../../../entities/BaseEntity").default>(item: T): string;
         readonly serverConnection: import("../../../connection/ServerConnection").default | null;
         setPageTitle(pageContents: RenderedPageContents): Promise<RenderedPageContents>;

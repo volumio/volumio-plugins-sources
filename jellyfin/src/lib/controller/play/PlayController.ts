@@ -49,28 +49,44 @@ export default class PlayController {
   #connectionManager: ConnectionManager;
   #mpdPlayerStateListener: (() => void) | null;
   #monitoredPlaybacks: MonitoredPlaybacks;
+  #volumioPushStateListener: VolumioPushStateListener | null;
+  #volumioPushStateHandler: ((state: any) => void) | null;
 
   constructor(connectionManager: ConnectionManager) {
     this.#mpdPlugin = jellyfin.getMpdPlugin();
     this.#connectionManager = connectionManager;
     this.#mpdPlayerStateListener = null;
     this.#monitoredPlaybacks = { current: null, pending: null };
+    this.#volumioPushStateListener = null;
+    this.#volumioPushStateHandler = null;
   }
 
-  #addMpdPlayerStateListener() {
-    if (this.#mpdPlayerStateListener) {
-      return;
-    }
-    this.#mpdPlayerStateListener = this.#handleMpdPlayerEvent.bind(this);
-    this.#mpdPlugin.clientMpd.on('system-player', this.#mpdPlayerStateListener);
-  }
-
-  #removeMpdPlayerStateListener() {
+  #addListeners() {
     if (!this.#mpdPlayerStateListener) {
-      return;
+      this.#mpdPlayerStateListener = this.#handleMpdPlayerEvent.bind(this);
+      this.#mpdPlugin.clientMpd.on('system-player', this.#mpdPlayerStateListener);
     }
-    this.#mpdPlugin.clientMpd.removeListener('system-player', this.#mpdPlayerStateListener);
-    this.#mpdPlayerStateListener = null;
+    if (!this.#volumioPushStateListener) {
+      const psl = this.#volumioPushStateListener = new VolumioPushStateListener();
+      this.#volumioPushStateHandler = psl.handleVolumioPushState.bind(psl);
+      jellyfin.volumioCoreCommand?.addCallback('volumioPushState', this.#volumioPushStateHandler);
+    }
+  }
+
+  #removeListeners() {
+    if (this.#mpdPlayerStateListener) {
+      this.#mpdPlugin.clientMpd.removeListener('system-player', this.#mpdPlayerStateListener);
+      this.#mpdPlayerStateListener = null;
+    }
+    if (this.#volumioPushStateListener) {
+      const listeners = jellyfin.volumioCoreCommand?.callbacks?.['volumioPushState'] || [];
+      const index = listeners.indexOf(this.#volumioPushStateHandler);
+      if (index >= 0) {
+        jellyfin.volumioCoreCommand.callbacks['volumioPushState'].splice(index, 1);
+      }
+      this.#volumioPushStateHandler = null;
+      this.#volumioPushStateListener = null;
+    }
   }
 
   /**
@@ -83,7 +99,7 @@ export default class PlayController {
     const {song, connection} = await this.getSongFromTrack(track);
     const streamUrl = this.#getStreamUrl(song, connection);
     this.#monitoredPlaybacks.pending = { song, connection, streamUrl };
-    this.#addMpdPlayerStateListener();
+    this.#addListeners();
     await this.#doPlay(streamUrl, track);
     await this.#markPlayed(song, connection);
   }
@@ -125,7 +141,7 @@ export default class PlayController {
   }
 
   dispose() {
-    this.#removeMpdPlayerStateListener();
+    this.#removeListeners();
     this.#monitoredPlaybacks = { current: null, pending: null };
   }
 
@@ -373,14 +389,20 @@ export default class PlayController {
       return this.#apiReportPlayback({...reportPayload, type: reportType});
     };
 
+    const __refreshPlayerViewHeartIcon = (favorite: boolean) => {
+      jellyfin.getStateMachine().emitFavourites({ favourite: favorite });
+    };
+
     const mpdState: MpdState = await kewToJSPromise(this.#mpdPlugin.getState());
     // Current stream has not changed
     if (mpdState.uri === this.#monitoredPlaybacks.current?.streamUrl) {
+      __refreshPlayerViewHeartIcon(this.#monitoredPlaybacks.current.song.favorite);
       await __apiReportPlayback(this.#monitoredPlaybacks.current, mpdState.status);
     }
     // Stream previously fetched by the plugin and pending playback is now played
     else if (mpdState.uri === this.#monitoredPlaybacks.pending?.streamUrl) {
       const pending = this.#monitoredPlaybacks.pending;
+      __refreshPlayerViewHeartIcon(pending.song.favorite);
       if (this.#monitoredPlaybacks.current && this.#monitoredPlaybacks.current.lastStatus !== 'stop') {
         await __apiReportPlayback(this.#monitoredPlaybacks.current, 'stop');
       }
@@ -395,5 +417,30 @@ export default class PlayController {
     else if (this.#monitoredPlaybacks.current && this.#monitoredPlaybacks.current.lastStatus !== 'stop') {
       await __apiReportPlayback(this.#monitoredPlaybacks.current, 'stop');
     }
+  }
+}
+
+/**
+ * VolumioPushStateListener exists only to call StateMachine's checkFavourites() when active service changes from 'jellyfin'.
+ * The `checkFavorites()` method which will then refresh the 'heart' icon based on whether `state.uri` exists in Volumio favorites.
+ * This method is supposed to be called within StateMachine's `pushState()`, but this never happens because it is chained to
+ * Volumio commandRouter's `volumioPushState()`, which returns a promise that never resolves due to rest_api plugin not returning a promise
+ * within its own pushState().
+ * We only call `checKFavourites()` when the service has changed from 'jellyfin' to something else. This is to reinstate the 'heart' icon
+ * to Volumio's default behaviour (which should always be 'off' given its current broken implementation).
+ */
+class VolumioPushStateListener {
+
+  #lastState: any | null;
+
+  constructor() {
+    this.#lastState = null;
+  }
+
+  handleVolumioPushState(state: any) {
+    if (this.#lastState?.service === 'jellyfin' && state.service !== 'jellyfin') {
+      jellyfin.getStateMachine().checkFavourites(state);
+    }
+    this.#lastState = state;
   }
 }

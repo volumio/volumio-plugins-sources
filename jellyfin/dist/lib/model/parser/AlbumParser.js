@@ -11,10 +11,20 @@ class AlbumParser extends BaseParser_1.default {
         if (!base) {
             return null;
         }
+        const artists = data.ArtistItems?.reduce((result, artist) => {
+            if (artist.Id && artist.Name) {
+                result.push({
+                    id: artist.Id,
+                    name: artist.Name
+                });
+            }
+            return result;
+        }, []) || [];
         const result = {
             ...base,
             type: entities_1.EntityType.Album,
-            artist: data.AlbumArtist || null,
+            albumArtist: data.AlbumArtist || null,
+            artists,
             duration: data.RunTimeTicks ? this.ticksToSeconds(data.RunTimeTicks) : null,
             year: data.ProductionYear || null,
             genres: this.getGenres(data)

@@ -37,23 +37,27 @@ export default class SearchController {
     const serverConfEntries = ServerHelper.getServersFromConfig();
     const onlineServers = jellyfin.get<Server[]>('onlineServers', []);
 
+    const searchedConnectionIds: string[] = [];
     const searchUris: string[] = serverConfEntries.reduce<string[]>((uris, conf) => {
       const server = onlineServers.find(
         (server) => ServerHelper.getConnectionUrl(conf.url) === server.connectionUrl);
       if (server) {
         const targetConnectionId = ServerHelper.generateConnectionId(conf.username, server);
-        const baseView: Partial<View> = {
-          search: query.value,
-          collatedSearchResults: '1'
-        };
-        if (searchAlbums) {
-          uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<AlbumView>({ ...baseView, name: 'albums' })}`);
-        }
-        if (searchArtists) {
-          uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<ArtistView>({ ...baseView, name: 'artists' })}`);
-        }
-        if (searchSongs) {
-          uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<SongView>({ ...baseView, name: 'songs' })}`);
+        if (!searchedConnectionIds.includes(targetConnectionId)) {
+          const baseView: Partial<View> = {
+            search: query.value,
+            collatedSearchResults: '1'
+          };
+          if (searchAlbums) {
+            uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<AlbumView>({ ...baseView, name: 'albums' })}`);
+          }
+          if (searchArtists) {
+            uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<ArtistView>({ ...baseView, name: 'artists' })}`);
+          }
+          if (searchSongs) {
+            uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<SongView>({ ...baseView, name: 'songs' })}`);
+          }
+          searchedConnectionIds.push(targetConnectionId);
         }
       }
       return uris;

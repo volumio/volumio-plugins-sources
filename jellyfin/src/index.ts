@@ -14,15 +14,23 @@ import ConnectionManager, { JellyfinSdkInitInfo } from './lib/connection/Connect
 import SearchController, { SearchQuery } from './lib/controller/search/SearchController';
 import PlayController from './lib/controller/play/PlayController';
 import { ExplodedTrackInfo } from './lib/controller/browse/view-handlers/Explodable';
-import { jsPromiseToKew } from './lib/util';
+import { jsPromiseToKew, kewToJSPromise } from './lib/util';
 import ServerHelper from './lib/util/ServerHelper';
 import { SongView } from './lib/controller/browse/view-handlers/SongViewHandler';
 import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
 import { AlbumView } from './lib/controller/browse/view-handlers/AlbumViewHandler';
+import { RenderedPage } from './lib/controller/browse/view-handlers/ViewHandler';
+import SongHelper from './lib/util/SongHelper';
 
 interface GotoParams extends ExplodedTrackInfo {
   type: 'album' | 'artist';
 }
+
+type SetSongFavoriteResponse = {
+  service: 'jellyfin',
+  uri: string,
+  favourite: boolean
+} | { success: false } | undefined;
 
 class ControllerJellyfin {
   #context: any;
@@ -76,10 +84,13 @@ class ControllerJellyfin {
       const showAllAlbumTracks = jellyfin.getConfigValue('showAllAlbumTracks', true);
       const showAllPlaylistTracks = jellyfin.getConfigValue('showAllPlaylistTracks', true);
       const rememberFilters = jellyfin.getConfigValue('rememberFilters', true);
+      const markFavoriteTarget = jellyfin.getConfigValue('markFavoriteTarget', 'all');
+      const markFavoriteTargetOptions = browseSettingsUIConf.content[4].options;
       browseSettingsUIConf.content[0].value = itemsPerPage;
       browseSettingsUIConf.content[1].value = showAllAlbumTracks;
       browseSettingsUIConf.content[2].value = showAllPlaylistTracks;
       browseSettingsUIConf.content[3].value = rememberFilters;
+      browseSettingsUIConf.content[4].value = markFavoriteTargetOptions.find((option: any) => option.value === markFavoriteTarget);
 
       // Play / Add to Queue section
       const maxTracks = jellyfin.getConfigValue('maxTracks', 100);
@@ -228,6 +239,8 @@ class ControllerJellyfin {
     showKeys.forEach((key) => {
       jellyfin.setConfigValue(key, data[key]);
     });
+
+    jellyfin.setConfigValue('markFavoriteTarget', data['markFavoriteTarget'].value);
 
     const itemsPerPage = parseInt(data.itemsPerPage, 10);
     if (itemsPerPage) {
@@ -477,40 +490,120 @@ class ControllerJellyfin {
     return libQ.reject('Jellyfin plugin is not started');
   }
 
-  async goto(data: GotoParams): Promise<any> {
-    if (!this.#playController || !this.#browseController) {
-      throw Error('Jellyfin plugin is not started');
-    }
+  goto(data: GotoParams) {
+    return jsPromiseToKew((async (): Promise<RenderedPage> => {
+      if (!this.#playController || !this.#browseController) {
+        throw Error('Jellyfin plugin is not started');
+      }
 
-    try {
-      const { song, connection } = await this.#playController.getSongFromTrack(data);
-      if (data.type === 'album') {
-        if (song.album?.id) {
-          const songView: SongView = {
-            name: 'songs',
-            albumId: song.album.id
-          };
-          return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(songView)}`));
+      try {
+        const { song, connection } = await this.#playController.getSongFromTrack(data);
+        if (data.type === 'album') {
+          if (song.album?.id) {
+            const songView: SongView = {
+              name: 'songs',
+              albumId: song.album.id
+            };
+            return this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(songView)}`);
+          }
+          throw Error('Song is missing album info');
         }
-        throw Error('Song is missing album info');
-      }
-      else if (data.type === 'artist') {
-        if (song.artists?.[0]?.id) {
-          const albumView: AlbumView = {
-            name: 'albums',
-            artistId: song.artists[0].id
-          };
-          return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(albumView)}`));
+        else if (data.type === 'artist') {
+          if (song.artists?.[0]?.id) {
+            const albumView: AlbumView = {
+              name: 'albums',
+              artistId: song.artists[0].id
+            };
+            return this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(albumView)}`);
+          }
+          throw Error('Song is missing artist info');
         }
-        throw Error('Song is missing artist info');
+        else {
+          throw Error(`Invalid type '${data.type}'`);
+        }
       }
-      else {
-        throw Error(`Invalid type '${data.type}'`);
+      catch (error: any) {
+        throw Error(`Failed to fetch requested info: ${error.message}`);
       }
-    }
-    catch (error: any) {
-      throw Error(`Failed to fetch requested info: ${error.message}`);
-    }
+    })());
+  }
+
+  addToFavourites(data: { uri: string, service: string }) {
+    return this.#setSongFavorite(data.uri, true);
+  }
+
+  removeFromFavourites(data: {uri: string, service: string}) {
+    return this.#setSongFavorite(data.uri, false);
+  }
+
+  #setSongFavorite(uri: string, favorite: boolean) {
+    return jsPromiseToKew((async (): Promise<SetSongFavoriteResponse> => {
+      if (!this.#connectionManager) {
+        throw Error('Jellyfin plugin is not started');
+      }
+      // Unlike Jellyfin, you can only 'heart' songs in Volumio.
+      // Note that adding items through 'Add to Playlist -> Favorites' is not the same as clicking the 'heart' icon - it goes through
+      // Volumio's `playlistManager.addToPlaylist()` instead, and that method does not support custom plugin implementations.
+      try {
+        const setFavoriteResult = await SongHelper.setFavoriteByUri(uri, favorite, this.#connectionManager);
+        if (setFavoriteResult.favorite) {
+          jellyfin.getLogger().info(`[jellyfin] Marked favorite on server: ${setFavoriteResult.canonicalUri}`);
+        }
+        else {
+          jellyfin.getLogger().info(`[jellyfin] Unmarked favorite on server: ${setFavoriteResult.canonicalUri}`);
+        }
+
+        const canonicalUri = setFavoriteResult.canonicalUri;
+
+        // If removing from favorites (which, btw, you can only do in Favourites or player view when song is playing), Volumio will also
+        // Call its own implementation. But if adding to favorites, then we need to do it ourselves (subject to `markFavoriteTarget` setting).
+        if (favorite && jellyfin.getConfigValue('markFavoriteTarget', 'all') === 'all') {
+          // Add to Volumio 'Favorites' playlist
+          const playlistManager = jellyfin.getPlaylistManager();
+          // Do better than Volumio's implementation by checking if song already added
+          const favouritesPage = await kewToJSPromise(playlistManager.listFavourites()) as RenderedPage;
+          const alreadyAdded = favouritesPage.navigation?.lists?.[0]?.items.some((item) => item.uri === canonicalUri);
+          if (!alreadyAdded) {
+            jellyfin.getLogger().info(`[jellyfin] Adding song to Volumio favorites: ${canonicalUri}`);
+            await kewToJSPromise(playlistManager.commonAddToPlaylist(
+              playlistManager.favouritesPlaylistFolder, 'favourites', 'jellyfin', canonicalUri));
+          }
+          else {
+            jellyfin.getLogger().info(`[jellyfin] Volumio favorites already contains entry with song URI: ${canonicalUri}`);
+          }
+        }
+
+        /**
+         * ONLY return `{...favourite: boolean}` if current playing track points to the same (un)favorited song, otherwise
+         * Volumio UI will blindly update the heart icon in the player view even if it is playing a different track*.
+         * * This only works when `markFavoriteTarget` is `serverOnly' and a song is being favorited.  See:
+         * 1. `checkFavourites()` in `playlistManager.commonAddToPlaylist()`; and
+         * 2. `playlistManager.removeFromFavourites()`
+         */
+        if (jellyfin.getStateMachine().getState().uri === canonicalUri) {
+          // Return full response in the hope that one day Volumio UI will actually compare the uri with the one currently played
+          // Before refreshing the heart icon in player view.
+          return {
+            service: 'jellyfin',
+            uri: canonicalUri || '',
+            favourite: setFavoriteResult.favorite
+          };
+        }
+
+        return undefined;
+      }
+      catch (error: any) {
+        if (favorite) {
+          jellyfin.getLogger().error('Failed to add song to favorites: ', error);
+          jellyfin.toast('error', `Failed to add song to favorites: ${error.message}`);
+        }
+        else {
+          jellyfin.getLogger().error('Failed to remove song from favorites: ', error);
+          jellyfin.toast('error', `Failed to remove song from favorites: ${error.message}`);
+        }
+        return { success: false };
+      }
+    })());
   }
 }
 

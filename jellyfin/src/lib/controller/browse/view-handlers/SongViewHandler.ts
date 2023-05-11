@@ -89,21 +89,32 @@ class SongViewHandler extends FilterableViewHandler<SongView> {
       items: listItems
     });
 
-    let header, headerData, headerRenderer;
+    let header;
     if (isAlbum) {
       const albumModel = this.getModel(ModelType.Album);
-      headerData = await albumModel.getAlbum(albumId);
-      headerRenderer = this.getRenderer(EntityType.Album);
-      if (headerData) {
-        header = headerRenderer.renderToHeader(headerData);
+      const album = await albumModel.getAlbum(albumId);
+      const albumRenderer = this.getRenderer(EntityType.Album);
+      if (album) {
+        header = albumRenderer.renderToHeader(album);
+      }
+      if (album) {
+        const similarAlbums = await albumModel.getSimilarAlbums({ album });
+        if (similarAlbums.length > 0) {
+          lists.push({
+            title: jellyfin.getI18n('JELLYFIN_MORE_LIKE_THIS'),
+            availableListViews: [ 'list', 'grid' ],
+            items: similarAlbums.map((album) =>
+              albumRenderer.renderToListItem(album)).filter((item) => item) as RenderedListItem[]
+          });
+        }
       }
     }
     else if (isPlaylist) {
       const playlistModel = this.getModel(ModelType.Playlist);
-      headerData = await playlistModel.getPlaylist(playlistId);
-      headerRenderer = this.getRenderer(EntityType.Playlist);
-      if (headerData) {
-        header = headerRenderer.renderToHeader(headerData);
+      const playlist = await playlistModel.getPlaylist(playlistId);
+      if (playlist) {
+        const playlistRenderer = this.getRenderer(EntityType.Playlist);
+        header = playlistRenderer.renderToHeader(playlist);
       }
     }
 

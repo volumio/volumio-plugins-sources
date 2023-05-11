@@ -3,7 +3,11 @@ import BaseEntity from './BaseEntity';
 
 interface Album extends BaseEntity {
   type: EntityType.Album;
-  artist: string | null;
+  albumArtist: string | null;
+  artists: {
+    id: string,
+    name: string
+  }[];
   duration: number | null;
   year: number | null;
   genres: {

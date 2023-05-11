@@ -15,7 +15,7 @@ class AlbumRenderer extends BaseRenderer_1.default {
             service: 'jellyfin',
             type: 'folder',
             title: data.name,
-            artist: data.artist,
+            artist: data.albumArtist,
             duration: data.duration,
             albumart: this.getAlbumArt(data),
             uri: `${this.uri}/${ViewHelper_1.default.constructUriSegmentFromView(songsView)}`
@@ -23,7 +23,7 @@ class AlbumRenderer extends BaseRenderer_1.default {
     }
     renderToHeader(data) {
         const header = super.renderToHeader(data) || {};
-        header.artist = data.artist;
+        header.artist = data.albumArtist;
         header.year = data.year;
         // Duration does not get converted into time format when shown in header
         // (as opposed to list item). So we have to do it ourselves.

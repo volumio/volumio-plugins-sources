@@ -112,16 +112,17 @@ class BaseViewHandler {
         }
         return segments.join('/');
     }
-    constructNextUri(startIndex) {
+    constructNextUri(startIndex, nextView) {
         const segments = [];
         __classPrivateFieldGet(this, _BaseViewHandler_previousViews, "f").forEach((view) => {
             segments.push(ViewHelper_1.default.constructUriSegmentFromView(view));
         });
-        if (!startIndex) {
-            startIndex = (__classPrivateFieldGet(this, _BaseViewHandler_currentView, "f").startIndex || 0) + JellyfinContext_1.default.getConfigValue('itemsPerPage', 47);
+        const currentView = nextView || __classPrivateFieldGet(this, _BaseViewHandler_currentView, "f");
+        if (startIndex === undefined) {
+            startIndex = (currentView.startIndex || 0) + (currentView.limit || JellyfinContext_1.default.getConfigValue('itemsPerPage', 47));
         }
         segments.push(ViewHelper_1.default.constructUriSegmentFromView({
-            ...__classPrivateFieldGet(this, _BaseViewHandler_currentView, "f"),
+            ...currentView,
             startIndex
         }));
         return segments.join('/');

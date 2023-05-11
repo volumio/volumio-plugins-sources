@@ -12,6 +12,7 @@ export interface RenderedListItem {
   duration?: number | null;
   uri: string;
   icon?: string;
+  favorite?: boolean;
 }
 
 export interface RenderedHeader {

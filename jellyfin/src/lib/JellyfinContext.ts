@@ -125,6 +125,10 @@ class JellyfinContext {
     return this.#pluginContext.coreCommand.stateMachine;
   }
 
+  getPlaylistManager(): any {
+    return this.#pluginContext.coreCommand.playListManager;
+  }
+
   reset() {
     this.#pluginContext = null;
     this.#pluginConfig = null;
@@ -188,6 +192,10 @@ class JellyfinContext {
   #onPlayerNameChanged() {
     this.delete('deviceInfo');
     this.toast('warn', 'Detected change in system settings. Please restart plugin for changes to take effect.');
+  }
+
+  get volumioCoreCommand(): any {
+    return this.#pluginContext?.coreCommand || null;
   }
 }
 

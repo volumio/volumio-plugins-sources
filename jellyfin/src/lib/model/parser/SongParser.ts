@@ -39,7 +39,8 @@ export default class SongParser extends BaseParser<Song> {
       type: EntityType.Song,
       artists,
       album,
-      duration: data.RunTimeTicks ? this.ticksToSeconds(data.RunTimeTicks) : 0
+      duration: data.RunTimeTicks ? this.ticksToSeconds(data.RunTimeTicks) : 0,
+      favorite: !!data.UserData?.IsFavorite
     };
 
     if (data.MediaSources) {

@@ -14,6 +14,7 @@ interface Song extends BaseEntity {
     } | null;
     duration: number;
     mediaSources?: MediaSourceInfo[];
+    favorite: boolean;
 }
 export default Song;
 //# sourceMappingURL=Song.d.ts.map

@@ -36,20 +36,24 @@ class BaseModel {
             const itemsApi = (0, items_api_1.getItemsApi)(__classPrivateFieldGet(this, _BaseModel_connection, "f").api);
             response = await itemsApi.getItemsByUserId(apiParams);
         }
-        const parsePromises = response.data.Items?.map((data) => parser.parseDto(data, __classPrivateFieldGet(this, _BaseModel_connection, "f").api)) || [];
-        const items = await Promise.all(parsePromises);
-        const filtered = items.filter((item) => item);
+        const responseItems = response.data?.Items || [];
+        const filtered = await this.parseItemDtos(responseItems, parser);
         const itemsResult = {
             items: filtered,
             startIndex: params.startIndex || 0,
             total: response.data.TotalRecordCount || 0,
-            omitted: items.length - filtered.length
+            omitted: responseItems.length - filtered.length
         };
-        const nextStartIndex = itemsResult.startIndex + items.length;
+        const nextStartIndex = itemsResult.startIndex + responseItems.length;
         if (itemsResult.total > nextStartIndex) {
             itemsResult.nextStartIndex = nextStartIndex;
         }
         return itemsResult;
+    }
+    async parseItemDtos(items, parser, filterNull = true) {
+        const parsePromises = items.map((data) => parser.parseDto(data, __classPrivateFieldGet(this, _BaseModel_connection, "f").api));
+        const parsedItems = await Promise.all(parsePromises);
+        return filterNull ? parsedItems.filter((item) => item !== null) : parsedItems;
     }
     async getItemFromApi(params, parser) {
         const apiParams = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_toApiGetItemParams).call(this, params);
@@ -65,6 +69,28 @@ class BaseModel {
         return {
             years: data.Years || null
         };
+    }
+    async markFavorite(itemId) {
+        if (!this.connection.auth?.User?.Id) {
+            throw Error('No auth');
+        }
+        const userLibraryApi = (0, user_library_api_1.getUserLibraryApi)(this.connection.api);
+        const markFavoriteResponse = await userLibraryApi.markFavoriteItem({
+            itemId,
+            userId: this.connection.auth.User.Id
+        });
+        return !!markFavoriteResponse.data.IsFavorite;
+    }
+    async unmarkFavorite(itemId) {
+        if (!this.connection.auth?.User?.Id) {
+            throw Error('No auth');
+        }
+        const userLibraryApi = (0, user_library_api_1.getUserLibraryApi)(this.connection.api);
+        const unmarkFavoriteResponse = await userLibraryApi.unmarkFavoriteItem({
+            itemId,
+            userId: this.connection.auth.User.Id
+        });
+        return !!unmarkFavoriteResponse.data.IsFavorite;
     }
     get connection() {
         return __classPrivateFieldGet(this, _BaseModel_connection, "f");
@@ -151,17 +177,25 @@ _BaseModel_connection = new WeakMap(), _BaseModel_instances = new WeakSet(), _Ba
             }
         });
     }
+    const excludeItemIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.excludeItemIds);
+    if (excludeItemIds.length > 0) {
+        result.excludeItemIds = excludeItemIds;
+    }
     const genreIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.genreIds);
-    if (genreIds) {
+    if (genreIds.length > 0) {
         result.genreIds = genreIds;
     }
     const artistIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.artistIds);
-    if (artistIds) {
+    if (artistIds.length > 0) {
         result.artistIds = artistIds;
     }
     const albumArtistIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.albumArtistIds);
-    if (albumArtistIds) {
+    if (albumArtistIds.length > 0) {
         result.albumArtistIds = albumArtistIds;
+    }
+    const contributingArtistIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.contributingArtistIds);
+    if (contributingArtistIds.length > 0) {
+        result.contributingArtistIds = contributingArtistIds;
     }
     if (params.years) {
         if (Array.isArray(params.years)) {

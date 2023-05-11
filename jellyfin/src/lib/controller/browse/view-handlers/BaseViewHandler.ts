@@ -150,19 +150,21 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     return segments.join('/');
   }
 
-  constructNextUri(startIndex?: number): string {
+  constructNextUri(startIndex?: number, nextView?: View): string {
     const segments = [];
 
     this.#previousViews.forEach((view) => {
       segments.push(ViewHelper.constructUriSegmentFromView(view));
     });
 
-    if (!startIndex) {
-      startIndex = (this.#currentView.startIndex || 0) + jellyfin.getConfigValue('itemsPerPage', 47);
+    const currentView = nextView || this.#currentView;
+
+    if (startIndex === undefined) {
+      startIndex = (currentView.startIndex || 0) + (currentView.limit || jellyfin.getConfigValue('itemsPerPage', 47));
     }
 
     segments.push(ViewHelper.constructUriSegmentFromView({
-      ...this.#currentView,
+      ...currentView,
       startIndex
     }));
 

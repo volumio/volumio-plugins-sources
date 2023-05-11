@@ -60,7 +60,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     getRenderer(type: EntityType.Song): SongRenderer;
     getRenderer(type: EntityType.UserView): UserViewRenderer;
     constructPrevUri(): string;
-    constructNextUri(startIndex?: number): string;
+    constructNextUri(startIndex?: number, nextView?: View): string;
     constructNextPageItem(nextUri: string, title?: string): RenderedListItem;
     constructMoreItem(moreUri: string, title?: string): RenderedListItem;
     getModelQueryParams(bundle?: Record<string, any>): GetItemsParams;
