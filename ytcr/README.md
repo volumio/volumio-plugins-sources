@@ -4,6 +4,9 @@ Plugin that enables Volumio to act a YouTube Cast receiver device. Supports cast
 
 # Changelog
 
+1.0.3
+- Add option to stop playback only when all clients have been *explicitly* disconnected
+
 1.0.2
 - Remove commented-out code
 - Remove links from package author because they don't look good when shown in Volumio plugin store

@@ -4,7 +4,7 @@ cat >dist/package.json <<!EOF
 }
 !EOF
 
-cp ./UIConfig.json ./dist/
+cp ./src/UIConfig.json ./dist/
 
 mkdir -p ./dist/i18n
 cp -a ./src/i18n/* ./dist/i18n/

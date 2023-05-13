@@ -104,6 +104,7 @@ class ControllerYTCR {
             const receiverRunning = __classPrivateFieldGet(this, _ControllerYTCR_receiver, "f").status === yt_cast_receiver_1.Constants.STATUSES.RUNNING;
             const port = YTCRContext_js_1.default.getConfigValue('port', 8098);
             const enableAutoplayOnConnect = YTCRContext_js_1.default.getConfigValue('enableAutoplayOnConnect', true);
+            const resetPlayerOnDisconnect = YTCRContext_js_1.default.getConfigValue('resetPlayerOnDisconnect', yt_cast_receiver_1.Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED);
             const debug = YTCRContext_js_1.default.getConfigValue('debug', false);
             const bindToIf = YTCRContext_js_1.default.getConfigValue('bindToIf', '');
             const i18n = {
@@ -142,7 +143,18 @@ class ControllerYTCR {
             i18nUIConf.content[1].value = i18n_json_1.default.language.find((r) => i18n.language === r.value);
             otherUIConf.content[0].value = liveStreamQualityOptions.find((o) => o.value === liveStreamQuality);
             otherUIConf.content[1].value = enableAutoplayOnConnect;
-            otherUIConf.content[2].value = debug;
+            otherUIConf.content[2].options = [
+                {
+                    value: yt_cast_receiver_1.Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED,
+                    label: YTCRContext_js_1.default.getI18n('YTCR_RESET_PLAYER_ON_DISCONNECT_ALWAYS')
+                },
+                {
+                    value: yt_cast_receiver_1.Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_EXPLICITLY_DISCONNECTED,
+                    label: YTCRContext_js_1.default.getI18n('YTCR_RESET_PLAYER_ON_DISCONNECT_EXPLICIT')
+                }
+            ];
+            otherUIConf.content[2].value = otherUIConf.content[2].options.find((o) => o.value === resetPlayerOnDisconnect);
+            otherUIConf.content[3].value = debug;
             let connectionStatus;
             if (!receiverRunning) {
                 connectionStatus = YTCRContext_js_1.default.getI18n('YTCR_IDLE_NOT_RUNNING');
@@ -191,7 +203,8 @@ class ControllerYTCR {
                 bindToInterfaces: utils.hasNetworkInterface(bindToIf) ? [bindToIf] : undefined
             },
             app: {
-                enableAutoplayOnConnect: YTCRContext_js_1.default.getConfigValue('enableAutoplayOnConnect', true)
+                enableAutoplayOnConnect: YTCRContext_js_1.default.getConfigValue('enableAutoplayOnConnect', true),
+                resetPlayerOnDisconnectPolicy: YTCRContext_js_1.default.getConfigValue('resetPlayerOnDisconnect', yt_cast_receiver_1.Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED)
             },
             dataStore: __classPrivateFieldGet(this, _ControllerYTCR_dataStore, "f"),
             logger: __classPrivateFieldGet(this, _ControllerYTCR_logger, "f"),
@@ -336,10 +349,12 @@ class ControllerYTCR {
     configSaveOther(data) {
         __classPrivateFieldGet(this, _ControllerYTCR_config, "f").set('liveStreamQuality', data['liveStreamQuality'].value);
         __classPrivateFieldGet(this, _ControllerYTCR_config, "f").set('enableAutoplayOnConnect', data['enableAutoplayOnConnect']);
+        __classPrivateFieldGet(this, _ControllerYTCR_config, "f").set('resetPlayerOnDisconnect', data['resetPlayerOnDisconnect'].value);
         __classPrivateFieldGet(this, _ControllerYTCR_config, "f").set('debug', data['debug']);
         if (__classPrivateFieldGet(this, _ControllerYTCR_receiver, "f")) {
             __classPrivateFieldGet(this, _ControllerYTCR_receiver, "f").setLogLevel(data['debug'] ? yt_cast_receiver_1.Constants.LOG_LEVELS.DEBUG : yt_cast_receiver_1.Constants.LOG_LEVELS.INFO);
             __classPrivateFieldGet(this, _ControllerYTCR_receiver, "f").enableAutoplayOnConnect(data['enableAutoplayOnConnect']);
+            __classPrivateFieldGet(this, _ControllerYTCR_receiver, "f").setResetPlayerOnDisconnectPolicy(data['resetPlayerOnDisconnect'].value);
         }
         YTCRContext_js_1.default.toast('success', YTCRContext_js_1.default.getI18n('YTCR_SETTINGS_SAVED'));
     }

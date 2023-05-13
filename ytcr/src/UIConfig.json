@@ -116,6 +116,7 @@
         "data": [
           "liveStreamQuality",
           "enableAutoplayOnConnect",
+          "resetPlayerOnDisconnect",
           "debug"
         ]
       },
@@ -163,6 +164,11 @@
           "label": "TRANSLATE.YTCR_AUTOPLAY_CONNECT",
           "doc": "TRANSLATE.YTCR_AUTOPLAY_DESC",
           "value": true
+        },
+        {
+          "id": "resetPlayerOnDisconnect",
+          "element": "select",
+          "label": "TRANSLATE.YTCR_RESET_PLAYER_ON_DISCONNECT"
         },
         {
           "id": "debug",

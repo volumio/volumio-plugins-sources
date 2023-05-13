@@ -80,6 +80,7 @@ class ControllerYTCR {
 
         const port = ytcr.getConfigValue('port', 8098);
         const enableAutoplayOnConnect = ytcr.getConfigValue('enableAutoplayOnConnect', true);
+        const resetPlayerOnDisconnect = ytcr.getConfigValue('resetPlayerOnDisconnect', Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED);
         const debug = ytcr.getConfigValue('debug', false);
         const bindToIf = ytcr.getConfigValue('bindToIf', '');
         const i18n = {
@@ -123,7 +124,18 @@ class ControllerYTCR {
 
         otherUIConf.content[0].value = liveStreamQualityOptions.find((o: any) => o.value === liveStreamQuality);
         otherUIConf.content[1].value = enableAutoplayOnConnect;
-        otherUIConf.content[2].value = debug;
+        otherUIConf.content[2].options = [
+          {
+            value: Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED,
+            label: ytcr.getI18n('YTCR_RESET_PLAYER_ON_DISCONNECT_ALWAYS')
+          },
+          {
+            value: Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_EXPLICITLY_DISCONNECTED,
+            label: ytcr.getI18n('YTCR_RESET_PLAYER_ON_DISCONNECT_EXPLICIT')
+          }
+        ];
+        otherUIConf.content[2].value = otherUIConf.content[2].options.find((o: any) => o.value === resetPlayerOnDisconnect);
+        otherUIConf.content[3].value = debug;
 
         let connectionStatus;
         if (!receiverRunning) {
@@ -181,7 +193,8 @@ class ControllerYTCR {
         bindToInterfaces: utils.hasNetworkInterface(bindToIf) ? [ bindToIf ] : undefined
       },
       app: {
-        enableAutoplayOnConnect: ytcr.getConfigValue('enableAutoplayOnConnect', true)
+        enableAutoplayOnConnect: ytcr.getConfigValue('enableAutoplayOnConnect', true),
+        resetPlayerOnDisconnectPolicy: ytcr.getConfigValue('resetPlayerOnDisconnect', Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED)
       },
       dataStore: this.#dataStore,
       logger: this.#logger,
@@ -355,11 +368,13 @@ class ControllerYTCR {
   configSaveOther(data: any) {
     this.#config.set('liveStreamQuality', data['liveStreamQuality'].value);
     this.#config.set('enableAutoplayOnConnect', data['enableAutoplayOnConnect']);
+    this.#config.set('resetPlayerOnDisconnect', data['resetPlayerOnDisconnect'].value);
     this.#config.set('debug', data['debug']);
 
     if (this.#receiver) {
       this.#receiver.setLogLevel(data['debug'] ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO);
       this.#receiver.enableAutoplayOnConnect(data['enableAutoplayOnConnect']);
+      this.#receiver.setResetPlayerOnDisconnectPolicy(data['resetPlayerOnDisconnect'].value);
     }
 
     ytcr.toast('success', ytcr.getI18n('YTCR_SETTINGS_SAVED'));
