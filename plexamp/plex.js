@@ -414,15 +414,15 @@ function plex(log, config) {
     }
     var ping = function(name, serverAddress, port) {
         var defer = libQ.defer();
-        var ping = require ("net-ping");
-        var session = ping.createSession ();
-        session.pingHost (serverAddress, function (error, target) {
-            if (error) {
-                console.log(serverAddress + ": " + error.toString());
-                defer.reject(error.toString());
+        var ping = require ("ping");
+
+        console.log("pinging: " + serverAddress);
+        ping.sys.probe(serverAddress, (isAlive) => {
+            if (!isAlive) {
+                defer.reject(serverAddress + " is not alive");
             } else {
                 console.log(serverAddress + ": Alive");
-                defer.resolve({"name": name, "address": serverAddress, port: port})
+                defer.resolve({"name": name, "address": serverAddress, port: port});
             }
         });
         return defer.promise;

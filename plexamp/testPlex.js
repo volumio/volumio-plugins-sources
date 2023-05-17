@@ -2,7 +2,6 @@
 var plex = require('./plex');
 var libQ = require('kew');
 var Plexcloud = require('./plexcloud');
-var ping = require ("net-ping");
 const PlexPin = require('./plexpinauth');
 require('dotenv').config()
 
@@ -44,9 +43,9 @@ plexBackend.connect().then(function(){
         console.log("Plex Cloud result");
         var promises = [];	// Array to gather all the various promises
 
-        for (const server of servers.MediaContainer.Server) {
-            console.log("ServerName:" + server.$.name);
-            promises.push(plexBackend.ping(server.$.name, server.$.localAddresses, server.$.port));
+        for (const server of servers) {
+            console.log("ServerName:" + server.name);
+            promises.push(plexBackend.ping(server.name, server.address, server.port));
         }
 
 
@@ -54,10 +53,12 @@ plexBackend.connect().then(function(){
             const servers = results.filter(result => result.status === 'fulfilled').map(result => result.value);
             plexBackend.queryAllMusicLibraries(servers).then(function (libraries) {
 
+                console.log(JSON.stringify(libraries));
+
                 for (const musicLibrary of libraries) {
                     console.log("Library called %s running on Plex Media Server %s", musicLibrary.name, musicLibrary.hostname);
                 }
-                var filteredMusicLibrary = libraries.filter((library) => library.libraryTitle === 'Music' && library.name === "Ballygoran");
+                var filteredMusicLibrary = libraries.filter((library) => library.libraryTitle === 'Music' && library.name === process.env.LIBRARYNAME);
 
                 try {
                     doAllMusicQueryTests(filteredMusicLibrary[0].key);
