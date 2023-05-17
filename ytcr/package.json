@@ -1,6 +1,6 @@
 {
 	"name": "ytcr",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "YouTube Cast Receiver for Volumio.  Supports casting from YouTube and YouTube Music.",
 	"main": "./dist/index.js",
 	"scripts": {
@@ -59,6 +59,6 @@
 		"string-format": "^2.0.0",
 		"v-conf": "^1.4.2",
 		"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.2.1-b.3",
-		"yt-cast-receiver": "^1.2.2"
+		"yt-cast-receiver": "^1.2.3"
 	}
 }

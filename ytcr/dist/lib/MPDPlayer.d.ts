@@ -2,7 +2,7 @@ import { Player, PlayerState, Video, Volume } from 'yt-cast-receiver';
 import { MPD } from 'mpd2';
 import { SubsystemName } from './MPDSubsystemEventEmitter.js';
 import VolumeControl from './VolumeControl.js';
-import VideoLoader from './VideoLoader.js';
+import VideoLoader, { VideoInfo } from './VideoLoader.js';
 export interface MPDPlayerError {
     message: string;
 }
@@ -14,6 +14,39 @@ export interface MPDPlayerConfig {
     mpd: MPD.Config;
     volumeControl: VolumeControl;
     videoLoader: VideoLoader;
+    prefetch: boolean;
+}
+export interface MPDPlayerVideoInfo extends VideoInfo {
+    mpdSongId: string;
+}
+interface MPDStatus {
+    repeat: boolean;
+    random: boolean;
+    single: boolean;
+    consume: boolean;
+    playlist: number;
+    playlistlength: number;
+    mixrampdb: number;
+    state: 'play' | 'pause' | 'stop';
+    song: number;
+    songid: number;
+    time: {
+        elapsed: number;
+        total: number;
+    };
+    elapsed: number;
+    bitrate: string;
+    duration: number;
+    audio: {
+        sample_rate: number;
+        bits: string;
+        channels: number;
+        sample_rate_short: {
+            value: number;
+            unit: string;
+        };
+        original_value: string;
+    };
 }
 export interface VolumioState {
     service: string;
@@ -39,6 +72,7 @@ export default class MPDPlayer extends Player {
     constructor(config: MPDPlayerConfig);
     init(): Promise<void>;
     protected doPlay(video: Video, position: number): Promise<boolean>;
+    next(AID?: number | null | undefined): Promise<boolean>;
     protected doPause(): Promise<boolean>;
     protected doResume(): Promise<boolean>;
     protected doStop(): Promise<boolean>;
@@ -47,10 +81,14 @@ export default class MPDPlayer extends Player {
     protected doGetVolume(): Promise<Volume>;
     protected doGetPosition(): Promise<number>;
     protected doGetDuration(): Promise<number>;
+    enablePrefetch(value: boolean): Promise<void>;
     destroy(): Promise<void>;
     sleep(): void;
     wake(): void;
-    resolveOnMPDStatusChanged(action: () => Promise<void>, subsystem: SubsystemName, resolveOn?: Record<string, string>): Promise<boolean>;
+    resolveOnMPDStatusChanged(action: () => Promise<void>, subsystem: SubsystemName, resolveOn?: Record<string, string>): Promise<{
+        result: boolean;
+        mpdStatus: MPDStatus;
+    }>;
     getVolumioState(): Promise<VolumioState | null>;
     get videoLoader(): VideoLoader;
     on(event: string | symbol, listener: (...args: any[]) => void): this;
@@ -62,4 +100,5 @@ export default class MPDPlayer extends Player {
         previous: PlayerState | null;
     }) => void): this;
 }
+export {};
 //# sourceMappingURL=MPDPlayer.d.ts.map

@@ -13,9 +13,11 @@ export interface VideoInfo extends BasicInfo {
     thumbnail?: string;
     isLive?: boolean;
     streamUrl?: string | null;
+    duration?: number;
     bitrate?: string;
     samplerate?: number;
     channels?: number;
+    streamExpires?: Date;
 }
 export default class VideoLoader {
     #private;

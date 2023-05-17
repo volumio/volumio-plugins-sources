@@ -4,6 +4,11 @@ Plugin that enables Volumio to act a YouTube Cast receiver device. Supports cast
 
 # Changelog
 
+1.0.4
+- Add prefetching of next track
+- Add 'prefer Opus streams' option when prefetching enabled
+- Use Volumio player name as device name (the name that appears in the Cast menu of clients)
+
 1.0.3
 - Add option to stop playback only when all clients have been *explicitly* disconnected
 

@@ -224,9 +224,11 @@ class VideoLoader {
                 thumbnail,
                 isLive,
                 streamUrl: streamInfo?.url,
+                duration: innertubeVideoInfo.basic_info.duration || 0,
                 bitrate: streamInfo?.bitrate || undefined,
                 samplerate: streamInfo?.sampleRate,
-                channels: streamInfo?.channels
+                channels: streamInfo?.channels,
+                streamExpires: innertubeVideoInfo.streaming_data?.expires
             };
         }
         catch (error) {
@@ -264,7 +266,34 @@ _VideoLoader_innertube = new WeakMap(), _VideoLoader_logger = new WeakMap(), _Vi
     if (!__classPrivateFieldGet(this, _VideoLoader_innertube, "f")) {
         throw Error('VideoLoader not initialized');
     }
-    const format = videoInfo?.chooseFormat(BEST_AUDIO_FORMAT);
+    const preferredFormat = {
+        ...BEST_AUDIO_FORMAT
+    };
+    const prefetch = YTCRContext_js_1.default.getConfigValue('prefetch', true);
+    const preferOpus = prefetch && YTCRContext_js_1.default.getConfigValue('preferOpus', false);
+    if (preferOpus) {
+        __classPrivateFieldGet(this, _VideoLoader_logger, "f").debug('[ytcr] Preferred format is Opus');
+        preferredFormat.format = 'opus';
+    }
+    let format;
+    try {
+        format = videoInfo?.chooseFormat(preferredFormat);
+    }
+    catch (error) {
+        if (preferOpus && videoInfo) {
+            __classPrivateFieldGet(this, _VideoLoader_logger, "f").debug('[ytcr] No matching format for Opus. Falling back to any audio format ...');
+            try {
+                format = videoInfo.chooseFormat(BEST_AUDIO_FORMAT);
+            }
+            catch (error) {
+                __classPrivateFieldGet(this, _VideoLoader_logger, "f").debug('[ytcr] Failed to obtain audio format:', error);
+                format = null;
+            }
+        }
+        else {
+            throw error;
+        }
+    }
     const streamUrl = format ? format.decipher(__classPrivateFieldGet(this, _VideoLoader_innertube, "f").session.player) : null;
     const streamData = format ? { ...format, url: streamUrl } : null;
     if (streamData) {

@@ -1,4 +1,4 @@
-import YouTubeCastReceiver, { Constants, PlayerState, Sender } from 'yt-cast-receiver';
+import YouTubeCastReceiver, { Constants, PlayerState, Sender, YouTubeCastReceiverOptions } from 'yt-cast-receiver';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import libQ from 'kew';
@@ -87,8 +87,10 @@ class ControllerYTCR {
           region: ytcr.getConfigValue('region', 'US'),
           language: ytcr.getConfigValue('language', 'en')
         };
+        const prefetch = ytcr.getConfigValue('prefetch', true);
+        const preferOpus = ytcr.getConfigValue('preferOpus', false);
         const liveStreamQuality = ytcr.getConfigValue('liveStreamQuality', 'auto');
-        const liveStreamQualityOptions = otherUIConf.content[0].options;
+        const liveStreamQualityOptions = otherUIConf.content[2].options;
 
         const availableIf = utils.getNetworkInterfaces();
         const ifOpts = [ {
@@ -122,9 +124,11 @@ class ControllerYTCR {
         i18nUIConf.content[1].options = i18nConfOptions.language;
         i18nUIConf.content[1].value = i18nConfOptions.language.find((r) => i18n.language === r.value);
 
-        otherUIConf.content[0].value = liveStreamQualityOptions.find((o: any) => o.value === liveStreamQuality);
-        otherUIConf.content[1].value = enableAutoplayOnConnect;
-        otherUIConf.content[2].options = [
+        otherUIConf.content[0].value = prefetch;
+        otherUIConf.content[1].value = preferOpus;
+        otherUIConf.content[2].value = liveStreamQualityOptions.find((o: any) => o.value === liveStreamQuality);
+        otherUIConf.content[3].value = enableAutoplayOnConnect;
+        otherUIConf.content[4].options = [
           {
             value: Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED,
             label: ytcr.getI18n('YTCR_RESET_PLAYER_ON_DISCONNECT_ALWAYS')
@@ -134,8 +138,8 @@ class ControllerYTCR {
             label: ytcr.getI18n('YTCR_RESET_PLAYER_ON_DISCONNECT_EXPLICIT')
           }
         ];
-        otherUIConf.content[2].value = otherUIConf.content[2].options.find((o: any) => o.value === resetPlayerOnDisconnect);
-        otherUIConf.content[3].value = debug;
+        otherUIConf.content[4].value = otherUIConf.content[4].options.find((o: any) => o.value === resetPlayerOnDisconnect);
+        otherUIConf.content[5].value = debug;
 
         let connectionStatus;
         if (!receiverRunning) {
@@ -182,12 +186,13 @@ class ControllerYTCR {
     const playerConfig = {
       mpd: this.#getMpdConfig(),
       volumeControl: this.#volumeControl,
-      videoLoader: new VideoLoader(this.#logger)
+      videoLoader: new VideoLoader(this.#logger),
+      prefetch: ytcr.getConfigValue('prefetch', true)
     };
     this.#player = new MPDPlayer(playerConfig);
 
     const bindToIf = ytcr.getConfigValue('bindToIf', '');
-    const receiver = this.#receiver = new YouTubeCastReceiver(this.#player, {
+    const receiverOptions: YouTubeCastReceiverOptions = {
       dial: {
         port: ytcr.getConfigValue('port', 8098),
         bindToInterfaces: utils.hasNetworkInterface(bindToIf) ? [ bindToIf ] : undefined
@@ -199,7 +204,14 @@ class ControllerYTCR {
       dataStore: this.#dataStore,
       logger: this.#logger,
       logLevel: ytcr.getConfigValue('debug', false) ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO
-    });
+    };
+    const deviceInfo = ytcr.getDeviceInfo();
+    if (deviceInfo.name) {
+      receiverOptions.device = {
+        name: deviceInfo.name
+      };
+    }
+    const receiver = this.#receiver = new YouTubeCastReceiver(this.#player, receiverOptions);
 
     receiver.on('senderConnect', (sender: Sender) => {
       this.#logger.info('[ytcr] ***** Sender connected *****');
@@ -270,7 +282,16 @@ class ControllerYTCR {
         this.#logger.debug('[ytcr] Received state change event from MPDPlayer:', state);
         if (state.status === Constants.PLAYER_STATUSES.STOPPED || state.status === Constants.PLAYER_STATUSES.IDLE) {
           this.#player.sleep();
-          this.pushIdleState();
+          if (state.status === Constants.PLAYER_STATUSES.STOPPED && this.#player.queue.videoIds.length > 0) {
+            // If queue is not empty, it is possible that we are just moving to another song. In this case, we don't push
+            // Idle state to avoid ugly flickering of the screen caused by the temporary Idle state.
+            const currentVolumioState = ytcr.getStateMachine().getState() as VolumioState;
+            currentVolumioState.status = 'pause'; // Don't use 'stop' - will display Volumio logo leading to flicker!
+            await this.pushState(currentVolumioState);
+          }
+          else {
+            this.pushIdleState();
+          }
         }
         else {
           await this.pushState();
@@ -285,7 +306,7 @@ class ControllerYTCR {
     receiver.start().then(async () => {
       await this.#volumeControl.init();
       await this.#player.init();
-      this.#logger.debug('[ytcr] Receiver started.');
+      this.#logger.debug('[ytcr] Receiver started with options:', receiverOptions);
       defer.resolve();
     })
       .catch((error: any) => {
@@ -365,7 +386,9 @@ class ControllerYTCR {
     ytcr.toast('success', ytcr.getI18n('YTCR_SETTINGS_SAVED'));
   }
 
-  configSaveOther(data: any) {
+  async configSaveOther(data: any) {
+    this.#config.set('prefetch', data['prefetch']);
+    this.#config.set('preferOpus', data['preferOpus']);
     this.#config.set('liveStreamQuality', data['liveStreamQuality'].value);
     this.#config.set('enableAutoplayOnConnect', data['enableAutoplayOnConnect']);
     this.#config.set('resetPlayerOnDisconnect', data['resetPlayerOnDisconnect'].value);
@@ -375,6 +398,10 @@ class ControllerYTCR {
       this.#receiver.setLogLevel(data['debug'] ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO);
       this.#receiver.enableAutoplayOnConnect(data['enableAutoplayOnConnect']);
       this.#receiver.setResetPlayerOnDisconnectPolicy(data['resetPlayerOnDisconnect'].value);
+    }
+
+    if (this.#player) {
+      await this.#player.enablePrefetch(data['prefetch']);
     }
 
     ytcr.toast('success', ytcr.getI18n('YTCR_SETTINGS_SAVED'));

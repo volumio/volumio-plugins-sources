@@ -114,6 +114,8 @@
       "saveButton": {
         "label": "TRANSLATE.YTCR_SAVE",
         "data": [
+          "prefetch",
+          "preferOpus",
           "liveStreamQuality",
           "enableAutoplayOnConnect",
           "resetPlayerOnDisconnect",
@@ -121,6 +123,24 @@
         ]
       },
       "content": [
+        {
+          "id": "prefetch",
+          "element": "switch",
+          "label": "TRANSLATE.YTCR_PREFETCH",
+          "doc": "TRANSLATE.YTCR_PREFETCH_DESC",
+          "value": true
+        },
+        {
+          "id": "preferOpus",
+          "element": "switch",
+          "label": "TRANSLATE.YTCR_PREFER_OPUS",
+          "doc": "TRANSLATE.YTCR_PREFER_OPUS_DESC",
+          "value": false,
+          "visibleIf": {
+            "field": "prefetch",
+            "value": true
+          }
+        },
         {
           "id": "liveStreamQuality",
           "element": "select",
