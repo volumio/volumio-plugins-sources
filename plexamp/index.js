@@ -529,7 +529,7 @@ ControllerPlexAmp.prototype._formatNav = function(title, type, icon, views, item
                 uri: prevUri
             },
         }
-    }
+    };
     return nav;
 }
 
@@ -708,7 +708,7 @@ ControllerPlexAmp.prototype.listNewestAlbums = function(uriParts, curUri) {
                     name: 'Ok',
                     class: 'btn btn-warning'
                 }]
-            }
+            };
             self.commandRouter.broadcastMessage("openModal", conErr);
         });
 
@@ -742,7 +742,7 @@ ControllerPlexAmp.prototype.listPlayedAlbums = function(uriParts, curUri) {
                     name: 'Ok',
                     class: 'btn btn-warning'
                 }]
-            }
+            };
             self.commandRouter.broadcastMessage("openModal", conErr);
         });
 
@@ -779,7 +779,7 @@ ControllerPlexAmp.prototype.listNewestArtists = function(uriParts, curUri) {
                     name: 'Ok',
                     class: 'btn btn-warning'
                 }]
-            }
+            };
             self.commandRouter.broadcastMessage("openModal", conErr);
         });
 
@@ -813,7 +813,7 @@ ControllerPlexAmp.prototype.listPlayedArtists = function(uriParts, curUri) {
                     name: 'Ok',
                     class: 'btn btn-warning'
                 }]
-            }
+            };
             self.commandRouter.broadcastMessage("openModal", conErr);
         });
 
@@ -845,7 +845,41 @@ ControllerPlexAmp.prototype.listAllArtists = function(uriParts, curUri) {
                     name: 'Ok',
                     class: 'btn btn-warning'
                 }]
+            };
+            self.commandRouter.broadcastMessage("openModal", conErr);
+        });
+
+    return defer.promise;
+}
+
+ControllerPlexAmp.prototype.listAllAlbums = function(uriParts, curUri) {
+    var self = this;
+
+    var defer = libQ.defer();
+
+    // Get list of all albums, sorted by title
+    const musicSectionKey = self.config.get('key');
+
+    self.plex.getAllAlbums(musicSectionKey)
+        .then(function(albums) {
+            var items = [];
+
+            for (const album of albums) {
+                items.push(self._formatAlbum(album, curUri));
             }
+
+            defer.resolve(self._formatNav('All Albums', 'folder', self._getIcon(uriParts[1]), ['list', 'grid'], items, self._prevUri(curUri)));
+        })
+        .fail(function(error) {
+            var conErr = {
+                title: self.commandRouter.getI18nString('CON_FAILED'),
+                message: self.commandRouter.getI18nString('CON_SERVER_UNREACHABLE'),
+                size: 'lg',
+                buttons: [{
+                    name: 'Ok',
+                    class: 'btn btn-warning'
+                }]
+            };
             self.commandRouter.broadcastMessage("openModal", conErr);
         });
 
@@ -932,6 +966,15 @@ ControllerPlexAmp.prototype.rootMenu = function() {
                         album: '',
                         icon: 'fa fa-microphone',
                         uri: 'plexamp/artists'
+                    },
+                    {
+                        service: 'plexamp',
+                        type: 'item-no-menu',
+                        title: self.commandRouter.getI18nString('ALBUMS'),
+                        artist: '',
+                        album: '',
+                        icon: 'fa fa-music',
+                        uri: 'plexamp/allalbums'
                     }
 
                 ]
@@ -1100,7 +1143,7 @@ ControllerPlexAmp.prototype.showAlbum = function(uriParts, curUri) {
             },
             info: {}
         }
-    }
+    };
 
     var info = {
         uri: curUri,
@@ -1108,7 +1151,7 @@ ControllerPlexAmp.prototype.showAlbum = function(uriParts, curUri) {
         service: 'plexamp',
         type: 'album',
         albumart: ''
-    }
+    };
 
     // Get metdata of album from Plex
     self.plex.getAlbum(key).then( function(metadata) {
@@ -1137,7 +1180,7 @@ ControllerPlexAmp.prototype.showAlbum = function(uriParts, curUri) {
                 title: self.commandRouter.getI18nString('START_RADIO'),
                 uri: 'plexamp/albumradio/' + key,
             }]
-        }
+        };
         nav.navigation['lists'].push(bio);
 
         // Get Tracks from Plex
@@ -1151,24 +1194,26 @@ ControllerPlexAmp.prototype.showAlbum = function(uriParts, curUri) {
                 type: 'song',
                 availableListViews: ['list', 'grid'],
                 items: sgs
-            }
+            };
             nav.navigation['lists'].push(songs);
 
             // Get Similar Albums List from Plex
             self.plex.getAlbumRelated(key).then( function(albumsRelated) {
-                var albs = [];
-                var similarAlbums = self.filterMetadataFromHub(albumsRelated.Hub, "hub.external.album.similar.sonically");
-                similarAlbums.forEach(function (album) {
-                    albs.push(self._formatAlbum(album, "plexamp/artistsnewest/" + album.parentRatingKey ));
-                });
-                if (albs.length > 0) {
-                    var albums = {
-                        title: self.commandRouter.getI18nString('SIMILAR_ALBUMS'),
-                        type: 'folder',
-                        availableListViews: ['list', 'grid'],
-                        items: albs
+                if (albumsRelated.hasOwnProperty("Hub")) {
+                    var albs = [];
+                    var similarAlbums = self.filterMetadataFromHub(albumsRelated.Hub, "hub.external.album.similar.sonically");
+                    similarAlbums.forEach(function (album) {
+                        albs.push(self._formatAlbum(album, "plexamp/artistsnewest/" + album.parentRatingKey ));
+                    });
+                    if (albs.length > 0) {
+                        var albums = {
+                            title: self.commandRouter.getI18nString('SIMILAR_ALBUMS'),
+                            type: 'folder',
+                            availableListViews: ['list', 'grid'],
+                            items: albs
+                        };
+                        nav.navigation['lists'].push(albums);
                     }
-                    nav.navigation['lists'].push(albums);
                 }
                 defer.resolve(nav);
             });
@@ -1244,6 +1289,12 @@ ControllerPlexAmp.prototype.handleBrowseUri = function (curUri) {
                 } else if (uriParts.length === 4) {
                     response = self.showAlbum(uriParts, curUri);
                 }
+            } else if (curUri.startsWith('plexamp/allalbums')) {
+                if (curUri === 'plexamp/allalbums') {
+                    response = self.listAllAlbums(uriParts, curUri);
+                } else {
+                    response = self.showAlbum(uriParts, curUri);
+                }
             }
             defer.resolve(response);
         })
@@ -1257,7 +1308,7 @@ ControllerPlexAmp.prototype.handleBrowseUri = function (curUri) {
                     name: 'Ok',
                     class: 'btn btn-warning'
                 }]
-            }
+            };
             self.commandRouter.broadcastMessage("openModal", conErr);
         });
 
@@ -1460,7 +1511,8 @@ ControllerPlexAmp.prototype.explodeUri = function(uri) {
     var song;
 
     // Pattern that matches play an album !!
-    if (uri.startsWith('plexamp/album') || uri.startsWith("plexamp/newest") || uri.startsWith("plexamp/played")) {
+    if (uri.startsWith('plexamp/album') || uri.startsWith("plexamp/newest") ||
+        uri.startsWith("plexamp/played") || uri.startsWith("plexamp/allalbums")) {
 
         // We are adding a list of tracks from an album
         self.plex.getAlbumTracks(key).then(function (tracks) {
