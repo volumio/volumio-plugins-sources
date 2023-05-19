@@ -1,4 +1,6 @@
 {
+  "ATT_VALUE_WARN":"Il livello sinistro e destro deve essere un numero compreso tra -20 e 0",
+  "CLIPPING_WARNING": "CARATTERISTICA SPERIMENTALE! Clipping rilevato in FusionDsp! Controlla e imposta il preamplificatore automatico o l'attenuazione! Premi pause/play per resettare il messaggio",
   "CHOOSEDSPTYPE": "Tipo di DSP",
   "CHOOSEDSPTYPE_DOC": "Scegli che tipo di DSP",
   "DSPTYPE": "Tipo Dsp",

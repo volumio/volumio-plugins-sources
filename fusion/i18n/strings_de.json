@@ -1,4 +1,6 @@
 {
+  "ATT_VALUE_WARN": "Linke und rechte Ebene müssen eine Zahl zwischen -20 und 0 sein",
+  "CLIPPING_WARNING": "EXPERIMENTELLE FUNKTION! Clipping in FusionDsp erkannt! Überprüfen und stellen Sie den automatischen Vorverstärker oder die Dämpfung ein! Drücken Sie Pause/Play, um die Meldung zurückzusetzen",
   "CHOOSEDSPTYPE": "DSP-Typ",
   "CHOOSEDSPTYPE_DOC": "Wählen Sie die Art des DSP",
   "DSPTYPE": "DSP-Typ",
