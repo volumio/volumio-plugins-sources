@@ -1,4 +1,6 @@
 {
+  "ATT_VALUE_WARN":"El nivel izquierdo y derecho debe ser un número entre -20 y 0",
+  "CLIPPING_WARNING": "¡FUNCIÓN EXPERIMENTAL! ¡Recorte detectado en FusionDsp! ¡Verifique y configure el preamplificador automático o la atenuación! Presione pausa/reproducir para restablecer el mensaje",
   "CHOOSEDSPTYPE": "Tipo de DSP",
   "CHOOSEDSPTYPE_DOC": "Elige que tipo de DSP",
   "DSPTYPE": "Tipo Dsp",

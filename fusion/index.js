@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 3. By balbuze April 2023
+// FusionDsp plugin for volumio 3. By balbuze May 2023
 Multi Dsp features
 Based on CamillaDsp
 ----------------------
@@ -16,7 +16,6 @@ const net = require('net');
 const path = require('path');
 const WebSocket = require('ws')
 
-
 //---global Eq Variables
 const tnbreq = 50// Nbre total of Eq
 const filterfolder = "/data/INTERNAL/FusionDsp/filters/";
@@ -25,9 +24,11 @@ const tccurvepath = "/data/INTERNAL/FusionDsp/target-curves/";
 const hrtffilterpath = "/data/plugins/audio_interface/fusiondsp/hrtf-filters/";
 const toolspath = "INTERNAL/FusionDsp/tools/";
 const wavfolder = "/data/INTERNAL/FusionDsp/wavfiles/";
-const eq15range = [25, 40, 63, 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 6300, 10000, 16000]
-const eq3range = [185, 1300, 5500]
-const coefQ = 1.85//Q for graphic EQ
+const eq15range = [25, 40, 63, 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 6300, 10000, 16000]//freq for graphic eq
+const baseQ = 1.4
+//const coefQ = [baseQ + 0.5, baseQ + 0.5, baseQ + 0.5, baseQ + 0.5, baseQ + 0.5, baseQ + 0.40, baseQ + 0.40, baseQ + 0.28, baseQ + 0.28, baseQ + 0.38, baseQ + 0.38, baseQ + 0.38, baseQ + 0.49, baseQ + 0.49, baseQ + 0.49]//Q for graphic EQ
+const coefQ = [1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85, 1.85]
+const eq3range = [185, 1300, 5500]// freq for Eq3
 const coefQ3 = [0.82, 0.4, 0.82]//Q for graphic EQ3
 const eq3type = ["Lowshelf2", "Peaking", "Highshelf2"] //Filter type for EQ3
 const sv = 34300 // sound velocity cm/s
@@ -68,6 +69,7 @@ FusionDsp.prototype.onStart = function () {
     self.socket = io.connect('http://localhost:3000');
     self.reportFusionEnabled();
     self.checksamplerate();
+    //self.createCamillaWebsocket();
   }, 2000);
 
   // if mixer set to none, do not show loudness settings
@@ -149,6 +151,54 @@ FusionDsp.prototype.loadalsastuff = function () {
     self.logger.error(logPrefix + ' ----failed to create fusiondspfifo :' + err);
     defer.reject(err);
   }
+};
+
+FusionDsp.prototype.createCamillaWebsocket = function () {
+  const self = this;
+  var defer = libQ.defer();
+
+  self.connection = null;
+  function MyWebSocket() {
+    self.connect = function () {
+      const url = 'ws://localhost:9876';
+      self.connection = new WebSocket(url);
+
+      self.connection.onopen = function () {
+        console.log('WebSocket connection established');
+      };
+
+      self.connection.onmessage = function (event) {
+        console.log('WebSocket message received:', event.data);
+      };
+
+      self.connection.onerror = function (error) {
+        console.error('WebSocket error:', error);
+      };
+
+      self.connection.onclose = function () {
+        console.log('WebSocket connection closed');
+      };
+    };
+  }
+  self.sendData = function (data) {
+    if (self.connection && self.connection.readyState === WebSocket.OPEN) {
+      self.connection.send(data);
+    } else {
+      console.error('WebSocket is not connected');
+    }
+  };
+
+  self.disconnect = function () {
+    if (self.connection) {
+      self.connection.close();
+      self.connection = null;
+    }
+  };
+
+  const myWebSocket = new MyWebSocket();
+
+
+
 };
 
 //------------------Hw detection--------------------
@@ -1252,7 +1302,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
       //-----------------
 
       // }
-     // self.logger.info(logPrefix + ' effect ' + effect)
+      // self.logger.info(logPrefix + ' effect ' + effect)
 
       if (effect == true) {
         uiconf.sections[1].content.push(
@@ -1290,53 +1340,43 @@ FusionDsp.prototype.getUIConfig = function (address) {
         uiconf.sections[1].content.push(
           {
             "id": "leftlevel",
-            "element": "equalizer",
+            "element": "input",
+            "type": "number",
             "label": self.commandRouter.getI18nString("LEFTLEVEL"),
             "doc": self.commandRouter.getI18nString('LEFTLEVEL_DESC'),
             "visibleIf": {
               "field": "showeq",
               "value": true
             },
-            "config": {
-              "orientation": "horizontal",
-              "bars": [
-                {
-                  "min": "-20",
-                  "max": "0",
-                  "step": "0.1",
-                  "value": self.config.get('leftlevel'),
-                  "ticksLabels": [
-                    "dB"
-                  ],
-                  "tooltip": "always"
-                }
-              ]
-            }
+            "attributes": [
+              { "placeholder": {} },
+              { "maxlength": {} },
+              { "min": -20 },
+              { "max": 0 },
+              { "step": 0.5 }
+            ],
+            "value": self.config.get('leftlevel')
+
           },
           {
             "id": "rightlevel",
-            "element": "equalizer",
+            "element": "input",
+            "type": "number",
             "label": self.commandRouter.getI18nString('RIGHTLEVEL'),
             "doc": self.commandRouter.getI18nString("RIGHTLEVEL_DESC"),
             "visibleIf": {
               "field": "showeq",
               "value": true
             },
-            "config": {
-              "orientation": "horizontal",
-              "bars": [
-                {
-                  "min": "-20",
-                  "max": "0",
-                  "step": "0.1",
-                  "value": self.config.get('rightlevel'),
-                  "ticksLabels": [
-                    "dB"
-                  ],
-                  "tooltip": "always"
-                }
-              ]
-            }
+            "attributes": [
+              { "placeholder": {} },
+              { "maxlength": {} },
+              { "min": -20 },
+              { "max": 0 },
+              { "step": 0.5 }
+            ],
+            "value": self.config.get('rightlevel')
+
           }
         )
       }
@@ -1373,7 +1413,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
         uiconf.sections[1].saveButton.data.push('showeq');
       }
 
-     // self.logger.info(logPrefix + '  Dsp mode set is ' + selectedsp)
+      // self.logger.info(logPrefix + '  Dsp mode set is ' + selectedsp)
 
 
       //--------section 2-------------------
@@ -1560,7 +1600,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
       value = self.config.get('importeq');
       var label = self.commandRouter.getI18nString('CHOOSE_HEADPHONE')
       self.configManager.setUIConfigParam(uiconf, 'sections[4].content[0].value.value', value);
-      self.configManager.setUIConfigParam(uiconf, 'sections[4].content[0].value.label', label);
+      self.configManager.setUIConfigParam(uiconf, 'sections[4].content[0].value.label', value);
 
 
       try {
@@ -1568,7 +1608,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
         var result = (listf.split('\n'));
         let i;
 
-        for (i = 16; i < result.length; i++) {
+        for (i = 15; i < result.length; i++) {
           var preparedresult = result[i].replace(/- \[/g, "").replace("](.", ",").slice(0, -1);
 
           var param = preparedresult.split(',')
@@ -1577,7 +1617,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
 
           self.configManager.pushUIConfigParam(uiconf, 'sections[4].content[0].options', {
             value: linkl,
-            label: +i - 15 + "  " + namel
+            label: +i - 14 + "  " + namel
           });
         }
 
@@ -1780,9 +1820,6 @@ FusionDsp.prototype.choosedsp = function (data) {
   let selectedsp = (data['selectedsp'].value)
 
   if (selectedsp === 'EQ3') {
-    //self.config.set("showstate") = self.config.get("showeq")
-    //let state4eq3 = self.config.get('state4eq3')
-
     self.config.set('nbreq', 3)
     if
       (self.config.get('savedmergedgeqx3') == undefined) {
@@ -1843,7 +1880,6 @@ FusionDsp.prototype.choosedsp = function (data) {
   }
 
   self.config.set('effect', true)
-
   self.config.set('selectedsp', selectedsp)
 
   setTimeout(function () {
@@ -1884,8 +1920,7 @@ FusionDsp.prototype.purecamillagui = function () {
     self.logger.info(logPrefix + ' failed to load Camilla Gui' + err);
   }
 
-}
-
+};
 
 FusionDsp.prototype.addeq = function (data) {
   const self = this;
@@ -1930,7 +1965,7 @@ FusionDsp.prototype.removealleq = function () {
   self.config.set('mergedeq', "Eq0|None|L+R|0,0,0|")
   self.config.set('savedmergedeq', "Eq0|None|L+R|0,0,0|")
   self.config.set('savednbreq', 1)
-
+  self.config.set('usethispreset', 'no preset used');
 
   setTimeout(function () {
     self.createCamilladspfile()
@@ -1941,12 +1976,14 @@ FusionDsp.prototype.removealleq = function () {
 FusionDsp.prototype.reseteq = function () {
   const self = this;
   if (self.config.get("selectedsp") == 'EQ15') {
+    self.config.set('usethispreset', 'no preset used');
     self.config.set("geq15", "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
     self.config.set("savedgeq15", "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
     self.config.set('nbreq', 15)
     self.config.set('mergedeq', "Eq0|Peaking|L+R|25,0,1.85|Eq1|Peaking|L+R|40,0,1.85|Eq2|Peaking|L+R|63,0,1.85|Eq3|Peaking|L+R|100,0,1.85|Eq4|Peaking|L+R|160,0,1.85|Eq5|Peaking|L+R|250,0,1.85|Eq6|Peaking|L+R|400,0,1.85|Eq7|Peaking|L+R|630,0,1.85|Eq8|Peaking|L+R|1000,0,1.85|Eq9|Peaking|L+R|1600,0,1.85|Eq10|Peaking|L+R|2500,0,1.85|Eq11|Peaking|L+R|4000,0,1.85|Eq12|Peaking|L+R|6300,0,1.85|Eq13|Peaking|L+R|10000,0,1.85|Eq14|Peaking|L+R|16000,0,1.85|")
   }
   if (self.config.get("selectedsp") == '2XEQ15') {
+    self.config.set('usethispreset', 'no preset used');
     self.config.set("x2geq15", "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
     self.config.set("geq15", "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
     self.config.set('nbreq', 30)
@@ -2108,42 +2145,49 @@ FusionDsp.prototype.getAdditionalConf = function (type, controller, data) {
 //------------Here we define a function to send a command to CamillaDsp through websocket---------------------
 FusionDsp.prototype.sendCommandToCamilla = function () {
   const self = this;
-  const url = 'ws://localhost:9876'
-  const connection = new WebSocket(url)
-  const ccmd = ('\"Reload\"');
-  const ccmd2 = ('\"GetClippedSamples\"');
+  const url = 'ws://localhost:9876';
+  const connection = new WebSocket(url);
+  const ccmd = '\"Reload\"';
+  const ccmd2 = '\"GetClippedSamples\"';
+  const ccmd3 = '\"GetCaptureSignalPeak\"';
 
   connection.onopen = () => {
-    connection.send(ccmd)
-  }
+    connection.send(ccmd);
+  };
 
   connection.onerror = (error) => {
-    self.logger.error(logPrefix + `WebSocket error: ${error}`)
-  }
+    self.logger.error(logPrefix + `WebSocket error: ${error}`);
+  };
 
   connection.onmessage = (e) => {
-    // self.logger.info(logPrefix + e.data)
+    self.logger.info(logPrefix + e.data);
     let replyString = Buffer.from(e.data).toString();
     let parsed = {};
     try {
       parsed = JSON.parse(replyString);
-    }
-    catch (err) {
+    } catch (err) {
       self.logger.error(logPrefix + 'Parse error ', err);
     }
     if (parsed.hasOwnProperty('GetClippedSamples')) {
-      let result = parsed.GetClippedSamples.value
-      if (result != ("0")) {
+      let result = parsed.GetClippedSamples.value;
+      if (result !== "0") {
         self.logger.info(logPrefix + 'GetCaptureSignalPeak response received', result);
-        self.commandRouter.pushToastMessage('error', 'EXPERIMENTAL FEATURE! Clipping detected in FusionDsp! Check attenuation! Press pause/play to reset message');
+        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('CLIPPING_WARNING'));
       }
     }
-  }
-
-  setInterval(function () {
-    connection.send(ccmd2)
-  }, 15000)
+  };
+  //connection.close();
+  /*
+    setInterval(function () {
+      connection.onopen = () => {
+        connection.send(ccmd2);
+        connection.close();
+      };
+    }, 30000);
+    */
 };
+
+
 //------------Fir features----------------
 
 //-----------here we define how to swap filters----------------------
@@ -2267,9 +2311,9 @@ FusionDsp.prototype.testclipping = function () {
       return 0;
     });
 
-    let offset = 3;
+    let offset = 3.8;
     let arrreducedr = ((arr.toString().split(',')).pop());
-    arrreduced = +arrreducedr + offset;
+    arrreduced = (+arrreducedr + offset).toFixed(2);
 
     self.config.set('attenuationl', arrreduced);
     self.config.set('attenuationr', arrreduced);
@@ -2410,6 +2454,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
   const self = this;
   let defer = libQ.defer();
   var hcurrentsamplerate
+  let selectedsp = self.config.get('selectedsp')
 
   try {
     hcurrentsamplerate = fs.readFileSync("/tmp/sr.log", "utf8");
@@ -2421,10 +2466,11 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
   if (!hcurrentsamplerate) {
     hcurrentsamplerate = "22050"
   }
-  self.logger.info(logPrefix + ' Checking filters freq for detected sample rate ======== ' + hcurrentsamplerate);
+  if (selectedsp != 'convfir') {
+    self.logger.info(logPrefix + ' If filter freq >samplerate/2 then disable it');
+  }
 
-
-  if (self.config.get('selectedsp') == 'purecgui') {
+  if (selectedsp == 'purecgui') {
     return;
   }
   try {
@@ -2439,7 +2485,6 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       var result = '';
       var gainmaxused = [];
       let scopec, scoper;
-      var selectedsp = self.config.get('selectedsp')
       var nbreq = (self.config.get('nbreq'))
       var effect = self.config.get('effect')
       var leftlevel = self.config.get('leftlevel')
@@ -2744,7 +2789,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedeq += '  nulleq:' + '\n';
         composedeq += '    type: Conv' + '\n';
 
-        self.logger.info(logPrefix + ' Effects disabled, Nulleq applied')
+        //self.logger.info(logPrefix + ' Effects disabled')
         gainresult = 0
         gainclipfree = self.config.get('gainapplied')
 
@@ -3084,28 +3129,25 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
       };
 
-      gainmaxused += ',0,' + loudnessGain
+      gainmaxused += ',' + loudnessGain
 
-      //-----gain calculation
-      //  self.logger.info(logPrefix+' gainmaxused' + gainmaxused)
-      //self.logger.info(logPrefix+' crossatt ' + crossatt)
-      // self.logger.info(logPrefix+' pipelinerr ' + pipelinerr)
+      const withNegativeValues = gainmaxused.split(',').some((val) => val < 0);
+      gainresult = (gainmaxused.toString().split(',').slice(1).sort((a, b) => a - b)).pop();
 
-
+      //    self.logger.info(logPrefix + ' gainmaxused ' + gainmaxused + ' ' + typeof (withNegativeValues) + withNegativeValues)
+      let monooutput = self.config.get('monooutput')
 
       if (effect) {
-        gainresult = (gainmaxused.toString().split(',').slice(1).sort((a, b) => a - b)).pop();
-        //  self.logger.info(logPrefix+' gainresult ' + gainresult + ' ' + typeof (+gainresult))
 
-
-        if (+gainresult < 0) {
-          gainclipfree = -2
+        if (+gainresult == 0 && !withNegativeValues) {
+          gainclipfree = -0.05
+        } else if (+gainresult == 0 && withNegativeValues) {
+          gainclipfree = -2.5
           self.logger.info(logPrefix + ' else 1  ' + gainclipfree)
-        } else {
-          //  gainclipfree = ('-' + (Math.round(parseFloat(gainresult)) + 1))
-
-          gainclipfree = ('-' + ((parseFloat(Number(gainresult))) + 1.5))
-          //  self.logger.info(logPrefix+' gainclipfree '+ gainclipfree)
+        } else if (+gainresult > 0 && (selectedsp != "convfir")) {
+          gainclipfree = ('-' + ((parseFloat(Number(gainresult).toFixed(2))) + 2.5))
+        } else if (+gainresult > 0 && (selectedsp == "convfir")) {
+          gainclipfree = ('-' + (parseFloat(Number(gainresult))))
         }
         if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
           gainclipfree = 0
@@ -3114,11 +3156,10 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
       }
       gainclipfree = self.config.get('gainapplied')
-      let monooutput = self.config.get('monooutput')
       let leftgain = (+gainclipfree + +leftlevel - +crossatt)
       let rightgain = (+gainclipfree + +rightlevel - +crossatt);
-      let leftgainmono = (+gainclipfree + +leftlevel - 6)
-      let rightgainmono = (+gainclipfree + +rightlevel - 6);
+      let leftgainmono = (+gainclipfree + +leftlevel - 6.1)
+      let rightgainmono = (+gainclipfree + +rightlevel - 6.1);
       let permutchannel = self.config.get('permutchannel')
       var c0 = "0"
       var c1 = "1"
@@ -3126,8 +3167,6 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         c0 = "1"
         c1 = "0"
       }
-
-      //self.logger.info(logPrefix + result)
 
       ///----mixers and pipelines generation
       var composedmixer = ''
@@ -3404,7 +3443,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 
       } else if (effect == false) {
 
-        self.logger.info(logPrefix + ' Effects disabled, Nulleq applied')
+        self.logger.info(logPrefix + ' Effects disabled')
         gainresult = 0
         //   gainclipfree = self.config.get('gainapplied')
 
@@ -3436,15 +3475,16 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
         composedpipeline += 'pipeline:\n'
         composedpipeline += '  - type: Mixer\n'
         composedpipeline += '    name: stereo\n'
-        composedpipeline += '  - type: Filter\n'
-        composedpipeline += '    channel: 0\n'
-        composedpipeline += '    names:\n'
-        composedpipeline += '      - ' + pipelinelr + '\n'
-        composedpipeline += '  - type: Filter\n'
-        composedpipeline += '    channel: 1\n'
-        composedpipeline += '    names:\n'
-        composedpipeline += '      - ' + pipelinerr + '\n'
-        //   composedpipeline += '\n'
+        /*    composedpipeline += '  - type: Filter\n'
+            composedpipeline += '    channel: 0\n'
+            composedpipeline += '    names:\n'
+            composedpipeline += '      - ' + pipelinelr + '\n'
+            composedpipeline += '  - type: Filter\n'
+            composedpipeline += '    channel: 1\n'
+            composedpipeline += '    names:\n'
+            composedpipeline += '      - ' + pipelinerr + '\n'
+            //   composedpipeline += '\n'
+         */
       }
 
 
@@ -3488,10 +3528,11 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
 //----------------------here we save eqs config.json
 FusionDsp.prototype.saveparameq = function (data, obj) {
   const self = this;
-
   let defer = libQ.defer();
   let test = '';
   let selectedsp = self.config.get('selectedsp')
+
+
   if (selectedsp == 'PEQ') {
     var nbreq = self.config.get('nbreq')
     for (var o = 1; o < (nbreq + 1); o++) {
@@ -3503,7 +3544,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       var veq = Number(eqr[0]);
 
       if (typer !== 'None' && typer !== 'Remove') {
-      //  self.logger.info(logPrefix + ' Type is ' + typer)
+        //  self.logger.info(logPrefix + ' Type is ' + typer)
 
         if (Number.parseFloat(veq) && (veq > 0 && veq < 22050)) {
           //  self.logger.info(logPrefix+' value ok ')
@@ -3639,7 +3680,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
           //do nthing
         }
       } else {
-       // self.logger.info(logPrefix + ' nothing todo');
+        // self.logger.info(logPrefix + ' nothing todo');
       }
     }
 
@@ -3652,8 +3693,8 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       //--- skip PEQ if set to REMOVE
       if (((data[typec].value) != 'Remove')) {
         test += ('Eq' + o + '|' + data[typec].value + '|' + data[scopec].value + '|' + data[eqc] + '|');
-      //  self.logger.info(logPrefix + ' test values ' + test)
-        self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
+        //  self.logger.info(logPrefix + ' test values ' + test)
+        //  self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
       } else if (((data[typec].value) == 'Remove') && (nbreq == 1)) {
         self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('CANT_REMOVE_LAST_PEQ'))
       } else if (((data[typec].value) == 'Remove') && (nbreq != 1)) {
@@ -3671,7 +3712,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('geq3', geq3);
 
     eqr = geq3
-    self.logger.info(logPrefix + ' setting EQ3 values ' + eqr)
+    //self.logger.info(logPrefix + ' setting EQ3 values ' + eqr)
     for (let o in eqr) {
       // for(let q in coefQ3){
       //   let qa =coefQ3[q]
@@ -3690,10 +3731,10 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('x2geq15', geq15);
 
     eqr = geq15
-    self.logger.info(logPrefix + ' setting EQ15 values ' + eqr)
+    //self.logger.info(logPrefix + ' setting EQ15 values ' + eqr)
     for (let o in eqr) {
       let eqval = geq15[o]
-      test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ + '|');
+      test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
     }
     self.config.set('savedmergedgeq15', test)
     self.config.set('savedgeq15', self.config.get('geq15'))
@@ -3706,11 +3747,11 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('x2geq15', x2geq15);
     for (let o in geq15) {
       var eqval = geq15[o]
-      ltest += ('Eq' + o + '|Peaking|L|' + eq15range[o] + ',' + eqval + ',' + coefQ + '|');
+      ltest += ('Eq' + o + '|Peaking|L|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
     }
     for (let v in x2geq15) {
       var eqval = x2geq15[v]
-      rtest += ('Eq' + v + '|Peaking|R|' + eq15range[v] + ',' + eqval + ',' + coefQ + '|');
+      rtest += ('Eq' + v + '|Peaking|R|' + eq15range[v] + ',' + eqval + ',' + coefQ[v] + '|');
     }
     test = ltest + rtest
     self.config.set('savedmergedeqx2geq15', test)
@@ -3735,10 +3776,10 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
         const rightFilterExists = fs.existsSync(rightFilterPath);
         //   return new Promise((resolve, reject) => {
         if (leftFilterExists && rightFilterExists) {
-          self.logger.info(logPrefix + ' __________________YES_files ok');
+          self.logger.info(logPrefix + ' Ok! Convolution files exist');
 
         } else {
-          self.logger.error(logPrefix + ' __________________NO__A file is missing');
+          self.logger.error(logPrefix + 'Nok! Convolution files missing');
           self.commandRouter.pushToastMessage('error', "One filter file is missing!, please reselect it! ");
           self.config.set("leftfilter", "None")
           // self.config.set("leftfilterlabel", "None")
@@ -3880,6 +3921,19 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     } else {
       //self.socket.off()
     }
+    if (selectedsp === 'PEQ' || selectedsp === 'EQ15' || selectedsp === '2XEQ15') {
+      let llevel = data.leftlevel
+      let rlevel = data.rightlevel
+
+      if ((Number.parseFloat(llevel) <= 0 && Number.parseFloat(llevel) > -20) && (Number.parseFloat(rlevel) <= 0 && Number.parseFloat(rlevel) > -20)) {
+      //  self.logger.info(logPrefix + ' value ok ' + llevel + rlevel);
+      }
+      else {
+        self.logger.error(logPrefix + ' wrong value in  level ' + llevel + ' or ' + rlevel)
+        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('ATT_VALUE_WARN'));
+        return;
+      }
+    }
     self.config.set('leftlevel', data.leftlevel);
     self.config.set('rightlevel', data.rightlevel);
     self.config.set('monooutput', data["monooutput"]);
@@ -3900,6 +3954,8 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
   self.config.set('showeq', data["showeq"]);
   self.config.set('usethispreset', 'no preset used');
   self.config.set('mergedeq', test);
+  self.config.set('importeq', self.commandRouter.getI18nString('CHOOSE_HEADPHONE'));
+  self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
 
   setTimeout(function () {
     self.refreshUI();
@@ -4106,9 +4162,9 @@ FusionDsp.prototype.usethispreset = function (data) {
     //self.logger.info(logPrefix+' setting EQ15 values ' + typeof (eqr))
     for (o in eqr) {
       let eqval = geq15[o]
-      test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ + '|');
+      test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
     }
-   // self.logger.info(logPrefix + ' test ' + test)
+    // self.logger.info(logPrefix + ' test ' + test)
     self.config.set('mergedeq', test);
     self.config.set("nbreq", 15);
 
@@ -4122,15 +4178,15 @@ FusionDsp.prototype.usethispreset = function (data) {
     var eqr = geq15
     for (let o in geq15) {
       var eqval = geq15[o]
-      ltest += ('Eq' + o + '|Peaking|L|' + eq15range[o] + ',' + eqval + ',' + coefQ + '|');
+      ltest += ('Eq' + o + '|Peaking|L|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
     }
     for (let o in x2geq15) {
       var eqval = x2geq15[o]
-      rtest += ('Eq' + o + '|Peaking|R|' + eq15range[o] + ',' + eqval + ',' + coefQ + '|');
+      rtest += ('Eq' + o + '|Peaking|R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
     }
     test = ltest + rtest
 
-    self.logger.info(logPrefix + ' test ' + test)
+    //  self.logger.info(logPrefix + ' test ' + test)
     self.config.set('mergedeq', test);
     self.config.set("nbreq", 30);
 
@@ -4238,6 +4294,7 @@ FusionDsp.prototype.importeq = function (data) {
     self.logger.error(logPrefix + ' failed to download Eq' + err);
   }
   self.config.set('eqfrom', 'autoeq');
+  self.config.set('importeq', nameh);
 
   self.convertimportedeq();
   return defer.promise;
@@ -4287,8 +4344,8 @@ FusionDsp.prototype.convertimportedeq = function () {
       // EQfile = EQfile.replace(/LS/g, "LSQ")
       // EQfile = EQfile.replace(/HS/g, "HSQ")
       var EQfile = EQfile
-        .replace(/LS/g, "LSQ")
-        .replace(/HS/g, "HSQ")
+        .replace(/LSC/g, "LSQ")
+        .replace(/HSC/g, "HSQ")
     }
     var o = 0;
     if (addreplace) {
@@ -4574,6 +4631,13 @@ FusionDsp.prototype.resampling = function (data) {
     self.config.set('enableresampling', data['enableresampling'])
     self.config.set('resamplingset', data['resamplingset'].value)
     self.config.set('resamplingq', data['resamplingq'].value)
+    if (data['enableresampling']) {
+      self.commandRouter.pushToastMessage('info', data['resamplingset'].value + 'Hz ' + data['resamplingq'].value + ' ' + self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
+      self.logger.info(logPrefix + ' Resampling ' + data['resamplingset'].value + 'Hz ' + data['resamplingq'].value);
+    } else {
+      self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
+      self.logger.info(logPrefix + ' Resampling disabled');
+    }
     self.createCamilladspfile()
   }
   return defer.promise;

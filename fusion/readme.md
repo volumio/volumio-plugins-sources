@@ -1,4 +1,4 @@
-April 26th 2023
+May 19th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -140,6 +140,16 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+May 10th 2023 v1.0.48
+
+- Q for each band EQ15 2xEQ15
+- Work on auto pre amp
+- Autoeq import update
+- Headphone name choosen is kept
+- Resample toast message
+- log message improvement
+- Experimental clipping warning disabled
 
 April 26th 2023 v1.0.47
 
