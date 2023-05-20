@@ -42,6 +42,7 @@
   "NOW_PLAYING_ARTIST": "- Artist",
   "NOW_PLAYING_ALBUM": "- Album",
   "NOW_PLAYING_MEDIA_INFO": "- Sample rate, bit depth...",
+  "NOW_PLAYING_TRACK_INFO_MARQUEE_TITLE": "Apply Marquee Effect on Track Info Title",
   "NOW_PLAYING_SEEK_TIME": "- Seek Bar Times",
   "NOW_PLAYING_METADATA": "- Metadata",
   "NOW_PLAYING_PRIMARY": "- Primary",
@@ -180,6 +181,8 @@
   "NOW_PLAYING_SHOW_LOCATION": "Show Location (Uses Weather Info)",
   "NOW_PLAYING_SHOW_WEATHER": "Show Weather",
   "NOW_PLAYING_IDLE_SCREEN_MAIN_ALIGNMENT": "Main Alignment",
+  "NOW_PLAYING_CYCLE": "Cycle",
+  "NOW_PLAYING_CYCLE_INTERVAL": "- Cycle Interval (Seconds)",
   "NOW_PLAYING_TIME_FORMAT": "Time Format",
   "NOW_PLAYING_TIME": "- Time",
   "NOW_PLAYING_DATE": "- Date",
@@ -241,6 +244,7 @@
   "NOW_PLAYING_DOC_CSS_BORDER_RADIUS": "Value for CSS 'border-radius' property (e.g. 10px). Note: might not have intended effect if Fit is set to 'contain'.",
   "NOW_PLAYING_DOC_MAX_LINES": "The maximum number of lines to show before clamping.",
   "NOW_PLAYING_DOC_TRACK_INFO_ORDER": "Assign a numerical value to a text info element to change its display order. Elements with lower values get displayed first.",
+  "NOW_PLAYING_DOC_TRACK_INFO_MARQUEE_TITLE": "If enabled, scrolls the track info title if it cannot be displayed fully. This setting ignores \"Max Lines - Title\" - marquees are always single-line. Also be aware that enabling this setting will increase CPU usage.",
   "NOW_PLAYING_DOC_DOCK_COMPONENT_ORDER": "Assign a numerical value to a dock component to change its display order. Components with lower values in the same placement group get displayed first.",
   "NOW_PLAYING_DOC_IDLE_SCREEN": "Whether to switch to Idle Screen after a period of player and user inactivity.",
   "NOW_PLAYING_DOC_IDLE_SCREEN_WAIT_TIME": "Period of player and user inactivity to lapse before switching to Idle Screen (minimum 10 seconds; default: 30).",
@@ -248,6 +252,7 @@
   "NOW_PLAYING_DOC_UNSPLASH_KEYWORDS_APPEND_DAY_PERIOD": "If enabled, add the day period such as 'afternoon' or 'night' to keywords for matching.",
   "NOW_PLAYING_DOC_UNSPLASH_MATCH_SCREEN_SIZE": "Request Unsplash to return images matching the screen size.",
   "NOW_PLAYING_DOC_UNSPLASH_REFRESH_INTERVAL": "Number of minutes to wait before refreshing. Minimum 10 (default), or 0 for no refresh.",
+  "NOW_PLAYING_DOC_CYCLE_INTERVAL_ALIGNMENT": "Number of seconds to wait before switching to next alignment (minimum 10 seconds; default: 60).",
   "NOW_PLAYING_DOC_BROADCAST_REFRESH": "Sends a command to all active Now Playing screens to refresh themselves.",
   "NOW_PLAYING_DOC_KIOSK_RESTORE_BAK": "You can try restoring it from a backup copy that had been configured to show Volumio's default interface.",
   "NOW_PLAYING_DOC_GENIUS_ACCESS_TOKEN": "A Genius Access Token is required to access the plugin's metadata service.",
@@ -266,5 +271,6 @@
   "NOW_PLAYING_ERR_WEATHER_FETCH": "Could not fetch weather",
   "NOW_PLAYING_ERR_WEATHER_MISCONFIG": "Could not access weather service: missing geographic coordinates.",
   "NOW_PLAYING_ERR_IDLE_SCREEN_WAIT_TIME": "Wait time must be at least 10 seconds.",
-  "NOW_PLAYING_ERR_UNSPLASH_REFRESH_INTERVAL": "Refresh Interval must be at least 10 minutes, or 0 for no refresh."
+  "NOW_PLAYING_ERR_UNSPLASH_REFRESH_INTERVAL": "Refresh Interval must be at least 10 minutes, or 0 for no refresh.",
+  "NOW_PLAYING_ERR_CYCLE_INTERVAL": "Cycle Interval must be at least 10 seconds, or 0 for default."
 }
