@@ -5,7 +5,7 @@ var fs = require('fs-extra');
 var libQ = require('kew');
 
 var dnsSync = require('dns-sync');
-const { serviceName, uriParts, uriPrefix, uriStaRE } = require('./common');
+const { serviceName, sourceName, uriParts, uriPrefix, uriStaRE } = require('./common');
 const { PUtil } = require('./helpers');
 const { ExpireOldTracks, PreventAuthTimeout, StreamLifeChecker, StationDataPublisher } = require('./timers');
 const { PandoraHandler } = require('./pandora_handler');
@@ -29,6 +29,7 @@ function ControllerPandora(context) {
     // self.lastPress = Date.now();
     self.lastStationUpdate = Date.now();
     self.cameFromMenu = false;
+    self.responseSorted = {};
     self.state = {};
 }
 
@@ -87,7 +88,7 @@ ControllerPandora.prototype.onStop = function () {
     return self.flushPandora()
         .then(() => self.stop())
         .then(() => {
-            self.commandRouter.volumioRemoveToBrowseSources('Pandora Radio');
+            self.commandRouter.volumioRemoveToBrowseSources(sourceName);
             return libQ.resolve();
         });
 };
@@ -396,12 +397,12 @@ ControllerPandora.prototype.validateAndSetAccountOptions = function (rawOptions)
 // Use this function to add your music service plugin to music sources
 ControllerPandora.prototype.addToBrowseSources = function () {
     var data = {
-        name: 'Pandora Radio',
+        name: sourceName,
         uri: '/pandora',
         albumart: '/albumart?sourceicon=music_service/pandora/pandora.png',
         icon: 'fa fa-microphone',
         plugin_type: 'music_service',
-        plugin_name: 'pandora'
+        plugin_name: serviceName
     };
 
     return this.commandRouter.volumioAddToBrowseSources(data);
@@ -578,6 +579,7 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
                     });
                 });
 
+                self.reponseSorted = responseSorted;
                 return libQ.resolve(responseSorted);
             }
             else if (curUri.match(uriStaRE) !== null) { // station chosen
@@ -597,6 +599,14 @@ ControllerPandora.prototype.handleBrowseUri = function (curUri) {
                                         .then(index => {
                                             self.setCurrQueuePos(index);
                                             return self.commandRouter.stateMachine.play(index);
+                                        })
+                                        .then(() => {
+                                            if (Object.keys(self.responseSorted) === 0) {
+                                                return libQ.resolve(responseRoot);
+                                            }
+                                            else {
+                                                return libQ.resolve(self.responseSorted);
+                                            }
                                         });
                                 }
 
@@ -1010,6 +1020,7 @@ ControllerPandora.prototype.stop = function () {
     self.pUtil.announceFn('stop');
 
     return self.mpdPlugin.stop()
+        .then(() => self.mpdPlugin.clear())
         .then(() => {
             self.state.status = 'stop';
             return self.pushState(self.state);
@@ -1044,9 +1055,11 @@ ControllerPandora.prototype.resume = function () {
 
 
     return self.mpdPlugin.resume()
-        .then(() => self.streamLifeChecker.init());
-        // .then(() => self.mpdPlugin.getState())
-        // .then(state => self.pushState(state));
+        .then(() => self.streamLifeChecker.init())
+        .then(() => {
+            self.state.status = 'play';
+            return self.state.pushState(self.state);
+        });
 };
 
 // enforce slight delay with media controls to avoid traffic jam
@@ -1100,13 +1113,15 @@ ControllerPandora.prototype.goPreviousNext = function (fnName) {
                         qPos = (qPos + qLen - 1) % qLen;
                     }
                     else { // random previous
-                        return self.stop();
+                        // return self.stop();
+                        return self.clearAddPlayTrack();
                     }
                     self.setCurrQueuePos(qPos);
                     return self.clearAddPlayTrack(self.getQueue()[qPos]); // self.clearAddPlayTrack(self.getQueueTrack(qPos))
                 }
                 else if (fnName === 'next') {
-                    return self.stop()
+                    // return self.stop()
+                    return self.clearAddPlayTrack()
                         .then(() => {
                             if (self.nextIsThumbsDown) { // remove unwanted track
                                 // Check if last track in queue -- MAY NOT NEED THIS
@@ -1121,7 +1136,8 @@ ControllerPandora.prototype.goPreviousNext = function (fnName) {
                         });
                 }
                 else { // 'skip' (bad uri lookup / stream ended)
-                    return self.stop(); // play next consecutive/random track
+                    // return self.stop(); // play next consecutive/random track
+                    return self.clearAddPlayTrack();
                 }
             }
             return libQ.resolve();
@@ -1144,7 +1160,8 @@ ControllerPandora.prototype.next = function () {
     self.pUtil.announceFn(fnName);
 
     if (self.nextIsThumbsDown) {
-        self.pandoraHandler.thumbTrack(self.getQueueTrack(), false);
+        return self.pandoraHandler.thumbTrack(self.getQueueTrack(), false)
+            .then(() => self.goPreviousNext(fnName));
     }
 
     return self.goPreviousNext(fnName);
@@ -1207,7 +1224,9 @@ ControllerPandora.prototype.pushState = function (state) {
     state.samplerate = '44.1 KHz';
     self.commandRouter.servicePushState(state, serviceName);
 
-    return self.commandRouter.stateMachine.setConsumeUpdateService('pandora');
+    self.commandRouter.stateMachine.setConsumeUpdateService('mpd', true, false);
+
+    return libQ.resolve();
 };
 
 ControllerPandora.prototype.explodeUri = function (uri) {
