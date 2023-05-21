@@ -1,28 +1,52 @@
 # Jellyfin plugin for Volumio
 
-Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested with Jellyfin 10.6.4 to 10.7.6.
-
-This repository has two branches:
-
-1. The `master` branch is targeted towards Volumio 3.
-2. The `volumio-2.x` branch is targeted towards Volumio 2.x.
-
-The focus is on the `master` branch. The `volumio-2.x` branch will only be maintained if it is practically feasible and still worthwhile to do so.
+Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested with Jellyfin 10.8.3.
 
 #### Adding a Jellyfin Server
 
-A Jellyfin server can be on the same network as your Volumio device, or it can be remote (of course, you would have to configure the server so that it is accessible from the Internet). You can add a server in the ```Add a Server``` section of the plugin settings.
+A Jellyfin server can be on the same network as your Volumio device, or it can be remote (of course, you would have to configure the server so that it is accessible from the Internet). You can add a server in the "Add a Server" section of the plugin settings.
 
 
 *Make sure you provide the full server address. "http://www.myjellyfinserver.com:8096" would be a valid example, but leaving out the "http://" will render it invalid.*
 
-You can add multiple servers, and those that are reachable will appear when you click ```Jellyfin``` in the left menu. Choose a server to login and start browsing your music collections. Enjoy!
+You can add multiple servers, each with multple user accounts, and those that are reachable will appear on the plugin landing page.
 
 #### Notes
 
-- Audio is served through Direct Streaming. This means when you play a song, it will be streamed to Volumio in its original format without any modifications. This gives you the highest sound quality possible but, if you are streaming from a remote server, then you should consider whether you have a fast-enough Internet connection with unlimited data.
-
+- Audio is served through Direct Streaming. This means when you play a song, it will be streamed to Volumio in its original format without any modifications. This gives you the highest sound quality possible but, if you are streaming from a remote server, then you should consider whether your Internet connection has sufficient bandwidth to handle the traffic.
+- Since v1.0.4, adding songs to or removing songs from Favorites in Volumio will trigger the same action on Jellyfin server. However, due to Volumio's sketchy, bug-ridden and inconsistent implementation of the Favorites feature, there are a few things you should note:
+  1. In Volumio, clicking the heart icon of a song when browsing the library will mark it as favorite, but the heart icon will not stay 'on'. You would have to navigate out of the view and then back in in order to see the updated status.
+  2. Also on the browsing screen, clicking the heart icon of a song that has been marked favorite will not unmark it. You would have to do it in Volumio -> Favorites. You can also unmark the song on the player screen *while it is playing*.
+  3. When playing a song with the Jellyfin plugin, the favorite status is reflected correctly by the heart icon on the player screen. However, during this time if you mark or unmark another song from any source as favorite, the heart icon will change to show the updated status of that song instead.
+  4. The heart icon on the player screen can be used to mark or unmark a song as favorite *while it is playing*. However, if the song is not playing, Volumio will bypass the custom logic implemented in the Jellyfin plugin. The result is that the favorite status of the song will not be updated on the Jellyfin server and the song's URI added to Favorites will not be one canonicalized by the plugin.
+  
 #### Changelog
+
+1.0.4
+- [Added] Obtain favorite status of songs from server; mark / unmark favorite songs alongside Volumio
+
+1.0.3
+- [Fixed] Regression with playback of legacy URIs (pre-1.0) stored in Volumio playlists
+- [Fixed] Extra query string param added to image URL of songs
+- [Fixed] Goto function crashing Volumio
+- [Changed] Show albums by artist in separate 'Albums' and 'Appears On' sections
+- [Changed] Only search once per user/server pair (where server URL is different for each pair but points to the same server)
+- [Added] 'More like this' section in album view
+
+1.0.2
+- [Fixed] Login err when server config contains different URLs pointing to same server
+- [Fixed] Login err when server is removed, followed by adding it back
+- [Changed] Only show one entry on landing page per user/server pair (where server URL is different for each pair but points to the same server)
+
+1.0.1
+- [Changed] More checks in validating 'Add Server' input
+- [Fixed] Miscellaneous login issues
+
+1.0.0
+- [Changed] Rewrite in Typescript and use Jellyfin SDK for API calls
+- [Added] Support for multiple user accounts on same Jellyfin server
+- [Added] Gapless playback
+- [Added] Report playback state to Jellyfin server
 
 0.1.8
 - [Added] Folder View support
