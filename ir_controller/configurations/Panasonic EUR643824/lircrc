@@ -1,0 +1,88 @@
+begin
+prog = irexec
+button = KEY_PLAY
+config = /usr/local/bin/volumio play
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_PLAYPAUSE
+config = /usr/local/bin/volumio toggle
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_STOP
+config = /usr/local/bin/volumio stop
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_PREVIOUS
+config = /usr/local/bin/volumio previous
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_NEXT
+config = /usr/local/bin/volumio next
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_CHANNELDOWN
+config = /usr/local/bin/volumio seek minus
+repeat = 1
+	    delay = 10
+end
+begin
+prog = irexec
+button = KEY_CHANNELUP
+config = /usr/local/bin/volumio seek plus
+repeat = 1
+	    delay = 10
+end
+begin
+prog = irexec
+button = KEY_AGAIN
+config = /usr/local/bin/volumio repeat
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_SHUFFLE
+config = /usr/local/bin/volumio random
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_CANCEL
+config = /usr/local/bin/volumio clear
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_VOLUMEUP
+config = /usr/local/bin/volumio volume plus
+repeat = 1
+delay = 10
+end
+begin
+prog = irexec
+button = KEY_VOLUMEDOWN
+config = /usr/local/bin/volumio volume minus
+repeat = 1
+delay = 10
+end
+begin
+prog = irexec
+button = KEY_SLEEP
+config = /usr/local/bin/volumio volume toggle
+repeat = 0
+end
+begin
+prog = irexec
+button = KEY_POWER
+config = /bin/systemctl poweroff
+repeat = 0
+end
