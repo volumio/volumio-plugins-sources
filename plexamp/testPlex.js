@@ -22,7 +22,8 @@ class Config  {
         this.map = {
             "token": process.env.TOKEN,
             "server": process.env.HOSTNAME,
-            "port": process.env.PORT
+            "port": process.env.PORT,
+            "protocol": process.env.PROTOCOL
         };
     }
     get = (key) => {
@@ -37,42 +38,50 @@ class Config  {
 
 var plexBackend = new plex(new Logger(), new Config());
 
-plexBackend.connect().then(function(){
+plexBackend.httpPing(process.env.LIBRARYNAME, process.env.HOSTNAME, process.env.PORT, process.env.PROTOCOL)
+    .then((res) => {
+        console.log("running");
 
-    plexcloud.getServers(process.env.TOKEN, function (servers) {
-        console.log("Plex Cloud result");
-        var promises = [];	// Array to gather all the various promises
+        plexBackend.connect().then(function(){
+            plexcloud.getServers(process.env.TOKEN, function (servers) {
+                console.log("Plex Cloud result");
+                var promises = [];	// Array to gather all the various promises
 
-        for (const server of servers) {
-            console.log("ServerName:" + server.name);
-            promises.push(plexBackend.ping(server.name, server.address, server.port));
-        }
-
-
-        Promise.allSettled(promises).then(function(results) {
-            const servers = results.filter(result => result.status === 'fulfilled').map(result => result.value);
-            plexBackend.queryAllMusicLibraries(servers).then(function (libraries) {
-
-                console.log(JSON.stringify(libraries));
-
-                for (const musicLibrary of libraries) {
-                    console.log("Library called %s running on Plex Media Server %s", musicLibrary.name, musicLibrary.hostname);
+                for (const server of servers) {
+                    console.log("ServerName:" + server.name);
+                    promises.push(plexBackend.httpPing(server.name, server.address, server.port, server.protocol));
                 }
-                var filteredMusicLibrary = libraries.filter((library) => library.libraryTitle === 'Music' && library.name === process.env.LIBRARYNAME);
 
-                try {
-                    doAllMusicQueryTests(filteredMusicLibrary[0].key);
-                } catch (Err) {
-                    console.error(Err);
-                }
+
+                Promise.allSettled(promises).then(function(results) {
+                    console.log("RESULTS: " + JSON.stringify(results));
+                    const servers = results.filter(result => result.status === 'fulfilled').map(result => result.value);
+                    plexBackend.queryAllMusicLibraries(servers).then(function (libraries) {
+
+                        console.log(JSON.stringify(libraries));
+
+                        for (const musicLibrary of libraries) {
+                            console.log("Library called %s running on Plex Media Server %s", musicLibrary.libraryTitle, musicLibrary.hostname);
+                        }
+                        var filteredMusicLibrary = libraries.filter((library) => library.libraryTitle === 'Music' && library.name === process.env.LIBRARYNAME);
+
+                        try {
+                            doAllMusicQueryTests(filteredMusicLibrary[0].key);
+                        } catch (Err) {
+                            console.error(Err);
+                        }
+                    });
+                });
+            }, function(errorMessage) {
+                console.log("Error:" + errorMessage);
             });
+
+
         });
-    }, function(errorMessage) {
-        console.log("Error:" + errorMessage);
-    });
 
+    })
+    .fail((err) => { console.log("not running"); });
 
-});
 
 
 function doAllMusicQueryTests(musicSectionKey) {
@@ -332,41 +341,70 @@ plexcloud.getClaimToken(process.env.TOKEN, function (claimToken) {
  * A PIN is valid for 15 minutes and after that this script will timeout.
  *
  */
-/*
-plexPin.getPin().then(pin =>
-{
+
+function processToken(res) {
+    var defer = libQ.defer();
+
+    console.log('result: ' + JSON.stringify(res));
+    // success getting token
+    if (res.token === true) {
+        console.log(res['auth-token']);
+        defer.resolve(res['auth-token']);
+    } else {
+        console.log('rejecting');
+        defer.reject(res);
+    }
+    return defer.promise;
+};
+
+
+function processPinAndToken (pin) {
     // print pin
     console.log(pin.code);
 
     // get token
-    let ping = setTimeout(function pollToken()
-    {
+    let ping = setTimeout(function pollToken() {
+        console.log('get token for pin: ' + pin.id);
         plexPin.getToken(pin.id)
-            .then(res =>
-            {
-                // success getting token
-                if (res.token === true)
-                {
-                    console.log(res['auth-token']);
-                    return;
-                }
+            .then((res) => processToken(res))
+            .fail((res) => {
+                var defer = libQ.defer();
 
+                console.log('failure handler' + JSON.stringify(res));
                 // failed getting token
-                else if (res.token === false)
-                {
+                if (res.token === false) {
                     console.error('Timeout!');
-                    return;
+                    return null;
+                } else if (res.token === null) {
+                    ping = setTimeout(pollToken, 1000);
+                } else {
+                    console.log(res);
+                    return null;
                 }
 
-                // polling
-                else
-                    ping = setTimeout(pollToken, 1000);
+                defer.reject();
+
+                return defer.promise;
             })
-            .catch(err => console.error(JSON.stringify(err)));
+            .then(() => console.error("no failure"));
 
     }, 2000);
-})
-    .catch(err => console.error(err.message));
+}
+
+
+/*
+const plexPin = new PlexPin({
+        identifier: '983-ADC-213-BGF-132',      // Some unique ID
+        product: 'Volumio-PlexAmp',     // Some suitable name for this plugin when it appears in Plex
+        version: '1.0',
+        deviceName: 'RaspberryPi',      // Maybe query the device Id eventually
+        platform: 'Volumio'
+    });
+
+
+plexPin.getPin()
+    .then((pin) => processPinAndToken(pin))
+    .fail(err => console.error(err.message));
 */
 
 /*

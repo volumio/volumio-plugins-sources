@@ -1,9 +1,11 @@
 /**
  * Copy of this fork of node-plex-api-pinauth https://github.com/Zefau/node-plex-api-pinauth
+ * This has been converted to use kew promises in order to provide greater flexiblity in other code.
  */
 
 const request = require('request-promise');
 const { XMLParser, XMLBuilder, XMLValidator} = require("fast-xml-parser");
+const libQ = require('kew');
 
 const HEADERS = {
     'X-Plex-Client-Identifier': 'identifier',
@@ -65,21 +67,24 @@ PlexPinAuth.prototype.getHeaders = function(options)
  */
 PlexPinAuth.prototype.getPin = function()
 {
-    return request.post({
-        url: 'https://plex.tv/pins.xml',
-        headers: this.headers
-    })
-        .then(res =>
-        {
-            let response;
-            try
-            {
-                response = xml.parse(res);
-                return response.pin;
-            }
-            catch(err) {throw err}
+    var defer = libQ.defer();
+
+    request.post({
+            url: 'https://plex.tv/pins.xml',
+            headers: this.headers
+            })
+            .then(res => {
+                let response;
+                try {
+                    response = xml.parse(res);
+                    defer.resolve(response.pin);
+                } catch(err) {
+                    defer.reject(err);
+                }
         })
-        .catch(err => {throw err});
+        .catch(err => { return defer.reject(err); });
+
+    return defer.promise;
 };
 
 /**
@@ -90,51 +95,52 @@ PlexPinAuth.prototype.getPin = function()
  */
 PlexPinAuth.prototype.getToken = function(pin)
 {
+    var defer = libQ.defer();
+
     // retrieve from cache
-    if (this.tokens[pin])
-    {
-        return Promise.resolve({
+    if (this.tokens[pin]) {
+        defer.resolve({
             'token': true,
             status: 'RETRIEVED_TOKEN',
-            'auth_token': this.tokens[pin]
+            'auth-token': this.tokens[pin]
         });
+
+        return defer.promise;
     }
 
     // no cache, thus retrieve online
-    return request.get({
+    request.get({
         url: 'https://plex.tv/pins/' + pin + '.xml',
         headers: this.headers
     })
-        .then(res =>
-        {
+    .then(res => {
             let response;
-            try
-            {
-
+            try {
                 response = xml.parse(res);
                 response.pin.token = null;
                 response.pin.status = 'RETRIEVING_TOKEN';
 
                 // check for timeout
-                if (new Date().toISOString() >= response.pin['expires-at'])
-                {
+                if (new Date().toISOString() >= response.pin['expires-at']) {
                     response.pin.token = false;
                     response.pin.status = 'TIMEOUT_TOKEN';
                 }
 
                 // token retrieved
-                if (response.pin['auth-token'])
-                {
+                if (response.pin['auth-token']) {
                     response.pin.token = true;
                     response.pin.status = 'RETRIEVED_TOKEN';
                     this.tokens[pin] = response.pin['auth-token'];
                 }
 
-                return response.pin;
+                defer.resolve(response.pin);
+            } catch(err) {
+                defer.reject(err);
             }
-            catch(err) {throw err}
         })
-        .catch(err => {throw err});
+        .catch(err => { defer.reject(err); });
+
+    return defer.promise;
 };
 
 

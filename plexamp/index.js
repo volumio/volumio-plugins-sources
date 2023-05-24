@@ -191,104 +191,71 @@ ControllerPlexAmp.prototype.getPinAndUpdateConfig = function(data) {
 
             self.plexPin = new PlexPin(self.plexCloudOptions);
 
-            self.plexPin.getPin().then(function(pin) {
-                // This should enable the Link Plex Button - but first get a PIN to display
+            self.plexPin.getPin()
+                .then(function(pin) {
+                    // This should enable the Link Plex Button - but first get a PIN to display
 
-                let heading = self.commandRouter.getI18nString('PLEX_PIN_PREFIX');
-                let message = self.commandRouter.getI18nString('PLEX_PIN_DETAILS');
-                let modalData = {
-                    title: heading + pin.code,
-                    message: message,
-                    size: 'lg',
-                    buttons: [{
-                        name: 'Close',
-                        class: 'btn btn-warning',
-                        emit: 'closeModals',
-                        payload: ''
-                    }]
-                };
-                self.commandRouter.broadcastMessage("openModal", modalData);
+                    let heading = self.commandRouter.getI18nString('PLEX_PIN_PREFIX');
+                    let message = self.commandRouter.getI18nString('PLEX_PIN_DETAILS');
+                    let modalData = {
+                        title: heading + pin.code,
+                        message: message,
+                        size: 'lg',
+                        buttons: [{
+                            name: 'Close',
+                            class: 'btn btn-warning',
+                            emit: 'closeModals',
+                            payload: ''
+                        }]
+                    };
+                    self.commandRouter.broadcastMessage("openModal", modalData);
 
-                // Clear the current token now as we should be using the new one we get back after linking
-                self.config.set("token", "");
-                self.config.set('server', "");  // Set the server to empty so we can find one below
-                self.config.save();
+                    // Clear the current token now as we should be using the new one we get back after linking
+                    self.config.set("token", "");
+                    self.config.set('server', "");  // Set the server to empty so we can find one below
+                    self.config.save();
 
-                // get token
-                let ping = setTimeout(function pollToken() {
-                    self.plexPin.getToken(pin.id)
-                        .then( function (res) {
-                            // success getting token
-                            if (res.token === true) {
-                                var token = res['auth-token'];
-                                self.config.set('token', token);
-                                self.config.save();
+                    // get token
+                    let ping = setTimeout(function pollToken() {
+                        self.plexPin.getToken(pin.id)
+                            .then((res) => self.detectAndSavePlexToken(res))
+                            .fail((res, err) => {
+                                var errorDefer = libQ.defer();
 
+                                // different token error cases in getToken()
+                                // 1. res.token is false -- timeout on the server side (error out)
+                                // 2. res.token is null -- pin has not yet been linked (try again)
+                                // 3. another message is returned (json res or Error err) -- request processing
+                                //    failed (error out)
+                                if (res && res.hasOwnProperty('token') && res.token === false) {
+                                    self.logger.info('PlexAmp: Timeout! no Token');
+                                    defer.reject("PlexAmp - Timeouted out waiting for token");
+                                } else if (res && res.hasOwnProperty('token') && res.token === null) {
+                                    ping = setTimeout(pollToken, 1000);
+                                } else if (res) {
+                                    self.logger.error(JSON.stringify(res));
+                                    defer.reject("PlexAmp: Error " + JSON.stringify(res));
+                                } else if (err) {
+                                    self.logger.error(err);
+                                    defer.reject("PlexAmp: Error " + err);
+                                }
 
+                                errorDefer.reject(); // errors stop here
 
-                                // OK now we have a token - let query the plex cloud for a local server
-                                // Only because old Node JS Plex API library needs a server before it will work -
-                                // So we are using our own Plex Cloud library to query the list of servers and pick the first one
-                                self.getPlexCloudServers(token).then(function (servers) {
-                                    var promises = [];
-                                    for (const server of servers) {
-                                        self.logger.info("PlexAmp: Checking Server:" + server.address);
-                                        promises.push(self.plex.ping(server.name, server.address, server.port));
-                                    }
+                                return errorDefer.promise;
+                            })
+                            // this happens when detectAndSavePlextToken resolves, the value is a token
+                            .then((token) =>  self.pingServerAndConnect(token, uiconf, defer));
 
-                                    Promise.allSettled(promises).then(function(results) {
-                                        const servers = results.filter(result => result.status === 'fulfilled').map(result => result.value);
-                                        if (servers.length == 0) {
-                                            self.logger.info("PlexAmp::Plex failed to ping a local plex server");
-                                            defer.reject("Unable to find Plex Server on local network");
-                                        } else {
-                                            var serverDetails = servers[0];   // We need one local plex server to query
-
-                                            self.config.set('server', serverDetails.address);    // Lets use remote address
-                                            self.config.set('serverName', serverDetails.name);
-                                            self.config.set('port', serverDetails.port);
-                                            self.config.save();
-
-                                            self.plex.connect().then(function () {
-
-                                                // Once we are connected - we need to save a key for one of the music servers
-                                                self.saveMusicKey(servers).then(function () {
-
-                                                    self.addToBrowseSources();  // Enable Plex browse sources
-                                                    self.refreshUIConfig();
-                                                    defer.resolve(uiconf);
-                                                }).fail(function (error) {
-                                                    self.logger.info("PlexAmp::Plex failed to get a Music server key");
-                                                });
-                                            }).fail(function (error) {
-                                                self.logger.info("PlexAmp::Plex failed to connect - missing Token?");
-                                                defer.reject("PlexAmp: No Token??");
-                                            });
-                                        }
-                                    });
-                                });
-                            }// failed getting token
-                            else if (res.token === false) {
-                                self.logger.info('PlexAmp: Timeout! no Token');
-                                defer.reject("PlexAmp - Timeouted out waiting for token");
-                            }
-                            else {
-                                ping = setTimeout(pollToken, 1000);
-                            }
-                        })
-                        .catch(function(err) {
-                            self.logger.error(err.message)
-                            defer.reject("PlexAmp: Error" + err);
-                        });
-
-                }, 2000);
-            }).catch(function(err) {
-                self.logger.error(err.message)
-                defer.reject("PlexAmp: Error" + error);
-            });
+                    }, 2000); // end of 'ping = setTimeout(function pollToken()'
+                })
+                .fail(function(err) {  // when getPin() fails
+                    self.logger.error(err.message);
+                    defer.reject("PlexAmp: Error" + error);
+                });
 
         })
-        .fail(function(error) {
+        .fail(function(error) { // when i18nJson fails
             self.logger.info(error);
             defer.reject(error);
         });
@@ -296,9 +263,77 @@ ControllerPlexAmp.prototype.getPinAndUpdateConfig = function(data) {
     return defer.promise;
 };
 
+ControllerPlexAmp.prototype.detectAndSavePlexToken = function(res) {
+    var defer = libQ.defer();
+    var self = this;
+
+    // success getting token
+    if (res && res.hasOwnProperty('token') && res.token === true) {
+        var token = res['auth-token'];
+        self.config.set('token', token);
+        self.config.save();
+        defer.resolve(token);
+    } else {
+        if (res instanceof Error) {
+            defer.reject(null, res);
+        } else {
+            defer.reject(res, null);
+        }
+    }
+
+    return defer.promise;
+}
+
+ControllerPlexAmp.prototype.pingServerAndConnect = function (token, uiconf, defer) {
+    var self = this;
+
+    // OK now we have a token - let query the plex cloud for a local server
+    // Only because old Node JS Plex API library needs a server before it will work -
+    // So we are using our own Plex Cloud library to query the list of servers and pick the first one
+    self.getPlexCloudServers(token).then(function (servers) {
+
+        var promises = [];
+        for (const server of servers) {
+            self.logger.info("PlexAmp: Checking Server:" + server.address);
+            promises.push(self.plex.httpPing(server.name, server.address, server.port, server.protocol));
+        }
+
+        Promise.allSettled(promises).then(function(results) {
+            const servers = results.filter(result => result.status === 'fulfilled').map(result => result.value);
+            if (servers.length == 0) {
+                self.logger.info("PlexAmp::Plex failed to ping a local plex server");
+                defer.reject("Unable to find Plex Server on local network");
+            } else {
+                var serverDetails = servers[0];   // We need one local plex server to query
+
+                self.config.set('server', serverDetails.address);    // Lets use remote address
+                self.config.set('serverName', serverDetails.name);
+                self.config.set('port', serverDetails.port);
+                self.config.save();
+
+                self.plex.connect().then(function () {
+
+                    // Once we are connected - we need to save a key for one of the music servers
+                    self.saveMusicKey(servers).then(function () {
+
+                        self.addToBrowseSources();  // Enable Plex browse sources
+                        self.refreshUIConfig();
+                        defer.resolve(uiconf);
+                    }).fail(function (error) {
+                        self.logger.info("PlexAmp::Plex failed to get a Music server key");
+                    });
+                }).fail(function (error) {
+                    self.logger.info("PlexAmp::Plex failed to connect - missing Token?");
+                    defer.reject("PlexAmp: No Token??");
+                });
+            }
+        });
+    });
+}
+
 ControllerPlexAmp.prototype.getIP = function () {
     const self = this;
-    var address
+    var address;
     var iPAddresses = self.commandRouter.executeOnPlugin('system_controller', 'network', 'getCachedIPAddresses', '');
     if (iPAddresses && iPAddresses.eth0 && iPAddresses.eth0 != '') {
         address = iPAddresses.eth0;
@@ -319,7 +354,7 @@ ControllerPlexAmp.prototype.findAllMusicLibraries = function () {
         var promises = [];
         for (const server of servers) {
             self.logger.info("PlexAmp: Checking local plex server:" + server.address);
-            promises.push(self.plex.ping(server.name, server.address, server.port));
+            promises.push(self.plex.httpPing(server.name, server.address, server.port, server.protocol));
         }
 
         Promise.allSettled(promises).then(function(results) {
@@ -346,58 +381,67 @@ ControllerPlexAmp.prototype.getUIConfig = function() {
                     if (options[i].value === optionVal)
                         return options[i];
                 }
+
+                return null;
             };
+
+            var accountAuthSection = uiconf.sections[0];
+            var optionsSection = uiconf.sections[1];
+            var plexampSection = uiconf.sections[2];
 
             // If we have a token already - we can query and present a list of servers to configure
 
             var token = self.config.get('token');       // Let assume for now if we have a token it valid
             if (token && token.length > 0) {
 
-                uiconf.sections[0].content[0].value = true;     // Connected !!
+                accountAuthSection.content[0].value = true;     // Connected !!
 
                 // We should also have a previously configured server and music library entry
                 var hostname = self.config.get('server');
                 var libraryName = self.config.get('library');
                 var port = self.config.get('port') | 32400;
+                port = port.toString();  // this is a number; ensure that this is a string for comparison below
 
-                self.findAllMusicLibraries().then(function (libraries) {
+                self.getPlexCloudServers(token)
+                    .then(() => self.findAllMusicLibraries())
+                    .then((libraries) => {
 
-                    uiconf.sections[1].content[0].hidden = false;
-                    //uiconf.sections[1].content[1].hidden = false;     // Remote access coming soon
-                    uiconf.sections[1].content[2].hidden = false;
-                    uiconf.sections[1].content[3].hidden = false;
+                        optionsSection.content[0].hidden = false;
+                        //optionsSection.content[1].hidden = false;     // Remote access coming soon
+                        optionsSection.content[2].hidden = false;
+                        optionsSection.content[3].hidden = false;
 
-                    for (const musicLibrary of libraries) {
-                        uiconf.sections[1].content[0].options.push({
-                            value:musicLibrary,
-                            label:musicLibrary.libraryTitle + " on " + musicLibrary.name
-                        });
-                    }
+                        for (const musicLibrary of libraries) {
+                            optionsSection.content[0].options.push({
+                                value:musicLibrary,
+                                label:musicLibrary.libraryTitle + " on " + musicLibrary.name
+                            });
+                        }
 
-                    var selectedLibrary = libraries.filter((filteredLibrary) => filteredLibrary.hostname === hostname && filteredLibrary.port === port && filteredLibrary.libraryTitle === libraryName);
-                    if (selectedLibrary.length === 0) { // None found - lets use the first one !!
-                        selectedLibrary = libraries[0];
-                    } else {
-                        selectedLibrary = selectedLibrary[0];   // Just use the frst one filtered out
-                    }
+                        var selectedLibrary = libraries.filter((filteredLibrary) => filteredLibrary.hostname === hostname && filteredLibrary.port === port && filteredLibrary.libraryTitle === libraryName);
+                        if (selectedLibrary.length === 0) { // None found - lets use the first one !!
+                            selectedLibrary = libraries[0];
+                        } else {
+                            selectedLibrary = selectedLibrary[0];   // Just use the frst one filtered out
+                        }
 
-                    uiconf.sections[1].content[0].value.value = selectedLibrary;
-                    uiconf.sections[1].content[0].value.label = selectedLibrary.libraryTitle + " on " + selectedLibrary.name;
+                        optionsSection.content[0].value.value = selectedLibrary;
+                        optionsSection.content[0].value.label = selectedLibrary.libraryTitle + " on " + selectedLibrary.name;
 
-                    uiconf.sections[1].content[4].value = findOption(self.config.get('timeOut'), uiconf.sections[1].content[4].options);
-                    uiconf.sections[1].content[4].hidden = false;
+                        optionsSection.content[4].value = findOption(self.config.get('timeOut'), optionsSection.content[4].options);
+                        optionsSection.content[4].hidden = false;
 
-                    // PlexAmp UI - optional but lets try to figure it out
-                    var urlToUse = "http://" + self.getIP() + ":32400/web/index.html";
-                    uiconf.sections[2].content[2].onClick.url = urlToUse;
+                        // PlexAmp UI - optional but lets try to figure it out
+                        var urlToUse = "http://" + self.getIP() + ":32400/web/index.html";
+                        plexampSection.content[2].onClick.url = urlToUse;
 
-                    defer.resolve(uiconf);
-                }).fail(function(error) {
-                    uiconf.sections[0].content[0].value = false;        // Not connected !!
-                    defer.resolve(uiconf);
-                });
+                        defer.resolve(uiconf);
+                    }).fail(function(error) {
+                        accountAuthSection.content[0].value = false;        // Not connected !!
+                        defer.resolve(uiconf);
+                    });
             } else {    // So if we are not connected show status
-                uiconf.sections[0].content[0].value = false;    // Not connected !!
+                accountAuthSection.content[0].value = false;    // Not connected !!
                 defer.resolve(uiconf);
             }
         })
@@ -411,7 +455,7 @@ ControllerPlexAmp.prototype.getUIConfig = function() {
 
 ControllerPlexAmp.prototype.getConfigurationFiles = function() {
     return ['config.json'];
-}
+};
 
 ControllerPlexAmp.prototype.setUIConfig = function(data) {
     var self = this;
@@ -508,6 +552,7 @@ ControllerPlexAmp.prototype.addToBrowseSources = function () {
 ControllerPlexAmp.prototype._prevUri = function(curUri) {
     var self = this;
     var lastIndex = curUri.lastIndexOf("/");
+
     return curUri.slice(0, lastIndex);
 }
 
@@ -530,6 +575,7 @@ ControllerPlexAmp.prototype._formatNav = function(title, type, icon, views, item
             },
         }
     };
+
     return nav;
 }
 
@@ -543,7 +589,8 @@ ControllerPlexAmp.prototype._formatPlaylist = function(playlist, curUri) {
         albumart: self._getPlaylistCover(playlist),
         icon: "",
         uri: curUri + '/' + encodeURIComponent(playlist.key)
-    }
+    };
+
     return item;
 }
 
@@ -558,7 +605,8 @@ ControllerPlexAmp.prototype._formatSong = function(song) {
         artist: song.grandparentTitle,  // Parent of track is the album and grandparent is the artist
         albumart: self.getAlbumArt(song.parentThumb),
         uri: 'plexamp/track/' + encodeURIComponent( song.ratingKey ),
-    }
+    };
+
     return item;
 }
 
@@ -575,7 +623,8 @@ ControllerPlexAmp.prototype._formatAlbum = function(album, curUri) {
         albumart: self.getAlbumArt(album.thumb),
         icon: "",
         uri: curUri + '/' + encodeURIComponent(album.ratingKey)
-    }
+    };
+
     return item;
 }
 
@@ -589,7 +638,8 @@ ControllerPlexAmp.prototype._formatArtist = function(artist, curUri) {
         albumart: self.getAlbumArt(artist.thumb),
         icon: 'fa fa-microphone',
         uri: curUri + '/' + encodeURIComponent(artist.ratingKey)
-    }
+    };
+
     return item;
 };
 
@@ -617,7 +667,7 @@ ControllerPlexAmp.prototype._formatPlay = function(album, artist, coverart, year
                 duration: duration
             }
         }
-    }
+    };
     return nav;
 }
 
@@ -664,7 +714,11 @@ ControllerPlexAmp.prototype.listPlaylists = function(uriParts, curUri) {
             for (const playlist of playlists) {
                 items.push(self._formatPlaylist(playlist, curUri));
             }
-            defer.resolve(self._formatNav('Playlists', 'folder', self._getIcon(uriParts[1]), ['list', 'grid'], items, self._prevUri(curUri)));
+            defer.resolve(self._formatNav('Playlists',
+                                          'folder',
+                                          self._getIcon(uriParts[1]), ['list', 'grid'],
+                                          items,
+                                          self._prevUri(curUri)));
         })
         .fail(function(error) {
             var conErr = {
@@ -675,7 +729,7 @@ ControllerPlexAmp.prototype.listPlaylists = function(uriParts, curUri) {
                     name: 'Ok',
                     class: 'btn btn-warning'
                 }]
-            }
+            };
             self.commandRouter.broadcastMessage("openModal", conErr);
         });
 
