@@ -1,0 +1,49 @@
+{
+	"name": "squeezelite",
+	"version": "2.0.0",
+	"description": "Installs the Squeezelite player you can use in combination with the Logitech Media Server",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Saiyato & Lars Grootkarzijn",
+	"license": "GPL-3.0",
+	"volumio_info": {
+		"prettyName": "Squeezelite player",
+		"icon": "fa fa-music",
+		"plugin_type": "music_service",
+		"os": [
+			"buster"
+		],
+		"architectures": [
+			"x86_64",
+			"i686",
+			"armhf"
+		],
+		"details": "Client plugin for the LMS ecosystem",
+		"changelog": "Code refactor for install script and index.js"
+	},
+	"engines": {
+		"node": ">=8.11.1",
+		"volumio": ">=3.0.0"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0"
+	},
+	"directories": {
+		"example": "examples"
+	},
+	"devDependencies": {},
+	"repository": "https://github.com/LarsGrootkarzijn/volumio-squeezelite-plugin",
+	"keywords": [
+		"squeezelite",
+		"multiroom",
+		"audio",
+		"Logitech",
+		"Media",
+		"Player",
+		"volumio"
+	]
+}
