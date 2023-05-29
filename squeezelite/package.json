@@ -16,8 +16,7 @@
 			"buster"
 		],
 		"architectures": [
-			"x86_64",
-			"i686",
+			"amd64",
 			"armhf"
 		],
 		"details": "Client plugin for the LMS ecosystem",
