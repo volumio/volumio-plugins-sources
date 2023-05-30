@@ -482,23 +482,23 @@ ControllerHotelRadio.prototype.getUIConfig = function () {
                 switch(self.commandRouter.sharedVars.get('language_code'))
                 {
                     case 'de':
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/volumio";
                     break
 
                     case 'it':
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/it/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/it/volumio";
                     break
 
                     case 'fr':
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/fr/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/fr/volumio";
                     break
 
                     case 'es':
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/es/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/es/volumio";
                     break
 
                     default:
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/en/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/en/volumio";
                     break
 
 
