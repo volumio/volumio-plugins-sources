@@ -1,7 +1,7 @@
 {
-	"name": "hotelradio",
+	"name": "dmd2_music",
 	"version": "1.1.2",
-	"description": "hotelradio.fm plugin for Volumio2",
+	"description": "DMD2 Music plugin for Volumio2",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -28,11 +28,11 @@
 	"volumio_info": {
 		"plugin_type": "music_service",
 		"boot_priority": 100,
-		"prettyName": "HotelRadio.Fm",
+		"prettyName": "DMD2 Music",
 		"os": [
 			"buster"
 		],
-		"details": "hotelradio.fm plugin for Volumio2",
+		"details": "DMD2 Music plugin for Volumio2",
 		"changelog": "",
 		"icon": "fa-headphones",
 		"architectures": [
