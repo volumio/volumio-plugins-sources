@@ -198,7 +198,7 @@ ControllerHotelRadio.prototype.addToBrowseSources = function () {
     var self = this;
 
     self.logger.info('Adding Hotel Radio to Browse Sources');
-    var data = {name: 'hotelradio.fm', uri: 'hotelradio://',plugin_type:'music_service',plugin_name:'hotelradio',albumart:'/albumart?sectionimage=music_service/hotelradio/icons/hotelradio-icon.png'};
+    var data = {name: 'hotelradio.fm', uri: 'hotelradio://',plugin_type:'music_service',plugin_name:'hotelradio',albumart:'/albumart?sectionimage=music_service/dmd2_music/icons/dmd2_music-icon.png'};
     return self.commandRouter.volumioAddToBrowseSources(data);
 }
 
@@ -339,7 +339,7 @@ ControllerHotelRadio.prototype.explodeUri = function(curUri) {
                             "title": "",
                             "album": "",
                             "type": "track",
-                            "albumart": "/albumart?sectionimage=music_service/hotelradio/icons/hotelradio-icon.png"
+                            "albumart": "/albumart?sectionimage=music_service/dmd2_music/icons/dmd2_music-icon.png"
                         }
 
                 response.body['channels'].map(channel => {
