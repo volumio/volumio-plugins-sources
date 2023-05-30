@@ -2,18 +2,18 @@
   "COMMON":{
     "USERNAME":"Username",
     "PASSWORD":"Password",
-    "CONFIG_SECTION_TITLE":"hotelradio.fm plugin configuration",
+    "CONFIG_SECTION_TITLE":"DMD2 Music plugin configuration",
     "LOGIN":"Login",
     "LOGOUT":"Logout",
-    "LOGGED_IN":"Logged in to hotelradio.fm",
-    "LOGGED_OUT":"Logged out from hotelradio.fm",
-    "ERROR_LOGGING_IN":"An error occurred trying to log in into hotelradio.fm",
-    "ERROR_LOGGING_OUT":"An error occurred trying to log out from hotelradio.fm"
+    "LOGGED_IN":"Logged in to DMD2 Music",
+    "LOGGED_OUT":"Logged out from DMD2 Music",
+    "ERROR_LOGGING_IN":"An error occurred trying to log in into DMD2 Music",
+    "ERROR_LOGGING_OUT":"An error occurred trying to log out from DMD2 Music"
   },
   "HOTELRADIO":{
     "GROUPS":"Groups",
     "CHANNELS":"Channels",
-    "SECTION_ACCOUNT":"hotelradio.fm account credentials",
+    "SECTION_ACCOUNT":"DMD2 Music account credentials",
     "ACCOUNT_LOGIN_DESC":"Login to start streaming wonderful webradios",
     "USERNAME_DOC":"Username used during registration",
     "PASSWORD_DOC":"Password used during registration",
