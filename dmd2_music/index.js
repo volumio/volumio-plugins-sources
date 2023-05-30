@@ -198,7 +198,7 @@ ControllerHotelRadio.prototype.addToBrowseSources = function () {
     var self = this;
 
     self.logger.info('Adding Hotel Radio to Browse Sources');
-    var data = {name: 'hotelradio.fm', uri: 'hotelradio://',plugin_type:'music_service',plugin_name:'hotelradio',albumart:'/albumart?sectionimage=music_service/hotelradio/icons/hotelradio-icon.png'};
+    var data = {name: 'hotelradio.fm', uri: 'hotelradio://',plugin_type:'music_service',plugin_name:'hotelradio',albumart:'/albumart?sectionimage=music_service/dmd2_music/icons/dmd2_music-icon.png'};
     return self.commandRouter.volumioAddToBrowseSources(data);
 }
 
@@ -339,7 +339,7 @@ ControllerHotelRadio.prototype.explodeUri = function(curUri) {
                             "title": "",
                             "album": "",
                             "type": "track",
-                            "albumart": "/albumart?sectionimage=music_service/hotelradio/icons/hotelradio-icon.png"
+                            "albumart": "/albumart?sectionimage=music_service/dmd2_music/icons/dmd2_music-icon.png"
                         }
 
                 response.body['channels'].map(channel => {
@@ -482,23 +482,23 @@ ControllerHotelRadio.prototype.getUIConfig = function () {
                 switch(self.commandRouter.sharedVars.get('language_code'))
                 {
                     case 'de':
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/volumio";
                     break
 
                     case 'it':
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/it/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/it/volumio";
                     break
 
                     case 'fr':
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/fr/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/fr/volumio";
                     break
 
                     case 'es':
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/es/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/es/volumio";
                     break
 
                     default:
-                        uiconf.sections[0].content[0].onClick.performerUrl="https://hotelradio.fm/en/volumio";
+                        uiconf.sections[0].content[0].onClick.performerUrl="https://dmd2.com/en/volumio";
                     break
 
 
