@@ -197,8 +197,8 @@ ControllerHotelRadio.prototype.onStop = function () {
 ControllerHotelRadio.prototype.addToBrowseSources = function () {
     var self = this;
 
-    self.logger.info('Adding Hotel Radio to Browse Sources');
-    var data = {name: 'dmd2_music', uri: 'hotelradio://',plugin_type:'music_service',plugin_name:'dmd2_music',albumart:'/albumart?sectionimage=music_service/dmd2_music/icons/dmd2_music-icon.png'};
+    self.logger.info('Adding DMD2 Music to Browse Sources');
+    var data = {name: 'DMD2 Music', uri: 'hotelradio://',plugin_type:'music_service',plugin_name:'dmd2_music',albumart:'/albumart?sectionimage=music_service/dmd2_music/icons/dmd2_music-icon.png'};
     return self.commandRouter.volumioAddToBrowseSources(data);
 }
 
@@ -616,7 +616,7 @@ ControllerHotelRadio.prototype.startRefreshCron=function() {
         self.startupLogin();
     });
 
-    this.logger.info('AccessToken refresher cron started for Hotel Radio');
+    this.logger.info('AccessToken refresher cron started for DMD2 Music');
 }
 
 ControllerHotelRadio.prototype.stopRefreshCron=function() {
@@ -626,5 +626,5 @@ ControllerHotelRadio.prototype.stopRefreshCron=function() {
         this.accessTokenRefreshCron=undefined
     }
 
-    this.logger.info('Stopping AccessToken refresher cron for Hotel Radio');
+    this.logger.info('Stopping AccessToken refresher cron for DMD2 Music');
 }
