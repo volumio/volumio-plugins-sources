@@ -12,7 +12,7 @@
       "hidden":false,
       "onSave": {
         "type": "controller",
-        "endpoint": "music_service/hotelradio",
+        "endpoint": "music_service/dmd2_music",
         "method": "saveAccountCredentials"
       },
       "saveButton": {
