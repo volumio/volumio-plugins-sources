@@ -124,7 +124,7 @@ ControllerHotelRadio.prototype.loginToHotelRadio=function(username, password) {
     var defer=libQ.defer()
     var self=this;
 
-    self.logger.info('Loggin in to HotelRadio');
+    self.logger.info('Login in to HotelRadio');
 
     unirest.post('https://users.hotelradio.fm/api/index/login')
         .send('username='+username)
