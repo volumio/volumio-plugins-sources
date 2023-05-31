@@ -124,7 +124,7 @@ ControllerHotelRadio.prototype.loginToHotelRadio=function(username, password) {
     var defer=libQ.defer()
     var self=this;
 
-    self.logger.info('Loggin in to HotelRadio');
+    self.logger.info('Login in to HotelRadio');
 
     unirest.post('https://users.hotelradio.fm/api/index/login')
         .send('username='+username)
@@ -186,7 +186,7 @@ ControllerHotelRadio.prototype.onStop = function () {
     var self = this;
     var defer=libQ.defer();
 
-    self.commandRouter.volumioRemoveToBrowseSources('hotelradio.fm');
+    self.commandRouter.volumioRemoveToBrowseSources('dmd2_music');
     self.stopRefreshCron();
 
     defer.resolve('');
@@ -197,8 +197,8 @@ ControllerHotelRadio.prototype.onStop = function () {
 ControllerHotelRadio.prototype.addToBrowseSources = function () {
     var self = this;
 
-    self.logger.info('Adding Hotel Radio to Browse Sources');
-    var data = {name: 'hotelradio.fm', uri: 'hotelradio://',plugin_type:'music_service',plugin_name:'hotelradio',albumart:'/albumart?sectionimage=music_service/dmd2_music/icons/dmd2_music-icon.png'};
+    self.logger.info('Adding DMD2 Music to Browse Sources');
+    var data = {name: 'DMD2 Music', uri: 'hotelradio://',plugin_type:'music_service',plugin_name:'dmd2_music',albumart:'/albumart?sectionimage=music_service/dmd2_music/icons/dmd2_music-icon.png'};
     return self.commandRouter.volumioAddToBrowseSources(data);
 }
 
@@ -284,7 +284,7 @@ ControllerHotelRadio.prototype.handleGroupBrowseUri=function(curUri) {
                         "title": channel['stream_name'],
                         "albumart": channel['channel_cover'],
                         "uri": `hotelradio://${groupId}/${channel['id']}`,
-                        "service":"hotelradio"
+                        "service":"dmd2_music"
 
                     })
                 })
@@ -334,7 +334,7 @@ ControllerHotelRadio.prototype.explodeUri = function(curUri) {
 
                 var explodeResp =  {
                             "uri": curUri,
-                            "service": "hotelradio",
+                            "service": "dmd2_music",
                             "name": "",
                             "title": "",
                             "album": "",
@@ -554,7 +554,7 @@ ControllerHotelRadio.prototype.clearAccountCredentials = function (settings) {
 
     self.logoutFromHotelRadio(settings['hotelradio_username'], settings['hotelradio_password'])
         //.then(() => self.registerIPAddress())
-        .then(() => self.commandRouter.volumioRemoveToBrowseSources('hotelradio.fm'))
+        .then(() => self.commandRouter.volumioRemoveToBrowseSources('dmd2_music'))
         .then(()=>{
             var config = self.getUIConfig();
             config.then(function(conf) {
@@ -616,7 +616,7 @@ ControllerHotelRadio.prototype.startRefreshCron=function() {
         self.startupLogin();
     });
 
-    this.logger.info('AccessToken refresher cron started for Hotel Radio');
+    this.logger.info('AccessToken refresher cron started for DMD2 Music');
 }
 
 ControllerHotelRadio.prototype.stopRefreshCron=function() {
@@ -626,5 +626,5 @@ ControllerHotelRadio.prototype.stopRefreshCron=function() {
         this.accessTokenRefreshCron=undefined
     }
 
-    this.logger.info('Stopping AccessToken refresher cron for Hotel Radio');
+    this.logger.info('Stopping AccessToken refresher cron for DMD2 Music');
 }
