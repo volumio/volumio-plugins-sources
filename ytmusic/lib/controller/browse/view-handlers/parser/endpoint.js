@@ -12,17 +12,16 @@ const KNOWN_ENDPOINT_ICONS = {
 class EndpointItemParser extends BaseParser {
 
   parseToListItem(data) {
-    const endpointType = this.getEndpointType(data?.endpoint);
-    if (!endpointType) {
+    if (!data?.endpoint?.actionType) {
       return null;
     }
     const baseUri = this.getUri();
     const item = {
       service: 'ytmusic',
-      // Setting type to 'album' is important for watch endpoints, as we
+      // Setting type to 'album' is important for watchPlaylist endpoints, as we
       // only want this item to be exploded and not others in the same list when
       // it is clicked.
-      type: endpointType === 'watch' ? 'album' : 'ytmusicEndpointItem',
+      type: data.endpoint.actionType === 'watchPlaylist' ? 'album' : 'ytmusicEndpointItem',
       title: data.label || data.text,
       uri: baseUri + this.getUriFromEndpoint(data.endpoint) //+ '@noExplode=1',
     }
@@ -44,44 +43,30 @@ class EndpointItemParser extends BaseParser {
     return item;
   }
 
-  getEndpointType(endpoint) {    
-    if (endpoint?.browse?.id) {
-      return 'browse';
-    }
-    else if (endpoint?.search) {
-      return 'search';
-    }
-    else if (endpoint?.watch_playlist?.playlist_id) {
-      return 'watch';
-    }
-
-    return null;
-  }
-
   getUriFromEndpoint(endpoint, ignorePageType = false) {
     if (!ignorePageType) {
-      switch (endpoint?.browse?.page_type) {
+      switch (endpoint.extras?.pageType) {
         case 'MUSIC_PAGE_TYPE_ALBUM':
-          return `/album@albumId=${encodeURIComponent(endpoint.browse.id)}`;
+          return `/album@albumId=${encodeURIComponent(endpoint.payload.browseId)}`;
         case 'MUSIC_PAGE_TYPE_PLAYLIST':
-          return `/playlist@playlistId=${encodeURIComponent(endpoint.browse.id)}`;
+          return `/playlist@playlistId=${encodeURIComponent(endpoint.payload.browseId)}`;
         case 'MUSIC_PAGE_TYPE_ARTIST':
-          return `/artist@artistId=${encodeURIComponent(endpoint.browse.id)}`;
+          return `/artist@artistId=${encodeURIComponent(endpoint.payload.browseId)}`;
         default:
       }
     }
     const param = encodeURIComponent(JSON.stringify(endpoint));
-    if (endpoint.search) {
+    if (endpoint.actionType === 'search') {
       return `/search@endpoint=${param}`;
     }
     return `/generic@endpoint=${param}`;
   }
 
   getIconFromEndpoint(endpoint) {
-    if (endpoint?.browse?.id) {
-      return KNOWN_ENDPOINT_ICONS[endpoint.browse.id] || 'fa fa-arrow-circle-right';
+    if (endpoint.actionType === 'browse') {
+      return KNOWN_ENDPOINT_ICONS[endpoint.payload.browseId] || 'fa fa-arrow-circle-right';
     }
-    else if (endpoint?.watch_playlist) {
+    else if (endpoint.actionType === 'watchPlaylist') {
       return 'fa fa-play-circle';
     }
 

@@ -1,132 +1,66 @@
 'use strict';
 
-const libQ = require('kew');
-const yt2 = require(yt2PluginLibRoot + '/youtube2')
-const BaseViewHandler = require(__dirname + '/base');
+const yt2 = require('../../../youtube2');
+const Auth = require('../../../utils/auth');
+const FeedViewHandler = require('./feed');
 
-class RootViewHandler extends BaseViewHandler {
+class RootViewHandler extends FeedViewHandler {
 
-    browse() {
-        let self = this;
-        let defer = libQ.defer();
-      
-        let listPromises = [];
+  async browse() {
+    const result = await super.browse();
+    if (result.navigation?.lists?.length > 0) {
+      result.navigation.lists[0].title = yt2.getI18n('YOUTUBE2_TITLE');
+    }
+    return result;
+  }
 
-        if (yt2.getConfigValue('dataRetrievalMethod', 'scraping') === 'gapi') {
-            listPromises.push(self._getMyYouTubeItems('My YouTube'));
-        }
+  async getContents() {
+    const contentType = yt2.getConfigValue('rootContentType', 'full');
+    const rootModel = this.getModel('root');
+    const contents = (await rootModel.getContents({ contentType })) || {};
 
-        let frontPageSections = yt2.getConfigValue('frontPageSections', [], true);
-        frontPageSections.filter( section => section.enabled ).forEach( (section) => {
-            listPromises.push(self._getFrontPageSectionItems(section));
-        });
-
-        libQ.all(listPromises).then( (lists) => {
-            let finalLists = [];
-            lists.forEach( (list) => {
-                if (list.items.length) {
-                    finalLists.push(list);
-                }
-            });
-            defer.resolve({
-                navigation: {
-                    prev: {
-                        uri: '/'
-                    },
-                    lists: finalLists
-                }
-            });
-        }).fail( (error) => {
-            defer.reject(error);
-        });
-
-        return defer.promise;
+    // We should never come to this, but just in case...
+    if (!contents.sections || contents.sections.length === 0) {
+      contents.sections = [];
     }
 
-    _getMyYouTubeItems(title) {
-        let baseUri = 'youtube2';
-        let baseImgPath = 'music_service/youtube2/assets/images/';
-        
-        let items = [
-                {
-                    service: 'youtube2',
-                    type: 'myYouTubeItem',
-                    title: yt2.getI18n('YOUTUBE2_SUBSCRIBED_CHANNELS'),
-                    uri: baseUri + '/channels@title=' + encodeURIComponent(yt2.getI18n('YOUTUBE2_SUBSCRIBED_CHANNELS')),
-                    albumart: '/albumart?sourceicon=' + baseImgPath + 'subscription.png'
-                },
-                {
-                    service: 'youtube2',
-                    type: 'myYouTubeItem',
-                    title: yt2.getI18n('YOUTUBE2_MY_PLAYLISTS'),
-                    uri: baseUri + '/playlists@title=' + encodeURIComponent(yt2.getI18n('YOUTUBE2_MY_PLAYLISTS')),
-                    albumart: '/albumart?sourceicon=' + baseImgPath + 'playlist.png'
-                },
-                {
-                    service: 'youtube2',
-                    type: 'myYouTubeItem',
-                    title: yt2.getI18n('YOUTUBE2_LIKED_VIDEOS'),
-                    uri: baseUri + '/videos@title=' + encodeURIComponent(yt2.getI18n('YOUTUBE2_LIKED_VIDEOS')),
-                    albumart: '/albumart?sourceicon=' + baseImgPath + 'liked.png'
-                }
-            ];
-        
-        return libQ.resolve({
-            title: title,
-            availableListViews: ['list', 'grid'],
-            items: items
-        });
-    }
-
-    _getFrontPageSectionItems(section) {
-        let self = this;
-    	let defer = libQ.defer();
-    	
-        let model = self.getModel(section.itemType),
-            parser = self.getParser(section.itemType),
-            options = {
-                limit: section.itemCount,
-                search: section.keywords
-            };
-
-        let modelFetchPromise;
-        switch(section.itemType) {
-            case 'channel':
-                modelFetchPromise = model.getChannels(options);
-                break;
-            case 'playlist':
-                modelFetchPromise = model.getPlaylists(options);
-                break;
-            case 'video':
-                modelFetchPromise = model.getVideos(options);
-                break;
-        }
-		modelFetchPromise.then( (results) => {
-            let items = [];
-            results.items.forEach( (result) => {
-                items.push(parser.parseToListItem(result));
-            });
-            let nextPageRef = self.constructPageRef(results.nextPageToken, results.nextPageOffset);
-            if (nextPageRef) {
-                let nextUri = `youtube2/${section.itemType}s@search=${encodeURIComponent(section.keywords)}@title=${encodeURIComponent(section.title)}`;
-                items.push(self.constructNextPageItem(nextUri));
+    const authStatus = Auth.getAuthStatus();
+    if (authStatus.status === Auth.SIGNED_IN) {
+      const accountModel = this.getModel('account');
+      const account = await accountModel.getInfo();
+      if (account?.channel) {
+        contents.sections.unshift({
+          items: [
+            {
+              type: 'endpoint',
+              title: account.channel.title,
+              thumbnail: account.photo,
+              endpoint: account.channel.endpoint
             }
-            defer.resolve({
-                title: section.title,
-                availableListViews: ['list', 'grid'],
-            	items: items
-            });
-        }).fail( (error) => { // return empty list
-            yt2.getLogger().error('[youtube2-root] _getFrontPageSectionItems() error:');
-            yt2.getLogger().error(error);
-			defer.resolve({
-				items: [],
-			});
-		});
-
-		return defer.promise;
+          ]
+        });
+      }
     }
 
+    if (contentType === 'simple' && contents.sections.length > 1) {
+      // Place all items into one section
+      const allItems = this.findAllItemsInSection(contents.sections);
+      contents.sections = [
+        {
+          ...contents.sections[0],
+          items: allItems
+        }
+      ];
+    }
+
+    return contents;
+  }
+
+  // Override
+  getAvailableListViews(items) {
+    const contentType = yt2.getConfigValue('rootContentType', 'full');
+    return contentType === 'simple' ? ['grid', 'list'] : ['list'];
+  }
 }
 
 module.exports = RootViewHandler;

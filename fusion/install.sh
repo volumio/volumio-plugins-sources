@@ -25,12 +25,11 @@ cp $LIB/readme.txt $opath/readme.txt
 cp $LIB/filters/* $opath/filters/
 cp $LIB/target-curves/* $opath/target-curves/
 cp $LIB/filter-sources/* $opath/filter-sources/
-#cp -R $LIB/hrtf-filters/* $opath/hrtf-filters/
 rm -Rf $LIB/filters
 rm -Rf $LIB/target-curves
 rm -Rf $LIB/filters-sources
-#rm -Rf $LIB/hrtf-filters
-		
+rm /tmp/camilladsp.log
+
 echo "Installing/fusiondsp dependencies"
 sudo apt update
 sudo apt -y install python3-aiohttp python3-pip
@@ -44,8 +43,8 @@ sudo chgrp -R volumio cgui
 sudo rm cgui-1.0.0.zip
 
 cd $LIB
-pip install git+https://github.com/HEnquist/pycamilladsp.git@v1.0.0
-pip install git+https://github.com/HEnquist/pycamilladsp-plot.git@v1.0.2
+pip3 install git+https://github.com/HEnquist/pycamilladsp.git@v1.0.0
+pip3 install git+https://github.com/HEnquist/pycamilladsp-plot.git@v1.0.2
 
 #echo "remove previous configuration"
 #if [ ! -f "/data/configuration/audio_interface/fusiondsp/config.json" ];

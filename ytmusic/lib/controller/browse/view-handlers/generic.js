@@ -27,7 +27,7 @@ class GenericViewHandler extends FeedViewHandler {
   getTracksOnExplode() {
     const endpoint =  this._getEndpoint();
 
-    if (!endpoint.watch_playlist) {
+    if (endpoint?.actionType !== 'watchPlaylist') {
       return libQ.reject("Operation not supported");
     }
 

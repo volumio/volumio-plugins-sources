@@ -219,6 +219,13 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
   * `Timer` class logging now indicates delayed start status.
   * `Timer::PreventAuthTimeout` class now delays its startup.
 
+### Version 2.12.1
+  #### Fixes
+  * The `resume()` function was fixed.  The Volumio `state.status` object key was not being updated to 'play'.  Pausing and resuming should work much better now.  Thanks to @GlennBurnett in the forums for pinpointing this old bug.
+  * Stopping / Deactivating the plugin will (should!) clear the "ghost" album cover thumbnail and metadata from Volumio's GUI.  @downtownHippie asked me to fix this a long time ago and it was bugging me even before he mentioned it.  I have been chasing this bug for years now and I hope that it is finally gone!
+  * Fixed an error in `pushState()` that wasn't updating the status correctly after a pause. Thanks to @GlennBurnett who alerted me to this issue and helped me fix it.
+  * The "No results" red error toast when choosing a station has been fixed -- there was no final "response" returned from `handleBrowseUri()`.
+  * `previous()` and `next()` functions were revisited due to changes to the `stop()` function.  Thanks to @davestlou for pointing this out.
 
 ## Issues
 
@@ -248,4 +255,4 @@ My alpha fork of the module was rewritten to use Promises instead of callbacks, 
 * <b>@lostmyshape</b> gave me the heads-up about the Unofficial Pandora API and gave me some constructive ideas.  He was the first person to look at my code and give me help.  I also borrowed his mpd player listener callback function which really helped a lot.  Much obliged!
 * <b>@marco79cgn</b> in particular laid the groundwork for my plugin.  I shamelessly borrowed from his code in several areas.
 * The creators of the other Volumio plugins.  I tried to learn from your code.
-* <b>@downtownHippie</b>, <b>@Jim_Edwards</b>, <b>@GlennBurnett</b> in the forum for their helpful and extensive feedback.
+* <b>@downtownHippie</b>, <b>@Jim_Edwards</b>, <b>@GlennBurnett</b> and <b>@davestlou</b> in the forum for their helpful and extensive feedback.

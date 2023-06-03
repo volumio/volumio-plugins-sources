@@ -87,6 +87,11 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.3.8
+- Add option to display track info title as marquee (under 'Text Styles')
+- Add 'IdleScreen - Main Alignment: Cycle' setting
+- Update web client v0.3.0
+
 0.3.7
 - Newer API keys do not work with the API calls made by Weather Service. Therefore, rewrite fetching of weather data and remove API key requirement.
 - Rewrite random image fetching from Unsplash due to frequent 503 response errors / timeouts occurring lately.

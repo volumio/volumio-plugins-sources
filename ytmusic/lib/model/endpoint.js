@@ -1,36 +1,36 @@
 'use strict';
 
-const { default: Parser } = require('volumio-youtubei.js/dist/src/parser');
-const { default: PlaylistPanel } = require('volumio-youtubei.js/dist/src/parser/classes/PlaylistPanel');
-const { default: SectionList } = require('volumio-youtubei.js/dist/src/parser/classes/SectionList');
-const { default: TabbedSearchResults } = require('volumio-youtubei.js/dist/src/parser/classes/TabbedSearchResults');
+const Parser = require('volumio-youtubei.js').Parser;
+const PlaylistPanel = require('volumio-youtubei.js').YTNodes.PlaylistPanel;
+const SectionList = require('volumio-youtubei.js').YTNodes.SectionList;
+const TabbedSearchResults = require('volumio-youtubei.js').YTNodes.TabbedSearchResults;
 const { InnerTubeParser, InnerTubeBaseModel } = require('./innertube');
 const ytmusic = require(ytmusicPluginLibRoot + '/ytmusic');
 
 class EndpointModel extends InnerTubeBaseModel {
 
   async getContents(endpoint, opts) {
-    if (endpoint.browse) {
-      return this._getBrowseContents(endpoint, opts);
+    switch (endpoint.actionType) {
+      case 'browse':
+        return this._getBrowseContents(endpoint, opts);
+      case 'search':
+        return this._getSearchResults(endpoint, opts);
+      case 'watch':
+      case 'watchPlaylist':
+        return this._getWatchContents(endpoint, opts);
+      default:
+        return Promise.resolve({});      
     }
-    else if (endpoint.search) {
-      return this._getSearchResults(endpoint, opts);
-    }
-    else if (endpoint.watch_playlist || endpoint.watch) {
-      return this._getWatchContents(endpoint, opts);
-    }
-
-    return Promise.resolve({});
   }
 
   async _getBrowseContents(endpoint, opts) {
     if (opts?.continuation) {
-      return this.getBrowseResultsByContinuation(opts.continuation, endpoint.browse);
+      return this.getBrowseResultsByContinuation(opts.continuation, endpoint.payload);
     }
 
     const innerTube = this.getInnerTube();
-    const payload = { ...(endpoint.browse || {}), client: 'YTMUSIC' };
-    const response = await innerTube.actions.browse(endpoint.payload.browseId, payload);
+    const payload = { ...(endpoint.payload || {}), client: 'YTMUSIC' };
+    const response = await innerTube.actions.execute('/browse', payload);
     const page = Parser.parseResponse(response.data);
     const sectionList = page.contents_memo.getType(SectionList)?.[0];
     await this.expandSectionList(sectionList);
@@ -44,20 +44,20 @@ class EndpointModel extends InnerTubeBaseModel {
   }
 
   async _getSearchResults(endpoint, opts) {
-    const searchArgs = { client: 'YTMUSIC' };
+    const payload = { client: 'YTMUSIC' };
     if (opts?.continuation) {
-      searchArgs.ctoken = opts.continuation.token;
+      payload.token = opts.continuation.token;
     }
     else {
-      searchArgs.query = endpoint.search.query;
+      payload.query = endpoint.payload.query;
       
-      if (endpoint.search.params) {
-        searchArgs.params = endpoint.search.params;
+      if (endpoint.payload.params) {
+        payload.params = endpoint.payload.params;
       }
     }
 
     const innerTube = this.getInnerTube();
-    const response = await innerTube.actions.search(searchArgs);
+    const response = await innerTube.actions.execute('/search', payload);
     const page = Parser.parseResponse(response.data);
 
     if (!opts?.continuation) {
@@ -81,7 +81,12 @@ class EndpointModel extends InnerTubeBaseModel {
           chips.unshift({
             is_selected: true,
             text: ytmusic.getI18n('YTMUSIC_NO_FILTERS'),
-            endpoint
+            endpoint: { // Need to convert back to InnerTube structure
+              payload: endpoint.payload,
+              metadata: {
+                api_url: '/search'
+              }
+            }
           });
         }
         else {
@@ -118,6 +123,7 @@ class EndpointModel extends InnerTubeBaseModel {
         }
         result.sections[0].options.unshift(tabsToOption);
       }
+
       return result;
     }
 
@@ -138,7 +144,7 @@ class EndpointModel extends InnerTubeBaseModel {
   async _getWatchContents(endpoint, opts) {
     const innerTube = this.getInnerTube();
     const payload = {
-      playlist_id: endpoint.payload.playlistId,
+      playlistId: endpoint.payload.playlistId,
       client: 'YTMUSIC'
     };
 
@@ -147,14 +153,14 @@ class EndpointModel extends InnerTubeBaseModel {
     }
 
     if (endpoint.payload.videoId) {
-      payload.video_id = endpoint.payload.videoId;
+      payload.videoId = endpoint.payload.videoId;
     }
 
     if (opts?.continuation) {
-      payload.ctoken = opts.continuation.token;
+      payload.token = opts.continuation.token;
     }
 
-    const response = await innerTube.actions.next({ ...payload, client: 'YTMUSIC' });
+    const response = await innerTube.actions.execute('/next', payload);
     const page = Parser.parseResponse(response.data);
 
     let contents;
@@ -179,10 +185,13 @@ class EndpointModel extends InnerTubeBaseModel {
       contents =  InnerTubeParser.parseSection(fullData);
     }
 
-    // Look for AutomixPreviewVideo and separate that from contents
-    const automixIndex = contents?.contents?.findIndex((item) => item.type === 'automix');
+    // Look for AutomixPreviewVideo and separate that from contents.
+    // Due to `InnerTubeParser#parseSection()`, automix items (AutomixPreviewVideo) will be placed
+    // inside the section's `startItems` since they do not have thumbnails and have watchPlaylist
+    // endpoints.
+    const automixIndex = contents?.startItems?.findIndex((item) => item.type === 'automix');
     if (automixIndex >= 0) {
-      contents.automix = contents.contents.splice(automixIndex, 1)[0];
+      contents.automix = contents.startItems.splice(automixIndex, 1)[0];
     }
 
     return contents;

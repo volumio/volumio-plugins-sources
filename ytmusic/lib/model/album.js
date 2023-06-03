@@ -1,6 +1,6 @@
 'use strict';
 
-const { default: SectionList } = require('volumio-youtubei.js/dist/src/parser/classes/SectionList');
+const SectionList = require('volumio-youtubei.js').YTNodes.SectionList;
 const { InnerTubeParser, InnerTubeBaseModel } = require("./innertube");
 
 class AlbumModel extends InnerTubeBaseModel {
