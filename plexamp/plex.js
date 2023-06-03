@@ -5,6 +5,7 @@ var libQ = require('kew');
 var cachemanager = require('cache-manager');
 var PlexAPI = require('plex-api');
 var PlexWebsocket = require("plex-websocket");
+const request = require('request-promise');
 
 module.exports = plex;
 
@@ -414,24 +415,54 @@ function plex(log, config) {
     }
     var ping = function(name, serverAddress, port) {
         var defer = libQ.defer();
-        var ping = require ("net-ping");
-        var session = ping.createSession ();
-        session.pingHost (serverAddress, function (error, target) {
-            if (error) {
-                console.log(serverAddress + ": " + error.toString());
-                defer.reject(error.toString());
+        var ping = require ("ping");
+
+        console.log("pinging: " + serverAddress);
+        ping.sys.probe(serverAddress, (isAlive) => {
+            if (!isAlive) {
+                defer.reject(serverAddress + " is not alive");
             } else {
                 console.log(serverAddress + ": Alive");
-                defer.resolve({"name": name, "address": serverAddress, port: port})
+                defer.resolve({"name": name, "address": serverAddress, port: port});
             }
         });
         return defer.promise;
-    }
+    };
+
+    var httpPing = function(name, address, port, protocol) {
+        var defer = libQ.defer();
+
+        console.log("http ping: " + name + " " + address + " " + port);
+
+        var options = { 'method': 'HEAD',
+                        'uri': protocol + '://' + address + ':' + port,
+                        'timeout': 1000 };
+
+        request(options)
+            .then((res) => {
+                // any successful response means a web server is running
+                defer.resolve({ "name": name, "address": address, "port": port });
+            })
+            .catch((err) => {
+                // most commonly, we expect the media server to respond with 401 not authorized
+                // again, this means that the Plex server is running
+                if (err && err.hasOwnProperty('name') && err.hasOwnProperty('statusCode') &&
+                    err.name == 'StatusCodeError' && err.statusCode == 401) {
+                    defer.resolve({ "name": name, "address": address, "port": port });
+                } else {
+                    defer.reject(address + " is not alive");
+                }
+            });
+
+        return defer.promise;
+    };
+
     return {
         isConnected: isConnected,
         queryLibraries: queryLibraries,
         queryAllMusicLibraries: queryAllMusicLibraries,
         ping: ping,
+        httpPing: httpPing,
         connect: connect,
         cacheGet: cacheGet,
         cacheSet: cacheSet,

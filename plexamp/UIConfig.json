@@ -2,50 +2,51 @@
   "page": {
     "label": "TRANSLATE.PLUGIN_CONFIGURATION"
   },
-  "sections": [{
-    "id": "connect",
-    "element": "section",
-    "label": "TRANSLATE.PLUGIN_CRED_DESC",
-    "icon": "fa-plug",
-    "content": [
-      {
-        "id": "connected",
-        "element": "switch",
-        "value": false,
-        "label": "TRANSLATE.CONNECT_TO_PLEX"
-      },
-      {
-        "id": "getpin",
-        "element": "button",
-        "label": "TRANSLATE.GET_PIN_PROMPT",
-        "doc": "Get a fresh PIN from Plex to Link Volumio with your Plex",
-        "onClick": {
-          "type": "controller",
-          "endpoint": "music_service/plexamp",
-          "method": "getPinAndUpdateConfig"
+  "sections": [
+    {
+      "id": "connect",
+      "element": "section",
+      "label": "TRANSLATE.PLUGIN_CRED_DESC",
+      "icon": "fa-plug",
+      "content": [
+        {
+          "id": "connected",
+          "element": "switch",
+          "value": false,
+          "label": "TRANSLATE.CONNECT_TO_PLEX"
         },
-        "visibleIf": {
-          "field": "connected",
-          "value": false
-        }
+        {
+          "id": "getpin",
+          "element": "button",
+          "label": "TRANSLATE.GET_PIN_PROMPT",
+          "doc": "Get a fresh PIN from Plex to Link Volumio with your Plex",
+          "onClick": {
+            "type": "controller",
+            "endpoint": "music_service/plexamp",
+            "method": "getPinAndUpdateConfig"
+          },
+          "visibleIf": {
+            "field": "connected",
+            "value": false
+          }
 
-      },
-      {
-        "id": "linkplex",
-        "element": "button",
-        "label": "TRANSLATE.LAUNCH_PLEX_PROMPT",
-        "doc": "Link Volumio to your Plex Account using the PIN provided",
-        "onClick": {
-          "type": "openUrl",
-          "url": "https://www.plex.tv/link/"
         },
-        "visibleIf": {
-          "field": "connected",
-          "value": false
+        {
+          "id": "linkplex",
+          "element": "button",
+          "label": "TRANSLATE.LAUNCH_PLEX_PROMPT",
+          "doc": "Link Volumio to your Plex Account using the PIN provided",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://www.plex.tv/link/"
+          },
+          "visibleIf": {
+            "field": "connected",
+            "value": false
+          }
         }
-      }
-    ]
-  },
+      ]
+    },
     {
       "id": "options",
       "element": "section",

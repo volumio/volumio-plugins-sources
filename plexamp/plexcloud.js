@@ -37,6 +37,35 @@ Plexcloud.prototype.getHeaders = function(options)
     return headers;
 };
 
+
+function resourceConnectionFilter(json) {
+
+    var results = [];
+
+    if (!json.hasOwnProperty("MediaContainer") || !json.MediaContainer.hasOwnProperty("Device")
+        || typeof(json.MediaContainer.Device) != "object" || json.MediaContainer.Device.constructor !== Array) {
+        return results;
+    }
+
+    json.MediaContainer.Device.
+        filter(dev => dev.$.product == "Plex Media Server"  &&
+               dev.hasOwnProperty("Connection") &&
+               dev.Connection.constructor === Array &&
+               dev.Connection.length >= 1 ).forEach( (device) => {
+
+                   device.Connection.forEach( (connection) => {
+                       results.push( {
+                           "name": device.$.name,
+                           "protocol": connection.$.protocol,
+                           "address": connection.$.address,
+                           "port": connection.$.port,
+                           "local": connection.$.local == "1"
+                       } );
+                   });
+               });
+    return results;
+}
+
 Plexcloud.prototype.getServers = function(token, resolve, reject)
 {
     if (token === undefined) {
@@ -45,10 +74,10 @@ Plexcloud.prototype.getServers = function(token, resolve, reject)
 
     this.headers["X-Plex-token"] = token;
 
-    return request.get({url: 'https://plex.tv/pms/servers', headers: this.headers})
+    return request.get({url: 'https://plex.tv/pms/resources', headers: this.headers})
         .then(function(xml) {
             parseString(xml, function (err, json) {
-                resolve(json);
+                resolve(resourceConnectionFilter(json));
             });
         })
         .catch(function(err){
