@@ -12,7 +12,7 @@
       "hidden":false,
       "onSave": {
         "type": "controller",
-        "endpoint": "music_service/hotelradio",
+        "endpoint": "music_service/dmd2_music",
         "method": "saveAccountCredentials"
       },
       "saveButton": {
@@ -28,7 +28,7 @@
           "element": "button",
           "label": "TRANSLATE.HOTELRADIO.FREE_TRIAL",
           "description": "TRANSLATE.HOTELRADIO.FREE_TRIAL_DESCR",
-          "onClick": {"type":"oauth", "performerUrl":"https://hotelradio.fm/en/volumio","plugin":"music_service/hotelradio", "scopes":["r_usr","w_usr","w_sub"]},
+          "onClick": {"type":"oauth", "performerUrl":"https://dmd2.com/en/volumio","plugin":"music_service/dmd2_music", "scopes":["r_usr","w_usr","w_sub"]},
           "hidden":false
         },
         {
