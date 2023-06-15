@@ -36,7 +36,7 @@
 		"kew": "^0.7.0",
 		"md5": "^2.3.0",
 		"node-cache": "^5.1.2",
-		"soundcloud-fetch": "github:patrickkfkan/soundcloud-fetch",
+		"soundcloud-fetch": "git+https://github.com/patrickkfkan/soundcloud-fetch",
 		"string-format": "^2.0.0",
 		"v-conf": "^1.4.2"
 	}
