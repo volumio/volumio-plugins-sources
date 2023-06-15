@@ -110,22 +110,40 @@ class PlayController {
         __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_removeListeners).call(this);
         __classPrivateFieldSet(this, _PlayController_monitoredPlaybacks, { current: null, pending: null }, "f");
     }
-    // Returns kew promise!
     async prefetch(track) {
         const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback', true);
         if (!gaplessPlayback) {
-            return kew_1.default.resolve();
+            /**
+             * Volumio doesn't check whether `prefetch()` is actually performed or
+             * successful (such as inspecting the result of the function call) -
+             * it just sets its internal state variable `prefetchDone`
+             * to `true`. This results in the next track being skipped in cases
+             * where prefetch is not performed or fails. So when we want to signal
+             * that prefetch is not done, we would have to directly falsify the
+             * statemachine's `prefetchDone` variable.
+             */
+            JellyfinContext_1.default.getLogger().info('[jellyfin-play] Prefetch disabled');
+            JellyfinContext_1.default.getStateMachine().prefetchDone = false;
+            return;
         }
-        const { song, connection } = await this.getSongFromTrack(track);
-        const streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection);
+        let song, connection, streamUrl;
+        try {
+            ({ song, connection } = await this.getSongFromTrack(track));
+            streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection);
+        }
+        catch (error) {
+            JellyfinContext_1.default.getLogger().error(`[jellyfin-play] Prefetch failed: ${error}`);
+            JellyfinContext_1.default.getStateMachine().prefetchDone = false;
+            return;
+        }
         __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl };
         const mpdPlugin = __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f");
-        return mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
+        return (0, util_1.kewToJSPromise)(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
             .then((addIdResp) => __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_mpdAddTags).call(this, addIdResp, track))
             .then(() => {
             JellyfinContext_1.default.getLogger().info(`[jellyfin-play] Prefetched and added song to MPD queue: ${song.name}`);
             return mpdPlugin.sendMpdCommand('consume 1', []);
-        });
+        }));
     }
     async getSongFromTrack(track) {
         const views = ViewHelper_1.default.getViewsFromUri(track.uri);

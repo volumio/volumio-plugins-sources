@@ -145,22 +145,40 @@ export default class PlayController {
     this.#monitoredPlaybacks = { current: null, pending: null };
   }
 
-  // Returns kew promise!
   async prefetch(track: ExplodedTrackInfo) {
     const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback', true);
     if (!gaplessPlayback) {
-      return libQ.resolve();
+      /**
+       * Volumio doesn't check whether `prefetch()` is actually performed or
+       * successful (such as inspecting the result of the function call) -
+       * it just sets its internal state variable `prefetchDone`
+       * to `true`. This results in the next track being skipped in cases
+       * where prefetch is not performed or fails. So when we want to signal
+       * that prefetch is not done, we would have to directly falsify the
+       * statemachine's `prefetchDone` variable.
+       */
+      jellyfin.getLogger().info('[jellyfin-play] Prefetch disabled');
+      jellyfin.getStateMachine().prefetchDone = false;
+      return;
     }
-    const {song, connection} = await this.getSongFromTrack(track);
-    const streamUrl = this.#getStreamUrl(song, connection);
+    let song: Song, connection: ServerConnection, streamUrl;
+    try {
+      ({song, connection} = await this.getSongFromTrack(track));
+      streamUrl = this.#getStreamUrl(song, connection);
+    }
+    catch (error: any) {
+      jellyfin.getLogger().error(`[jellyfin-play] Prefetch failed: ${error}`);
+      jellyfin.getStateMachine().prefetchDone = false;
+      return;
+    }
     this.#monitoredPlaybacks.pending = { song, connection, streamUrl };
     const mpdPlugin = this.#mpdPlugin;
-    return mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
+    return kewToJSPromise(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
       .then((addIdResp: {Id: string}) => this.#mpdAddTags(addIdResp, track))
       .then(() => {
         jellyfin.getLogger().info(`[jellyfin-play] Prefetched and added song to MPD queue: ${song.name}`);
         return mpdPlugin.sendMpdCommand('consume 1', []);
-      });
+      }));
   }
 
   // Returns kew promise!

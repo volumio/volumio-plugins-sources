@@ -480,7 +480,10 @@ class ControllerJellyfin {
   }
 
   prefetch(track: any) {
-    return this.#playController?.prefetch(track);
+    if (!this.#playController) {
+      return libQ.reject('Jellyfin plugin is not started');
+    }
+    return jsPromiseToKew(this.#playController.prefetch(track));
   }
 
   search(query: SearchQuery) {

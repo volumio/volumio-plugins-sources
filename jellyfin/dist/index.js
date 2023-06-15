@@ -405,7 +405,10 @@ class ControllerJellyfin {
         return __classPrivateFieldGet(this, _ControllerJellyfin_playController, "f")?.previous();
     }
     prefetch(track) {
-        return __classPrivateFieldGet(this, _ControllerJellyfin_playController, "f")?.prefetch(track);
+        if (!__classPrivateFieldGet(this, _ControllerJellyfin_playController, "f")) {
+            return kew_1.default.reject('Jellyfin plugin is not started');
+        }
+        return (0, util_1.jsPromiseToKew)(__classPrivateFieldGet(this, _ControllerJellyfin_playController, "f").prefetch(track));
     }
     search(query) {
         if (__classPrivateFieldGet(this, _ControllerJellyfin_searchController, "f")) {

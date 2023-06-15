@@ -22,6 +22,10 @@ You can add multiple servers, each with multple user accounts, and those that ar
   
 #### Changelog
 
+1.0.5
+- [Fixed] Manifest UI detection broken by Volumio commit [db5d61a](https://github.com/volumio/volumio3-backend/commit/db5d61a50dacb60d5132238c7f506f0000f07e07)
+- [Fixed] Prefetch skipping track when disabled or failed
+
 1.0.4
 - [Added] Obtain favorite status of songs from server; mark / unmark favorite songs alongside Volumio
 
