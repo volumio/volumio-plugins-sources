@@ -660,17 +660,21 @@ ControllerCalmRadio.prototype.search = function (text) {
 	let defer = libQ.defer()
 
 	let rgx = new RegExp(text.value, 'i')
-	let chlst = []
+//	let chlst = []
 
-	chlst = chlst.concat(self.searchCategories(rgx))
-	chlst = chlst.concat(self.searchChannels(rgx))
-
-	defer.resolve([{
-		title: 'Calm Radio',
-		icon: 'fa-heartbeat',
-		availableListViews: ['list'],
-		items: chlst
-	}])
+	self.getCalmRadioData('categories')
+		.then(() => self.getCalmRadioData('channels'))
+		.then(() => {
+			let chlst = []
+			chlst = chlst.concat(self.searchCategories(rgx))
+			chlst = chlst.concat(self.searchChannels(rgx))
+			defer.resolve([{
+				title: 'Calm Radio',
+				icon: 'fa-heartbeat',
+				availableListViews: ['list'],
+				items: chlst
+			}])
+		})
 
 	return defer.promise
 }
