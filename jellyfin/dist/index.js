@@ -319,7 +319,7 @@ class ControllerJellyfin {
         const deviceInfo = JellyfinContext_1.default.getDeviceInfo();
         const sdkInitInfo = {
             clientInfo: {
-                name: package_json_1.default.name,
+                name: 'Jellyfin plugin for Volumio',
                 version: package_json_1.default.version
             },
             deviceInfo: {

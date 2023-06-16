@@ -360,7 +360,7 @@ class ControllerJellyfin {
     const deviceInfo = jellyfin.getDeviceInfo();
     const sdkInitInfo: JellyfinSdkInitInfo = {
       clientInfo: {
-        name: pluginInfo.name,
+        name: 'Jellyfin plugin for Volumio',
         version: pluginInfo.version
       },
       deviceInfo: {

@@ -12,6 +12,7 @@ import { ExplodedTrackInfo } from '../browse/view-handlers/Explodable';
 import ServerHelper from '../../util/ServerHelper';
 import { kewToJSPromise } from '../../util';
 import ViewHelper from '../browse/view-handlers/ViewHelper';
+import StopWatch from '../../util/StopWatch';
 
 interface PlaybackInfo {
   song: Song;
@@ -26,8 +27,8 @@ interface LastPlaybackReport {
 }
 
 interface MonitoredPlaybacks {
-  current: Required<PlaybackInfo> & { lastReport?: LastPlaybackReport } | null;
-  pending: Omit<PlaybackInfo, 'lastStatus'> & { lastReport?: LastPlaybackReport } | null;
+  current: Required<PlaybackInfo> & { lastReport?: LastPlaybackReport, timer: StopWatch } | null;
+  pending: Omit<PlaybackInfo, 'lastStatus'> & { lastReport?: LastPlaybackReport, timer: StopWatch } | null;
 }
 
 interface MpdState {
@@ -98,7 +99,7 @@ export default class PlayController {
 
     const {song, connection} = await this.getSongFromTrack(track);
     const streamUrl = this.#getStreamUrl(song, connection);
-    this.#monitoredPlaybacks.pending = { song, connection, streamUrl };
+    this.#monitoredPlaybacks.pending = { song, connection, streamUrl, timer: new StopWatch() };
     this.#addListeners();
     await this.#doPlay(streamUrl, track);
     await this.#markPlayed(song, connection);
@@ -171,7 +172,7 @@ export default class PlayController {
       jellyfin.getStateMachine().prefetchDone = false;
       return;
     }
-    this.#monitoredPlaybacks.pending = { song, connection, streamUrl };
+    this.#monitoredPlaybacks.pending = { song, connection, streamUrl, timer: new StopWatch() };
     const mpdPlugin = this.#mpdPlugin;
     return kewToJSPromise(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
       .then((addIdResp: {Id: string}) => this.#mpdAddTags(addIdResp, track))
@@ -358,7 +359,7 @@ export default class PlayController {
           }
         });
       }
-      jellyfin.getLogger().info(`[jellyfin-play]: Reported '${type}' for song: ${song.name}`);
+      jellyfin.getLogger().info(`[jellyfin-play]: Reported '${type}' for song: ${song.name} (at ${seek} ms)`);
     }
     catch (error: any) {
       jellyfin.getLogger().error(`[jellyfin-play]: Failed to report '${type}' for song '${song.name}': ${error.message}`);
@@ -368,18 +369,20 @@ export default class PlayController {
   async #handleMpdPlayerEvent() {
 
     const __apiReportPlayback = (playbackInfo: Required<PlaybackInfo> &
-      { lastReport?: LastPlaybackReport }, currentStatus: MpdState['status']) => {
+      { lastReport?: LastPlaybackReport, timer: StopWatch }, currentStatus: MpdState['status']) => {
       const reportPayload = {
         song: playbackInfo.song,
-        connection: playbackInfo.connection,
-        seek: mpdState.seek
+        connection: playbackInfo.connection
       };
       const lastStatus = playbackInfo.lastStatus;
       playbackInfo.lastStatus = currentStatus;
       let reportType: ApiReportPlaybackParams['type'];
+      let seek;
       switch (currentStatus) {
         case 'pause':
           reportType = 'pause';
+          playbackInfo.timer.stop();
+          seek = mpdState.seek;
           break;
 
         case 'play':
@@ -392,19 +395,24 @@ export default class PlayController {
           else { // LastStatus: stop
             reportType = 'start';
           }
+          seek = mpdState.seek;
+          playbackInfo.timer.start(seek);
           break;
 
         case 'stop':
         default:
           reportType = 'stop';
+          // For 'stop' events, MPD state does not include the seek position.
+          // We would have to get this value from playbackInfo's internal timer.
+          seek = playbackInfo.timer.stop().getElapsed();
       }
       // Avoid multiple reports of same type
       if (playbackInfo.lastReport?.type === reportType &&
-          (reportType !== 'timeupdate' || playbackInfo.lastReport?.seek === reportPayload.seek)) {
+          (reportType !== 'timeupdate' || playbackInfo.lastReport?.seek === seek)) {
         return;
       }
-      playbackInfo.lastReport = { type: reportType, seek: reportPayload.seek };
-      return this.#apiReportPlayback({...reportPayload, type: reportType});
+      playbackInfo.lastReport = { type: reportType, seek };
+      return this.#apiReportPlayback({...reportPayload, seek, type: reportType});
     };
 
     const __refreshPlayerViewHeartIcon = (favorite: boolean) => {

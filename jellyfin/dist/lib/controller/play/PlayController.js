@@ -47,6 +47,7 @@ const model_1 = __importStar(require("../../model"));
 const ServerHelper_1 = __importDefault(require("../../util/ServerHelper"));
 const util_1 = require("../../util");
 const ViewHelper_1 = __importDefault(require("../browse/view-handlers/ViewHelper"));
+const StopWatch_1 = __importDefault(require("../../util/StopWatch"));
 class PlayController {
     constructor(connectionManager) {
         _PlayController_instances.add(this);
@@ -71,7 +72,7 @@ class PlayController {
         JellyfinContext_1.default.getLogger().info(`[jellyfin-play] clearAddPlayTrack: ${track.uri}`);
         const { song, connection } = await this.getSongFromTrack(track);
         const streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection);
-        __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl };
+        __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl, timer: new StopWatch_1.default() };
         __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_addListeners).call(this);
         await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_doPlay).call(this, streamUrl, track);
         await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_markPlayed).call(this, song, connection);
@@ -136,7 +137,7 @@ class PlayController {
             JellyfinContext_1.default.getStateMachine().prefetchDone = false;
             return;
         }
-        __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl };
+        __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl, timer: new StopWatch_1.default() };
         const mpdPlugin = __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f");
         return (0, util_1.kewToJSPromise)(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
             .then((addIdResp) => __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_mpdAddTags).call(this, addIdResp, track))
@@ -323,7 +324,7 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = n
                 }
             });
         }
-        JellyfinContext_1.default.getLogger().info(`[jellyfin-play]: Reported '${type}' for song: ${song.name}`);
+        JellyfinContext_1.default.getLogger().info(`[jellyfin-play]: Reported '${type}' for song: ${song.name} (at ${seek} ms)`);
     }
     catch (error) {
         JellyfinContext_1.default.getLogger().error(`[jellyfin-play]: Failed to report '${type}' for song '${song.name}': ${error.message}`);
@@ -332,15 +333,17 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = n
     const __apiReportPlayback = (playbackInfo, currentStatus) => {
         const reportPayload = {
             song: playbackInfo.song,
-            connection: playbackInfo.connection,
-            seek: mpdState.seek
+            connection: playbackInfo.connection
         };
         const lastStatus = playbackInfo.lastStatus;
         playbackInfo.lastStatus = currentStatus;
         let reportType;
+        let seek;
         switch (currentStatus) {
             case 'pause':
                 reportType = 'pause';
+                playbackInfo.timer.stop();
+                seek = mpdState.seek;
                 break;
             case 'play':
                 if (lastStatus === 'pause') {
@@ -352,18 +355,23 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = n
                 else { // LastStatus: stop
                     reportType = 'start';
                 }
+                seek = mpdState.seek;
+                playbackInfo.timer.start(seek);
                 break;
             case 'stop':
             default:
                 reportType = 'stop';
+                // For 'stop' events, MPD state does not include the seek position.
+                // We would have to get this value from playbackInfo's internal timer.
+                seek = playbackInfo.timer.stop().getElapsed();
         }
         // Avoid multiple reports of same type
         if (playbackInfo.lastReport?.type === reportType &&
-            (reportType !== 'timeupdate' || playbackInfo.lastReport?.seek === reportPayload.seek)) {
+            (reportType !== 'timeupdate' || playbackInfo.lastReport?.seek === seek)) {
             return;
         }
-        playbackInfo.lastReport = { type: reportType, seek: reportPayload.seek };
-        return __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_apiReportPlayback).call(this, { ...reportPayload, type: reportType });
+        playbackInfo.lastReport = { type: reportType, seek };
+        return __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_apiReportPlayback).call(this, { ...reportPayload, seek, type: reportType });
     };
     const __refreshPlayerViewHeartIcon = (favorite) => {
         JellyfinContext_1.default.getStateMachine().emitFavourites({ favourite: favorite });
