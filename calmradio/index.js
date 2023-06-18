@@ -621,7 +621,7 @@ ControllerCalmRadio.prototype.searchCategories = function (sterm) {
 				icon: 'fa fa-list',
 				title: cat['title'],
 				albumart: cat['img'] ? (CRURLS.arts + cat['img']) : '/albumart?sourceicon=music_service/calmradio/icons/bluecrlogo.png',
-				uri: `calmradio://${cat['id']}`
+				uri: `calmradio://0/${cat['id']}`
 			})
 		}
 	}
