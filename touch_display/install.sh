@@ -1,13 +1,12 @@
 #!/bin/bash
 
-PLUGIN_DIR="$(cd "$(dirname "$0")"; pwd -P)"
-
 exit_cleanup() {
-  if [ "$?" -ne 0 ]; then
+  ERR="$?"
+  if [ "$ERR" -ne 0 ]; then
     echo "Plugin failed to install!"
     echo "Cleaning up..."
     if [ -d "$PLUGIN_DIR" ]; then
-      . ."$PLUGIN_DIR"/uninstall.sh | grep -v "pluginuninstallend"
+      [ "$ERR" -eq 1 ] && . ."$PLUGIN_DIR"/uninstall.sh | grep -v "pluginuninstallend"
       echo "Removing plugin directory $PLUGIN_DIR"
       rm -rf "$PLUGIN_DIR"
     else
@@ -25,10 +24,17 @@ exit_cleanup() {
 }
 trap "exit_cleanup" EXIT
 
-echo "Completing \"UIConfig.json\""
-sed -i "s/\${plugin_type}/$(grep "\"plugin_type\":" "$PLUGIN_DIR"/package.json | cut -d"\"" -f4)/" "$PLUGIN_DIR"/UIConfig.json || { echo "Completing \"UIConfig.json\" failed"; exit 1; }
+PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd -P)" || { echo "Determination of plugin folder's name failed"; exit 3; }
+PLUGIN_TYPE=$(grep "\"plugin_type\":" "$PLUGIN_DIR"/package.json | cut -d "\"" -f 4) || { echo "Determination of plugin type failed"; exit 3; }
+PLUGIN_NAME=$(grep "\"name\":" "$PLUGIN_DIR"/package.json | cut -d "\"" -f 4) || { echo "Determination of plugin name failed"; exit 3; }
 
-TMP_DIR="$(mktemp -d touch_display-XXXXXXXXXX)" || { echo "Creating temporary directory failed"; exit 1; }
+# do not install on systems equipped with kiosk mode ex works
+(grep -Pozq '"id": "section_hdmi_settings",\s*"element": "section",\s*"hidden": false' /volumio/app/plugins/system_controller/system/UIConfig.json || grep -qi 'tinkerboard\|motivo' /etc/os-release) && { echo "The plugin is not suitable for this device"; exit 3; }
+
+sed -i "s/\${plugin_type\/plugin_name}/$PLUGIN_TYPE\/$PLUGIN_NAME/" "$PLUGIN_DIR"/UIConfig.json || { echo "Completing \"UIConfig.json\" failed"; exit 3; }
+
+TMP_DIR="$(mktemp -dt "$PLUGIN_NAME"-XXXXXXXXXX)" || { echo "Creating temporary directory failed"; exit 3; }
+
 export DEBIAN_FRONTEND=noninteractive
 
 if grep -q Raspberry /proc/cpuinfo; then # on Raspberry Pi hardware
@@ -43,9 +49,9 @@ if grep -q Raspberry /proc/cpuinfo; then # on Raspberry Pi hardware
   echo "Putting on hold packages for kernel, bootloader and pi lib"
   apt-mark hold libraspberrypi0 raspberrypi-bootloader raspberrypi-kernel || { echo "Putting on hold packages for kernel, bootloader and pi lib failed"; exit 1; }
 
-  echo "Installing Chromium dependencies"
-  apt-get update
-  apt-get -y install || { echo "Installation of Chromium dependencies failed"; exit 1; }
+  echo "Re-synchronizing package index files from their sources"
+  apt-get update || { echo "Running apt-get update failed"; exit 1; }
+  apt-get -y install || { echo "Running apt-get -y install failed"; exit 1; }
 
   echo "Installing graphical environment"
   apt-get -y install xinit || { echo "Installation of xinit failed"; exit 1; }
@@ -68,9 +74,9 @@ Section \"InputClass\"
         MatchDriver \"libinput|evdev\"
 EndSection" > /etc/X11/xorg.conf.d/95-touch_display-plugin.conf || { echo "Creating Xorg configuration file failed"; exit 1; }
 else # on other hardware
-  echo "Installing Chromium dependencies"
-  apt-get update
-  apt-get -y install || { echo "Installation of Chromium dependencies failed"; exit 1; }
+  echo "Re-synchronizing package index files from their sources"
+  apt-get update || { echo "Running apt-get update failed"; exit 1; }
+  apt-get -y install || { echo "Running apt-get -y install failed"; exit 1; }
 
   echo "Installing graphical environment"
   apt-get -y install xinit || { echo "Installation of xinit failed"; exit 1; }
@@ -79,7 +85,7 @@ else # on other hardware
 
   echo "Installing Chromium"
   apt-get -y install chromium || { echo "Installation of Chromium failed"; exit 1; }
-  ln -s /usr/bin/chromium /usr/bin/chromium-browser || { echo "Linking /usr/bin/chromium to /usr/bin/chromium-browser failed"; exit 1; }
+  ln -fs /usr/bin/chromium /usr/bin/chromium-browser || { echo "Linking /usr/bin/chromium to /usr/bin/chromium-browser failed"; exit 1; }
 fi
 
 echo "Installing japanese, korean, chinese and taiwanese fonts"

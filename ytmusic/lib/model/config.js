@@ -1,6 +1,6 @@
 'use strict';
 
-const { default: Text } = require("volumio-youtubei.js/dist/src/parser/classes/misc/Text");
+const Text = require('volumio-youtubei.js').Misc.Text;
 const ytmusic = require(ytmusicPluginLibRoot + '/ytmusic');
 const BaseModel = require(__dirname + '/base');
 

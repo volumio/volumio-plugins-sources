@@ -1,0 +1,117 @@
+    begin
+        prog = irexec
+        button = KEY_PREVIOUS
+        config = /usr/local/bin/volumio previous
+    end
+    begin
+        prog = irexec
+        button = KEY_NEXT
+        config = /usr/local/bin/volumio next
+    end
+    begin
+        prog = irexec
+        button = KEY_PLAY
+        config = /usr/local/bin/volumio play
+    end
+    begin
+        prog = irexec
+        button = KEY_PAUSE
+		# volumio does not handle pause command on streams well, block it for streams as a workaround
+        config = curl -s localhost:3000/api/v1/getState | grep -qi "webradio"; [ $? -gt 0 ] && /usr/local/bin/volumio pause
+    end
+    begin
+        prog = irexec
+        button = KEY_STOP
+        config = /usr/local/bin/volumio stop
+    end
+    begin
+        prog = irexec
+        button = volumeup
+		# volume/mute commands may be handled by gpio_ir_recv via linux events. Comment this out to avoid double trigger.
+        config = /usr/local/bin/volumio volume plus
+        delay = 2
+        repeat = 3
+    end
+    begin
+        prog = irexec
+        button = volumedown
+		# volume/mute commands may be handled by gpio_ir_recv via linux events. Comment this out to avoid double trigger.
+        config = /usr/local/bin/volumio volume minus
+        delay = 2
+        repeat = 3
+    end
+    begin
+        prog = irexec
+        button = KEY_FASTFORWARD
+        config = /usr/local/bin/volumio seek plus
+        delay = 2
+        repeat = 3
+    end
+    begin
+        prog = irexec
+        button = KEY_REWIND
+        config = /usr/local/bin/volumio seek minus
+        delay = 2
+        repeat = 3
+    end
+    begin
+        prog = irexec
+        button = volumemute
+		# volume/mute commands may be handled by gpio_ir_recv via linux events. Comment this out to avoid double trigger.
+        config = /usr/local/bin/volumio volume toggle
+    end
+    begin
+        prog = irexec
+        button = KEY_1
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=0"
+    end
+    begin
+        prog = irexec
+        button = KEY_2
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=1"
+    end
+    begin
+        prog = irexec
+        button = KEY_3
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=2"
+    end
+    begin
+        prog = irexec
+        button = KEY_4
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=3"
+    end
+    begin
+        prog = irexec
+        button = KEY_5
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=4"
+    end
+    begin
+        prog = irexec
+        button = KEY_6
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=5"
+    end
+    begin
+        prog = irexec
+        button = KEY_7
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=6"
+    end
+    begin
+        prog = irexec
+        button = KEY_8
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=7"
+    end
+    begin
+        prog = irexec
+        button = KEY_9
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=8"
+    end
+    begin
+        prog = irexec
+        button = KEY_0
+        config = curl -s "localhost:3000/api/v1/commands/?cmd=play&N=9"
+    end
+    begin
+        prog = irexec
+        button = KEY_POWER
+        config = /sbin/shutdown -h now
+    end

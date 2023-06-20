@@ -1,7 +1,7 @@
 {
 	"name": "youtube2",
-	"version": "0.1.8",
-	"description": "Youtube2 plugin for Volumio",
+	"version": "1.0.1",
+	"description": "YouTube plugin for Volumio",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -11,16 +11,16 @@
 		"url": "https://github.com/patrickkfkan/volumio-youtube2.git"
 	},
 	"author": "Patrick Kan",
-	"license": "GPL-3.0",
+	"license": "MIT",
 	"volumio_info": {
-		"prettyName": "Youtube2",
+		"prettyName": "YouTube2",
 		"plugin_type": "music_service",
 		"os": [
 			"buster"
 		],
-		"icon": "fa-youtube",
+		"icon": "fa-youtube-play",
 		"boot_priority": 10,
-		"details": "Youtube2 plugin for Volumio",
+		"details": "YouTube plugin for Volumio",
 		"changelog": "",
 		"architectures": [
 			"amd64",
@@ -29,22 +29,14 @@
 		]
 	},
 	"engines": {
-		"node": ">=8",
+		"node": ">=14",
 		"volumio": ">=3"
 	},
 	"dependencies": {
-		"iso8601-duration": "^1.3.0",
 		"kew": "^0.7.0",
-		"md5": "^2.3.0",
-		"node-cache": "^5.1.2",
-		"request": "^2.88.2",
 		"string-format": "^2.0.0",
-		"time-to-seconds": "^1.1.5",
 		"v-conf": "^1.4.2",
-		"youtube-scrape": "github:patrickkfkan/youtube-scrape",
-		"yt-channel-info": "github:patrickkfkan/yt-channel-info#gaming-topic-1.3.0",
-		"yt-mix-playlist": "0.1.2-b.2",
-		"ytdl-core": "^4.9.1",
-		"ytpl": "^2.2.3"
+		"node-fetch": "^2.6.7",
+		"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.2.1-b.2"
 	}
 }

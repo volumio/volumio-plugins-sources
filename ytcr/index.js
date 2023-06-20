@@ -361,10 +361,8 @@ ControllerYTCR.prototype.getConfigurationFiles = function() {
 }
 
 ControllerYTCR.prototype.getMpdConfig = function() {
-    let mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service', 'mpd');
     return {
-        host: mpdPlugin.config.get('nHost'),
-        port: mpdPlugin.config.get('nPort')
+        path: '/run/mpd/socket'
     };
 }
 

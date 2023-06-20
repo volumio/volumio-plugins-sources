@@ -1,191 +1,126 @@
 'use strict';
 
-const libQ = require('kew');
-const yt2 = require(yt2PluginLibRoot + '/youtube2');
-const Model = require(yt2PluginLibRoot + '/model')
-const Parser = require(__dirname + '/parser');
+const yt2 = require('../../../youtube2');
+const Parser = require('./parser');
+const Model = require('../../../model');
+const ViewHelper = require('../../../helper/view');
 
 class BaseViewHandler {
 
-    constructor(curView, prevViews) {
-        this._curView = curView;
-        this._prevViews = prevViews;
-        this._models = {};
-        this._parsers = {};
+  constructor(curView, prevViews) {
+    this._curView = curView;
+    this._prevViews = prevViews;
+    this._models = {};
+    this._parsers = {};
+  }
+
+  async browse() {
+    return [];
+  }
+
+  async explode() {
+    throw Error("Operation not supported");
+  }
+
+  getUri() {
+    if (!this._uri) {
+      this._uri = this.constructCurrentUri();
+    }
+    return this._uri;
+  }
+
+  getCurrentView() {
+    return this._curView;
+  }
+
+  getPreviousViews() {
+    return this._prevViews;
+  }
+
+  getModel(type) {
+    if (this._models[type] == undefined) {
+      this._models[type] = Model.getInstance(type);
+    }
+    return this._models[type];
+  }
+
+  getParser(type) {
+    if (this._parsers[type] == undefined) {
+      this._parsers[type] = Parser.getInstance(type, this.getUri(), this.getCurrentView(), this.getPreviousViews());
+    }
+    return this._parsers[type];
+  }
+
+  constructCurrentUri() {
+    return ViewHelper.constructUriFromViews(this.getPreviousViews().concat(this.getCurrentView()));
+  }
+
+  constructPrevUri() {
+    return ViewHelper.constructPrevUri(this.getCurrentView(), this.getPreviousViews());
+  }
+
+  _constructContinuationUri(continuationData) {
+    const { endpoint, prevItemCount, bundle } = continuationData;
+
+    const curView = this.getCurrentView();
+    const prevViews = this.getPreviousViews();
+
+    const segments = [];
+
+    prevViews.forEach((view) => {
+      segments.push(ViewHelper.constructUriSegment(view));
+    });
+
+    const newView = {
+      ...curView,
+      continuation: encodeURIComponent(JSON.stringify({ endpoint, prevItemCount }))
+    };
+
+    const prevContinuations = curView.prevContinuations ? JSON.parse(decodeURIComponent(curView.prevContinuations)) : [];
+    if (curView.continuation) {
+      prevContinuations.push(JSON.parse(decodeURIComponent(curView.continuation)));
+    }
+    if (prevContinuations.length > 0) {
+      newView.prevContinuations = encodeURIComponent(JSON.stringify(prevContinuations));
+    }
+    else {
+      delete newView.prevContinuations;
     }
 
-    browse() {
-        return libQ.resolve([]);
+    if (!newView.continuationBundle && bundle) {
+      newView.continuationBundle = encodeURIComponent(JSON.stringify(bundle));
     }
 
-    explode() {
-        return libQ.reject("Operation not supported");
+    segments.push(ViewHelper.constructUriSegment(newView));
+
+    return segments.join('/');
+  }
+
+  constructContinuationItem(continuationData) {
+    //  continuationData: {
+    //    continuation: same as returned by model/InnerTubeParser#parseResult()
+    //    prevItemCount
+    //    continuationBundle
+    //  }
+
+    const { continuation, prevItemCount, continuationBundle: bundle } = continuationData;
+
+    const data = {
+      service: 'youtube2',
+      type: 'youtube2NextPageItem',
+      'title': continuation.text || yt2.getI18n('YOUTUBE2_MORE'),
+      'uri': this._constructContinuationUri({ endpoint: continuation.endpoint, prevItemCount, bundle }) + '@noExplode=1',
+      'icon': 'fa fa-arrow-circle-right'
     }
+    return data;
+  }
 
-    getUri() {
-        if (!this._uri) {
-            this._uri = this.constructCurrentUri();
-        }
-        return this._uri;
-    }
+  constructUriWithParams(params) {
+    const prevViews = this.getPreviousViews();
+    const curView = Object.assign({}, this.getCurrentView(), params);
 
-    getCurrentView() {
-        return this._curView;
-    }
-
-    getPreviousViews() {
-        return this._prevViews;
-    }
-
-    getModel(type) {
-        if (this._models[type] == undefined) {
-            this._models[type] = Model.getInstance(type);
-        }
-        return this._models[type];
-    }
-
-    getParser(type) {
-        if (this._parsers[type] == undefined) {
-            this._parsers[type] = Parser.getInstance(type, this.getUri(), this.getCurrentView(), this.getPreviousViews());
-        }
-        return this._parsers[type];
-    }
-
-    constructPageRef(pageToken, pageOffset) {
-        if (!pageToken && !pageOffset) {
-            return null;
-        }
-        let ref = {
-            pageToken: pageToken ? pageToken : '',
-            pageOffset: pageOffset ? pageOffset : 0
-        };
-        return encodeURIComponent(JSON.stringify(ref));
-    }
-
-    parsePageRef(pageRef) {
-        let parsed = JSON.parse(decodeURIComponent(pageRef));
-        return {
-            pageToken: parsed && parsed.pageToken ? parsed.pageToken : null,
-            pageOffset: parsed && parsed.pageOffset ? parsed.pageOffset : 0
-        };
-    }
-
-    constructCurrentUri() {
-        let curView = this.getCurrentView();
-        let prevViews = this.getPreviousViews();
-        
-        let segments = [];
-        
-        prevViews.forEach( (view) => {
-            segments.push(this._constructUriSegment(view));
-        });
-
-        segments.push(this._constructUriSegment(curView));
-
-        return segments.join('/');
-    }
-
-    constructPrevUri() {
-        let curView = this.getCurrentView();
-        let prevViews = this.getPreviousViews();
-       
-        let segments = [];
-        
-        prevViews.forEach( (view) => {
-            segments.push(this._constructUriSegment(view));
-        });
-        
-        if (curView.prevPageRefs) {
-            let prevPageRefs = JSON.parse(decodeURIComponent(curView.prevPageRefs));
-            let prevPageRef = Array.isArray(prevPageRefs) ? prevPageRefs.pop() : null;
-            let newPrevPageRefs;
-            if (prevPageRef && prevPageRefs.length) {
-                newPrevPageRefs = encodeURIComponent(JSON.stringify(prevPageRefs));
-            }
-            else {
-                newPrevPageRefs = null;
-            }
-            if (prevPageRef) {
-                segments.push(this._constructUriSegment(curView, prevPageRef, newPrevPageRefs));
-            }
-        } else if (curView.pageRef) {
-            segments.push(this._constructUriSegment(curView, null, null, null));
-        }
-
-        return segments.join('/');
-    }
-
-    constructNextUri(nextPageRef) {
-        let curView = this.getCurrentView();
-        let prevViews = this.getPreviousViews();
-       
-        let segments = [];
-        
-        prevViews.forEach( (view) => {
-            segments.push(this._constructUriSegment(view));
-        });
-
-        let prevPageRefs = curView.prevPageRefs ? JSON.parse(decodeURIComponent(curView.prevPageRefs)) : [];
-        if (!Array.isArray(prevPageRefs)) {
-            prevPageRefs = [];
-        }
-        if (curView.pageRef) {
-            prevPageRefs.push(curView.pageRef);
-        }
-        if (prevPageRefs.length) {
-            prevPageRefs = encodeURIComponent(JSON.stringify(prevPageRefs));
-        }
-        else {
-            prevPageRefs = null;
-        }
-        segments.push(this._constructUriSegment(curView, nextPageRef, prevPageRefs));
-
-        return segments.join('/');
-    }
-
-    _constructUriSegment(view, replacePageRef, replacePrevPageRefs) {
-
-        let segment;
-        if (view.name === 'root') {
-            segment = 'youtube2';
-        }
-        else {
-            segment = view.name;
-        }
-
-        let skip = ['name', 'pageRef', 'prevPageRefs', 'noExplode', 'combinedSearch'];
-        Object.keys(view).filter( key => !skip.includes(key) ).forEach( (key) => {
-            segment += '@' + key + '=' + view[key];
-        });
-
-        if (replacePageRef) {
-            segment += '@pageRef=' + replacePageRef;
-        }
-        else if (replacePageRef === undefined && view.pageRef) {
-            segment += '@pageRef=' + view.pageRef;
-        }
-
-        if (replacePrevPageRefs) {
-            segment += '@prevPageRefs=' + replacePrevPageRefs;
-        }
-        else if (replacePrevPageRefs === undefined && view.prevPageRefs) {
-            segment += '@prevPageRefs=' + view.prevPageRefs;
-        }
-
-        return segment;
-    }
-
-    constructNextPageItem(nextUri, title = "<span style='color: #7a848e;'>" + yt2.getI18n('YOUTUBE2_MORE') + "</span>") {
-        let data = {
-            service: 'youtube2',
-            type: 'youtubeNextPageItem',
-            'title': title,
-            'uri': nextUri + '@noExplode=1',
-            'icon': 'fa fa-arrow-circle-right'
-        }
-        return data;
-    }
-
+    return ViewHelper.constructUriFromViews(prevViews.concat(curView));
+  }
 }
 
-module.exports = BaseViewHandler
+module.exports = BaseViewHandler;

@@ -277,7 +277,7 @@ class PlayController {
     const videoParser = Parser.getInstance('video');
 
     const endpoint = {
-      watch_playlist: {},
+      actionType: 'watchPlaylist',
       payload: {
         playlistId: autoplayContext.playlistId,
         params: autoplayContext.params,
@@ -293,7 +293,7 @@ class PlayController {
     }
 
     // If too few or no current items, add from automix (if available)
-    if (contents?.contents?.length <= 5 && contents?.automix?.endpoint?.watch_playlist) {
+    if (contents?.contents?.length <= 5 && contents?.automix?.endpoint?.actionType === 'watchPlaylist') {
       const automixContents = await model.getContents(contents.automix.endpoint);
       if (automixContents?.contents) {
         contents.contents.push(...(automixContents?.contents || []));

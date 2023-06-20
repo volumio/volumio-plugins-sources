@@ -1,6 +1,0 @@
-{
-"frontPageSections": {
-    "type": "string",
-    "value": "[{\"enabled\":true,\"title\":\"Copyright Free Music Channels\",\"sortOrder\":0,\"itemType\":\"channel\",\"keywords\":\"NoCopyrightMusic\",\"itemCount\":11},{\"enabled\":true,\"title\":\"Copyright Free Music Playlists\",\"sortOrder\":1,\"itemType\":\"playlist\",\"keywords\":\"NoCopyrightMusic\",\"itemCount\":11},{\"enabled\":true,\"title\":\"Copyright Free Music Videos\",\"sortOrder\":2,\"itemType\":\"video\",\"keywords\":\"NoCopyrightMusic\",\"itemCount\":11}]"
-  }
-}

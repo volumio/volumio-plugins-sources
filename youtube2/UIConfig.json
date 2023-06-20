@@ -4,77 +4,23 @@
   },
   "sections": [
     {
-      "id": "section_data_retrieval",
+      "id": "section_i18n",
       "element": "section",
-      "label": "TRANSLATE.YOUTUBE2_SECTION_DATA_RETRIEVAL",
-      "description": "TRANSLATE.YOUTUBE2_SECTION_DATA_RETRIEVAL_DESC",
-      "icon": "fa-youtube",
+      "label": "TRANSLATE.YOUTUBE2_SECTION_I18N",
+      "icon": "fa-globe",
       "onSave": {
         "type": "controller",
         "endpoint": "music_service/youtube2",
-        "method": "configSaveDataRetrieval"
+        "method": "configSaveI18n"
       },
       "saveButton": {
         "label": "TRANSLATE.YOUTUBE2_SAVE",
         "data": [
-          "method",
-          "clientId",
-          "clientSecret",
-          "language",
-          "region"
+          "region",
+          "language"
         ]
       },
       "content": [
-        {
-          "id": "method",
-          "element": "select",
-          "label": "TRANSLATE.YOUTUBE2_METHOD",
-          "value": {
-            "value": "gapi", 
-            "label": "TRANSLATE.YOUTUBE2_METHOD_GAPI"
-          },
-          "options": [
-            {
-              "value": "gapi",
-              "label": "TRANSLATE.YOUTUBE2_METHOD_GAPI"
-            },
-            {
-              "value": "scraping",
-              "label": "TRANSLATE.YOUTUBE2_METHOD_SCRAPING"
-            }
-          ]
-        },
-        {
-          "id": "clientId",
-          "type": "text",
-          "element": "input",
-          "doc": "",
-          "label": "TRANSLATE.YOUTUBE2_CLIENT_ID",
-          "value": "",
-          "visibleIf": {
-            "field": "method",
-            "value": "gapi"
-          }
-        },
-        {
-          "id": "clientSecret",
-          "type": "text",
-          "element": "input",
-          "doc": "",
-          "label": "TRANSLATE.YOUTUBE2_CLIENT_SECRET",
-          "value": "",
-          "visibleIf": {
-            "field": "method",
-            "value": "gapi"
-          }
-        },
-        {
-          "id": "language",
-          "element": "select",
-          "label": "TRANSLATE.YOUTUBE2_LANGUAGE",
-          "value": {},
-          "options": []
-        },
         {
           "id": "region",
           "element": "select",
@@ -83,57 +29,52 @@
           "options": []
         },
         {
-          "id": "gapiSetupGuide",
-          "element": "button",
-          "label": "TRANSLATE.YOUTUBE2_GAPI_SETUP_GUIDE",
-          "onClick": {
-              "type": "openUrl",
-              "url": "https://github.com/patrickkfkan/volumio-youtube2/blob/master/gapi_setup.md"
-          },
-          "visibleIf": {
-            "field": "method",
-            "value": "gapi"
-          }
+          "id": "language",
+          "element": "select",
+          "label": "TRANSLATE.YOUTUBE2_LANGUAGE",
+          "value": {},
+          "options": []
         }
       ]
     },
-		{
-      "id": "section_gapi_status",
+    {
+      "id": "section_account",
       "element": "section",
-      "label": "TRANSLATE.YOUTUBE2_SECTION_GAPI_STATUS",
-      "icon": "fa-key"
+      "label": "TRANSLATE.YOUTUBE2_SECTION_ACCOUNT",
+      "icon": "fa-user",
+      "content": []
     },
     {
-      "id": "section_nav",
+      "id": "section_browse",
       "element": "section",
-      "label": "TRANSLATE.YOUTUBE2_SECTION_NAV",
-      "icon": "fa-bars",
+      "label": "TRANSLATE.YOUTUBE2_SECTION_BROWSE",
+      "icon": "fa-cogs",
       "onSave": {
         "type": "controller",
         "endpoint": "music_service/youtube2",
-        "method": "configSaveNav"
+        "method": "configSaveBrowse"
       },
       "saveButton": {
         "label": "TRANSLATE.YOUTUBE2_SAVE",
         "data": [
-          "itemsPerPage",
-          "combinedSearchResults"
+          "rootContentType",
+          "loadFullPlaylists"
         ]
       },
       "content": [
         {
-          "id": "itemsPerPage",
-          "type": "number",
-          "element": "input",
-          "label": "TRANSLATE.YOUTUBE2_ITEMS_PER_PAGE",
-          "value": 50
+          "id": "rootContentType",
+          "element": "select",
+          "label": "TRANSLATE.YOUTUBE2_ROOT_CONTENT_TYPE",
+          "value": {},
+          "options": []
         },
         {
-          "id": "combinedSearchResults",
-          "type": "number",
-          "element": "input",
-          "label": "TRANSLATE.YOUTUBE2_COMBINED_SEARCH_RESULTS",
-          "value": 11
+          "id": "loadFullPlaylists",
+          "element": "switch",
+          "label": "TRANSLATE.YOUTUBE2_LOAD_FULL_PLAYLISTS",
+          "doc": "TRANSLATE.YOUTUBE2_DOC_LOAD_FULL_PLAYLISTS",
+          "value": false
         }
       ]
     },
@@ -141,7 +82,7 @@
       "id": "section_playback",
       "element": "section",
       "label": "TRANSLATE.YOUTUBE2_SECTION_PLAYBACK",
-      "icon": "fa-play-circle",
+      "icon": "fa-play",
       "onSave": {
         "type": "controller",
         "endpoint": "music_service/youtube2",
@@ -150,7 +91,10 @@
       "saveButton": {
         "label": "TRANSLATE.YOUTUBE2_SAVE",
         "data": [
-          "autoplay"
+          "autoplay",
+          "autoplayClearQueue",
+          "addToHistory",
+          "liveStreamQuality"
         ]
       },
       "content": [
@@ -160,131 +104,32 @@
           "label": "TRANSLATE.YOUTUBE2_AUTOPLAY",
           "doc": "TRANSLATE.YOUTUBE2_DOC_AUTOPLAY",
           "value": false
-        }
-      ]
-    },
-    {
-      "id": "section_cache",
-      "element": "section",
-      "label": "TRANSLATE.YOUTUBE2_SECTION_CACHE",
-      "icon": "fa-hdd-o",
-      "onSave": {
-        "type": "controller",
-        "endpoint": "music_service/youtube2",
-        "method": "configSaveCacheSettings"
-      },
-      "saveButton": {
-        "label": "TRANSLATE.YOUTUBE2_SAVE",
-        "data": [
-          "cacheMaxEntries",
-          "cacheTTL"
-        ]
-      },
-      "content": [
-        {
-          "id": "cacheMaxEntries",
-          "type": "number",
-          "element": "input",
-          "label": "TRANSLATE.YOUTUBE2_CACHE_MAX_ENTRIES",
-          "value": 5000
         },
         {
-          "id": "cacheTTL",
-          "type": "number",
-          "element": "input",
-          "label": "TRANSLATE.YOUTUBE2_CACHE_TTL",
-          "value": 1800
-        },
-        {
-          "id": "clearCache",
-          "element": "button",
-          "label": "TRANSLATE.YOUTUBE2_CLEAR_CACHE",
-          "onClick": {
-              "type": "emit",
-              "message": "callMethod",
-              "data": {
-                  "endpoint": "music_service/youtube2",
-                  "method": "configClearCache"
-              }
+          "id": "autoplayClearQueue",
+          "element": "switch",
+          "label": "TRANSLATE.YOUTUBE2_AUTOPLAY_CLEAR_QUEUE",
+          "doc": "TRANSLATE.YOUTUBE2_DOC_AUTOPLAY_CLEAR_QUEUE",
+          "value": false,
+          "visibleIf": {
+            "field": "autoplay",
+            "value": true
           }
-        }
-      ]
-    },
-    {
-      "id": "section_add_front_page_section",
-      "element": "section",
-      "label": "TRANSLATE.YOUTUBE2_SECTION_ADD_FRONT_PAGE_SECTION",
-      "icon": "fa-plus",
-      "onSave": {
-        "type": "controller",
-        "endpoint": "music_service/youtube2",
-        "method": "configAddFrontPageSection"
-      },
-      "saveButton": {
-        "label": "TRANSLATE.YOUTUBE2_ADD",
-        "data": [
-          "title",
-          "sortOrder",
-          "itemType",
-          "keywords",
-          "itemCount"
-        ]
-      },
-      "content": [
-        {
-          "id": "title",
-          "type": "text",
-          "element": "input",
-          "doc": "",
-          "label": "TRANSLATE.YOUTUBE2_TITLE",
-          "value": ""
         },
         {
-          "id": "sortOrder",
-          "type": "number",
-          "element": "input",
-          "label": "TRANSLATE.YOUTUBE2_SORT_ORDER",
-          "value": 0
+          "id": "addToHistory",
+          "element": "switch",
+          "label": "TRANSLATE.YOUTUBE2_ADD_TO_HISTORY",
+          "doc": "TRANSLATE.YOUTUBE2_DOC_ADD_TO_HISTORY",
+          "value": true
         },
         {
-          "id": "itemType",
+          "id": "liveStreamQuality",
           "element": "select",
-          "label": "TRANSLATE.YOUTUBE2_ITEM_TYPE",
-          "value": {
-            "value": "channel", 
-            "label": "TRANSLATE.YOUTUBE2_CHANNEL"
-          },
-          "options": [
-            {
-              "value": "channel", 
-              "label": "TRANSLATE.YOUTUBE2_CHANNEL"
-            },
-            {
-              "value": "playlist",
-              "label": "TRANSLATE.YOUTUBE2_PLAYLIST"
-            },
-            {
-              "value": "video",
-              "label": "TRANSLATE.YOUTUBE2_VIDEO"
-            }
-          ]
-        },
-        {
-          "id": "keywords",
-          "type": "text",
-          "element": "input",
-          "label": "TRANSLATE.YOUTUBE2_KEYWORDS",
-          "attributes": [
-            { "placeholder": "TRANSLATE.YOUTUBE2_KEYWORDS_PLACEHOLDER" }
-          ],
-          "value": ""
-        },
-        {
-          "id": "itemCount",
-          "type": "number",
-          "element": "input",
-          "label": "TRANSLATE.YOUTUBE2_ITEM_COUNT",
-          "value": 11
+          "label": "TRANSLATE.YOUTUBE2_LIVE_STREAM_QUALITY",
+          "doc": "TRANSLATE.YOUTUBE2_DOC_LIVE_STREAM_QUALITY",
+          "value": {},
+          "options": []
         }
       ]
     }
