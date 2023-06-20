@@ -1,32 +1,32 @@
 'use strict';
 
-const libQ = require('kew');
-const RootViewHandler = require(__dirname + '/root');
-const ChannelViewHandler = require(__dirname + '/channel');
-const PlaylistViewHandler = require(__dirname + '/playlist');
-const VideoViewHandler = require(__dirname + '/video');
-const ViewHelper = require(yt2PluginLibRoot + '/helper/view');
+const ViewHelper = require('../../../helper/view');
+const GenericViewHandler = require('./generic');
+const OptionSelectionViewHandler = require('./option_select');
+const PlaylistViewHandler = require('./playlist');
+const RootViewHandler = require('./root');
+const SearchViewHandler = require('./search');
+const VideoViewHandler = require('./video');
+const SubscriptionsViewHandler = require('./subscriptions');
 
 class ViewHandlerFactory {
 
-    static getHandler(uri) {
-        let views = ViewHelper.getViewsFromUri(uri);
-        let curView = views.pop();
-        let prevViews = views;
-
-        let handler = new this._viewToClass[curView.name](curView, prevViews);
-
-        return libQ.resolve(handler);
-    }
+  static getHandler(uri) {
+    const views = ViewHelper.getViewsFromUri(uri);
+    const curView = views.pop();
+    const prevViews = views;
+    return new this._viewToClass[curView.name](curView, prevViews);
+  }
 }
 
 ViewHandlerFactory._viewToClass = {
-    'root': RootViewHandler,
-    'channels': ChannelViewHandler,
-    'playlists': PlaylistViewHandler,
-    'videos': VideoViewHandler,
-    'video': VideoViewHandler,
-
-}
+  'root': RootViewHandler,
+  'generic': GenericViewHandler,
+  'video': VideoViewHandler,
+  'playlist': PlaylistViewHandler,
+  'optionSelection': OptionSelectionViewHandler,
+  'search': SearchViewHandler,
+  'subscriptions': SubscriptionsViewHandler
+};
 
 module.exports = ViewHandlerFactory;

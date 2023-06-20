@@ -33,6 +33,10 @@ To begin casting:
 
 # Changelog
 
+0.1.3
+- Fix MPD connection
+- Update dependency versions; replace deprecated `request` with `node-fetch`
+
 0.1.2
 - Improve fetching of audio URLs
 

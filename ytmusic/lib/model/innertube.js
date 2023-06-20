@@ -1,19 +1,18 @@
 'use strict';
 
-const { default: Parser, SectionListContinuation } = require("volumio-youtubei.js/dist/src/parser");
-const { default: Text } = require("volumio-youtubei.js/dist/src/parser/classes/misc/Text");
-const { SuperParsedResult } = require("volumio-youtubei.js/dist/src/parser/helpers");
+const Parser = require('volumio-youtubei.js').Parser;
+const SectionListContinuation = require('volumio-youtubei.js').SectionListContinuation;
+const Text = require('volumio-youtubei.js').Misc.Text;
+
 const BaseModel = require(__dirname + '/base');
 
-const MAX_APPEND_SECTIONS_COUNT = 5;
+const MAX_APPEND_SECTIONS_COUNT = 10;
 
 class InnerTubeBaseModel extends BaseModel {
 
   async getBrowseResultsByContinuation(continuation, payload = {}) {
     const innerTube = this.getInnerTube();
-
-    const _payload = { ...payload, is_ctoken: true, client: 'YTMUSIC' };
-    const response = await innerTube.actions.browse(continuation.token, _payload);
+    const response = await innerTube.actions.execute('/browse', { ...payload, token: continuation.token, client: 'YTMUSIC' });
     const page = Parser.parseResponse(response.data);
     const data = page.continuation_contents;
     const fullData = {
@@ -39,7 +38,7 @@ class InnerTubeBaseModel extends BaseModel {
     let sectionListContinuation = sectionList.continuation;
     let appendCount = 0;
     while (sectionListContinuation && appendCount < MAX_APPEND_SECTIONS_COUNT) {
-      const response = await innerTube.actions.browse(sectionListContinuation, { is_ctoken: true, client: 'YTMUSIC' });
+      const response = await innerTube.actions.execute('/browse', { token: sectionListContinuation, client: 'YTMUSIC' });
       const page = Parser.parseResponse(response.data);
       const contSectionList = page.continuation_contents?.as(SectionListContinuation);
       const moreSections = contSectionList?.contents || [];
@@ -134,15 +133,14 @@ class InnerTubeParser {
       parsed.albumText = data.album?.name || '';
       if (data.type === 'MusicResponsiveListItem') {
         // Get watch endpoint
-        // Commented out the following line - do not get endpoint from title runs because it won't have params
-        //parsed.endpoint = data.title?.runs?.find((run) => run.endpoint?.watch?.video_id === parsed.id)?.endpoint;
-        const overlayEndpoint = this.unwrapItem(this.unwrapItem(data.overlay)?.content)?.endpoint; // Content should be a MusicPlayButton
-        if (overlayEndpoint?.watch) {
+        // Note: do not get endpoint from title runs because it won't have params
+        const overlayEndpoint = this.sanitizeEndpoint(this.unwrapItem(this.unwrapItem(data.overlay)?.content)?.endpoint); // Content should be a MusicPlayButton
+        if (overlayEndpoint?.actionType === 'watch') {
           parsed.endpoint = overlayEndpoint;
         }
       }
-      else if (data.endpoint) {
-        parsed.endpoint = data.endpoint;
+      else {
+        this.setSanitizedEndpoint(parsed, data);
       }
     }
     else if (data.item_type === 'artist' && !isPrivateArtist) {
@@ -175,7 +173,7 @@ class InnerTubeParser {
     }
     else if (data.type === 'MusicNavigationButton') {
       parsed.type = 'endpoint';
-      parsed.endpoint = data.endpoint;
+      this.setSanitizedEndpoint(parsed, data);
       parsed.label = this.unwrapText(data.button_text);
     }
     else if (data.item_type === 'endpoint' || data.item_type === 'library_artist' || isPrivateArtist) {
@@ -183,27 +181,27 @@ class InnerTubeParser {
       parsed.label = this.unwrapText(data.title) || this.unwrapText(data.name);
       parsed.subtitle = this.unwrapText(data.subtitle);
       parsed.thumbnail = this.extractThumbnail(data);
-      parsed.endpoint = data.endpoint;
-      if (isPrivateArtist && parsed.endpoint?.browse) {
-        parsed.endpoint.browse.page_type = 'MUSIC_PAGE_TYPE_LIBRARY_ARTIST';
+      this.setSanitizedEndpoint(parsed, data);
+      if (isPrivateArtist && parsed.endpoint?.actionType === 'browse') {
+        parsed.endpoint.extras = { pageType: 'MUSIC_PAGE_TYPE_LIBRARY_ARTIST' };
       }
     }
     else if (data.type === 'DidYouMean') {
       parsed.type = 'endpoint';
       parsed.label = this.unwrapText(data.text) + ' ' + this.unwrapText(data.corrected_query);
-      parsed.endpoint = data.endpoint;
+      this.setSanitizedEndpoint(parsed, data);
       parsed.displayHint = 'didYouMean';
     }
     else if (data.type === 'ShowingResultsFor') {
       parsed.type = 'endpoint';
       parsed.label = this.unwrapText(data.showing_results_for) + ' ' + this.unwrapText(data.corrected_query) + 
         '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + this.unwrapText(data.search_instead_for) + ' ' + this.unwrapText(data.original_query);
-      parsed.endpoint = data.original_query_endpoint;
+      this.setSanitizedEndpoint(parsed, { endpoint: data.original_query_endpoint });
       parsed.displayHint = 'showingResultsFor';
     }
     else if (data.type === 'AutomixPreviewVideo') {
       parsed.type = 'automix';
-      parsed.endpoint = data.playlist_video?.endpoint;
+      this.setSanitizedEndpoint(parsed, data.playlist_video);
     }
     else {
       return null;
@@ -283,22 +281,22 @@ class InnerTubeParser {
     // Section 'more content'
     if (dataHeader?.more_content) {
       parsed.moreContent = {
-        label: this.unwrapText(dataHeader.more_content.text),
-        endpoint: dataHeader.more_content.endpoint
+        label: this.unwrapText(dataHeader.more_content.text)
       };
+      this.setSanitizedEndpoint(parsed.moreContent, dataHeader.more_content);
     }
     else if (data.endpoint && data.bottom_text) {
       parsed.moreContent = {
         label: this.unwrapText(data.bottom_text),
-        endpoint: data.endpoint
       };
+      this.setSanitizedEndpoint(parsed.moreContent, data)
     }
     else if (dataHeader?.end_icons?.[0]?.endpoint) {
       const icon = dataHeader?.end_icons?.[0];
       parsed.moreContent = {
         label: this.unwrapText(icon.tooltip),
-        endpoint: icon.endpoint
       };
+      this.setSanitizedEndpoint(parsed.moreContent, icon);
     }
 
     // Finalize section contents and start items
@@ -307,7 +305,7 @@ class InnerTubeParser {
       // in start items instead.
       const filteredContents = [];
       for (const item of parsed.contents) {
-        if (item.type === 'endpoint' && item.endpoint?.watch_playlist && !item.thumbnail) {
+        if (item.endpoint?.actionType === 'watchPlaylist' && !item.thumbnail) {
           startItems.push(item);
         }
         else {
@@ -318,10 +316,11 @@ class InnerTubeParser {
     }
 
     // Section end items - converted from bottom button
-    if (data.bottom_button?.endpoint?.browse?.id) {
+    const dataBottomButtonEndpoint = this.sanitizeEndpoint(data.bottom_button?.endpoint);
+    if (dataBottomButtonEndpoint?.actionType === 'browse') {
       endItems.push(this.convertButtonToEndpoint(data.bottom_button));
     }
-    
+
     // Section options - converted from chips
     if (dataHeader?.chips) {
       options.push(this.convertChipsToOption(dataHeader.chips));
@@ -359,11 +358,14 @@ class InnerTubeParser {
       return null;
     }
 
-    return {
+    const result = {
       title: this.unwrapText(data.title),
       selected: !!data.selected,
-      endpoint: data.endpoint
     };
+
+    this.setSanitizedEndpoint(result, data);
+
+    return result;
   }
 
   static unwrapText(t) {
@@ -375,7 +377,7 @@ class InnerTubeParser {
     if (!data) {
       return null;
     }
-    if (data instanceof SuperParsedResult && data.is_node) {
+    if (data.constructor.name === 'SuperParsedResult' && data.is_node) {  // SuperParsedResult
       return data.item();
     }
     return data;
@@ -388,7 +390,7 @@ class InnerTubeParser {
     if (Array.isArray(data)) {
       return data;
     }
-    if (data instanceof SuperParsedResult && data.is_array) {
+    if (data.constructor.name === 'SuperParsedResult' && data.is_array) { // SuperParsedResult
       return data.array();
     }
     return null;
@@ -432,7 +434,7 @@ class InnerTubeParser {
 
     const findRunIndexByArtistEndpointCheck = (runs) => {
       // Find position of text run with artist endpoint
-      let runIndex = runs ? runs.findIndex((run) => run.endpoint?.browse?.id.startsWith('UC')) : -1;
+      let runIndex = runs ? runs.findIndex((run) => (this.sanitizeEndpoint(run.endpoint))?.payload?.browseId?.startsWith('UC')) : -1;
       // Get the seperator before it
       let separator = runs?.[runIndex - 1]?.text.trim();
       // Move back until we reach '•' or beginning
@@ -448,8 +450,9 @@ class InnerTubeParser {
       if (runs) {
         for (let i = startIndex; i < runs.length; i += 2) {
           const run = runs[i];
+          const runEndpoint = this.sanitizeEndpoint(run.endpoint);
           artists.push({
-            id: run.endpoint?.browse?.id.startsWith('UC') ? run.endpoint.browse.id : null,
+            id: runEndpoint?.payload?.browseId?.startsWith('UC') ? runEndpoint.payload.browseId : null,
             name: run.text,
           });
           const nextRun = runs[i + 1];
@@ -522,10 +525,10 @@ class InnerTubeParser {
         // the artists / authors array. So again, we would have to do our own parsing.
 
         // Songs appear to have the following subtitle:
-        // 'Song' (locale-specific) • [artist1]&[artist2]   --> endpoint.watch.music_video_type: 'MUSIC_VIDEO_TYPE_ATV'
+        // 'Song' (locale-specific) • [artist1]&[artist2]   --> endpoint/musicVideoType: 'MUSIC_VIDEO_TYPE_ATV'
 
         // Videos appear to have the following:
-        // [artist1]&[artist2] • 'n views*'  *Optional - locale specific  --> endpoint.watch.music_video_type: 'MUSIC_VIDEO_TYPE_OMV / UGC...'
+        // [artist1]&[artist2] • 'n views*'  *Optional - locale specific  --> endpoint/musicVideoType: 'MUSIC_VIDEO_TYPE_OMV / UGC...'
 
         // Here we go...
 
@@ -537,7 +540,7 @@ class InnerTubeParser {
         }
 
         // No text runs with artist endpoint - rely on music_video_type as last resort
-        if (data.endpoint?.watch?.music_video_type === 'MUSIC_VIDEO_TYPE_ATV') {
+        if ((this.sanitizeEndpoint(data.endpoint))?.extras?.musicVideoType === 'MUSIC_VIDEO_TYPE_ATV') {
           return extractFromTextRuns(data.subtitle?.runs, 2);
         }
         else {
@@ -565,11 +568,14 @@ class InnerTubeParser {
   }
 
   static convertButtonToEndpoint(data) {
-    return {
+    const result = {
       type: 'endpoint',
       label: this.unwrapText(data.text),
-      endpoint: data.endpoint
-    }
+    };
+    
+    this.setSanitizedEndpoint(result, data);
+
+    return result;
   };
 
   static convertDropdownToOption(data) {
@@ -581,40 +587,64 @@ class InnerTubeParser {
   }
 
   static convertChipsToOption(data) {
-    return {
+    const result = {
       type: 'option',
-      optionValues: data.map((chip) => ({
+      optionValues: []
+    };
+
+    for (const chip of data) {
+      const ov = {
         label: chip.text,
-        selected: chip.is_selected,
-        endpoint: chip.endpoint
-      }))
+        selected: chip.is_selected
+      };
+      this.setSanitizedEndpoint(ov, chip);
+
+      result.optionValues.push(ov);
     }
+
+    return result;
   }
 
   static convertTabsToOption(data) {
-    return {
+    const result = {
       type: 'option',
-      optionValues: data.map((tab) => ({
-        label: tab.title,
-        selected: tab.selected,
-        endpoint: tab.endpoint
-      }))
+      optionValues: []
     };
+    
+    for (const tab of data) {
+      const ov = {
+        label: tab.title,
+        selected: tab.selected
+      };
+      this.setSanitizedEndpoint(ov, tab);
+
+      result.optionValues.push(ov);
+    }
+
+    return result;
   }
 
   static convertSortFilterButtonToOption(button) {
     const menu = button.menu;
     const menuItems = menu.options.filter((item) => item.type === 'MusicMultiSelectMenuItem');
 
-    return {
+    const result = {
       type: 'option',
       label: this.unwrapText(menu.title),
-      optionValues: menuItems.map((item) => ({
-        label: item.title,
-        selected: item.selected,
-        endpoint: item.endpoint
-      }))
+      optionValues: []
     };
+
+    for (const item of menuItems) {
+      const ov = {
+        label: item.title,
+        selected: item.selected
+      };
+      this.setSanitizedEndpoint(ov, item);
+
+      result.optionValues.push(ov);
+    }
+
+    return result;
   }
 
   static findNodesByType(data, type, excludeSearchFields = [], maxDepth = 5, currentDepth = 0) {
@@ -649,6 +679,95 @@ class InnerTubeParser {
     }
 
     return [];
+  }
+
+  static setSanitizedEndpoint(target, src) {
+    if (src?.endpoint) {
+      const sanitized = this.sanitizeEndpoint(src.endpoint);
+      if (sanitized) {
+        target.endpoint = sanitized;
+      }
+    }
+  }
+
+  static sanitizeEndpoint(data) {
+
+    const createPayload = (fields, payloadData) => {
+      const payload = {};
+      const src = payloadData || data.payload;
+      if (src) {
+        for (const field of fields) {
+          if (src[field] !== undefined) {
+            payload[field] = src[field];
+          }
+        }
+      }
+      return payload;
+    }
+
+    const buildBrowseEndpoint = (ep, payloadData) => {
+      const src = payloadData || data.payload;
+      ep.actionType = 'browse';
+      ep.payload = createPayload(['browseId', 'params', 'formData'], src);
+      const pageType = src?.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType;
+      if (pageType) {
+        ep.extras = { pageType };
+      }
+    }
+
+    const endpoint = {};
+
+    switch (data?.metadata?.api_url) {
+      case '/browse':
+        buildBrowseEndpoint(endpoint);
+        return endpoint;
+
+      case '/player':
+        endpoint.actionType = 'watch';
+        endpoint.payload = createPayload(['videoId', 'playlistId', 'params']);
+        const musicVideoType = data.payload?.watchEndpointMusicSupportedConfigs?.watchEndpointMusicConfig?.musicVideoType;
+        if (musicVideoType) {
+          endpoint.extras = { musicVideoType };
+        }
+        return endpoint;
+
+      case '/next':
+        endpoint.actionType = 'watchPlaylist';
+        endpoint.payload = createPayload(['playlistId', 'params']);
+        return endpoint;
+
+      case '/search':
+        endpoint.actionType = 'search';
+        endpoint.payload = createPayload(['query', 'params']);
+        return endpoint;
+        
+      default:
+    }
+
+    const commands = data?.payload?.commands;
+
+    const cmdBE = commands?.find((c) => c.browseEndpoint);
+    if (cmdBE) {
+      buildBrowseEndpoint(endpoint, cmdBE.browseEndpoint);
+      return endpoint;
+    }
+
+    const cmdRC = commands?.find((c) => c.browseSectionListReloadEndpoint?.continuation?.reloadContinuationData);
+    if (cmdRC) {
+      endpoint.actionType = 'continuation';
+      endpoint.payload = {
+        continuation: cmdRC.browseSectionListReloadEndpoint.continuation.reloadContinuationData.continuation
+      }
+      return endpoint;
+    }
+
+    const cmdFB = commands?.find((c) => c.musicBrowseFormBinderCommand?.browseEndpoint);
+    if (cmdFB) {
+      buildBrowseEndpoint(endpoint, cmdFB.musicBrowseFormBinderCommand.browseEndpoint);
+      return endpoint;
+    }
+
+    return null;
   }
 }
 

@@ -1,19 +1,29 @@
 'use strict';
 
-const ChannelParser = require(__dirname + '/channel');
-const PlaylistParser = require(__dirname + '/playlist');
-const VideoParser = require(__dirname + '/video');
+const ChannelParser = require('./channel');
+const EndpointItemParser = require('./endpoint');
+const OptionParser = require('./option');
+const OptionValueParser = require('./option_value');
+const PlaylistParser = require('./playlist');
+const VideoParser = require('./video');
 
-let typeToClass = {
-    channel: ChannelParser,
-    playlist: PlaylistParser,
-    video: VideoParser
+const typeToClass = {
+  video: VideoParser,
+  channel: ChannelParser,
+  playlist: PlaylistParser,
+  option: OptionParser,
+  optionValue: OptionValueParser,
+  endpoint: EndpointItemParser,
+  guideEntry: EndpointItemParser
 };
 
-let getInstance = (type, uri, curView, prevViews) => {
+const getInstance = (type, uri, curView, prevViews) => {
+  if (typeToClass[type]) {
     return new typeToClass[type](uri, curView, prevViews);
+  }
+  return null;
 }
 
 module.exports = {
-    getInstance: getInstance
+  getInstance
 };
