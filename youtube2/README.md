@@ -4,6 +4,12 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ### Changelog
 
+1.1.0
+- Migrate to TypeScript
+- Add prefetch support
+- Add option to fetch autoplay videos from Mixes and Related Videos in preference to using YouTube's default
+- In plugin settings, warn user when Autoplay is enabled but Add to History isn't (this can lead to high number of repeating autoplay videos).
+
 1.0.1
 - Major update! Most things have changed:
   - Much simpler sign-in process - no Google API credentials required.
