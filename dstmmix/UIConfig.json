@@ -1,15 +1,15 @@
 {
-	"page": {
-		"label": "TRANSLATE.LMS.LMSCONF"},
-		
-	"sections": [{
 			"id": "section_account_logout",
 			"element": "section",
 			"label": "TRANSLATE.LMS.NAVIGATE_TO_SERVER",
 			"description": "TRANSLATE.LMS.D_NAVIGATE_TO_SERVER",
 			"icon": "fa-windows-maximize",
-			"content":[]
-			},
+			"content":[],
+			
+	"page": {
+		"label": "TRANSLATE.LMS.LMSCONF"},
+		
+	"sections": [
 			
 			{"id": "advanced",
 		     "element": "section",

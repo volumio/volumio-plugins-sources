@@ -1,0 +1,45 @@
+{
+  "page": {
+    "label": ""
+  },
+  "sections": [
+  
+  
+  {"id": "Crossfader Switch",
+			"element": "section",
+			"label": "Crossfader Switch by chourmovs",
+			"icon": "fa-random",
+			"content":[{
+			"id": "Crossfader Plugin",
+			"description": "A Crossfader Plugin to nicely mix your track. On install it tweaks MPD to allow crossfade but you must activate software mixer to get it properly working...Take also a look at the help section to get more context"
+			}]
+			},
+			
+  
+  {"id": "Help",
+			"element": "section",
+			"label": "Some interesting readings",
+			"icon": "fa-upload",
+			"content":[]
+			},
+  
+  
+  {
+			"id": "Configuration",
+			"element": "section",
+			"label": "Configuration",
+			"icon": "fa-wrench",
+			"description": "To allow crossfading you must set a crossfade time >0, you can also adjust optional mixramp settings",
+      		"onSave": {
+       			 "type": "controller",
+       			 "endpoint": "audio_interface/crossfader_switch",
+      			  "method": "saveSettings"},
+      
+      		"saveButton": {
+	       		"label": "Save",
+	       		"description": "Clic Save to apply and launch MPC command",
+	        	"data": ["crossfaderthreshold","MixrampdB","Mixrampdelay"]},					
+			"content":[]
+			}
+		]
+}
