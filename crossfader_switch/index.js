@@ -64,8 +64,11 @@ crossfaderSwitch.prototype.saveSettings = function (data) {
     this.config.set('MixrampdB',data['MixrampdB']);
     this.config.set('Mixrampdelay',data['Mixrampdelay']);
     var command = "/usr/bin/mpc crossfade " + data['crossfaderthreshold'] +"|/usr/bin/mpc mixrampdb " + data['MixrampdB'] + "|/usr/bin/mpc mixrampdelay " + + data['Mixrampdelay'];
-   	exec(command, { uid: 1000, gid: 1000});
-    this.commandRouter.pushToastMessage('success', "Success at applying " + data['crossfaderthreshold'] + " " + data['MixrampdB'] +" " + data['Mixrampdelay'] );
+   	execSync(command, { uid: 1000, gid: 1000});
+   	 this.commandRouter.pushToastMessage('success', "Success at applying " + data['crossfaderthreshold'] + " " + data['MixrampdB'] +" " + data['Mixrampdelay'] );
+   	var command2 = "/usr/sbin/service mpd restart";
+   	execSync(command2, { uid: 1000, gid: 1000});
+   
     
     
 };

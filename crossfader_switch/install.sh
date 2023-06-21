@@ -12,8 +12,11 @@ if grep -q "crossfade" mpd.conf.tmpl ; then
     echo "mpd.conf.tmpl already modified"
     
 else
-	sed /'${special_settings}/a crossfade "yes" \n mixramp_analyzer "yes"' mpd.conf.tmpl > temp && mv temp mpd.conf.tmpl
+	sed /'${special_settings}/a crossfade "5" \n mixramp_analyzer "yes"' mpd.conf.tmpl > temp && mv temp mpd.conf.tmpl
     echo "mpd.conf.tmpl properly modified."
+    echo "mpd service will restart."
+    sudo service mpd restart
+    echo "MPD service has restarted."
 fi
 
 
