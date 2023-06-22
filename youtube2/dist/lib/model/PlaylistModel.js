@@ -23,7 +23,7 @@ class PlaylistModel extends EndpointModel_1.default {
             throw Error(`PlaylistModel.getContents() expects endpoint type Browse or BrowseContinuation, but got ${endpoint.type}`);
         }
         const contents = await super.getContents({ ...endpoint, type: endpoint.type });
-        const loadAll = YouTube2Context_1.default.getConfigValue('loadFullPlaylists', false);
+        const loadAll = YouTube2Context_1.default.getConfigValue('loadFullPlaylists');
         if (!loadAll || !contents) {
             return contents;
         }

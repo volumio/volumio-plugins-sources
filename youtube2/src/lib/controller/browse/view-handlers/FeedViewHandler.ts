@@ -84,6 +84,9 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
 
     // List: section main items
     const mainItems: RenderedListItem[] = [];
+    // Disregard nested section when determining if every item is video, because
+    // The nested section will be converted to separate list(s).
+    const isAllVideos = section.items.every((item) => item.type === 'section' || item.type === 'video');
     section.items?.forEach((item) => {
       if (item.type === 'section') {
         const nestedSectionToLists = this.#sectionToLists(contents, item, header);
@@ -93,9 +96,11 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
         }
       }
       else {
+        const ytPlaybackMode = yt2.getConfigValue('ytPlaybackMode');
         const listItem = this.#renderToListItem(item);
         if (listItem) {
-          if (item.type === 'video' && !isPlaylistContents) {
+          if (item.type === 'video' && (!isAllVideos ||
+            (isPlaylistContents ? ytPlaybackMode.playlistVideos : ytPlaybackMode.feedVideos))) {
             // Setting type to 'album' ensures only this item will get exploded when clicked. The exception
             // Is when listing videos in a playlist.
             listItem.type = 'album';

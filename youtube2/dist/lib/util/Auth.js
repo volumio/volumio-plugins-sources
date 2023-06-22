@@ -44,7 +44,7 @@ class Auth {
     static signIn() {
         const innertube = YouTube2Context_1.default.get('innertube');
         if (innertube?.session) {
-            const credentials = YouTube2Context_1.default.getConfigValue('authCredentials', undefined, true);
+            const credentials = YouTube2Context_1.default.getConfigValue('authCredentials');
             if (credentials) {
                 YouTube2Context_1.default.set('authStatusInfo', {
                     status: AuthStatus.SigningIn
@@ -86,7 +86,7 @@ _a = Auth, _Auth_handlePending = function _Auth_handlePending(data) {
     YouTube2Context_1.default.set('authStatusInfo', {
         status: AuthStatus.SignedIn
     });
-    YouTube2Context_1.default.setConfigValue('authCredentials', data.credentials, true);
+    YouTube2Context_1.default.setConfigValue('authCredentials', data.credentials);
     YouTube2Context_1.default.toast('success', YouTube2Context_1.default.getI18n('YOUTUBE2_SIGN_IN_SUCCESS'));
     YouTube2Context_1.default.refreshUIConfig();
 }, _Auth_handleError = function _Auth_handleError(err) {
@@ -102,7 +102,7 @@ _a = Auth, _Auth_handlePending = function _Auth_handlePending(data) {
     }
     YouTube2Context_1.default.refreshUIConfig();
 }, _Auth_handleUpdateCredentials = function _Auth_handleUpdateCredentials(data) {
-    YouTube2Context_1.default.setConfigValue('authCredentials', data.credentials, true);
+    YouTube2Context_1.default.setConfigValue('authCredentials', data.credentials);
 };
 _Auth_handlers = { value: {
         onSuccess: __classPrivateFieldGet(Auth, _a, "m", _Auth_handleSuccess).bind(Auth),

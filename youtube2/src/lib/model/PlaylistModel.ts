@@ -19,7 +19,7 @@ export default class PlaylistModel extends EndpointModel {
     }
 
     const contents = await super.getContents({...endpoint, type: endpoint.type});
-    const loadAll = yt2.getConfigValue<boolean>('loadFullPlaylists', false);
+    const loadAll = yt2.getConfigValue('loadFullPlaylists');
     if (!loadAll || !contents) {
       return contents;
     }

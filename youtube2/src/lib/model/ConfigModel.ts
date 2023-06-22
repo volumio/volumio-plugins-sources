@@ -4,8 +4,25 @@ import { findInObject } from '../util';
 import { BaseModel } from './BaseModel';
 import InnertubeResultParser from './InnertubeResultParser';
 import { ConfigData } from '../types';
-import { I18nOptions } from '../types/ConfigData';
+import { I18nOptions, PluginConfigSchema } from '../types/ConfigData';
 
+export const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema = {
+  region: { defaultValue: 'US', json: false },
+  language: { defaultValue: 'en', json: false },
+  rootContentType: { defaultValue: 'full', json: false },
+  loadFullPlaylists: { defaultValue: false, json: false },
+  autoplay: { defaultValue: false, json: false },
+  autoplayClearQueue: { defaultValue: false, json: false },
+  autoplayPrefMixRelated: { defaultValue: false, json: false },
+  addToHistory: { defaultValue: true, json: false },
+  liveStreamQuality: { defaultValue: 'auto', json: false },
+  prefetch: { defaultValue: true, json: false },
+  ytPlaybackMode: { defaultValue: {
+    feedVideos: true,
+    playlistVideos: false
+  }, json: true},
+  authCredentials: { defaultValue: undefined, json: true }
+};
 
 export default class ConfigModel extends BaseModel {
 

@@ -188,6 +188,9 @@ _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = fu
     let hasNestedSections = false; // Talking about nested sections with actual contents
     // List: section main items
     const mainItems = [];
+    // Disregard nested section when determining if every item is video, because
+    // The nested section will be converted to separate list(s).
+    const isAllVideos = section.items.every((item) => item.type === 'section' || item.type === 'video');
     section.items?.forEach((item) => {
         if (item.type === 'section') {
             const nestedSectionToLists = __classPrivateFieldGet(this, _FeedViewHandler_instances, "m", _FeedViewHandler_sectionToLists).call(this, contents, item, header);
@@ -197,9 +200,11 @@ _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = fu
             }
         }
         else {
+            const ytPlaybackMode = YouTube2Context_1.default.getConfigValue('ytPlaybackMode');
             const listItem = __classPrivateFieldGet(this, _FeedViewHandler_instances, "m", _FeedViewHandler_renderToListItem).call(this, item);
             if (listItem) {
-                if (item.type === 'video' && !isPlaylistContents) {
+                if (item.type === 'video' && (!isAllVideos ||
+                    (isPlaylistContents ? ytPlaybackMode.playlistVideos : ytPlaybackMode.feedVideos))) {
                     // Setting type to 'album' ensures only this item will get exploded when clicked. The exception
                     // Is when listing videos in a playlist.
                     listItem.type = 'album';

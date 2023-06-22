@@ -48,7 +48,7 @@ export default class Auth {
       status: AuthStatus.SignedIn
     });
 
-    yt2.setConfigValue('authCredentials', data.credentials, true);
+    yt2.setConfigValue('authCredentials', data.credentials);
 
     yt2.toast('success', yt2.getI18n('YOUTUBE2_SIGN_IN_SUCCESS'));
     yt2.refreshUIConfig();
@@ -72,7 +72,7 @@ export default class Auth {
   }
 
   static #handleUpdateCredentials(data: { credentials: Credentials }) {
-    yt2.setConfigValue('authCredentials', data.credentials, true);
+    yt2.setConfigValue('authCredentials', data.credentials);
   }
 
   static registerHandlers() {
@@ -98,7 +98,7 @@ export default class Auth {
   static signIn() {
     const innertube = yt2.get<Innertube>('innertube');
     if (innertube?.session) {
-      const credentials = yt2.getConfigValue<Credentials | undefined>('authCredentials', undefined, true);
+      const credentials = yt2.getConfigValue('authCredentials');
       if (credentials) {
         yt2.set<AuthStatusInfo>('authStatusInfo', {
           status: AuthStatus.SigningIn

@@ -1,6 +1,8 @@
 import format from 'string-format';
 import fs from 'fs-extra';
 import winston from 'winston';
+import { PluginConfigKey, PluginConfigValue } from './types/ConfigData';
+import { PLUGIN_CONFIG_SCHEMA } from './model/ConfigModel';
 
 class YouTube2Context {
 
@@ -76,15 +78,20 @@ class YouTube2Context {
     return result.trim();
   }
 
-  getConfigValue<T>(key: string, defaultValue: T, json = false): T {
+  hasConfigKey<T extends PluginConfigKey>(key: T): boolean {
+    return this.#pluginConfig.has(key);
+  }
+
+  getConfigValue<T extends PluginConfigKey>(key: T): PluginConfigValue<T> {
+    const schema = PLUGIN_CONFIG_SCHEMA[key];
     if (this.#pluginConfig.has(key)) {
       const val = this.#pluginConfig.get(key);
-      if (json) {
+      if (schema.json) {
         try {
           return JSON.parse(val);
         }
         catch (e) {
-          return defaultValue;
+          return schema.defaultValue;
         }
       }
       else {
@@ -92,7 +99,7 @@ class YouTube2Context {
       }
     }
     else {
-      return defaultValue;
+      return schema.defaultValue;
     }
   }
 
@@ -100,8 +107,9 @@ class YouTube2Context {
     this.#pluginConfig.delete(key);
   }
 
-  setConfigValue<T>(key: string, value: T, json = false) {
-    this.#pluginConfig.set(key, json ? JSON.stringify(value) : value);
+  setConfigValue<T extends PluginConfigKey>(key: T, value: PluginConfigValue<T>) {
+    const schema = PLUGIN_CONFIG_SCHEMA[key];
+    this.#pluginConfig.set(key, schema.json ? JSON.stringify(value) : value);
   }
 
   getAlbumArtPlugin() {

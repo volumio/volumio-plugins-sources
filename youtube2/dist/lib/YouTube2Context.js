@@ -17,6 +17,7 @@ var _YouTube2Context_instances, _YouTube2Context_singletons, _YouTube2Context_da
 Object.defineProperty(exports, "__esModule", { value: true });
 const string_format_1 = __importDefault(require("string-format"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
+const ConfigModel_1 = require("./model/ConfigModel");
 class YouTube2Context {
     constructor() {
         _YouTube2Context_instances.add(this);
@@ -77,15 +78,19 @@ class YouTube2Context {
         }
         return result.trim();
     }
-    getConfigValue(key, defaultValue, json = false) {
+    hasConfigKey(key) {
+        return __classPrivateFieldGet(this, _YouTube2Context_pluginConfig, "f").has(key);
+    }
+    getConfigValue(key) {
+        const schema = ConfigModel_1.PLUGIN_CONFIG_SCHEMA[key];
         if (__classPrivateFieldGet(this, _YouTube2Context_pluginConfig, "f").has(key)) {
             const val = __classPrivateFieldGet(this, _YouTube2Context_pluginConfig, "f").get(key);
-            if (json) {
+            if (schema.json) {
                 try {
                     return JSON.parse(val);
                 }
                 catch (e) {
-                    return defaultValue;
+                    return schema.defaultValue;
                 }
             }
             else {
@@ -93,14 +98,15 @@ class YouTube2Context {
             }
         }
         else {
-            return defaultValue;
+            return schema.defaultValue;
         }
     }
     deleteConfigValue(key) {
         __classPrivateFieldGet(this, _YouTube2Context_pluginConfig, "f").delete(key);
     }
-    setConfigValue(key, value, json = false) {
-        __classPrivateFieldGet(this, _YouTube2Context_pluginConfig, "f").set(key, json ? JSON.stringify(value) : value);
+    setConfigValue(key, value) {
+        const schema = ConfigModel_1.PLUGIN_CONFIG_SCHEMA[key];
+        __classPrivateFieldGet(this, _YouTube2Context_pluginConfig, "f").set(key, schema.json ? JSON.stringify(value) : value);
     }
     getAlbumArtPlugin() {
         return __classPrivateFieldGet(this, _YouTube2Context_instances, "m", _YouTube2Context_getSingleton).call(this, 'albumArtPlugin', () => __classPrivateFieldGet(this, _YouTube2Context_pluginContext, "f").coreCommand.pluginManager.getPlugin('miscellanea', 'albumart'));

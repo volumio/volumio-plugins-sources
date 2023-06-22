@@ -4,6 +4,10 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ### Changelog
 
+1.1.1
+- Add 'YouTube Playback Mode' setting
+- Minor UI fixes
+
 1.1.0
 - Migrate to TypeScript
 - Add prefetch support

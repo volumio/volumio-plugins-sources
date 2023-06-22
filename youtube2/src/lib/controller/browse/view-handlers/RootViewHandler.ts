@@ -26,7 +26,7 @@ export default class RootViewHandler extends FeedViewHandler<RootView> {
   }
 
   protected async getContents(): Promise<PageContent | null> {
-    const contentType = yt2.getConfigValue<'full' | 'simple'>('rootContentType', 'full');
+    const contentType = yt2.getConfigValue('rootContentType');
     const rootModel = this.getModel(ModelType.Root);
     let contents = await rootModel.getContents({ contentType });
 
@@ -74,7 +74,7 @@ export default class RootViewHandler extends FeedViewHandler<RootView> {
   }
 
   protected getAvailableListViews(): ('list' | 'grid')[] {
-    const contentType = yt2.getConfigValue<string>('rootContentType', 'full');
+    const contentType = yt2.getConfigValue('rootContentType');
     return contentType === 'simple' ? [ 'grid', 'list' ] : [ 'list' ];
   }
 }

@@ -42,7 +42,7 @@ class RootViewHandler extends FeedViewHandler_1.default {
         return result;
     }
     async getContents() {
-        const contentType = YouTube2Context_1.default.getConfigValue('rootContentType', 'full');
+        const contentType = YouTube2Context_1.default.getConfigValue('rootContentType');
         const rootModel = this.getModel(model_1.ModelType.Root);
         let contents = await rootModel.getContents({ contentType });
         if (!contents) {
@@ -85,7 +85,7 @@ class RootViewHandler extends FeedViewHandler_1.default {
         return contents;
     }
     getAvailableListViews() {
-        const contentType = YouTube2Context_1.default.getConfigValue('rootContentType', 'full');
+        const contentType = YouTube2Context_1.default.getConfigValue('rootContentType');
         return contentType === 'simple' ? ['grid', 'list'] : ['list'];
     }
 }

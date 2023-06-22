@@ -72,7 +72,7 @@ class VideoModel extends BaseModel_1.BaseModel {
             }
             else {
                 const hlsManifestUrl = info.streaming_data?.hls_manifest_url;
-                const streamUrlFromHLS = hlsManifestUrl ? await __classPrivateFieldGet(this, _VideoModel_instances, "m", _VideoModel_getStreamUrlFromHLS).call(this, hlsManifestUrl, YouTube2Context_1.default.getConfigValue('liveStreamQuality', 'auto')) : null;
+                const streamUrlFromHLS = hlsManifestUrl ? await __classPrivateFieldGet(this, _VideoModel_instances, "m", _VideoModel_getStreamUrlFromHLS).call(this, hlsManifestUrl, YouTube2Context_1.default.getConfigValue('liveStreamQuality')) : null;
                 result.stream = streamUrlFromHLS ? { url: streamUrlFromHLS } : null;
             }
             return result;

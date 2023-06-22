@@ -9,11 +9,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _ConfigModel_instances, _ConfigModel_fetchAccountMenu, _ConfigModel_getDefaultI18nOptions;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PLUGIN_CONFIG_SCHEMA = void 0;
 const volumio_youtubei_js_1 = require("volumio-youtubei.js");
 const YouTube2Context_1 = __importDefault(require("../YouTube2Context"));
 const util_1 = require("../util");
 const BaseModel_1 = require("./BaseModel");
 const InnertubeResultParser_1 = __importDefault(require("./InnertubeResultParser"));
+exports.PLUGIN_CONFIG_SCHEMA = {
+    region: { defaultValue: 'US', json: false },
+    language: { defaultValue: 'en', json: false },
+    rootContentType: { defaultValue: 'full', json: false },
+    loadFullPlaylists: { defaultValue: false, json: false },
+    autoplay: { defaultValue: false, json: false },
+    autoplayClearQueue: { defaultValue: false, json: false },
+    autoplayPrefMixRelated: { defaultValue: false, json: false },
+    addToHistory: { defaultValue: true, json: false },
+    liveStreamQuality: { defaultValue: 'auto', json: false },
+    prefetch: { defaultValue: true, json: false },
+    ytPlaybackMode: { defaultValue: {
+            feedVideos: true,
+            playlistVideos: false
+        }, json: true },
+    authCredentials: { defaultValue: undefined, json: true }
+};
 class ConfigModel extends BaseModel_1.BaseModel {
     constructor() {
         super(...arguments);

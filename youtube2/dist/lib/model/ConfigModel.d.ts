@@ -1,5 +1,6 @@
 import { BaseModel } from './BaseModel';
-import { I18nOptions } from '../types/ConfigData';
+import { I18nOptions, PluginConfigSchema } from '../types/ConfigData';
+export declare const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema;
 export default class ConfigModel extends BaseModel {
     #private;
     getI18nOptions(): Promise<I18nOptions>;

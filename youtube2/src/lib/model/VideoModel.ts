@@ -71,7 +71,7 @@ export default class VideoModel extends BaseModel {
       }
       else {
         const hlsManifestUrl = info.streaming_data?.hls_manifest_url;
-        const streamUrlFromHLS = hlsManifestUrl ? await this.#getStreamUrlFromHLS(hlsManifestUrl, yt2.getConfigValue('liveStreamQuality', 'auto')) : null;
+        const streamUrlFromHLS = hlsManifestUrl ? await this.#getStreamUrlFromHLS(hlsManifestUrl, yt2.getConfigValue('liveStreamQuality')) : null;
         result.stream = streamUrlFromHLS ? { url: streamUrlFromHLS } : null;
       }
 

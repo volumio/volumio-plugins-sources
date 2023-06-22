@@ -62,6 +62,7 @@ class ControllerYouTube2 {
         const accountUIConf = uiconf.sections[1];
         const browseUIConf = uiconf.sections[2];
         const playbackUIConf = uiconf.sections[3];
+        const ytPlaybackModeConf = uiconf.sections[4];
 
         // I18n
         // -- region
@@ -150,21 +151,21 @@ class ControllerYouTube2 {
         accountUIConf.description = authStatusDescription;
 
         // Browse
-        const rootContentType = yt2.getConfigValue('rootContentType', 'full');
+        const rootContentType = yt2.getConfigValue('rootContentType');
         const rootContentTypeOptions = configModel.getRootContentTypeOptions();
-        const loadFullPlaylists = yt2.getConfigValue('loadFullPlaylists', false);
+        const loadFullPlaylists = yt2.getConfigValue('loadFullPlaylists');
         browseUIConf.content[0].options = rootContentTypeOptions;
         browseUIConf.content[0].value = rootContentTypeOptions.find((o) => o.value === rootContentType);
         browseUIConf.content[1].value = loadFullPlaylists;
 
         // Playback
-        const autoplay = yt2.getConfigValue('autoplay', false);
-        const autoplayClearQueue = yt2.getConfigValue('autoplayClearQueue', false);
-        const autoplayPrefMixRelated = yt2.getConfigValue('autoplayPrefMixRelated', false);
-        const addToHistory = yt2.getConfigValue('addToHistory', true);
-        const liveStreamQuality = yt2.getConfigValue('liveStreamQuality', 'auto');
+        const autoplay = yt2.getConfigValue('autoplay');
+        const autoplayClearQueue = yt2.getConfigValue('autoplayClearQueue');
+        const autoplayPrefMixRelated = yt2.getConfigValue('autoplayPrefMixRelated');
+        const addToHistory = yt2.getConfigValue('addToHistory');
+        const liveStreamQuality = yt2.getConfigValue('liveStreamQuality');
         const liveStreamQualityOptions = configModel.getLiveStreamQualityOptions();
-        const prefetchEnabled = yt2.getConfigValue('prefetch', true);
+        const prefetchEnabled = yt2.getConfigValue('prefetch');
         playbackUIConf.content[0].value = autoplay;
         playbackUIConf.content[1].value = autoplayClearQueue;
         playbackUIConf.content[2].value = autoplayPrefMixRelated;
@@ -172,6 +173,11 @@ class ControllerYouTube2 {
         playbackUIConf.content[4].options = liveStreamQualityOptions;
         playbackUIConf.content[4].value = liveStreamQualityOptions.find((o) => o.value === liveStreamQuality);
         playbackUIConf.content[5].value = prefetchEnabled;
+
+        // YouTube Playback Mode
+        const ytPlaybackMode = yt2.getConfigValue('ytPlaybackMode');
+        ytPlaybackModeConf.content[0].value = ytPlaybackMode.feedVideos;
+        ytPlaybackModeConf.content[1].value = ytPlaybackMode.playlistVideos;
 
         defer.resolve(uiconf);
       })
@@ -248,8 +254,8 @@ class ControllerYouTube2 {
   #applyI18nConfigToInnerTube = function () {
     const innertube = yt2.get<Innertube>('innertube');
     if (innertube) {
-      const region = yt2.getConfigValue('region', 'US');
-      const language = yt2.getConfigValue('language', 'en');
+      const region = yt2.getConfigValue('region');
+      const language = yt2.getConfigValue('language');
 
       innertube.session.context.client.gl = region;
       innertube.session.context.client.hl = language;
@@ -266,8 +272,8 @@ class ControllerYouTube2 {
     const model = Model.getInstance(ModelType.Config);
     model.getI18nOptions().then((options) => {
       const selectedValues = {
-        region: yt2.getConfigValue('region', 'US'),
-        language: yt2.getConfigValue('language', 'en')
+        region: yt2.getConfigValue('region'),
+        language: yt2.getConfigValue('language')
       };
       const selected: Record<keyof I18nOptions, I18nOptionValue> = {
         region: { label: '', value: '' },
@@ -302,8 +308,8 @@ class ControllerYouTube2 {
   }
 
   configSaveI18n(data: any) {
-    const oldRegion = yt2.getConfigValue('region', null);
-    const oldLanguage = yt2.getConfigValue('language', null);
+    const oldRegion = yt2.hasConfigKey('region') ? yt2.getConfigValue('region') : null;
+    const oldLanguage = yt2.hasConfigKey('language') ? yt2.getConfigValue('language') : null;
     const region = data.region.value;
     const language = data.language.value;
 
@@ -344,8 +350,8 @@ class ControllerYouTube2 {
   }
 
   #configCheckAutoplay() {
-    const addToHistory = yt2.getConfigValue<boolean>('addToHistory', true);
-    const autoplay = yt2.getConfigValue<boolean>('autoplay', false);
+    const addToHistory = yt2.getConfigValue('addToHistory');
+    const autoplay = yt2.getConfigValue('autoplay');
 
     if (autoplay && !addToHistory) {
       const modalData = {
@@ -379,13 +385,22 @@ class ControllerYouTube2 {
     yt2.refreshUIConfig();
   }
 
+  configSaveYouTubePlaybackMode(data: any) {
+    yt2.setConfigValue('ytPlaybackMode', {
+      feedVideos: data.feedVideos,
+      playlistVideos: data.playlistVideos
+    });
+
+    yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
+  }
+
   #addToBrowseSources() {
     const source = {
       name: 'YouTube2',
       uri: 'youtube2',
       plugin_type: 'music_service',
       plugin_name: 'youtube2',
-      albumart: '/albumart?sourceicon=music_service/youtube2/assets/images/youtube.svg'
+      albumart: '/albumart?sourceicon=music_service/youtube2/dist/assets/images/youtube.svg'
     };
     this.#commandRouter.volumioAddToBrowseSources(source);
   }

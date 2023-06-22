@@ -151,6 +151,39 @@
           "value": true
         }
       ]
+    },
+    {
+      "id": "section_yt_playback_mode",
+      "element": "section",
+      "label": "TRANSLATE.YOUTUBE2_SECTION_YT_PLAYBACK_MODE",
+      "description": "TRANSLATE.YOUTUBE2_DOC_YT_PLAYBACK_MODE",
+      "icon": "fa-play",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/youtube2",
+        "method": "configSaveYouTubePlaybackMode"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YOUTUBE2_SAVE",
+        "data": [
+          "feedVideos",
+          "playlistVideos"
+        ]
+      },
+      "content": [
+        {
+          "id": "feedVideos",
+          "element": "switch",
+          "label": "TRANSLATE.YOUTUBE2_YT_PLAYBACK_MODE_FEED_VIDEOS",
+          "value": true
+        },
+        {
+          "id": "playlistVideos",
+          "element": "switch",
+          "label": "TRANSLATE.YOUTUBE2_YT_PLAYBACK_MODE_PLAYLIST_VIDEOS",
+          "value": false
+        }
+      ]
     }
   ]
 }

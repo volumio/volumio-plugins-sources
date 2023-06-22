@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { PluginConfigKey, PluginConfigValue } from './types/ConfigData';
 declare class YouTube2Context {
     #private;
     constructor();
@@ -11,9 +12,10 @@ declare class YouTube2Context {
     refreshUIConfig(): void;
     getLogger(): winston.Logger;
     getErrorMessage(message: string, error: any, stack?: boolean): string;
-    getConfigValue<T>(key: string, defaultValue: T, json?: boolean): T;
+    hasConfigKey<T extends PluginConfigKey>(key: T): boolean;
+    getConfigValue<T extends PluginConfigKey>(key: T): PluginConfigValue<T>;
     deleteConfigValue(key: string): void;
-    setConfigValue<T>(key: string, value: T, json?: boolean): void;
+    setConfigValue<T extends PluginConfigKey>(key: T, value: PluginConfigValue<T>): void;
     getAlbumArtPlugin(): any;
     getMpdPlugin(): any;
     getStateMachine(): any;
