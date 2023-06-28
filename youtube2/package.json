@@ -1,6 +1,6 @@
 {
 	"name": "youtube2",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"description": "YouTube plugin for Volumio",
 	"main": "./dist/index.js",
 	"scripts": {
@@ -53,6 +53,6 @@
 		"node-fetch": "^2.6.7",
 		"string-format": "^2.0.0",
 		"v-conf": "^1.4.2",
-		"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.3.0"
+		"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.3.1"
 	}
 }

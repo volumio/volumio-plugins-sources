@@ -4,6 +4,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ### Changelog
 
+1.1.2
+- Fix broken auth (which causes Volumio to become unresponsive)
+
 1.1.1
 - Add 'YouTube Playback Mode' setting
 - Minor UI fixes
