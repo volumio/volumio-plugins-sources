@@ -13,22 +13,21 @@
 	"volumio_info": {
 		"prettyName": "crossfaderswitch",
 		"icon": "fa-lightbulb-o",
-		"plugin_type": "audio_interface",
+		"plugin_type": "system_controller",
 		"architectures": [
 			"amd64",
-			"armhf",
-			"i386"
+			"armhf"
 		],
 		"os": [
 			"buster"
 		],
 		"details": "Crossfader plugin for better mix between tracks using MPD/MPC",
-		"node": ">=14.21.3 <15.0.0",
-		"volumio": ">=3.449.0 <4.0.0"
+		"node": ">=14.15.4",
+		"volumio": ">=3"
 	},
 	"dependencies": {
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
-		"v-conf": "^1.4.0"
+		"v-conf": "^1.4.2"
 	}
 }

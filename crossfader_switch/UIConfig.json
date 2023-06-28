@@ -11,7 +11,7 @@
 			"icon": "fa-random",
 			"content":[{
 			"id": "Crossfader Plugin",
-			"description": "A Crossfader Plugin to nicely mix your track. On install it tweaks MPD to allow crossfade but you must activate software mixer to get it properly working...Take also a look at the help section to get more context"
+			"description": "A Crossfader Plugin to nicely mix your track. You must activate software mixer to get it properly working...Take also a look at the help section to get more context"
 			}]
 			},
 			
@@ -32,7 +32,7 @@
 			"description": "To allow crossfading you must set a crossfade time >0, you can also adjust optional mixramp settings",
       		"onSave": {
        			 "type": "controller",
-       			 "endpoint": "audio_interface/crossfader_switch",
+       			 "endpoint": "system_controller/crossfader_switch",
       			  "method": "saveSettings"},
       
       		"saveButton": {
