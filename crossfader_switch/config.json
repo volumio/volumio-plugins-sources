@@ -1,6 +1,4 @@
-{
-    "address": {
-        "type": "string",
-        "value": "127.0.0.1"
-    }
+{ "crossfaderthreshold": { "type": "string", "value": "0" }, 
+"MixrampdB": { "type": "string", "value": "0" }, 
+"Mixrampdelay": { "type": "string", "value": "0" } 
 }
