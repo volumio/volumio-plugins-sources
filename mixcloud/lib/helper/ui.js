@@ -139,9 +139,9 @@ class UIHelper {
     }
     
     static isManifestUI() {
-        let volumioManifestUIFlagFile = '/data/manifestUI';
+        let volumioManifestUIDir = '/volumio/http/www4';
         let volumioManifestUIDisabledFile = '/data/disableManifestUI';
-        return fs.existsSync(volumioManifestUIFlagFile) && !fs.existsSync(volumioManifestUIDisabledFile);
+        return fs.existsSync(volumioManifestUIDir) && !fs.existsSync(volumioManifestUIDisabledFile);
     }
 }
 
