@@ -6,9 +6,9 @@ class UI {
         return !this.isManifestUI();
     }
     static isManifestUI() {
-        const volumioManifestUIFlagFile = '/data/manifestUI';
+        const volumioManifestUIDir = '/volumio/http/www4';
         const volumioManifestUIDisabledFile = '/data/disableManifestUI';
-        return (0, fs_1.existsSync)(volumioManifestUIFlagFile) && !(0, fs_1.existsSync)(volumioManifestUIDisabledFile);
+        return (0, fs_1.existsSync)(volumioManifestUIDir) && !(0, fs_1.existsSync)(volumioManifestUIDisabledFile);
     }
     static createLink(data) {
         const onclick = `angular.element('#browse-page').scope().browse.fetchLibrary({uri: '${data.uri}'})`;
