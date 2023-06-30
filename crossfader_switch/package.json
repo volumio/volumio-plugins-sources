@@ -1,6 +1,6 @@
 {
 	"name": "crossfader_switch",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Allow crossfade for mpd and adjust crossfading time.",
 	"main": "index.js",
 	"scripts": {
@@ -23,11 +23,16 @@
 		],
 		"details": "Crossfader plugin for better mix between tracks using MPD/MPC",
 		"node": ">=14.15.4",
-		"volumio": ">=3"
+		"volumio": ">=3",
+		"changelog": ""
 	},
 	"dependencies": {
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
 		"v-conf": "^1.4.2"
+	},
+	"engines": {
+		"volumio": ">=3",
+		"node": ">=14.21.3"
 	}
 }
