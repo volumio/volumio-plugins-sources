@@ -1,0 +1,1 @@
+{"version":3,"file":"SearchController.d.ts","sourceRoot":"","sources":["../../../../src/lib/controller/search/SearchController.ts"],"names":[],"mappings":"AAGA,OAAO,EAAE,YAAY,EAAE,MAAM,qCAAqC,CAAC;AAInE,MAAM,WAAW,WAAW;IAC1B,KAAK,EAAE,MAAM,CAAC;CACf;AAED,MAAM,CAAC,OAAO,OAAO,gBAAgB;IAE7B,MAAM,CAAC,KAAK,EAAE,WAAW;CAiChC"}
