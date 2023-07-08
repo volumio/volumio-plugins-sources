@@ -1,0 +1,1 @@
+{"version":3,"file":"ConfigModel.d.ts","sourceRoot":"","sources":["../../../src/lib/model/ConfigModel.ts"],"names":[],"mappings":"AAEA,OAAO,EAAmB,WAAW,EAAE,kBAAkB,EAAE,MAAM,uBAAuB,CAAC;AACzF,OAAO,EAAE,SAAS,EAAE,MAAM,aAAa,CAAC;AAWxC,eAAO,MAAM,oBAAoB,EAAE,kBAUlC,CAAC;AAEF,MAAM,CAAC,OAAO,OAAO,WAAY,SAAQ,SAAS;;IAE1C,cAAc;IA0DpB,UAAU;CAoDX"}

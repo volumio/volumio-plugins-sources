@@ -1,0 +1,1 @@
+{"version":3,"file":"AutoplayContext.js","sourceRoot":"","sources":["../../../src/lib/types/AutoplayContext.ts"],"names":[],"mappings":"","sourcesContent":["import { WatchContinuationEndpoint, WatchEndpoint } from './Endpoint';\n\ninterface AutoplayContext {\n  fetchEndpoint: WatchEndpoint | WatchContinuationEndpoint;\n}\n\nexport default AutoplayContext;\n"]}
