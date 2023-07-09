@@ -46,4 +46,4 @@ export interface Account {
         endpoint: Endpoint | null;
     };
 }
-//# sourceMappingURL=ConfigData.d.ts.map
+//# sourceMappingURL=PluginConfig.d.ts.map

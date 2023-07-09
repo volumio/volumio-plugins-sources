@@ -25,6 +25,12 @@ class EndpointHelper {
                 return false;
         }
     }
+    static isType(endpoint, ...types) {
+        if (!endpoint) {
+            return false;
+        }
+        return types.some((t) => endpoint.type === t);
+    }
 }
 exports.default = EndpointHelper;
 //# sourceMappingURL=EndpointHelper.js.map

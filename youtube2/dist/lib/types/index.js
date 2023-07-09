@@ -23,8 +23,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ConfigData = exports.PageElement = exports.ContentItem = void 0;
+exports.PluginConfig = exports.PageElement = exports.ContentItem = void 0;
 exports.ContentItem = __importStar(require("./ContentItem"));
 exports.PageElement = __importStar(require("./PageElement"));
-exports.ConfigData = __importStar(require("./ConfigData"));
+exports.PluginConfig = __importStar(require("./PluginConfig"));
 //# sourceMappingURL=index.js.map

@@ -9,6 +9,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _RootModel_instances, _RootModel_expandGuideSection, _RootModel_expandGuideEntry, _RootModel_filterGuideEntries;
 Object.defineProperty(exports, "__esModule", { value: true });
+const volumio_youtubei_js_1 = require("volumio-youtubei.js");
 const BaseModel_1 = require("./BaseModel");
 const InnertubeResultParser_1 = __importDefault(require("./InnertubeResultParser"));
 const EndpointHelper_1 = __importDefault(require("../util/EndpointHelper"));
@@ -18,15 +19,10 @@ class RootModel extends BaseModel_1.BaseModel {
         _RootModel_instances.add(this);
     }
     async getContents(opts) {
-        const innertube = this.getInnertube();
-        if (!innertube) {
-            throw Error('Innertube not ready');
-        }
+        const { innertube } = await this.getInnertube();
         const guide = await innertube.getGuide();
         const sections = guide.contents.map((section) => __classPrivateFieldGet(this, _RootModel_instances, "m", _RootModel_expandGuideSection).call(this, section));
-        const parsed = InnertubeResultParser_1.default.parseResult({
-            contents: sections
-        });
+        const parsed = InnertubeResultParser_1.default.parseResult({ contents: sections });
         const primaryOnly = opts?.contentType === 'simple';
         if (parsed) {
             parsed.sections = parsed.sections.reduce((filtered, section) => {
@@ -53,14 +49,14 @@ _RootModel_instances = new WeakSet(), _RootModel_expandGuideSection = function _
     };
     return result;
 }, _RootModel_expandGuideEntry = function _RootModel_expandGuideEntry(entry) {
-    if (entry.type === 'GuideCollapsibleEntry') {
+    if (entry instanceof volumio_youtubei_js_1.YTNodes.GuideCollapsibleEntry) {
         const collapsibleEntry = entry;
         return collapsibleEntry.expandable_items.reduce((expanded, item) => {
             expanded.push(...__classPrivateFieldGet(this, _RootModel_instances, "m", _RootModel_expandGuideEntry).call(this, item));
             return expanded;
         }, []);
     }
-    if (entry.type === 'GuideCollapsibleSectionEntry') {
+    if (entry instanceof volumio_youtubei_js_1.YTNodes.GuideCollapsibleSectionEntry) {
         const sectionEntry = entry;
         const initialExpanded = sectionEntry.header_entry ? __classPrivateFieldGet(this, _RootModel_instances, "m", _RootModel_expandGuideEntry).call(this, sectionEntry.header_entry) : [];
         return sectionEntry.section_items.reduce((expanded, item) => {

@@ -10,6 +10,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _OptionSelectionViewHandler_instances, _OptionSelectionViewHandler_getListData;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Endpoint_1 = require("../../../types/Endpoint");
+const EndpointHelper_1 = __importDefault(require("../../../util/EndpointHelper"));
 const BaseViewHandler_1 = __importDefault(require("./BaseViewHandler"));
 const renderers_1 = require("./renderers");
 class OptionSelectionViewHandler extends BaseViewHandler_1.default {
@@ -56,7 +57,7 @@ _OptionSelectionViewHandler_instances = new WeakSet(), _OptionSelectionViewHandl
         if (typeof option === 'object' && option.type === 'option') {
             listItems = option.optionValues.reduce((result, data, index) => {
                 let extraUriParams;
-                if (data.endpoint?.type === Endpoint_1.EndpointType.BrowseContinuation || data.endpoint?.type === Endpoint_1.EndpointType.SearchContinuation) {
+                if (EndpointHelper_1.default.isType(data.endpoint, Endpoint_1.EndpointType.BrowseContinuation, Endpoint_1.EndpointType.SearchContinuation)) {
                     const workOption = __getTargetOption(workBundle);
                     __setSelected(workOption, index);
                     extraUriParams = {

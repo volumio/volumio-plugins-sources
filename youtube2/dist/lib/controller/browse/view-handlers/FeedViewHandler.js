@@ -10,8 +10,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _FeedViewHandler_instances, _FeedViewHandler_sectionToLists, _FeedViewHandler_renderToListItem, _FeedViewHandler_hasNoThumbnails, _FeedViewHandler_getContinuationPrevItemCount, _FeedViewHandler_createContinuationBundleOption, _FeedViewHandler_createOptionFromTabs;
 Object.defineProperty(exports, "__esModule", { value: true });
 const YouTube2Context_1 = __importDefault(require("../../../YouTube2Context"));
+const Endpoint_1 = require("../../../types/Endpoint");
 const ExplodableViewHandler_1 = __importDefault(require("./ExplodableViewHandler"));
 const renderers_1 = require("./renderers");
+const EndpointHelper_1 = __importDefault(require("../../../util/EndpointHelper"));
 class FeedViewHandler extends ExplodableViewHandler_1.default {
     constructor() {
         super(...arguments);
@@ -158,6 +160,12 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
         if (!target) {
             return [];
         }
+        const __applyPredicate = (endpoint) => {
+            if (typeof predicate !== 'function') {
+                return true;
+            }
+            return predicate(endpoint);
+        };
         if (Array.isArray(target)) {
             return target.reduce((result, section) => {
                 result.push(...this.findAllEndpointsInSection(section, predicate));
@@ -173,7 +181,7 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
             if (needle.type === 'section') {
                 result.push(...this.findAllEndpointsInSection(needle, predicate));
             }
-            else if (needle.endpoint && (typeof predicate !== 'function' || predicate(needle.endpoint))) {
+            else if (needle.endpoint && __applyPredicate(needle.endpoint)) {
                 result.push(needle.endpoint);
             }
         }
@@ -254,7 +262,7 @@ _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = fu
         // (Targeting 'All' in Home, but maybe there are others as well)
         const view = this.currentView;
         const currentViewEndpoint = view.endpoint || null;
-        if (currentViewEndpoint) {
+        if (!EndpointHelper_1.default.isType(currentViewEndpoint, Endpoint_1.EndpointType.Watch)) {
             continuationBundle.section.filters.forEach((filter) => {
                 const selected = filter.optionValues.find((ov) => ov.selected);
                 if (selected && !selected.endpoint) {

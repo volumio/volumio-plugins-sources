@@ -1,5 +1,5 @@
 import { ContentItem } from '.';
-import Endpoint, { EndpointType } from './Endpoint';
+import { BrowseContinuationEndpoint, BrowseEndpoint, EndpointOf, EndpointType, SearchContinuationEndpoint, SearchEndpoint, WatchEndpoint } from './Endpoint';
 
 export interface Header {
   type: 'feed' | 'channel' | 'playlist' | 'search';
@@ -7,7 +7,7 @@ export interface Header {
   subtitles?: string[];
   description?: string;
   thumbnail?: string;
-  endpoint?: Endpoint;
+  endpoint?: BrowseEndpoint | WatchEndpoint;
 }
 
 export interface PlaylistHeader extends Header {
@@ -27,7 +27,7 @@ export interface Section {
   continuation?: Continuation<EndpointType.BrowseContinuation | EndpointType.SearchContinuation>;
   menus?: Option[];
   buttons?: Button[];
-  endpoint?: Endpoint;
+  endpoint?: BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint;
 }
 
 export interface Option {
@@ -35,7 +35,7 @@ export interface Option {
   title?: string,
   optionValues: {
     text: string;
-    endpoint: Endpoint | null;
+    endpoint: BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | null;
     selected: boolean
   }[];
 }
@@ -43,18 +43,18 @@ export interface Option {
 export interface Continuation<T extends EndpointType.BrowseContinuation | EndpointType.SearchContinuation | EndpointType.WatchContinuation> {
   type: 'continuation';
   text?: string;
-  endpoint: Endpoint & {type: T};
+  endpoint: EndpointOf<T>;
 }
 
 export interface Button {
   type: 'button';
   text: string;
-  endpoint: Endpoint;
+  endpoint: BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | WatchEndpoint;
 }
 
 export interface Tab {
   type: 'tab';
   text: string;
-  endpoint: Endpoint;
+  endpoint: BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint;
   selected: boolean;
 }

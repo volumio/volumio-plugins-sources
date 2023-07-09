@@ -1,5 +1,6 @@
 import Innertube, { Credentials, OAuthAuthPendingData, Utils as YTUtils } from 'volumio-youtubei.js';
 import yt2 from '../YouTube2Context';
+import EventEmitter from 'events';
 
 export enum AuthStatus {
   SignedIn = 'SignedIn',
@@ -22,16 +23,42 @@ const INITIAL_SIGNED_OUT_STATUS: AuthStatusInfo = {
   verificationInfo: null
 };
 
-export default class Auth {
+export enum AuthEvent {
+  SignIn = 'SignIn',
+  Pending = 'Pending',
+  Error = 'Error'
+}
 
-  static #handlers = {
-    onSuccess: Auth.#handleSuccess.bind(Auth),
-    onPending: Auth.#handlePending.bind(Auth),
-    onError: Auth.#handleError.bind(Auth),
-    onCredentials: Auth.#handleUpdateCredentials.bind(Auth)
-  };
+export default class Auth extends EventEmitter {
 
-  static #handlePending(data: OAuthAuthPendingData) {
+  #innertube: Innertube | null;
+  #handlers: any;
+
+  constructor() {
+    super();
+    this.#innertube = null;
+  }
+
+  static create(innertube: Innertube) {
+    const auth = new Auth();
+    auth.#innertube = innertube;
+    auth.#handlers = {
+      onSuccess: auth.#handleSuccess.bind(auth),
+      onPending: auth.#handlePending.bind(auth),
+      onError: auth.#handleError.bind(auth),
+      onCredentials: auth.#handleUpdateCredentials.bind(auth)
+    };
+    auth.#registerHandlers();
+    return auth;
+  }
+
+  dispose() {
+    this.#unregisterHandlers();
+    this.removeAllListeners();
+    this.#innertube = null;
+  }
+
+  #handlePending(data: OAuthAuthPendingData) {
     yt2.set<AuthStatusInfo>('authStatusInfo', {
       status: AuthStatus.SignedOut,
       verificationInfo: {
@@ -41,9 +68,10 @@ export default class Auth {
     });
 
     yt2.refreshUIConfig();
+    this.emit(AuthEvent.Pending);
   }
 
-  static #handleSuccess(data: { credentials: Credentials }) {
+  #handleSuccess(data: { credentials: Credentials }) {
     yt2.set<AuthStatusInfo>('authStatusInfo', {
       status: AuthStatus.SignedIn
     });
@@ -52,9 +80,10 @@ export default class Auth {
 
     yt2.toast('success', yt2.getI18n('YOUTUBE2_SIGN_IN_SUCCESS'));
     yt2.refreshUIConfig();
+    this.emit(AuthEvent.SignIn);
   }
 
-  static #handleError(err: YTUtils.OAuthError) {
+  #handleError(err: YTUtils.OAuthError) {
     if (err.info.status === 'DEVICE_CODE_EXPIRED') {
       yt2.set('authStatusInfo', INITIAL_SIGNED_OUT_STATUS);
     }
@@ -69,35 +98,33 @@ export default class Auth {
     }
 
     yt2.refreshUIConfig();
+    this.emit(AuthEvent.Error);
   }
 
-  static #handleUpdateCredentials(data: { credentials: Credentials }) {
+  #handleUpdateCredentials(data: { credentials: Credentials }) {
     yt2.setConfigValue('authCredentials', data.credentials);
   }
 
-  static registerHandlers() {
-    const innertube = yt2.get<Innertube>('innertube');
-    if (innertube?.session) {
-      innertube.session.on('auth', this.#handlers.onSuccess);
-      innertube.session.on('auth-pending', this.#handlers.onPending);
-      innertube.session.on('auth-error', this.#handlers.onError);
-      innertube.session.on('update-credentials', this.#handlers.onCredentials);
+  #registerHandlers() {
+    if (this.#innertube?.session) {
+      this.#innertube.session.on('auth', this.#handlers.onSuccess);
+      this.#innertube.session.on('auth-pending', this.#handlers.onPending);
+      this.#innertube.session.on('auth-error', this.#handlers.onError);
+      this.#innertube.session.on('update-credentials', this.#handlers.onCredentials);
     }
   }
 
-  static unregisterHandlers() {
-    const innertube = yt2.get<Innertube>('innertube');
-    if (innertube?.session) {
-      innertube.session.off('auth', this.#handlers.onSuccess);
-      innertube.session.off('auth-pending', this.#handlers.onPending);
-      innertube.session.off('auth-error', this.#handlers.onError);
-      innertube.session.off('update-credentials', this.#handlers.onCredentials);
+  #unregisterHandlers() {
+    if (this.#innertube?.session) {
+      this.#innertube.session.off('auth', this.#handlers.onSuccess);
+      this.#innertube.session.off('auth-pending', this.#handlers.onPending);
+      this.#innertube.session.off('auth-error', this.#handlers.onError);
+      this.#innertube.session.off('update-credentials', this.#handlers.onCredentials);
     }
   }
 
-  static signIn() {
-    const innertube = yt2.get<Innertube>('innertube');
-    if (innertube?.session) {
+  signIn() {
+    if (this.#innertube?.session) {
       const credentials = yt2.getConfigValue('authCredentials');
       if (credentials) {
         yt2.set<AuthStatusInfo>('authStatusInfo', {
@@ -109,14 +136,13 @@ export default class Auth {
       }
 
       yt2.refreshUIConfig();
-      innertube.session.signIn(credentials);
+      this.#innertube.session.signIn(credentials);
     }
   }
 
-  static signOut() {
-    const innertube = yt2.get<Innertube>('innertube');
-    if (innertube?.session?.logged_in) {
-      innertube.session.signOut();
+  async signOut() {
+    if (this.#innertube?.session?.logged_in) {
+      await this.#innertube.session.signOut();
 
       yt2.deleteConfigValue('authCredentials');
 
@@ -128,7 +154,7 @@ export default class Auth {
     }
   }
 
-  static getAuthStatus() {
+  getStatus() {
     return yt2.get<AuthStatusInfo>('authStatusInfo') || INITIAL_SIGNED_OUT_STATUS;
   }
 }

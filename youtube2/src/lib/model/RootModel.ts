@@ -3,20 +3,15 @@ import { BaseModel } from './BaseModel';
 import InnertubeResultParser from './InnertubeResultParser';
 import { ContentItem, PageElement } from '../types';
 import EndpointHelper from '../util/EndpointHelper';
-import PageContent from '../types/PageContent';
+import { PageContent } from '../types/Content';
 
 export default class RootModel extends BaseModel {
 
   async getContents(opts?: { contentType: 'simple' | 'full'}): Promise<PageContent | null> {
-    const innertube = this.getInnertube();
-    if (!innertube) {
-      throw Error('Innertube not ready');
-    }
+    const { innertube } = await this.getInnertube();
     const guide = await innertube.getGuide();
     const sections = guide.contents.map((section) => this.#expandGuideSection(section));
-    const parsed = InnertubeResultParser.parseResult({
-      contents: sections
-    });
+    const parsed = InnertubeResultParser.parseResult({ contents: sections });
 
     const primaryOnly = opts?.contentType === 'simple';
     if (parsed) {
@@ -46,14 +41,14 @@ export default class RootModel extends BaseModel {
   }
 
   #expandGuideEntry(entry: YTHelpers.YTNode): YTHelpers.YTNode[] {
-    if (entry.type === 'GuideCollapsibleEntry') {
+    if (entry instanceof YTNodes.GuideCollapsibleEntry) {
       const collapsibleEntry = entry as YTNodes.GuideCollapsibleEntry;
       return collapsibleEntry.expandable_items.reduce<YTHelpers.YTNode[]>((expanded, item) => {
         expanded.push(...this.#expandGuideEntry(item));
         return expanded;
       }, []);
     }
-    if (entry.type === 'GuideCollapsibleSectionEntry') {
+    if (entry instanceof YTNodes.GuideCollapsibleSectionEntry) {
       const sectionEntry = entry as YTNodes.GuideCollapsibleSectionEntry;
       const initialExpanded = sectionEntry.header_entry ? this.#expandGuideEntry(sectionEntry.header_entry) : [];
       return sectionEntry.section_items.reduce<YTHelpers.YTNode[]>((expanded, item) => {

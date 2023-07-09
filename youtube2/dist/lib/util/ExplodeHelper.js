@@ -42,9 +42,9 @@ class ExplodeHelper {
     static getExplodedTrackInfoFromVideo(data) {
         return {
             title: data.title,
-            artist: data.author?.name || data.viewCount,
-            albumart: data.thumbnail,
-            endpoint: data.endpoint // Watch endpoint
+            artist: data.author?.name || data.viewCount || '',
+            albumart: data.thumbnail || '',
+            endpoint: data.endpoint
         };
     }
     static validateExplodeUri(uri) {

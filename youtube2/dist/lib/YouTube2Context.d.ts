@@ -1,5 +1,7 @@
+import I18nSchema from '../i18n/strings_en.json';
 import winston from 'winston';
-import { PluginConfigKey, PluginConfigValue } from './types/ConfigData';
+import { PluginConfigKey, PluginConfigValue } from './types/PluginConfig';
+export type I18nKey = keyof typeof I18nSchema;
 declare class YouTube2Context {
     #private;
     constructor();
@@ -20,7 +22,7 @@ declare class YouTube2Context {
     getMpdPlugin(): any;
     getStateMachine(): any;
     reset(): void;
-    getI18n(key: string, ...formatValues: any[]): string;
+    getI18n(key: I18nKey, ...formatValues: any[]): string;
     get volumioCoreCommand(): any;
 }
 declare const _default: YouTube2Context;
