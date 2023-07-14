@@ -30,7 +30,7 @@
 		"child_process": ""
 	},
 	"engines": {
-		"node": ">=8",
+		"node": ">=14",
 		"volumio": ">=3.126"
 	},
 	"repository": "https://github.com/volumio/volumio-plugins-sources"
