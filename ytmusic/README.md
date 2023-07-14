@@ -7,6 +7,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+0.2.2
+- Fix broken auth following YT changes (which causes Volumio to become unresponsive)
+
 0.2.1
 - Fix unable to sign in on Volumio rPi
 

@@ -27,7 +27,7 @@ declare class ControllerJellyfin {
     seek(position: number): any;
     next(): any;
     previous(): any;
-    prefetch(track: any): Promise<any> | undefined;
+    prefetch(track: any): any;
     search(query: SearchQuery): any;
     goto(data: GotoParams): any;
     addToFavourites(data: {

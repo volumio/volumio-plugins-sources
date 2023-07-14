@@ -6,9 +6,9 @@ export default class UI {
   }
 
   static isManifestUI(): boolean {
-    const volumioManifestUIFlagFile = '/data/manifestUI';
+    const volumioManifestUIDir = '/volumio/http/www4';
     const volumioManifestUIDisabledFile = '/data/disableManifestUI';
-    return existsSync(volumioManifestUIFlagFile) && !existsSync(volumioManifestUIDisabledFile);
+    return existsSync(volumioManifestUIDir) && !existsSync(volumioManifestUIDisabledFile);
   }
 
   static createLink(data: { text: string, uri: string }): string {
