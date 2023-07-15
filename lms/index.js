@@ -41,7 +41,8 @@ ControllerLMS.prototype.onStop = function() {
 	.fail(function(e)
 	{
 		self.commandRouter.pushToastMessage('error', "Stopping failed", "Could not stop the LMS plugin in a fashionable manner, error: " + e);
-		defer.reject(new error());
+		// Do not reject, in case user is uninstalling a possibly broken installation - rejecting will abort the process.
+		defer.resolve();
 	});
 
 	return defer.promise;
