@@ -31,13 +31,13 @@ if [ ! -f $INSTALLING ]; then
 			FILE="$(cat $LATEST_LOCATION | grep debarm | awk -F 'url="|" version' '$0=$2')"
 			wget -O /home/volumio/logitechmediaserver/logitechmediaserver_arm.deb $FILE
 		elif [ $arch = "i686" ] || [ $arch = "x86_64" ]; then
-			#Not certain if correct cannot test
-			FILE= cat $LATEST_LOCATION | grep debarm | awk -F 'url="|" version' '$0=$2'
-			wget -O /home/volumio/logitechmediaserver/logitechmediaserver.deb $FILE
-		elif [ $arch = "x86_64" ]; then
-			#Not certain if correct cannot test
-			FILE= cat $LATEST_LOCATION | grep debamd64 | awk -F 'url="|" version' '$0=$2'
-			wget -O /home/volumio/logitechmediaserver/logitechmediaserver.deb $FILE
+			FILE="$(cat $LATEST_LOCATION | grep debamd64 | awk -F 'url="|" version' '$0=$2')"
+			wget -O /home/volumio/logitechmediaserver/logitechmediaserver_amd64.deb $FILE
+		else
+			echo "Incompatible architecture. Installation cannot continue."
+			rm -rf /home/volumio/logitechmediaserver
+			rm $INSTALLING
+			exit 1
 		fi
 
 		# Move the binary to the expected directory
