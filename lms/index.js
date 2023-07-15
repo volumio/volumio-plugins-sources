@@ -117,7 +117,7 @@ ControllerLMS.prototype.getUIConfig = function() {
     .then(function(uiconf)
     {
 		self.logger.info("[LMS] Loading configuration...");
-		let consoleUrl = `http://${self.selfIP['eth0']}:9000`;
+		let consoleUrl = `http://${self.selfIP['eth0'] || self.selfIP['wlan0']}:9000`;
 		self.logger.info(`[LMS] Console URL: ${consoleUrl}`);
 		uiconf.sections[0].content[0].onClick.url = consoleUrl;
 		defer.resolve(uiconf);
