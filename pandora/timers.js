@@ -18,7 +18,7 @@ class Timer {
     init() {
         const self = this;
         const fnName = 'init';
-        
+
         self.active = true;
         self.pUtil = new PUtil(this, this.className);
 
@@ -41,7 +41,13 @@ class Timer {
                 .then(timerID => {
                     self.timerID = timerID;
                     self.pUtil.logInfo(fnName, 'Timer loaded');
-                    self.pUtil.logInfo(fnName, 'Interval set to ' + self.interval + ' ms');            
+                    self.pUtil.logInfo(fnName, 'Interval set to ' + self.interval + ' ms');
+                    if (self.delayStart) {
+                        self.pUtil.logInfo(fnName, 'Starting delayed timer after next interval');
+                    }
+                    else {
+                        self.pUtil.logInfo(fnName, 'Timer starting now');
+                    }
                     return libQ.resolve();
                 });
         };
@@ -124,7 +130,7 @@ class ExpireOldTracks extends Timer {
         else {
             self.pUtil.logInfo(fnName,
                 'No victims found: ' +
-                'Expiring zero tracks.  ' + 
+                'Expiring zero tracks.  ' +
                 'Don\'t worry -- Jason will return.');
         }
 
@@ -172,6 +178,7 @@ class PreventAuthTimeout extends Timer {
 
         this.interval = 3 * 60 * 60 * 1000; // 3 hours
         this.className = 'PreventAuthTimeout';
+        this.delayStart = true;
     }
 
     // restart() {

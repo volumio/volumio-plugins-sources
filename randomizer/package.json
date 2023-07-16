@@ -1,0 +1,36 @@
+{
+	"name": "randomizer",
+	"version": "3.0.0",
+	"description": "Randomizer will browse your Music Library and; Load a number of Random Tracks, Load a Random Album or Load the Album of the currently playing Track.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Redlawd",
+	"license": "ISC",
+	"repository": "https://github.com/yourname/yourrepo",
+	"volumio_info": {
+		"prettyName": "randomizer",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "user_interface",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Lorem ipsum",
+		"changelog": "Lorem ipsum"
+	},
+	"engines": {
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.251.0 <4.0.0"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"socket.io-client": "^1.7.4",
+		"v-conf": "^1.4.0"
+	}
+}

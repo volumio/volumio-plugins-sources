@@ -1,0 +1,1 @@
+{"version":3,"file":"UserViewModel.d.ts","sourceRoot":"","sources":["../../../src/lib/model/UserViewModel.ts"],"names":[],"mappings":"AAGA,OAAO,QAAQ,MAAM,sBAAsB,CAAC;AAC5C,OAAO,SAAS,EAAE,EAAE,cAAc,EAAE,MAAM,aAAa,CAAC;AAGxD,MAAM,CAAC,OAAO,OAAO,aAAc,SAAQ,SAAS;IAElD,YAAY,IAAI,OAAO,CAAC,cAAc,CAAC,QAAQ,CAAC,CAAC;IAQjD,WAAW,CAAC,EAAE,EAAE,MAAM;CAIvB"}

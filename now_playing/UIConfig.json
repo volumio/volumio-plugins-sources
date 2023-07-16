@@ -183,34 +183,7 @@
       "label": "TRANSLATE.NOW_PLAYING_WEATHER_SERVICE",
       "description": "TRANSLATE.NOW_PLAYING_WEATHER_SERVICE_DESC",
       "icon": "fa-sun-o",
-      "onSave": {
-        "type": "controller",
-        "endpoint": "user_interface/now_playing",
-        "method": "configSaveWeatherServiceSettings"
-      },
-      "saveButton": {
-        "label": "TRANSLATE.NOW_PLAYING_SAVE",
-        "data": [
-          "openWeatherMapApiKey"
-        ]
-      },
       "content": [
-        {
-          "id": "openWeatherMapApiKey",
-          "type": "text",
-          "element": "input",
-          "label": "TRANSLATE.NOW_PLAYING_OPENWEATHERMAP_API_KEY",
-          "doc": "TRANSLATE.NOW_PLAYING_DOC_OPENWEATHERMAP_API_KEY",
-          "value": ""
-        },
-        {
-          "id": "apiKeyGuide",
-          "element": "button",
-          "label": "TRANSLATE.NOW_PLAYING_API_KEY_GUIDE",
-          "onClick": {
-            "type": "openUrl"
-          }
-        },
         {
           "id": "clearWeatherCache",
           "element": "button",
@@ -245,12 +218,14 @@
           "albumFontSize",
           "mediaInfoFontSize",
           "seekTimeFontSize",
+          "metadataFontSize",
           "fontColors",
           "titleFontColor",
           "artistFontColor",
           "albumFontColor",
           "mediaInfoFontColor",
           "seekTimeFontColor",
+          "metadataFontColor",
           "textMargins",
           "titleMargin",
           "artistMargin",
@@ -267,7 +242,8 @@
           "trackInfoTitleOrder",
           "trackInfoArtistOrder",
           "trackInfoAlbumOrder",
-          "trackInfoMediaInfoOrder"
+          "trackInfoMediaInfoOrder",
+          "trackInfoMarqueeTitle"
         ]
       },
       "content": [
@@ -344,6 +320,18 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
           "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
           "value": "",
           "attributes": [
             { "style": "margin-bottom: 32px;" }
@@ -426,6 +414,18 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
           "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
           "value": "",
           "visibleIf": {
             "field": "fontColors",
@@ -691,6 +691,13 @@
             "field": "trackInfoOrder",
             "value": "custom"
           }
+        },
+        {
+          "id": "trackInfoMarqueeTitle",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRACK_INFO_MARQUEE_TITLE",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRACK_INFO_MARQUEE_TITLE",
+          "value": false
         }
       ]
     },
@@ -1337,6 +1344,57 @@
             "field": "backgroundOverlay",
             "value": "customGradient"
           }
+        }
+      ]
+    },
+    {
+      "id": "section_action_panel",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_ACTION_PANEL",
+      "icon": "fa-chevron-circle-down",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveActionPanelSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "showVolumeSlider"
+        ]
+      },
+      "content": [
+        {
+          "id": "showVolumeSlider",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_VOLUME_SLIDER",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "section_docked_menu",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_MENU",
+      "icon": "fa-ellipsis-v",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedMenuSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": true
         }
       ]
     },
@@ -2338,6 +2396,7 @@
           "showLocation",
           "showWeather",
           "mainAlignment",
+          "mainAlignmentCycleInterval",
           "timeFormat",
           "hour24",
           "showSeconds",
@@ -2449,8 +2508,24 @@
             {
               "value": "flex-end", 
               "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "cycle", 
+              "label": "TRANSLATE.NOW_PLAYING_CYCLE"
             }
           ]
+        },
+        {
+          "id": "mainAlignmentCycleInterval",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_CYCLE_INTERVAL",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CYCLE_INTERVAL_ALIGNMENT",
+          "value": "",
+          "visibleIf": {
+            "field": "mainAlignment",
+            "value": "cycle"
+          }
         },
         {
           "id": "timeFormat",

@@ -6,7 +6,8 @@ const config = require(nowPlayingPluginLibRoot + '/config');
 const apiHandlers = {
     'metadata': require(nowPlayingPluginLibRoot + '/api/metadata'),
     'settings': require(nowPlayingPluginLibRoot + '/api/settings'),
-    'weather': require(nowPlayingPluginLibRoot + '/api/weather')
+    'weather': require(nowPlayingPluginLibRoot + '/api/weather'),
+    'unsplash': require(nowPlayingPluginLibRoot + '/api/unsplash')
 };
 
 async function index(req, res) {
@@ -15,6 +16,7 @@ async function index(req, res) {
             'screen.nowPlaying': np.getConfigValue('screen.nowPlaying', {}, true),
             'screen.idle': np.getConfigValue('screen.idle', {}, true),
             background: np.getConfigValue('background', {}, true),
+            actionPanel: np.getConfigValue('actionPanel', {}, true),
             theme: np.getConfigValue('theme', 'default'),
             performance: np.getConfigValue('performance', null, true),
             localization: config.getLocalizationSettings()

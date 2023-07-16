@@ -18,10 +18,13 @@ class SpotConnEvents extends EventEmitter {
       // Daemon state events
       PlaybackActive: Symbol('PlaybackActive'),
       PlaybackInactive: Symbol('PlaybackInactive'),
+      PlaybackLoading: Symbol('PlaybackLoading'),
+      PlaybackStopped: Symbol('PlaybackStopped'),
       DeviceActive: Symbol('DeviceActive'),
       DeviceInactive: Symbol('DeviceInactive'),
       SinkActive: Symbol('SinkActive'),
       SinkInactive: Symbol('SinkInactive'),
+      TrackChanged: Symbol('TrackChanged'),
       // PLayback events
       Metadata: Symbol('Metadata'),
       Token: Symbol('Token'),
@@ -77,6 +80,14 @@ class SpotConnEvents extends EventEmitter {
           this.emit(this.Events.PlaybackInactive);
           break;
 
+        case 'kSpPlaybackLoading':
+          this.emit(this.Events.PlaybackLoading);
+          break;
+
+        case 'kSpPlaybackStopped':
+          this.emit(this.Events.PlaybackStopped);
+          break;
+
         case 'kSpDeviceActive':
           this.emit(this.Events.DeviceActive);
           break;
@@ -93,11 +104,23 @@ class SpotConnEvents extends EventEmitter {
           this.emit(this.Events.SinkInactive);
           break;
 
+        case 'kSpTrackChanged':
+          this.emit(this.Events.TrackChanged);
+          break;
+
         default:
           // TODO Strip whitespace:
           if (msg) this.emit(this.Events.Unknown, msg, e);
       }
     }
+  }
+
+  sendVolume (volume) {
+    // Attempting to send a message back via udp
+    // logger.debug('FE => ', msg);
+    this._udpsource.send(Buffer.from([0x9, volume]), 5031, 'localhost', (err) =>
+      err ? logger.error('Error sending message: ', err) : null
+    );
   }
 
   sendmsg (msg) {

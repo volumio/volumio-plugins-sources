@@ -4,7 +4,7 @@ const EventEmitter = require('events');
 const Player = require('yt-cast-receiver').Player;
 const ytdl = require('ytdl-core');
 const mpdapi = require('mpd-api');
-const request = require('request');
+const fetch = require('node-fetch');
 
 const MPD_TO_PLAYER_STATUSES = {
     'play': Player.STATUS_PLAYING,
@@ -24,10 +24,7 @@ class MPDPlayer extends Player {
     }
 
     async init(options = {}) {
-        let mpdConfig = Object.assign({
-            host: 'localhost',
-            port: 6600
-        }, options.mpd || {});
+        let mpdConfig = options.mpd;
 
         this.currentPlayData = null;
         this.mpdClient = await mpdapi.connect(mpdConfig);
@@ -561,36 +558,33 @@ class MPDPlayer extends Player {
     async checkAudioUrl(url) {
         let self = this;
         self.logDebug(`[MPDPlayer] checkAudioUrl(): ${ url }`);
-        return new Promise( (resolve, reject) => {
-            request.head(url, (error, response) => {
-                let statusCode = response ? response.statusCode : undefined;
-                let err;
-                if (error) {
-                    err = error;
-                }
-                else if (statusCode === 403) {
-                    err = new Error('Audio URL returns 403 Forbidden');
-                }
-                else if (statusCode === 404) { // Might as well handle 404...
-                    err = new Error('Audio URL returns 404 Not Found');
-                }
-                else {
-                    self.logDebug(`[MPDPlayer] checkAudioUrl() passed. Response status code: ${ statusCode }`);
-                }
 
-                if (err) {
-                    self.logDebug(`[MPDPlayer] checkAudioUrl() failed: ${ err.message }`);
-                    if (!err.message) {
-                        self.logDebug(err);
-                    }
-                }
-
-                resolve({
-                    error: err,
-                    statusCode
-                });
+        const result = {
+            error: null
+        }
+        try {
+            const response = await fetch(url, {
+                method: 'HEAD'
             });
-        });
+            result.statusCode = response.status;
+            if (result.statusCode === 403) {
+                result.error = new Error('Audio URL returns 403 Forbidden');
+            }
+            else if (result.statusCode === 404) { // Might as well handle 404...
+                result.error = new Error('Audio URL returns 404 Not Found');
+            }
+            else {
+                self.logDebug(`[MPDPlayer] checkAudioUrl() passed. Response status code: ${ result.statusCode }`);
+            }
+        } catch (error) {
+            self.logDebug(`[MPDPlayer] checkAudioUrl() failed: ${ err.message }`);
+            if (!err.message) {
+                self.logDebug(err);
+            }
+            result.error = error;
+        }
+
+        return result;
     }
 
     sleep() {

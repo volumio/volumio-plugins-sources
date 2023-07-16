@@ -1,4 +1,4 @@
-const OpenWeatherAPI = require("openweather-api-node");
+const OpenWeatherMapAPI = require('./openweathermap');
 const md5 = require('md5');
 const { parseCoordinates } = require("../config");
 const np = require(nowPlayingPluginLibRoot + '/np');
@@ -30,13 +30,12 @@ const ICON_CODE_MAPPINGS = {
 
 const fetchPromises = {};
 
-const api = new OpenWeatherAPI({});
+const api = new OpenWeatherMapAPI({});
 const weatherCache = new Cache(
   { weather: 600 },
   { weather: 10 });
 
 let currentConfig = {
-  apiKey: null,
   coordinates: {},
   units: 'standard'
 };
@@ -48,20 +47,16 @@ function clearCache() {
 }
 
 function config(opts) {
-  let { apiKey, coordinates, units } = opts;
+  let { coordinates, units } = opts;
   let coord = parseCoordinates(coordinates);
-  ready = coord && apiKey;
+  ready = coord;
   if (!ready) {
     return;
   }
   let configChanged = false;
-  let {apiKey: currentApiKey, coordinates: currentCoordinates, units: currentUnits} = currentConfig;
+  let {coordinates: currentCoordinates, units: currentUnits} = currentConfig;
   if (coord.lat !== currentCoordinates.lat || coord.lon !== currentCoordinates.lon) {
-    api.setLocationByCoordinates(coord.lat, coord.lon);
-    configChanged = true;
-  }
-  if (apiKey && currentApiKey !== apiKey) {
-    api.setKey(apiKey);
+    api.setCoordinates(coord.lat, coord.lon);
     configChanged = true;
   }
   if (units !== undefined && currentUnits !== units) {
@@ -152,24 +147,14 @@ function getHumidityText(value) {
   return value.toFixed(0) + '%';
 }
 
-function parseLocation(data) {
-  return {
-    name: data.name,
-    localNames: data.local_names,
-    state: data.state,
-    country: data.country
-  };
-}
-
 function parseCurrent(data) {
-  const currentData = data.current.weather;
+  const currentData = data.current;
   const appUrl = np.get('pluginInfo').appUrl;
-  const temp = currentData.temp.cur;
+  const temp = currentData.temp.now;
   const humidity = currentData.humidity;
-  const windSpeed = currentData.wind.speed;
-  const tempRange = data.daily[0].weather.temp; // First day of forecast is actually current day
-  const tempMin = tempRange.min;
-  const tempMax = tempRange.max;
+  const windSpeed = currentData.windSpeed;
+  const tempMin = currentData.temp.min;
+  const tempMax = currentData.temp.max;
   const result = {
     temp: {
       now: {
@@ -198,7 +183,7 @@ function parseCurrent(data) {
     },
     description: currentData.description,
     iconUrl: {
-      condition: getWeatherIconUrls(appUrl, currentData.icon.raw),
+      condition: getWeatherIconUrls(appUrl, currentData.icon),
       humidity: getWeatherIconUrls(appUrl, '_humidity'),
       windspeed: getWeatherIconUrls(appUrl, '_windSpeed'),
     }
@@ -209,12 +194,11 @@ function parseCurrent(data) {
 function parseForecast(data) {
   const appUrl = np.get('pluginInfo').appUrl;
   const forecast = [];
-  for (const dailyData of data.daily) {
-    const dailyWeather = dailyData.weather;
+  for (const dailyWeather of data.daily) {
     const tempMin = dailyWeather.temp.min;
     const tempMax = dailyWeather.temp.max;
     const humidity = dailyWeather.humidity;
-    const windSpeed = dailyWeather.wind.speed;
+    const windSpeed = dailyWeather.windSpeed;
     forecast.push({
       temp: {
         min: {
@@ -237,25 +221,57 @@ function parseForecast(data) {
         text: getWindSpeedText(windSpeed)
       },
       iconUrl: {
-        condition: getWeatherIconUrls(appUrl, dailyWeather.icon.raw),
+        condition: getWeatherIconUrls(appUrl, dailyWeather.icon),
         humidity: getWeatherIconUrls(appUrl, '_humidity'),
         windspeed: getWeatherIconUrls(appUrl, '_windSpeed'),
       },
-      dateTimeMillis: dailyData.dt_raw * 1000
+      dateTimeMillis: dailyWeather.dateTimeMillis
     });
   }
   return forecast.slice(1); // First day of forecast is actually current day
 }
 
+function parseHourly(data) {
+  const appUrl = np.get('pluginInfo').appUrl;
+  const hourly = [];
+  for (const hourlyWeather of data.hourly) {
+    const temp = hourlyWeather.temp;
+    const humidity = hourlyWeather.humidity;
+    const windSpeed = hourlyWeather.windSpeed;
+    hourly.push({
+      temp: {
+        value: temp,
+        text: getTemperatureText(temp),
+        shortText: getTemperatureText(temp, true)
+      },
+      humidity: {
+        value: humidity,
+        text: getHumidityText(humidity)
+      },
+      windSpeed: {
+        value: windSpeed,
+        text: getWindSpeedText(windSpeed)
+      },
+      iconUrl: {
+        condition: getWeatherIconUrls(appUrl, hourlyWeather.icon),
+        humidity: getWeatherIconUrls(appUrl, '_humidity'),
+        windspeed: getWeatherIconUrls(appUrl, '_windSpeed'),
+      },
+      dateTimeMillis: hourlyWeather.dateTimeMillis
+    });
+  }
+  return hourly;
+}
+
 async function doFetchInfo() {
   return getFetchPromise(async() => {
-    const location = await api.getLocation();
-    const weather = await api.getEverything();
+    const weather = await api.getWeather();
 
     return {
-      location: parseLocation(location),
+      location: weather.location,
       current: parseCurrent(weather),
       forecast: parseForecast(weather),
+      hourly: parseHourly(weather),
       units: currentConfig.units
     };
   });

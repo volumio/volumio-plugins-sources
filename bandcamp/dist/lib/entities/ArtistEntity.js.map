@@ -1,0 +1,1 @@
+{"version":3,"file":"ArtistEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/ArtistEntity.ts"],"names":[],"mappings":"","sourcesContent":["import BandEntity from './BandEntity';\nimport LabelEntity from './LabelEntity';\n\ninterface ArtistEntity extends BandEntity {\n  type: 'artist';\n  label?: LabelEntity;\n}\n\nexport default ArtistEntity;\n"]}

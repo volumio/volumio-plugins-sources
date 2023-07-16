@@ -1,6 +1,6 @@
 {
 	"name": "pandora",
-	"version": "2.9.3",
+	"version": "2.12.1",
 	"description": "Pandora Music Services Plugin",
 	"main": "index.js",
 	"scripts": {
