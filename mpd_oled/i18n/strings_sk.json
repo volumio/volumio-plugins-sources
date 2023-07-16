@@ -43,7 +43,7 @@
 	"FRAME_RATE": {
 		"LABEL": "Rýchlosť prekresľovania",
 		"DOC": "Vyberte, ako rýchlo sa bude prekresľovať displej (Hz)<br/><br/>Inštalačný proces zvýšil rýchlosť I2C na 800 Kbit/s, ale na túto zmenu musíte reštartovať svoje Raspberry Pi.<br/><br/>Tip: Raspberry Pi 3 s rýchlosťou prekresľovania 50Hz vykazuje výborné výsledky.",
-		"DEFAULT": "15 (predvolené)"
+		"DEFAULT": "50 (predvolené)"
 	},
 	"SCROLL_RATE": {
 		"LABEL": "Rýchlosť skrolovania",
@@ -143,6 +143,10 @@
 	"MPD_OLED_LINK": {
 		"LABEL": "MPD OLED na GitHub",
 		"DESC": "Navštívte projekt MPD OLED na GitHub."
+	},
+	"MPD_OLED_FORUM_LINK": {
+		"LABEL": "Plugin Feedback",
+		"DESC": "Navštívte stránku tohto doplnku na fóre komunity Volumio."
 	},
 	"DATE_FORMAT": {
 		"LABEL": "Formát dátumu",

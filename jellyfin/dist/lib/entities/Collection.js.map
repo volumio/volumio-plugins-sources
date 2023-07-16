@@ -1,0 +1,1 @@
+{"version":3,"file":"Collection.js","sourceRoot":"","sources":["../../../src/lib/entities/Collection.ts"],"names":[],"mappings":"","sourcesContent":["import { EntityType } from '.';\nimport BaseEntity from './BaseEntity';\n\ninterface Collection extends BaseEntity {\n  type: EntityType.Collection;\n  year: number | null;\n}\n\nexport default Collection;\n"]}

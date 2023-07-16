@@ -183,34 +183,7 @@
       "label": "TRANSLATE.NOW_PLAYING_WEATHER_SERVICE",
       "description": "TRANSLATE.NOW_PLAYING_WEATHER_SERVICE_DESC",
       "icon": "fa-sun-o",
-      "onSave": {
-        "type": "controller",
-        "endpoint": "user_interface/now_playing",
-        "method": "configSaveWeatherServiceSettings"
-      },
-      "saveButton": {
-        "label": "TRANSLATE.NOW_PLAYING_SAVE",
-        "data": [
-          "openWeatherMapApiKey"
-        ]
-      },
       "content": [
-        {
-          "id": "openWeatherMapApiKey",
-          "type": "text",
-          "element": "input",
-          "label": "TRANSLATE.NOW_PLAYING_OPENWEATHERMAP_API_KEY",
-          "doc": "TRANSLATE.NOW_PLAYING_DOC_OPENWEATHERMAP_API_KEY",
-          "value": ""
-        },
-        {
-          "id": "apiKeyGuide",
-          "element": "button",
-          "label": "TRANSLATE.NOW_PLAYING_API_KEY_GUIDE",
-          "onClick": {
-            "type": "openUrl"
-          }
-        },
         {
           "id": "clearWeatherCache",
           "element": "button",
@@ -269,7 +242,8 @@
           "trackInfoTitleOrder",
           "trackInfoArtistOrder",
           "trackInfoAlbumOrder",
-          "trackInfoMediaInfoOrder"
+          "trackInfoMediaInfoOrder",
+          "trackInfoMarqueeTitle"
         ]
       },
       "content": [
@@ -717,6 +691,13 @@
             "field": "trackInfoOrder",
             "value": "custom"
           }
+        },
+        {
+          "id": "trackInfoMarqueeTitle",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRACK_INFO_MARQUEE_TITLE",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRACK_INFO_MARQUEE_TITLE",
+          "value": false
         }
       ]
     },
@@ -1387,6 +1368,32 @@
           "id": "showVolumeSlider",
           "element": "switch",
           "label": "TRANSLATE.NOW_PLAYING_SHOW_VOLUME_SLIDER",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "section_docked_menu",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_MENU",
+      "icon": "fa-ellipsis-v",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedMenuSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
           "value": true
         }
       ]
@@ -2389,6 +2396,7 @@
           "showLocation",
           "showWeather",
           "mainAlignment",
+          "mainAlignmentCycleInterval",
           "timeFormat",
           "hour24",
           "showSeconds",
@@ -2500,8 +2508,24 @@
             {
               "value": "flex-end", 
               "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "cycle", 
+              "label": "TRANSLATE.NOW_PLAYING_CYCLE"
             }
           ]
+        },
+        {
+          "id": "mainAlignmentCycleInterval",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_CYCLE_INTERVAL",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CYCLE_INTERVAL_ALIGNMENT",
+          "value": "",
+          "visibleIf": {
+            "field": "mainAlignment",
+            "value": "cycle"
+          }
         },
         {
           "id": "timeFormat",

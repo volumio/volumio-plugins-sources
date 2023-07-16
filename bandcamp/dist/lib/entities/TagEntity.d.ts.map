@@ -1,0 +1,1 @@
+{"version":3,"file":"TagEntity.d.ts","sourceRoot":"","sources":["../../../src/lib/entities/TagEntity.ts"],"names":[],"mappings":"AAAA,UAAU,SAAS;IACjB,IAAI,EAAE,KAAK,CAAC;IACZ,IAAI,EAAE,MAAM,CAAC;IACb,GAAG,EAAE,MAAM,CAAC;IACZ,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB;AAED,eAAe,SAAS,CAAC"}

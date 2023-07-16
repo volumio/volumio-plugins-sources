@@ -1,0 +1,1 @@
+{"version":3,"file":"Collection.d.ts","sourceRoot":"","sources":["../../../src/lib/entities/Collection.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,GAAG,CAAC;AAC/B,OAAO,UAAU,MAAM,cAAc,CAAC;AAEtC,UAAU,UAAW,SAAQ,UAAU;IACrC,IAAI,EAAE,UAAU,CAAC,UAAU,CAAC;IAC5B,IAAI,EAAE,MAAM,GAAG,IAAI,CAAC;CACrB;AAED,eAAe,UAAU,CAAC"}

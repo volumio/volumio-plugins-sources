@@ -1,12 +1,12 @@
 {
   "files": {
-    "main.css": "/static/css/main.ee3bdd7d.css",
-    "main.js": "/static/js/main.8728b19e.js",
-    "static/js/460.1f2db76c.chunk.js": "/static/js/460.1f2db76c.chunk.js",
+    "main.css": "/static/css/main.06ea62db.css",
+    "main.js": "/static/js/main.929c90c7.js",
+    "static/js/460.fbfe4104.chunk.js": "/static/js/460.fbfe4104.chunk.js",
     "static/js/78.cd224ff0.chunk.js": "/static/js/78.cd224ff0.chunk.js",
-    "static/js/926.39931cc7.chunk.js": "/static/js/926.39931cc7.chunk.js",
-    "static/js/76.b4368811.chunk.js": "/static/js/76.b4368811.chunk.js",
-    "static/js/969.c179d65a.chunk.js": "/static/js/969.c179d65a.chunk.js",
+    "static/js/926.b271184b.chunk.js": "/static/js/926.b271184b.chunk.js",
+    "static/js/76.2d98bf29.chunk.js": "/static/js/76.2d98bf29.chunk.js",
+    "static/js/969.be6d850d.chunk.js": "/static/js/969.be6d850d.chunk.js",
     "static/media/fontawesome-webfont.svg?v=4.7.0": "/static/media/fontawesome-webfont.c1e38fd9e0e74ba58f7a.svg",
     "static/media/MaterialIcons-Regular.ttf": "/static/media/MaterialIcons-Regular.b459c012769931f03de2.ttf",
     "static/media/fontawesome-webfont.eot": "/static/media/fontawesome-webfont.8b43027f47b20503057d.eot",
@@ -15,12 +15,12 @@
     "static/media/fontawesome-webfont.woff2?v=4.7.0": "/static/media/fontawesome-webfont.20fd1704ea223900efa9.woff2",
     "static/media/volumio-icon.png": "/static/media/volumio-icon.3204cd4ee69f030fda73.png",
     "index.html": "/index.html",
-    "main.ee3bdd7d.css.map": "/static/css/main.ee3bdd7d.css.map",
-    "main.8728b19e.js.map": "/static/js/main.8728b19e.js.map",
-    "460.1f2db76c.chunk.js.map": "/static/js/460.1f2db76c.chunk.js.map"
+    "main.06ea62db.css.map": "/static/css/main.06ea62db.css.map",
+    "main.929c90c7.js.map": "/static/js/main.929c90c7.js.map",
+    "460.fbfe4104.chunk.js.map": "/static/js/460.fbfe4104.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ee3bdd7d.css",
-    "static/js/main.8728b19e.js"
+    "static/css/main.06ea62db.css",
+    "static/js/main.929c90c7.js"
   ]
 }

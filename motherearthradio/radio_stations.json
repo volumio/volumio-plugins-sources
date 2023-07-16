@@ -1,0 +1,50 @@
+{
+  "baseNavigation": {
+    "navigation": {
+      "lists": [
+        {
+          "availableListViews": [
+            "list"
+          ],
+          "items": [
+          ]
+        }
+      ]
+    }
+  },
+
+  "stations": {
+    "mer": [
+      {
+        "title": "Mother Earth Radio (flac)",
+        "uri": "webmer/0",
+        "url": "http://server9.streamserver24.com:18900/motherearth"
+      },
+      {
+        "title": "Mother Earth Klassik (flac)",
+        "uri": "webmer/1",
+        "url": "http://server9.streamserver24.com:18910/motherearth.klassik"
+      },
+      {
+        "title": "Mother Earth Instrumental (flac)",
+        "uri": "webmer/2",
+        "url": "http://server9.streamserver24.com:18920/motherearth.instrumental"
+      },
+      {
+        "title": "Mother Earth Radio (mp4)",
+        "uri": "webmer/3",
+        "url": "http://server9.streamserver24.com:18900/motherearth.aac"
+      },
+      {
+        "title": "Mother Earth Klassik (mp4)",
+        "uri": "webmer/4",
+        "url": "http://server9.streamserver24.com:18910/motherearth.klassik.aac"
+      },
+      {
+        "title": "Mother Earth Instrumental (mp4)",
+        "uri": "webmer/2",
+        "url": "http://server9.streamserver24.com:18920/motherearth.instrumental.aac"
+      }
+    ]
+  }
+}

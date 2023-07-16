@@ -60,6 +60,10 @@ function ControllerSpotify(context) {
     this.configManager = this.context.configManager;
     // We use a caching manager to speed up the presentation of root page
     this.browseCache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
+    this.ignorePlaybackInactive = false;
+    this.startPlaybackOnInactiveState = false;
+    this.waitDeviceActive = true;
+    self.stopTimeout = null;
 
     // Volatile for metadata
     this.unsetVol = () => {
@@ -76,6 +80,8 @@ ControllerSpotify.prototype.onVolumioStart = function () {
     this.config = new (require('v-conf'))();
     this.config.loadFile(configFile);
     this.loadI18n();
+
+    
 
     return libQ.resolve();
 }
@@ -124,9 +130,8 @@ ControllerSpotify.prototype.onStart = function () {
         this.spotifyApi = new SpotifyWebApi();
         this.device = undefined;
         this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
-        this.volumeListener();
         this.applySpotifyHostsFix();
-
+        self.commandRouter.addCallback('volumioPushState', self.processState.bind(self));
         this.commandRouter.sharedVars.registerCallback('language_code', this.systemLanguageChanged.bind(this));
         var boundMethod = self.onPlayerNameChanged.bind(self);
         self.commandRouter.executeOnPlugin('system_controller', 'system', 'registerCallback', boundMethod);
@@ -181,7 +186,6 @@ ControllerSpotify.prototype.closeSpotifyConnectDaemonConnections = function () {
 
 ControllerSpotify.prototype.handleBrowseUri = function (curUri) {
     var self = this;
-
     self.commandRouter.logger.info('In handleBrowseUri, curUri=' + curUri);
     var response;
 
@@ -242,6 +246,9 @@ ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
             self.logger.info('Successfully Refreshed access token');
             defer.resolve('');
         }).fail((error)=>{
+            self.logger.error('Failed to refresh Token: ' + error);
+            defer.reject(error);
+        }).catch((error)=>{
             self.logger.error('Failed to refresh Token: ' + error);
             defer.reject(error);
         });
@@ -314,6 +321,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('MY_MUSIC'),
+                    "isCategoryView": true,
                     "items": [
                         {
                             service: 'spop',
@@ -386,6 +394,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('FEATURED_PLAYLISTS'),
+                    "isCompactView": true,
                     "items": results[0].navigation.lists[0].items
                 },
                 {
@@ -394,6 +403,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('WHATS_NEW'),
+                    "isCompactView": true,
                     "items": results[1].navigation.lists[0].items
                 },
                 {
@@ -402,6 +412,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                     ],
                     "type": "title",
                     "title": self.getI18n('GENRES_AND_MOODS'),
+                    "isCompactView": true,
                     "items": results[2].navigation.lists[0].items
                 }
             ];
@@ -509,6 +520,7 @@ ControllerSpotify.prototype.getMyAlbums = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify my albums ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -558,6 +570,7 @@ ControllerSpotify.prototype.getMyTracks = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify my tracks ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -606,6 +619,7 @@ ControllerSpotify.prototype.getTopArtists = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify my artists ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -657,6 +671,7 @@ ControllerSpotify.prototype.getTopTracks = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify top tracks ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -708,6 +723,7 @@ ControllerSpotify.prototype.getRecentTracks = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify recent tracks ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -756,6 +772,7 @@ ControllerSpotify.prototype.featuredPlaylists = function (curUri) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify featured playlists ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -844,6 +861,7 @@ ControllerSpotify.prototype.listWebNew = function (curUri) {
             }, function (err) {
                 self.logger.error('An error occurred while listing Spotify new albums ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             });
         });
 
@@ -930,6 +948,7 @@ ControllerSpotify.prototype.listWebCategories = function (curUri) {
             }, function (err) {
                 self.logger.error('An error occurred while listing Spotify categories ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             });
         });
 
@@ -980,6 +999,7 @@ ControllerSpotify.prototype.listWebCategory = function (curUri) {
             }, function (err) {
                 self.logger.error('An error occurred while listing Spotify playlist category ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             });
         });
 
@@ -1008,10 +1028,25 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
                             "availableListViews": [
                                 "list"
                             ],
-                            "items": []
+                            "items": [],
+                            "title": "Top tracks"
+                        },
+                        {
+                            "availableListViews": [
+                                "list",
+                                "grid"
+                            ],
+                            "items": [],
+                            "title": "Albums"
+                        },
+                        {
+                            "availableListViews": [
+                                "list"
+                            ],
+                            "items": [],
+                            "title": "Related Artists"
                         }
-                    ],
-
+                    ]                
                 }
             };
             var spotifyDefer = self.listArtistTracks(artistId);
@@ -1021,27 +1056,39 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
                 }
                 return response;
             })
-                .then(function (data) {
-                    var response = data;
-                    var spotifyDefer = self.getArtistRelatedArtists(artistId);
-                    spotifyDefer.then(function (results) {
-                        response.navigation.lists[0].items.push({type: 'title', title: 'Related Artists'});
-                        for (var i in results) {
-                            response.navigation.lists[0].items.push(results[i]);
-                        }
-                    })
-                    return response;
-                })
-                .then(function (data) {
-                    var spotifyDefer = self.getArtistInfo(artistId);
-                    spotifyDefer.then(function (results) {
-                        response.navigation.info = results;
-                        response.navigation.info.uri = curUri;
-                        response.navigation.info.service = 'spop';
+            .then(function (results) {
+                return self.listArtistAlbums(artistId);
+            })
+            .then(function (results) {
+                for (var i in results) {
+                    response.navigation.lists[1].items.push(results[i]);
+                }
+                return response;
+            })            
+            .then(function (results) {
+                return self.getArtistInfo(artistId);
+            })
+            .then(function (results) {
+                response.navigation.info = results;
+                response.navigation.info.uri = curUri;
+                response.navigation.info.service = 'spop';
 
-                        defer.resolve(response);
-                    })
-                });
+                
+                return response;
+            })
+            .then(function (results) {
+                return self.getArtistRelatedArtists(artistId);
+            })
+            .then(function (results) {
+                for (var i in results) {
+                    response.navigation.lists[2].items.push(results[i]);
+                }
+                defer.resolve(response);
+                return response;
+            })
+            .catch(function (error) {
+                defer.resolve(response);
+            });            
         });
 
     return defer.promise;
@@ -1053,34 +1100,41 @@ ControllerSpotify.prototype.listArtistTracks = function (id) {
 
     var defer = libQ.defer();
 
-    var list = [{type: 'title', title: 'Top Tracks'}];
+    var list = [];
 
     var spotifyDefer = self.getArtistTopTracks(id);
     spotifyDefer.then(function (data) {
         for (var i in data) {
             list.push(data[i]);
         }
-        return list;
+        defer.resolve(list);
+    });        
+
+    return defer.promise;
+};
+
+ControllerSpotify.prototype.listArtistAlbums = function (id) {
+
+    var self = this;
+
+    var defer = libQ.defer();
+
+    var spotifyDefer = self.spotifyApi.getArtistAlbums(id);
+    spotifyDefer.then(function (results) {
+        var response = [];
+        for (var i in results.body.items) {
+            var album = results.body.items[i];
+            response.push({
+                service: 'spop',
+                type: 'folder',
+                title: album.name,
+                albumart: self._getAlbumArt(album),
+                uri: album.uri,
+            });
+        }
+        defer.resolve(response);
     })
-        .then(function (data) {
-            var spotifyDefer = self.spotifyApi.getArtistAlbums(id);
-            spotifyDefer.then(function (results) {
-                var title = {type: 'title', title: 'Albums'};
-                var response = data;
-                response.push(title);
-                for (var i in results.body.items) {
-                    var album = results.body.items[i];
-                    response.push({
-                        service: 'spop',
-                        type: 'folder',
-                        title: album.name,
-                        albumart: self._getAlbumArt(album),
-                        uri: album.uri,
-                    });
-                }
-                defer.resolve(response);
-            })
-        });
+
 
     return defer.promise;
 };
@@ -1298,11 +1352,34 @@ ControllerSpotify.prototype.getUIConfig = function () {
 ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
     var self = this;
     self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::clearAddPlayTrack');
+    
+    clearTimeout(self.stopTimeout);
 
+    self.ignorePlaybackInactive = true;
+    setTimeout(() => {
+        self.ignorePlaybackInactive = false;
+    }, 2000)
+
+    var queue = self.commandRouter.volumioGetQueue();
+
+    var uriList = [];
+    var addToTrackList = false;
+
+    if (queue && queue.length > 0) {
+        for (var i = 0; i < queue.length; i++) {
+            if (queue[i].uri === track.uri) {
+                addToTrackList = true;
+            }
+            if (addToTrackList) {
+                uriList.push(queue[i].uri);
+            }
+        }
+    }
+    
     try {
-        self.setDeviceActive().then(function() {
-            return self.playTrackFromWebAPI(track.uri);
-        })
+        self.uriList = uriList;
+        self.startPlaybackOnInactiveState = true;
+        self.setDeviceActive();
     } catch(e) {
         self.logger.error('Failed to play spotify track: ' + e);
     }
@@ -1368,6 +1445,7 @@ ControllerSpotify.prototype.getAlbumTracks = function (id) {
                 }, function (err) {
                     self.logger.error('An error occurred while listing Spotify album tracks ' + err);
                     self.handleBrowsingError(err);
+                    defer.reject('');
                 });
             }
         );
@@ -1464,6 +1542,7 @@ ControllerSpotify.prototype.getArtistTopTracks = function (id) {
             }), function (err) {
                 self.logger.error('An error occurred while listing Spotify artist tracks ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             }
         });
 
@@ -1506,8 +1585,17 @@ ControllerSpotify.prototype.getAlbumInfo = function (id) {
                 if (results && results.body && results.body.name) {
                     info.album = results.body.name;
                     info.artist = results.body.artists[0].name;
+                    
                     info.albumart = results.body.images[0].url;
                     info.type = 'album';
+                }
+                return results.body.artists[0].id;
+            }).then(function (artist) {
+                return self.spotifyApi.getArtist(artist);
+            }).then(function (artistResults) {
+                if (artistResults && artistResults.body && artistResults.body.name) {
+                    info.artistImage = artistResults.body.images[0].url;
+                    info.artistUri = artistResults.body.uri;
                 }
                 defer.resolve(info);
             }), function (err) {
@@ -1748,6 +1836,7 @@ ControllerSpotify.prototype.search = function (query) {
             }, function (err) {
                 self.logger.error('An error occurred while searching ' + err);
                 self.handleBrowsingError(err);
+                defer.reject('');
             });
         });
 
@@ -1783,7 +1872,6 @@ ControllerSpotify.prototype._searchArtists = function (results) {
 };
 
 ControllerSpotify.prototype._searchAlbums = function (results) {
-
     var list = [];
 
     for (var i in results.body.albums.items) {
@@ -1792,11 +1880,16 @@ ControllerSpotify.prototype._searchAlbums = function (results) {
         if (album.hasOwnProperty('images') && album.images.length > 0) {
             albumart = album.images[0].url;
         }
-        ;
+        var artist = '';
+        if (album.artists && album.artists[0] && album.artists[0].name) {
+            artist = album.artists[0].name;
+        }
+        
         list.push({
             service: 'spop',
             type: 'folder',
             title: album.name,
+            artist: artist,
             albumart: albumart,
             uri: album.uri,
         });
@@ -2134,54 +2227,68 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
             this.state.status = 'play';
             if (!this.active) this.ActiveState();
         }
+    }); 
+
+    this.SpotConn.on(this.Events.PlaybackLoading, (data) => {
+        logger.evnt('<PlaybackLoading> Device palyback is loading');
+    });
+
+    this.SpotConn.on(this.Events.TrackChanged, (data) => {
+        logger.evnt('<TrackChanged> ');
     });
 
     this.SpotConn.on(this.Events.PlaybackInactive, (data) => {
-        logger.evnt('<PlaybackInactive> Device palyback is inactive');
-        // Device has finished playing current queue or received a pause command
-        //  overkill async, who are we waiting for?
-
-    });
-
-    this.SpotConn.on(this.Events.SinkInactive, (data) => {
-
-        logger.evnt('<SinkInactive> Sink released');
-        this.SinkActive = false;
-        clearInterval(seekTimer);
-        seekTimer = undefined;
-
-        this.debugLog('PLAYBACK INACTIVE ' + data)
-        this.debugLog('IS CONNECT ' + currentTrackContext);
-        this.debugLog('VLS STATUS ' + this.VLSStatus);
-        this.debugLog('STATE STATUS ' + this.state.status);
-        this.debugLog('SINK ACTIVE ' + this.SinkActive);
-
-        if (currentTrackContext && currentTrackContext.isConnect) {
-            this.state.status = 'pause';
-            this.DeactivateState();
-            this.pushState();
-        } else if (this.VLSStatus === 'pause' && this.state.status === 'pause') {
-            this.debugLog('Device is paused');
-            this.state.status = 'pause';
-            this.pushState();
-        } else if (!this.SinkActive) {
-            this.debugLog('Device is not active. Cleaning up!');
-            this.state.status = 'stop';
-            this.pushState();
-        } else {
-            this.debugLog(`Device Session is_active: ${this.active}`);
-            if (this.active) {
-                this.state.status = 'play';
+        logger.evnt('<PlaybackInactive> PlaybackInactive');
+        if (this.startPlaybackOnInactiveState) {
+            if (this.waitDeviceActive) {
+                this.waitDeviceActive = false;
+                setTimeout(() => {  this.playTrackFromWebAPI(this.uriList);   }, 1000)
             } else {
-                this.state.status = 'stop';
+                this.playTrackFromWebAPI(this.uriList); 
             }
-            this.pushState();
+            this.startPlaybackOnInactiveState = false;
+        } else {            
+            this.SinkActive = false;
+            clearInterval(seekTimer);
+            seekTimer = undefined;
+        
+            this.debugLog('IS CONNECT ' + currentTrackContext.isConnect);
+            this.debugLog('VLS STATUS ' + this.VLSStatus);
+            this.debugLog('STATE STATUS ' + this.state.status);
+            this.debugLog('SINK ACTIVE ' + this.SinkActive);
+        
+            if (currentTrackContext && currentTrackContext.isConnect) {
+                this.state.status = 'pause';
+                this.DeactivateState();
+                this.pushState();
+            } else if (this.VLSStatus === 'pause' && this.state.status === 'pause') {
+                this.debugLog('Device is paused');
+                this.state.status = 'pause';
+                this.pushState();
+            } else if (!this.SinkActive) {
+                //this.debugLog('Device is not active. Cleaning up!');
+                if (!this.ignorePlaybackInactive) {
+                    this.state.status = 'stop';
+                    this.pushState();
+                }
+            } else {
+                this.debugLog(`Device Session is_active: ${this.active}`);
+                if (this.active) {
+                    this.state.status = 'play';
+                } else {
+                    this.state.status = 'stop';
+                }
+                this.pushState();
+            }
         }
-    });
+        
+    });    
+
 
     this.SpotConn.on(this.Events.DeviceInactive, (data) => {
         // Connect session has been exited
         logger.evnt('<DeviceInactive> Connect Session has ended');
+
         this.DeactivateState();
     });
 
@@ -2192,6 +2299,7 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
     });
 
     this.SpotConn.on(this.Events.Metadata, (meta) => {
+
         logger.evnt(`<Metadata> ${meta.track_name}`);
         // Update metadata
         const albumartId = meta.albumartId[2] === undefined ? meta.albumartId[0] : meta.albumartId[2];
@@ -2213,7 +2321,14 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
         } else if (meta !== undefined && meta.track_id !== undefined) {
             setTimeout(()=>{
                 this.isPlaybackFromConnectDevice(meta.track_id).then((isConnect)=>{
-                    this.pushState();
+                    if (isConnect) {
+                        this.logger.info('New connect session, clearing queue');
+                        this.clearVolumioQueueFromSpotifySongs().then(()=>{
+                            this.pushState();
+                        });
+                    } else {
+                        this.pushState();
+                    }
                 }).fail(function (err) {
                     console.log('Failed to retrieve connect playback status: ' + err);
                 });
@@ -2234,13 +2349,20 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
 
         // Every now and then vollibrespot sends a token which does not have appropriate browsing scopes
         // we prevent this kind of token to be sent to Volumio, otherwise it won't be able to read users data
-        if (token.scope && token.scope.includes('user-top-read')) {
+        if (this.isUserLoggedIn()) {
+            if (token.scope && token.scope.includes('user-top-read')) {
+                this.logger.info('New Spotify Access Token Received');
+                this.accessToken = token.accessToken;
+                this.spotifyAccessTokenExpiration = parseInt(token.expiresIn) * 1000 + parseInt(now);
+                this.initWebApi();
+            } else {
+                this.logger.error('Received malformed Token, ignoring');
+            }
+        } else {
             this.logger.info('New Spotify Access Token Received');
             this.accessToken = token.accessToken;
             this.spotifyAccessTokenExpiration = parseInt(token.expiresIn) * 1000 + parseInt(now);
             this.initWebApi();
-        } else {
-            this.logger.error('Received malformed Token, ignoring');
         }
     });
 
@@ -2256,6 +2378,10 @@ ControllerSpotify.prototype.volspotconnectDaemonConnect = function (defer) {
                 currentSpotifyVolume = vol;
                 if (currentVolumioVolume !== currentSpotifyVolume) {
                     if (this.iscurrService()) {
+                        this.volumeBlocked = true;
+                        setTimeout(() => {
+                            this.volumeBlocked = false;
+                        }, 1000);
                         if (volumeDebounce) {
                             clearTimeout(volumeDebounce);
                         }
@@ -2351,6 +2477,7 @@ ControllerSpotify.prototype.DeactivateState = async function () {
     if (this.iscurrService()) {
         this.context.coreCommand.volumioStop.bind(this.commandRouter);
         this.DeviceActive = false;
+        this.waitDeviceActive = true;
     }
 };
 
@@ -2637,7 +2764,7 @@ ControllerSpotify.prototype.saveVolspotconnectSettings = function (data, avoidBr
     if (data.shareddevice !== undefined) {
         self.config.set('shareddevice', data.shareddevice);
     }
-    console.log(JSON.stringify(data))
+
     if (data.icon && data.icon.value !== undefined) {
         self.config.set('icon', data.icon.value);
     }
@@ -2683,16 +2810,24 @@ ControllerSpotify.prototype.awawitSpocon = function (type) {
 
 // Plugin methods for the Volumio state machine
 ControllerSpotify.prototype.stop = function () {
+    var self = this;
     var defer = libQ.defer();
     logger.info('Spotify Received stop');
-    this.isStopping = true;
-    this.SpotConn.sendmsg(msgMap.get('Pause'));
 
-    setTimeout(()=>{
-        this.active = false;
-        this.isStopping = false;
-        defer.resolve('');
-    }, 500)
+    self.ignorePlaybackInactive = true;
+
+    self.stopTimeout = setTimeout(() => {
+        self.ignorePlaybackInactive = false;
+        this.isStopping = true;
+        this.SpotConn.sendmsg(msgMap.get('Pause'));
+
+        setTimeout(() => {
+            this.active = false;
+            this.isStopping = false;
+        }, 1000);
+    }, 500);
+
+    defer.resolve('');
 
     return defer.promise;
 };
@@ -2832,22 +2967,22 @@ ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data
     return this.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
 };
 
-ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUri) {
+ControllerSpotify.prototype.playTrackFromWebAPI = function (trackUris) {
     var self = this;
-
     this.spotifyCheckAccessToken().then(()=>{
         superagent.put('https://api.spotify.com/v1/me/player/play')
             .set("Content-Type", "application/json")
             .set("Authorization", "Bearer " + this.accessToken)
             .send({
                 device_id: self.thisSpotifyConnectDeviceId,
-                uris : [trackUri],
+                uris : trackUris,
                 position_ms: 0
             })
             .accept('application/json')
             .then(function (results) {
             })
             .catch(function (err) {
+                console.log(err)
                 self.logger.info('An error occurred while starting playback ' + err.message);
             });
     });
@@ -2870,6 +3005,7 @@ ControllerSpotify.prototype.setDeviceActive = function () {
                 defer.resolve('');
             })
             .catch(function (err) {
+                //TODO, get new device id
                 self.logger.error('Failed to Set Device Active: ' + err + ' Device ID: ' + self.thisSpotifyConnectDeviceId);
                 defer.reject('');
             });
@@ -2887,54 +3023,43 @@ ControllerSpotify.prototype.debugLog = function (stringToLog) {
     }
 };
 
-ControllerSpotify.prototype.volumeListener = function () {
+ControllerSpotify.prototype.processState = function (state) {
     var self = this;
 
-    if (socket) {
-        socket.disconnect();
-        socket = undefined;
-    }
-    socket= io.connect('http://localhost:3000');
-    socket.on("connect", function(){
-        socket.on("pushState", function(state) {
-            if (state && state.volume !== undefined && state.mute !== undefined && Number.isInteger(state.volume)) {
-                let volume = parseInt(state.volume);
-                let mute = state.mute;
-                if (mute) {
-                    volume = 0;
+    if (state && state.volume !== undefined && state.mute !== undefined && Number.isInteger(state.volume)) {
+        let volume = parseInt(state.volume);
+        let mute = state.mute;
+        if (mute) {
+            volume = 0;
+        }
+        if (state.service !== undefined) {
+            currentService = state.service;
+        }
+        currentVolumioVolume = volume;
+        if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
+            if (self.iscurrService() && !self.volumeBlocked) {
+                if (volumeSpotifyDebounce) {
+                    clearTimeout(volumeSpotifyDebounce);
                 }
-                if (state.service !== undefined) {
-                    currentService = state.service;
-                }
-                currentVolumioVolume = volume;
-                if (currentVolumioVolume > 0 && currentVolumioVolume !== currentSpotifyVolume) {
-                    if (self.iscurrService()) {
-                        if (volumeSpotifyDebounce) {
-                            clearTimeout(volumeSpotifyDebounce);
-                        }
-                        volumeSpotifyDebounce = setTimeout(() => { self.setSpotifyVolume(volume)}, 600);
-                    }
-                }
+                volumeSpotifyDebounce = setTimeout(() => {
+                    self.setSpotifyVolume(volume);
+                }, 600);
             }
-        });
-    });
-};
+        }
+
+    }
+}
 
 ControllerSpotify.prototype.setSpotifyVolume = function (volumePercent) {
-    var self = this;
+    var self = this;    
     
-    currentSpotifyVolume = volumePercent;
-    if (self.spotifyApi) {
-        self.spotifyCheckAccessToken().then(()=> {
-            self.spotifyApi.setVolume(volumePercent)
-                .then(function () {
-
-                    self.debugLog('Setting Spotify Volume ' + volumePercent);
-                }, function (err) {
-                    self.debugLog('Error Setting Spotify Volume ' + err);
-                });
-        });
+    try {
+        currentSpotifyVolume = volumePercent;
+        self.SpotConn.sendVolume(volumePercent);
+    } catch(e) {
+        self.logger.error('Failed to set Spotify Volume: ' + e);
     }
+
 };
 
 ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackObj) {
@@ -3041,12 +3166,14 @@ ControllerSpotify.prototype.clearVolumioQueueFromSpotifySongs = function () {
     self.logger.info('Clearing Spotify queue');
 
     var queue = self.commandRouter.volumioGetQueue();
-    for (var i in queue) {
-        var track = queue[i];
-        if (track && track.service === 'spop') {
-            self.commandRouter.volumioRemoveQueueItem(i+1);
+    try {
+        if (JSON.stringify(queue).includes('spop')) {
+            self.commandRouter.volumioClearQueue();
         }
+    } catch(e) {
+        self.logger.error('Failed to fetch queue for clearing spotify tracks');
     }
+
     setTimeout(()=>{
         defer.resolve('');
     }, 1000)
@@ -3090,3 +3217,4 @@ ControllerSpotify.prototype.checkOldSpotifyConnectPlugin = function () {
 
     return defer.promise;
 };
+

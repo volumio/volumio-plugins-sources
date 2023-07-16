@@ -76,7 +76,7 @@ The 'Preview URL' points to the preview page. Click the 'Open Preview' button to
 
 'Timezone' determines what date and time should be displayed in the Clock Dock Component and on the Idle Screen. If you have provided Geographic Coordinates, you can simply set this to 'Match Geographic Coordinates' - the plugin will determine the timezone based on the specified coordinates.
 
-*Display of weather information is optional. Note that to display weather, you also need to provide an OpenWeatherMap API key in the 'Weather Service' section of the plugin settings.
+*Display of weather information is optional. Data is obtained from [OpenWeather](https://openweathermap.org/).
 
 ## Technical Notes
 
@@ -86,6 +86,17 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 - [Preview page](https://github.com/patrickkfkan/volumio-now-playing-reactjs-preview)
 
 ## Changelog
+
+0.3.8
+- Add option to display track info title as marquee (under 'Text Styles')
+- Add 'IdleScreen - Main Alignment: Cycle' setting
+- Update web client v0.3.0
+
+0.3.7
+- Newer API keys do not work with the API calls made by Weather Service. Therefore, rewrite fetching of weather data and remove API key requirement.
+- Rewrite random image fetching from Unsplash due to frequent 503 response errors / timeouts occurring lately.
+- Add 'Dock Component - Menu' setting (enable / disable).
+- Update web client v0.2.5
 
 0.3.6
 - Add option to hide volume slider in Action Panel

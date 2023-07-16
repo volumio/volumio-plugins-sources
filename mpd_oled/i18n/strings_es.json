@@ -43,7 +43,7 @@
 	"FRAME_RATE": {
 		"LABEL": "Frecuencia de imágenes",
 		"DOC": "Escoja la frecuencia de imágenes (Hz) para refrescar la pantalla<br/><br/>El proceso de installación aumenta la velocidad del bus I2C hasta 800 Kbits/s pero, para activar este cambio debe reiniciar su Raspberry Pi.<br/><br/>Consejo: se obtiene resultados buenos con un Raspberry Pi 3 y una frecuencia de imágenes de 50Hz.",
-		"DEFAULT": "15 (por defecto)"
+		"DEFAULT": "50 (por defecto)"
 	},
 	"SCROLL_RATE": {
 		"LABEL": "Velocidad de desplazamiento",
@@ -143,6 +143,10 @@
 	"MPD_OLED_LINK": {
 		"LABEL": "MPD OLED en GitHub",
 		"DESC": "Visite el proyecto de MPD OLED en GitHub."
+	},
+	"MPD_OLED_FORUM_LINK": {
+		"LABEL": "Plugin Feedback",
+		"DESC": "Visite la página de este complemento en el foro de la comunidad de Volumio."
 	},
 	"DATE_FORMAT": {
 		"LABEL": "Formato de fecha",

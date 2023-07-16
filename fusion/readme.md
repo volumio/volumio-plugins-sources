@@ -1,4 +1,4 @@
-July 12th 2022
+May 19th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -8,21 +8,22 @@ This plugin is designed to apply different type of Dsp on Volumio using [Camilla
 
 
 Provides
+- A simple 3 bands eq, no other features
 - A 15 bands graphic equalizer
 - Or a 2x15 bands graphic equalizer
 - Or a Parametric equalizer with :
     - Up to 50 bands (peaking, lowshelf, highshelf, lowpass, highpass, notch, Linkwitz, ButterworthHighpass & ButterworthLowpass)
     - Equalizer scope for each band (L, R, L+R)
-    - More than 3800 variant of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
+    - More than 4300 variants of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
     - import for local EQ file (must be in /data/INTERNAL/FusionDsp/peq/)
-- 5 custom preset
 - Or a convolution filters (FIR) with autoswitch samplerate for filters
     - DRC-FIR to create filter with an impulse
 - Access to CamillaDsp gui for advanced user
 
-For all 
+For all (except EQ3)
 - Progressive Loudness effect with threshold setting - loudness curve based on ISO 226: 2003 standard
-- Auto gain
+- 5 custom presets
+- Auto pre-amp
 - Toggle with/without effect
 - Separate volume level for left an right
 - 8 crossfeed for headphone (Bauer, Chu Moy, Jan Meier, Linkwitz, Natural 30deg, atural 50deg, SADIE D1, SADIE H15m)
@@ -45,7 +46,7 @@ Supported filtter : PK, LP, HP, LP1, HP1, HS, LS, LS 6dB, HS 6dB, LS 12dB, HS 12
 
 Now EQ are loaded
 
-Datas follow format below (max total 50 bands). Only PK (peaking) filters are imported. From REW, export 'filter settings as text' in Filter tasks tab.
+Datas follow format below (max total 50 bands). From REW, export 'filter settings as text' in Filter tasks tab.
 
 ```
 Filter 4: ON PK Fc 48.05 Hz Gain -0.70 dB Q 23.967
@@ -129,7 +130,7 @@ rm -Rf fusion*
 
 In webUI, enable the plugin.
 
-## What is working :
+## What is working : 
 
 everythings it seems ;-)
 
@@ -139,6 +140,139 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+May 10th 2023 v1.0.48
+
+- Q for each band EQ15 2xEQ15
+- Work on auto pre amp
+- Autoeq import update
+- Headphone name choosen is kept
+- Resample toast message
+- log message improvement
+- Experimental clipping warning disabled
+
+April 26th 2023 v1.0.47
+
+- Preset naming for each mode
+- log messages cleaning
+- internal tweaks
+
+
+April 17th 2023 v1.0.46
+
+- Preset naming for each mode
+- log messages cleaning
+
+April 14th 2023 v1.0.45
+
+- misc warning for DRC fir, local import
+- update - fix filter if freq < sr/2
+- tools update
+
+April 12th 2023 v1.0.44
+
+- fix filter if freq < sr/2
+
+March 12th 2023 v1.0.41
+
+- FIR switchable filter files fix
+
+March 12th 2023 v1.0.40
+
+- FIR clipping detection fix
+
+March 5th 2023 v1.0.39
+
+- fix for EQ3 not available after update
+
+March 4th 2023 v1.0.38
+
+- reduce cmilla verbosity
+- translation for EQ3
+
+March 2nd 2023 v1.0.37
+
+- 3 bands simple eq
+- HighshelfFO and LowshelfFO for PEQ
+
+February 23th 2023 v1.0.36
+
+- fix in asound causing hanging 
+
+February 22th 2023 v1.0.35
+
+- shelve filters from AutoEQ were not imported with the correct type
+
+February 17th 2023 v1.0.34
+
+- verbosity debug for CamillaDsp logs
+- code cleaning
+- Reenable output menu in Camilla Gui
+- headphones list updated 
+
+December 29th 2023 v1.0.33
+
+- chunksize set to 4800 for HW compatibility
+
+
+December 23th 2022 v1.0.32
+
+- Swap channels parameter saved in presets
+- move fusiondsp.service in /etc/systemd/system/multi-user.target.wants/
+
+December 06th 2022 v1.0.31
+
+-  Report DSP properties on fusion DSP 
+
+November 2nd 2022 v1.0.30
+
+- Fix auto pre amp
+
+November 1st 2022 v1.0.29
+
+- Fix camilla gui install
+
+October 28th 2022 v1.0.28
+
+- Bump to camilladsp v1.0.2 fix2
+- custom camillagui
+- Resample up to 768kHz
+- new clipping detection for conv
+- Refactored online help
+
+October 23th 2022 v1.0.27
+
+- Bump to camilladsp v1.0.2 fix1
+
+October 22th 2022 v1.0.26
+
+- Bump to camilladsp v1.0.2
+
+October 13th 2022 v1.0.25
+
+- Add preset for conv mode release
+
+October 12th 2022 v1.0.24
+
+- Add preset for conv mode
+
+September 22th 2022 v1.0.23
+
+- Delay settings are saved in preset
+
+September 16th 2022 v1.0.22
+
+- Fix for distorded sound when preset is used
+
+September 13th 2022 v1.0.21
+
+- new switches to mute channels
+- add Harman target curve
+- translation update
+
+September 09th 2022 v1.0.20
+
+- import local PEQ fixes
 
 July 12th 2022
 
