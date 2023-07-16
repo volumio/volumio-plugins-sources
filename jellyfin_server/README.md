@@ -102,6 +102,10 @@ If you are thinking of configuring port forwarding on your router to direct exte
 
 ## Changelog
 
+1.0.0:
+- Migrate to TypeScript
+- Jellyfin version installed: 10.8.10
+
 0.1.3:
 - Remove use of Docker since container created from Jellyfin image fails to start on Raspberry Pi 4.
 - Jellyfin version installed: 10.8.3

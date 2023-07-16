@@ -5,7 +5,7 @@ if [ -z "$BASH_VERSION" ]; then
 fi
 
 set -e
-pushd "$(dirname "$0")"/scripts > /dev/null
+pushd "$(dirname "$0")"/dist/scripts > /dev/null
 ./uninstall_jellyfin.sh
 popd > /dev/null
 echo "Jellyfin Server plugin uninstalled"

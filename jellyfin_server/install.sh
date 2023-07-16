@@ -5,7 +5,7 @@ if [ -z "$BASH_VERSION" ]; then
 fi
 
 set -e
-pushd "$(dirname "$0")"/scripts > /dev/null
+pushd "$(dirname "$0")"/dist/scripts > /dev/null
 # Volumio resets x mode when unpacking, need to add them back
 chmod +x *.sh
 ./install_jellyfin.sh
