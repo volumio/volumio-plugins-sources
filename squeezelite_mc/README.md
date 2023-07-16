@@ -39,6 +39,18 @@ In the plugin settings, you can configure the following:
 
 ## Changelog
 
+1.0.2
+- Fix: prevent error in getting suggested startup options from crashing entire config page
+- Add 'disable audio fade on resume / pause' option instead of mandatorily disabling it
+
+1.0.1
+- Always set LMS Player Settings -> Audio -> Volume Control to 'Output level is fixed at 100%', so that Squeezelite will not incrementally zero-out the volume on pause and incrementally restoring it on resume, as this will cause problems with native DSD playback (noise on play / resume) and also when playing from another Volumio source after pausing Squeezelite playback (volume stays muted).
+
+1.0.0
+- Migrate to TypeScript
+- Add option to specify full Squeezelite startup options
+- Fix Squeezelite not rediscovered after LMS restarts due to change in LMS settings
+
 0.1.2
 - Fix sync group status updates
 - Fix artist name sometimes empty even if track data has it
