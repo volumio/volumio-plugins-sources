@@ -1,4 +1,6 @@
-import { Utils as YTUtils } from 'volumio-youtubei.js';
+/// <reference types="node" />
+import Innertube, { Utils as YTUtils } from 'volumio-youtubei.js';
+import EventEmitter from 'events';
 export declare enum AuthStatus {
     SignedIn = "SignedIn",
     SignedOut = "SignedOut",
@@ -13,12 +15,18 @@ export interface AuthStatusInfo {
     } | null;
     error?: YTUtils.OAuthError;
 }
-export default class Auth {
+export declare enum AuthEvent {
+    SignIn = "SignIn",
+    Pending = "Pending",
+    Error = "Error"
+}
+export default class Auth extends EventEmitter {
     #private;
-    static registerHandlers(): void;
-    static unregisterHandlers(): void;
-    static signIn(): void;
-    static signOut(): void;
-    static getAuthStatus(): AuthStatusInfo;
+    constructor();
+    static create(innertube: Innertube): Auth;
+    dispose(): void;
+    signIn(): void;
+    signOut(): Promise<void>;
+    getStatus(): AuthStatusInfo;
 }
 //# sourceMappingURL=Auth.d.ts.map

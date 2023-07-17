@@ -13,12 +13,8 @@ export declare enum RendererType {
     Playlist = "Playlist",
     Video = "Video"
 }
+export type RendererOf<T extends RendererType> = T extends RendererType.Channel ? ChannelRenderer : T extends RendererType.EndpointLink ? EndpointLinkRenderer : T extends RendererType.Option ? OptionRenderer : T extends RendererType.OptionValue ? OptionValueRenderer : T extends RendererType.Playlist ? PlaylistRenderer : T extends RendererType.Video ? VideoRenderer : never;
 export default class Renderer {
-    static getInstance(type: RendererType.Channel, uri: string, currentView: View, previousViews: View[]): ChannelRenderer;
-    static getInstance(type: RendererType.EndpointLink, uri: string, currentView: View, previousViews: View[]): EndpointLinkRenderer;
-    static getInstance(type: RendererType.Option, uri: string, currentView: View, previousViews: View[]): OptionRenderer;
-    static getInstance(type: RendererType.OptionValue, uri: string, currentView: View, previousViews: View[]): OptionValueRenderer;
-    static getInstance(type: RendererType.Playlist, uri: string, currentView: View, previousViews: View[]): PlaylistRenderer;
-    static getInstance(type: RendererType.Video, uri: string, currentView: View, previousViews: View[]): VideoRenderer;
+    static getInstance<T extends RendererType>(type: T, uri: string, currentView: View, previousViews: View[]): RendererOf<T>;
 }
 //# sourceMappingURL=index.d.ts.map

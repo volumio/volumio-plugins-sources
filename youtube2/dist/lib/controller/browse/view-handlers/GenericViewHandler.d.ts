@@ -1,10 +1,8 @@
+import { PageContent, WatchContent } from '../../../types/Content';
 import Endpoint from '../../../types/Endpoint';
-import PageContent from '../../../types/PageContent';
-import WatchContent from '../../../types/WatchContent';
 import FeedViewHandler, { FeedView } from './FeedViewHandler';
 export interface GenericView extends FeedView {
     name: 'generic';
-    endpoint?: Endpoint;
 }
 /**
  * Generic view handler. Contents fetched from endpoint with the EndpointModel.

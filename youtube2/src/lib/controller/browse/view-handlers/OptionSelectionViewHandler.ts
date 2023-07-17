@@ -1,5 +1,6 @@
 import { PageElement } from '../../../types';
 import { EndpointType } from '../../../types/Endpoint';
+import EndpointHelper from '../../../util/EndpointHelper';
 import BaseViewHandler from './BaseViewHandler';
 import View, { ContinuationBundle } from './View';
 import { RenderedList, RenderedPage } from './ViewHandler';
@@ -62,7 +63,7 @@ export default class OptionSelectionViewHandler extends BaseViewHandler<OptionSe
       if (typeof option === 'object' && option.type === 'option') {
         listItems = (option as PageElement.Option).optionValues.reduce<RenderedListItem[]>((result, data, index) => {
           let extraUriParams: any;
-          if (data.endpoint?.type === EndpointType.BrowseContinuation || data.endpoint?.type === EndpointType.SearchContinuation) {
+          if (EndpointHelper.isType(data.endpoint, EndpointType.BrowseContinuation, EndpointType.SearchContinuation)) {
             const workOption = __getTargetOption(workBundle);
             __setSelected(workOption as PageElement.Option, index);
             extraUriParams = {

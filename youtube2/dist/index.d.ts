@@ -12,8 +12,8 @@ declare class ControllerYouTube2 {
     onStop(): any;
     getConfigurationFiles(): string[];
     configSaveI18n(data: any): void;
-    configSignOut: () => void;
-    configSaveBrowse: (data: any) => void;
+    configSignOut(): Promise<void>;
+    configSaveBrowse(data: any): void;
     configSavePlayback(data: any): void;
     configEnableAddToHistory(): void;
     configSaveYouTubePlaybackMode(data: any): void;

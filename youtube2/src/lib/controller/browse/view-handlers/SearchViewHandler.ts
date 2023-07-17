@@ -1,7 +1,7 @@
 import yt2 from '../../../YouTube2Context';
 import { PageElement } from '../../../types';
+import { PageContent } from '../../../types/Content';
 import Endpoint, { EndpointType } from '../../../types/Endpoint';
-import PageContent from '../../../types/PageContent';
 import { SectionItem } from '../../../types/PageElement';
 import GenericViewHandler, { GenericView } from './GenericViewHandler';
 

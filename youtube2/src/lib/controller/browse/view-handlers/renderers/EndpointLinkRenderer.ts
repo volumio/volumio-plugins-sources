@@ -32,7 +32,18 @@ export default class EndpointLinkRenderer extends BaseRenderer<ContentItem.Endpo
       return null;
     }
 
-    const targetViewName = data.endpoint.type === EndpointType.Search ? 'search' : (VIEW_NAME_BY_BROWSE_ID[data.endpoint.payload.browseId] || 'generic');
+    let targetViewName;
+    switch (data.endpoint.type) {
+      case EndpointType.Search:
+        targetViewName = 'search';
+        break;
+      case EndpointType.Browse:
+        targetViewName = VIEW_NAME_BY_BROWSE_ID[data.endpoint.payload.browseId] || 'generic';
+        break;
+      default:
+        targetViewName = 'generic';
+    }
+
     const targetView = {
       name: targetViewName,
       endpoint: data.endpoint
@@ -44,7 +55,7 @@ export default class EndpointLinkRenderer extends BaseRenderer<ContentItem.Endpo
       // Setting type to 'album' is important for 'watch' endpoint items, as we
       // Only want this item to be exploded and not others in the same list when
       // It is clicked.
-      type: data.endpoint.type === EndpointType.Watch ? 'album' : 'item-no-menu',
+      type: EndpointHelper.isType(data.endpoint, EndpointType.Watch) ? 'album' : 'item-no-menu',
       title: data.title,
       uri
     };
@@ -66,10 +77,10 @@ export default class EndpointLinkRenderer extends BaseRenderer<ContentItem.Endpo
     }
 
     const endpoint = data.endpoint;
-    if (endpoint.type === EndpointType.Browse) {
+    if (EndpointHelper.isType(endpoint, EndpointType.Browse)) {
       return ICON_BY_BROWSE_ID[endpoint.payload.browseId] || 'fa fa-arrow-circle-right';
     }
-    else if (endpoint.type === EndpointType.Watch) {
+    else if (EndpointHelper.isType(endpoint, EndpointType.Watch)) {
       return 'fa fa-play-circle';
     }
 

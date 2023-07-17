@@ -1,9 +1,10 @@
 import yt2 from '../../../YouTube2Context';
 import { ModelType } from '../../../model';
-import Endpoint, { EndpointType } from '../../../types/Endpoint';
-import PageContent from '../../../types/PageContent';
-import WatchContent from '../../../types/WatchContent';
-import Auth, { AuthStatus } from '../../../util/Auth';
+import InnertubeLoader from '../../../model/InnertubeLoader';
+import { PageContent, WatchContent } from '../../../types/Content';
+import Endpoint, { EndpointType, WatchEndpoint } from '../../../types/Endpoint';
+import { AuthStatus } from '../../../util/Auth';
+import EndpointHelper from '../../../util/EndpointHelper';
 import ExplodeHelper from '../../../util/ExplodeHelper';
 import FeedViewHandler, { FeedView } from './FeedViewHandler';
 
@@ -23,7 +24,6 @@ const REQUIRES_SIGNIN_BROWSE_IDS = [
 
 export interface GenericView extends FeedView {
   name: 'generic',
-  endpoint?: Endpoint;
 }
 
 /**
@@ -34,10 +34,11 @@ export default class GenericViewHandler<V extends Omit<GenericView, 'name'> & { 
 
   async browse() {
     const endpoint = this.getEndpoint();
+    const { auth } = await InnertubeLoader.getInstance();
 
-    if (endpoint?.type === EndpointType.Browse &&
+    if (EndpointHelper.isType(endpoint, EndpointType.Browse) &&
       REQUIRES_SIGNIN_BROWSE_IDS.includes(endpoint.payload.browseId) &&
-      Auth.getAuthStatus().status !== AuthStatus.SignedIn) {
+      auth.getStatus().status !== AuthStatus.SignedIn) {
       yt2.toast('error', yt2.getI18n('YOUTUBE2_ERR_REQUIRE_SIGN_IN'));
       throw Error(yt2.getI18n('YOUTUBE2_ERR_REQUIRE_SIGN_IN'));
     }
@@ -75,22 +76,22 @@ export default class GenericViewHandler<V extends Omit<GenericView, 'name'> & { 
       throw Error(yt2.getI18n('YOUTUBE2_ERR_OP_NOT_SUPPORTED'));
     }
 
-    const endpointPredicate = (endpoint: Endpoint) => endpoint.type === EndpointType.Watch && endpoint.payload?.playlistId;
+    const endpointPredicate = (endpoint: Endpoint): endpoint is WatchEndpoint => !!(EndpointHelper.isType(endpoint, EndpointType.Watch) && endpoint.payload?.playlistId);
     const model = this.getModel(ModelType.Endpoint);
-    let targetWatchEndpoint: Endpoint | null = null;
+    let targetWatchEndpoint: WatchEndpoint | null = null;
 
-    if (endpoint.type === EndpointType.Browse) {
+    if (EndpointHelper.isType(endpoint, EndpointType.Browse)) {
       let contents = await model.getContents({...endpoint, type: endpoint.type});
       let tabs = contents?.tabs || [];
       if (tabs.length > 0) {
         // Remaining tabs that can be used to look for watch endpoints
-        tabs = tabs.filter((tab) => !tab.selected && tab.endpoint?.type === EndpointType.Browse);
+        tabs = tabs.filter((tab) => !tab.selected && EndpointHelper.isType(tab.endpoint, EndpointType.Browse));
       }
       while (!targetWatchEndpoint) {
-        targetWatchEndpoint = this.findAllEndpointsInSection(contents?.sections, endpointPredicate)[0];
+        targetWatchEndpoint = this.findAllEndpointsInSection<WatchEndpoint>(contents?.sections, endpointPredicate)[0];
         if (!targetWatchEndpoint) {
           const nextTab = tabs.shift();
-          if (nextTab?.endpoint.type === EndpointType.Browse) {
+          if (nextTab?.endpoint && EndpointHelper.isType(nextTab.endpoint, EndpointType.Browse)) {
             contents = await model.getContents({...nextTab.endpoint, type: endpoint.type});
           }
           else {
@@ -108,7 +109,7 @@ export default class GenericViewHandler<V extends Omit<GenericView, 'name'> & { 
       throw Error('No playable items found');
     }
 
-    const contents = await model.getContents({...targetWatchEndpoint, type: EndpointType.Watch});
+    const contents = await model.getContents(targetWatchEndpoint);
 
     const result = contents?.playlist?.items?.filter((item) => item.type === 'video')
       .map((item) => ExplodeHelper.getExplodedTrackInfoFromVideo(item)) || [];
