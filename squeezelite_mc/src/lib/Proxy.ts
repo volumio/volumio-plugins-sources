@@ -128,7 +128,8 @@ export default class Proxy {
      * one with the correct, untampered value.
      */
     if (typeof url !== 'string' || !this.#validateURL(url)) {
-      return;
+      sm.getLogger().error(`[squeezelite_mc] Proxy: invalid URL (${url})`);
+      return res.status(400).end();
     }
 
     sm.getLogger().info(`[squeezelite_mc] Proxy request for ${serverName}, URL: ${url}`);
@@ -165,6 +166,7 @@ export default class Proxy {
         }
         catch (error) {
           sm.getLogger().error(sm.getErrorMessage('[squeezelite_mc] Proxy server failed to redirect response to fallback url:', error, false));
+          res.end();
         }
       }
     }

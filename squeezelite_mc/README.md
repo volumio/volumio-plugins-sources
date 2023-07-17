@@ -39,6 +39,9 @@ In the plugin settings, you can configure the following:
 
 ## Changelog
 
+1.0.3
+- Fix proxy: end response on error or invalid URL
+
 1.0.2
 - Fix: prevent error in getting suggested startup options from crashing entire config page
 - Add 'disable audio fade on resume / pause' option instead of mandatorily disabling it

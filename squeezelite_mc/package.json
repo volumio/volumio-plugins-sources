@@ -1,6 +1,6 @@
 {
 	"name": "squeezelite_mc",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "A plugin that installs and runs Squeezelite with (M)onitoring and (C)ontrol. Aims to work with minimal configuration, displays playback status on Volumio and provides basic player controls.",
 	"main": "./dist/index.js",
 	"scripts": {

@@ -130,7 +130,8 @@ _Proxy_serverCredentials = new WeakMap(), _Proxy_server = new WeakMap(), _Proxy_
      * one with the correct, untampered value.
      */
     if (typeof url !== 'string' || !__classPrivateFieldGet(this, _Proxy_instances, "m", _Proxy_validateURL).call(this, url)) {
-        return;
+        SqueezeliteMCContext_1.default.getLogger().error(`[squeezelite_mc] Proxy: invalid URL (${url})`);
+        return res.status(400).end();
     }
     SqueezeliteMCContext_1.default.getLogger().info(`[squeezelite_mc] Proxy request for ${serverName}, URL: ${url}`);
     const streamPipeline = (0, util_1.promisify)(stream_1.pipeline);
@@ -166,6 +167,7 @@ _Proxy_serverCredentials = new WeakMap(), _Proxy_server = new WeakMap(), _Proxy_
             }
             catch (error) {
                 SqueezeliteMCContext_1.default.getLogger().error(SqueezeliteMCContext_1.default.getErrorMessage('[squeezelite_mc] Proxy server failed to redirect response to fallback url:', error, false));
+                res.end();
             }
         }
     }
