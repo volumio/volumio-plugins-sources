@@ -1,0 +1,38 @@
+{
+  "page": {
+    "label": "TRANSLATE.JELLYFIN_SERVER_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "section_info",
+      "element": "section",
+      "label": "TRANSLATE.JELLYFIN_SERVER_INFO",
+      "icon": "fa-server",
+      "content": [
+        {
+          "id": "url",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.JELLYFIN_SERVER_URL"
+        },
+        {
+          "id": "openUrl",
+          "element": "button",
+          "label": "TRANSLATE.JELLYFIN_SERVER_OPEN_URL",
+          "onClick": {
+              "type": "openUrl"
+          }
+        },
+        {
+          "id": "viewReadme",
+          "element": "button",
+          "label": "TRANSLATE.JELLYFIN_SERVER_VIEW_README",
+          "onClick": {
+              "type": "openUrl",
+              "url": "https://github.com/patrickkfkan/volumio-jellyfin-server#readme"
+          }
+        }
+      ]
+    }
+  ]
+}

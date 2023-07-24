@@ -1,0 +1,1 @@
+{"version":3,"file":"BaseEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/BaseEntity.ts"],"names":[],"mappings":"","sourcesContent":["import { EntityType } from '.';\n\ninterface BaseEntity {\n  type: EntityType;\n  id: string;\n  name: string;\n  thumbnail: string | null;\n}\n\nexport default BaseEntity;\n"]}

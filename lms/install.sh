@@ -21,18 +21,23 @@ if [ ! -f $INSTALLING ]; then
 			rm -rf /home/volumio/logitechmediaserver/*.*
 		fi
 		
-		BASE_URL="http://downloads.slimdevices.com/"
-		LATEST=$(curl -s $BASE_URL | grep LogitechMediaServer_v | cut -d' ' -f2 | tail -n 1 | cut -d'"' -f2)
-		FILE=$(curl -s $BASE_URL$LATEST | grep arm | grep deb | cut -d'"' -f2)
+		LATEST="https://downloads.slimdevices.com/releases/latest.xml"
+		LATEST_LOCATION="/home/volumio/logitechmediaserver/latest.xml"
+
+		wget -O $LATEST_LOCATION $LATEST
+
 		if [ $arch = "armv6l" ] || [ $arch = "armv7l" ] || [ $arch = "armv8l" ]
 		then
-			ARCH_DOWNLOAD="arm"
-			FILE=$(curl -s $BASE_URL$LATEST | grep $ARCH_DOWNLOAD | grep deb | cut -d'"' -f2)
-			wget -O /home/volumio/logitechmediaserver/logitechmediaserver_arm.deb $BASE_URL$LATEST$FILE
+			FILE="$(cat $LATEST_LOCATION | grep debarm | awk -F 'url="|" version' '$0=$2')"
+			wget -O /home/volumio/logitechmediaserver/logitechmediaserver_arm.deb $FILE
 		elif [ $arch = "i686" ] || [ $arch = "x86_64" ]; then
-			ARCH_DOWNLOAD="arm"
-			FILE=$(curl -s $BASE_URL$LATEST | grep $ARCH_DOWNLOAD | grep deb | cut -d'"' -f2)
-			wget -O /home/volumio/logitechmediaserver/logitechmediaserver.deb $BASE_URL$LATEST$FILE
+			FILE="$(cat $LATEST_LOCATION | grep debamd64 | awk -F 'url="|" version' '$0=$2')"
+			wget -O /home/volumio/logitechmediaserver/logitechmediaserver_amd64.deb $FILE
+		else
+			echo "Incompatible architecture. Installation cannot continue."
+			rm -rf /home/volumio/logitechmediaserver
+			rm $INSTALLING
+			exit 1
 		fi
 
 		# Move the binary to the expected directory
@@ -45,6 +50,7 @@ if [ ! -f $INSTALLING ]; then
 		for f in /home/volumio/logitechmediaserver/logitechmediaserver*.deb; do dpkg -i "$f"; done
 		# Needed for SSL connections; e.g. github
 		apt-get install libio-socket-ssl-perl lame unzip -y
+		# Will fix any missing dependencies which is very likely
 		apt-get -f install -y
 		# These directories still use the old name; probably legacy code
 		echo "Fixing directory rights"

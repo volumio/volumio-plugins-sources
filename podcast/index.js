@@ -651,6 +651,8 @@ ControllerPodcast.prototype.getPodcastContent = function(uri) {
 
     self.fetchRssUrl(targetPodcast.url)
     .then((feed) => {
+      const langCode = self.commandRouter.sharedVars.get('language_code');
+      const formatter = new Intl.DateTimeFormat(langCode);
       response.navigation.lists[0].title = feed.rss.channel.title;
 
       if (!feed.rss.channel.item) {
@@ -672,6 +674,7 @@ ControllerPodcast.prototype.getPodcastContent = function(uri) {
           else if (entry.image !== undefined)
             imageUrl = entry.image
 
+          const pubDate = entry.pubDate ? formatter.format(new Date(entry.pubDate)) : null;
           const param = {
             title: entry.title,
             url: entry.enclosure.url,
@@ -681,7 +684,7 @@ ControllerPodcast.prototype.getPodcastContent = function(uri) {
           var podcastItem = {
             service: self.serviceName,
             type: 'song',
-            title: entry.title,
+            title: (pubDate ? `${pubDate} - ` : '') + entry.title,
             uri: `podcast/${podcastId}/${encodeURIComponent(urlParam)}`
           };
           if (imageUrl)

@@ -621,7 +621,7 @@ ControllerCalmRadio.prototype.searchCategories = function (sterm) {
 				icon: 'fa fa-list',
 				title: cat['title'],
 				albumart: cat['img'] ? (CRURLS.arts + cat['img']) : '/albumart?sourceicon=music_service/calmradio/icons/bluecrlogo.png',
-				uri: `calmradio://${cat['id']}`
+				uri: `calmradio://0/${cat['id']}`
 			})
 		}
 	}
@@ -660,17 +660,21 @@ ControllerCalmRadio.prototype.search = function (text) {
 	let defer = libQ.defer()
 
 	let rgx = new RegExp(text.value, 'i')
-	let chlst = []
+//	let chlst = []
 
-	chlst = chlst.concat(self.searchCategories(rgx))
-	chlst = chlst.concat(self.searchChannels(rgx))
-
-	defer.resolve([{
-		title: 'Calm Radio',
-		icon: 'fa-heartbeat',
-		availableListViews: ['list'],
-		items: chlst
-	}])
+	self.getCalmRadioData('categories')
+		.then(() => self.getCalmRadioData('channels'))
+		.then(() => {
+			let chlst = []
+			chlst = chlst.concat(self.searchCategories(rgx))
+			chlst = chlst.concat(self.searchChannels(rgx))
+			defer.resolve([{
+				title: 'Calm Radio',
+				icon: 'fa-heartbeat',
+				availableListViews: ['list'],
+				items: chlst
+			}])
+		})
 
 	return defer.promise
 }

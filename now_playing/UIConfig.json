@@ -242,7 +242,8 @@
           "trackInfoTitleOrder",
           "trackInfoArtistOrder",
           "trackInfoAlbumOrder",
-          "trackInfoMediaInfoOrder"
+          "trackInfoMediaInfoOrder",
+          "trackInfoMarqueeTitle"
         ]
       },
       "content": [
@@ -690,6 +691,13 @@
             "field": "trackInfoOrder",
             "value": "custom"
           }
+        },
+        {
+          "id": "trackInfoMarqueeTitle",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRACK_INFO_MARQUEE_TITLE",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRACK_INFO_MARQUEE_TITLE",
+          "value": false
         }
       ]
     },
@@ -2388,6 +2396,7 @@
           "showLocation",
           "showWeather",
           "mainAlignment",
+          "mainAlignmentCycleInterval",
           "timeFormat",
           "hour24",
           "showSeconds",
@@ -2499,8 +2508,24 @@
             {
               "value": "flex-end", 
               "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "cycle", 
+              "label": "TRANSLATE.NOW_PLAYING_CYCLE"
             }
           ]
+        },
+        {
+          "id": "mainAlignmentCycleInterval",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_CYCLE_INTERVAL",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CYCLE_INTERVAL_ALIGNMENT",
+          "value": "",
+          "visibleIf": {
+            "field": "mainAlignment",
+            "value": "cycle"
+          }
         },
         {
           "id": "timeFormat",

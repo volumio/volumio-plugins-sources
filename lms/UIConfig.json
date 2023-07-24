@@ -7,7 +7,7 @@
 			"element": "section",
 			"label": "TRANSLATE.LMS.NAVIGATE_TO_SERVER",
 			"description": "TRANSLATE.LMS.D_NAVIGATE_TO_SERVER",
-			"icon": "fa-windows-maximize",
+			"icon": "fa-window-maximize",
 			"content": [
 			{
 				"id": "open_webconfig",

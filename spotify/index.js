@@ -3052,8 +3052,14 @@ ControllerSpotify.prototype.processState = function (state) {
 
 ControllerSpotify.prototype.setSpotifyVolume = function (volumePercent) {
     var self = this;    
-    currentSpotifyVolume = volumePercent;
-    self.SpotConn.sendVolume(volumePercent);
+    
+    try {
+        currentSpotifyVolume = volumePercent;
+        self.SpotConn.sendVolume(volumePercent);
+    } catch(e) {
+        self.logger.error('Failed to set Spotify Volume: ' + e);
+    }
+
 };
 
 ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackObj) {

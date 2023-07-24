@@ -1,0 +1,1 @@
+{"version":3,"file":"BandEntity.d.ts","sourceRoot":"","sources":["../../../src/lib/entities/BandEntity.ts"],"names":[],"mappings":"AAAA,UAAU,UAAU;IAClB,IAAI,EAAE,QAAQ,GAAG,OAAO,GAAG,eAAe,CAAC;IAC3C,IAAI,EAAE,MAAM,CAAC;IACb,GAAG,CAAC,EAAE,MAAM,CAAC;IACb,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,QAAQ,CAAC,EAAE,MAAM,CAAC;CACnB;AAED,eAAe,UAAU,CAAC"}
