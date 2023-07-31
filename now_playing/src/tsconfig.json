@@ -1,0 +1,26 @@
+{
+  "include": ["./**/*.ts"],
+  "exclude": [
+    "./app/client/",
+    "./app/preview/",
+    "./app/views/"
+  ],
+  "compilerOptions": {
+    "rootDir": ".",
+    "target": "es2020",
+    "module": "commonjs",
+    "outDir": "../dist/",
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node16",
+    "sourceMap": true,
+    "inlineSources": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "resolveJsonModule": true
+  },
+  "references": [
+    { "path": "../" }
+  ]
+}
