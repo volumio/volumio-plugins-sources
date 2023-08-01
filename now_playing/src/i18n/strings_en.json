@@ -66,6 +66,7 @@
   "NOW_PLAYING_MY_BACKGROUND": "My Background",
   "NOW_PLAYING_RANDOM": "Random",
   "NOW_PLAYING_MY_BG_RND_REFRESH_INTERVAL": "- (Random Image) Refresh Interval",
+  "NOW_PLAYING_MY_BG_RND_REFRESH_ON_TRACK": "- (Random Image) Refresh on Track Change",
   "NOW_PLAYING_IMAGE": "- Image",
   "NOW_PLAYING_BACKGROUND_COLOR": "- Color",
   "NOW_PLAYING_BACKGROUND_FIT": "- Image Fit",

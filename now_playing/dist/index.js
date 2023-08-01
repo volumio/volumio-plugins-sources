@@ -232,26 +232,21 @@ class ControllerNowPlaying {
         }
     }
     configSaveBackgroundStyles(data) {
-        const settings = {
-            backgroundType: data.backgroundType.value,
-            backgroundColor: data.backgroundColor,
-            albumartBackgroundFit: data.albumartBackgroundFit.value,
-            albumartBackgroundPosition: data.albumartBackgroundPosition.value,
-            albumartBackgroundBlur: data.albumartBackgroundBlur,
-            albumartBackgroundScale: data.albumartBackgroundScale,
-            volumioBackgroundImage: data.volumioBackgroundImage.value,
-            volumioBackgroundFit: data.volumioBackgroundFit.value,
-            volumioBackgroundPosition: data.volumioBackgroundPosition.value,
-            volumioBackgroundBlur: data.volumioBackgroundBlur,
-            volumioBackgroundScale: data.volumioBackgroundScale,
-            backgroundOverlay: data.backgroundOverlay.value,
-            backgroundOverlayColor: data.backgroundOverlayColor,
-            backgroundOverlayColorOpacity: data.backgroundOverlayColorOpacity,
-            backgroundOverlayGradient: data.backgroundOverlayGradient,
-            backgroundOverlayGradientOpacity: data.backgroundOverlayGradientOpacity
-        };
+        const apply = __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_parseConfigSaveData).call(this, data);
+        if (apply.myBackgroundImage === '/RANDOM/') {
+            apply.myBackgroundImageType = 'random';
+            apply.myBackgroundImage = '';
+        }
+        else {
+            apply.myBackgroundImageType = 'fixed';
+        }
+        apply.myBackgroundRandomRefreshInterval = apply.myBackgroundRandomRefreshInterval ? parseInt(apply.myBackgroundRandomRefreshInterval, 10) : 0;
+        if (apply.myBackgroundImage === '/SEPARATOR/') {
+            NowPlayingContext_1.default.toast('error', NowPlayingContext_1.default.getI18n('NOW_PLAYING_ERR_INVALID_BACKGROUND'));
+            return;
+        }
         const current = NowPlayingContext_1.default.getConfigValue('background');
-        const updated = Object.assign(current, settings);
+        const updated = Object.assign(current, apply);
         NowPlayingContext_1.default.setConfigValue('background', updated);
         NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
         __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.Background);
@@ -511,6 +506,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     const kioskUIConf = uiconf.section_kiosk;
     const performanceUIConf = uiconf.section_performance;
     const backupConfigUIConf = uiconf.section_backup_config;
+    const volumioBackgrounds = (0, Misc_1.getVolumioBackgrounds)();
+    const myBackgrounds = MyBackgroundMonitor_1.default.getImages();
     /**
      * Daemon conf
      */
@@ -746,6 +743,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     * Background Styles Conf
     */
     const backgroundSettings = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.Background);
+    let volumioBackgroundImage = backgroundSettings.volumioBackgroundImage;
+    let backgroundStylesMyBackgroundImage = backgroundSettings.myBackgroundImage;
     backgroundStylesUIConf.content.backgroundType.value = {
         value: backgroundSettings.backgroundType,
         label: ''
@@ -759,6 +758,9 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
             break;
         case 'volumioBackground':
             backgroundStylesUIConf.content.backgroundType.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_VOLUMIO_BACKGROUND');
+            break;
+        case 'myBackground':
+            backgroundStylesUIConf.content.backgroundType.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_MY_BACKGROUND');
             break;
         default:
             backgroundStylesUIConf.content.backgroundType.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT');
@@ -800,8 +802,6 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     }
     backgroundStylesUIConf.content.albumartBackgroundBlur.value = backgroundSettings.albumartBackgroundBlur;
     backgroundStylesUIConf.content.albumartBackgroundScale.value = backgroundSettings.albumartBackgroundScale;
-    const volumioBackgrounds = (0, Misc_1.getVolumioBackgrounds)();
-    let volumioBackgroundImage = backgroundSettings.volumioBackgroundImage;
     if (volumioBackgroundImage !== '' && !volumioBackgrounds.includes(volumioBackgroundImage)) {
         volumioBackgroundImage = ''; // Image no longer exists
     }
@@ -849,6 +849,71 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     }
     backgroundStylesUIConf.content.volumioBackgroundBlur.value = backgroundSettings.volumioBackgroundBlur;
     backgroundStylesUIConf.content.volumioBackgroundScale.value = backgroundSettings.volumioBackgroundScale;
+    if (backgroundSettings.myBackgroundImageType === 'fixed') {
+        if (backgroundStylesMyBackgroundImage !== '' && !myBackgrounds.find((bg) => bg.name === backgroundStylesMyBackgroundImage)) {
+            backgroundStylesMyBackgroundImage = ''; // Image no longer exists
+        }
+        backgroundStylesUIConf.content.myBackgroundImage.value = {
+            value: backgroundStylesMyBackgroundImage,
+            label: backgroundStylesMyBackgroundImage
+        };
+    }
+    else { // Random
+        backgroundStylesUIConf.content.myBackgroundImage.value = {
+            value: '/RANDOM/',
+            label: NowPlayingContext_1.default.getI18n('NOW_PLAYING_RANDOM')
+        };
+    }
+    if (myBackgrounds.length > 0) {
+        backgroundStylesUIConf.content.myBackgroundImage.options.push({
+            value: '/SEPARATOR/',
+            label: '-'.repeat(NowPlayingContext_1.default.getI18n('NOW_PLAYING_RANDOM').length)
+        });
+        myBackgrounds.forEach((bg) => {
+            backgroundStylesUIConf.content.myBackgroundImage.options.push({
+                value: bg.name,
+                label: bg.name
+            });
+        });
+    }
+    backgroundStylesUIConf.content.myBackgroundRandomRefreshInterval.value = backgroundSettings.myBackgroundRandomRefreshInterval;
+    backgroundStylesUIConf.content.myBackgroundRandomRefreshOnTrackChange.value = backgroundSettings.myBackgroundRandomRefreshOnTrackChange;
+    backgroundStylesUIConf.content.myBackgroundFit.value = {
+        value: backgroundSettings.myBackgroundFit,
+        label: ''
+    };
+    switch (backgroundSettings.myBackgroundFit) {
+        case 'contain':
+            backgroundStylesUIConf.content.myBackgroundFit.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_FIT_CONTAIN');
+            break;
+        case 'fill':
+            backgroundStylesUIConf.content.myBackgroundFit.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_FIT_FILL');
+            break;
+        default:
+            backgroundStylesUIConf.content.myBackgroundFit.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_FIT_COVER');
+    }
+    backgroundStylesUIConf.content.myBackgroundPosition.value = {
+        value: backgroundSettings.myBackgroundPosition,
+        label: ''
+    };
+    switch (backgroundSettings.myBackgroundPosition) {
+        case 'top':
+            backgroundStylesUIConf.content.myBackgroundPosition.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_TOP');
+            break;
+        case 'left':
+            backgroundStylesUIConf.content.myBackgroundPosition.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_LEFT');
+            break;
+        case 'bottom':
+            backgroundStylesUIConf.content.myBackgroundPosition.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_BOTTOM');
+            break;
+        case 'right':
+            backgroundStylesUIConf.content.myBackgroundPosition.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_RIGHT');
+            break;
+        default:
+            backgroundStylesUIConf.content.myBackgroundPosition.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_CENTER');
+    }
+    backgroundStylesUIConf.content.myBackgroundBlur.value = backgroundSettings.myBackgroundBlur;
+    backgroundStylesUIConf.content.myBackgroundScale.value = backgroundSettings.myBackgroundScale;
     backgroundStylesUIConf.content.backgroundOverlay.value = {
         value: backgroundSettings.backgroundOverlay,
         label: ''
@@ -1215,7 +1280,6 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
      * Idle Screen conf
      */
     const idleScreen = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.IdleScreen);
-    const myBackgrounds = MyBackgroundMonitor_1.default.getImages();
     let idleScreenVolumioImage = idleScreen.volumioBackgroundImage;
     let idleScreenMyBackgroundImage = idleScreen.myBackgroundImage;
     idleScreenUIConf.content.enabled.value = {

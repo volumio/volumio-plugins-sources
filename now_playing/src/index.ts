@@ -72,6 +72,9 @@ class ControllerNowPlaying {
     const performanceUIConf = uiconf.section_performance;
     const backupConfigUIConf = uiconf.section_backup_config;
 
+    const volumioBackgrounds = getVolumioBackgrounds();
+    const myBackgrounds = myBackgroundMonitor.getImages();
+
     /**
      * Daemon conf
      */
@@ -331,6 +334,8 @@ class ControllerNowPlaying {
     * Background Styles Conf
     */
     const backgroundSettings = CommonSettingsLoader.get(CommonSettingsCategory.Background);
+    let volumioBackgroundImage = backgroundSettings.volumioBackgroundImage;
+    let backgroundStylesMyBackgroundImage = backgroundSettings.myBackgroundImage;
     backgroundStylesUIConf.content.backgroundType.value = {
       value: backgroundSettings.backgroundType,
       label: ''
@@ -344,6 +349,9 @@ class ControllerNowPlaying {
         break;
       case 'volumioBackground':
         backgroundStylesUIConf.content.backgroundType.value.label = np.getI18n('NOW_PLAYING_VOLUMIO_BACKGROUND');
+        break;
+      case 'myBackground':
+        backgroundStylesUIConf.content.backgroundType.value.label = np.getI18n('NOW_PLAYING_MY_BACKGROUND');
         break;
       default:
         backgroundStylesUIConf.content.backgroundType.value.label = np.getI18n('NOW_PLAYING_DEFAULT');
@@ -388,8 +396,6 @@ class ControllerNowPlaying {
     backgroundStylesUIConf.content.albumartBackgroundBlur.value = backgroundSettings.albumartBackgroundBlur;
     backgroundStylesUIConf.content.albumartBackgroundScale.value = backgroundSettings.albumartBackgroundScale;
 
-    const volumioBackgrounds = getVolumioBackgrounds();
-    let volumioBackgroundImage = backgroundSettings.volumioBackgroundImage;
     if (volumioBackgroundImage !== '' && !volumioBackgrounds.includes(volumioBackgroundImage)) {
       volumioBackgroundImage = ''; // Image no longer exists
     }
@@ -437,6 +443,73 @@ class ControllerNowPlaying {
     }
     backgroundStylesUIConf.content.volumioBackgroundBlur.value = backgroundSettings.volumioBackgroundBlur;
     backgroundStylesUIConf.content.volumioBackgroundScale.value = backgroundSettings.volumioBackgroundScale;
+
+    if (backgroundSettings.myBackgroundImageType === 'fixed') {
+      if (backgroundStylesMyBackgroundImage !== '' && !myBackgrounds.find((bg) => bg.name === backgroundStylesMyBackgroundImage)) {
+        backgroundStylesMyBackgroundImage = ''; // Image no longer exists
+      }
+      backgroundStylesUIConf.content.myBackgroundImage.value = {
+        value: backgroundStylesMyBackgroundImage,
+        label: backgroundStylesMyBackgroundImage
+      };
+    }
+    else { // Random
+      backgroundStylesUIConf.content.myBackgroundImage.value = {
+        value: '/RANDOM/',
+        label: np.getI18n('NOW_PLAYING_RANDOM')
+      };
+    }
+    if (myBackgrounds.length > 0) {
+      backgroundStylesUIConf.content.myBackgroundImage.options.push({
+        value: '/SEPARATOR/',
+        label: '-'.repeat(np.getI18n('NOW_PLAYING_RANDOM').length)
+      });
+
+      myBackgrounds.forEach((bg) => {
+        backgroundStylesUIConf.content.myBackgroundImage.options.push({
+          value: bg.name,
+          label: bg.name
+        });
+      });
+    }
+    backgroundStylesUIConf.content.myBackgroundRandomRefreshInterval.value = backgroundSettings.myBackgroundRandomRefreshInterval;
+    backgroundStylesUIConf.content.myBackgroundRandomRefreshOnTrackChange.value = backgroundSettings.myBackgroundRandomRefreshOnTrackChange;
+    backgroundStylesUIConf.content.myBackgroundFit.value = {
+      value: backgroundSettings.myBackgroundFit,
+      label: ''
+    };
+    switch (backgroundSettings.myBackgroundFit) {
+      case 'contain':
+        backgroundStylesUIConf.content.myBackgroundFit.value.label = np.getI18n('NOW_PLAYING_FIT_CONTAIN');
+        break;
+      case 'fill':
+        backgroundStylesUIConf.content.myBackgroundFit.value.label = np.getI18n('NOW_PLAYING_FIT_FILL');
+        break;
+      default:
+        backgroundStylesUIConf.content.myBackgroundFit.value.label = np.getI18n('NOW_PLAYING_FIT_COVER');
+    }
+    backgroundStylesUIConf.content.myBackgroundPosition.value = {
+      value: backgroundSettings.myBackgroundPosition,
+      label: ''
+    };
+    switch (backgroundSettings.myBackgroundPosition) {
+      case 'top':
+        backgroundStylesUIConf.content.myBackgroundPosition.value.label = np.getI18n('NOW_PLAYING_POSITION_TOP');
+        break;
+      case 'left':
+        backgroundStylesUIConf.content.myBackgroundPosition.value.label = np.getI18n('NOW_PLAYING_POSITION_LEFT');
+        break;
+      case 'bottom':
+        backgroundStylesUIConf.content.myBackgroundPosition.value.label = np.getI18n('NOW_PLAYING_POSITION_BOTTOM');
+        break;
+      case 'right':
+        backgroundStylesUIConf.content.myBackgroundPosition.value.label = np.getI18n('NOW_PLAYING_POSITION_RIGHT');
+        break;
+      default:
+        backgroundStylesUIConf.content.myBackgroundPosition.value.label = np.getI18n('NOW_PLAYING_POSITION_CENTER');
+    }
+    backgroundStylesUIConf.content.myBackgroundBlur.value = backgroundSettings.myBackgroundBlur;
+    backgroundStylesUIConf.content.myBackgroundScale.value = backgroundSettings.myBackgroundScale;
 
     backgroundStylesUIConf.content.backgroundOverlay.value = {
       value: backgroundSettings.backgroundOverlay,
@@ -811,7 +884,6 @@ class ControllerNowPlaying {
      * Idle Screen conf
      */
     const idleScreen = CommonSettingsLoader.get(CommonSettingsCategory.IdleScreen);
-    const myBackgrounds = myBackgroundMonitor.getImages();
     let idleScreenVolumioImage = idleScreen.volumioBackgroundImage;
     let idleScreenMyBackgroundImage = idleScreen.myBackgroundImage;
 
@@ -1441,26 +1513,22 @@ class ControllerNowPlaying {
   }
 
   configSaveBackgroundStyles(data: Record<string, any>) {
-    const settings = {
-      backgroundType: data.backgroundType.value,
-      backgroundColor: data.backgroundColor,
-      albumartBackgroundFit: data.albumartBackgroundFit.value,
-      albumartBackgroundPosition: data.albumartBackgroundPosition.value,
-      albumartBackgroundBlur: data.albumartBackgroundBlur,
-      albumartBackgroundScale: data.albumartBackgroundScale,
-      volumioBackgroundImage: data.volumioBackgroundImage.value,
-      volumioBackgroundFit: data.volumioBackgroundFit.value,
-      volumioBackgroundPosition: data.volumioBackgroundPosition.value,
-      volumioBackgroundBlur: data.volumioBackgroundBlur,
-      volumioBackgroundScale: data.volumioBackgroundScale,
-      backgroundOverlay: data.backgroundOverlay.value,
-      backgroundOverlayColor: data.backgroundOverlayColor,
-      backgroundOverlayColorOpacity: data.backgroundOverlayColorOpacity,
-      backgroundOverlayGradient: data.backgroundOverlayGradient,
-      backgroundOverlayGradientOpacity: data.backgroundOverlayGradientOpacity
-    };
+    const apply = this.#parseConfigSaveData(data);
+    if (apply.myBackgroundImage === '/RANDOM/') {
+      apply.myBackgroundImageType = 'random';
+      apply.myBackgroundImage = '';
+    }
+    else {
+      apply.myBackgroundImageType = 'fixed';
+    }
+    apply.myBackgroundRandomRefreshInterval = apply.myBackgroundRandomRefreshInterval ? parseInt(apply.myBackgroundRandomRefreshInterval, 10) : 0;
+    if (apply.myBackgroundImage === '/SEPARATOR/') {
+      np.toast('error', np.getI18n('NOW_PLAYING_ERR_INVALID_BACKGROUND'));
+      return;
+    }
+
     const current = np.getConfigValue('background');
-    const updated = Object.assign(current, settings);
+    const updated = Object.assign(current, apply);
     np.setConfigValue('background', updated);
     np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
 

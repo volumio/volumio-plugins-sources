@@ -15,6 +15,7 @@ export interface UIConfigElementBase<K extends UIConfigSectionKey> {
   element: UIConfigElementType;
   label: string;
   doc?: string;
+  attributes?: Record<string, string>[];
   visibleIf? : {
     field: UIConfigSectionContentKeyOf<K>;
     value: string | number | boolean;

@@ -118,6 +118,13 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'volumioBackgroundPosition' | 
     'volumioBackgroundBlur' | 
     'volumioBackgroundScale' | 
+    'myBackgroundImage' | 
+    'myBackgroundRandomRefreshInterval' | 
+    'myBackgroundRandomRefreshOnTrackChange' | 
+    'myBackgroundFit' | 
+    'myBackgroundPosition' | 
+    'myBackgroundBlur' | 
+    'myBackgroundScale' | 
     'backgroundOverlay' | 
     'backgroundOverlayColor' | 
     'backgroundOverlayColorOpacity' | 
@@ -381,6 +388,13 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'volumioBackgroundPosition' ? UIConfigSelect<K> :
     C extends 'volumioBackgroundBlur' ? UIConfigInput<K, 'text'> :
     C extends 'volumioBackgroundScale' ? UIConfigInput<K, 'text'> :
+    C extends 'myBackgroundImage' ? UIConfigSelect<K> :
+    C extends 'myBackgroundRandomRefreshInterval' ? UIConfigInput<K, 'number'> :
+    C extends 'myBackgroundRandomRefreshOnTrackChange' ? UIConfigSwitch<K> :
+    C extends 'myBackgroundFit' ? UIConfigSelect<K> :
+    C extends 'myBackgroundPosition' ? UIConfigSelect<K> :
+    C extends 'myBackgroundBlur' ? UIConfigInput<K, 'text'> :
+    C extends 'myBackgroundScale' ? UIConfigInput<K, 'text'> :
     C extends 'backgroundOverlay' ? UIConfigSelect<K> :
     C extends 'backgroundOverlayColor' ? UIConfigInput<K, 'color'> :
     C extends 'backgroundOverlayColorOpacity' ? UIConfigInput<K, 'text'> :
