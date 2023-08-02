@@ -200,6 +200,59 @@
       ]
     },
     {
+      "id": "section_startup_options",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_STARTUP_OPTIONS",
+      "icon": "fa-desktop",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveStartupOptions"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "activeScreen",
+          "activateIdleScreen"
+        ]
+      },
+      "content": [
+        {
+          "id": "activeScreen",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ACTIVE_SCREEN",
+          "value": {
+            "value": "nowPlaying.basicView", 
+            "label": "TRANSLATE.NOW_PLAYING_NP_BASIC"
+          },
+          "options": [
+            {
+              "value": "nowPlaying.basicView",
+              "label": "TRANSLATE.NOW_PLAYING_NP_BASIC"
+            },
+            {
+              "value": "nowPlaying.infoView",
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO"
+            },
+            {
+              "value": "browse",
+              "label": "TRANSLATE.NOW_PLAYING_BROWSE"
+            },
+            {
+              "value": "volumio",
+              "label": "TRANSLATE.NOW_PLAYING_VOLUMIO"
+            }
+          ]
+        },
+        {
+          "id": "activateIdleScreen",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_START_WITH_IDLE_SCREEN",
+          "value": false
+        }
+      ]
+    },
+    {
       "id": "section_text_styles",
       "element": "section",
       "label": "TRANSLATE.NOW_PLAYING_TEXT_STYLES",
@@ -3653,7 +3706,7 @@
         {
           "id": "unmountNowPlayingScreenOnExit",
           "element": "switch",
-          "label": "TRANSLATE.NOW_PLAYING_NP",
+          "label": "TRANSLATE.NOW_PLAYING_NP_LI",
           "value": "",
           "visibleIf": {
             "field": "unmountScreensOnExit",
@@ -3663,7 +3716,7 @@
         {
           "id": "unmountBrowseScreenOnExit",
           "element": "switch",
-          "label": "TRANSLATE.NOW_PLAYING_BROWSE",
+          "label": "TRANSLATE.NOW_PLAYING_BROWSE_LI",
           "value": "",
           "visibleIf": {
             "field": "unmountScreensOnExit",
@@ -3673,7 +3726,7 @@
         {
           "id": "unmountQueueScreenOnExit",
           "element": "switch",
-          "label": "TRANSLATE.NOW_PLAYING_QUEUE",
+          "label": "TRANSLATE.NOW_PLAYING_QUEUE_LI",
           "value": "",
           "visibleIf": {
             "field": "unmountScreensOnExit",
@@ -3683,7 +3736,7 @@
         {
           "id": "unmountVolumioScreenOnExit",
           "element": "switch",
-          "label": "TRANSLATE.NOW_PLAYING_VOLUMIO",
+          "label": "TRANSLATE.NOW_PLAYING_VOLUMIO_LI",
           "value": "",
           "visibleIf": {
             "field": "unmountScreensOnExit",

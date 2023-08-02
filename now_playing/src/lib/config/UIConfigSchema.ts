@@ -6,6 +6,7 @@ export type UIConfigSectionKey =
               'section_localization' | 
               'section_metadata_service' | 
               'section_weather_service' | 
+              'section_startup_options' | 
               'section_text_styles' | 
               'section_widget_styles' | 
               'section_album_art_style' | 
@@ -44,6 +45,10 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
 
   K extends 'section_weather_service' ?
     'clearWeatherCache' :
+
+  K extends 'section_startup_options' ?
+    'activeScreen' | 
+    'activateIdleScreen' :
 
   K extends 'section_text_styles' ?
     'trackInfoVisibility' | 
@@ -306,6 +311,12 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
 
   K extends 'section_weather_service' ? (
     C extends 'clearWeatherCache' ? UIConfigButton<K> :
+    never
+  ) : 
+
+  K extends 'section_startup_options' ? (
+    C extends 'activeScreen' ? UIConfigSelect<K> :
+    C extends 'activateIdleScreen' ? UIConfigSwitch<K> :
     never
   ) : 
 

@@ -52,10 +52,10 @@ class ControllerNowPlaying {
       `${__dirname}/UIConfig.json`)) ;
     const uiconf = UIConfigHelper.observe(_uiconf);
 
-    //Const daemonUIConf = uiconf.findSectionById('section_daemon');
     const daemonUIConf = uiconf.section_daemon;
     const localizationUIConf = uiconf.section_localization;
     const metadataServiceUIConf = uiconf.section_metadata_service;
+    const startupOptionsUIConf = uiconf.section_startup_options;
     const textStylesUIConf = uiconf.section_text_styles;
     const widgetStylesUIConf = uiconf.section_widget_styles;
     const albumartStylesUIConf = uiconf.section_album_art_style;
@@ -154,6 +154,26 @@ class ControllerNowPlaying {
       type: 'openUrl',
       url: accessTokenSetupUrl
     };
+
+    const startupOptions = CommonSettingsLoader.get(CommonSettingsCategory.Startup);
+    startupOptionsUIConf.content.activeScreen.value = {
+      value: startupOptions.activeScreen,
+      label: ''
+    };
+    switch (startupOptions.activeScreen) {
+      case 'nowPlaying.infoView':
+        startupOptionsUIConf.content.activeScreen.value.label = np.getI18n('NOW_PLAYING_NP_INFO');
+        break;
+      case 'browse':
+        startupOptionsUIConf.content.activeScreen.value.label = np.getI18n('NOW_PLAYING_BROWSE');
+        break;
+      case 'volumio':
+        startupOptionsUIConf.content.activeScreen.value.label = np.getI18n('NOW_PLAYING_VOLUMIO');
+        break;
+      default:
+        startupOptionsUIConf.content.activeScreen.value.label = np.getI18n('NOW_PLAYING_NP_BASIC');
+    }
+    startupOptionsUIConf.content.activateIdleScreen.value = startupOptions.activateIdleScreen;
 
     /**
      * Text Styles conf
@@ -1403,6 +1423,17 @@ class ControllerNowPlaying {
         np.setConfigValue('port', data['oldPort']);
         np.refreshUIConfig();
       });
+  }
+
+  configSaveStartupOptions(data: Record<string, any>) {
+    const apply = this.#parseConfigSaveData(data);
+    np.setConfigValue('startup', apply);
+    np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+
+    /**
+     * Note here we don't broadcast 'settings updated' message, because
+     * startup options are applied only once during app startup.
+     */
   }
 
   configSaveTextStyles(data: Record<string, any>) {

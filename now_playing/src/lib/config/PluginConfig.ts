@@ -1,4 +1,5 @@
 import { ActionPanelSettings, BackgroundSettings, DefaultActionPanelSettings, DefaultBackgroundSettings, DefaultIdleScreenSettings, DefaultLocalizationSettings, DefaultNowPlayingScreenSettings, DefaultPerformanceSettings, DefaultThemeSettings, IdleScreenSettings, LocalizationSettings, NowPlayingScreenSettings, PerformanceSettings, ThemeSettings } from 'now-playing-common';
+import { DefaultStartupOptions, StartupOptions } from 'now-playing-common/dist/config/StartupOptions';
 
 export type PluginConfigKey = keyof PluginConfigSchema;
 export type PluginConfigValue<T extends PluginConfigKey> = PluginConfigSchema[T]['defaultValue'];
@@ -10,6 +11,7 @@ export interface PluginConfigSchemaEntry<T, U = false> {
 
 export interface PluginConfigSchema {
   port: PluginConfigSchemaEntry<number>;
+  startup: PluginConfigSchemaEntry<StartupOptions, true>;
   geniusAccessToken: PluginConfigSchemaEntry<string>;
   ['screen.nowPlaying']: PluginConfigSchemaEntry<NowPlayingScreenSettings, true>;
   background: PluginConfigSchemaEntry<BackgroundSettings, true>;
@@ -43,6 +45,7 @@ export interface I18nOptionValue {
 
 export const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema = {
   port: { defaultValue: 4004, json: false },
+  startup: { defaultValue: DefaultStartupOptions, json: true },
   geniusAccessToken: { defaultValue: '', json: false },
   'screen.nowPlaying': { defaultValue: DefaultNowPlayingScreenSettings, json: true },
   background: { defaultValue: DefaultBackgroundSettings, json: true },

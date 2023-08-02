@@ -80,6 +80,10 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.5.4
+- Add Startup Options
+- Update web client v0.5.2
+
 0.5.3
 - Update web client v0.5.1
 
