@@ -56,6 +56,10 @@ class BaseModel {
     hasAccessToken() {
         return __classPrivateFieldGet(BaseModel, _a, "f", _BaseModel_hasAccessToken);
     }
+    static setLocale(value) {
+        const api = __classPrivateFieldGet(this, _a, "m", _BaseModel_doGetSoundCloudAPI).call(this);
+        api.setLocale(value);
+    }
     loopFetch(params) {
         return __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_doLoopFetch).call(this, { ...params });
     }

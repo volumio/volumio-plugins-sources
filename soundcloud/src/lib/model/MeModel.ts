@@ -23,10 +23,12 @@ export interface MeModelGetLibraryItemsParams {
   pageOffset?: number;
   limit?: number;
   type: 'album' | 'playlist' | 'station';
+  filter: 'liked' | 'created' | 'all'; // Only for 'album' and 'playlist' types
 }
 
 interface GetLibraryItemsLoopFetchCallbackParams extends LoopFetchCallbackParams {
   type: 'album' | 'playlist' | 'station';
+  filter: 'liked' | 'created' | 'all'; // Only for 'album' and 'playlist' types
 }
 
 export default class MeModel extends BaseModel {
@@ -118,10 +120,28 @@ export default class MeModel extends BaseModel {
   #filterFetchedLibraryItem(item: LibraryItem, params: GetLibraryItemsLoopFetchCallbackParams) {
     switch (params.type) {
       case 'album':
-        return item.itemType === 'Album' || item.itemType === 'AlbumLike';
+        const isCreatedAlbum = item.itemType === 'Album';
+        const isLikedAlbum = item.itemType === 'AlbumLike';
+        if (params.filter === 'created') {
+          return isCreatedAlbum;
+        }
+        else if (params.filter === 'liked') {
+          return isLikedAlbum;
+        }
+        return isCreatedAlbum || isLikedAlbum;
+
       case 'playlist':
-        return item.itemType === 'Playlist' || item.itemType === 'PlaylistLike' ||
+        const isCreatedPlaylist = item.itemType === 'Playlist';
+        const isLikedPlaylist = item.itemType === 'PlaylistLike' ||
           (item.itemType === 'SystemPlaylistLike' && !this.#isArtistStation(item));
+        if (params.filter === 'created') {
+          return isCreatedPlaylist;
+        }
+        else if (params.filter === 'liked') {
+          return isLikedPlaylist;
+        }
+        return isCreatedPlaylist || isLikedPlaylist;
+
       case 'station':
         return this.#isArtistStation(item);
     }
@@ -132,14 +152,7 @@ export default class MeModel extends BaseModel {
   }
 
   async #convertFetchedLibraryItemToEntity(item: LibraryItem): Promise<AlbumEntity | PlaylistEntity | null> {
-    const wrappedItem = item.item;
-    if (wrappedItem instanceof Album) {
-      return Mapper.mapAlbum(wrappedItem);
-    }
-    else if (wrappedItem instanceof Playlist || wrappedItem instanceof SystemPlaylist) {
-      return Mapper.mapPlaylist(wrappedItem);
-    }
-    return null;
+    return Mapper.mapLibraryItem(item);
   }
 
   async getMyProfile() {

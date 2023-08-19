@@ -34,7 +34,7 @@ class TrackRenderer extends BaseRenderer_1.default {
         if (origin) {
             trackView.origin = origin;
         }
-        return {
+        const result = {
             service: 'soundcloud',
             type: 'song',
             title: data.title,
@@ -43,6 +43,10 @@ class TrackRenderer extends BaseRenderer_1.default {
             albumart: data.thumbnail || this.getSoundCloudIcon(),
             uri: `${this.uri}/${ViewHelper_1.default.constructUriSegmentFromView(trackView)}`
         };
+        if (data.duration !== undefined) {
+            result.duration = Math.round(data.duration / 1000);
+        }
+        return result;
     }
 }
 exports.default = TrackRenderer;

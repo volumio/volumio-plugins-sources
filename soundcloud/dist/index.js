@@ -94,8 +94,12 @@ class ControllerSoundCloud {
         }
         const oldAccessToken = SoundCloudContext_1.default.getConfigValue('accessToken');
         const newAccessToken = data['accessToken'].trim();
+        const oldLocale = SoundCloudContext_1.default.getConfigValue('locale');
+        const newLocale = data['locale'].value;
+        const accessTokenChanged = oldAccessToken !== newAccessToken;
+        const localeChanged = oldLocale !== newLocale;
         SoundCloudContext_1.default.setConfigValue('accessToken', newAccessToken);
-        SoundCloudContext_1.default.setConfigValue('locale', data['locale'].value);
+        SoundCloudContext_1.default.setConfigValue('locale', newLocale);
         SoundCloudContext_1.default.setConfigValue('itemsPerPage', itemsPerPage);
         SoundCloudContext_1.default.setConfigValue('itemsPerSection', itemsPerSection);
         SoundCloudContext_1.default.setConfigValue('combinedSearchResults', combinedSearchResults);
@@ -104,9 +108,14 @@ class ControllerSoundCloud {
         SoundCloudContext_1.default.setConfigValue('addPlayedToHistory', !!data['addPlayedToHistory']);
         // Soundcloud-testing
         SoundCloudContext_1.default.setConfigValue('logTranscodings', !!data['logTranscodings']);
-        if (oldAccessToken !== newAccessToken) {
-            model_1.default.setAccessToken(newAccessToken);
+        if (accessTokenChanged || localeChanged) {
             SoundCloudContext_1.default.getCache().clear();
+        }
+        if (localeChanged) {
+            model_1.default.setLocale(newLocale);
+        }
+        if (accessTokenChanged) {
+            model_1.default.setAccessToken(newAccessToken);
             SoundCloudContext_1.default.refreshUIConfig();
         }
         SoundCloudContext_1.default.toast('success', SoundCloudContext_1.default.getI18n('SOUNDCLOUD_SETTINGS_SAVED'));
@@ -149,6 +158,7 @@ class ControllerSoundCloud {
         if (accessToken) {
             model_1.default.setAccessToken(accessToken);
         }
+        model_1.default.setLocale(SoundCloudContext_1.default.getConfigValue('locale'));
         __classPrivateFieldGet(this, _ControllerSoundCloud_instances, "m", _ControllerSoundCloud_addToBrowseSources).call(this);
         return kew_1.default.resolve();
     }

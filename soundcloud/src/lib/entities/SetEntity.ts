@@ -10,6 +10,8 @@ interface SetEntity {
   user: UserEntity | null;
   tracks: TrackEntity[];
   trackCount?: number;
+  isLiked?: boolean;
+  isPublic?: boolean;
 }
 
 export default SetEntity;

@@ -71,7 +71,10 @@ _HistoryViewHandler_instances = new WeakSet(), _HistoryViewHandler_browseType = 
         modelParams.limit = SoundCloudContext_1.default.getConfigValue('itemsPerPage');
     }
     const items = await this.getModel(model_1.ModelType.History).getPlayHistory(modelParams);
-    const page = this.buildPageFromLoopFetchResult(items, __classPrivateFieldGet(this, _HistoryViewHandler_instances, "m", _HistoryViewHandler_getRenderer).bind(this), type === 'track' ? SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIST_TITLE_RECENTLY_PLAYED_TRACKS') : SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIST_TITLE_RECENTLY_PLAYED'));
+    const page = this.buildPageFromLoopFetchResult(items, {
+        getRenderer: __classPrivateFieldGet(this, _HistoryViewHandler_instances, "m", _HistoryViewHandler_getRenderer).bind(this),
+        title: type === 'track' ? SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIST_TITLE_RECENTLY_PLAYED_TRACKS') : SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIST_TITLE_RECENTLY_PLAYED')
+    });
     return page;
 }, _HistoryViewHandler_getRenderer = function _HistoryViewHandler_getRenderer(item) {
     if (item.type === 'album') {

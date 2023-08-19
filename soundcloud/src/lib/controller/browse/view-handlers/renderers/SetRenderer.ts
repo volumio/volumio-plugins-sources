@@ -4,7 +4,7 @@ import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
 
 export default abstract class SetRenderer<T extends SetEntity> extends BaseRenderer<T> {
 
-  renderToListItem(data: T): RenderedListItem | null {
+  renderToListItem(data: T, showIcon = false): RenderedListItem | null {
     if (data.id === undefined || data.id === null || data.id === '' || !data.title) {
       return null;
     }
@@ -17,6 +17,24 @@ export default abstract class SetRenderer<T extends SetEntity> extends BaseRende
       albumart: data.thumbnail || this.getSoundCloudIcon(),
       uri: this.getListItemUri(data)
     };
+
+    if (showIcon) {
+      let iconClass, scale;
+      if (data.isLiked !== undefined && data.isLiked) {
+        iconClass = 'fa-heart';
+        scale = 0.9;
+      }
+      else if (data.isPublic !== undefined && !data.isPublic) {
+        iconClass = 'fa-lock';
+        scale = 1;
+      }
+      else {
+        iconClass = null;
+      }
+      if (iconClass) {
+        result.title = `<i class='fa ${iconClass}' style='margin-right: 3px; scale: ${scale};'></i> ${result.title}`;
+      }
+    }
 
     return result;
   }

@@ -8,6 +8,7 @@ interface TrackEntity {
   album?: string | null;
   thumbnail: string | null;
   playableState: 'blocked' | 'snipped' | 'allowed';
+  duration?: number;
   transcodings: {
     url?: string | null;
     protocol?: string | null;

@@ -79,11 +79,10 @@ export default class TrackViewHandler extends ExplodableViewHandler<TrackView> {
       tracks = await this.getModel(ModelType.Track).getTracks(modelParams);
     }
 
-    const page = this.buildPageFromLoopFetchResult(
-      tracks,
-      this.getRenderer(RendererType.Track),
-      myLikes ? sc.getI18n('SOUNDCLOUD_LIKES') : sc.getI18n('SOUNDCLOUD_LIST_TITLE_TRACKS')
-    );
+    const page = this.buildPageFromLoopFetchResult(tracks, {
+      renderer: this.getRenderer(RendererType.Track),
+      title: myLikes ? sc.getI18n('SOUNDCLOUD_LIKES') : sc.getI18n('SOUNDCLOUD_LIST_TITLE_TRACKS')
+    });
 
     if (userId && !inSection) {
       const userData = await this.getModel(ModelType.User).getUser(Number(userId));

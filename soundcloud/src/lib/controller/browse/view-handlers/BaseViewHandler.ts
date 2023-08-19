@@ -8,6 +8,22 @@ import ViewHelper from './ViewHelper';
 import Renderer, { RendererOf, RendererType } from './renderers';
 import BaseRenderer, { RenderedListItem } from './renderers/BaseRenderer';
 
+export type BuildPageFromLoopFetchResultParams<E> = ({
+  renderer: BaseRenderer<E>,
+  getRenderer?: undefined,
+  render?: undefined,
+} | {
+  renderer?: undefined,
+  getRenderer: (item: E) => BaseRenderer<E> | null,
+  render?: undefined,
+} | {
+  renderer?: undefined,
+  getRenderer?: undefined,
+  render: (item: E) => RenderedListItem | null,
+}) & {
+  title?: string
+}
+
 export default class BaseViewHandler<V extends View> implements ViewHandler {
 
   #uri: string;
@@ -171,14 +187,20 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     `;
   }
 
-  protected buildPageFromLoopFetchResult<E>(
-    result: LoopFetchResult<E>,
-    renderer: BaseRenderer<E> | ((item: E) => BaseRenderer<E> | null),
-    title = ''): RenderedPage {
-
+  protected buildPageFromLoopFetchResult<E>(result: LoopFetchResult<E>, params: BuildPageFromLoopFetchResultParams<E>): RenderedPage {
+    const { title = '' } = params;
     const listItems = result.items.reduce<RenderedListItem[]>((result, item) => {
-      const r = typeof renderer === 'function' ? renderer(item) : renderer;
-      const rendered = r ? r.renderToListItem(item) : null;
+      let rendered: RenderedListItem | null = null;
+      if (params.getRenderer) {
+        const renderer = params.getRenderer(item);
+        rendered = renderer?.renderToListItem(item) || null;
+      }
+      else if (params.render) {
+        rendered = params.render(item);
+      }
+      else if (params.renderer) {
+        rendered = params.renderer.renderToListItem(item);
+      }
       if (rendered) {
         result.push(rendered);
       }

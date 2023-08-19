@@ -36,7 +36,10 @@ class SetViewHandler extends ExplodableViewHandler_1.default {
         }
         modelParams.limit = limit;
         const result = await this.getSets(modelParams);
-        return this.buildPageFromLoopFetchResult(result, this.getSetRenderer(), this.getSetsListTitle());
+        return this.buildPageFromLoopFetchResult(result, {
+            renderer: this.getSetRenderer(),
+            title: this.getSetsListTitle()
+        });
     }
     async browseByUser(userId) {
         const { pageRef, inSection } = this.currentView;
@@ -52,7 +55,10 @@ class SetViewHandler extends ExplodableViewHandler_1.default {
         }
         modelParams.limit = limit;
         const result = await this.getSets(modelParams);
-        const page = this.buildPageFromLoopFetchResult(result, this.getSetRenderer(), this.getSetsListTitle());
+        const page = this.buildPageFromLoopFetchResult(result, {
+            renderer: this.getSetRenderer(),
+            title: this.getSetsListTitle()
+        });
         if (!inSection && page.navigation) {
             const userData = await this.getModel(model_1.ModelType.User).getUser(userId);
             if (userData) {

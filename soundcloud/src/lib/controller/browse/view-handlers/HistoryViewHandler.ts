@@ -76,11 +76,10 @@ export default class HistoryViewHandler extends BaseViewHandler<HistoryView> {
     }
 
     const items = await this.getModel(ModelType.History).getPlayHistory(modelParams);
-    const page = this.buildPageFromLoopFetchResult(
-      items,
-      this.#getRenderer.bind(this),
-      type === 'track' ? sc.getI18n('SOUNDCLOUD_LIST_TITLE_RECENTLY_PLAYED_TRACKS') : sc.getI18n('SOUNDCLOUD_LIST_TITLE_RECENTLY_PLAYED')
-    );
+    const page = this.buildPageFromLoopFetchResult(items, {
+      getRenderer: this.#getRenderer.bind(this),
+      title: type === 'track' ? sc.getI18n('SOUNDCLOUD_LIST_TITLE_RECENTLY_PLAYED_TRACKS') : sc.getI18n('SOUNDCLOUD_LIST_TITLE_RECENTLY_PLAYED')
+    });
 
     return page;
   }

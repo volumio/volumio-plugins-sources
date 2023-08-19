@@ -69,11 +69,10 @@ export default abstract class SetViewHandler<T extends SetView, ID extends strin
 
     const result = await this.getSets(modelParams);
 
-    return this.buildPageFromLoopFetchResult(
-      result,
-      this.getSetRenderer(),
-      this.getSetsListTitle()
-    );
+    return this.buildPageFromLoopFetchResult(result, {
+      renderer: this.getSetRenderer(),
+      title: this.getSetsListTitle()
+    });
   }
 
   protected async browseByUser(userId: number): Promise<RenderedPage> {
@@ -93,11 +92,10 @@ export default abstract class SetViewHandler<T extends SetView, ID extends strin
 
     const result = await this.getSets(modelParams);
 
-    const page = this.buildPageFromLoopFetchResult(
-      result,
-      this.getSetRenderer(),
-      this.getSetsListTitle()
-    );
+    const page = this.buildPageFromLoopFetchResult(result, {
+      renderer: this.getSetRenderer(),
+      title: this.getSetsListTitle()
+    });
 
     if (!inSection && page.navigation) {
       const userData = await this.getModel(ModelType.User).getUser(userId);

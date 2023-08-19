@@ -162,10 +162,20 @@ class BaseViewHandler {
         </div>
     `;
     }
-    buildPageFromLoopFetchResult(result, renderer, title = '') {
+    buildPageFromLoopFetchResult(result, params) {
+        const { title = '' } = params;
         const listItems = result.items.reduce((result, item) => {
-            const r = typeof renderer === 'function' ? renderer(item) : renderer;
-            const rendered = r ? r.renderToListItem(item) : null;
+            let rendered = null;
+            if (params.getRenderer) {
+                const renderer = params.getRenderer(item);
+                rendered = renderer?.renderToListItem(item) || null;
+            }
+            else if (params.render) {
+                rendered = params.render(item);
+            }
+            else if (params.renderer) {
+                rendered = params.renderer.renderToListItem(item);
+            }
             if (rendered) {
                 result.push(rendered);
             }

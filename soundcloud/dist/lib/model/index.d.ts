@@ -18,5 +18,6 @@ export type ModelOf<T extends ModelType> = T extends ModelType.Album ? AlbumMode
 export default class Model {
     static getInstance<T extends ModelType>(type: T): ModelOf<T>;
     static setAccessToken(value: string): void;
+    static setLocale(value: string): void;
 }
 //# sourceMappingURL=index.d.ts.map

@@ -98,9 +98,13 @@ class ControllerSoundCloud {
 
     const oldAccessToken = sc.getConfigValue('accessToken');
     const newAccessToken = data['accessToken'].trim();
+    const oldLocale = sc.getConfigValue('locale');
+    const newLocale = data['locale'].value;
+    const accessTokenChanged = oldAccessToken !== newAccessToken;
+    const localeChanged = oldLocale !== newLocale;
 
     sc.setConfigValue('accessToken', newAccessToken);
-    sc.setConfigValue('locale', data['locale'].value);
+    sc.setConfigValue('locale', newLocale);
     sc.setConfigValue('itemsPerPage', itemsPerPage);
     sc.setConfigValue('itemsPerSection', itemsPerSection);
     sc.setConfigValue('combinedSearchResults', combinedSearchResults);
@@ -110,9 +114,16 @@ class ControllerSoundCloud {
     // Soundcloud-testing
     sc.setConfigValue('logTranscodings', !!data['logTranscodings']);
 
-    if (oldAccessToken !== newAccessToken) {
-      Model.setAccessToken(newAccessToken);
+    if (accessTokenChanged || localeChanged) {
       sc.getCache().clear();
+    }
+
+    if (localeChanged) {
+      Model.setLocale(newLocale);
+    }
+
+    if (accessTokenChanged) {
+      Model.setAccessToken(newAccessToken);
       sc.refreshUIConfig();
     }
 
@@ -180,6 +191,7 @@ class ControllerSoundCloud {
     if (accessToken) {
       Model.setAccessToken(accessToken);
     }
+    Model.setLocale(sc.getConfigValue('locale'));
 
     this.#addToBrowseSources();
 

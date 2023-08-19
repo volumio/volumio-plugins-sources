@@ -49,7 +49,10 @@ class UserViewHandler extends ExplodableViewHandler_1.default {
         }
         const title = myFollowing ? SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIST_TITLE_FOLLOWING') : SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIST_TITLE_USERS');
         const result = await this.getModel(model_1.ModelType.User).getUsers(modelParams);
-        return this.buildPageFromLoopFetchResult(result, this.getRenderer(renderers_1.RendererType.User), title);
+        return this.buildPageFromLoopFetchResult(result, {
+            renderer: this.getRenderer(renderers_1.RendererType.User),
+            title
+        });
     }
     async browseUser(userId) {
         const albumView = {

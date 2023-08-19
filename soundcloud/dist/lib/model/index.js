@@ -41,6 +41,9 @@ class Model {
     static setAccessToken(value) {
         BaseModel_1.default.setAccessToken(value);
     }
+    static setLocale(value) {
+        BaseModel_1.default.setLocale(value);
+    }
 }
 exports.default = Model;
 //# sourceMappingURL=index.js.map

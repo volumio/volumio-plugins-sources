@@ -24,6 +24,10 @@ If you come across an album that you like, consider purchasing it to support the
 
 ### Changelog
 
+1.0.1
+- Add library item filter
+- Minor UI changes and bug fixes
+
 1.0.0
 - Migrate to TypeScript
 - Add support for access to private resources through access token

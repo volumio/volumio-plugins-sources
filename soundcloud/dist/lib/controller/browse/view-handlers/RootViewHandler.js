@@ -115,6 +115,21 @@ _RootViewHandler_instances = new WeakSet(), _RootViewHandler_getMe = async funct
             items: [historyItem, likesItem, libraryPlaylistsItem, libraryAlbumsItem, libraryStationsItem, followingItem],
             availableListViews: ['grid', 'list']
         };
+        if (ViewHelper_1.default.supportsEnhancedTitles()) {
+            list.title = `
+          <div style="display: flex; flex-direction: column; height: 48px; padding: 1px 0;">
+            <div style="flex-grow: 1;">${list.title}</div>
+            <div><a target="_blank" style="color: #50b37d; font-size: 14px;" href="https://soundcloud.com/${myProfile.username}">${SoundCloudContext_1.default.getI18n('SOUNDCLOUD_VIEW_MY_PAGE')}</a></div>
+          </div>`;
+            if (myProfile.thumbnail) {
+                list.title = `<img src="${myProfile.thumbnail}" style="border-radius: 50%; width: 48px; height: 48px; margin-right: 12px;" /> ${list.title}`;
+            }
+            list.title = `
+          <div style="width: 100%; padding-bottom: 12px; border-bottom: 1px solid; display: flex; align-items: center;">
+              ${list.title}
+          </div>
+        `;
+        }
         return [list];
     }
     return [];

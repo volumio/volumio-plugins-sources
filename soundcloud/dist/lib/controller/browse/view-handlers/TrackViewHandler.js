@@ -47,7 +47,10 @@ class TrackViewHandler extends ExplodableViewHandler_1.default {
         else {
             tracks = await this.getModel(model_1.ModelType.Track).getTracks(modelParams);
         }
-        const page = this.buildPageFromLoopFetchResult(tracks, this.getRenderer(renderers_1.RendererType.Track), myLikes ? SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIKES') : SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIST_TITLE_TRACKS'));
+        const page = this.buildPageFromLoopFetchResult(tracks, {
+            renderer: this.getRenderer(renderers_1.RendererType.Track),
+            title: myLikes ? SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIKES') : SoundCloudContext_1.default.getI18n('SOUNDCLOUD_LIST_TITLE_TRACKS')
+        });
         if (userId && !inSection) {
             const userData = await this.getModel(model_1.ModelType.User).getUser(Number(userId));
             if (userData) {

@@ -5,6 +5,21 @@ import View, { PageRef } from './View';
 import ViewHandler, { RenderedPage } from './ViewHandler';
 import { RendererOf, RendererType } from './renderers';
 import BaseRenderer, { RenderedListItem } from './renderers/BaseRenderer';
+export type BuildPageFromLoopFetchResultParams<E> = ({
+    renderer: BaseRenderer<E>;
+    getRenderer?: undefined;
+    render?: undefined;
+} | {
+    renderer?: undefined;
+    getRenderer: (item: E) => BaseRenderer<E> | null;
+    render?: undefined;
+} | {
+    renderer?: undefined;
+    getRenderer?: undefined;
+    render: (item: E) => RenderedListItem | null;
+}) & {
+    title?: string;
+};
 export default class BaseViewHandler<V extends View> implements ViewHandler {
     #private;
     constructor(uri: string, currentView: V, previousViews: View[]);
@@ -19,6 +34,6 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     protected constructNextPageItem(data: PageRef | string): RenderedListItem;
     protected constructPageRef(pageToken?: string | null, pageOffset?: number): PageRef | null;
     protected addLinkToListTitle(title: string | undefined, link: string, linkText: string): string;
-    protected buildPageFromLoopFetchResult<E>(result: LoopFetchResult<E>, renderer: BaseRenderer<E> | ((item: E) => BaseRenderer<E> | null), title?: string): RenderedPage;
+    protected buildPageFromLoopFetchResult<E>(result: LoopFetchResult<E>, params: BuildPageFromLoopFetchResultParams<E>): RenderedPage;
 }
 //# sourceMappingURL=BaseViewHandler.d.ts.map

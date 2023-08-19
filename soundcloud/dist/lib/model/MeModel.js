@@ -128,23 +128,32 @@ _MeModel_instances = new WeakSet(), _MeModel_getLikesFetchPromise = async functi
 }, _MeModel_filterFetchedLibraryItem = function _MeModel_filterFetchedLibraryItem(item, params) {
     switch (params.type) {
         case 'album':
-            return item.itemType === 'Album' || item.itemType === 'AlbumLike';
+            const isCreatedAlbum = item.itemType === 'Album';
+            const isLikedAlbum = item.itemType === 'AlbumLike';
+            if (params.filter === 'created') {
+                return isCreatedAlbum;
+            }
+            else if (params.filter === 'liked') {
+                return isLikedAlbum;
+            }
+            return isCreatedAlbum || isLikedAlbum;
         case 'playlist':
-            return item.itemType === 'Playlist' || item.itemType === 'PlaylistLike' ||
+            const isCreatedPlaylist = item.itemType === 'Playlist';
+            const isLikedPlaylist = item.itemType === 'PlaylistLike' ||
                 (item.itemType === 'SystemPlaylistLike' && !__classPrivateFieldGet(this, _MeModel_instances, "m", _MeModel_isArtistStation).call(this, item));
+            if (params.filter === 'created') {
+                return isCreatedPlaylist;
+            }
+            else if (params.filter === 'liked') {
+                return isLikedPlaylist;
+            }
+            return isCreatedPlaylist || isLikedPlaylist;
         case 'station':
             return __classPrivateFieldGet(this, _MeModel_instances, "m", _MeModel_isArtistStation).call(this, item);
     }
 }, _MeModel_isArtistStation = function _MeModel_isArtistStation(item) {
     return item.item instanceof soundcloud_fetch_1.SystemPlaylist && item.item.playlistType === 'artistStation';
 }, _MeModel_convertFetchedLibraryItemToEntity = async function _MeModel_convertFetchedLibraryItemToEntity(item) {
-    const wrappedItem = item.item;
-    if (wrappedItem instanceof soundcloud_fetch_1.Album) {
-        return Mapper_1.default.mapAlbum(wrappedItem);
-    }
-    else if (wrappedItem instanceof soundcloud_fetch_1.Playlist || wrappedItem instanceof soundcloud_fetch_1.SystemPlaylist) {
-        return Mapper_1.default.mapPlaylist(wrappedItem);
-    }
-    return null;
+    return Mapper_1.default.mapLibraryItem(item);
 };
 //# sourceMappingURL=MeModel.js.map

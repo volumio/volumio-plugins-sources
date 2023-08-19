@@ -36,7 +36,7 @@ export default class TrackRenderer extends BaseRenderer<TrackEntity> {
       trackView.origin = origin;
     }
 
-    return {
+    const result: RenderedListItem = {
       service: 'soundcloud',
       type: 'song',
       title: data.title,
@@ -45,5 +45,11 @@ export default class TrackRenderer extends BaseRenderer<TrackEntity> {
       albumart: data.thumbnail || this.getSoundCloudIcon(),
       uri: `${this.uri}/${ViewHelper.constructUriSegmentFromView(trackView)}`
     };
+
+    if (data.duration !== undefined) {
+      result.duration = Math.round(data.duration / 1000);
+    }
+
+    return result;
   }
 }

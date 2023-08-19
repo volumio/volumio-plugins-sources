@@ -58,11 +58,10 @@ export default class UserViewHandler extends ExplodableViewHandler<UserView> {
 
     const title = myFollowing ? sc.getI18n('SOUNDCLOUD_LIST_TITLE_FOLLOWING') : sc.getI18n('SOUNDCLOUD_LIST_TITLE_USERS');
     const result = await this.getModel(ModelType.User).getUsers(modelParams);
-    return this.buildPageFromLoopFetchResult(
-      result,
-      this.getRenderer(RendererType.User),
+    return this.buildPageFromLoopFetchResult(result, {
+      renderer: this.getRenderer(RendererType.User),
       title
-    );
+    });
   }
 
   protected async browseUser(userId: number) {

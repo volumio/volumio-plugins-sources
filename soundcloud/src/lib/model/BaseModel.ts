@@ -53,6 +53,11 @@ export default abstract class BaseModel {
     return BaseModel.#hasAccessToken;
   }
 
+  static setLocale(value: string) {
+    const api = this.#doGetSoundCloudAPI();
+    api.setLocale(value);
+  }
+
   async #doLoopFetch<R, I, C extends LoopFetchCallbackParams, E, F extends LoopFetchResult<E>>(
     params: LoopFetchParams<R, I, C, E, F> & { onEnd: undefined }, currentList?: I[], iteration?: number): Promise<LoopFetchResult<E>>;
   async #doLoopFetch<R, I, C extends LoopFetchCallbackParams, E, F extends LoopFetchResult<E>>(

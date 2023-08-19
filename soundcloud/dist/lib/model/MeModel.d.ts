@@ -14,6 +14,7 @@ export interface MeModelGetLibraryItemsParams {
     pageOffset?: number;
     limit?: number;
     type: 'album' | 'playlist' | 'station';
+    filter: 'liked' | 'created' | 'all';
 }
 export default class MeModel extends BaseModel {
     #private;

@@ -49,4 +49,8 @@ export default class Model {
   static setAccessToken(value: string) {
     BaseModel.setAccessToken(value);
   }
+
+  static setLocale(value: string) {
+    BaseModel.setLocale(value);
+  }
 }
