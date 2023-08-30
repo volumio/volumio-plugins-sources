@@ -173,6 +173,7 @@ I can't think of any prerequistes other than SSH access to Volumio and a Pandora
 ### Version 2.12.2
   #### Fixes
   * If there were other track types in the Volumio queue (local MP3 tracks, data from other plugins, etc.), the Pandora tracks would not expire when another Pandora track was selected.
+  * Plugin now checks for Internet connectivity before starting (tries to reach the Google webpage).  If it waits three minutes it gives up.  This function will be revised in the future.  Some users are using machines that bring up the plugin before Volumio is connected to the network.
   #### Changes
   * `Readme.md` was revised and the manual installation instructions were split off to `manual_installation.md`.
   * Ordering by date was refactored but gives identical results here.  Previously, it was based on the `stationToken` integer field and now is based on the `dateCreated` field.

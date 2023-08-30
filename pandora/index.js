@@ -3,6 +3,7 @@
 
 var fs = require('fs-extra');
 var libQ = require('kew');
+var url = require('url');
 
 var dnsSync = require('dns-sync');
 const { serviceName, sourceName, uriParts, uriPrefix, uriStaRE } = require('./common');
@@ -70,7 +71,8 @@ ControllerPandora.prototype.onStart = function () {
 
     self.addToBrowseSources();
 
-    return self.initializeMQTT(mqttOptions)
+    return self.checkHTTP('https://www.google.com') // can we Google?
+        .then(() => self.initializeMQTT(mqttOptions))
         .then(() => self.initialSetup())
         .then(() => self.validateAndSetAccountOptions(pandoraHandlerOptions));
 };
@@ -97,6 +99,37 @@ ControllerPandora.prototype.onRestart = function () {
     var self = this;
     // Optional, use if you need it
 };
+
+// Online Check
+// See https://paulgalow.com/how-to-check-for-internet-connectivity-node/
+
+ControllerPandora.prototype.checkHTTP = function (urlToCheck) {
+    var self = this;
+    var defer = libQ.defer();
+
+    const protocol = url.parse(urlToCheck).protocol;
+    const lib = protocol === 'https:' ? require('https') : require('http');
+
+    let count = 1;
+    const request = lib.get(urlToCheck, response => {
+        console.log('HTTP Status Code:', response.statusCode);
+        defer.resolve(response);
+    });
+
+    request.on("error", err => {
+        console.error(
+            'Error trying to connect via ${protocol.replace(":", "").toUpperCase()}'
+        );
+
+        count++
+        setTimeout(checkHTTP, 100);
+        if (count === 1800) {
+            defer.reject(err);
+        }
+    });
+
+    return defer.promise;
+}
 
 // Setup Methods -----------------------------------------------------------------------------
 
