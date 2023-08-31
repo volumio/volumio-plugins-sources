@@ -103,14 +103,13 @@ ControllerPandora.prototype.onRestart = function () {
 // Online Check
 // See https://paulgalow.com/how-to-check-for-internet-connectivity-node/
 
-ControllerPandora.prototype.checkHTTP = function (urlToCheck) {
+ControllerPandora.prototype.checkHTTP = function (urlToCheck, count=1) {
     var self = this;
     var defer = libQ.defer();
 
     const protocol = url.parse(urlToCheck).protocol;
     const lib = protocol === 'https:' ? require('https') : require('http');
 
-    let count = 1;
     const request = lib.get(urlToCheck, response => {
         console.log('HTTP Status Code:', response.statusCode);
         defer.resolve(response);
@@ -139,7 +138,7 @@ ControllerPandora.prototype.checkHTTP = function (urlToCheck) {
             defer.reject(err);
         }
 
-        setTimeout(checkHTTP, 100);
+        setTimeout(checkHTTP, 100, urlToCheck, count);
     });
 
     return defer.promise;
