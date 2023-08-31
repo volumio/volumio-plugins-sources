@@ -71,8 +71,8 @@ ControllerPandora.prototype.onStart = function () {
 
     self.addToBrowseSources();
 
-    // return self.checkHTTP('https://www.google.com') // can we Google?
-       return self.initializeMQTT(mqttOptions)
+    return self.checkHTTP() // can we Google?
+        .then(() => self.initializeMQTT(mqttOptions))
         .then(() => self.initialSetup())
         .then(() => self.validateAndSetAccountOptions(pandoraHandlerOptions));
 };
@@ -100,54 +100,78 @@ ControllerPandora.prototype.onRestart = function () {
     // Optional, use if you need it
 };
 
-// Online Check
-// See https://paulgalow.com/how-to-check-for-internet-connectivity-node/
+// Setup Methods -----------------------------------------------------------------------------
 
-// NOT WORKING RIGHT NOW
-
-ControllerPandora.prototype.checkHTTP = function (urlToCheck, count=1) {
+// Online Check -- See https://paulgalow.com/how-to-check-for-internet-connectivity-node/
+// setTimeout madness -- See https://stackoverflow.com/questions/15682524
+ControllerPandora.prototype.checkHTTP = function (urlToCheck='https://8.8.8.8') {
     var self = this;
     var defer = libQ.defer();
+    var fetch = require('node-fetch');
     const fnName = 'checkHTTP';
 
-    const protocol = url.parse(urlToCheck).protocol;
-    const lib = protocol === 'https:' ? require('https') : require('http');
+    self.pUtil.announceFn(fnName);
 
-    const request = lib.get(urlToCheck, response => {
-        console.log('HTTP Status Code:', response.statusCode);
-        defer.resolve(response);
-    });
+    function urlTest(result) {
+        if (result.done === true) {
+            self.pUtil.logInfo(fnName, '*****CRACK THE BEERS WE HAVE INTERNET*****');
 
-    request.on("error", err => {
+            defer.resolve(true);
+            return;
+        }
+        else if (result.count === 30) {
+            const errMsg = 'Pandora plugin will not be started.' +
+            '  Could not reach ' + urlToCheck + ' via ' +
+                protocol.replace(":", "").toUpperCase();
+            self.pUtil.logError(fnName, errMsgLog);
+            self.commandRouter.pushToastMessage('error', 'Pandora', errMsg);
 
-        count++;
-
-        if (count === 300) {
-            const statMsg = 'Delaying Pandora start until Internet connects. Waiting approx. 90 seconds.'
-            self.commandRouter.pushToastMessage('info', 'Pandora', statMsg);
+            defer.resolve(false);
+            return;
         }
 
-        if (count === 900) {
-            const statMsg = 'Delaying Pandora start until Internet connects. Waiting approx. 30 seconds.'
-            self.commandRouter.pushToastMessage('info', 'Pandora', statMsg);
+        let statMsg = '';
+        if (result.count === 5) {
+            statMsg = 'Delaying Pandora start until Internet connects.'
+        }
+        if (result.count === 10) {
+            statMsg = 'Delaying Pandora start until Internet connects. Still waiting...'
         }
 
-        if (count === 1200) {
-            const errMsg = 'Error trying to connect via ' + protocol.replace(":", "").toUpperCase();
-            self.pUtil.logError(fnName, errMsg);
+        setTimeout(function () {
+            let is_done = false;
 
-            const errMsgToast = 'Pandora Plugin not started. Could not connect to ' + urlToCheck;
-            self.commandRouter.pushToastMessage('error', 'Pandora', errMsgToast);
-            defer.reject(err);
-        }
+            fetch(urlToCheck)
+                .then(response => response.status)
+                .then(status => {
+                    if (status >= 200 && status <= 300) {
+                        is_done = true;
+                    }
+                    result.done = is_done;
+                    // self.pUtil.logInfo(fnName, 'fetch resolve result: ' + JSON.stringify(result));
+                    result.count++;
 
-        setTimeout(self.checkHTTP.bind(self), 100, urlToCheck, count);
-    });
+                    urlTest(result);
+                })
+                .catch(err => {
+                    self.pUtil.logError(fnName, 'Error calling fetch(' + urlToCheck + ')', err);
+                    // self.pUtil.logInfo(fnName, 'fetch reject result: ' + JSON.stringify(result));
+                    result.count++;
+
+                    if (statMsg.length > 0) {
+                        self.pUtil.logInfo(fnName, statMsg);
+                        self.commandRouter.pushToastMessage('info', 'Pandora', statMsg);
+                    }
+
+                    urlTest(result);
+                });
+        }, 100);
+    }
+
+    urlTest({done: false, count: 1});
 
     return defer.promise;
 }
-
-// Setup Methods -----------------------------------------------------------------------------
 
 ControllerPandora.prototype.flushPandora = function () {
     var self = this;
@@ -183,7 +207,7 @@ ControllerPandora.prototype.getI18nString = function (key) {
         return self.i18nStringsDefaults['BROWSE'][key];
 };
 
-ControllerPandora.prototype.initialSetup = function (email, password, isPandoraOne) {
+ControllerPandora.prototype.initialSetup = function () {
     var self = this;
 
     self.pUtil.announceFn('initialSetup');
