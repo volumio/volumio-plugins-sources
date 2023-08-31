@@ -122,10 +122,24 @@ ControllerPandora.prototype.checkHTTP = function (urlToCheck) {
         );
 
         count++
-        setTimeout(checkHTTP, 100);
-        if (count === 1800) {
+
+        if (count === 300) {
+            const statMsg = 'Delaying Pandora start until Internet connects. Waiting approx. 90 seconds.'
+            self.commandRouter.pushToastMessage('info', 'Pandora', statMsg);
+        }
+
+        if (count === 900) {
+            const statMsg = 'Delaying Pandora start until Internet connects. Waiting approx. 30 seconds.'
+            self.commandRouter.pushToastMessage('info', 'Pandora', statMsg);
+        }
+
+        if (count === 1200) {
+            const errMsg = 'Internet not found.  Could not connect to ' + urlToCheck;
+            self.commandRouter.pushToastMessage('error', 'Pandora', errMsg);
             defer.reject(err);
         }
+
+        setTimeout(checkHTTP, 100);
     });
 
     return defer.promise;
