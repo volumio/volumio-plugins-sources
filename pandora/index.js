@@ -71,8 +71,8 @@ ControllerPandora.prototype.onStart = function () {
 
     self.addToBrowseSources();
 
-    return self.checkHTTP('https://www.google.com') // can we Google?
-        .then(() => self.initializeMQTT(mqttOptions))
+    // return self.checkHTTP('https://www.google.com') // can we Google?
+       return self.initializeMQTT(mqttOptions)
         .then(() => self.initialSetup())
         .then(() => self.validateAndSetAccountOptions(pandoraHandlerOptions));
 };
@@ -103,9 +103,12 @@ ControllerPandora.prototype.onRestart = function () {
 // Online Check
 // See https://paulgalow.com/how-to-check-for-internet-connectivity-node/
 
+// NOT WORKING RIGHT NOW
+
 ControllerPandora.prototype.checkHTTP = function (urlToCheck, count=1) {
     var self = this;
     var defer = libQ.defer();
+    const fnName = 'checkHTTP';
 
     const protocol = url.parse(urlToCheck).protocol;
     const lib = protocol === 'https:' ? require('https') : require('http');
@@ -116,11 +119,8 @@ ControllerPandora.prototype.checkHTTP = function (urlToCheck, count=1) {
     });
 
     request.on("error", err => {
-        console.error(
-            'Error trying to connect via ${protocol.replace(":", "").toUpperCase()}'
-        );
 
-        count++
+        count++;
 
         if (count === 300) {
             const statMsg = 'Delaying Pandora start until Internet connects. Waiting approx. 90 seconds.'
@@ -133,12 +133,15 @@ ControllerPandora.prototype.checkHTTP = function (urlToCheck, count=1) {
         }
 
         if (count === 1200) {
-            const errMsg = 'Internet not found.  Could not connect to ' + urlToCheck;
-            self.commandRouter.pushToastMessage('error', 'Pandora', errMsg);
+            const errMsg = 'Error trying to connect via ' + protocol.replace(":", "").toUpperCase();
+            self.pUtil.logError(fnName, errMsg);
+
+            const errMsgToast = 'Pandora Plugin not started. Could not connect to ' + urlToCheck;
+            self.commandRouter.pushToastMessage('error', 'Pandora', errMsgToast);
             defer.reject(err);
         }
 
-        setTimeout(checkHTTP, 100, urlToCheck, count);
+        setTimeout(self.checkHTTP.bind(self), 100, urlToCheck, count);
     });
 
     return defer.promise;
