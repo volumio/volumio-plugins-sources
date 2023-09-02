@@ -4,6 +4,7 @@
 var fs = require('fs-extra');
 var libQ = require('kew');
 var ping = require('ping');
+var fetch = require('node-fetch');
 
 var dnsSync = require('dns-sync');
 const { serviceName, sourceName, uriParts, uriPrefix, uriStaRE } = require('./common');
@@ -143,7 +144,6 @@ ControllerPandora.prototype.checkPing = function (host='www.google.com') {
 ControllerPandora.prototype.checkHTTP = function (urlToCheck='https://8.8.8.8') {
     var self = this;
     var defer = libQ.defer();
-    var fetch = require('node-fetch');
     const fnName = 'checkHTTP';
     const fetchInterval = 5000; // milliseconds
 
