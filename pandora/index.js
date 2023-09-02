@@ -3,7 +3,7 @@
 
 var fs = require('fs-extra');
 var libQ = require('kew');
-var url = require('url');
+var ping = require('ping');
 
 var dnsSync = require('dns-sync');
 const { serviceName, sourceName, uriParts, uriPrefix, uriStaRE } = require('./common');
@@ -48,33 +48,14 @@ ControllerPandora.prototype.onStart = function () {
     var self = this;
 
     self.mqttEnabled = self.config.get('mqttEnabled', false);
-
-    const pandoraHandlerOptions = {
-        email: self.config.get('email', ''),
-        password: self.config.get('password', ''),
-        isPandoraOne: self.config.get('isPandoraOne', false),
-    };
-
-    const mqttOptions = {
-        mqttEnabled: self.mqttEnabled,
-        mqttHost: self.config.get('mqttHost', ''),
-        mqttPort: self.config.get('mqttPort', ''),
-        mqttUsername: self.config.get('mqttUsername', ''),
-        mqttPassword: self.config.get('mqttPassword', '')
-    };
-
     self.useCurl302WorkAround = self.config.get('useCurl302WorkAround', false);
     self.nextIsThumbsDown = self.config.get('nextIsThumbsDown', false);
     self.flushThem = self.config.get('flushThem', false);
-
     self.mpdPlugin = self.commandRouter.pluginManager.getPlugin('music_service', 'mpd');
 
     self.addToBrowseSources();
 
-    return self.checkHTTP() // can we Google?
-        .then(() => self.initializeMQTT(mqttOptions))
-        .then(() => self.initialSetup())
-        .then(() => self.validateAndSetAccountOptions(pandoraHandlerOptions));
+    return self.initialSetup()
 };
 
 ControllerPandora.prototype.onStop = function () {
@@ -100,78 +81,126 @@ ControllerPandora.prototype.onRestart = function () {
     // Optional, use if you need it
 };
 
-// Setup Methods -----------------------------------------------------------------------------
+// Online Check Methods ----------------------------------------------------------------------
 
-// Online Check -- See https://paulgalow.com/how-to-check-for-internet-connectivity-node/
-// setTimeout madness -- See https://stackoverflow.com/questions/15682524
+// Online Ping Check
+ControllerPandora.prototype.checkPing = function (host='www.google.com') {
+    var self = this;
+    var defer = libQ.defer();
+    const fnName = 'checkPing';
+    const pingInterval = 5000; // milliseconds
+
+    self.pUtil.announceFn(fnName);
+
+    let pingTestID = setInterval(function pingTest (result) {
+        if (result.count * pingInterval === 600 * 1000) { // approximately 10 minutes
+            const errMsg = 'Pandora plugin will not be started.  Could not reach ' + host;
+            self.pUtil.logError(fnName, errMsg);
+            self.commandRouter.pushToastMessage('error', 'Pandora', errMsg);
+
+            defer.reject();
+            clearInterval(pingTestID);
+        }
+
+        if (!result.done) {
+            ping.sys.probe(host, function(hostReached) {
+                if (hostReached) {
+                    result.done = true;
+
+                    clearInterval(pingTestID);
+                    defer.resolve();
+
+                    self.pUtil.logInfo(fnName, '***LOOKS GOOD, ICE DOWN THE BEERS IN THE COOLER***');
+                }
+            });
+
+            if ((result.count * 10 * 1000 / pingInterval) % 10 === 0) { // every 10 seconds
+                const pingStatMsg = 'Ping ' + host + ', attempt ' + result.count + ' failed';
+                self.pUtil.logInfo(fnName, pingStatMsg);
+            }
+
+            let toastMsg = '';
+            if (result.count * pingInterval === 30 * 1000) { // approximately 30 seconds
+                toastMsg = 'Cannot ping ' + host +
+                    '.  Delaying Pandora start until Internet connects.'
+            }
+            else if (result.count * pingInterval === 90 * 1000) { // approximately 1 minute 30 seconds
+                toastMsg = 'Still cannot ping ' + host + '.  Waiting....'
+            }
+            if (toastMsg.length > 0) {
+                self.pUtil.logInfo(fnName, toastMsg);
+                self.commandRouter.pushToastMessage('warning', 'Pandora', toastMsg);
+            }
+
+            result.count++;
+        }
+    }, pingInterval, {done: false, count: 1});
+
+    return defer.promise;
+}
+
+// Online Request Check -- See https://paulgalow.com/how-to-check-for-internet-connectivity-node/
 ControllerPandora.prototype.checkHTTP = function (urlToCheck='https://8.8.8.8') {
     var self = this;
     var defer = libQ.defer();
     var fetch = require('node-fetch');
     const fnName = 'checkHTTP';
+    const fetchInterval = 5000; // milliseconds
 
     self.pUtil.announceFn(fnName);
 
-    function urlTest(result) {
-        if (result.done === true) {
-            self.pUtil.logInfo(fnName, '*****CRACK THE BEERS WE HAVE INTERNET*****');
-
-            defer.resolve(true);
-            return;
-        }
-        else if (result.count === 30) {
-            const errMsg = 'Pandora plugin will not be started.' +
-            '  Could not reach ' + urlToCheck + ' via ' +
-                protocol.replace(":", "").toUpperCase();
-            self.pUtil.logError(fnName, errMsgLog);
+    let urlTestID = setInterval(function urlTest(result) {
+        if (result.count * fetchInterval === 600 * 1000) { // approximately 10 minutes
+            const errMsg = 'Pandora plugin will not be started.  Could not reach ' + urlToCheck;
+            self.pUtil.logError(fnName, errMsg);
             self.commandRouter.pushToastMessage('error', 'Pandora', errMsg);
 
-            defer.resolve(false);
-            return;
+            clearInterval(urlTestID);
+            defer.reject(errMsg);
         }
-
-        let statMsg = '';
-        if (result.count === 5) {
-            statMsg = 'Delaying Pandora start until Internet connects.'
-        }
-        if (result.count === 10) {
-            statMsg = 'Delaying Pandora start until Internet connects. Still waiting...'
-        }
-
-        setTimeout(function () {
-            let is_done = false;
-
+        
+        if (!result.done) {
             fetch(urlToCheck)
                 .then(response => response.status)
                 .then(status => {
                     if (status >= 200 && status <= 300) {
-                        is_done = true;
-                    }
-                    result.done = is_done;
-                    // self.pUtil.logInfo(fnName, 'fetch resolve result: ' + JSON.stringify(result));
-                    result.count++;
+                        clearInterval(urlTestID);
+                        defer.resolve();
 
-                    urlTest(result);
+                        self.pUtil.logInfo(fnName, '***CRACK THE BEERS WE HAVE INTERNET***')
+                        result.done = true;
+                    }
                 })
                 .catch(err => {
-                    self.pUtil.logError(fnName, 'Error calling fetch(' + urlToCheck + ')', err);
-                    // self.pUtil.logInfo(fnName, 'fetch reject result: ' + JSON.stringify(result));
-                    result.count++;
-
-                    if (statMsg.length > 0) {
-                        self.pUtil.logInfo(fnName, statMsg);
-                        self.commandRouter.pushToastMessage('info', 'Pandora', statMsg);
-                    }
-
-                    urlTest(result);
+                    // const msg = 'Fetch ' + urlToCheck + ' attempt ' + result.count++ + ' gave an error';
+                    // self.pUtil.logInfo(fnName, msg);
                 });
-        }, 100);
-    }
 
-    urlTest({done: false, count: 1});
+                if ((result.count * 10 * 1000 / fetchInterval) % 10 === 0) { // every 10 seconds
+                    const msg = 'Fetch ' + urlToCheck + ', attempt ' + result.count + ' failed';
+                    self.pUtil.logInfo(fnName, msg);
+                }
+
+                let toastMsg = '';
+                if (result.count * fetchInterval === 15 * 1000) { // approximately 15 seconds
+                    toastMsg = 'Ping works but web requests are not working.  Still waiting....'
+                }
+                else if (result.count * fetchInterval === 90 * 1000) { // approximately 1 minute 30 seconds
+                    toastMsg = 'Web requests still not working.  Waiting....'
+                }
+                if (toastMsg.length > 0) {
+                    self.pUtil.logInfo(fnName, toastMsg);
+                    self.commandRouter.pushToastMessage('warning', 'Pandora', toastMsg);
+                }   
+
+                result.count++;                
+        }
+    }, fetchInterval, {done: false, count:1});
 
     return defer.promise;
 }
+
+// Setup Methods -----------------------------------------------------------------------------
 
 ControllerPandora.prototype.flushPandora = function () {
     var self = this;
@@ -210,6 +239,20 @@ ControllerPandora.prototype.getI18nString = function (key) {
 ControllerPandora.prototype.initialSetup = function () {
     var self = this;
 
+    const pandoraHandlerOptions = {
+        email: self.config.get('email', ''),
+        password: self.config.get('password', ''),
+        isPandoraOne: self.config.get('isPandoraOne', false),
+    };
+
+    const mqttOptions = {
+        mqttEnabled: self.mqttEnabled,
+        mqttHost: self.config.get('mqttHost', ''),
+        mqttPort: self.config.get('mqttPort', ''),
+        mqttUsername: self.config.get('mqttUsername', ''),
+        mqttPassword: self.config.get('mqttPassword', '')
+    };
+
     self.pUtil.announceFn('initialSetup');
 
     self.pandoraHandler = new PandoraHandler(self);
@@ -217,7 +260,11 @@ ControllerPandora.prototype.initialSetup = function () {
 
     self.loadI18nStrings();
 
-    return self.pandoraHandler.init()
+    return self.checkPing()
+        .then(() => self.checkHTTP())
+        .then(() => self.initializeMQTT(mqttOptions))
+        .then(() => self.pandoraHandler.init())
+        .then(() => self.validateAndSetAccountOptions(pandoraHandlerOptions))
         .then(() => self.pandoraHandler.setMQTTEnabled(self.mqttEnabled))
         .then(() => {
             const maxStationTracks = self.config.get('maxStationTracks', '16');
