@@ -4,7 +4,6 @@ var libQ = require('kew');
 var fs = require('fs-extra');
 var config = new (require('v-conf'))();
 var NanoTimer = require('nanotimer');
-const http = require('http');
 const https = require('https');
 var flacUri;
 var channelMix;
@@ -209,13 +208,13 @@ motherearthradio.prototype.clearAddPlayTrack = function (track) {
         flacUri = track.uri;
 
         channelMix = "Radio";
-        metadataUrl = "http://server9.streamserver24.com:9090/api/nowplaying/3";
+        metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth";
         if (track.uri.includes("klassik")) {
             channelMix = "Klassik";
-            metadataUrl = "http://server9.streamserver24.com:9090/api/nowplaying/4";
+            metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth_klassik";
         } else if (track.uri.includes("instrumental")) {
             channelMix = "Instrumental";
-            metadataUrl = "http://server9.streamserver24.com:9090/api/nowplaying/5";
+            metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth_instrumental";
 
         }
 
@@ -321,7 +320,7 @@ motherearthradio.prototype.explodeUri = function (uri) {
             if (self.timer) {
                 self.timer.clear();
             }
-            if (channel === 0) {
+            if (channel < 3) {
                 // FLAC option chosen
                 response.push({
                     service: self.serviceName,
@@ -370,7 +369,7 @@ motherearthradio.prototype.addRadioResource = function () {
 motherearthradio.prototype.getMetadata = function (url) {
     var self = this;
     var defer = libQ.defer();
-    http.get(url, (resp) => {
+    https.get(url, (resp) => {
       if (resp.statusCode < 200 || resp.statusCode > 500) {
             self.logger.info('[' + Date.now() + '] ' + '[MotherEarth] Failed to query azuracast api, status code: ' + resp.statusCode);
             defer.resolve(null);
@@ -438,6 +437,8 @@ motherearthradio.prototype.pushSongState = function (metadata) {
         title: metadata.now_playing.song.title,
         artist: metadata.now_playing.song.artist,
         album: metadata.now_playing.song.album,
+//        year: metadata.now_playing.song.year,
+//        genre: metadata.now_playing.song.genre,
 	streaming: true,
         disableUiControls: true,
         duration: metadata.now_playing.remaining,

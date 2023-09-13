@@ -18,32 +18,32 @@
       {
         "title": "Mother Earth Radio (flac)",
         "uri": "webmer/0",
-        "url": "https://motherearth.streamserver24.com/motherearth"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth/motherearth"
       },
       {
         "title": "Mother Earth Klassik (flac)",
         "uri": "webmer/1",
-        "url": "https://motherearth.streamserver24.com/motherearth-klassik"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_klassik/motherearth.klassik"
       },
       {
         "title": "Mother Earth Instrumental (flac)",
         "uri": "webmer/2",
-        "url": "https://motherearth.streamserver24.com/motherearth-instrumental"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_instrumental/motherearth.instrumental"
       },
       {
         "title": "Mother Earth Radio (mp4)",
         "uri": "webmer/3",
-        "url": "https://motherearth.streamserver24.com/motherearth-aac"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth/motherearth.aac"
       },
       {
         "title": "Mother Earth Klassik (mp4)",
         "uri": "webmer/4",
-        "url": "https://motherearth.streamserver24.com/motherearth-klassik-aac"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_klassik/motherearth.klassik.aac"
       },
       {
         "title": "Mother Earth Instrumental (mp4)",
         "uri": "webmer/5",
-        "url": "https://motherearth.streamserver24.com/motherearth-instrumental-aac"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_instrumental/motherearth.instrumental.aac"
       }
     ]
   }
