@@ -24,6 +24,9 @@ If you come across an album that you like, consider purchasing it to support the
 
 ### Changelog
 
+1.0.2
+- Fix plugin crash due to error in obtaining SoundCloud client ID
+
 1.0.1
 - Add library item filter
 - Minor UI changes and bug fixes
