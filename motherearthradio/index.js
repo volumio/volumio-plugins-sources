@@ -320,7 +320,7 @@ motherearthradio.prototype.explodeUri = function (uri) {
             if (self.timer) {
                 self.timer.clear();
             }
-            if (channel < 3) {
+            if (channel <= 2) {
                 // FLAC option chosen
                 response.push({
                     service: self.serviceName,
