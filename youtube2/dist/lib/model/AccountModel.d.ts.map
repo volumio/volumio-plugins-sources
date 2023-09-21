@@ -1,0 +1,1 @@
+{"version":3,"file":"AccountModel.d.ts","sourceRoot":"","sources":["../../../src/lib/model/AccountModel.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,UAAU,CAAC;AAGxC,OAAO,EAAE,SAAS,EAAE,MAAM,aAAa,CAAC;AAGxC,MAAM,CAAC,OAAO,OAAO,YAAa,SAAQ,SAAS;IAE3C,OAAO,IAAI,OAAO,CAAC,YAAY,CAAC,OAAO,GAAG,IAAI,CAAC;CAkCtD"}

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script type="text/javascript">
+      window.__initialData = {
+        host: JSON.parse(`<%- JSON.stringify(host); %>`),
+        pluginInfo: JSON.parse(`<%- JSON.stringify(pluginInfo); %>`),
+        nowPlayingUrl: JSON.parse(`<%- JSON.stringify(nowPlayingUrl); %>`)
+      }
+    </script>
+  </head>
+  <%- include('../preview/build/index.html'); %>
+</html>

@@ -1,0 +1,1 @@
+{"version":3,"file":"ViewHandlerFactory.d.ts","sourceRoot":"","sources":["../../../../../src/lib/controller/browse/view-handlers/ViewHandlerFactory.ts"],"names":[],"mappings":"AACA,OAAO,eAAe,MAAM,mBAAmB,CAAC;AAQhD,OAAO,IAAI,MAAM,QAAQ,CAAC;AAkB1B,MAAM,CAAC,OAAO,OAAO,kBAAkB;IAErC,MAAM,CAAC,UAAU,CAAC,CAAC,SAAS,IAAI,EAAE,GAAG,EAAE,MAAM,GAAG,eAAe,CAAC,CAAC,CAAC;CAWnE"}

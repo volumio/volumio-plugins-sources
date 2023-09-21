@@ -1,0 +1,36 @@
+{
+	"name": "autostart",
+	"version": "3.0.4",
+	"description": "Automatically starts playing the last active entry in the play queue.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "thomasdoerr",
+	"license": "ISC",
+	"repository": "https://github.com/thomasdoerr/volumio-plugins-sources",
+	"volumio_info": {
+		"prettyName": "AutoStart",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "system_controller",
+		"boot_priority": 10,
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "This plugin allows you to restart the play list after a reboot of volumio. This is important for webradios without a userinterface.",
+		"changelog": "Migration to volumio 3."
+	},
+	"engines": {
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.324.0 <4.0.0"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0"
+	}
+}

@@ -1,0 +1,16 @@
+{
+  "JELLYFIN_SERVER_CONFIGURATION": "Jellyfin Server Configuration",
+  "JELLYFIN_SERVER_URL": "URL (read-only)",
+  "JELLYFIN_SERVER_OPEN_URL": "Open URL",
+  "JELLYFIN_SERVER_STARTING": "Starting server...",
+  "JELLYFIN_SERVER_STARTED": "Server started. Depending on hardware, you might have to wait before it becomes responsive.",
+  "JELLYFIN_SERVER_STOPPING": "Stopping server...",
+  "JELLYFIN_SERVER_STOPPED": "Server stopped",
+  "JELLYFIN_SERVER_INFO": "Server Info",
+  "JELLYFIN_SERVER_INFO_DESC_ACTIVE": "Server is active.",
+  "JELLYFIN_SERVER_INFO_DESC_ACTIVATING": "Server is starting up. Come back later!",
+  "JELLYFIN_SERVER_INFO_DESC_INACTIVE": "Server is not runinng. This is not normal when the plugin is enabled.",
+  "JELLYFIN_SERVER_VIEW_README": "View Readme",
+  "JELLYFIN_SERVER_ERR_START": "Could not start server: {}",
+  "JELLYFIN_SERVER_ERR_STOP": "Could not stop server: {}"
+}

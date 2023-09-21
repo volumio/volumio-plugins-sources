@@ -1,0 +1,1 @@
+{"version":3,"file":"SelectionModel.d.ts","sourceRoot":"","sources":["../../../src/lib/model/SelectionModel.ts"],"names":[],"mappings":"AACA,OAAO,SAAS,EAAE,EAAE,eAAe,EAAE,MAAM,aAAa,CAAC;AAGzD,OAAO,eAAe,MAAM,6BAA6B,CAAC;AAE1D,MAAM,WAAW,iCAAiC;IAChD,KAAK,CAAC,EAAE,OAAO,CAAC;CACjB;AAED,MAAM,CAAC,OAAO,OAAO,cAAe,SAAQ,SAAS;;IAEnD,aAAa,CAAC,OAAO,EAAE,iCAAiC;CAmCzD"}

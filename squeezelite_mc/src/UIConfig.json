@@ -1,0 +1,237 @@
+{
+  "page": {
+    "label": "TRANSLATE.SQUEEZELITE_MC_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "section_status",
+      "element": "section",
+      "label": "TRANSLATE.SQUEEZELITE_MC_STATUS",
+      "icon": "fa-info-circle",
+      "content": []
+    },
+    {
+      "id": "section_squeezelite_basic_settings",
+      "element": "section",
+      "label": "TRANSLATE.SQUEEZELITE_MC_SQUEEZELITE_SETTINGS",
+      "icon": "fa-play-circle-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/squeezelite_mc",
+        "method": "configSaveBasicSqueezeliteSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SQUEEZELITE_MC_SAVE",
+        "data": [
+          "playerNameType",
+          "playerName",
+          "dsdPlayback",
+          "fadeOnPauseResume"
+        ]
+      },
+      "content": [
+        {
+          "id": "switchToManual",
+          "element": "button",
+          "label": "TRANSLATE.SQUEEZELITE_MC_SWITCH_TO_MANUAL",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "music_service/squeezelite_mc",
+              "method": "configSwitchToManualSqueezeliteSettings",
+              "data": ""
+            }
+          }
+        },
+        {
+          "id": "playerNameType",
+          "element": "select",
+          "label": "TRANSLATE.SQUEEZELITE_MC_PLAYER_NAME",
+          "value": {
+            "label": "TRANSLATE.SQUEEZELITE_MC_PLAYER_NAME_HOSTNAME",
+            "value": "hostname"
+          },
+          "options": [
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_PLAYER_NAME_HOSTNAME",
+              "value": "hostname"
+            },
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_PLAYER_NAME_CUSTOM",
+              "value": "custom"
+            }
+          ]
+        },
+        {
+          "id": "playerName",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.SQUEEZELITE_MC_ENTER_PLAYER_NAME",
+          "value": "",
+          "visibleIf": {
+            "field": "playerNameType",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "dsdPlayback",
+          "element": "select",
+          "doc": "TRANSLATE.SQUEEZELITE_MC_DOC_DSD_PLAYBACK",
+          "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK",
+          "value": {
+            "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_AUTO",
+            "value": "auto"
+          },
+          "options": [
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_AUTO",
+              "value": "auto"
+            },
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_PCM",
+              "value": "pcm"
+            },
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_DOP",
+              "value": "dop"
+            },
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_U8",
+              "value": "DSD_U8"
+            },
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_U16_LE",
+              "value": "DSD_U16_LE"
+            },
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_U16_BE",
+              "value": "DSD_U16_BE"
+            },
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_U32_LE",
+              "value": "DSD_U32_LE"
+            },
+            {
+              "label": "TRANSLATE.SQUEEZELITE_MC_DSD_PLAYBACK_U32_BE",
+              "value": "DSD_U32_BE"
+            }
+          ]
+        },
+        {
+          "id": "fadeOnPauseResume",
+          "element": "switch",
+          "label": "TRANSLATE.SQUEEZELITE_MC_FADE_ON_PAUSE_RESUME",
+          "doc": "TRANSLATE.SQUEEZELITE_MC_DOC_FADE_ON_PAUSE_RESUME",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "section_squeezelite_manual_settings",
+      "element": "section",
+      "label": "TRANSLATE.SQUEEZELITE_MC_SQUEEZELITE_SETTINGS",
+      "icon": "fa-play-circle-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/squeezelite_mc",
+        "method": "configSaveManualSqueezeliteSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SQUEEZELITE_MC_SAVE",
+        "data": [
+          "startupOptions",
+          "fadeOnPauseResume"
+        ]
+      },
+      "content": [
+        {
+          "id": "switchToBasic",
+          "element": "button",
+          "label": "TRANSLATE.SQUEEZELITE_MC_SWITCH_TO_BASIC",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "music_service/squeezelite_mc",
+              "method": "configSwitchToBasicSqueezeliteSettings",
+              "data": ""
+            }
+          }
+        },
+        {
+          "id": "fadeOnPauseResume",
+          "element": "switch",
+          "label": "TRANSLATE.SQUEEZELITE_MC_FADE_ON_PAUSE_RESUME",
+          "doc": "TRANSLATE.SQUEEZELITE_MC_DOC_FADE_ON_PAUSE_RESUME",
+          "value": true
+        },
+        {
+          "id": "startupOptions",
+          "element": "input",
+          "label": "TRANSLATE.SQUEEZELITE_MC_STARTUP_OPTIONS",
+          "value": ""
+        },
+        {
+          "id": "suggestedStartupOptions",
+          "element": "input",
+          "label": "TRANSLATE.SQUEEZELITE_MC_SUGGESTED",
+          "doc": "TRANSLATE.SQUEEZELITE_MC_DOC_SUGGESTED_STARTUP_OPTIONS",
+          "value": ""
+        },
+        {
+          "id": "applySuggestedStartupOptions",
+          "element": "button",
+          "label": "TRANSLATE.SQUEEZELITE_MC_APPLY_SUGGESTED",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "music_service/squeezelite_mc",
+              "method": "configSaveManualSqueezeliteSettings",
+              "data": ""
+            }
+          }
+        },
+        {
+          "id": "openManPage",
+          "element": "button",
+          "label": "TRANSLATE.SQUEEZELITE_MC_MAN_PAGE",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://ralph-irving.github.io/squeezelite.html"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_server_credentials",
+      "element": "section",
+      "label": "TRANSLATE.SQUEEZELITE_MC_SERVER_CREDENTIALS",
+      "description": "TRANSLATE.SQUEEZELITE_MC_DESC_SERVER_CREDENTIALS",
+      "icon": "fa-user",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/squeezelite_mc",
+        "method": "configSaveServerCredentials"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SQUEEZELITE_MC_SAVE",
+        "data": [
+        ]
+      },
+      "content": [
+        {
+          "id": "server",
+          "element": "select",
+          "doc": "TRANSLATE.SQUEEZELITE_MC_DOC_SERVER_CREDENTIALS_SERVER",
+          "label": "TRANSLATE.SQUEEZELITE_MC_SERVER",
+          "value": {
+          },
+          "options": [
+          ]
+        }
+      ]
+    }
+  ]
+}
