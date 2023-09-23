@@ -1218,10 +1218,10 @@ ControllerVolusonic.prototype.listFavorites = function(uriParts, curUri) {
   var defer = libQ.defer();
 
   var getFavorites = "getStarred";
-  //if (self.config.get('ID3')) getFavorites = "getStarred2";
+  if (self.config.get('ID3')) getFavorites = "getStarred2";
 
   var container = "starred";
-  //if (self.config.get('ID3')) container = "starred2";
+  if (self.config.get('ID3')) container = "starred2";
 
   var result = self.backend.get(getFavorites, 'Favorites', '')
     .then(function(result) {
