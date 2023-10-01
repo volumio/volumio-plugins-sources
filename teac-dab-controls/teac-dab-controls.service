@@ -5,8 +5,8 @@ After=volumio.service
 [Service]
 User=volumio
 Group=volumio
-WorkingDirectory=/home/volumio/volumio-plugins-sources/volumio-teac-dab-controls/
-ExecStart=/usr/bin/python3 /home/volumio/volumio-plugins-sources/volumio-teac-dab-controls/index.py
+WorkingDirectory=/home/volumio/volumio-plugins-sources/teac-dab-controls/
+ExecStart=/usr/bin/python3 /home/volumio/volumio-plugins-sources/teac-dab-controls/index.py
 Restart=always
 RestartSec=3
 
