@@ -116,17 +116,26 @@ teacdabcontrols.prototype.getConfigurationFiles = function() {
 
 teacdabcontrols.prototype.setUIConfig = function(data) {
 	var self = this;
+    
 	//Perform your installation tasks here
+    var uiconf = fs.readJsonSync(__dirname + '/UIConfig.json');
+
+    return libQ.resolve();
+
 };
 
 teacdabcontrols.prototype.getConf = function(varName) {
 	var self = this;
 	//Perform your installation tasks here
+    self.config = new (require('v-conf'))();
+    self.config.loadFile(configFile);
+
 };
 
 teacdabcontrols.prototype.setConf = function(varName, varValue) {
 	var self = this;
 	//Perform your installation tasks here
+    fs.writeJsonSync(self.configFile, JSON.stringify(conf));
 };
 
 
