@@ -8,19 +8,19 @@ logging.basicConfig()
 
 class controls:
 
-    def __init__(self, controlQ=None):
+    def __init__(self, controlQ=None, encA=17, encB=27, butClk=11, butDOUT=9, butDIN=10, butCS=22, but1=0, but2=7):
         logger.debug("Loading controls")
         self.controlQ = controlQ
 
-        self.rotary_encoder()
-        self.buttons()
+        self.rotary_encoder(encA,encB)
+        self.buttons(butClk,butDOUT,butDIN,butCS,but1,but2)
 
 
-    def rotary_encoder(self):
+    def rotary_encoder(self,encA,encB):
         # setup rotary encoder variables for pigpio
         # BE SURE TO START PIGPIO IN PWM MODE 't -0'
-        Enc_A = 17  # Encoder input A: input GPIO 17
-        Enc_B = 27  # Encoder input B: input GPIO 27
+        Enc_A = encA  # Encoder input A: input GPIO 17
+        Enc_B = encB  # Encoder input B: input GPIO 27
 
         # set globals for encoder
         self.last_A = 1
@@ -59,15 +59,15 @@ class controls:
         logger.debug('Rotary thread start successfully, listening for turns')
 
 
-    def buttons(self):
+    def buttons(self,butClk,butDOUT,butDIN,butCS,but1,but2):
         # Define MCP3008 pins
-        CLK = 11 # CLK
-        DOUT = 9 # MISO
-        DIN = 10 # MOSI
-        CS = 22 # CS
+        CLK = butClk # CLK
+        DOUT = butDOUT # MISO
+        DIN = butDIN # MOSI
+        CS = butCS # CS
 
         # channels to read from MCP 3008
-        channels = [0,7]
+        channels = [but1,but2]
 
         # Set up GPIO pins
         GPIO.setmode(GPIO.BCM)

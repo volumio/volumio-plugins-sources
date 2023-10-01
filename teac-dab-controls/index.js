@@ -68,6 +68,20 @@ teacdabcontrols.prototype.onStop = function() {
 teacdabcontrols.prototype.onRestart = function() {
     var self = this;
     // Optional, use if you need it
+    var defer=libQ.defer();
+
+	try {
+		this.teacdabcontrolsServiceCmds('restart');
+        this.pigpiodServiceCmds('restart');
+    } catch (e) {
+        const err = 'Error restarting Teac DAB controls';
+        self.logger.error(err, e);
+    }
+
+    // Once the Plugin has successfull stopped resolve the promise
+    defer.resolve();
+
+    return libQ.resolve();
 };
 
 

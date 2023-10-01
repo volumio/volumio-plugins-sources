@@ -16,7 +16,7 @@ from rpilcdmenu.items import *
 
 class menu_manager:
 
-    def __init__(self ,controlQ, volumioQ, menuManagerQ):
+    def __init__(self ,controlQ, volumioQ, menuManagerQ, lcdRS=7, lcdE=8, lcdD4=25, lcdD5=24, lcdD6=23, lcdD7=15):
         self.controlQ = controlQ
         self.volumioQ = volumioQ
         self.menuManagerQ = menuManagerQ
@@ -33,7 +33,7 @@ class menu_manager:
         functionMenu = '[{"title":"Radio","uri":"radio"},{"title":"Spotify","uri":"spotify"}]'
 
         # init menu
-        self.menu = RpiLCDMenu(7, 8, [25, 24, 23, 15], scrolling_menu=False)
+        self.menu = RpiLCDMenu(lcdRS, lcdE, [lcdD4, lcdD5, lcdD6, lcdD7], scrolling_menu=False)
         self.menu.message(('Initialising...').upper(), autoscroll=True)
 
         queues = [self.controlQ, self.menuManagerQ]  # put the queues in a list

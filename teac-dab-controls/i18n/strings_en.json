@@ -1,4 +1,6 @@
 {
-  "PLUGIN_CONFIGURATION":"Example Plugin Configuration",
-  "SAVE":"Save"
+  "PLUGIN_CONFIGURATION":"Teac DAB Controls Configuration",
+  "PLUGIN_NAME": "Teac DAB Controls",
+  "SAVE":"Save",
+  "SAVE_CONFIG_MESSAGE":"Configuration saved successfully."
 }
