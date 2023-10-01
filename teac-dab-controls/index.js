@@ -98,7 +98,7 @@ teacdabcontrols.prototype.getUIConfig = function() {
         __dirname + '/UIConfig.json')
         .then(function(uiconf)
         {
-
+            uiconf.sections[0].content[0].value = self.config.get('buttons_clk');
 
             defer.resolve(uiconf);
         })
