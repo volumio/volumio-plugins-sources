@@ -88,22 +88,29 @@ teacdabcontrols.prototype.onRestart = function() {
 // Configuration Methods -----------------------------------------------------------------------------
 
 teacdabcontrols.prototype.getUIConfig = function() {
-    var defer = libQ.defer();
-    var self = this;
+    const self = this;
+    const defer = libQ.defer();
 
-    var lang_code = this.commandRouter.sharedVars.get('language_code');
+    this.logger.info('Teac DAB Controls - getUIConfig');
 
-    self.commandRouter.i18nJson(__dirname+'/i18n/strings_'+lang_code+'.json',
-        __dirname+'/i18n/strings_en.json',
+    const lang_code = this.commandRouter.sharedVars.get('language_code');
+
+    this.commandRouter.i18nJson(__dirname + '/i18n/strings_' + lang_code + '.json',
+        __dirname + '/i18n/strings_en.json',
         __dirname + '/UIConfig.json')
-        .then(function(uiconf)
-        {
+        .then(function (uiconf) {
+
             uiconf.sections[0].content[0].value = self.config.get('buttons_clk');
+            uiconf.sections[0].content[1].value = self.config.get('buttons_miso');
+            uiconf.sections[0].content[2].value = self.config.get('buttons_mosi');
+            uiconf.sections[0].content[3].value = self.config.get('buttons_cs');
+            uiconf.sections[0].content[4].value = self.config.get('buttons_channel1');
+            uiconf.sections[0].content[5].value = self.config.get('buttons_channel2');
 
             defer.resolve(uiconf);
         })
-        .fail(function()
-        {
+        .fail(function () {
+            self.logger.error('AutoStart - Failed to parse UI Configuration page: ' + error);
             defer.reject(new Error());
         });
 
