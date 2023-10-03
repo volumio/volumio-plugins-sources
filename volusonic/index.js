@@ -1070,15 +1070,15 @@ ControllerVolusonic.prototype._formatAlbum = function(album, curUri) {
   var tit = album.name || album.title;
 
   var item = {
-    service: 'volusonic',
-    type: 'playlist',
-    title: tit + ' (' + new Date(album.created).getFullYear() + ')',
-    artist: album.artist,
-    album: "",
-    albumart: self.config.get('server') + '/rest/getCoverArt.view?id=' + self._getArtId(album.coverArt) + '&' + self.getSetting('artSize') + '&' + self.config.get('auth'),
-    icon: "",
-    uri: curUri + '/' + album.id
-  }
+     service: 'volusonic',
+     type: 'folder',
+     title: tit,
+     artist: album.artist,
+     album: tit,
+     albumart: self.config.get('server') + '/rest/getCoverArt.view?id=' + self._getArtId(album.coverArt) + '&' + self.getSetting('artSize') + '&' + self.config.get('auth'),
+     icon: "",
+     uri: curUri + '/' + album.id
+   }
   return item;
 }
 
@@ -1087,7 +1087,7 @@ ControllerVolusonic.prototype._formatPlaylist = function(playlist, curUri) {
   var item = {
     service: 'volusonic',
     type: 'folder',
-    title: playlist.name + ' (' + new Date(playlist.created).getFullYear() + ')',
+    title: playlist.name,
     albumart: self.config.get('server') + '/rest/getCoverArt.view?id=' + self._getArtId(playlist.coverArt) + '&' + self.getSetting('artSize') + '&' + self.config.get('auth'),
     icon: "",
     uri: curUri + '/' + playlist.id
