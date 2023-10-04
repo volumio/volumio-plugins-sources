@@ -3,3 +3,4 @@
 *node_modules*
 .gitignore
 /.idea/*
+teac-dab-controls/*/__pycache__/*
