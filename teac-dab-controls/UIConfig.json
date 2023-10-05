@@ -11,8 +11,8 @@
       "description": "Pin configuration for the buttons reader",
       "onSave": {
         "type": "controller",
-        "endpoint":"system_controller/teac-dab-controls",
-        "method":"updateConfig"
+        "endpoint":"user_interface/teac-dab-controls",
+        "method":"saveOptions"
       },
       "saveButton": {
         "label": "Save",
@@ -28,45 +28,45 @@
       "content": [
         {
           "id": "buttons_clk",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "Buttons CLK pin",
-          "value": 11
+          "value": ""
         },
         {
           "id": "buttons_miso",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "Buttons MISO pin",
-          "value": 9
+          "value": ""
         },
         {
           "id": "buttons_mosi",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "Buttons MOSI pin",
-          "value": 10
+          "value": ""
         },
         {
           "id": "buttons_cs",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "Buttons CS pin",
-          "value": 22
+          "value": ""
         },
         {
           "id": "buttons_channel1",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "Buttons Channel 1 (MCP3008) pin",
-          "value": 0
+          "value": ""
         },
         {
           "id": "buttons_channel2",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "Buttons Channel 2 (MCP3008) pin",
-          "value": 7
+          "value": ""
         }
       ]
     },
@@ -78,8 +78,8 @@
       "description": "Pin configuration for the rotary encoder",
       "onSave": {
         "type": "controller",
-        "endpoint":"system_controller/teac-dab-controls",
-        "method":"updateConfig"
+        "endpoint":"user_interface/teac-dab-controls",
+        "method":"saveOptions"
       },
       "saveButton": {
         "label": "Save",
@@ -91,17 +91,17 @@
       "content": [
         {
           "id": "rot_enc_A",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "Rotary encoder A pin",
-          "value": 17
+          "value": ""
         },
         {
           "id": "rot_enc_B",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "Rotary encoder B pin",
-          "value": 27
+          "value": ""
         }
       ]
     },
@@ -113,8 +113,8 @@
       "description": "Pin configuration for the LCD display",
       "onSave": {
         "type": "controller",
-        "endpoint":"system_controller/teac-dab-controls",
-        "method":"updateConfig"
+        "endpoint":"user_interface/teac-dab-controls",
+        "method":"saveOptions"
       },
       "saveButton": {
         "label": "Save",
@@ -130,45 +130,45 @@
       "content": [
         {
           "id": "lcd_rs",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "LCD RS pin",
-          "value": 7
+          "value": ""
         },
         {
           "id": "lcd_e",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "LCD E pin",
-          "value": 8
+          "value": ""
         },
         {
           "id": "lcd_d4",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "LCD digital 4 pin",
-          "value": 25
+          "value": ""
         },
         {
           "id": "lcd_d5",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "LCD digital 5 pin",
-          "value": 24
+          "value": ""
         },
         {
           "id": "lcd_d6",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "LCD digital 6 pin",
-          "value": 23
+          "value": ""
         },
         {
           "id": "lcd_d7",
-          "type":"text",
+          "type":"number",
           "element": "input",
           "label": "LCD digital 7 pin",
-          "value": 15
+          "value": ""
         }
       ]
     }

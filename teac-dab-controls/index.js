@@ -106,44 +106,93 @@ teacdabcontrols.prototype.getUIConfig = function() {
             uiconf.sections[0].content[3].value = self.config.get('buttons_cs');
             uiconf.sections[0].content[4].value = self.config.get('buttons_channel1');
             uiconf.sections[0].content[5].value = self.config.get('buttons_channel2');
+            uiconf.sections[1].content[0].value = self.config.get('rot_enc_A');
+            uiconf.sections[1].content[1].value = self.config.get('rot_enc_B');
+            uiconf.sections[2].content[0].value = self.config.get('lcd_rs');
+            uiconf.sections[2].content[1].value = self.config.get('lcd_e');
+            uiconf.sections[2].content[2].value = self.config.get('lcd_d4');
+            uiconf.sections[2].content[3].value = self.config.get('lcd_d5');
+            uiconf.sections[2].content[4].value = self.config.get('lcd_d6');
+            uiconf.sections[2].content[5].value = self.config.get('lcd_d7');
 
             defer.resolve(uiconf);
         })
         .fail(function () {
-            self.logger.error('AutoStart - Failed to parse UI Configuration page: ' + error);
+            self.logger.error('teacdabcontrols - Failed to parse UI Configuration page: ' + error);
             defer.reject(new Error());
         });
 
     return defer.promise;
 };
 
+teacdabcontrols.prototype.saveOptions = function (data) {
+    const self = this;
+
+    function isNumeric(str) {
+        // Use parseFloat or parseInt to attempt conversion to a number
+        const num = parseFloat(str);
+      
+        // Check if the conversion is a valid number and not NaN
+        return !isNaN(num);
+      }
+
+    this.logger.info('teacdabcontrols - saving settings');
+
+    const formattedJsonString = JSON.stringify(data, null, 2);
+    console.log(formattedJsonString);
+
+    // Parse JSON string into a JavaScript object
+    const jsonObject = JSON.parse(formattedJsonString);
+
+    // Iterate through the object and save if the item is valid
+    for (const key in jsonObject) {
+    if (jsonObject.hasOwnProperty(key)) {
+        const value = jsonObject[key];
+        // console.log(`${key}: ${value}`);
+        if (isNumeric(value)) {
+            console.log(`${value} is a valid number. Saving ${key}.`);
+            self.config.set(key, value);
+        } else {
+            console.log(`${value} is not a valid number. Not saving ${key}.`);
+        }
+    }
+    }
+    
+    this.commandRouter.pushToastMessage('success', 'teacdabcontrols', this.commandRouter.getI18nString("COMMON.CONFIGURATION_UPDATE_DESCRIPTION"));
+
+    this.logger.info('teacdabcontrols - settings saved');
+
+    return libQ.resolve();
+};
+
+
 teacdabcontrols.prototype.getConfigurationFiles = function() {
 	return ['config.json'];
 }
 
-teacdabcontrols.prototype.setUIConfig = function(data) {
-	var self = this;
+// teacdabcontrols.prototype.setUIConfig = function(data) {
+// 	var self = this;
     
-	//Perform your installation tasks here
-    var uiconf = fs.readJsonSync(__dirname + '/UIConfig.json');
+// 	//Perform your installation tasks here
+//     var uiconf = fs.readJsonSync(__dirname + '/UIConfig.json');
 
-    return libQ.resolve();
+//     return libQ.resolve();
 
-};
+// };
 
-teacdabcontrols.prototype.getConf = function(varName) {
-	var self = this;
-	//Perform your installation tasks here
-    self.config = new (require('v-conf'))();
-    self.config.loadFile(configFile);
+// teacdabcontrols.prototype.getConf = function(varName) {
+// 	var self = this;
+// 	//Perform your installation tasks here
+//     self.config = new (require('v-conf'))();
+//     self.config.loadFile(configFile);
 
-};
+// };
 
-teacdabcontrols.prototype.setConf = function(varName, varValue) {
-	var self = this;
-	//Perform your installation tasks here
-    fs.writeJsonSync(self.configFile, JSON.stringify(conf));
-};
+// teacdabcontrols.prototype.setConf = function(varName, varValue) {
+// 	var self = this;
+// 	//Perform your installation tasks here
+//     fs.writeJsonSync(self.configFile, JSON.stringify(conf));
+// };
 
 
 // Plugin methods -----------------------------------------------------------------------------

@@ -1,58 +1,58 @@
 {
     "buttons_clk": {
         "type": "number",
-        "value": 11
+        "value": "11"
     },
     "buttons_miso": {
         "type": "number",
-        "value": 9
+        "value": "9"
     },
     "buttons_mosi": {
         "type": "number",
-        "value": 10
+        "value": "10"
     },
     "buttons_cs": {
         "type": "number",
-        "value": 22
+        "value": "22"
     },
     "buttons_channel1": {
         "type": "number",
-        "value": 0
+        "value": "0"
     },
     "buttons_channel2": {
         "type": "number",
-        "value": 7
+        "value": "7"
     },
     "rot_enc_A": {
         "type": "number",
-        "value": 17
+        "value": "17"
     },
     "rot_enc_B": {
         "type": "number",
-        "value": 27
+        "value": "27"
     },
     "lcd_rs": {
         "type": "number",
-        "value": 7
+        "value": "7"
     },
     "lcd_e": {
         "type": "number",
-        "value": 8
+        "value": "8"
     },
     "lcd_d4": {
         "type": "number",
-        "value": 25
+        "value": "25"
     },
     "lcd_d5": {
         "type": "number",
-        "value": 24
+        "value": "24"
     },
     "lcd_d6": {
         "type": "number",
-        "value": 23
+        "value": "23"
     },
     "lcd_d7": {
         "type": "number",
-        "value": 15
+        "value": "15"
     }
 }
