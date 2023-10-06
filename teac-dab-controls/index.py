@@ -9,7 +9,7 @@ logger.setLevel(logging.WARNING)
 logging.basicConfig()
 
 # Specify the path to your JSON configuration file
-config_file_path = 'config.json'
+config_file_path = '/data/configuration/user_interface/teac-dab-controls/config.json'
 
 # Read the JSON file
 with open(config_file_path, 'r') as file:

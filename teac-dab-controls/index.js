@@ -67,7 +67,6 @@ teacdabcontrols.prototype.onStop = function() {
 
 teacdabcontrols.prototype.onRestart = function() {
     var self = this;
-    // Optional, use if you need it
     var defer=libQ.defer();
 
 	try {
@@ -118,7 +117,7 @@ teacdabcontrols.prototype.getUIConfig = function() {
             defer.resolve(uiconf);
         })
         .fail(function () {
-            self.logger.error('teacdabcontrols - Failed to parse UI Configuration page: ' + error);
+            self.logger.error('Teac DAB Controls - Failed to parse UI Configuration page:' + error);
             defer.reject(new Error());
         });
 
@@ -136,10 +135,10 @@ teacdabcontrols.prototype.saveOptions = function (data) {
         return !isNaN(num);
       }
 
-    this.logger.info('teacdabcontrols - saving settings');
+    self.logger.info('Teac DAB Controls - saving settings');
 
     const formattedJsonString = JSON.stringify(data, null, 2);
-    console.log(formattedJsonString);
+    // console.log(formattedJsonString);
 
     // Parse JSON string into a JavaScript object
     const jsonObject = JSON.parse(formattedJsonString);
@@ -150,17 +149,18 @@ teacdabcontrols.prototype.saveOptions = function (data) {
         const value = jsonObject[key];
         // console.log(`${key}: ${value}`);
         if (isNumeric(value)) {
-            console.log(`${value} is a valid number. Saving ${key}.`);
+            // console.log(`${value} is a valid number. Saving ${key}.`);
             self.config.set(key, value);
         } else {
-            console.log(`${value} is not a valid number. Not saving ${key}.`);
+            self.logger.error(`${value} is not a valid number. Not saving ${key}.`);
+            this.commandRouter.pushToastMessage('fail', this.commandRouter.getI18nString("PLUGIN_NAME"), this.commandRouter.getI18nString("COMMON.CONFIGURATION_UPDATE_DESCRIPTION"));
         }
     }
     }
     
-    this.commandRouter.pushToastMessage('success', 'teacdabcontrols', this.commandRouter.getI18nString("COMMON.CONFIGURATION_UPDATE_DESCRIPTION"));
+    this.commandRouter.pushToastMessage('success', this.commandRouter.getI18nString("PLUGIN_NAME"), this.commandRouter.getI18nString("COMMON.CONFIGURATION_UPDATE_DESCRIPTION"));
 
-    this.logger.info('teacdabcontrols - settings saved');
+    self.logger.info('Teac DAB Controls - settings saved');
 
     return libQ.resolve();
 };
@@ -169,31 +169,6 @@ teacdabcontrols.prototype.saveOptions = function (data) {
 teacdabcontrols.prototype.getConfigurationFiles = function() {
 	return ['config.json'];
 }
-
-// teacdabcontrols.prototype.setUIConfig = function(data) {
-// 	var self = this;
-    
-// 	//Perform your installation tasks here
-//     var uiconf = fs.readJsonSync(__dirname + '/UIConfig.json');
-
-//     return libQ.resolve();
-
-// };
-
-// teacdabcontrols.prototype.getConf = function(varName) {
-// 	var self = this;
-// 	//Perform your installation tasks here
-//     self.config = new (require('v-conf'))();
-//     self.config.loadFile(configFile);
-
-// };
-
-// teacdabcontrols.prototype.setConf = function(varName, varValue) {
-// 	var self = this;
-// 	//Perform your installation tasks here
-//     fs.writeJsonSync(self.configFile, JSON.stringify(conf));
-// };
-
 
 // Plugin methods -----------------------------------------------------------------------------
 
