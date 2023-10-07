@@ -1,6 +1,6 @@
 {
 	"name": "motherearthradio",
-	"version": "1.1.1",
+	"version": "1.2.1",
 	"description": "Hi Res Audio and Vinyl streaming",
 	"main": "index.js",
 	"scripts": {
@@ -22,7 +22,7 @@
 			"buster"
 		],
 		"details": "Mother Earth Radio is a free HD music station without advertising. Best audio quality, selected tracks, audiophile only. Stream now!",
-		"changelog": "1.1 enabled https streaming, fixed Instrumental channel AAC erroneously playing FLAC stream 1.1.1 fixed URL error"
+		"changelog": "2.1 added Mother Earth Jazz channel"
 	},
 	"engines": {
 		"node": ">=8",

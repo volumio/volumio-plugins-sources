@@ -215,7 +215,9 @@ motherearthradio.prototype.clearAddPlayTrack = function (track) {
         } else if (track.uri.includes("instrumental")) {
             channelMix = "Instrumental";
             metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth_instrumental";
-
+        } else if (track.uri.includes("jazz")) {
+            channelMix = "Jazz";
+            metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth_jazz";
         }
 
         var songs;
@@ -320,7 +322,7 @@ motherearthradio.prototype.explodeUri = function (uri) {
             if (self.timer) {
                 self.timer.clear();
             }
-            if (channel <= 2) {
+            if (channel <= 3) {
                 // FLAC option chosen
                 response.push({
                     service: self.serviceName,
@@ -437,8 +439,6 @@ motherearthradio.prototype.pushSongState = function (metadata) {
         title: metadata.now_playing.song.title,
         artist: metadata.now_playing.song.artist,
         album: metadata.now_playing.song.album,
-//        year: metadata.now_playing.song.year,
-//        genre: metadata.now_playing.song.genre,
 	streaming: true,
         disableUiControls: true,
         duration: metadata.now_playing.remaining,
