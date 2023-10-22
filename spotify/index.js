@@ -2217,6 +2217,7 @@ ControllerSpotify.prototype.getAlbumTracks = function (id) {
                                 samplerate: self.getCurrentBitrate(),
                                 bitdepth: '16 bit',
                                 bitrate: '',
+                                codec: 'ogg',
                                 trackType: 'spotify',
                                 duration: Math.trunc(track.duration_ms / 1000)
                             });
@@ -2261,6 +2262,7 @@ ControllerSpotify.prototype.getPlaylistTracks = function (userId, playlistId) {
                                 samplerate: self.getCurrentBitrate(),
                                 bitdepth: '16 bit',
                                 bitrate: '',
+                                codec: 'ogg',
                                 trackType: 'spotify',
                                 albumart: (track.album.hasOwnProperty('images') && track.album.images.length > 0 ? track.album.images[0].url : ''),
                                 duration: Math.trunc(track.duration_ms / 1000)
@@ -2308,6 +2310,7 @@ ControllerSpotify.prototype.getArtistTopTracks = function (id) {
                             samplerate: self.getCurrentBitrate(),
                             bitdepth: '16 bit',
                             bitrate: '',
+                            codec: 'ogg',
                             trackType: 'spotify',
                             uri: track.uri
                         });
@@ -2450,6 +2453,7 @@ ControllerSpotify.prototype.getTrack = function (id) {
                     samplerate: self.getCurrentBitrate(),
                     bitdepth: '16 bit',
                     bitrate: '',
+                    codec: 'ogg',
                     trackType: 'spotify'
                 };
                 response.push(item);
