@@ -18,17 +18,18 @@ fi
 
 echo "Checking old vollibrespot installs"
 
+killall vollibrespot
+systemctl stop volspotconnect.service
+systemctl disable volspotconnect.service
+systemctl daemon-reload
+
 ## Spotify legacy
 VOLLIB_PATH=/usr/bin/vollibrespot
 VOLLIB_SYSTEMD=/lib/systemd/system/volspotconnect.service
 if [ -f $VOLLIB_PATH ]; then
   echo "Clearing old vollibrespot"
-  systemctl stop volspotconnect.service
-  systemctl disable volspotconnect.service
-  killall vollibrespot
   rm $VOLLIB_PATH
   [ -f $VOLLIB_SYSTEMD ] || rm $VOLLIB_SYSTEMD
-  systemctl daemon-reload
   echo "vollibrespot cleared"
 fi
 
