@@ -39,7 +39,8 @@
           "playlist-read-private",
           "playlist-read-collaborative",
           "app-remote-control",
-          "streaming"
+          "streaming",
+          "user-follow-read"
         ]}
       },
       {
