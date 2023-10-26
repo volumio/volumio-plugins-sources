@@ -49,8 +49,8 @@ export class SubsystemEvent {
 
 export default class MPDSubsystemEventEmitter {
 
-  #status: string;
-  #mpdClient: MPDApi.ClientAPI;
+  #status: 'running' | 'stopped' | 'destroyed';
+  #mpdClient: MPDApi.ClientAPI | null;
   #logger: Logger;
   #systemEventListener: (subsystem: SubsystemName) => Promise<void>;
   #subsystemEventListeners: {[subsystem: string]: __SubsystemEventListener[]};
@@ -58,6 +58,7 @@ export default class MPDSubsystemEventEmitter {
   constructor(logger: Logger) {
     this.#logger = logger;
     this.#status = 'stopped';
+    this.#mpdClient = null;
     this.#systemEventListener = this.#handleSystemEvent.bind(this);
     this.#subsystemEventListeners = {};
   }
@@ -68,8 +69,18 @@ export default class MPDSubsystemEventEmitter {
     return emitter;
   }
 
+  #assertOK(c: MPDApi.ClientAPI | null): c is MPDApi.ClientAPI {
+    if (this.#status === 'destroyed') {
+      throw Error('Instance destroyed');
+    }
+    if (!this.#mpdClient) {
+      throw Error('MPD client not set');
+    }
+    return true;
+  }
+
   enable() {
-    if (this.#status === 'stopped') {
+    if (this.#assertOK(this.#mpdClient) && this.#status === 'stopped') {
       this.#mpdClient.on('system', this.#systemEventListener);
       this.#status = 'running';
       this.#logger.debug('[ytcr] MPDSubsystemEventEmitter enabled.');
@@ -77,9 +88,11 @@ export default class MPDSubsystemEventEmitter {
   }
 
   disable() {
-    this.#status = 'stopped';
-    this.#mpdClient.removeListener('system', this.#systemEventListener);
-    this.#logger.debug('[ytcr] MPDSubsystemEventEmitter disabled.');
+    if (this.#assertOK(this.#mpdClient)) {
+      this.#status = 'stopped';
+      this.#mpdClient?.removeListener('system', this.#systemEventListener);
+      this.#logger.debug('[ytcr] MPDSubsystemEventEmitter disabled.');
+    }
   }
 
   #addSubsystemEventListener(event: SubsystemName, listener: SubsystemEventListener, once = false, prepend = false) {
@@ -122,6 +135,17 @@ export default class MPDSubsystemEventEmitter {
   prependOnceListener(event: SubsystemName, listener: SubsystemEventListener): this {
     this.#addSubsystemEventListener(event, listener, true, true);
     return this;
+  }
+
+  destroy() {
+    if (this.#status === 'destroyed') {
+      return;
+    }
+    this.#status = 'destroyed';
+    this.#mpdClient?.removeListener('system', this.#systemEventListener);
+    this.#subsystemEventListeners = {};
+    this.#mpdClient = null;
+    this.#logger.debug('[ytcr] MPDSubsystemEventEmitter destroyed.');
   }
 
   async #handleSystemEvent(subsystem: SubsystemName) {

@@ -4,6 +4,9 @@ Plugin that enables Volumio to act a YouTube Cast receiver device. Supports cast
 
 # Changelog
 
+1.0.5
+- Fix player not reconnecting with MPD after being disconnected, such as when MPD restarts following a change in configuration.
+
 1.0.4
 - Add prefetching of next track
 - Add 'prefer Opus streams' option when prefetching enabled

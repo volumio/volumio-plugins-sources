@@ -21,6 +21,7 @@ export default class MPDSubsystemEventEmitter {
     once(event: SubsystemName, listener: SubsystemEventListener): this;
     off(event: SubsystemName, listener: SubsystemEventListener): this;
     prependOnceListener(event: SubsystemName, listener: SubsystemEventListener): this;
+    destroy(): void;
 }
 export {};
 //# sourceMappingURL=MPDSubsystemEventEmitter.d.ts.map

@@ -13,7 +13,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _MPDPlayer_instances, _MPDPlayer_config, _MPDPlayer_currentVideoInfo, _MPDPlayer_prefetchedAndQueuedVideoInfo, _MPDPlayer_prefetchedVideoExpiryTimer, _MPDPlayer_mpdClient, _MPDPlayer_volumeControl, _MPDPlayer_videoLoader, _MPDPlayer_loadVideoAbortController, _MPDPlayer_videoPrefetcher, _MPDPlayer_playlistEventListener, _MPDPlayer_autoplayModeChangeListener, _MPDPlayer_subsystemEventEmitter, _MPDPlayer_destroyed, _MPDPlayer_asleep, _MPDPlayer_abortLoadVideo, _MPDPlayer_addToMPDQueue, _MPDPlayer_handlePlaylistEvent, _MPDPlayer_handleAutoplayModeChange, _MPDPlayer_refreshPrefetch, _MPDPlayer_checkAndStartPrefetch, _MPDPlayer_cancelPrefetch, _MPDPlayer_clearPrefetch, _MPDPlayer_clearPrefetchedVideoExpiryTimer, _MPDPlayer_handlePrefetchedVideo, _MPDPlayer_handleExternalMPDEvent;
+var _MPDPlayer_instances, _MPDPlayer_config, _MPDPlayer_currentVideoInfo, _MPDPlayer_prefetchedAndQueuedVideoInfo, _MPDPlayer_prefetchedVideoExpiryTimer, _MPDPlayer_mpdClient, _MPDPlayer_mpdClientInitTimer, _MPDPlayer_volumeControl, _MPDPlayer_videoLoader, _MPDPlayer_loadVideoAbortController, _MPDPlayer_videoPrefetcher, _MPDPlayer_playlistEventListener, _MPDPlayer_autoplayModeChangeListener, _MPDPlayer_subsystemEventEmitter, _MPDPlayer_destroyed, _MPDPlayer_asleep, _MPDPlayer_clearMPDClientInitTimer, _MPDPlayer_initMPDClient, _MPDPlayer_abortLoadVideo, _MPDPlayer_addToMPDQueue, _MPDPlayer_handlePlaylistEvent, _MPDPlayer_handleAutoplayModeChange, _MPDPlayer_refreshPrefetch, _MPDPlayer_checkAndStartPrefetch, _MPDPlayer_cancelPrefetch, _MPDPlayer_clearPrefetch, _MPDPlayer_clearPrefetchedVideoExpiryTimer, _MPDPlayer_handlePrefetchedVideo, _MPDPlayer_handleExternalMPDEvent;
 Object.defineProperty(exports, "__esModule", { value: true });
 const yt_cast_receiver_1 = require("yt-cast-receiver");
 const mpd_api_1 = __importDefault(require("mpd-api"));
@@ -30,6 +30,7 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
         _MPDPlayer_prefetchedAndQueuedVideoInfo.set(this, void 0);
         _MPDPlayer_prefetchedVideoExpiryTimer.set(this, void 0);
         _MPDPlayer_mpdClient.set(this, void 0);
+        _MPDPlayer_mpdClientInitTimer.set(this, void 0);
         _MPDPlayer_volumeControl.set(this, void 0);
         _MPDPlayer_videoLoader.set(this, void 0);
         _MPDPlayer_loadVideoAbortController.set(this, void 0);
@@ -40,20 +41,16 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
         _MPDPlayer_destroyed.set(this, void 0);
         _MPDPlayer_asleep.set(this, void 0);
         __classPrivateFieldSet(this, _MPDPlayer_config, config, "f");
+        __classPrivateFieldSet(this, _MPDPlayer_mpdClientInitTimer, null, "f");
     }
     // Must be called after receiver started, not before.
     async init() {
         __classPrivateFieldSet(this, _MPDPlayer_currentVideoInfo, null, "f");
-        __classPrivateFieldSet(this, _MPDPlayer_mpdClient, await mpd_api_1.default.connect(__classPrivateFieldGet(this, _MPDPlayer_config, "f").mpd), "f");
         __classPrivateFieldSet(this, _MPDPlayer_destroyed, false, "f");
         __classPrivateFieldSet(this, _MPDPlayer_videoLoader, __classPrivateFieldGet(this, _MPDPlayer_config, "f").videoLoader, "f");
         __classPrivateFieldSet(this, _MPDPlayer_videoPrefetcher, __classPrivateFieldGet(this, _MPDPlayer_config, "f").prefetch ? new VideoPrefetcher_js_1.default(__classPrivateFieldGet(this, _MPDPlayer_videoLoader, "f"), this.logger) : null, "f");
         __classPrivateFieldSet(this, _MPDPlayer_volumeControl, __classPrivateFieldGet(this, _MPDPlayer_config, "f").volumeControl, "f");
-        const externalMPDEventListener = __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_handleExternalMPDEvent).bind(this);
-        __classPrivateFieldSet(this, _MPDPlayer_subsystemEventEmitter, MPDSubsystemEventEmitter_js_1.default.instance(__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f"), this.logger), "f");
-        __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f").on('player', externalMPDEventListener);
-        __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f").on('mixer', externalMPDEventListener);
-        __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f").enable();
+        __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this);
         __classPrivateFieldSet(this, _MPDPlayer_playlistEventListener, __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_handlePlaylistEvent).bind(this), "f");
         Object.values(yt_cast_receiver_1.PLAYLIST_EVENT_TYPES).forEach((event) => {
             this.queue.on(event, __classPrivateFieldGet(this, _MPDPlayer_playlistEventListener, "f"));
@@ -237,7 +234,8 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
     }
     async destroy() {
         __classPrivateFieldSet(this, _MPDPlayer_destroyed, true, "f");
-        __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f")?.disable();
+        __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_clearMPDClientInitTimer).call(this);
+        __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f")?.destroy();
         await this.stop();
         await __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f")?.disconnect();
         this.removeAllListeners();
@@ -359,7 +357,48 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
     }
 }
 exports.default = MPDPlayer;
-_MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), _MPDPlayer_prefetchedAndQueuedVideoInfo = new WeakMap(), _MPDPlayer_prefetchedVideoExpiryTimer = new WeakMap(), _MPDPlayer_mpdClient = new WeakMap(), _MPDPlayer_volumeControl = new WeakMap(), _MPDPlayer_videoLoader = new WeakMap(), _MPDPlayer_loadVideoAbortController = new WeakMap(), _MPDPlayer_videoPrefetcher = new WeakMap(), _MPDPlayer_playlistEventListener = new WeakMap(), _MPDPlayer_autoplayModeChangeListener = new WeakMap(), _MPDPlayer_subsystemEventEmitter = new WeakMap(), _MPDPlayer_destroyed = new WeakMap(), _MPDPlayer_asleep = new WeakMap(), _MPDPlayer_instances = new WeakSet(), _MPDPlayer_abortLoadVideo = function _MPDPlayer_abortLoadVideo() {
+_MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), _MPDPlayer_prefetchedAndQueuedVideoInfo = new WeakMap(), _MPDPlayer_prefetchedVideoExpiryTimer = new WeakMap(), _MPDPlayer_mpdClient = new WeakMap(), _MPDPlayer_mpdClientInitTimer = new WeakMap(), _MPDPlayer_volumeControl = new WeakMap(), _MPDPlayer_videoLoader = new WeakMap(), _MPDPlayer_loadVideoAbortController = new WeakMap(), _MPDPlayer_videoPrefetcher = new WeakMap(), _MPDPlayer_playlistEventListener = new WeakMap(), _MPDPlayer_autoplayModeChangeListener = new WeakMap(), _MPDPlayer_subsystemEventEmitter = new WeakMap(), _MPDPlayer_destroyed = new WeakMap(), _MPDPlayer_asleep = new WeakMap(), _MPDPlayer_instances = new WeakSet(), _MPDPlayer_clearMPDClientInitTimer = function _MPDPlayer_clearMPDClientInitTimer() {
+    if (__classPrivateFieldGet(this, _MPDPlayer_mpdClientInitTimer, "f")) {
+        clearTimeout(__classPrivateFieldGet(this, _MPDPlayer_mpdClientInitTimer, "f"));
+        __classPrivateFieldSet(this, _MPDPlayer_mpdClientInitTimer, null, "f");
+    }
+}, _MPDPlayer_initMPDClient = async function _MPDPlayer_initMPDClient() {
+    __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_clearMPDClientInitTimer).call(this);
+    if (__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f")) {
+        return;
+    }
+    try {
+        __classPrivateFieldSet(this, _MPDPlayer_mpdClient, await mpd_api_1.default.connect(__classPrivateFieldGet(this, _MPDPlayer_config, "f").mpd), "f");
+    }
+    catch (error) {
+        this.logger.error('[ytcr] Error connecting MPD:', error, ' Retrying in 5 seconds...');
+        __classPrivateFieldSet(this, _MPDPlayer_mpdClientInitTimer, setTimeout(() => {
+            if (!__classPrivateFieldGet(this, _MPDPlayer_destroyed, "f")) {
+                __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this);
+            }
+        }, 5000), "f");
+        return;
+    }
+    this.logger.debug('[ytcr] MPD connected');
+    __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f").once('close', async () => {
+        __classPrivateFieldSet(this, _MPDPlayer_mpdClient, null, "f");
+        __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f")?.destroy();
+        if (__classPrivateFieldGet(this, _MPDPlayer_destroyed, "f")) {
+            return;
+        }
+        await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_clearPrefetch).call(this);
+        __classPrivateFieldSet(this, _MPDPlayer_currentVideoInfo, null, "f");
+        await this.notifyExternalStateChange(yt_cast_receiver_1.Constants.PLAYER_STATUSES.STOPPED);
+        this.sleep();
+        this.logger.debug('[ytcr] MPD disconnected. Reconnecting...');
+        __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this);
+    });
+    const externalMPDEventListener = __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_handleExternalMPDEvent).bind(this);
+    __classPrivateFieldSet(this, _MPDPlayer_subsystemEventEmitter, MPDSubsystemEventEmitter_js_1.default.instance(__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f"), this.logger), "f");
+    __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f").on('player', externalMPDEventListener);
+    __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f").on('mixer', externalMPDEventListener);
+    __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f").enable();
+}, _MPDPlayer_abortLoadVideo = function _MPDPlayer_abortLoadVideo() {
     if (__classPrivateFieldGet(this, _MPDPlayer_loadVideoAbortController, "f")) {
         __classPrivateFieldGet(this, _MPDPlayer_loadVideoAbortController, "f").abort();
         __classPrivateFieldSet(this, _MPDPlayer_loadVideoAbortController, null, "f");

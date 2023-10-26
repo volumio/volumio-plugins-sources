@@ -79,6 +79,7 @@ export default class MPDPlayer extends Player {
   #prefetchedAndQueuedVideoInfo: MPDPlayerVideoInfo | null;
   #prefetchedVideoExpiryTimer: NodeJS.Timeout | null;
   #mpdClient: MPDApi.ClientAPI | null;
+  #mpdClientInitTimer: NodeJS.Timeout | null;
   #volumeControl: VolumeControl;
   #videoLoader: VideoLoader;
   #loadVideoAbortController: AbortController | null;
@@ -93,23 +94,18 @@ export default class MPDPlayer extends Player {
   constructor(config: MPDPlayerConfig) {
     super();
     this.#config = config;
+    this.#mpdClientInitTimer = null;
   }
 
   // Must be called after receiver started, not before.
   async init() {
     this.#currentVideoInfo = null;
-    this.#mpdClient = await mpdApi.connect(this.#config.mpd);
-
     this.#destroyed = false;
     this.#videoLoader = this.#config.videoLoader;
     this.#videoPrefetcher = this.#config.prefetch ? new VideoPrefetcher(this.#videoLoader, this.logger) : null;
     this.#volumeControl = this.#config.volumeControl;
 
-    const externalMPDEventListener = this.#handleExternalMPDEvent.bind(this);
-    this.#subsystemEventEmitter = MPDSubsystemEventEmitter.instance(this.#mpdClient, this.logger);
-    this.#subsystemEventEmitter.on('player', externalMPDEventListener);
-    this.#subsystemEventEmitter.on('mixer', externalMPDEventListener);
-    this.#subsystemEventEmitter.enable();
+    this.#initMPDClient();
 
     this.#playlistEventListener = this.#handlePlaylistEvent.bind(this);
     Object.values(PLAYLIST_EVENT_TYPES).forEach((event: any) => {
@@ -118,6 +114,54 @@ export default class MPDPlayer extends Player {
 
     this.#autoplayModeChangeListener = this.#handleAutoplayModeChange.bind(this);
     this.queue.on('autoplayModeChange', this.#autoplayModeChangeListener);
+  }
+
+  #clearMPDClientInitTimer() {
+    if (this.#mpdClientInitTimer) {
+      clearTimeout(this.#mpdClientInitTimer);
+      this.#mpdClientInitTimer = null;
+    }
+  }
+
+  async #initMPDClient() {
+    this.#clearMPDClientInitTimer();
+    if (this.#mpdClient) {
+      return;
+    }
+    try {
+      this.#mpdClient = await mpdApi.connect(this.#config.mpd);
+    }
+    catch (error) {
+      this.logger.error('[ytcr] Error connecting MPD:', error, ' Retrying in 5 seconds...');
+      this.#mpdClientInitTimer = setTimeout(() => {
+        if (!this.#destroyed) {
+          this.#initMPDClient();
+        }
+      }, 5000);
+      return;
+    }
+
+    this.logger.debug('[ytcr] MPD connected');
+
+    this.#mpdClient.once('close', async () => {
+      this.#mpdClient = null;
+      this.#subsystemEventEmitter?.destroy();
+      if (this.#destroyed) {
+        return;
+      }
+      await this.#clearPrefetch();
+      this.#currentVideoInfo = null;
+      await this.notifyExternalStateChange(Constants.PLAYER_STATUSES.STOPPED);
+      this.sleep();
+      this.logger.debug('[ytcr] MPD disconnected. Reconnecting...');
+      this.#initMPDClient();
+    });
+
+    const externalMPDEventListener = this.#handleExternalMPDEvent.bind(this);
+    this.#subsystemEventEmitter = MPDSubsystemEventEmitter.instance(this.#mpdClient, this.logger);
+    this.#subsystemEventEmitter.on('player', externalMPDEventListener);
+    this.#subsystemEventEmitter.on('mixer', externalMPDEventListener);
+    this.#subsystemEventEmitter.enable();
   }
 
   #abortLoadVideo() {
@@ -538,7 +582,8 @@ export default class MPDPlayer extends Player {
 
   async destroy() {
     this.#destroyed = true;
-    this.#subsystemEventEmitter?.disable();
+    this.#clearMPDClientInitTimer();
+    this.#subsystemEventEmitter?.destroy();
     await this.stop();
     await this.#mpdClient?.disconnect();
     this.removeAllListeners();
