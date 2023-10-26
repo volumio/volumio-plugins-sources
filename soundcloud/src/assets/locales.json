@@ -1,0 +1,38 @@
+[
+    {
+        "locale": "de",
+        "name": "Deutsch"
+    },
+    {
+        "locale": "en",
+        "name": "English (US)"
+    },
+    {
+        "locale": "es",
+        "name": "Español"
+    },
+    {
+        "locale": "fr",
+        "name": "Français"
+    },
+    {
+        "locale": "it",
+        "name": "Italiano"
+    },
+    {
+        "locale": "nl",
+        "name": "Nederlands"
+    },
+    {
+        "locale": "pt_BR",
+        "name": "Português (Brasil)"
+    },
+    {
+        "locale": "pl",
+        "name": "Polski"
+    },
+    {
+        "locale": "sv",
+        "name": "Svenska"
+    }
+]

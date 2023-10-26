@@ -1,0 +1,21 @@
+{
+  "include": ["./**/*.ts", "../tests/oldCode/TS/AlbumViewHandler.ts.old", "lib/controller/browse/view-handlers/PlaylistViewHandler.ts.old"],
+  "compilerOptions": {
+    "rootDir": ".",
+    "target": "es2020",
+    "module": "commonjs",
+    "outDir": "../dist/",
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "inlineSources": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "resolveJsonModule": true
+  },
+  "references": [
+    { "path": "../" }
+  ]
+}

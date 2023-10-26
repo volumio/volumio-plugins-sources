@@ -1,4 +1,6 @@
 {
+  "ATT_VALUE_WARN":"Linker- en rechterniveau moeten een getal zijn tussen -20 en 0",
+  "CLIPPING_WARNING": "EXPERIMENTELE FUNCTIE! Clipping gedetecteerd in FusionDsp! Controleer en stel automatische voorversterker of verzwakking in! Druk op pauze/afspelen om bericht te resetten",
   "CHOOSEDSPTYPE": "Type DSP",
   "CHOOSEDSPTYPE_DOC": "Kies type DSP",
   "DSPTYPE": "DSP type",

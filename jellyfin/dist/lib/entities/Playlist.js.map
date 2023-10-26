@@ -1,0 +1,1 @@
+{"version":3,"file":"Playlist.js","sourceRoot":"","sources":["../../../src/lib/entities/Playlist.ts"],"names":[],"mappings":"","sourcesContent":["import { EntityType } from '.';\nimport BaseEntity from './BaseEntity';\n\ninterface Playlist extends BaseEntity {\n  type: EntityType.Playlist;\n}\n\nexport default Playlist;\n"]}
