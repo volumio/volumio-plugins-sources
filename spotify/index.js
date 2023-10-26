@@ -1432,7 +1432,7 @@ ControllerSpotify.prototype.getMyAlbums = function () {
                             },
                             lists: [
                                 {
-                                    availableListViews: ['list'],
+                                    availableListViews: ['list', 'grid'],
                                     items: albums,
                                 },
                             ],
