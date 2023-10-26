@@ -1419,8 +1419,12 @@ ControllerSpotify.prototype.getMyAlbums = function () {
                     }
                 },
                 onEnd: () => {
-                    albums.sort((a, b) => (a.year > b.year ? 1 : a.year === b.year ? 0 : -1));
-                    albums.sort((a, b) => (a.artist > b.artist ? 1 : a.artist === b.artist ? 0 : -1));
+                    albums.sort((a, b) => {
+                        if (a.artist !== b.artist) {
+                            return a.artist > b.artist ? 1 : -1;
+                        }
+                        return a.year > b.year ? 1 : a.year === b.year ? 0 : -1;
+                    });
                     defer.resolve({
                         navigation: {
                             prev: {
@@ -1473,12 +1477,18 @@ ControllerSpotify.prototype.getMyTracks = function () {
                     }
                 },
                 onEnd: () => {
-                    tracks.sort((a, b) =>
-                        a.tracknumber > b.tracknumber ? 1 : a.tracknumber === b.tracknumber ? 0 : -1
-                    );
-                    tracks.sort((a, b) => (a.year > b.year ? 1 : a.year === b.year ? 0 : -1));
-                    tracks.sort((a, b) => (a.album > b.album ? 1 : a.album === b.album ? 0 : -1));
-                    tracks.sort((a, b) => (a.artist > b.artist ? 1 : a.artist === b.artist ? 0 : -1));
+                    tracks.sort((a, b) => {
+                        if (a.artist !== b.artist) {
+                            return a.artist > b.artist ? 1 : -1;
+                        }
+                        if (a.year !== b.year) {
+                            return a.year > b.year ? 1 : -1;
+                        }
+                        if (a.album !== b.album) {
+                            return a.album > b.album ? 1 : -1;
+                        }
+                        return a.tracknumber > b.tracknumber ? 1 : a.tracknumber === b.tracknumber ? 0 : -1;
+                    });
                     defer.resolve({
                         navigation: {
                             prev: {
