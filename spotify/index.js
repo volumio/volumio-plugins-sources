@@ -13,7 +13,7 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var NodeCache = require('node-cache');
 var os = require('os');
-const { fetchPagedData, rateLimitedCall } = require('./utils/extendedSpotifyApi');
+var { fetchPagedData, rateLimitedCall } = require('./utils/extendedSpotifyApi');
 
 var configFileDestinationPath = '/tmp/go-librespot-config.yml';
 var credentialsPath = '/data/configuration/music_service/spop/spotifycredentials.json';
@@ -1428,7 +1428,7 @@ ControllerSpotify.prototype.getMyAlbums = function () {
                             },
                             lists: [
                                 {
-                                    availableListViews: ['list', 'grid'],
+                                    availableListViews: ['list'],
                                     items: albums,
                                 },
                             ],
