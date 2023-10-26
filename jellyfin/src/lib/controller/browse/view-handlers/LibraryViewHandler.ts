@@ -33,22 +33,22 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       this.#getTopItemList(libraryId, baseUri)
     ];
 
-    if (jellyfin.getConfigValue('showLatestMusicSection', true)) {
+    if (jellyfin.getConfigValue('showLatestMusicSection')) {
       listPromises.push(this.#getLatestMusic(libraryId, baseUri));
     }
-    if (jellyfin.getConfigValue('showRecentlyPlayedSection', true)) {
+    if (jellyfin.getConfigValue('showRecentlyPlayedSection')) {
       listPromises.push(this.#getRecentlyPlayed(libraryId, baseUri));
     }
-    if (jellyfin.getConfigValue('showFrequentlyPlayedSection', true)) {
+    if (jellyfin.getConfigValue('showFrequentlyPlayedSection')) {
       listPromises.push(this.#getFrequentlyPlayed(libraryId, baseUri));
     }
-    if (jellyfin.getConfigValue('showFavoriteArtistsSection', true)) {
+    if (jellyfin.getConfigValue('showFavoriteArtistsSection')) {
       listPromises.push(this.#getFavoriteArtists(libraryId, baseUri));
     }
-    if (jellyfin.getConfigValue('showFavoriteAlbumsSection', true)) {
+    if (jellyfin.getConfigValue('showFavoriteAlbumsSection')) {
       listPromises.push(this.#getFavoriteAlbums(libraryId, baseUri));
     }
-    if (jellyfin.getConfigValue('showFavoriteSongsSection', true)) {
+    if (jellyfin.getConfigValue('showFavoriteSongsSection')) {
       listPromises.push(this.#getFavoriteSongs(libraryId, baseUri));
     }
 
@@ -137,7 +137,7 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       parentId: libraryId,
       sortBy: 'DateCreated,SortName',
       sortOrder: 'Descending,Ascending',
-      limit: jellyfin.getConfigValue('latestMusicSectionItems', 11)
+      limit: jellyfin.getConfigValue('latestMusicSectionItems')
     };
     const albumView: AlbumView = {
       name: 'albums',
@@ -157,7 +157,7 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       sortBy: 'DatePlayed,SortName',
       sortOrder: 'Descending,Ascending',
       filters: 'IsPlayed',
-      limit: jellyfin.getConfigValue('recentlyPlayedSectionItems', 5)
+      limit: jellyfin.getConfigValue('recentlyPlayedSectionItems')
     };
     const songView: SongView = {
       name: 'songs',
@@ -178,7 +178,7 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       sortBy: 'PlayCount,SortName',
       sortOrder: 'Descending,Ascending',
       filters: 'IsPlayed',
-      limit: jellyfin.getConfigValue('frequentlyPlayedSectionItems', 5)
+      limit: jellyfin.getConfigValue('frequentlyPlayedSectionItems')
     };
     const songView: SongView = {
       name: 'songs',
@@ -197,7 +197,7 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
     const params: GetItemsParams = {
       parentId: libraryId,
       filters: 'IsFavorite',
-      limit: jellyfin.getConfigValue('favoriteArtistsSectionItems', 5)
+      limit: jellyfin.getConfigValue('favoriteArtistsSectionItems')
     };
     const artistView: ArtistView = {
       name: 'artists',
@@ -214,7 +214,7 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
     const params: GetItemsParams = {
       parentId: libraryId,
       filters: 'IsFavorite',
-      limit: jellyfin.getConfigValue('favoriteAlbumsSectionItems', 5)
+      limit: jellyfin.getConfigValue('favoriteAlbumsSectionItems')
     };
     const albumView: AlbumView = {
       name: 'albums',
@@ -231,7 +231,7 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
     const params: GetItemsParams = {
       parentId: libraryId,
       filters: 'IsFavorite',
-      limit: jellyfin.getConfigValue('favoriteSongsSectionItems', 5)
+      limit: jellyfin.getConfigValue('favoriteSongsSectionItems')
     };
     const songView: SongView = {
       name: 'songs',

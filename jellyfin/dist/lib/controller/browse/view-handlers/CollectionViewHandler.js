@@ -67,7 +67,7 @@ _CollectionViewHandler_instances = new WeakSet(), _CollectionViewHandler_getList
         itemType: entityType
     };
     if (inSection) {
-        modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('collectionInSectionItems', 11);
+        modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('collectionInSectionItems');
     }
     let moreUri;
     if (inSection) {

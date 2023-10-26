@@ -14,7 +14,7 @@ export default class PlaylistViewHandler extends BaseViewHandler<PlaylistView> {
   async browse(): Promise<RenderedPage> {
     const prevUri = this.constructPrevUri();
     const lists: RenderedList[] = [];
-    const modelQueryParams = {};
+    const modelQueryParams = this.getModelQueryParams();
 
     const model = this.getModel(ModelType.Playlist);
     const renderer = this.getRenderer(EntityType.Playlist);

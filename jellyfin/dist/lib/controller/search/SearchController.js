@@ -29,9 +29,9 @@ class SearchController {
         if (!query) {
             return [];
         }
-        const searchAlbums = JellyfinContext_1.default.getConfigValue('searchAlbums', true);
-        const searchArtists = JellyfinContext_1.default.getConfigValue('searchArtists', true);
-        const searchSongs = JellyfinContext_1.default.getConfigValue('searchSongs', true);
+        const searchAlbums = JellyfinContext_1.default.getConfigValue('searchAlbums');
+        const searchArtists = JellyfinContext_1.default.getConfigValue('searchArtists');
+        const searchSongs = JellyfinContext_1.default.getConfigValue('searchSongs');
         if (!searchAlbums && !searchArtists && !searchSongs) {
             return [];
         }

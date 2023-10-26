@@ -32,7 +32,7 @@ class UserViewViewHandler extends BaseViewHandler_1.default {
             title: JellyfinContext_1.default.getI18n('JELLYFIN_MY_MEDIA'),
             items: myMediaItems
         });
-        if (JellyfinContext_1.default.getConfigValue('showLatestMusicSection', true)) {
+        if (JellyfinContext_1.default.getConfigValue('showLatestMusicSection')) {
             const libraries = userViews.items.filter((userView) => userView.userViewType === UserView_1.UserViewType.Library);
             const latestLibraryAlbumLists = await Promise.all(libraries.map((library) => __classPrivateFieldGet(this, _UserViewViewHandler_instances, "m", _UserViewViewHandler_getLatestLibraryAlbumList).call(this, library)));
             latestLibraryAlbumLists.forEach((list) => {
@@ -69,7 +69,7 @@ _UserViewViewHandler_instances = new WeakSet(), _UserViewViewHandler_getLatestLi
         parentId: library.id,
         sortBy: 'DateCreated,SortName',
         sortOrder: 'Descending,Ascending',
-        limit: JellyfinContext_1.default.getConfigValue('latestMusicSectionItems', 11)
+        limit: JellyfinContext_1.default.getConfigValue('latestMusicSectionItems')
     });
     const albums = await model.getAlbums(modelQueryParams);
     const listItems = albums.items.map((album) => renderer.renderToListItem(album)).filter((item) => item);

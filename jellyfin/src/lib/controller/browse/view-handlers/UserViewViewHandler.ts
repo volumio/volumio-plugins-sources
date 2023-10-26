@@ -32,7 +32,7 @@ export default class UserViewViewHandler extends BaseViewHandler<UserViewView> {
       items: myMediaItems
     });
 
-    if (jellyfin.getConfigValue('showLatestMusicSection', true)) {
+    if (jellyfin.getConfigValue('showLatestMusicSection')) {
       const libraries = userViews.items.filter((userView) => userView.userViewType === UserViewType.Library);
       const latestLibraryAlbumLists = await Promise.all(libraries.map(
         (library) => this.#getLatestLibraryAlbumList(library)));
@@ -74,7 +74,7 @@ export default class UserViewViewHandler extends BaseViewHandler<UserViewView> {
       parentId: library.id,
       sortBy: 'DateCreated,SortName',
       sortOrder: 'Descending,Ascending',
-      limit: jellyfin.getConfigValue('latestMusicSectionItems', 11)
+      limit: jellyfin.getConfigValue('latestMusicSectionItems')
     });
     const albums = await model.getAlbums(modelQueryParams);
     const listItems = albums.items.map((album) =>

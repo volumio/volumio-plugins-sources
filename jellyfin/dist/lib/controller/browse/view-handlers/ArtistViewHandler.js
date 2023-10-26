@@ -16,7 +16,7 @@ class ArtistViewHandler extends FilterableViewHandler_1.default {
         const artistType = view.name === 'artists' ? entities_1.EntityType.Artist : entities_1.EntityType.AlbumArtist;
         const { lists, modelQueryParams } = await this.handleFilters();
         if (view.search && view.collatedSearchResults) {
-            modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('searchArtistsResultCount', 11);
+            modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('searchArtistsResultCount');
         }
         const model = this.getModel(model_1.ModelType.Artist);
         const renderer = this.getRenderer(entities_1.EntityType.Artist);

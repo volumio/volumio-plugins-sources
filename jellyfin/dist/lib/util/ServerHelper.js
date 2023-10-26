@@ -7,7 +7,7 @@ const entities_1 = require("../entities");
 const JellyfinContext_1 = __importDefault(require("../JellyfinContext"));
 class ServerHelper {
     static getServersFromConfig() {
-        return JellyfinContext_1.default.getConfigValue('servers', [], true);
+        return JellyfinContext_1.default.getConfigValue('servers');
     }
     static fetchPasswordFromConfig(server, username) {
         const serverConfEntries = this.getServersFromConfig();
