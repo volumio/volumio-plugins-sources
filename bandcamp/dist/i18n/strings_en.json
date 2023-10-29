@@ -32,7 +32,10 @@
   "BANDCAMP_RELEASES": "Releases",
   "BANDCAMP_MY_BANDCAMP": "My Bandcamp",
   "BANDCAMP_MY_BANDCAMP_NAME_LOCATION": "{}, {}",
-  "BANDCAMP_DESC_MY_BANDCAMP": "If you have a fan account on Bandcamp, you can provide your username here to access the public elements of your profile.",
+  "BANDCAMP_DESC_MY_BANDCAMP": "Access to your fan account on Bandcamp.",
+  "BANDCAMP_TYPE": "Type",
+  "BANDCAMP_COOKIE": "Cookie",
+  "BANDCAMP_COOKIE_GUIDE": "How to Obtain Cookie",
   "BANDCAMP_USERNAME": "Username",
   "BANDCAMP_COLLECTION": "Collection ({})",
   "BANDCAMP_WISHLIST": "Wishlist ({})",
@@ -92,6 +95,9 @@
   "BANDCAMP_SETTINGS_ERR_CACHE_MAX_ENTRIES": "Maximum entries must be at least 1000",
   "BANDCAMP_SETTINGS_ERR_CACHE_TTL": "Expiry time must be at least 600",
   "BANDCAMP_ERR_STREAM_NOT_FOUND": "Stream not found for {}",
+  "BANDCAMP_ERR_REFRESH_STREAM": "Failed to refresh stream URL for {}",
   "BANDCAMP_ERR_INVALID_PLAY_REQUEST": "Invalid play request",
-  "BANDCAMP_MORE": "More..."
+  "BANDCAMP_ERR_MY_FAN_INFO": "Failed to obtain fan info by cookie",
+  "BANDCAMP_MORE": "More...",
+  "BANDCAMP_DOC_MY_BANDCAMP_TYPE": "<ul><li>Cookie: a string value identifying the user session upon signing into the Bandcamp website. Providing this will allow you to access your private collection as well as high-quality MP3 streams of purchased media.</li><li>Username: providing just the username will give you access to the public elements of your collection and standard-quality streams only.</li></ul>"
 }

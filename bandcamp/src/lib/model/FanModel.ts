@@ -1,4 +1,4 @@
-import bcfetch, { Album, FanContinuationItemsResult, FanPageItemsResult, Tag, Track, UserKind } from 'bandcamp-fetch';
+import bcfetch, { Album, FanAPIGetInfoParams, FanContinuationItemsResult, FanPageItemsResult, Tag, Track, UserKind } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
 import BaseModel, { LoopFetchCallbackParams, LoopFetchResult } from './BaseModel';
 import BandEntity from '../entities/BandEntity';
@@ -6,6 +6,7 @@ import AlbumEntity from '../entities/AlbumEntity';
 import TrackEntity from '../entities/TrackEntity';
 import TagEntity from '../entities/TagEntity';
 import EntityConverter from '../util/EntityConverter';
+import Model from '.';
 
 enum FanItemType {
   Collection = 'Collection',
@@ -30,11 +31,16 @@ type FanItem = Album | Track | UserKind | Tag;
 
 export default class FanModel extends BaseModel {
 
-  getInfo(username: string) {
-    const queryParams = {
-      username,
+  getInfo(username?: string) {
+    const queryParams: FanAPIGetInfoParams = {
       imageFormat: this.getArtistImageFormat()
     };
+    if (username) {
+      queryParams.username = username;
+    }
+    else if (!Model.cookie) {
+      throw Error('No cookie set');
+    }
     return bandcamp.getCache().getOrSet(
       this.getCacheKeyForFetch('fanInfo', queryParams),
       () => bcfetch.limiter.fan.getInfo(queryParams));

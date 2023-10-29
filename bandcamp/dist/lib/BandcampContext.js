@@ -105,6 +105,7 @@ class BandcampContext {
         __classPrivateFieldSet(this, _BandcampContext_pluginConfig, null, "f");
         __classPrivateFieldSet(this, _BandcampContext_singletons, {}, "f");
         __classPrivateFieldSet(this, _BandcampContext_data, {}, "f");
+        __classPrivateFieldGet(this, _BandcampContext_cache, "f").clear();
     }
     getI18n(key, ...formatValues) {
         let str;

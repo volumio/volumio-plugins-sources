@@ -64,15 +64,67 @@
       },
       "saveButton": {
         "label": "TRANSLATE.BANDCAMP_SAVE",
-        "data": ["myUsername"]
+        "data": [
+          "myBandcampType",
+          "myUsername",
+          "myCookie"
+        ]
       },
       "content": [
+        {
+          "id": "myBandcampType",
+          "element": "select",
+          "label": "TRANSLATE.BANDCAMP_TYPE",
+          "doc": "TRANSLATE.BANDCAMP_DOC_MY_BANDCAMP_TYPE",
+          "value": {
+            "value": "cookie",
+            "label": "TRANSLATE.BANDCAMP_COOKIE"
+          },
+          "options": [
+            {
+              "value": "cookie",
+              "label": "TRANSLATE.BANDCAMP_COOKIE"
+            },
+            {
+              "value": "username",
+              "label": "TRANSLATE.BANDCAMP_USERNAME"
+            }
+          ]
+        },
+        {
+          "id": "myCookie",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.BANDCAMP_COOKIE",
+          "value": "",
+          "visibleIf": {
+            "field": "myBandcampType",
+            "value": "cookie"
+          }
+        },
         {
           "id": "myUsername",
           "type": "text",
           "element": "input",
           "label": "TRANSLATE.BANDCAMP_USERNAME",
-          "value": ""
+          "value": "",
+          "visibleIf": {
+            "field": "myBandcampType",
+            "value": "username"
+          }
+        },
+        {
+          "id": "cookieGuide",
+          "element": "button",
+          "label": "TRANSLATE.BANDCAMP_COOKIE_GUIDE",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://github.com/patrickkfkan/bandcamp-fetch/wiki/How-to-obtain-Cookie"
+          },
+          "visibleIf": {
+            "field": "myBandcampType",
+            "value": "cookie"
+          }
         }
       ]
     },
