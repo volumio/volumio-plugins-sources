@@ -218,7 +218,10 @@ ControllerSpotify.prototype.resetSpotifyState = function () {
         bitdepth: '16 bit',
         bitrate: '',
         codec: 'ogg',
-        channels: 2
+        channels: 2,
+        random: null,
+        repeat: null,
+        repeatSingle: null,
     };
 };
 
@@ -278,6 +281,23 @@ ControllerSpotify.prototype.parseEventState = function (event) {
                 self.logger.error('Failed to parse Spotify volume event: ' + e);
             }
             pushStateforEvent = false;
+            break;
+        case 'shuffle_context':
+            self.state.random = event.data.value;
+            pushStateforEvent = true;
+            break;
+        case 'repeat_context':
+            self.state.repeatSingle = false;
+            self.state.repeat = event.data.value;
+            pushStateforEvent = true;
+            break;
+        case 'repeat_track':
+            if (!event.data.value) {
+                break;
+            }
+            self.state.repeatSingle = true;
+            self.state.repeat = true;
+            pushStateforEvent = true;
             break;
         default:
             self.logger.error('Failed to decode event: ' + event.type);
@@ -483,14 +503,19 @@ ControllerSpotify.prototype.seek = function (position) {
 
 ControllerSpotify.prototype.random = function (value) {
     this.logger.info('Spotify Random: ' + value);
-
-    // to implement
-
+    this.sendSpotifyLocalApiCommandWithPayload('/player/shuffle_context', { shuffle_context: value });
 };
 
 ControllerSpotify.prototype.repeat = function (value, repeatSingle) {
     this.logger.info('Spotify Repeat: ' + value + ' - ' + repeatSingle);
-    // to implement
+    if (repeatSingle) {
+        this.sendSpotifyLocalApiCommandWithPayload('/player/repeat_track', { repeat_track: true });
+    } else if (value) {
+        this.sendSpotifyLocalApiCommandWithPayload('/player/repeat_context', { repeat_context: true });
+    } else {
+        this.sendSpotifyLocalApiCommandWithPayload('/player/repeat_context', { repeat_context: false });
+        this.sendSpotifyLocalApiCommandWithPayload('/player/repeat_track', { repeat_track: false });
+    }
 };
 
 // Volume events

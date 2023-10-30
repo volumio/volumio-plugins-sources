@@ -45,14 +45,15 @@ fi
 
 
 DAEMON_BASE_URL=https://github.com/devgianlu/go-librespot/releases/download/v
-VERSION=0.0.7
+VERSION=0.0.8
 DAEMON_ARCHIVE=go-librespot_linux_$ARCH.tar.gz
 DAEMON_DOWNLOAD_URL=$DAEMON_BASE_URL$VERSION/$DAEMON_ARCHIVE
 DAEMON_DOWNLOAD_PATH=/home/volumio/$DAEMON_ARCHIVE
 
 echo "Dowloading daemon"
+systemctl stop go-librespot-daemon.service
 wget $DAEMON_DOWNLOAD_URL -O $DAEMON_DOWNLOAD_PATH
-tar xf $DAEMON_DOWNLOAD_PATH -C /usr/bin/
+tar xf $DAEMON_DOWNLOAD_PATH -C /usr/bin/ go-librespot
 rm $DAEMON_DOWNLOAD_PATH
 chmod a+x /usr/bin/go-librespot
 
