@@ -22,6 +22,10 @@ You can add multiple servers, each with multple user accounts, and those that ar
   
 #### Changelog
 
+1.0.8
+- [Fixed] Track type injection into stream URL breaks native DSD playback
+- [Fixed] Song thumbnail not falling back to album's albumart when album itself has no info
+
 1.0.7
 - [Fixed] Pagination in playlist and genre views
 - [Fixed] Track type missing in player state
