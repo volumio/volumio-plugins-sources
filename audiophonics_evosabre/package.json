@@ -1,0 +1,32 @@
+{
+	"name": "audiophonics_evo_sabre",
+	"version": "1.0.0",
+	"description": "Hardware configuration & display drivers for Evo Sabre",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Olivier Audiophonics",
+	"license": "ISC",
+	"volumio_info": {
+		"prettyName": "Audiophonics Evo Sabre",
+		"icon": "fa-hdd-o",
+		"plugin_type": "system_hardware",
+		"architectures": [
+			"armhf"
+		]
+	},
+	"dependencies": {
+		"bindings": "^1.5.0",
+		"date-and-time": "^2.4.1",
+		"fs-extra": "^0.28.0",
+		"kew": "",
+		"socket.io-client": "^2.4.0",
+		"v-conf": "^1.4.3"
+	},
+	"engines": {
+		"node": ">=14.15.4",
+		"volumio": ">=3"
+	},
+	"repository": "https://github.com/audiophonics/volumio-plugins-sources/tree/master/audiophonics_evosabre"
+}

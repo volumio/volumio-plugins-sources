@@ -1,0 +1,22 @@
+{
+    "sleep_after": {
+        "type": "number",
+        "value": 1200
+    },
+    "deep_sleep_after": {
+        "type": "number",
+        "value": 3600
+    },
+    "contrast": {
+        "type": "number",
+        "value": 254
+    },
+    "remote_active": {
+        "type": "boolean",
+        "value": true
+    },
+    "oled_active": {
+        "type": "boolean",
+        "value": true
+    }
+}

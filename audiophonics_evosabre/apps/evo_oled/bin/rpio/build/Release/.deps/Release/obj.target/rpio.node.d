@@ -1,0 +1,1 @@
+cmd_Release/obj.target/rpio.node := g++ -shared -pthread -rdynamic  -Wl,-soname=rpio.node -o Release/obj.target/rpio.node -Wl,--start-group Release/obj.target/rpio/src/rpio.o Release/obj.target/rpio/src/bcm2835.o Release/obj.target/rpio/src/sunxi.o -Wl,--end-group 
