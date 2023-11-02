@@ -1,0 +1,1 @@
+{"version":3,"file":"UnsplashAPI.d.ts","sourceRoot":"","sources":["../../../src/lib/api/UnsplashAPI.ts"],"names":[],"mappings":"AAOA,cAAM,WAAW;IAET,cAAc,CAAC,MAAM,EAAE;QAAE,QAAQ,EAAE,MAAM,CAAC;QAAC,CAAC,EAAE,MAAM,CAAC;QAAC,CAAC,EAAE,MAAM,CAAA;KAAE;CAqExE;AAED,QAAA,MAAM,WAAW,aAAoB,CAAC;AAEtC,eAAe,WAAW,CAAC"}

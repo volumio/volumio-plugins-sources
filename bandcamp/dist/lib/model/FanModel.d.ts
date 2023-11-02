@@ -11,7 +11,7 @@ export interface FanModelGetFanItemsParams {
 }
 export default class FanModel extends BaseModel {
     #private;
-    getInfo(username: string): Promise<import("bandcamp-fetch/dist/mjs/lib/types/Fan").default>;
+    getInfo(username?: string): Promise<import("bandcamp-fetch/dist/mjs/lib/types/Fan").default>;
     getCollection(params: FanModelGetFanItemsParams): Promise<LoopFetchResult<TrackEntity | AlbumEntity>>;
     getWishlist(params: FanModelGetFanItemsParams): Promise<LoopFetchResult<TrackEntity | AlbumEntity>>;
     getFollowingArtistsAndLabels(params: FanModelGetFanItemsParams): Promise<LoopFetchResult<BandEntity>>;
