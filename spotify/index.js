@@ -1316,7 +1316,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
                             title: self.getI18n('MY_TOP_ARTISTS'),
                             artist: '',
                             album: '',
-                            icon: 'fa fa-diamond',
+                            albumart: '/albumart?sourceicon=music_service/spop/icons/artist.png',
                             uri: 'spotify/mytopartists'
                         },
                         {
