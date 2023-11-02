@@ -1467,7 +1467,6 @@ ControllerSpotify.prototype.getMyAlbums = function () {
             }
         ).catch((err) => {
             this.logger.error('An error occurred while listing Spotify my albums ' + err);
-            this.handleBrowsingError(err);
             defer.reject('');
         });
     });
@@ -1531,7 +1530,6 @@ ControllerSpotify.prototype.getMyTracks = function () {
             }
         ).catch((err) => {
             this.logger.error('An error occurred while listing Spotify my tracks ' + err);
-            this.handleBrowsingError(err);
             defer.reject('');
         });
     });
@@ -2314,7 +2312,6 @@ ControllerSpotify.prototype.getPlaylistTracks = function (userId, playlistId) {
             }
         ).catch((err) => {
             this.logger.error('An error occurred while exploding listing Spotify playlist tracks ' + err);
-            this.handleBrowsingError(err);
             defer.reject(err);
         });
     });
@@ -2868,8 +2865,4 @@ ControllerSpotify.prototype.startVolumeTimerLimit = function () {
     volumeTimer = setInterval(() => {
         apiCallsCounter = 0;
     }, apiCallsTimespan);
-};
-
-ControllerSpotify.prototype.handleBrowsingError = function (errorMsg) {
-    this.commandRouter.pushToastMessage('error', 'Spotify API Error', errorMsg.toString());
 };
