@@ -2426,7 +2426,7 @@ ControllerSpotify.prototype.getPlaylistInfo = function (userId, playlistId) {
 
 ControllerSpotify.prototype.getTrack = function (id) {
     var defer = libQ.defer();
-
+    
     this.spotifyCheckAccessToken().then(() => {
         rateLimitedCall(this.spotifyApi, 'getTrack', { args: [id], logger: this.logger })
             .then((results) => {
@@ -2459,7 +2459,7 @@ ControllerSpotify.prototype.getTrack = function (id) {
                     type: 'song',
                     duration: parseInt(track.duration_ms / 1000),
                     albumart: albumart,
-                    samplerate: self.getCurrentBitrate(),
+                    samplerate: this.getCurrentBitrate(),
                     bitdepth: '16 bit',
                     bitrate: '',
                     codec: 'ogg',
