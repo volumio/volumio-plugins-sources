@@ -4873,7 +4873,7 @@
 						}
 					],
 					"visibleIf": {
-						"field": "systemShutdownEnabled",
+						"field": "musicStopEnabled",
 						"value": true
 					}
 				},
