@@ -2346,7 +2346,7 @@ ControllerSpotify.prototype.getPlaylistTracks = function (userId, playlistId) {
                                 artist: track.artists[0].name,
                                 album: track.album.name,
                                 uri: track.uri,
-                                samplerate: self.getCurrentBitrate(),
+                                samplerate: this.getCurrentBitrate(),
                                 bitdepth: '16 bit',
                                 bitrate: '',
                                 codec: 'ogg',
