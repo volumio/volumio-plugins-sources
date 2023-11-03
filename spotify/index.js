@@ -1400,8 +1400,7 @@ ControllerSpotify.prototype.getMyPlaylists = function (curUri) {
                         ]
                     }
                 };
-            //TODO SET PROPER LIMITS
-            self.spotifyApi.getUserPlaylists(self.loggedInUserId)
+            self.spotifyApi.getUserPlaylists(self.loggedInUserId, { limit: 50 })
                 .then(function(results) {
                     for (var i in results.body.items) {
                         var playlist = results.body.items[i];
