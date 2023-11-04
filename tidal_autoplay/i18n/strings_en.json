@@ -1,0 +1,9 @@
+{
+  "TIDAL_AUTOPLAY": {
+    "MIX_ID_DOC": "The unique id of the Tidal mix",
+    "MIX_ID_LABEL": "Mix Id",
+    "PAGE_LABEL": "Tidal Autoplay Configuration",
+    "SAVE": "Save",
+    "SECTION_MIX_LABEL": "Tidal Mix"
+  }
+}
