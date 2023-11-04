@@ -1,0 +1,22 @@
+name: Tidal autoplay pull request
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test_formatting:
+    name: Test formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install node modules
+        working-directory: ./tidal_autoplay
+        run: npm install
+
+      - name: Test formatting
+        working-directory: ./tidal_autoplay
+        run: npm test

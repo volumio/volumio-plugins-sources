@@ -15,9 +15,7 @@
       },
       "saveButton": {
         "label": "TRANSLATE.TIDAL_AUTOPLAY.SAVE",
-        "data": [
-          "mixId"
-        ]
+        "data": ["mixId"]
       },
       "content": [
         {

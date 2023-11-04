@@ -1,9 +1,5 @@
-# This is a basic workflow that is manually triggered
-
 name: Tidal autoplay release
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on:
   workflow_dispatch:
         
@@ -26,7 +22,7 @@ jobs:
 
       - name: Install node modules
         working-directory: ./tidal_autoplay
-        run: npm install
+        run: npm install --production
 
       - name: Package plugin
         working-directory: ./tidal_autoplay
