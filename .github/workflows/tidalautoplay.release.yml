@@ -1,0 +1,44 @@
+# This is a basic workflow that is manually triggered
+
+name: Tidal autoplay release
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+        
+jobs:
+  release:
+    name: Release ${{ github.event.inputs.my_value }}
+    runs-on: ubuntu-latest
+    container: jbonjean/volumio:latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set version
+        id: version
+        uses: paulhatch/semantic-version@v5.3.0
+        with:
+          change_path: "./tidal_autoplay"
+
+      - name: Install node modules
+        working-directory: ./tidal_autoplay
+        run: npm install
+
+      - name: Package plugin
+        working-directory: ./tidal_autoplay
+        run: volumio plugin package
+
+      - name: Create release
+        uses: ncipollo/release-action@v1.13.0
+        with:
+          artifactErrorsFailBuild: true
+          artifacts: |
+            ./tidal_autoplay/tidal_autoplay.zip
+          artifactContentType: raw
+          omitBody: true
+          skipIfReleaseExists: true
+          tag: ${{ steps.version.outputs.version_tag }}
