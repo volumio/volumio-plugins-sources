@@ -14,7 +14,8 @@ const execSync = require('child_process').execSync;
 const libQ = require('kew');
 const net = require('net');
 const path = require('path');
-const WebSocket = require('ws')
+const WebSocket = require('ws');
+const { CamillaDsp } = require('./camilladsp-js');
 
 //---global Eq Variables
 const tnbreq = 50// Nbre total of Eq
@@ -63,6 +64,8 @@ FusionDsp.prototype.onStart = function () {
   self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
   setTimeout(function () {
     self.loadalsastuff();
+    self.camillaProcess = new CamillaDsp(self.logger);
+    self.camillaProcess.start();
     self.hwinfo();
     self.purecamillagui();
     self.getIP();
@@ -100,6 +103,7 @@ FusionDsp.prototype.onStop = function () {
   let defer = libQ.defer();
   self.socket.off()
   self.logger.info(logPrefix + ' Stopping FusionDsp service');
+  self.camillaProcess.stop();
 
   exec("/usr/bin/sudo /bin/systemctl stop fusiondsp.service", {
     uid: 1000,
@@ -143,7 +147,7 @@ FusionDsp.prototype.loadalsastuff = function () {
   const self = this;
   var defer = libQ.defer();
   try {
-    execSync("/bin/touch /tmp/sr.log && /bin/chmod 666 /tmp/sr.log && /bin/touch /tmp/camilladsp.log && /bin/chmod 666 /tmp/camilladsp.log && /usr/bin/mkfifo -m 646 /tmp/fusiondspfifo", {
+    execSync("/bin/touch /tmp/fusiondsp_stream_params.log && /bin/chmod 666 /tmp/fusiondsp_stream_params.log && /bin/touch /tmp/camilladsp.log && /bin/chmod 666 /tmp/camilladsp.log && /usr/bin/mkfifo -m 646 /tmp/fusiondspfifo", {
       uid: 1000,
       gid: 1000
     })
@@ -2442,9 +2446,11 @@ FusionDsp.prototype.dfiltertype = function (data) {
 
 FusionDsp.prototype.checksamplerate = function () {
   const self = this;
+  self.pushstateSamplerate = null;
   self.socket.on('pushState', function (data) {
-    self.createCamilladspfile()
-
+    let samplerate = parseFloat(data.samplerate) * 1000;
+    self.pushstateSamplerate = !samplerate ? null : samplerate;
+    self.createCamilladspfile();
   });
 };
 
@@ -2453,19 +2459,28 @@ FusionDsp.prototype.checksamplerate = function () {
 FusionDsp.prototype.createCamilladspfile = function (obj) {
   const self = this;
   let defer = libQ.defer();
-  var hcurrentsamplerate
+  var hcurrentsamplerate = 44100;
+  let hformat = "S32_LE";
+  let hchannels = 2;
+  let hbitdepth = 32;
   let selectedsp = self.config.get('selectedsp')
 
+  /*
+   * Read the sampling rate, format, channels and bitdepth from ALSA provided
+   * hook, then check if we received sample rate from pushstate and prefer the
+   * latter in case
+   */
   try {
-    hcurrentsamplerate = fs.readFileSync("/tmp/sr.log", "utf8");
-
-  }
-  catch (error) {
+    let content;
+    content = fs.readFileSync("/tmp/fusiondsp_stream_params.log", "utf8");
+    [hcurrentsamplerate, hformat, hchannels, hbitdepth] = content.split(",");
+  } catch (error) {
     console.error('Error fetching file:', error);
   };
-  if (!hcurrentsamplerate) {
-    hcurrentsamplerate = "22050"
-  }
+
+  if (self.pushstateSamplerate)
+    hcurrentsamplerate = self.pushstateSamplerate;
+
   if (selectedsp != 'convfir') {
     self.logger.info(logPrefix + ' If filter freq >samplerate/2 then disable it');
   }
@@ -2539,7 +2554,8 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       //------resampling section-----
 
       var composeddevice = '';
-      let capturesamplerate = 44100
+      let capturesamplerate = hcurrentsamplerate;
+      let outputsamplerate = capturesamplerate;
       if (enableresampling) {
         let type
         switch (resamplingq) {
@@ -2555,11 +2571,12 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           default: "++"
         }
 
-        capturesamplerate = resamplingset;
         composeddevice += '  enable_resampling: true\n';
         composeddevice += '  resampler_type: ' + type + '\n';
-        composeddevice += '  capture_samplerate: ' + resamplingset;
+        composeddevice += '  capture_samplerate: ' + capturesamplerate;
+        outputsamplerate = resamplingset;
       } else if (enableresampling == false) {
+        composeddevice += '  capture_samplerate: ' + capturesamplerate;
         composeddevice = '\n';
       }
       //------crossfeed section------
@@ -3499,7 +3516,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       let conf = data.replace("${resulteq}", result)
         .replace("${chunksize}", (chunksize))
         .replace("${resampling}", (composeddevice))
-        .replace("${capturesamplerate}", (capturesamplerate))
+        .replace("${outputsamplerate}", (outputsamplerate))
 
         .replace("${composeout}", (composeout))
         .replace("${mixers}", composedmixer)
