@@ -1,6 +1,6 @@
 {
   "name": "tidal_autoplay",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Automatically starts playback of Tidal mix",
   "main": "index.js",
   "scripts": {

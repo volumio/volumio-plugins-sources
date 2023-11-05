@@ -48,6 +48,13 @@ tidalAutoplay.prototype.onStart = function () {
         })
         .fail(function () {
           self.socket.removeAllListeners();
+          self.commandRouter.pushToastMessage(
+            "error",
+            "Tidal Autoplay",
+            self.commandRouter.getI18nString(
+              "COMMON.CONFIGURATION_UPDATE_ERROR",
+            ),
+          );
         });
     }
   });
@@ -122,14 +129,34 @@ tidalAutoplay.prototype.setUIConfig = function (data) {
         self.commandRouter.addQueueItems(tracks).then(() => {
           self.commandRouter.volumioPlay(0);
         });
+      })
+      .then(() => {
+        self.commandRouter.pushToastMessage(
+          "success",
+          "Tidal Autoplay",
+          self.commandRouter.getI18nString(
+            "COMMON.CONFIGURATION_UPDATE_DESCRIPTION",
+          ),
+        );
+      })
+      .fail(function () {
+        self.commandRouter.pushToastMessage(
+          "error",
+          "Tidal Autoplay",
+          self.commandRouter.getI18nString("COMMON.CONFIGURATION_UPDATE_ERROR"),
+        );
       });
   }
 
-  self.commandRouter.pushToastMessage(
-    "success",
-    "Tidal Autoplay",
-    self.commandRouter.getI18nString("COMMON.CONFIGURATION_UPDATE_DESCRIPTION"),
-  );
+  if (!startOnSave) {
+    self.commandRouter.pushToastMessage(
+      "success",
+      "Tidal Autoplay",
+      self.commandRouter.getI18nString(
+        "COMMON.CONFIGURATION_UPDATE_DESCRIPTION",
+      ),
+    );
+  }
 };
 
 tidalAutoplay.prototype.getConf = function () {
