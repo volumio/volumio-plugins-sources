@@ -1,0 +1,39 @@
+{
+  "page": {
+    "label": "TRANSLATE.TIDAL_AUTOPLAY.PAGE_LABEL"
+  },
+  "sections": [
+    {
+      "id": "section_mix",
+      "element": "section",
+      "label": "TRANSLATE.TIDAL_AUTOPLAY.SECTION_MIX_LABEL",
+      "icon": "fa-lightbulb-o",
+      "onSave": {
+        "type": "plugin",
+        "endpoint": "system_controller/tidal_autoplay",
+        "method": "setUIConfig"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.TIDAL_AUTOPLAY.SAVE",
+        "data": ["mixId", "startOnSave"]
+      },
+      "content": [
+        {
+          "id": "mixId",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.TIDAL_AUTOPLAY.MIX_ID_DOC",
+          "label": "TRANSLATE.TIDAL_AUTOPLAY.MIX_ID_LABEL",
+          "value": ""
+        },
+        {
+          "id": "startOnSave",
+          "element": "switch",
+          "label": "TRANSLATE.TIDAL_AUTOPLAY.START_ON_SAVE_LABEL",
+          "description": "TRANSLATE.TIDAL_AUTOPLAY.START_ON_SAVE_DESCRIPTION",
+          "value": true
+        }
+      ]
+    }
+  ]
+}
