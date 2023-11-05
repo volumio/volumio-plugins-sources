@@ -13,6 +13,7 @@ const bandcamp_fetch_1 = __importDefault(require("bandcamp-fetch"));
 const BandcampContext_1 = __importDefault(require("../BandcampContext"));
 const BaseModel_1 = __importDefault(require("./BaseModel"));
 const EntityConverter_1 = __importDefault(require("../util/EntityConverter"));
+const _1 = __importDefault(require("."));
 var FanItemType;
 (function (FanItemType) {
     FanItemType["Collection"] = "Collection";
@@ -27,9 +28,14 @@ class FanModel extends BaseModel_1.default {
     }
     getInfo(username) {
         const queryParams = {
-            username,
             imageFormat: this.getArtistImageFormat()
         };
+        if (username) {
+            queryParams.username = username;
+        }
+        else if (!_1.default.cookie) {
+            throw Error('No cookie set');
+        }
         return BandcampContext_1.default.getCache().getOrSet(this.getCacheKeyForFetch('fanInfo', queryParams), () => bandcamp_fetch_1.default.limiter.fan.getInfo(queryParams));
     }
     getCollection(params) {

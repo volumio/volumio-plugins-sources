@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_getStreamUrl, _PlayController_doPlay, _PlayController_mpdAddTags;
+var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_getStreamUrl, _PlayController_doGetStreamUrl, _PlayController_doPlay, _PlayController_mpdAddTags;
 Object.defineProperty(exports, "__esModule", { value: true });
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -136,6 +136,32 @@ class PlayController {
 }
 exports.default = PlayController;
 _PlayController_mpdPlugin = new WeakMap(), _PlayController_instances = new WeakSet(), _PlayController_getStreamUrl = async function _PlayController_getStreamUrl(track, isPrefetching = false) {
+    let streamUrl = await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_doGetStreamUrl).call(this, track, isPrefetching);
+    // Ensure stream URL is valid
+    const ensuredUrl = await model_1.default.ensureStreamURL(streamUrl);
+    if (!ensuredUrl) {
+        if (!isPrefetching) {
+            BandcampContext_1.default.toast('error', BandcampContext_1.default.getI18n('BANDCAMP_ERR_REFRESH_STREAM', track.title));
+        }
+        throw Error(`Failed to refresh stream URL for ${track.title}: ${streamUrl}`);
+    }
+    // Safe
+    streamUrl = ensuredUrl.replace(/"/g, '\\"');
+    /**
+     * 1. Add bitrate info to track
+     * 2. Fool MPD plugin to return correct `trackType` in `parseTrackInfo()` by adding
+     * track type to URL query string as a dummy param.
+     */
+    if (streamUrl.includes('mp3-128')) {
+        track.samplerate = '128 kbps';
+        streamUrl += '&t.mp3';
+    }
+    else if (streamUrl.includes('mp3-v0')) {
+        track.samplerate = 'HQ VBR';
+        streamUrl += '&t.mp3';
+    }
+    return streamUrl;
+}, _PlayController_doGetStreamUrl = async function _PlayController_doGetStreamUrl(track, isPrefetching = false) {
     const _toast = (type, msg) => {
         if (!isPrefetching) {
             BandcampContext_1.default.toast(type, msg);

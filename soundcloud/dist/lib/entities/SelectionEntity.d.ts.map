@@ -1,0 +1,1 @@
+{"version":3,"file":"SelectionEntity.d.ts","sourceRoot":"","sources":["../../../src/lib/entities/SelectionEntity.ts"],"names":[],"mappings":"AAAA,OAAO,cAAc,MAAM,kBAAkB,CAAC;AAE9C,UAAU,eAAe;IACvB,IAAI,EAAE,WAAW,CAAC;IAClB,EAAE,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;IACnB,KAAK,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;IACtB,KAAK,EAAE,cAAc,EAAE,CAAC;CACzB;AAED,eAAe,eAAe,CAAC"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"AlbumEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/AlbumEntity.ts"],"names":[],"mappings":"","sourcesContent":["import SetEntity from './SetEntity';\n\ninterface AlbumEntity extends SetEntity {\n  type: 'album';\n  id?: number;\n}\n\nexport default AlbumEntity;\n"]}

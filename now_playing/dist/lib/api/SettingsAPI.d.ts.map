@@ -1,0 +1,1 @@
+{"version":3,"file":"SettingsAPI.d.ts","sourceRoot":"","sources":["../../../src/lib/api/SettingsAPI.ts"],"names":[],"mappings":"AAGA,cAAM,WAAW;IACT,WAAW,CAAC,EAAE,QAAQ,EAAE,EAAE;QAAE,QAAQ,EAAE,MAAM,CAAC;KAAE;CAMtD;AAED,QAAA,MAAM,WAAW,aAAoB,CAAC;AAEtC,eAAe,WAAW,CAAC"}

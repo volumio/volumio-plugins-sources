@@ -303,7 +303,7 @@ ControllerVolusonic.prototype.handleBrowseUri = function(curUri) {
                       title: self.commandRouter.getI18nString('NEWEST_ALBUMS'),
                       artist: '',
                       album: '',
-                      icon: 'fa fa-star',
+                      icon: 'fa fa-newspaper-o',
                       uri: 'volusonic/newest'
                     },
                     {
@@ -332,6 +332,15 @@ ControllerVolusonic.prototype.handleBrowseUri = function(curUri) {
                       album: '',
                       icon: 'fa fa-podcast',
                       uri: 'volusonic/podcasts'
+                    },
+                    {
+                      service: 'volusonic',
+                      type: 'item-no-menu',
+                      title: self.commandRouter.getI18nString('FAVORITES'),
+                      artist: '',
+                      album: '',
+                      icon: 'fa fa-star',
+                      uri: 'volusonic/favorites'
                     }
                   ]
                 }]
@@ -406,6 +415,14 @@ ControllerVolusonic.prototype.handleBrowseUri = function(curUri) {
               response = self.listPodcasts(uriParts, curUri);
             else if (uriParts.length == 3) {
               response = self.podcastEpisodes(uriParts, curUri);
+            }
+          } else if (curUri.startsWith('volusonic/favorites')) {
+            if (curUri == 'volusonic/favorites')
+              response = self.listFavorites(uriParts, curUri);
+            else if (curUri.startsWith('volusonic/favorites/artist')) {
+              response = self.showArtist(uriParts, curUri);
+            } else if (curUri.startsWith('volusonic/favorites/album')) {
+              response = self.listTracks(uriParts, curUri);
             }
           }
         }
@@ -1192,6 +1209,93 @@ ControllerVolusonic.prototype.listArtists = function(uriParts, curUri) {
     })
     .fail(function(result) {
       defer.reject(new Error('listArtists'));
+    });
+  return defer.promise;
+}
+
+ControllerVolusonic.prototype.listFavorites = function(uriParts, curUri) {
+  var self = this;
+  var defer = libQ.defer();
+
+  var getFavorites = "getStarred";
+  //if (self.config.get('ID3')) getFavorites = "getStarred2";
+
+  var container = "starred";
+  //if (self.config.get('ID3')) container = "starred2";
+
+  var result = self.backend.get(getFavorites, 'Favorites', '')
+    .then(function(result) {
+      var list = [];
+      var item;
+      var items = [];
+      var artists = [];
+      var albums = [];
+      var songs = [];
+
+      if (result['subsonic-response'][container]['artist'] !== undefined) {
+        result['subsonic-response'][container]['artist'].forEach(function(artist) {
+          //self.commandRouter.pushConsoleMessage("artist: " + JSON.stringify(artist));
+          artists.push(self._formatArtist(artist, curUri + '/artist'));
+        });
+        item = {
+          service: 'volusonic',
+          type: 'item-no-menu',
+          title: self.commandRouter.getI18nString('ARTISTS'),
+          availableListViews: ['list', 'grid'],
+          icon: '',
+          uri: curUri,
+          items: artists
+        }
+        list.push(item);
+      }
+
+      if (result['subsonic-response'][container]['album'] !== undefined) {
+        result['subsonic-response'][container]['album'].forEach(function(album) {
+          //self.commandRouter.pushConsoleMessage("album: " + JSON.stringify(album));
+          albums.push(self._formatAlbum(album, curUri + '/album'));
+        });
+
+        item = {
+          service: 'volusonic',
+          type: 'item-no-menu',
+          title: self.commandRouter.getI18nString('ALBUMS'),
+          availableListViews: ['list', 'grid'],
+          icon: '',
+          uri: curUri,
+          items: albums
+        }
+        list.push(item);
+      }
+
+      if (result['subsonic-response'][container]['song'] !== undefined) {
+        result['subsonic-response'][container]['song'].forEach(function(song) {
+          //self.commandRouter.pushConsoleMessage("song: " + JSON.stringify(song));
+          songs.push(self._formatSong(song, curUri));
+        });
+
+        item = {
+          service: 'volusonic',
+          type: 'item-no-menu',
+          title: self.commandRouter.getI18nString('TRACKS'),
+          availableListViews: ['list', 'grid'],
+          icon: '',
+          uri: curUri,
+          items: songs
+        }
+        list.push(item);
+      }
+
+      defer.resolve({
+        navigation: {
+          lists: list,
+          prev: {
+            uri: self._prevUri(curUri)
+          }
+        }
+      });
+    })
+    .fail(function(result) {
+      defer.reject(new Error('listFavorites'));
     });
   return defer.promise;
 }

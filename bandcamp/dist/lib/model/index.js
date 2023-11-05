@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModelType = void 0;
+const bandcamp_fetch_1 = __importDefault(require("bandcamp-fetch"));
 const AlbumModel_1 = __importDefault(require("./AlbumModel"));
 const ArticleModel_1 = __importDefault(require("./ArticleModel"));
 const BandModel_1 = __importDefault(require("./BandModel"));
@@ -42,6 +43,26 @@ class Model {
             return new MODEL_TYPE_TO_CLASS[type]();
         }
         throw Error(`Model not found for type ${ModelType}`);
+    }
+    static setCookie(value) {
+        bandcamp_fetch_1.default.setCookie(value);
+    }
+    static get cookie() {
+        return bandcamp_fetch_1.default.cookie;
+    }
+    static reset() {
+        bandcamp_fetch_1.default.setCookie();
+        this.clearLibCache();
+    }
+    static clearLibCache() {
+        bandcamp_fetch_1.default.cache.clear();
+    }
+    static async ensureStreamURL(url) {
+        const testResult = await bandcamp_fetch_1.default.stream.test(url);
+        if (testResult.ok) {
+            return url;
+        }
+        return await bandcamp_fetch_1.default.stream.refresh(url);
     }
 }
 exports.default = Model;

@@ -1,4 +1,4 @@
-May 19th 2023
+September 23th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -140,6 +140,12 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+September 23th 2023 v1.0.49
+
+- clean install.sh
+- correct default values for eq3
+- better airplay handling
 
 May 10th 2023 v1.0.48
 

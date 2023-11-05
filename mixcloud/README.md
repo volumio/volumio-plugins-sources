@@ -22,6 +22,9 @@ The purpose of this plugin is to allow you to discover shows and content creator
 
 ## Changelog
 
+0.1.3
+- Fix fetch errors due to Mixcloud changes.
+
 0.1.2
 - Fix Manifest UI detection broken by Volumio commit [db5d61a](https://github.com/volumio/volumio3-backend/commit/db5d61a50dacb60d5132238c7f506f0000f07e07)
 

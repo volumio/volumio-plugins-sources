@@ -28,5 +28,10 @@ export default class Model {
     static getInstance(type: ModelType.Show): ShowModel;
     static getInstance(type: ModelType.Tag): TagModel;
     static getInstance(type: ModelType.Track): TrackModel;
+    static setCookie(value?: string | null): void;
+    static get cookie(): string | null | undefined;
+    static reset(): void;
+    static clearLibCache(): void;
+    static ensureStreamURL(url: string): Promise<string | null>;
 }
 //# sourceMappingURL=index.d.ts.map
