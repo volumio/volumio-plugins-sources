@@ -11,6 +11,7 @@ const io = require('socket.io-client');
 const fs = require('fs-extra');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
+const spawn = require('child_process').spawn;
 const libQ = require('kew');
 const net = require('net');
 const path = require('path');
@@ -2445,18 +2446,67 @@ FusionDsp.prototype.dfiltertype = function (data) {
 };
 
 FusionDsp.prototype.checksamplerate = function () {
+
   const self = this;
+
   self.pushstateSamplerate = null;
-  self.socket.on('pushState', function (data) {
-    let samplerate = parseFloat(data.samplerate) * 1000;
-    self.pushstateSamplerate = !samplerate ? null : samplerate;
-    self.createCamilladspfile();
-  });
+
+  let callbackRead = function(data) {
+
+    let hcurrentsamplerate;
+    let hformat;
+    let hchannels;
+    let hbitdepth;
+    let needRestart = false;
+
+    try {
+
+      let content = data.toString();
+
+      self.logger.info(" ---- read samplerate, raw: " + content);
+
+      [hcurrentsamplerate, hformat, hchannels, hbitdepth] = content.split(",");
+      if (self.pushstateSamplerate != hcurrentsamplerate)
+        needRestart = true;
+
+      self.pushstateSamplerate = hcurrentsamplerate;
+
+      self.logger.info(" ---- read samplerate from file: " + self.pushstateSamplerate);
+
+    } catch (e) {
+
+      self.logger.error(e);
+
+    }
+
+    if (needRestart === true) {
+
+      self.camillaProcess.stop();
+
+      self.createCamilladspfile(function() {
+        setTimeout(function() {
+          self.camillaProcess.start();
+        }, 100);
+      });
+
+    } else {
+
+      self.createCamilladspfile();
+
+    }
+
+  }
+
+  let tail = spawn("tail", ["-f", "/tmp/fusiondsp_stream_params.log"]);
+  tail.stdout.on("data", callbackRead);
+
+  self.logger.info(" ---- installed callbackRead");
+
 };
 
 //------------Here we build CmaillaDsp config file----------------------------------------------
 
-FusionDsp.prototype.createCamilladspfile = function (obj) {
+FusionDsp.prototype.createCamilladspfile = function (callback) {
   const self = this;
   let defer = libQ.defer();
   var hcurrentsamplerate = 44100;
@@ -2470,14 +2520,6 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
    * hook, then check if we received sample rate from pushstate and prefer the
    * latter in case
    */
-  try {
-    let content;
-    content = fs.readFileSync("/tmp/fusiondsp_stream_params.log", "utf8");
-    [hcurrentsamplerate, hformat, hchannels, hbitdepth] = content.split(",");
-  } catch (error) {
-    console.error('Error fetching file:', error);
-  };
-
   if (self.pushstateSamplerate)
     hcurrentsamplerate = self.pushstateSamplerate;
 
@@ -2515,7 +2557,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       // var smpl_rate = self.config.get('smpl_rate')
       var filter_format = self.config.get('filter_format')
       if (selectedsp == "convfir") {
-        let val = self.dfiltertype(obj);
+        let val = self.dfiltertype();
         let skipval = val.skipvalue
       }
       var channels = 2;
@@ -3528,10 +3570,15 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           defer.reject(new Error(err));
         else defer.resolve();
       });
-      setTimeout(function () {
-        self.logger.info(logPrefix + result)
-        self.sendCommandToCamilla()
-      }, 1000);
+
+      if (callback) {
+        callback();
+      } else {
+        setTimeout(function () {
+          self.logger.info(logPrefix + result)
+          self.sendCommandToCamilla()
+        }, 1000);
+      }
 
     });
 
