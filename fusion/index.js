@@ -11,7 +11,6 @@ const io = require('socket.io-client');
 const fs = require('fs-extra');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
-const spawn = require('child_process').spawn;
 const libQ = require('kew');
 const net = require('net');
 const path = require('path');
@@ -35,6 +34,8 @@ const coefQ3 = [0.82, 0.4, 0.82]//Q for graphic EQ3
 const eq3type = ["Lowshelf2", "Peaking", "Highshelf2"] //Filter type for EQ3
 const sv = 34300 // sound velocity cm/s
 const logPrefix = "FusionDsp - "
+
+const fileStreamParams = "/tmp/fusiondsp_stream_params.log";
 
 // Define the Parameq class
 module.exports = FusionDsp;
@@ -148,7 +149,7 @@ FusionDsp.prototype.loadalsastuff = function () {
   const self = this;
   var defer = libQ.defer();
   try {
-    execSync("/bin/touch /tmp/fusiondsp_stream_params.log && /bin/chmod 666 /tmp/fusiondsp_stream_params.log && /bin/touch /tmp/camilladsp.log && /bin/chmod 666 /tmp/camilladsp.log && /usr/bin/mkfifo -m 646 /tmp/fusiondspfifo", {
+    execSync(`/bin/touch ${fileStreamParams} && /bin/chmod 666 ${fileStreamParams} && /bin/touch /tmp/camilladsp.log && /bin/chmod 666 /tmp/camilladsp.log && /usr/bin/mkfifo -m 646 /tmp/fusiondspfifo`, {
       uid: 1000,
       gid: 1000
     })
@@ -2445,23 +2446,26 @@ FusionDsp.prototype.dfiltertype = function (data) {
 
 };
 
+let isSamplerateUpdating = false;
+
 FusionDsp.prototype.checksamplerate = function () {
 
   const self = this;
 
   self.pushstateSamplerate = null;
 
-  let callbackRead = function(data) {
+  let callbackRead = function(event, file) {
 
     let hcurrentsamplerate;
     let hformat;
     let hchannels;
     let hbitdepth;
     let needRestart = false;
+    let timestamp = null;
 
     try {
 
-      let content = data.toString();
+      let content = fs.readFileSync(fileStreamParams).toString();
 
       self.logger.info(" ---- read samplerate, raw: " + content);
 
@@ -2469,9 +2473,35 @@ FusionDsp.prototype.checksamplerate = function () {
       if (self.pushstateSamplerate != hcurrentsamplerate)
         needRestart = true;
 
+      if (!hcurrentsamplerate)
+        throw "invalid sample rate";
+
+      if (isSamplerateUpdating === true)
+        throw " ---- read samplerate skipped, rate is already updating; keeping " + self.pushstateSamplerate;
+
+      isSamplerateUpdating = true;
+
       self.pushstateSamplerate = hcurrentsamplerate;
 
       self.logger.info(" ---- read samplerate from file: " + self.pushstateSamplerate);
+
+      if (needRestart === true) {
+
+        self.camillaProcess.stop();
+
+        self.createCamilladspfile(function() {
+          setTimeout(function() {
+            self.camillaProcess.start();
+            isSamplerateUpdating = false;
+          }, 100);
+        });
+
+      } else {
+
+        self.createCamilladspfile();
+        isSamplerateUpdating = false;
+
+      }
 
     } catch (e) {
 
@@ -2479,28 +2509,20 @@ FusionDsp.prototype.checksamplerate = function () {
 
     }
 
-    if (needRestart === true) {
-
-      self.camillaProcess.stop();
-
-      self.createCamilladspfile(function() {
-        setTimeout(function() {
-          self.camillaProcess.start();
-        }, 100);
-      });
-
-    } else {
-
-      self.createCamilladspfile();
-
-    }
-
   }
 
-  let tail = spawn("tail", ["-f", "/tmp/fusiondsp_stream_params.log"]);
-  tail.stdout.on("data", callbackRead);
+  try {
 
-  self.logger.info(" ---- installed callbackRead");
+    let watcher = fs.watch(fileStreamParams);
+    watcher.on("change", callbackRead);
+
+    self.logger.info(" ---- installed callbackRead");
+
+  } catch (e) {
+
+    self.logger.error("### ERROR: could not watch file " + fileStreamParams + " for sampling rate check");
+
+  }
 
 };
 

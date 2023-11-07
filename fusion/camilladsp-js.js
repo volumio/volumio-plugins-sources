@@ -25,7 +25,7 @@ let CamillaDsp = function (logger) {
      */
     let listenerTerm = function() {
 
-        this.stop();
+        self.stop();
 
     };
 
