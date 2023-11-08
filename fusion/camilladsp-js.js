@@ -20,16 +20,6 @@ let CamillaDsp = function (logger) {
     let self = this;
 
     /**
-     * Listener for SIGTERM signal, installed on class creation
-     * to terminate camilladsp process in case of killall/kill -SIGTERM
-     */
-    let listenerTerm = function() {
-
-        self.stop();
-
-    };
-
-    /**
      * Listener sent on camilladsp process termination.
      * The process may terminate either because FIFO has been closed (hence
      * we need to respawn the process immediately) or because of an error.
@@ -41,9 +31,12 @@ let CamillaDsp = function (logger) {
 
         logger.debug("close event");
 
+        // .stop() has been called, hence the process is supposed to
+        // not to be respawned. Just stop here in case.
         if (run === false)
             return;
 
+        // camilldsp exit with error, wait a second before respawn
         if (code > 0)
             timeout = 1000;
 
@@ -111,10 +104,10 @@ let CamillaDsp = function (logger) {
      */
     this.stop = function() {
 
+        run = false;
+
         if (camilla === null)
             return;
-
-        run = false;
 
         camilla.kill();
         camilla = null;
@@ -122,10 +115,6 @@ let CamillaDsp = function (logger) {
         logger.info("camilladsp service terminated");
 
     }
-
-    // Install the signal handler on SIGTERM to kill the child process
-    // and avoid dangling processes
-    process.on("SIGTERM", listenerTerm);
 
 };
 

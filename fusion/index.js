@@ -2454,6 +2454,11 @@ FusionDsp.prototype.checksamplerate = function () {
 
   self.pushstateSamplerate = null;
 
+  /**
+   * Callback invoked when fileStreamParams changes. In this callback
+   * we read the stream parameters, validate them and update camilladsp
+   * configuration file to accomodate changes
+   */
   let callbackRead = function(event, file) {
 
     let hcurrentsamplerate;
@@ -2470,14 +2475,15 @@ FusionDsp.prototype.checksamplerate = function () {
       self.logger.info(" ---- read samplerate, raw: " + content);
 
       [hcurrentsamplerate, hformat, hchannels, hbitdepth] = content.split(",");
-      if (self.pushstateSamplerate != hcurrentsamplerate)
-        needRestart = true;
 
       if (!hcurrentsamplerate)
         throw "invalid sample rate";
 
       if (isSamplerateUpdating === true)
         throw " ---- read samplerate skipped, rate is already updating; keeping " + self.pushstateSamplerate;
+
+      if (self.pushstateSamplerate != hcurrentsamplerate)
+        needRestart = true;
 
       isSamplerateUpdating = true;
 
@@ -2511,6 +2517,8 @@ FusionDsp.prototype.checksamplerate = function () {
 
   }
 
+  // Install a file watcher over fileStreamParams
+  // when the file changes, read the content and update the samplerate
   try {
 
     let watcher = fs.watch(fileStreamParams);
