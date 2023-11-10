@@ -1,5 +1,6 @@
 "use strict";
 
+const { execSync } = require("child_process");
 const { spawn } = require("child_process");
 
 /**
@@ -74,6 +75,8 @@ let CamillaDsp = function (logger) {
 
         let args;
 
+        run = true;
+
         if (camilla !== null)
             return;
 
@@ -92,8 +95,6 @@ let CamillaDsp = function (logger) {
         camilla.on("exit", listenerExit);
         camilla.on("close", listenerClose);
 
-        run = true;
-
         logger.info("camilladsp service started and running in background");
 
     };
@@ -104,13 +105,22 @@ let CamillaDsp = function (logger) {
      */
     this.stop = function() {
 
+        let pid;
+
         run = false;
 
         if (camilla === null)
             return;
 
+        pid = camilla.pid;
+
         camilla.kill();
         camilla = null;
+
+        logger.info(`camilladsp stopping service pid ${pid}...`);
+
+        // Hacky way to make this function synchronous
+        execSync(`while true; do grep camilladsp /proc/${pid}/cmdline || break; sleep 0.1; done`);
 
         logger.info("camilladsp service terminated");
 

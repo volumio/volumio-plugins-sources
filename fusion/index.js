@@ -2147,7 +2147,6 @@ FusionDsp.prototype.getAdditionalConf = function (type, controller, data) {
   return self.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
 }
 // Plugin methods -----------------------------------------------------------------------------
-
 //------------Here we define a function to send a command to CamillaDsp through websocket---------------------
 FusionDsp.prototype.sendCommandToCamilla = function () {
   const self = this;
@@ -2446,6 +2445,7 @@ FusionDsp.prototype.dfiltertype = function (data) {
 
 };
 
+// Guard against multiple samplerate change events in short amount of time
 let isSamplerateUpdating = false;
 
 FusionDsp.prototype.checksamplerate = function () {
@@ -2482,10 +2482,10 @@ FusionDsp.prototype.checksamplerate = function () {
       if (isSamplerateUpdating === true)
         throw " ---- read samplerate skipped, rate is already updating; keeping " + self.pushstateSamplerate;
 
+      isSamplerateUpdating = true;
+
       if (self.pushstateSamplerate != hcurrentsamplerate)
         needRestart = true;
-
-      isSamplerateUpdating = true;
 
       self.pushstateSamplerate = hcurrentsamplerate;
 
@@ -2493,14 +2493,15 @@ FusionDsp.prototype.checksamplerate = function () {
 
       if (needRestart === true) {
 
+        // Synchronous stop, the function will return only when the process has been
+        // really terminated
         self.camillaProcess.stop();
 
         self.createCamilladspfile(function() {
-          setTimeout(function() {
-            self.camillaProcess.start();
-            isSamplerateUpdating = false;
-          }, 100);
+          self.camillaProcess.start();
+          isSamplerateUpdating = false;
         });
+
 
       } else {
 
@@ -2511,6 +2512,7 @@ FusionDsp.prototype.checksamplerate = function () {
 
     } catch (e) {
 
+      isSamplerateUpdating = false;
       self.logger.error(e);
 
     }
@@ -3595,19 +3597,13 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
         .replace("${composedpipeline}", composedpipeline.replace(/-       - /g, '- '))
         //  .replace("${pipelineR}", pipelinerr)
         ;
-      fs.writeFile("/data/configuration/audio_interface/fusiondsp/camilladsp.yml", conf, 'utf8', function (err) {
-        if (err)
-          defer.reject(new Error(err));
-        else defer.resolve();
-      });
+      fs.writeFileSync("/data/configuration/audio_interface/fusiondsp/camilladsp.yml", conf, 'utf8');
 
       if (callback) {
         callback();
       } else {
-        setTimeout(function () {
-          self.logger.info(logPrefix + result)
-          self.sendCommandToCamilla()
-        }, 1000);
+        self.logger.info(logPrefix + result)
+        self.sendCommandToCamilla();
       }
 
     });
