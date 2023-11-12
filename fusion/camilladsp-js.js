@@ -22,7 +22,7 @@ let CamillaDsp = function (logger) {
     let uniqueid = ++counter;
 
     /**
-     * Listener sent on camilladsp process termination.
+     * Listener for event sent on camilladsp process termination.
      * The process may terminate either because FIFO has been closed (hence
      * we need to respawn the process immediately) or because of an error.
      * In case of error, we wait for a second to avoid hogging CPU
@@ -70,7 +70,7 @@ let CamillaDsp = function (logger) {
     };
 
     /**
-     * Internal function to spawn the camilladsp process.
+     * Private function to spawn the camilladsp process.
      * If the process is already started (ie: camilla !== null), does not
      * spawn another process
      */
@@ -111,7 +111,7 @@ let CamillaDsp = function (logger) {
     };
 
     /**
-     * Internal function to stop camilladsp process. If there is no process running
+     * Private function to stop camilladsp process. If there is no process running
      * (ie: camilla === null), does not do anything
      */
     let processStop = function() {
