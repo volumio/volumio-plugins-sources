@@ -106,6 +106,7 @@ FusionDsp.prototype.onStop = function () {
   self.socket.off()
   self.logger.info(logPrefix + ' Stopping FusionDsp service');
   self.camillaProcess.stop();
+  self.camillaProcess = null;
 
   exec("/usr/bin/sudo /bin/systemctl stop fusiondsp.service", {
     uid: 1000,

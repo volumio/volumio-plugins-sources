@@ -3,6 +3,8 @@
 const { execSync } = require("child_process");
 const { spawn } = require("child_process");
 
+let counter = 0;
+
 /**
  * CamillaDsp class to handle the external process
  * spawned as child process
@@ -17,8 +19,7 @@ let CamillaDsp = function (logger) {
 
     let run = false;
     let camilla = null;
-    let abortController = null;
-    let self = this;
+    let uniqueid = ++counter;
 
     /**
      * Listener sent on camilladsp process termination.
@@ -31,6 +32,9 @@ let CamillaDsp = function (logger) {
         let timeout = 0;
 
         logger.debug("close event");
+
+        // Nullify the camilla process since it has been fully terminated
+        camilla = null;
 
         // .stop() has been called, hence the process is supposed to
         // not to be respawned. Just stop here in case.
@@ -49,7 +53,7 @@ let CamillaDsp = function (logger) {
             if (run === false)
                 return;
 
-            self.start();
+            processSpawn();
 
         }, timeout);
 
@@ -61,21 +65,18 @@ let CamillaDsp = function (logger) {
      */
     let listenerExit = function(code, signal) {
 
-        camilla = null;
-
         logger.debug(`camilladsp exit event, exit code ${code}, signal ${signal}`);
 
     };
 
     /**
-     * Public function to spawn the camilladsp process and keep it
-     * running in the background
+     * Internal function to spawn the camilladsp process.
+     * If the process is already started (ie: camilla !== null), does not
+     * spawn another process
      */
-    this.start = function() {
+    let processSpawn = function() {
 
         let args;
-
-        run = true;
 
         if (camilla !== null)
             return;
@@ -90,12 +91,68 @@ let CamillaDsp = function (logger) {
             cdPathConfig
         ];
 
+        // Cleanup the FIFO before starting, so in case of error FIFO won't be
+        // kept in wait state, in case of no error the previous content is cleaned up
+        try {
+            execSync("/bin/dd if=/tmp/fusiondspfifo of=/dev/null bs=32k iflag=nonblock");
+        } catch (e) {
+            // pass
+        }
+
+        logger.debug(`camilladsp spawning process`);
+
         camilla = spawn(cdPath, args);
 
-        camilla.on("exit", listenerExit);
+        logger.info(`camilladsp spawned new process with pid ${camilla.pid}, instance ${uniqueid}, run: ${run}`);
+
+        //camilla.on("exit", listenerExit);
         camilla.on("close", listenerClose);
 
-        logger.info("camilladsp service started and running in background");
+    };
+
+    /**
+     * Internal function to stop camilladsp process. If there is no process running
+     * (ie: camilla === null), does not do anything
+     */
+    let processStop = function() {
+
+        let pid;
+
+        try {
+
+            if (camilla === null)
+                return;
+
+            pid = camilla.pid;
+
+            logger.info(`camilladsp stopping service pid ${pid}...`);
+
+            camilla.kill();
+
+            // Hacky way to make this function synchronous
+            execSync(`while true; do grep camilladsp /proc/${pid}/cmdline || break; sleep 0.1; done`);
+
+            logger.debug(`camilladsp stopped pid ${pid}`);
+
+        } catch (e) {
+
+            logger.error(`camilladsp processStop exception. Reason: ${e}`);
+
+        }
+
+    };
+
+    /**
+     * Public function to spawn the camilladsp process and keep it
+     * running in the background
+     */
+    this.start = function() {
+
+        run = true;
+
+        processSpawn();
+
+        logger.info(`camilladsp service started and running in background, instance ${uniqueid}`);
 
     };
 
@@ -105,24 +162,11 @@ let CamillaDsp = function (logger) {
      */
     this.stop = function() {
 
-        let pid;
-
         run = false;
 
-        if (camilla === null)
-            return;
+        processStop();
 
-        pid = camilla.pid;
-
-        camilla.kill();
-        camilla = null;
-
-        logger.info(`camilladsp stopping service pid ${pid}...`);
-
-        // Hacky way to make this function synchronous
-        execSync(`while true; do grep camilladsp /proc/${pid}/cmdline || break; sleep 0.1; done`);
-
-        logger.info("camilladsp service terminated");
+        logger.info(`camilladsp service terminated, instance ${uniqueid}`);
 
     }
 
