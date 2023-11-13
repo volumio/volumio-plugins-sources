@@ -13,7 +13,7 @@ let CamillaDsp = function (logger) {
 
     const cdPath = "/data/plugins/audio_interface/fusiondsp/camilladsp"
     const cdLog = "/tmp/camilladsp.log";
-    const cdLogLevel = "debug";
+    const cdLogLevel = "warn";
     const cdPortWs = 9876;
     const cdPathConfig = "/data/configuration/audio_interface/fusiondsp/camilladsp.yml";
 
