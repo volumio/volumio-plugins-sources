@@ -14,7 +14,8 @@ const execSync = require('child_process').execSync;
 const libQ = require('kew');
 const net = require('net');
 const path = require('path');
-const WebSocket = require('ws')
+const WebSocket = require('ws');
+const { CamillaDsp } = require('./camilladsp-js');
 
 //---global Eq Variables
 const tnbreq = 50// Nbre total of Eq
@@ -33,6 +34,8 @@ const coefQ3 = [0.82, 0.4, 0.82]//Q for graphic EQ3
 const eq3type = ["Lowshelf2", "Peaking", "Highshelf2"] //Filter type for EQ3
 const sv = 34300 // sound velocity cm/s
 const logPrefix = "FusionDsp - "
+
+const fileStreamParams = "/tmp/fusiondsp_stream_params.log";
 
 // Define the Parameq class
 module.exports = FusionDsp;
@@ -63,6 +66,8 @@ FusionDsp.prototype.onStart = function () {
   self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
   setTimeout(function () {
     self.loadalsastuff();
+    self.camillaProcess = new CamillaDsp(self.logger);
+    self.camillaProcess.start();
     self.hwinfo();
     self.purecamillagui();
     self.getIP();
@@ -100,6 +105,8 @@ FusionDsp.prototype.onStop = function () {
   let defer = libQ.defer();
   self.socket.off()
   self.logger.info(logPrefix + ' Stopping FusionDsp service');
+  self.camillaProcess.stop();
+  self.camillaProcess = null;
 
   exec("/usr/bin/sudo /bin/systemctl stop fusiondsp.service", {
     uid: 1000,
@@ -143,7 +150,7 @@ FusionDsp.prototype.loadalsastuff = function () {
   const self = this;
   var defer = libQ.defer();
   try {
-    execSync("/bin/touch /tmp/sr.log && /bin/chmod 666 /tmp/sr.log && /bin/touch /tmp/camilladsp.log && /bin/chmod 666 /tmp/camilladsp.log && /usr/bin/mkfifo -m 646 /tmp/fusiondspfifo", {
+    execSync(`/bin/touch ${fileStreamParams} && /bin/chmod 666 ${fileStreamParams} && /bin/touch /tmp/camilladsp.log && /bin/chmod 666 /tmp/camilladsp.log && /usr/bin/mkfifo -m 646 /tmp/fusiondspfifo`, {
       uid: 1000,
       gid: 1000
     })
@@ -2141,7 +2148,6 @@ FusionDsp.prototype.getAdditionalConf = function (type, controller, data) {
   return self.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
 }
 // Plugin methods -----------------------------------------------------------------------------
-
 //------------Here we define a function to send a command to CamillaDsp through websocket---------------------
 FusionDsp.prototype.sendCommandToCamilla = function () {
   const self = this;
@@ -2440,32 +2446,116 @@ FusionDsp.prototype.dfiltertype = function (data) {
 
 };
 
-FusionDsp.prototype.checksamplerate = function () {
-  const self = this;
-  self.socket.on('pushState', function (data) {
-    self.createCamilladspfile()
+// Guard against multiple samplerate change events in short amount of time
+let isSamplerateUpdating = false;
 
-  });
+FusionDsp.prototype.checksamplerate = function () {
+
+  const self = this;
+
+  self.pushstateSamplerate = null;
+
+  /**
+   * Callback invoked when fileStreamParams changes. In this callback
+   * we read the stream parameters, validate them and update camilladsp
+   * configuration file to accomodate changes
+   */
+  let callbackRead = function(event, file) {
+
+    let hcurrentsamplerate;
+    let hformat;
+    let hchannels;
+    let hbitdepth;
+    let needRestart = false;
+    let timestamp = null;
+
+    try {
+
+      let content = fs.readFileSync(fileStreamParams).toString();
+
+      self.logger.info(" ---- read samplerate, raw: " + content);
+
+      [hcurrentsamplerate, hformat, hchannels, hbitdepth] = content.split(",");
+
+      if (!hcurrentsamplerate)
+        throw "invalid sample rate";
+
+      if (isSamplerateUpdating === true)
+        throw " ---- read samplerate skipped, rate is already updating; keeping " + self.pushstateSamplerate;
+
+      isSamplerateUpdating = true;
+
+      if (self.pushstateSamplerate != hcurrentsamplerate)
+        needRestart = true;
+
+      self.pushstateSamplerate = hcurrentsamplerate;
+
+      self.logger.info(" ---- read samplerate from file: " + self.pushstateSamplerate);
+
+      if (needRestart === true) {
+
+        // Synchronous stop, the function will return only when the process has been
+        // really terminated
+        self.camillaProcess.stop();
+
+        self.createCamilladspfile(function() {
+          self.camillaProcess.start();
+          isSamplerateUpdating = false;
+        });
+
+
+      } else {
+
+        self.createCamilladspfile();
+        isSamplerateUpdating = false;
+
+      }
+
+    } catch (e) {
+
+      isSamplerateUpdating = false;
+      self.logger.error(e);
+
+    }
+
+  }
+
+  // Install a file watcher over fileStreamParams
+  // when the file changes, read the content and update the samplerate
+  try {
+
+    let watcher = fs.watch(fileStreamParams);
+    watcher.on("change", callbackRead);
+
+    self.logger.info(" ---- installed callbackRead");
+
+  } catch (e) {
+
+    self.logger.error("### ERROR: could not watch file " + fileStreamParams + " for sampling rate check");
+
+  }
+
 };
 
 //------------Here we build CmaillaDsp config file----------------------------------------------
 
-FusionDsp.prototype.createCamilladspfile = function (obj) {
+FusionDsp.prototype.createCamilladspfile = function (callback) {
   const self = this;
   let defer = libQ.defer();
-  var hcurrentsamplerate
+  var hcurrentsamplerate = 44100;
+  let hformat = "S32_LE";
+  let hchannels = 2;
+  let hbitdepth = 32;
   let selectedsp = self.config.get('selectedsp')
 
-  try {
-    hcurrentsamplerate = fs.readFileSync("/tmp/sr.log", "utf8");
+  /*
+   * Read the sampling rate, format, channels and bitdepth from ALSA provided
+   * hook, then check if we received sample rate from pushstate and prefer the
+   * latter in case
+   */
+  if (self.pushstateSamplerate)
+    hcurrentsamplerate = self.pushstateSamplerate;
 
-  }
-  catch (error) {
-    console.error('Error fetching file:', error);
-  };
-  if (!hcurrentsamplerate) {
-    hcurrentsamplerate = "22050"
-  }
   if (selectedsp != 'convfir') {
     self.logger.info(logPrefix + ' If filter freq >samplerate/2 then disable it');
   }
@@ -2500,7 +2590,7 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       // var smpl_rate = self.config.get('smpl_rate')
       var filter_format = self.config.get('filter_format')
       if (selectedsp == "convfir") {
-        let val = self.dfiltertype(obj);
+        let val = self.dfiltertype();
         let skipval = val.skipvalue
       }
       var channels = 2;
@@ -2539,7 +2629,8 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       //------resampling section-----
 
       var composeddevice = '';
-      let capturesamplerate = 44100
+      let capturesamplerate = hcurrentsamplerate;
+      let outputsamplerate = capturesamplerate;
       if (enableresampling) {
         let type
         switch (resamplingq) {
@@ -2555,11 +2646,12 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
           default: "++"
         }
 
-        capturesamplerate = resamplingset;
         composeddevice += '  enable_resampling: true\n';
         composeddevice += '  resampler_type: ' + type + '\n';
-        composeddevice += '  capture_samplerate: ' + resamplingset;
+        composeddevice += '  capture_samplerate: ' + capturesamplerate;
+        outputsamplerate = resamplingset;
       } else if (enableresampling == false) {
+        composeddevice += '  capture_samplerate: ' + capturesamplerate;
         composeddevice = '\n';
       }
       //------crossfeed section------
@@ -3499,22 +3591,21 @@ FusionDsp.prototype.createCamilladspfile = function (obj) {
       let conf = data.replace("${resulteq}", result)
         .replace("${chunksize}", (chunksize))
         .replace("${resampling}", (composeddevice))
-        .replace("${capturesamplerate}", (capturesamplerate))
+        .replace("${outputsamplerate}", (outputsamplerate))
 
         .replace("${composeout}", (composeout))
         .replace("${mixers}", composedmixer)
         .replace("${composedpipeline}", composedpipeline.replace(/-       - /g, '- '))
         //  .replace("${pipelineR}", pipelinerr)
         ;
-      fs.writeFile("/data/configuration/audio_interface/fusiondsp/camilladsp.yml", conf, 'utf8', function (err) {
-        if (err)
-          defer.reject(new Error(err));
-        else defer.resolve();
-      });
-      setTimeout(function () {
+      fs.writeFileSync("/data/configuration/audio_interface/fusiondsp/camilladsp.yml", conf, 'utf8');
+
+      if (callback) {
+        callback();
+      } else {
         self.logger.info(logPrefix + result)
-        self.sendCommandToCamilla()
-      }, 1000);
+        self.sendCommandToCamilla();
+      }
 
     });
 
