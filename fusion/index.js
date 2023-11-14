@@ -1,4 +1,4 @@
-f/*--------------------
+/*--------------------
 // FusionDsp plugin for volumio 3. By balbuze May 2023
 Multi Dsp features
 Based on CamillaDsp
@@ -232,11 +232,11 @@ FusionDsp.prototype.hwinfo = function () {
       self.logger.info(logPrefix + ' AAAAAAAAAAAAAA-> ' + samplerates + ' <-AAAAAAAAAAAAA');
       self.config.set('probesmplerate', samplerates);
     } catch (err) {
-      .error(logPrefix + ' Error reading hwinfo.json, detection failed :', err);
+      self.logger.error(logPrefix + ' Error reading hwinfo.json, detection failed :', err);
     }
     defer.resolve();
   } catch (err) {
-    .error(logPrefix + ' ----Hw detection failed :' + err);
+    self.logger.error(logPrefix + ' ----Hw detection failed :' + err);
     defer.reject(err);
   }
 };
@@ -932,7 +932,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
             }
           });
         } catch (e) {
-          .error(logPrefix + ' CAN not read file: ' + e)
+          self.logger.error(logPrefix + ' CAN not read file: ' + e)
         }
         uiconf.sections[1].content[4].value = self.config.get('enableclipdetect');
 
@@ -1630,7 +1630,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
 
 
       } catch (err) {
-        .error(logPrefix + ' failed to read downloadedlist.txt' + err);
+        self.logger.error(logPrefix + ' failed to read downloadedlist.txt' + err);
       }
 
       //----------section 5------------
@@ -1658,7 +1658,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
 
         });
       } catch (err) {
-        .error(logPrefix + ' failed to read local file' + err);
+        self.logger.error(logPrefix + ' failed to read local file' + err);
       }
 
       value = self.config.get('localscope');
@@ -1728,7 +1728,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
           }
         });
       } catch (e) {
-        .error(logPrefix + ' Could not read file: ' + e)
+        self.logger.error(logPrefix + ' Could not read file: ' + e)
       }
 
       var value = self.config.get('drc_sample_rate');
@@ -1753,7 +1753,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
           }
         });
       } catch (e) {
-        .error(logPrefix + ' Could not read file: ' + e)
+        self.logger.error(logPrefix + ' Could not read file: ' + e)
       }
 
       var value = self.config.get('drcconfig');
@@ -1786,7 +1786,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
           }
         });
       } catch (e) {
-        .error(logPrefix + ' Could not read file: ' + e)
+       self.logger.error(logPrefix + ' Could not read file: ' + e)
       }
 
 
@@ -2162,7 +2162,7 @@ FusionDsp.prototype.sendCommandToCamilla = function () {
   };
 
   connection.onerror = (error) => {
-    .error(logPrefix + `WebSocket error: ${error}`);
+   self.logger.error(logPrefix + `WebSocket error: ${error}`);
   };
 
   connection.onmessage = (e) => {
@@ -2172,7 +2172,7 @@ FusionDsp.prototype.sendCommandToCamilla = function () {
     try {
       parsed = JSON.parse(replyString);
     } catch (err) {
-      .error(logPrefix + 'Parse error ', err);
+     self.logger.error(logPrefix + 'Parse error ', err);
     }
     if (parsed.hasOwnProperty('GetClippedSamples')) {
       let result = parsed.GetClippedSamples.value;
@@ -2284,7 +2284,7 @@ FusionDsp.prototype.testclipping = function () {
       }, 50);
 
     } catch (e) {
-      .error(cmd);
+     self.logger.error(cmd);
     };
   }, 1500);
 
