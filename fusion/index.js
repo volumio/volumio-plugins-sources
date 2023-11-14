@@ -2557,7 +2557,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
     hcurrentsamplerate = self.pushstateSamplerate;
 
   if (selectedsp != 'convfir') {
-    self.loggerself.logger.info(logPrefix + ' If filter freq >samplerate/2 then disable it');
+    self.logger.info(logPrefix + ' If filter freq >samplerate/2 then disable it');
   }
 
   if (selectedsp == 'purecgui') {
