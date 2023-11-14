@@ -2302,7 +2302,7 @@ FusionDsp.prototype.testclipping = function () {
 
           let attcalculated = filteredMessage[2]
           messageDisplayed = Number(attcalculated);
-          self.loggerself.logger.info(logPrefix + ' clipping detection gives values in line ' + o + " " + messageDisplayed)
+          self.logger.info(logPrefix + ' clipping detection gives values in line ' + o + " " + messageDisplayed)
           arr.push(messageDisplayed);
         }
       }
@@ -2359,7 +2359,7 @@ FusionDsp.prototype.dfiltertype = function (data) {
   if (filext == 'pcm') {
     try {
       filelength = (execSync('/usr/bin/stat -c%s ' + filterfolder + filtername, 'utf8').slice(0, -1) / 4);
-      //  self.loggerself.logger.info(logPrefix+' filelength ' + filelength)
+      //  self.logger.info(logPrefix+' filelength ' + filelength)
     } catch (err) {
       self.logger.error(logPrefix + ' An error occurs while reading file');
     }
@@ -2375,7 +2375,7 @@ FusionDsp.prototype.dfiltertype = function (data) {
     }
     self.config.set('filter_size', filelength);
     auto_filter_format = 'TEXT';
-    // self.loggerself.logger.info(logPrefix+' Filter length' + filelength);
+    // self.logger.info(logPrefix+' Filter length' + filelength);
 
   }
   else if (filext == 'raw') {
@@ -2421,8 +2421,8 @@ FusionDsp.prototype.dfiltertype = function (data) {
   self.config.set('filter_format', auto_filter_format);
   self.config.set('convtype', convtype);
 
-  // self.loggerself.logger.info(logPrefix+' --------->filter format ' + filext + ' ' + auto_filter_format);
-  //self.loggerself.logger.info(logPrefix+' --------->filter size ' + filelength);
+  // self.logger.info(logPrefix+' --------->filter format ' + filext + ' ' + auto_filter_format);
+  //self.logger.info(logPrefix+' --------->filter size ' + filelength);
 
 
   var arr = [2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144];
@@ -2432,7 +2432,7 @@ FusionDsp.prototype.dfiltertype = function (data) {
     valfound = true;
   }
   if (valfound) {
-    self.loggerself.logger.info(logPrefix + ' File size found in array!');
+    self.logger.info(logPrefix + ' File size found in array!');
   }
   if (valfound === false) {
     self.logger.error(logPrefix + ' File size not found in array!');
@@ -2661,7 +2661,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
       if ((crossconfig != 'None') && (!is_natural))/* && (effect))*/ {
         var composedeq = '';
 
-        self.loggerself.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
+        self.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
         switch (crossconfig) {
           case ("bauer"):
             crossfreq = 700
@@ -2719,7 +2719,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
         let hrtf_filterr = '';
         crossatt = 3;
 
-        self.loggerself.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
+        self.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
         switch (crossconfig) {
           case ("nc_11_30"):
             hrtf_filterl = "NC_11_30/NC_11_30_Left_$samplerate$.wav";
@@ -2798,7 +2798,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
 
       let loudness = self.config.get('loudness')
       if ((loudness) && (effect)) {
-        self.loggerself.logger.info(logPrefix + ' Loudness is ON ' + loudness)
+        self.logger.info(logPrefix + ' Loudness is ON ' + loudness)
         var composedeq = '';
         var pipelineL = '';
         var pipelineR = '';
@@ -2858,9 +2858,9 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
         resulttype += typec
       }
       if (resulttype.indexOf('None') == -1) {
-        //self.loggerself.logger.info(logPrefix+' resultype dif from None ' + resulttype)
+        //self.logger.info(logPrefix+' resultype dif from None ' + resulttype)
       } else {
-        //self.loggerself.logger.info(logPrefix+' Resultype only None ' + resulttype)
+        //self.logger.info(logPrefix+' Resultype only None ' + resulttype)
         var composedeq = '';
         composedeq += '  nulleq:' + '\n';
         composedeq += '    type: Conv' + '\n';
@@ -2869,7 +2869,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
         pipelinelr = pipeliner.slice(8)
         pipelinerr = pipeliner.slice(8)
 
-        self.loggerself.logger.info(logPrefix + ' Nulleq applied')
+        self.logger.info(logPrefix + ' Nulleq applied')
 
         gainresult = 0
         gainclipfree = 0
@@ -2881,7 +2881,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
         composedeq += '  nulleq:' + '\n';
         composedeq += '    type: Conv' + '\n';
 
-        //self.loggerself.logger.info(logPrefix + ' Effects disabled')
+        //self.logger.info(logPrefix + ' Effects disabled')
         gainresult = 0
         gainclipfree = self.config.get('gainapplied')
 
@@ -3226,7 +3226,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
       const withNegativeValues = gainmaxused.split(',').some((val) => val < 0);
       gainresult = (gainmaxused.toString().split(',').slice(1).sort((a, b) => a - b)).pop();
 
-      //    self.loggerself.logger.info(logPrefix + ' gainmaxused ' + gainmaxused + ' ' + typeof (withNegativeValues) + withNegativeValues)
+      //    self.logger.info(logPrefix + ' gainmaxused ' + gainmaxused + ' ' + typeof (withNegativeValues) + withNegativeValues)
       let monooutput = self.config.get('monooutput')
 
       if (effect) {
@@ -3235,7 +3235,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
           gainclipfree = -0.05
         } else if (+gainresult == 0 && withNegativeValues) {
           gainclipfree = -2.5
-          self.loggerself.logger.info(logPrefix + ' else 1  ' + gainclipfree)
+          self.logger.info(logPrefix + ' else 1  ' + gainclipfree)
         } else if (+gainresult > 0 && (selectedsp != "convfir")) {
           gainclipfree = ('-' + ((parseFloat(Number(gainresult).toFixed(2))) + 2.5))
         } else if (+gainresult > 0 && (selectedsp == "convfir")) {
@@ -3535,7 +3535,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
 
       } else if (effect == false) {
 
-        self.loggerself.logger.info(logPrefix + ' Effects disabled')
+        self.logger.info(logPrefix + ' Effects disabled')
         gainresult = 0
         //   gainclipfree = self.config.get('gainapplied')
 
@@ -3635,10 +3635,10 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       var veq = Number(eqr[0]);
 
       if (typer !== 'None' && typer !== 'Remove') {
-        //  self.loggerself.logger.info(logPrefix + ' Type is ' + typer)
+        //  self.logger.info(logPrefix + ' Type is ' + typer)
 
         if (Number.parseFloat(veq) && (veq > 0 && veq < 22050)) {
-          //  self.loggerself.logger.info(logPrefix+' value ok ')
+          //  self.logger.info(logPrefix+' value ok ')
 
         } else {
 
@@ -3751,7 +3751,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
 
         var q = eqr[2];
         if (q != undefined) {
-          self.loggerself.logger.info(logPrefix + ' last value ' + q)
+          self.logger.info(logPrefix + ' last value ' + q)
 
           self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('NO_THIRDCOEFF') + eqc)
           return;
@@ -3763,7 +3763,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       if (typer == 'HighpassFO' || typer == 'LowpassFO') {
 
         var q = eqr[1];
-        self.loggerself.logger.info(logPrefix + ' last value ' + q)
+        self.logger.info(logPrefix + ' last value ' + q)
         if (q != undefined) {
           self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('ONLY_FREQ') + eqc)
           return;
@@ -3771,7 +3771,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
           //do nthing
         }
       } else {
-        // self.loggerself.logger.info(logPrefix + ' nothing todo');
+        // self.logger.info(logPrefix + ' nothing todo');
       }
     }
 
@@ -3784,13 +3784,13 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       //--- skip PEQ if set to REMOVE
       if (((data[typec].value) != 'Remove')) {
         test += ('Eq' + o + '|' + data[typec].value + '|' + data[scopec].value + '|' + data[eqc] + '|');
-        //  self.loggerself.logger.info(logPrefix + ' test values ' + test)
+        //  self.logger.info(logPrefix + ' test values ' + test)
         //  self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
       } else if (((data[typec].value) == 'Remove') && (nbreq == 1)) {
         self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('CANT_REMOVE_LAST_PEQ'))
       } else if (((data[typec].value) == 'Remove') && (nbreq != 1)) {
         skipeqn = skipeqn + 1
-        self.loggerself.logger.info(logPrefix + ' skipeqn ' + skipeqn)
+        self.logger.info(logPrefix + ' skipeqn ' + skipeqn)
 
       }
     }
@@ -3803,7 +3803,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('geq3', geq3);
 
     eqr = geq3
-    //self.loggerself.logger.info(logPrefix + ' setting EQ3 values ' + eqr)
+    //self.logger.info(logPrefix + ' setting EQ3 values ' + eqr)
     for (let o in eqr) {
       // for(let q in coefQ3){
       //   let qa =coefQ3[q]
@@ -3822,7 +3822,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('x2geq15', geq15);
 
     eqr = geq15
-    //self.loggerself.logger.info(logPrefix + ' setting EQ15 values ' + eqr)
+    //self.logger.info(logPrefix + ' setting EQ15 values ' + eqr)
     for (let o in eqr) {
       let eqval = geq15[o]
       test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
@@ -3867,7 +3867,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
         const rightFilterExists = fs.existsSync(rightFilterPath);
         //   return new Promise((resolve, reject) => {
         if (leftFilterExists && rightFilterExists) {
-          self.loggerself.logger.info(logPrefix + ' Ok! Convolution files exist');
+          self.logger.info(logPrefix + ' Ok! Convolution files exist');
 
         } else {
           self.logger.error(logPrefix + 'Nok! Convolution files missing');
@@ -3950,7 +3950,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       ltest = ('Eq1' + '|' + typerl + '|L' + cleftfilter + '|' + attenuationl + '|');
       rtest = ('Eq2' + '|' + typerr + '|R' + crightfilter + '|' + attenuationr + '|');
       test = ltest + rtest
-      self.loggerself.logger.info(logPrefix + ' Test ' + test)
+      self.logger.info(logPrefix + ' Test ' + test)
 
       self.config.set('savedmergedeqfir', test)
 
@@ -3968,7 +3968,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
         self.config.set('delay', data["delay"]);
         self.config.set('delayscope', (data["delayscope"].value));
 
-        self.loggerself.logger.info(logPrefix + ' value delay ------- ' + value + ' scope ' + (data['delayscope'].value))
+        self.logger.info(logPrefix + ' value delay ------- ' + value + ' scope ' + (data['delayscope'].value))
         self.autocaldistancedelay()
       } else {
         self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('DELAY_ERROR'))
@@ -3985,7 +3985,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
 
         self.config.set('ldistance', valuel);
         self.config.set('rdistance', valuer);
-        self.loggerself.logger.info(logPrefix + ' value distance L------- ' + valuel + ' R ' + valuer);
+        self.logger.info(logPrefix + ' value distance L------- ' + valuel + ' R ' + valuer);
         self.autocalculdelay()
       } else {
         self.commandRouter.pushToastMessage('error', 'DELAY_ERROR')
@@ -4017,7 +4017,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       let rlevel = data.rightlevel
 
       if ((Number.parseFloat(llevel) <= 0 && Number.parseFloat(llevel) > -20) && (Number.parseFloat(rlevel) <= 0 && Number.parseFloat(rlevel) > -20)) {
-      //  self.loggerself.logger.info(logPrefix + ' value ok ' + llevel + rlevel);
+      //  self.logger.info(logPrefix + ' value ok ' + llevel + rlevel);
       }
       else {
         self.logger.error(logPrefix + ' wrong value in  level ' + llevel + ' or ' + rlevel)
@@ -4083,7 +4083,7 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     return;
   }
   var nbreq = self.config.get('nbreq')
-  // self.loggerself.logger.info('eqpresetsaved ' + preset)
+  // self.logger.info('eqpresetsaved ' + preset)
   var rpreset = (data['renpreset'])
   //if (rpreset != 'choose a name') {
   switch (preset) {
@@ -4132,7 +4132,7 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
   }
 
   if (rpreset == '') {
-    self.loggerself.logger.info(logPrefix + 'No change in name !')
+    self.logger.info(logPrefix + 'No change in name !')
   } else {
     self.config.set(selectedsp + "renpreset" + renprestr, (data['renpreset']));
     // let name = (self.config.get('renpreset' + renprestr));
@@ -4246,16 +4246,16 @@ FusionDsp.prototype.usethispreset = function (data) {
 
   if (selectedsp == 'EQ15') {
     geq15 = self.config.get(eqspreset).split(',')
-    //  self.loggerself.logger.info(logPrefix+' geq1 ' + geq15)
+    //  self.logger.info(logPrefix+' geq1 ' + geq15)
 
     let o = 1
     var eqr = geq15//.split(',')
-    //self.loggerself.logger.info(logPrefix+' setting EQ15 values ' + typeof (eqr))
+    //self.logger.info(logPrefix+' setting EQ15 values ' + typeof (eqr))
     for (o in eqr) {
       let eqval = geq15[o]
       test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
     }
-    // self.loggerself.logger.info(logPrefix + ' test ' + test)
+    // self.logger.info(logPrefix + ' test ' + test)
     self.config.set('mergedeq', test);
     self.config.set("nbreq", 15);
 
@@ -4263,7 +4263,7 @@ FusionDsp.prototype.usethispreset = function (data) {
     geq15 = self.config.get(eqspreset).split(',')
     x2geq15 = self.config.get(reqspreset).split(',')
 
-    self.loggerself.logger.info(logPrefix + ' geq15 ' + geq15)
+    self.logger.info(logPrefix + ' geq15 ' + geq15)
     let ltest, rtest
     let o = 1
     var eqr = geq15
@@ -4277,7 +4277,7 @@ FusionDsp.prototype.usethispreset = function (data) {
     }
     test = ltest + rtest
 
-    //  self.loggerself.logger.info(logPrefix + ' test ' + test)
+    //  self.logger.info(logPrefix + ' test ' + test)
     self.config.set('mergedeq', test);
     self.config.set("nbreq", 30);
 
@@ -4327,7 +4327,7 @@ FusionDsp.prototype.usethispreset = function (data) {
         ]
     }
 
-    self.loggerself.logger.info(logPrefix + ' value state4preset ' + state4preset)
+    self.logger.info(logPrefix + ' value state4preset ' + state4preset)
     self.config.set('crossfeed', state4preset[0])
     self.config.set('monooutput', state4preset[1])
     self.config.set('loudness', state4preset[2])
@@ -4369,12 +4369,12 @@ FusionDsp.prototype.importeq = function (data) {
   let defer = libQ.defer();
   var nameh = data['importeq'].label
   var name = nameh.split('  ').slice(1).toString();
-  self.loggerself.logger.info(logPrefix + ' name ' + typeof (name));
+  self.logger.info(logPrefix + ' name ' + typeof (name));
   var namepath = data['importeq'].value
   self.config.set('addreplace', true);
   self.config.set('nbreq', 1);
   var toDownload = (path + namepath + '/' + name.replace(' ', '%20') + '%20ParametricEQ.txt\'')
-  self.loggerself.logger.info(logPrefix + ' wget \'' + toDownload)
+  self.logger.info(logPrefix + ' wget \'' + toDownload)
   try {
     execSync("/usr/bin/wget \'" + toDownload + " -O /tmp/EQfile.txt", {
       uid: 1000,
@@ -4448,7 +4448,7 @@ FusionDsp.prototype.convertimportedeq = function () {
     }
     //var EQfileR = EQfile.replace(/S /g, 'S')
     var result = (EQfile.split('\n'));
-    // self.loggerself.logger.info(result)
+    // self.logger.info(result)
 
     for (o; o < result.length; o++) {
       if (nbreq < tnbreq) {
@@ -4473,8 +4473,8 @@ FusionDsp.prototype.convertimportedeq = function () {
             var typeconv = param[1]
             var eqs = (correctedfreq + ',' + param[3] + ',' + param[4])
 
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " PK " + typeconv + " vvv " + eqs)
-            //     self.loggerself.logger.info(logPrefix+' filter in line ' + o + " 0 " + param[0] + " 1 " + param[1] + " 2 " + param[2] + " 3 " + param[3] + " 4 " + param[4] + " 5 " + param[5] + " coee " + correctedfreq)
+            // self.logger.info(logPrefix+' filter in line ' + o + " PK " + typeconv + " vvv " + eqs)
+            //     self.logger.info(logPrefix+' filter in line ' + o + " 0 " + param[0] + " 1 " + param[1] + " 2 " + param[2] + " 3 " + param[3] + " 4 " + param[4] + " 5 " + param[5] + " coee " + correctedfreq)
           }
 
           if (result[o].indexOf("LP ") != -1) {
@@ -4482,7 +4482,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + ',' + "0.7071")
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " LP " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " LP " + typeconv + " vvv " + eqs)
 
           }
           if (result[o].indexOf("HP ") != -1) {
@@ -4490,7 +4490,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + ',' + "0.7071")
-            //  self.loggerself.logger.info(logPrefix+' filter in line ' + o + " HP " + paramx)
+            //  self.logger.info(logPrefix+' filter in line ' + o + " HP " + paramx)
 
           }
 
@@ -4499,7 +4499,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + ",0.9")
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4508,7 +4508,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + ",0.9")
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4517,7 +4517,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + ",1")
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " NO " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " NO " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4526,7 +4526,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + ",0.5")
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4535,7 +4535,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + ",0.5")
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4544,7 +4544,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + ",1")
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " LS " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4553,7 +4553,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + ",1")
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " HS " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4562,7 +4562,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq)
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " LP1 " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " LP1 " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4571,7 +4571,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq)
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " HP1 " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " HP1 " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4580,7 +4580,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + ',' + param[3])
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " LPQ " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " LPQ " + typeconv + " vvv " + eqs)
 
           }
           if (result[o].indexOf("HPQ ") != -1) {
@@ -4588,7 +4588,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + ',' + param[3])
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " HPQ " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " HPQ " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4597,7 +4597,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + "," + param[4])
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " LSQ " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " LSQ " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4606,7 +4606,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + "," + param[4])
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " LSQ " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " LSQ " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4615,7 +4615,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + "," + param[4])
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " HSQ " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " HSQ " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4624,7 +4624,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             var param = paramx.split(',')
             var typeconv = param[1]
             var eqs = (correctedfreq + "," + param[3] + "," + param[4])
-            // self.loggerself.logger.info(logPrefix+' filter in line ' + o + " HSQ " + typeconv + " vvv " + eqs)
+            // self.logger.info(logPrefix+' filter in line ' + o + " HSQ " + typeconv + " vvv " + eqs)
 
           }
 
@@ -4638,7 +4638,7 @@ FusionDsp.prototype.convertimportedeq = function () {
             localscope = self.config.get('localscope');
           }
           test += ('Eq' + o + '|' + typeconv + '|' + localscope + '|' + eqs + '|');
-          //self.loggerself.logger.info(test)
+          //self.logger.info(test)
           self.config.set("nbreq", nbreq - 1);
           self.config.set('effect', true)
           self.config.set('usethispreset', 'no preset used');
@@ -4652,7 +4652,7 @@ FusionDsp.prototype.convertimportedeq = function () {
           //nothing to do...
         }
       } else {
-        self.loggerself.logger.info(logPrefix + ' Max eq reached')
+        self.logger.info(logPrefix + ' Max eq reached')
         self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('MAX_EQ_REACHED'));
       }
     }
@@ -4675,7 +4675,7 @@ FusionDsp.prototype.updatelist = function (data) {
   var destpath = ' \'/data/plugins/audio_interface/fusiondsp';
   // self.config.set('importeq', namepath)
   var toDownload = (path + '/' + name + '\'');
-  self.loggerself.logger.info(logPrefix + ' wget \'' + toDownload)
+  self.logger.info(logPrefix + ' wget \'' + toDownload)
   try {
     execSync("/usr/bin/wget \'" + toDownload + " -O" + destpath + "/downloadedlist.txt\'", {
       uid: 1000,
@@ -4724,10 +4724,10 @@ FusionDsp.prototype.resampling = function (data) {
     self.config.set('resamplingq', data['resamplingq'].value)
     if (data['enableresampling']) {
       self.commandRouter.pushToastMessage('info', data['resamplingset'].value + 'Hz ' + data['resamplingq'].value + ' ' + self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
-      self.loggerself.logger.info(logPrefix + ' Resampling ' + data['resamplingset'].value + 'Hz ' + data['resamplingq'].value);
+      self.logger.info(logPrefix + ' Resampling ' + data['resamplingset'].value + 'Hz ' + data['resamplingq'].value);
     } else {
       self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
-      self.loggerself.logger.info(logPrefix + ' Resampling disabled');
+      self.logger.info(logPrefix + ' Resampling disabled');
     }
     self.createCamilladspfile()
   }
@@ -4933,7 +4933,7 @@ FusionDsp.prototype.sendvolumelevel = function () {
       loudnessGain = 0
     }
 
-    self.loggerself.logger.info(logPrefix + ' volume level for loudness ' + data.volume + ' gain applied ' + Number.parseFloat(loudnessGain).toFixed(2))
+    self.logger.info(logPrefix + ' volume level for loudness ' + data.volume + ' gain applied ' + Number.parseFloat(loudnessGain).toFixed(2))
     self.config.set('loudnessGain', Number.parseFloat(loudnessGain).toFixed(2))
     self.createCamilladspfile()
   })
