@@ -16,7 +16,7 @@
     "os": [
       "buster"
     ],
-    "changelog": "Preamp rework, specifiq Q for GEQ ",
+    "changelog": "Rework alsa pipeline, camilladsp process",
     "details": "Multimode Dsp, with graphic equalizer, parametric equalizer, FIR filters, Loudness, AutoEq profile for headphone and more",
     "architectures": [
       "armhf",
