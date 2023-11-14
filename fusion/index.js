@@ -4942,7 +4942,7 @@ FusionDsp.prototype.sendvolumelevel = function () {
 FusionDsp.prototype.reportFusionEnabled = function () {
   const self = this;
 
-  self.loggerself.logger.info(logPrefix + ' Reporting Fusion DSP Enabled');
+  self.logger.info(logPrefix + ' Reporting Fusion DSP Enabled');
   var fusionDSPElementsData = { "id": "fusiondspeq", "sub_type": "dsp_plugin", "preset": "FusionDSP", "quality": "enhanced" };
   try {
     self.commandRouter.addDSPSignalPathElement(fusionDSPElementsData);
@@ -4952,7 +4952,7 @@ FusionDsp.prototype.reportFusionEnabled = function () {
 FusionDsp.prototype.reportFusionDisabled = function () {
   const self = this;
 
-  self.loggerself.logger.info(logPrefix + ' Reporting Fusion DSP Disabled');
+  self.logger.info(logPrefix + ' Reporting Fusion DSP Disabled');
   try {
     self.commandRouter.removeDSPSignalPathElement({ "id": "fusiondspeq" });
   } catch (e) { }
