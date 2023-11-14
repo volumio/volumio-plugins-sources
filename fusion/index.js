@@ -44,7 +44,7 @@ function FusionDsp(context) {
   const self = this;
   self.context = context;
   self.commandRouter = self.context.coreCommand;
-  self.commandRouter.logger;
+  self.logger = self.commandRouter.logger;
   this.context = context;
   this.commandRouter = this.context.coreCommand;
   this.logger = this.context.logger;
@@ -66,7 +66,7 @@ FusionDsp.prototype.onStart = function () {
   self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
   setTimeout(function () {
     self.loadalsastuff();
-    self.camillaProcess = new CamillaDsp();
+    self.camillaProcess = new CamillaDsp(self.logger);
     self.camillaProcess.start();
     self.hwinfo();
     self.purecamillagui();
@@ -80,7 +80,7 @@ FusionDsp.prototype.onStart = function () {
   // if mixer set to none, do not show loudness settings
   var mixt = this.getAdditionalConf('audio_interface', 'alsa_controller', 'mixer_type');
 
-  self.loggerself.logger.info(logPrefix + ' mixtype--------------------- ' + mixt)
+  self.logger.info(logPrefix + ' mixtype--------------------- ' + mixt)
   if (mixt == 'None') {
     self.config.set('loudness', false)
     self.config.set('showloudness', false)
@@ -104,7 +104,7 @@ FusionDsp.prototype.onStop = function () {
   const self = this;
   let defer = libQ.defer();
   self.socket.off()
-  self.loggerself.logger.info(logPrefix + ' Stopping FusionDsp service');
+  self.logger.info(logPrefix + ' Stopping FusionDsp service');
   self.camillaProcess.stop();
   self.camillaProcess = null;
 
@@ -113,7 +113,7 @@ FusionDsp.prototype.onStop = function () {
     gid: 1000
   }, function (error, stdout, stderr) {
     if (error) {
-      self.loggerself.logger.info(logPrefix + ' Error in killing FusionDsp')
+      self.logger.info(logPrefix + ' Error in killing FusionDsp')
     } else {
       self.reportFusionDisabled();
     }
@@ -2473,7 +2473,7 @@ FusionDsp.prototype.checksamplerate = function () {
 
       let content = fs.readFileSync(fileStreamParams).toString();
 
-      self.loggerself.logger.info(logPrefix + " ---- read samplerate, raw: " + content);
+      self.logger.info(logPrefix + " ---- read samplerate, raw: " + content);
 
       [hcurrentsamplerate, hformat, hchannels, hbitdepth] = content.split(",");
 
@@ -2490,7 +2490,7 @@ FusionDsp.prototype.checksamplerate = function () {
 
       self.pushstateSamplerate = hcurrentsamplerate;
 
-      self.loggerself.logger.info(logPrefix + " ---- read samplerate from file: " + self.pushstateSamplerate);
+      self.logger.info(logPrefix + " ---- read samplerate from file: " + self.pushstateSamplerate);
 
       if (needRestart === true) {
 
@@ -2527,7 +2527,7 @@ FusionDsp.prototype.checksamplerate = function () {
     let watcher = fs.watch(fileStreamParams);
     watcher.on("change", callbackRead);
 
-    self.loggerself.logger.info(logPrefix + " ---- installed callbackRead");
+    self.logger.info(logPrefix + " ---- installed callbackRead");
 
   } catch (e) {
 
@@ -4802,7 +4802,7 @@ FusionDsp.prototype.convert = function (data) {
         try {
           let cmdsox = ("/usr/bin/sox " + filtersource + infile + " -t f32 /tmp/tempofilter.pcm rate -v -s " + outsample);
           execSync(cmdsox);
-          self.loggerself.logger.info(logPrefix + cmdsox);
+          self.logger.info(logPrefix + cmdsox);
         } catch (e) {
           self.logger.error(logPrefix + ' input file does not exist ' + e);
           self.commandRouter.pushToastMessage('error', 'Sox failed to convert file' + e);
@@ -4825,7 +4825,7 @@ FusionDsp.prototype.convert = function (data) {
             uid: 1000,
             gid: 1000
           });
-          self.loggerself.logger.info(logPrefix + composedcmde);
+          self.logger.info(logPrefix + composedcmde);
           self.commandRouter.pushToastMessage('success', 'Filter ' + destfile + ' generated, Refresh the page to see it');
           self.refreshUI()
           // return self.commandRouter.reloadUi();
