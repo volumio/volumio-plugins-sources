@@ -3603,7 +3603,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
       if (callback) {
         callback();
       } else {
-        self.loggerself.logger.info(logPrefix + result)
+        self.logger.info(logPrefix + result)
         self.sendCommandToCamilla();
       }
 
