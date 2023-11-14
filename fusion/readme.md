@@ -141,7 +141,7 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
-November 14th 2023 v1.0.50
+November 14th 2023 v1.0.51
 
 - rework alsa pipeline, camilladsp process... Credits to [Paolo](https://github.com/paolosabatino)
 
