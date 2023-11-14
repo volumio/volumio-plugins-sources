@@ -44,7 +44,7 @@ function FusionDsp(context) {
   const self = this;
   self.context = context;
   self.commandRouter = self.context.coreCommand;
-   = self.commandRouter.logger;
+  self.commandRouter.logger;
   this.context = context;
   this.commandRouter = this.context.coreCommand;
   this.logger = this.context.logger;
