@@ -1,4 +1,4 @@
-/*--------------------
+f/*--------------------
 // FusionDsp plugin for volumio 3. By balbuze May 2023
 Multi Dsp features
 Based on CamillaDsp
@@ -80,7 +80,7 @@ FusionDsp.prototype.onStart = function () {
   // if mixer set to none, do not show loudness settings
   var mixt = this.getAdditionalConf('audio_interface', 'alsa_controller', 'mixer_type');
 
-  .info(logPrefix + ' mixtype--------------------- ' + mixt)
+  self.logger.info(logPrefix + ' mixtype--------------------- ' + mixt)
   if (mixt == 'None') {
     self.config.set('loudness', false)
     self.config.set('showloudness', false)
