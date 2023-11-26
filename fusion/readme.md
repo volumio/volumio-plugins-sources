@@ -1,4 +1,4 @@
-September 23th 2023
+November 14th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -140,6 +140,10 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+November 14th 2023 v1.0.51
+
+- rework alsa pipeline, camilladsp process... Credits to [Paolo](https://github.com/paolosabatino)
 
 September 23th 2023 v1.0.49
 
