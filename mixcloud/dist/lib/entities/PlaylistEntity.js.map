@@ -1,0 +1,1 @@
+{"version":3,"file":"PlaylistEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/PlaylistEntity.ts"],"names":[],"mappings":"","sourcesContent":["import { UserEntity } from './UserEntity';\n\nexport interface PlaylistEntity {\n  type: 'playlist';\n  id: string;\n  name: string;\n  description?: string;\n  url?: string;\n  owner?: UserEntity;\n}\n"]}

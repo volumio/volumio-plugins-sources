@@ -1,0 +1,1 @@
+{"version":3,"file":"UserEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/UserEntity.ts"],"names":[],"mappings":"","sourcesContent":["export interface UserEntity {\n  type: 'user';\n  username: string;\n  url?: string;\n  name?: string;\n  thumbnail?: string;\n  about?: string;\n  location?: string;\n}\n"]}
