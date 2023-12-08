@@ -103,7 +103,7 @@ class BaseViewHandler {
             segments.push(ViewHelper_1.default.constructUriSegmentFromView(view));
         });
         if ((__classPrivateFieldGet(this, _BaseViewHandler_currentView, "f").startIndex || 0) > 0) {
-            const delta = __classPrivateFieldGet(this, _BaseViewHandler_currentView, "f").limit || JellyfinContext_1.default.getConfigValue('itemsPerPage', 47);
+            const delta = __classPrivateFieldGet(this, _BaseViewHandler_currentView, "f").limit || JellyfinContext_1.default.getConfigValue('itemsPerPage');
             const startIndex = Math.max((__classPrivateFieldGet(this, _BaseViewHandler_currentView, "f").startIndex || 0) - delta, 0);
             segments.push(ViewHelper_1.default.constructUriSegmentFromView({
                 ...__classPrivateFieldGet(this, _BaseViewHandler_currentView, "f"),
@@ -119,7 +119,7 @@ class BaseViewHandler {
         });
         const currentView = nextView || __classPrivateFieldGet(this, _BaseViewHandler_currentView, "f");
         if (startIndex === undefined) {
-            startIndex = (currentView.startIndex || 0) + (currentView.limit || JellyfinContext_1.default.getConfigValue('itemsPerPage', 47));
+            startIndex = (currentView.startIndex || 0) + (currentView.limit || JellyfinContext_1.default.getConfigValue('itemsPerPage'));
         }
         segments.push(ViewHelper_1.default.constructUriSegmentFromView({
             ...currentView,
@@ -148,7 +148,7 @@ class BaseViewHandler {
     getModelQueryParams(bundle) {
         const defaults = {
             startIndex: 0,
-            limit: JellyfinContext_1.default.getConfigValue('itemsPerPage', 47),
+            limit: JellyfinContext_1.default.getConfigValue('itemsPerPage'),
             sortBy: 'SortName',
             sortOrder: 'Ascending'
         };

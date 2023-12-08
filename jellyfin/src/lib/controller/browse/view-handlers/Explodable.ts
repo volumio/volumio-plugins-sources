@@ -90,13 +90,7 @@ export function Explodable<V extends View, TBase extends Constructor<V>>(Base: T
       }
       if (source?.Container) {
         const container = source.Container.toLowerCase();
-        switch (container) {
-          case 'dsf':
-            trackType = 'dsd';
-            break;
-          default:
-            trackType = container;
-        }
+        trackType = container;
       }
 
       const result: ExplodedTrackInfo = {

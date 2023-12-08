@@ -14,12 +14,8 @@ export default class GenreViewHandler extends BaseViewHandler<GenreView> {
 
   async browse(): Promise<RenderedPage> {
     const prevUri = this.constructPrevUri();
-    const view = this.currentView;
     const lists: RenderedList[] = [];
-    const modelQueryParams = {
-      parentId: view.parentId,
-      recursive: true
-    };
+    const modelQueryParams = this.getModelQueryParams();
 
     const model = this.getModel(ModelType.Genre);
     const renderer = this.getRenderer(EntityType.Genre);

@@ -12,7 +12,7 @@ export interface ServerConfEntry {
 export default class ServerHelper {
 
   static getServersFromConfig(): ServerConfEntry[] {
-    return jellyfin.getConfigValue<ServerConfEntry[]>('servers', [], true);
+    return jellyfin.getConfigValue('servers');
   }
 
   static fetchPasswordFromConfig(server: Server, username: string): string {

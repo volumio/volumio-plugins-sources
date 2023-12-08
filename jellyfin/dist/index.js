@@ -71,11 +71,11 @@ class ControllerJellyfin {
                 removeServerUIConf.content[0].value = removeServerUIConf.content[0].options[0];
             }
             // Browse Settings section
-            const itemsPerPage = JellyfinContext_1.default.getConfigValue('itemsPerPage', 47);
-            const showAllAlbumTracks = JellyfinContext_1.default.getConfigValue('showAllAlbumTracks', true);
-            const showAllPlaylistTracks = JellyfinContext_1.default.getConfigValue('showAllPlaylistTracks', true);
-            const rememberFilters = JellyfinContext_1.default.getConfigValue('rememberFilters', true);
-            const markFavoriteTarget = JellyfinContext_1.default.getConfigValue('markFavoriteTarget', 'all');
+            const itemsPerPage = JellyfinContext_1.default.getConfigValue('itemsPerPage');
+            const showAllAlbumTracks = JellyfinContext_1.default.getConfigValue('showAllAlbumTracks');
+            const showAllPlaylistTracks = JellyfinContext_1.default.getConfigValue('showAllPlaylistTracks');
+            const rememberFilters = JellyfinContext_1.default.getConfigValue('rememberFilters');
+            const markFavoriteTarget = JellyfinContext_1.default.getConfigValue('markFavoriteTarget');
             const markFavoriteTargetOptions = browseSettingsUIConf.content[4].options;
             browseSettingsUIConf.content[0].value = itemsPerPage;
             browseSettingsUIConf.content[1].value = showAllAlbumTracks;
@@ -83,21 +83,21 @@ class ControllerJellyfin {
             browseSettingsUIConf.content[3].value = rememberFilters;
             browseSettingsUIConf.content[4].value = markFavoriteTargetOptions.find((option) => option.value === markFavoriteTarget);
             // Play / Add to Queue section
-            const maxTracks = JellyfinContext_1.default.getConfigValue('maxTracks', 100);
-            const noMaxTracksSingleAlbum = JellyfinContext_1.default.getConfigValue('noMaxTracksSingleAlbum', true);
-            const noMaxTracksSinglePlaylist = JellyfinContext_1.default.getConfigValue('noMaxTracksSinglePlaylist', true);
-            const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback', true);
+            const maxTracks = JellyfinContext_1.default.getConfigValue('maxTracks');
+            const noMaxTracksSingleAlbum = JellyfinContext_1.default.getConfigValue('noMaxTracksSingleAlbum');
+            const noMaxTracksSinglePlaylist = JellyfinContext_1.default.getConfigValue('noMaxTracksSinglePlaylist');
+            const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback');
             playAddUIConf.content[0].value = maxTracks;
             playAddUIConf.content[1].value = noMaxTracksSingleAlbum;
             playAddUIConf.content[2].value = noMaxTracksSinglePlaylist;
             playAddUIConf.content[3].value = gaplessPlayback;
             // Search Settings section
-            const searchAlbums = JellyfinContext_1.default.getConfigValue('searchAlbums', true);
-            const searchAlbumsResultCount = JellyfinContext_1.default.getConfigValue('searchAlbumsResultCount', 11);
-            const searchArtists = JellyfinContext_1.default.getConfigValue('searchArtists', true);
-            const searchArtistsResultCount = JellyfinContext_1.default.getConfigValue('searchArtistsResultCount', 11);
-            const searchSongs = JellyfinContext_1.default.getConfigValue('searchSongs', true);
-            const searchSongsResultCount = JellyfinContext_1.default.getConfigValue('searchSongsResultCount', 11);
+            const searchAlbums = JellyfinContext_1.default.getConfigValue('searchAlbums');
+            const searchAlbumsResultCount = JellyfinContext_1.default.getConfigValue('searchAlbumsResultCount');
+            const searchArtists = JellyfinContext_1.default.getConfigValue('searchArtists');
+            const searchArtistsResultCount = JellyfinContext_1.default.getConfigValue('searchArtistsResultCount');
+            const searchSongs = JellyfinContext_1.default.getConfigValue('searchSongs');
+            const searchSongsResultCount = JellyfinContext_1.default.getConfigValue('searchSongsResultCount');
             searchSettingsUIConf.content[0].value = searchAlbums;
             searchSettingsUIConf.content[1].value = searchAlbumsResultCount;
             searchSettingsUIConf.content[2].value = searchArtists;
@@ -105,19 +105,19 @@ class ControllerJellyfin {
             searchSettingsUIConf.content[4].value = searchSongs;
             searchSettingsUIConf.content[5].value = searchSongsResultCount;
             // My Media / Library
-            const showLatestMusicSection = JellyfinContext_1.default.getConfigValue('showLatestMusicSection', true);
-            const latestMusicSectionItems = JellyfinContext_1.default.getConfigValue('latestMusicSectionItems', 11);
-            const showRecentlyPlayedSection = JellyfinContext_1.default.getConfigValue('showRecentlyPlayedSection', true);
-            const recentlyPlayedSectionItems = JellyfinContext_1.default.getConfigValue('recentlyPlayedSectionItems', 5);
-            const showFrequentlyPlayedSection = JellyfinContext_1.default.getConfigValue('showFrequentlyPlayedSection', true);
-            const frequentlyPlayedSectionItems = JellyfinContext_1.default.getConfigValue('frequentlyPlayedSectionItems', 5);
-            const showFavoriteArtistsSection = JellyfinContext_1.default.getConfigValue('showFavoriteArtistsSection', true);
-            const favoriteArtistsSectionItems = JellyfinContext_1.default.getConfigValue('favoriteArtistsSectionItems', 5);
-            const showFavoriteAlbumsSection = JellyfinContext_1.default.getConfigValue('showFavoriteAlbumsSection', true);
-            const favoriteAlbumsSectionItems = JellyfinContext_1.default.getConfigValue('favoriteAlbumsSectionItems', 5);
-            const showFavoriteSongsSection = JellyfinContext_1.default.getConfigValue('showFavoriteSongsSection', true);
-            const favoriteSongsSectionItems = JellyfinContext_1.default.getConfigValue('favoriteSongsSectionItems', 5);
-            const collectionInSectionItems = JellyfinContext_1.default.getConfigValue('collectionInSectionItems', 11);
+            const showLatestMusicSection = JellyfinContext_1.default.getConfigValue('showLatestMusicSection');
+            const latestMusicSectionItems = JellyfinContext_1.default.getConfigValue('latestMusicSectionItems');
+            const showRecentlyPlayedSection = JellyfinContext_1.default.getConfigValue('showRecentlyPlayedSection');
+            const recentlyPlayedSectionItems = JellyfinContext_1.default.getConfigValue('recentlyPlayedSectionItems');
+            const showFrequentlyPlayedSection = JellyfinContext_1.default.getConfigValue('showFrequentlyPlayedSection');
+            const frequentlyPlayedSectionItems = JellyfinContext_1.default.getConfigValue('frequentlyPlayedSectionItems');
+            const showFavoriteArtistsSection = JellyfinContext_1.default.getConfigValue('showFavoriteArtistsSection');
+            const favoriteArtistsSectionItems = JellyfinContext_1.default.getConfigValue('favoriteArtistsSectionItems');
+            const showFavoriteAlbumsSection = JellyfinContext_1.default.getConfigValue('showFavoriteAlbumsSection');
+            const favoriteAlbumsSectionItems = JellyfinContext_1.default.getConfigValue('favoriteAlbumsSectionItems');
+            const showFavoriteSongsSection = JellyfinContext_1.default.getConfigValue('showFavoriteSongsSection');
+            const favoriteSongsSectionItems = JellyfinContext_1.default.getConfigValue('favoriteSongsSectionItems');
+            const collectionInSectionItems = JellyfinContext_1.default.getConfigValue('collectionInSectionItems');
             myMediaLibraryUIConf.content[0].value = showLatestMusicSection;
             myMediaLibraryUIConf.content[1].value = latestMusicSectionItems;
             myMediaLibraryUIConf.content[2].value = showRecentlyPlayedSection;
@@ -175,7 +175,7 @@ class ControllerJellyfin {
             username: username,
             password: password
         });
-        JellyfinContext_1.default.setConfigValue('servers', servers, true);
+        JellyfinContext_1.default.setConfigValue('servers', servers);
         JellyfinContext_1.default.toast('success', JellyfinContext_1.default.getI18n('JELLYFIN_SERVER_ADDED'));
         __classPrivateFieldGet(this, _ControllerJellyfin_serverPoller, "f")?.addTarget(host);
         this.refreshUIConfig();
@@ -185,7 +185,7 @@ class ControllerJellyfin {
         if (index !== '') {
             const servers = ServerHelper_1.default.getServersFromConfig();
             const removed = servers.splice(index, 1)[0];
-            JellyfinContext_1.default.setConfigValue('servers', servers, true);
+            JellyfinContext_1.default.setConfigValue('servers', servers);
             JellyfinContext_1.default.toast('success', JellyfinContext_1.default.getI18n('JELLYFIN_SERVER_REMOVED'));
             const removedServer = __classPrivateFieldGet(this, _ControllerJellyfin_serverPoller, "f")?.findOnlineServer(removed.url);
             if (removedServer) {
@@ -487,7 +487,7 @@ _ControllerJellyfin_context = new WeakMap(), _ControllerJellyfin_config = new We
             const canonicalUri = setFavoriteResult.canonicalUri;
             // If removing from favorites (which, btw, you can only do in Favourites or player view when song is playing), Volumio will also
             // Call its own implementation. But if adding to favorites, then we need to do it ourselves (subject to `markFavoriteTarget` setting).
-            if (favorite && JellyfinContext_1.default.getConfigValue('markFavoriteTarget', 'all') === 'all') {
+            if (favorite && JellyfinContext_1.default.getConfigValue('markFavoriteTarget') === 'all') {
                 // Add to Volumio 'Favorites' playlist
                 const playlistManager = JellyfinContext_1.default.getPlaylistManager();
                 // Do better than Volumio's implementation by checking if song already added
