@@ -1,0 +1,10 @@
+{
+  "LOCALSETTINGS" : "Paramètres d'affichage locaux",
+  "SCREENSIZE" : "Dossier pour les Spectres",
+  "SCREENSIZE_DOC" : "Dossier pour le spectre. Le dossier personnalisé se trouve dans /data/INTERNAL/PeppySppectrum/Templates/ et doit être nommé myspectrum(weightxhightxnumberofbar) ex collection(800x480x30). Si le nombre de barres est omis, la valeur par défaut 30 est utilisée",
+  "CHOOSE_SPECTRUM_DOC" : "Sélectionner le spectre dans la liste",
+  "CHOOSE_SPECTRUM":"Selectionner le  Spectre",
+  "NBARCHANGE" : "Le nombre de barres dans le spectre a changé ! Il est maintenant fixé à ",
+  "APPLY" : "Appliquer",
+  "SAVE" : "Close"
+}

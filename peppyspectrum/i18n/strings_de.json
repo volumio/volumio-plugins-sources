@@ -1,0 +1,10 @@
+{
+    "LOCALSETTINGS": "Lokale Anzeigeeinstellungen",
+    "SCREENSIZE": "Spectrum Ordner",
+    "SCREENSIZE_DOC": "Ordner für Spectrum. Benutzerdefinierte Ordner sind in /data/INTERNAL/PeppySppectrum/Templates/ und müssen myspectrum (weightxhightxnumberofbar) ab Sammlung (800x480x30) heißen. Wenn die Anzahl der Balken weggelassen wird, wird der Standardwert 30 verwendet",
+    "CHOOSE_SPECTRUM_DOC": "Wählen Sie das Spektrum in der Liste",
+    "CHOOSE_SPECTRUM": "Spektrum auswählen",
+    "NBARCHANGE": "Anzahl der Balken in Spectrum geändert! Jetzt eingestellt auf ",
+    "ANWENDEN": "Anwenden",
+    "SPEICHERN": "Schließen"
+  }

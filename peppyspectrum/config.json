@@ -1,0 +1,10 @@
+{
+"spectrum":{"type":"string","value":"Random"},
+"screensize":{"type":"string","value":"medium"},
+"screenwidth":{"type":"string","value":""},
+"screenheight":{"type":"string","value":""},
+"spectrumsize":{"type":"number","value":30},
+"debuglog":{"type":"boolean","value":false},
+"showsize":{"type":"boolean","value":false},
+"autosize":{"type":"boolean","value":true}
+}
