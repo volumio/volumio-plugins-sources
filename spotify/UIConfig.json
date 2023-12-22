@@ -66,6 +66,7 @@
         "data": [
           "bitrate",
           "debug",
+          "normalisation_pregain",
           "icon"
         ]
       },
@@ -100,6 +101,57 @@
           "label": "TRANSLATE.DEBUG",
           "value": false,
           "hidden": true
+        },
+        {
+          "id": "normalisation_pregain",
+          "element": "select",
+          "doc": "Select the value in DB to apply as pre-gain",
+          "label": "normalisation pre-gain",
+          "value": {
+            "value": "1.0",
+            "label": "1.0"
+          },
+          "options": [{
+            "value": "1.0",
+            "label": "1.0"
+          },
+            {
+              "value": "1.0",
+              "label": "1.0"
+            },
+            {
+              "value": "2.0",
+              "label": "2.0"
+            },
+            {
+              "value": "3.0",
+              "label": "3.0"
+            },
+            {
+              "value": "4.0",
+              "label": "4.0"
+            },
+            {
+              "value": "5.0",
+              "label": "5.0"
+            },
+            {
+              "value": "6.0",
+              "label": "6.0"
+            },
+            {
+              "value": "7.0",
+              "label": "7.0"
+            },
+            {
+              "value": "8.0",
+              "label": "8.0"
+            },
+            {
+              "value": "9.0",
+              "label": "9.0"
+            }
+          ]
         },
         {
           "id": "icon",
