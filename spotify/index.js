@@ -118,9 +118,13 @@ ControllerSpotify.prototype.getUIConfig = function () {
             uiconf.sections[2].content[0].value.value = bitrateNumber
             uiconf.sections[2].content[0].value.label = self.getLabelForSelect(uiconf.sections[2].content[0].options, bitrateNumber);
 
+            var normalisationPregainValue = self.config.get('normalisation_pregain', '1.0');
+            uiconf.sections[2].content[2].value.value = normalisationPregainValue;
+            uiconf.sections[2].content[2].value.label = normalisationPregainValue;
+
             var icon = self.config.get('icon', 'avr');
-            uiconf.sections[2].content[2].value.value = icon;
-            uiconf.sections[2].content[2].value.label =  self.getLabelForSelect(uiconf.sections[2].content[2].options, icon);
+            uiconf.sections[2].content[3].value.value = icon;
+            uiconf.sections[2].content[3].value.label =  self.getLabelForSelect(uiconf.sections[2].content[3].options, icon);
 
             defer.resolve(uiconf);
         })
@@ -733,11 +737,13 @@ ControllerSpotify.prototype.createConfigFile = function () {
     if (mixerType === 'None') {
         externalVolume = false;
     }
+    var normalisationPregain = self.config.get('normalisation_pregain', '1.0');
 
     var conf = template.replace('${device_name}', devicename)
         .replace('${bitrate_number}', selectedBitrate)
         .replace('${device_type}', icon)
-        .replace('${external_volume}', externalVolume);
+        .replace('${external_volume}', externalVolume)
+        .replace('${normalisation_pregain}', normalisationPregain);
 
     var credentials_type = self.config.get('credentials_type', 'zeroconf');
     var logged_user_id = self.config.get('logged_user_id', '');
@@ -803,6 +809,9 @@ ControllerSpotify.prototype.saveGoLibrespotSettings = function (data, avoidBroad
     }
     if (data.icon && data.icon.value !== undefined) {
         self.config.set('icon', data.icon.value);
+    }
+    if (data.normalisation_pregain && data.normalisation_pregain.value !== undefined) {
+        self.config.set('normalisation_pregain', data.normalisation_pregain.value);
     }
 
 
