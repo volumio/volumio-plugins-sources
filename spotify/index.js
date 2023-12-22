@@ -132,6 +132,16 @@ ControllerSpotify.prototype.getUIConfig = function () {
     return defer.promise;
 };
 
+ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data, def) {
+    var self = this;
+    var setting = self.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
+
+    if (setting == undefined) {
+        setting = def;
+    }
+    return setting;
+};
+
 // Controls
 
 ControllerSpotify.prototype.goLibrespotDaemonWsConnection = function (action) {
@@ -718,10 +728,16 @@ ControllerSpotify.prototype.createConfigFile = function () {
     var devicename = this.commandRouter.sharedVars.get('system.name');
     var selectedBitrate = self.config.get('bitrate_number', '320').toString();
     var icon = self.config.get('icon', 'avr');
+    var externalVolume = true;
+    var mixerType = self.getAdditionalConf('audio_interface', 'alsa_controller', 'mixer_type', 'None');
+    if (mixerType === 'None') {
+        externalVolume = false;
+    }
 
     var conf = template.replace('${device_name}', devicename)
         .replace('${bitrate_number}', selectedBitrate)
-        .replace('${device_type}', icon);
+        .replace('${device_type}', icon)
+        .replace('${external_volume}', externalVolume);
 
     var credentials_type = self.config.get('credentials_type', 'zeroconf');
     var logged_user_id = self.config.get('logged_user_id', '');
@@ -737,6 +753,9 @@ ControllerSpotify.prototype.createConfigFile = function () {
         conf += 'credentials: ' + os.EOL;
         conf += '  type: zeroconf' + os.EOL;
     }
+
+
+
 
     fs.writeFile(configFileDestinationPath, conf, (err) => {
         if (err) {
@@ -2500,7 +2519,7 @@ ControllerSpotify.prototype.getPlaylistInfo = function (userId, playlistId) {
 
 ControllerSpotify.prototype.getTrack = function (id) {
     var defer = libQ.defer();
-    
+
     this.spotifyCheckAccessToken().then(() => {
         rateLimitedCall(this.spotifyApi, 'getTrack', { args: [id], logger: this.logger })
             .then((results) => {
