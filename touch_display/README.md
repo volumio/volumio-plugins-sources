@@ -1,5 +1,7 @@
 # Touch Display plugin
 
+**NOTE: The plugin cannot be installed on systems that have a factory option to display Volumio's UI via HDMI video output.**
+
 The plugin enables the display of Volumio's UI on locally connected screens. If the screen offers touch control, apart from keyboard input the UI can be operated from the screen. The plugin focuses on the original Raspberry Pi Foundation 7" display (and compatible DSI displays), but can in principle also be used with displays connected via HDMI or GPIO. However, HDMI and GPIO displays usually require additional action by the user, depending on the type of display and any touch controller present, and **requiring advanced knowledge**.
 
 The following features are available on the plugin’s configuration page (other screens than the the original Raspberry Pi Foundation display may not have all of them available):

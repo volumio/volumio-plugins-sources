@@ -2,13 +2,6 @@
 
 This plugin provides a 'Now Playing' screen for your Volumio device. It is intended for displays that are mainly used to show what Volumio is playing, as opposed to doing things such as browsing media. This makes the plugin suitable for embedded displays that are generally limited in screen estate.
 
-This repository has two branches:
-
-1. The `master` branch is targeted towards Volumio 3.
-2. The `volumio-2.x` branch is targeted towards Volumio 2.x.
-
-The focus is on the `master` branch. The `volumio-2.x` branch will only be maintained if it is practically feasible and still worthwhile to do so.
-
 ## Showing the Now Playing screen on connected display
 
 First, you need to make sure that your display is able to show Volumio's default interface. This plugin does not deal with the hardware setup part.
@@ -86,6 +79,38 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 - [Preview page](https://github.com/patrickkfkan/volumio-now-playing-reactjs-preview)
 
 ## Changelog
+
+0.5.4
+- Add Startup Options
+- Update web client v0.5.2
+
+0.5.3
+- Update web client v0.5.1
+
+0.5.2
+- Add 'Background -> My Background' settings
+- Fix widget visibility bug
+
+0.5.1
+- Fix install script installing devDependencies
+
+0.5.0
+- Add 'Docked Volume Indicator -> % Symbol Size' setting
+- Add Track Info Visibility settings
+- Add 'IdleScreen -> My Background' settings
+- Add 'IdleScreen -> Weather Area Height' setting
+- Add backup / restore settings
+- Update web client v0.5.0
+
+0.4.0
+- Migrate to TypeScript
+- Change settings handling
+- Update web client v0.4.0
+
+0.3.8
+- Add option to display track info title as marquee (under 'Text Styles')
+- Add 'IdleScreen - Main Alignment: Cycle' setting
+- Update web client v0.3.0
 
 0.3.7
 - Newer API keys do not work with the API calls made by Weather Service. Therefore, rewrite fetching of weather data and remove API key requirement.

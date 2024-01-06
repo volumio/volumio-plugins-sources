@@ -1,0 +1,10 @@
+{
+  "LOCALSETTINGS": "Impostazioni del display locale",
+  "SCREENSIZE": "Cartella spettro",
+  "SCREENSIZE_DOC": "Cartella per lo spettro. La cartella personalizzata si trova in /data/INTERNAL/PeppySppectrum/Templates/ e deve essere denominata myspectrum(weightxhightxnumberofbar) ex collection(800x480x30). Se il numero di barre viene omesso, viene utilizzato il valore predefinito 30",
+  "SCEGLI_SPETTRO_DOC": "Seleziona lo spettro nell'elenco",
+  "CHOOSE_SPECTRUM": "Seleziona spettro",
+  "NBARCHANGE": "Il numero di barre nello spettro è cambiato! Ora è impostato su ",
+  "APPLICA": "Applica",
+  "SALVA": "Chiudi"
+}

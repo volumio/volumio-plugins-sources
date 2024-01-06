@@ -1,4 +1,4 @@
-December 23th 2022
+November 14th 2023
 
 
 ##  For Volumio3 => v 3.236
@@ -8,21 +8,22 @@ This plugin is designed to apply different type of Dsp on Volumio using [Camilla
 
 
 Provides
+- A simple 3 bands eq, no other features
 - A 15 bands graphic equalizer
 - Or a 2x15 bands graphic equalizer
 - Or a Parametric equalizer with :
     - Up to 50 bands (peaking, lowshelf, highshelf, lowpass, highpass, notch, Linkwitz, ButterworthHighpass & ButterworthLowpass)
     - Equalizer scope for each band (L, R, L+R)
-    - More than 4100 variants of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
+    - More than 4300 variants of headphones EQ from AutoEQ ! [AutoEq](https://github.com/jaakkopasanen/AutoEq)
     - import for local EQ file (must be in /data/INTERNAL/FusionDsp/peq/)
-- 5 custom preset
 - Or a convolution filters (FIR) with autoswitch samplerate for filters
     - DRC-FIR to create filter with an impulse
 - Access to CamillaDsp gui for advanced user
 
-For all 
+For all (except EQ3)
 - Progressive Loudness effect with threshold setting - loudness curve based on ISO 226: 2003 standard
-- Auto gain
+- 5 custom presets
+- Auto pre-amp
 - Toggle with/without effect
 - Separate volume level for left an right
 - 8 crossfeed for headphone (Bauer, Chu Moy, Jan Meier, Linkwitz, Natural 30deg, atural 50deg, SADIE D1, SADIE H15m)
@@ -139,6 +140,90 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+November 14th 2023 v1.0.51
+
+- rework alsa pipeline, camilladsp process... Credits to [Paolo](https://github.com/paolosabatino)
+
+September 23th 2023 v1.0.49
+
+- clean install.sh
+- correct default values for eq3
+- better airplay handling
+
+May 10th 2023 v1.0.48
+
+- Q for each band EQ15 2xEQ15
+- Work on auto pre amp
+- Autoeq import update
+- Headphone name choosen is kept
+- Resample toast message
+- log message improvement
+- Experimental clipping warning disabled
+
+April 26th 2023 v1.0.47
+
+- Preset naming for each mode
+- log messages cleaning
+- internal tweaks
+
+
+April 17th 2023 v1.0.46
+
+- Preset naming for each mode
+- log messages cleaning
+
+April 14th 2023 v1.0.45
+
+- misc warning for DRC fir, local import
+- update - fix filter if freq < sr/2
+- tools update
+
+April 12th 2023 v1.0.44
+
+- fix filter if freq < sr/2
+
+March 12th 2023 v1.0.41
+
+- FIR switchable filter files fix
+
+March 12th 2023 v1.0.40
+
+- FIR clipping detection fix
+
+March 5th 2023 v1.0.39
+
+- fix for EQ3 not available after update
+
+March 4th 2023 v1.0.38
+
+- reduce cmilla verbosity
+- translation for EQ3
+
+March 2nd 2023 v1.0.37
+
+- 3 bands simple eq
+- HighshelfFO and LowshelfFO for PEQ
+
+February 23th 2023 v1.0.36
+
+- fix in asound causing hanging 
+
+February 22th 2023 v1.0.35
+
+- shelve filters from AutoEQ were not imported with the correct type
+
+February 17th 2023 v1.0.34
+
+- verbosity debug for CamillaDsp logs
+- code cleaning
+- Reenable output menu in Camilla Gui
+- headphones list updated 
+
+December 29th 2023 v1.0.33
+
+- chunksize set to 4800 for HW compatibility
+
 
 December 23th 2022 v1.0.32
 

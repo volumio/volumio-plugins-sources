@@ -1,11 +1,26 @@
 # YouTube Music plugin for Volumio
 
-TODO:
-- Better handling of unplayable track or stream fetching errors
-
 Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. This plugin uses a [modified version](https://github.com/patrickkfkan/Volumio-YouTube.js) of that library for content fetching and ytmusic login.
 
 ## Changelog
+
+1.0.0
+- Rewrite in Typescript; major code overhaul with more generic fetching / processing of content.
+- Add prefetch support and 'Prefer gapless Opus' option.
+- Autoplay: fallback to radio if no items fetched - notably, when playing private uploads.
+- Lazy-load Innertube API instead of loading when plugin starts, in case API causes system freeze or crash.
+
+0.2.2
+- Fix broken auth following YT changes (which causes Volumio to become unresponsive)
+
+0.2.1
+- Fix unable to sign in on Volumio rPi
+
+0.2.0
+- Fix Library content missing / incomplete due to YT Music changes
+- Remove Recap from root items because it is now part of Home
+- Add History to root items because it is no longer shown in the Library
+- Fix Autoplay not fetching more songs in some cases
 
 0.1.8
 - Fix 'More' not working for albums, singles... on artist page

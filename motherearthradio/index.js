@@ -4,8 +4,7 @@ var libQ = require('kew');
 var fs = require('fs-extra');
 var config = new (require('v-conf'))();
 var NanoTimer = require('nanotimer');
-const http = require('http');
-
+const https = require('https');
 var flacUri;
 var channelMix;
 var metadataUrl;
@@ -209,14 +208,16 @@ motherearthradio.prototype.clearAddPlayTrack = function (track) {
         flacUri = track.uri;
 
         channelMix = "Radio";
-        metadataUrl = "http://server9.streamserver24.com:9090/api/nowplaying/3";
+        metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth";
         if (track.uri.includes("klassik")) {
             channelMix = "Klassik";
-            metadataUrl = "http://server9.streamserver24.com:9090/api/nowplaying/4";
+            metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth_klassik";
         } else if (track.uri.includes("instrumental")) {
             channelMix = "Instrumental";
-            metadataUrl = "http://server9.streamserver24.com:9090/api/nowplaying/5";
-
+            metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth_instrumental";
+        } else if (track.uri.includes("jazz")) {
+            channelMix = "Jazz";
+            metadataUrl = "https://motherearth.streamserver24.com/api/nowplaying/motherearth_jazz";
         }
 
         var songs;
@@ -321,7 +322,7 @@ motherearthradio.prototype.explodeUri = function (uri) {
             if (self.timer) {
                 self.timer.clear();
             }
-            if (channel === 0) {
+            if (channel <= 3) {
                 // FLAC option chosen
                 response.push({
                     service: self.serviceName,
@@ -331,7 +332,8 @@ motherearthradio.prototype.explodeUri = function (uri) {
                     albumart: '/albumart?sourceicon=music_service/motherearthradio/motherearthlogo.svg',
                     uri: self.radioStations.mer[channel].url,
                     name: self.radioStations.mer[channel].title,
-                    duration: 1000
+                    duration: 1000,
+		    samplerate: '192kHz'
                 });
                 defer.resolve(response);
             } else {
@@ -343,7 +345,8 @@ motherearthradio.prototype.explodeUri = function (uri) {
                     radioType: station,
                     albumart: '/albumart?sourceicon=music_service/motherearthradio/motherearthlogo.svg',
                     uri: self.radioStations.mer[channel].url,
-                    name: self.radioStations.mer[channel].title
+                    name: self.radioStations.mer[channel].title,
+		    samplerate: '96kHz'
                 });
                 defer.resolve(response);
             }
@@ -368,7 +371,7 @@ motherearthradio.prototype.addRadioResource = function () {
 motherearthradio.prototype.getMetadata = function (url) {
     var self = this;
     var defer = libQ.defer();
-    http.get(url, (resp) => {
+    https.get(url, (resp) => {
       if (resp.statusCode < 200 || resp.statusCode > 500) {
             self.logger.info('[' + Date.now() + '] ' + '[MotherEarth] Failed to query azuracast api, status code: ' + resp.statusCode);
             defer.resolve(null);
@@ -436,11 +439,10 @@ motherearthradio.prototype.pushSongState = function (metadata) {
         title: metadata.now_playing.song.title,
         artist: metadata.now_playing.song.artist,
         album: metadata.now_playing.song.album,
-        streaming: true,
+	streaming: true,
         disableUiControls: true,
         duration: metadata.now_playing.remaining,
         seek: 0,
-        samplerate: '96 KHz',
         bitdepth: '24 bit',
         channels: 2
     };
@@ -457,8 +459,8 @@ motherearthradio.prototype.pushSongState = function (metadata) {
     queueItem.albumart = metadata.now_playing.song.art;
     queueItem.trackType = 'Mother Earth ' + channelMix;
     queueItem.duration = metadata.now_playing.remaining;
-    queueItem.samplerate = '96 KHz';
-    queueItem.bitdepth = '24 bit';
+//    queueItem.samplerate = '96 KHz';
+//    queueItem.bitdepth = '24 bit';
     queueItem.channels = 2;
     
     //reset volumio internal timer
@@ -521,3 +523,4 @@ function merTimer(callback, args, delay) {
 
     this.resume();
 };
+
