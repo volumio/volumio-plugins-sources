@@ -72,7 +72,7 @@
       },
       "saveButton": {
         "label": "TRANSLATE.SAVE",
-        "data": ["bitrate", "debug", "normalisation_pregain", "icon"]
+        "data": ["bitrate", "debug", "normalisation_pregain", "icon", "shared_device"]
       },
       "content": [
         {
@@ -178,6 +178,13 @@
               "label": "Set Top Box"
             }
           ]
+        },
+        {
+          "id": "shared_device",
+          "element": "switch",
+          "doc": "TRANSLATE.SHARED_DEVICE_DOC",
+          "label": "TRANSLATE.SHARED_DEVICE",
+          "value": true
         }
       ]
     }

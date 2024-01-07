@@ -43,7 +43,7 @@
   "VOLSPOTCONNECTCONF": "Spotify Configuratie",
   "VOLSPOTCONNECTACCOUNT": "Spotify account",
   "HIGHBITRATE": "Stream bitrate",
-  "SHAREDDEVICE": "Apparaat voor meerdere gebruikers",
+  "SHARED_DEVICE": "Apparaat voor meerdere gebruikers",
   "INITVOL": "Initieel volume",
   "DESCINITVOL": "Beginnend Spotify volume",
   "VOLNORM": "Genormaliseerde volume",

@@ -41,7 +41,7 @@
   "VOLSPOTCONNECTCONF": "Configurazione di Spotify",
   "VOLSPOTCONNECTACCOUNT": "Account Spotify",
   "HIGHBITRATE": "Stream bitrate",
-  "SHAREDDEVICE": "Dispositivo multi-utente",
+  "SHARED_DEVICE": "Dispositivo multi-utente",
   "INITVOL": "Volume iniziale",
   "DESCINITVOL": "Volume iniziale di riproduzione",
   "VOLNORM": "Normalizzazione del volume di ascolto",
