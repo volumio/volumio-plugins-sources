@@ -106,15 +106,12 @@
           "id": "normalisation_pregain",
           "element": "select",
           "doc": "Select the value in DB to apply as pre-gain",
-          "label": "normalisation pre-gain",
+          "label": "Normalisation pre-gain",
           "value": {
             "value": "1.0",
             "label": "1.0"
           },
-          "options": [{
-            "value": "1.0",
-            "label": "1.0"
-          },
+          "options": [
             {
               "value": "1.0",
               "label": "1.0"
