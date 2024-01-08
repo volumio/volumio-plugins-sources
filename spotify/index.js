@@ -349,7 +349,7 @@ ControllerSpotify.prototype.initializeSpotifyPlaybackInVolatileMode = function (
     self.commandRouter.stateMachine.setConsumeUpdateService(undefined);
     self.context.coreCommand.stateMachine.setVolatile({
         service: 'spop',
-        callback: self.libRespotGoUnsetVolatile()
+        callback: self.libRespotGoUnsetVolatile.bind(this)
     });
 
     setTimeout(()=>{
