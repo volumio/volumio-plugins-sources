@@ -5,11 +5,34 @@ customfolder=/data/INTERNAL/PeppySpectrum/Templates
 mkdir -p $customfolder
 chmod 777 -R $customfolder
 echo "Installing peppyalsa plugin dependencies"
-cp $spath/peppyspectrum.service.tar /
-		cd /
-		sudo tar -xvf peppyspectrum.service.tar
-		rm /peppyspectrum.service.tar
-		
+#cp $spath/peppyspectrum.service.tar /
+#		cd /
+#		sudo tar -xvf peppyspectrum.service.tar
+#		rm /peppyspectrum.service.tar
+#
+#
+cat > /lib/systemd/system/peppyspectrum.service <<EOC
+[Unit]
+Description=peppyspectrum Daemon 
+After=syslog.target
+
+[Service]
+Type=simple
+WorkingDirectory=/data/plugins/user_interface/peppyspectrum
+ExecStart=/data/plugins/user_interface/peppyspectrum/startpeppyspectrum.sh
+Restart=no
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=volumio
+User=volumio
+Group=volumio
+TimeoutSec=1
+
+[Install]
+WantedBy=multi-user.target
+EOC
+sudo systemctl daemon-reload
+
 sudo apt-get update
 
 echo "cloning peppyspectrum repo"
@@ -20,7 +43,7 @@ sudo chgrp -R volumio "$spath" "$customfolder"
 
 echo "installing apt packages"
 
-sudo apt-get -y install python3-pygame python3-pip
+sudo apt-get -y install python3-pygame python3
 ##echo "Installing peppyalsa plugin if needed"
 
 ARCH="$(arch)"
