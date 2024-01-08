@@ -8,9 +8,6 @@
 	},
 	"author": "Ashthespy, Balbuze, Skirkwood",
 	"license": "ISC",
-	"vollibrespot": {
-		"version": "0.2.5"
-	},
 	"volumio_info": {
 		"prettyName": "Spotify",
 		"icon": "fa-spotify",
