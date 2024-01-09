@@ -11,11 +11,10 @@ echo "Installing peppyalsa plugin dependencies"
 #		rm /peppyspectrum.service.tar
 #
 #
-cat > /lib/systemd/system/peppyspectrum.service <<EOC
+cat > /etc/systemd/system/peppyspectrum.service <<EOC
 [Unit]
 Description=peppyspectrum Daemon 
 After=syslog.target
-
 [Service]
 Type=simple
 WorkingDirectory=/data/plugins/user_interface/peppyspectrum
@@ -27,10 +26,10 @@ SyslogIdentifier=volumio
 User=volumio
 Group=volumio
 TimeoutSec=1
-
 [Install]
 WantedBy=multi-user.target
 EOC
+
 sudo systemctl daemon-reload
 
 sudo apt-get update
