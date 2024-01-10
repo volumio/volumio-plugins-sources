@@ -393,20 +393,13 @@ ControllerSpotify.prototype.parseArtists = function (spotifyArtists) {
 
 
 ControllerSpotify.prototype.libRespotGoUnsetVolatile = function () {
-    var self = this;
-    var defer = libQ.defer();
-
-    self.debugLog('UNSET VOLATILE');
-    self.debugLog(JSON.stringify(currentVolumioState))
-
+    this.debugLog('UNSET VOLATILE');
+    this.debugLog(JSON.stringify(currentVolumioState))
     if (currentVolumioState && currentVolumioState.status && currentVolumioState.status !== 'stop') {
-        self.logger.info('Setting Spotify stop after unset volatile call');
+        this.logger.info('Setting Spotify stop after unset volatile call');
         setTimeout(()=>{
-            self.stop();
-            defer.resolve('');
+            this.stop();
         }, 500);
-    } else {
-        defer.resolve('');
     }
 }
 
