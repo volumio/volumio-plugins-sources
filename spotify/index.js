@@ -34,7 +34,6 @@ var ws;
 var currentVolumioState;
 var currentSpotifyVolume;
 var currentVolumioVolume;
-var isInVolatileMode = false;
 let unsettingVolatile = false;
 const UNSETTING_VOLATILE_TIMEOUT = 10000;
 
@@ -327,21 +326,16 @@ ControllerSpotify.prototype.identifyPlaybackMode = function (data) {
         // switching from volatile mode to prevent volumio from switching back to volatile mode
         return;
     }
-    var self = this;
 
     // This functions checks if Spotify is playing in volatile mode or in Volumio mode (playback started from Volumio UI)
     // play_origin = 'go-librespot' means that Spotify is playing in Volumio mode
     // play_origin = 'your_library' or 'playlist' means that Spotify is playing in volatile mode
-    if (data && data.play_origin && data.play_origin === 'go-librespot') {
-        isInVolatileMode = false;
-    } else {
-        isInVolatileMode = true;
-    }
+    const isVolumioMode = data && data.play_origin && data.play_origin === 'go-librespot';
 
     // Refactor in order to handle the case where current service is spop but not in volatile mode
-    if ((isInVolatileMode && currentVolumioState.service !== 'spop') ||
-        (isInVolatileMode && currentVolumioState.service === 'spop' && currentVolumioState.volatile !== true)) {
-        self.initializeSpotifyPlaybackInVolatileMode();
+    if ((!isVolumioMode && currentVolumioState.service !== 'spop') ||
+        (!isVolumioMode && currentVolumioState.service === 'spop' && currentVolumioState.volatile !== true)) {
+        this.initializeSpotifyPlaybackInVolatileMode();
     }
 };
 
