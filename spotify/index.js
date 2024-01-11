@@ -35,7 +35,6 @@ var currentVolumioState;
 var currentSpotifyVolume;
 var currentVolumioVolume;
 var isInVolatileMode = false;
-var ignoreStopEvent = false;
 
 // Volume limiter
 var deltaVolumeTreshold = 2;
@@ -344,17 +343,12 @@ ControllerSpotify.prototype.initializeSpotifyPlaybackInVolatileMode = function (
     var self = this;
 
     self.logger.info('Spotify is playing in volatile mode');
-    ignoreStopEvent = true;
 
     self.commandRouter.stateMachine.setConsumeUpdateService(undefined);
     self.context.coreCommand.stateMachine.setVolatile({
         service: 'spop',
         callback: self.libRespotGoUnsetVolatile.bind(this)
     });
-
-    setTimeout(()=>{
-        ignoreStopEvent = false;
-    }, 2000);
 };
 
 ControllerSpotify.prototype.parseDuration = function (spotifyDuration) {
@@ -471,9 +465,7 @@ ControllerSpotify.prototype.stop = function () {
 
     this.debugLog('SPOTIFY STOP');
     this.debugLog(JSON.stringify(currentVolumioState))
-    if (!ignoreStopEvent) {
-        this.sendSpotifyLocalApiCommand('/player/pause');
-    }
+    this.sendSpotifyLocalApiCommand('/player/pause');
 
     defer.resolve('');
     return defer.promise;
