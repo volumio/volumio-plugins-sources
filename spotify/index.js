@@ -35,6 +35,8 @@ var currentVolumioState;
 var currentSpotifyVolume;
 var currentVolumioVolume;
 var isInVolatileMode = false;
+let unsettingVolatile = false;
+const UNSETTING_VOLATILE_TIMEOUT = 10000;
 
 // Volume limiter
 var deltaVolumeTreshold = 2;
@@ -320,6 +322,11 @@ ControllerSpotify.prototype.parseEventState = function (event) {
 };
 
 ControllerSpotify.prototype.identifyPlaybackMode = function (data) {
+    if (unsettingVolatile) {
+        // Ignore all unnecessary events (several "pause" events) from spotify during
+        // switching from volatile mode to prevent volumio from switching back to volatile mode
+        return;
+    }
     var self = this;
 
     // This functions checks if Spotify is playing in volatile mode or in Volumio mode (playback started from Volumio UI)
@@ -336,7 +343,6 @@ ControllerSpotify.prototype.identifyPlaybackMode = function (data) {
         (isInVolatileMode && currentVolumioState.service === 'spop' && currentVolumioState.volatile !== true)) {
         self.initializeSpotifyPlaybackInVolatileMode();
     }
-
 };
 
 ControllerSpotify.prototype.initializeSpotifyPlaybackInVolatileMode = function () {
@@ -389,6 +395,10 @@ ControllerSpotify.prototype.parseArtists = function (spotifyArtists) {
 ControllerSpotify.prototype.libRespotGoUnsetVolatile = function () {
     this.debugLog('UNSET VOLATILE');
     this.debugLog(JSON.stringify(currentVolumioState))
+    unsettingVolatile = true;
+    setTimeout(() => {
+        unsettingVolatile = false;
+    }, UNSETTING_VOLATILE_TIMEOUT);
     if (currentVolumioState && currentVolumioState.status && currentVolumioState.status !== 'stop') {
         this.logger.info('Setting Spotify stop after unset volatile call');
         setTimeout(()=>{
