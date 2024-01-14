@@ -246,13 +246,13 @@ PandoraHandler.prototype.fillStationData = function () {
                         stationToken,
                         stationName,
                         artUrl,
-                        // dateCreated
+                        dateCreated
                     } = self.stationList.stations[i];
                     self.stationData[stationToken] = {
                         id: i,
                         name: stationName,
-                        albumart: artUrl
-                        // dateCreated: dateCreated.time // already in decr. date order
+                        albumart: artUrl,
+                        dateCreated: new Date(dateCreated).getTime()
                     };
                 }
 

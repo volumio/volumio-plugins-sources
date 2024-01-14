@@ -1,6 +1,6 @@
 {
 	"name": "pandora",
-	"version": "2.12.1",
+	"version": "2.12.2",
 	"description": "Pandora Music Services Plugin",
 	"main": "index.js",
 	"scripts": {
@@ -34,6 +34,8 @@
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
 		"v-conf": "^1.4.0",
-		"mqtt": "3.0.0"
+		"mqtt": "3.0.0",
+		"node-fetch": "2.0.0",
+		"ping": "^0.4.4"
 	}
 }
