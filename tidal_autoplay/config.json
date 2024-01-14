@@ -1,0 +1,10 @@
+{
+  "mixId": {
+    "type": "string",
+    "value": ""
+  },
+  "startOnSave": {
+    "type": "boolean",
+    "value": true
+  }
+}
