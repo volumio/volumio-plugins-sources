@@ -212,7 +212,7 @@
 					"doc": "TRANSLATE.METAS",
 					"label": "Metadatas",
 					"element": "switch",
-					"value": true
+					"value": false
 				},
 				{
 					"id": "path",
