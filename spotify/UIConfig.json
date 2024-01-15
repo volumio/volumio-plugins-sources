@@ -103,50 +103,61 @@
           "hidden": true
         },
         {
+          "id": "normalisation_enabled",
+          "element": "switch",
+          "doc": "TRANSLATE.NORMALISATION_ENABLED_DOC",
+          "label": "TRANSLATE.NORMALISATION_ENABLED",
+          "value": false
+        },
+        {
           "id": "normalisation_pregain",
           "element": "select",
-          "doc": "Select the value in DB to apply as pre-gain",
-          "label": "Normalisation pre-gain",
+          "doc": "TRANSLATE.NORMALISATION_PREGAIN_DOC",
+          "label": "TRANSLATE.NORMALISATION_PREGAIN",
           "value": {
-            "value": "1.0",
-            "label": "1.0"
+            "value": "0",
+            "label": "0 dB"
           },
           "options": [
             {
-              "value": "1.0",
-              "label": "1.0"
+              "value": "0",
+              "label": "0 dB"
             },
             {
-              "value": "2.0",
-              "label": "2.0"
+              "value": "1",
+              "label": "+1 dB"
             },
             {
-              "value": "3.0",
-              "label": "3.0"
+              "value": "2",
+              "label": "+2 dB"
             },
             {
-              "value": "4.0",
-              "label": "4.0"
+              "value": "3",
+              "label": "+3 dB"
             },
             {
-              "value": "5.0",
-              "label": "5.0"
+              "value": "4",
+              "label": "+4 dB"
             },
             {
-              "value": "6.0",
-              "label": "6.0"
+              "value": "5",
+              "label": "+5 dB"
             },
             {
-              "value": "7.0",
-              "label": "7.0"
+              "value": "6",
+              "label": "+6 dB"
             },
             {
-              "value": "8.0",
-              "label": "8.0"
+              "value": "7",
+              "label": "+7 dB"
             },
             {
-              "value": "9.0",
-              "label": "9.0"
+              "value": "8",
+              "label": "+8 dB"
+            },
+            {
+              "value": "9",
+              "label": "+9 dB"
             }
           ]
         },
