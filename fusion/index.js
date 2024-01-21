@@ -2538,7 +2538,7 @@ FusionDsp.prototype.checksamplerate = function () {
 
 };
 
-let buildCamillaFilters = function(plugin, selectedsp, hcurrentsamplerate) {
+let getCamillaFiltersConfig = function(plugin, selectedsp, chunksize, hcurrentsamplerate) {
 
   let self = plugin;
 
@@ -3552,7 +3552,75 @@ let buildCamillaFilters = function(plugin, selectedsp, hcurrentsamplerate) {
       */
   }
 
-  return [result, composeddevice, outputsamplerate, composeout, composedmixer, composedpipeline];
+  let data = fs.readFileSync(__dirname + "/camilladsp.conf.yml", 'utf8');
+
+  let strConfig = data.replace("${resulteq}", result)
+    .replace("${chunksize}", (chunksize))
+    .replace("${resampling}", (composeddevice))
+    .replace("${outputsamplerate}", (outputsamplerate))
+
+    .replace("${composeout}", (composeout))
+    .replace("${mixers}", composedmixer)
+    .replace("${composedpipeline}", composedpipeline.replace(/-       - /g, '- '))
+    //  .replace("${pipelineR}", pipelinerr)
+    ;
+
+  self.logger.debug(logPrefix + result);
+
+  return strConfig;
+
+}
+
+let getCamillaPureGuiConfig = function(plugin, chunksize, samplerate) {
+
+  let strConfig;
+
+  try {
+
+    /*
+     * Read the existing camilladsp.yml configuration file and replace chunksize and capture samplerate.
+     * If capture samplerate is not present in the configuration file (for example, due to an upgrade
+     * of the plugin from a previous version), then append it after "samplerate" to make it compliant.
+     *
+     * If a camilladsp.yml file does not exist, handle the exception and use a vanilla configuration
+     * from the template file.
+     */
+
+    let regexChunksize = /(chunksize): \d+/;
+    let regexCapturesamplerate = /(capture_samplerate): \d+/;
+    let regexSamplerate = /(\s+)(samplerate)(: \d+)/;
+    let regexIsResamplingEnabled = /enable_resampling: true/;
+
+    strConfig = fs.readFileSync("/data/configuration/audio_interface/fusiondsp/camilladsp.yml", "utf-8");
+
+    // If resampling is active, don't alter the "samplerate" parameter
+    // otherwise make it equal as "capture_samplerate" parameter
+    let isResamplingActive = strConfig.search(regexIsResamplingEnabled) !== -1;
+
+    if (isResamplingActive === false)
+      strConfig = strConfig.replace(regexSamplerate, `$1$2: ${samplerate}`);
+
+    // Modify chunksize and capture_samplerate parameters with those coming from stream
+    strConfig = strConfig
+      .replace(regexCapturesamplerate, `$1: ${samplerate}`)
+      .replace(regexChunksize, `$1: ${chunksize}`);
+
+    // In case capture_samplerate is not present, add it right after samplerate
+    if (strConfig.search(regexCapturesamplerate) === -1)
+      strConfig = strConfig.replace(regexSamplerate, `$1$2$3capture_samplerate: ${samplerate}`);
+
+  } catch (err) {
+
+    plugin.logging.warning("camilladsp.yml configuration does not exist, providing bare default from camilladsp-pure.conf.yml");
+    strConfig = fs.readFileSync(__dirname + "/camilladsp-pure.conf.yml", 'utf8');
+
+    strConfig = strConfig.replace("${chunksize}", chunksize)
+        .replace("${outputsamplerate}", samplerate)
+        .replace("${capturesamplerate}", samplerate);
+
+  }
+
+  return strConfig;
 
 }
 
@@ -3584,33 +3652,11 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
 
     if (selectedsp === "purecgui") {
 
-      let data = fs.readFileSync(__dirname + "/camilladsp-pure.conf.yml", 'utf8');
-
-      strCamillaConf = data.replace("${chunksize}", (chunksize))
-        .replace("${outputsamplerate}", (hcurrentsamplerate))
-        .replace("${capturesamplerate}", (hcurrentsamplerate))
-        ;
+      strCamillaConf = getCamillaPureGuiConfig(self, chunksize, hcurrentsamplerate);
 
     } else {
 
-      let resulteq, composeddevice, outputsamplerate, composeout, composedmixer, composedpipeline;
-
-      let data = fs.readFileSync(__dirname + "/camilladsp.conf.yml", 'utf8');
-
-      [resulteq, composeddevice, outputsamplerate, composeout, composedmixer, composedpipeline] = buildCamillaFilters(self, selectedsp, hcurrentsamplerate);
-
-      strCamillaConf = data.replace("${resulteq}", resulteq)
-        .replace("${chunksize}", (chunksize))
-        .replace("${resampling}", (composeddevice))
-        .replace("${outputsamplerate}", (outputsamplerate))
-
-        .replace("${composeout}", (composeout))
-        .replace("${mixers}", composedmixer)
-        .replace("${composedpipeline}", composedpipeline.replace(/-       - /g, '- '))
-        //  .replace("${pipelineR}", pipelinerr)
-        ;
-
-      self.logger.debug(logPrefix + resulteq);
+      strCamillaConf = getCamillaFiltersConfig(self, selectedsp, chunksize,hcurrentsamplerate);
 
     }
 
