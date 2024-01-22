@@ -4,6 +4,10 @@ export interface PluginConfigSchemaEntry<T, U = false> {
     defaultValue: T;
     json: U;
 }
+export declare enum LongStreamFormat {
+    Opus = "opus",
+    MP3 = "mp3"
+}
 export interface PluginConfigSchema {
     accessToken: PluginConfigSchemaEntry<string>;
     locale: PluginConfigSchemaEntry<string>;
@@ -13,6 +17,7 @@ export interface PluginConfigSchema {
     loadFullPlaylistAlbum: PluginConfigSchemaEntry<boolean>;
     skipPreviewTracks: PluginConfigSchemaEntry<boolean>;
     addPlayedToHistory: PluginConfigSchemaEntry<boolean>;
+    longStreamFormat: PluginConfigSchemaEntry<LongStreamFormat>;
     cacheMaxEntries: PluginConfigSchemaEntry<number>;
     cacheTTL: PluginConfigSchemaEntry<number>;
     logTranscodings: PluginConfigSchemaEntry<boolean>;

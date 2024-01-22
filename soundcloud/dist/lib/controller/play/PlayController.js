@@ -82,15 +82,22 @@ class PlayController {
         if (!transcodingUrl) {
             throw Error('No transcoding found');
         }
-        const streamingUrl = await model.getStreamingUrl(transcodingUrl);
+        let streamingUrl = await model.getStreamingUrl(transcodingUrl);
         if (!streamingUrl) {
             throw Error('No stream found');
         }
+        /**
+         * 1. Add bitrate info to track
+         * 2. Fool MPD plugin to return correct `trackType` in `parseTrackInfo()` by adding
+         * track type to URL query string as a dummy param.
+         */
         if (streamingUrl.includes('.128.mp3')) { // 128 kbps mp3
             track.samplerate = '128 kbps';
+            streamingUrl += '&_vt=.mp3';
         }
         else if (streamingUrl.includes('.64.opus')) { // 64 kbps opus
             track.samplerate = '64 kbps';
+            streamingUrl += '&_vt=.opus';
         }
         const safeUri = streamingUrl.replace(/"/g, '\\"');
         await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_doPlay).call(this, safeUri, track);

@@ -9,6 +9,7 @@ declare class ControllerSoundCloud {
     getUIConfig(): any;
     configSaveGeneralSettings(data: any): void;
     configSaveCacheSettings(data: any): void;
+    configSavePlaybackSettings(data: any): void;
     configClearCache(): void;
     onVolumioStart(): any;
     onStart(): any;

@@ -13,6 +13,7 @@ import { jsPromiseToKew } from './lib/util/Misc';
 import { QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
 import locales from './assets/locales.json';
 import Model from './lib/model';
+import { LongStreamFormat } from './lib/PluginConfig';
 
 interface GotoParams extends QueueItem {
   type: 'album' | 'artist';
@@ -41,7 +42,8 @@ class ControllerSoundCloud {
       `${__dirname}/UIConfig.json`)
       .then((uiconf: any) => {
         const generalUIConf = uiconf.sections[0];
-        const cacheUIConf = uiconf.sections[1];
+        const playbackConf = uiconf.sections[1];
+        const cacheUIConf = uiconf.sections[2];
 
         // General
         const localeOptions = this.#configGetLocaleOptions();
@@ -53,12 +55,32 @@ class ControllerSoundCloud {
         generalUIConf.content[4].value = sc.getConfigValue('itemsPerSection');
         generalUIConf.content[5].value = sc.getConfigValue('combinedSearchResults');
         generalUIConf.content[6].value = sc.getConfigValue('loadFullPlaylistAlbum');
-        generalUIConf.content[7].value = sc.getConfigValue('skipPreviewTracks');
-        generalUIConf.content[8].value = sc.getConfigValue('addPlayedToHistory');
-        generalUIConf.content[8].hidden = !accessToken;
 
+        // Playback
+        const longStreamFormat = sc.getConfigValue('longStreamFormat');
+        playbackConf.content[0].value = sc.getConfigValue('skipPreviewTracks');
+        playbackConf.content[1].value = sc.getConfigValue('addPlayedToHistory');
+        playbackConf.content[1].hidden = !accessToken;
+        playbackConf.content[2].options = [
+          {
+            value: LongStreamFormat.Opus,
+            label: sc.getI18n('SOUNDCLOUD_LSF_HLS_OPUS')
+          },
+          {
+            value: LongStreamFormat.MP3,
+            label: sc.getI18n('SOUNDCLOUD_LSF_HLS_MP3')
+          }
+        ];
+        switch (longStreamFormat) {
+          case LongStreamFormat.Opus:
+            playbackConf.content[2].value = playbackConf.content[2].options[0];
+            break;
+          case LongStreamFormat.MP3:
+            playbackConf.content[2].value = playbackConf.content[2].options[1];
+            break;
+        }
         // Soundcloud-testing
-        generalUIConf.content[9].value = sc.getConfigValue('logTranscodings');
+        playbackConf.content[3].value = sc.getConfigValue('logTranscodings');
 
         // Cache
         const cacheMaxEntries = sc.getConfigValue('cacheMaxEntries');
@@ -109,10 +131,6 @@ class ControllerSoundCloud {
     sc.setConfigValue('itemsPerSection', itemsPerSection);
     sc.setConfigValue('combinedSearchResults', combinedSearchResults);
     sc.setConfigValue('loadFullPlaylistAlbum', !!data['loadFullPlaylistAlbum']);
-    sc.setConfigValue('skipPreviewTracks', !!data['skipPreviewTracks']);
-    sc.setConfigValue('addPlayedToHistory', !!data['addPlayedToHistory']);
-    // Soundcloud-testing
-    sc.setConfigValue('logTranscodings', !!data['logTranscodings']);
 
     if (accessTokenChanged || localeChanged) {
       sc.getCache().clear();
@@ -150,6 +168,21 @@ class ControllerSoundCloud {
 
     sc.toast('success', sc.getI18n('SOUNDCLOUD_SETTINGS_SAVED'));
     sc.refreshUIConfig();
+  }
+
+  configSavePlaybackSettings(data: any) {
+    sc.setConfigValue('skipPreviewTracks', !!data['skipPreviewTracks']);
+    sc.setConfigValue('addPlayedToHistory', !!data['addPlayedToHistory']);
+
+    // Soundcloud-testing
+    sc.setConfigValue('logTranscodings', !!data['logTranscodings']);
+
+    const longStreamFormat = data['longStreamFormat'].value;
+    if (longStreamFormat === LongStreamFormat.Opus || longStreamFormat === LongStreamFormat.MP3) {
+      sc.setConfigValue('longStreamFormat', longStreamFormat);
+    }
+
+    sc.toast('success', sc.getI18n('SOUNDCLOUD_SETTINGS_SAVED'));
   }
 
   configClearCache() {
