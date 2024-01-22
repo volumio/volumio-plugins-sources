@@ -2538,6 +2538,1092 @@ FusionDsp.prototype.checksamplerate = function () {
 
 };
 
+let getCamillaFiltersConfig = function(plugin, selectedsp, chunksize, hcurrentsamplerate) {
+
+  let self = plugin;
+
+  var pipeliner, pipelines, pipelinelr, pipelinerr = '';
+  var eqo, eqc, eqv, eqa
+  var typec, typer;
+  var result = '';
+  var gainmaxused = [];
+  let scopec, scoper;
+  var nbreq = (self.config.get('nbreq'))
+  var effect = self.config.get('effect')
+  var leftlevel = self.config.get('leftlevel')
+  var rightlevel = self.config.get('rightlevel')
+  //----fIr VARIABLES----
+  let leftfilter = self.config.get('leftfilter');
+  let filter1 = leftfilter
+  let rightfilter = self.config.get('rightfilter');
+  let filter2 = rightfilter
+  var attenuation = self.config.get('attenuationl');
+  var testclipping = self.config.get('testclipping')
+
+  // var smpl_rate = self.config.get('smpl_rate')
+  var filter_format = self.config.get('filter_format')
+  if (selectedsp == "convfir") {
+    let val = self.dfiltertype();
+    let skipval = val.skipvalue
+  }
+  var channels = 2;
+  var filterr;
+  let convatt
+  var gainresult, gainclipfree
+  let eqval = self.config.get('mergedeq')
+  let subtypex = eqval.toString().split('|')
+  let resulttype = ''
+  let crossatt, crossfreq
+  let loudnessGain = self.config.get('loudnessGain')
+
+  let enableresampling = self.config.get('enableresampling')
+  let resamplingq = self.config.get('resamplingq')
+  let resamplingset = self.config.get('resamplingset')
+  let allowdownsamplig = true
+  let autoatt = self.config.get('autoatt')
+
+  //----compose output----
+  if (testclipping) {
+    var composeout = ''
+    composeout += '  playback:' + '\n';
+    composeout += '    type: File' + '\n';
+    composeout += '    channels: 2' + '\n';
+    composeout += '    filename: "/dev/null"' + '\n';
+    composeout += '    format: S32LE' + '\n';
+
+  } else if (testclipping == false) {
+    var composeout = ''
+    composeout += '  playback:' + '\n';
+    composeout += '    type: Alsa' + '\n';
+    composeout += '    channels: 2' + '\n';
+    composeout += '    device: "postDsp"' + '\n';
+    composeout += '    format: S32LE' + '\n';
+  }
+  //------resampling section-----
+
+  var composeddevice = '';
+  let capturesamplerate = hcurrentsamplerate;
+  let outputsamplerate = capturesamplerate;
+  if (enableresampling) {
+    let type
+    switch (resamplingq) {
+      case ("+"):
+        type = 'FastAsync'
+        break;
+      case ("++"):
+        type = 'BalancedAsync'
+        break;
+      case ("+++"):
+        type = 'AccurateAsync'
+        break;
+      default: "++"
+    }
+
+    composeddevice += '  enable_resampling: true\n';
+    composeddevice += '  resampler_type: ' + type + '\n';
+    composeddevice += '  capture_samplerate: ' + capturesamplerate;
+    outputsamplerate = resamplingset;
+  } else if (enableresampling == false) {
+    composeddevice += '  capture_samplerate: ' + capturesamplerate;
+    composeddevice = '\n';
+  }
+  //------crossfeed section------
+
+  var crossconfig = self.config.get('crossfeed')
+  var is_natural = crossconfig.includes("nc_") || crossconfig.includes("sadie_")
+  if ((crossconfig != 'None') && (!is_natural))/* && (effect))*/ {
+    var composedeq = '';
+
+    self.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
+    switch (crossconfig) {
+      case ("bauer"):
+        crossfreq = 700
+        crossatt = 4.5
+        break;
+      case ("chumoy"):
+        crossfreq = 700
+        crossatt = 6
+        break;
+      case ("jameier"):
+        crossfreq = 650
+        crossatt = 9.5
+        break;
+      case ("linkwitz"):
+        crossfreq = 700
+        crossatt = 2
+        break;
+      case ("None"):
+        crossatt = 0
+        //   composedeq += ''
+        break;
+      default: "None"
+
+    }
+
+    composedeq += '  highcross:\n'
+    composedeq += '    type: Biquad\n'
+    composedeq += '    parameters:\n'
+    composedeq += '      type: Highshelf\n'
+    composedeq += '      freq: ' + crossfreq + '\n'
+    composedeq += '      slope: 6\n'
+    composedeq += '      gain: ' + crossatt + '\n'
+    composedeq += '\n'
+    composedeq += '  lpcross:\n'
+    composedeq += '    type: Biquad\n'
+    composedeq += '    parameters:\n'
+    composedeq += '      type: LowpassFO\n'
+    composedeq += '      freq: ' + crossfreq + '\n'
+    composedeq += '\n'
+    composedeq += '  delay:\n'
+    composedeq += '    type: Delay\n'
+    composedeq += '    parameters:\n'
+    composedeq += '      delay: 0.32\n'
+    composedeq += '      unit: ms\n'
+    composedeq += '      subsample: false\n'
+    composedeq += '      \n'
+    result += composedeq
+
+
+  }
+  if ((crossconfig != 'None') && (is_natural) && (effect)) {
+    var composedeq = '';
+
+    let hrtf_filterl = '';
+    let hrtf_filterr = '';
+    crossatt = 3;
+
+    self.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
+    switch (crossconfig) {
+      case ("nc_11_30"):
+        hrtf_filterl = "NC_11_30/NC_11_30_Left_$samplerate$.wav";
+        hrtf_filterr = "NC_11_30/NC_11_30_Right_$samplerate$.wav";
+        break;
+      case ("nc_11_50"):
+        hrtf_filterl = "NC_11_50/NC_11_50_Left_$samplerate$.wav";
+        hrtf_filterr = "NC_11_50/NC_11_50_Right_$samplerate$.wav";
+        break;
+      case ("sadie_d1"):
+        hrtf_filterl = "SADIE_D1/SADIE_D1_Left_30deg_$samplerate$.wav";
+        hrtf_filterr = "SADIE_D1/SADIE_D1_Right_30deg_$samplerate$.wav";
+        break;
+      case ("sadie_h15m"):
+        hrtf_filterl = "SADIE_H15/SADIE_H15_mod_Left_30deg_$samplerate$.wav";
+        hrtf_filterr = "SADIE_H15/SADIE_H15_mod_Right_30deg_$samplerate$.wav";
+        break;
+    }
+
+    composedeq += '  hrtf_conv_ll:\n';
+    composedeq += '    type: Conv' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      type: Wav' + '\n';
+    composedeq += '      filename: ' + hrtffilterpath + hrtf_filterl + '\n';
+    composedeq += '      channel: 0\n';
+    composedeq += '      \n'
+    composedeq += '  hrtf_conv_lr:\n';
+    composedeq += '    type: Conv' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      type: Wav' + '\n';
+    composedeq += '      filename: ' + hrtffilterpath + hrtf_filterl + '\n';
+    composedeq += '      channel: 1\n';
+    composedeq += '      \n'
+    composedeq += '  hrtf_conv_rl:\n';
+    composedeq += '    type: Conv' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      type: Wav' + '\n';
+    composedeq += '      filename: ' + hrtffilterpath + hrtf_filterr + '\n';
+    composedeq += '      channel: 0\n';
+    composedeq += '      \n'
+    composedeq += '  hrtf_conv_rr:\n';
+    composedeq += '    type: Conv' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      type: Wav' + '\n';
+    composedeq += '      filename: ' + hrtffilterpath + hrtf_filterr + '\n';
+    composedeq += '      channel: 1\n';
+    composedeq += '      \n'
+    result += composedeq
+
+  } else {
+    crossatt = 0
+    composedeq += ''
+  }
+
+  //------end crossfeed section
+
+  //------delay
+  let delayscope = self.config.get('delayscope')
+  if (delayscope != 'None') {
+    var composedeq = '';
+    var pipelineL = '';
+    var pipelineR = '';
+    composedeq += '  delayG' + ':\n';
+    composedeq += '    type: Delay' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      delay: ' + self.config.get("delay") + '\n';
+    composedeq += '      unit: ms' + '\n';
+    composedeq += '      subsample: false' + '\n';
+    composedeq += '' + '\n';
+    result += composedeq
+
+  }
+  //-----end delay
+
+  //------volume loudness section---
+
+  let loudness = self.config.get('loudness')
+  if ((loudness) && (effect)) {
+    self.logger.info(logPrefix + ' Loudness is ON ' + loudness)
+    var composedeq = '';
+    var pipelineL = '';
+    var pipelineR = '';
+
+    composedeq += '  highshelf:\n'
+    composedeq += '    type: Biquad\n'
+    composedeq += '    parameters:\n'
+    composedeq += '      type: Highshelf\n'
+    composedeq += '      freq: 10620\n'
+    composedeq += '      q: 1.38\n'
+    composedeq += '      gain: ' + ((loudnessGain * 0.2811168954093706)).toFixed(2) + '\n'
+    composedeq += '' + '\n'
+    composedeq += '  lowshelf:\n';
+    composedeq += '    type: Biquad' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      type: LowshelfFO\n';
+    composedeq += '      freq: 120\n';
+    composedeq += '      gain: ' + loudnessGain + '\n';
+    composedeq += '' + '\n'
+    composedeq += '  peakloudness:\n';
+    composedeq += '    type: Biquad' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      type: Peaking\n';
+    composedeq += '      freq: 2000\n';
+    composedeq += '      q: 0.6\n';
+    composedeq += '      gain: ' + ((loudnessGain * -0.061050638902035)).toFixed(2) + '\n';
+    composedeq += '' + '\n'
+    composedeq += '  peakloudness2:\n';
+    composedeq += '    type: Biquad' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      type: Peaking\n';
+    composedeq += '      freq: 4000\n';
+    composedeq += '      q: 0.8\n';
+    composedeq += '      gain: ' + ((loudnessGain * -0.0274491244675816)).toFixed(2) + '\n';
+    composedeq += '' + '\n'
+    composedeq += '  peakloudness3:\n';
+    composedeq += '    type: Biquad' + '\n';
+    composedeq += '    parameters:' + '\n';
+    composedeq += '      type: Peaking\n';
+    composedeq += '      freq: 8000\n';
+    composedeq += '      q: 2.13\n';
+    composedeq += '      gain: ' + ((loudnessGain * 0.0709891150023663)).toFixed(2) + '\n';
+    composedeq += '' + '\n'
+
+    result += composedeq
+    //-----loudness pipeline
+
+    // gainmaxused += loudnessGain
+  }
+  else {
+    loudnessGain = 0
+  }
+
+  for (let o = 1; o < (nbreq + 1); o++) {
+
+    typec = subtypex[((o - 1) * 4) + 1];
+    resulttype += typec
+  }
+  if (resulttype.indexOf('None') == -1) {
+    //self.logger.info(logPrefix+' resultype dif from None ' + resulttype)
+  } else {
+    //self.logger.info(logPrefix+' Resultype only None ' + resulttype)
+    var composedeq = '';
+    composedeq += '  nulleq:' + '\n';
+    composedeq += '    type: Conv' + '\n';
+    pipeliner = '      - nulleq';
+    result += composedeq
+    pipelinelr = pipeliner.slice(8)
+    pipelinerr = pipeliner.slice(8)
+
+    self.logger.info(logPrefix + ' Nulleq applied')
+
+    gainresult = 0
+    gainclipfree = 0
+  }
+
+
+  if (effect == false) {
+    var composedeq = '';
+    composedeq += '  nulleq:' + '\n';
+    composedeq += '    type: Conv' + '\n';
+
+    //self.logger.info(logPrefix + ' Effects disabled')
+    gainresult = 0
+    gainclipfree = self.config.get('gainapplied')
+
+  } else {
+
+    for (let o = 1; o < (nbreq + 1); o++) {
+      eqo = ("eq" + o + "c");
+      eqa = subtypex[((o - 1) * 4) + 3]//("eq" + o);
+      typec = subtypex[((o - 1) * 4) + 1];
+      scoper = subtypex[((o - 1) * 4) + 2]//("scope" + o);
+      convatt = subtypex[((o - 1) * 4) + 3]//("scope" + o);
+
+      var composedeq = '';
+      var gainmax;
+      var pipelineL = '';
+      var pipelineR = '';
+
+      typer = typec//self.config.get(typec);
+      if (eqa == undefined) {
+        self.logger.error(logPrefix + ' Error in eqv! Cannot split values!')
+        return;
+      }
+      eqv = eqa.split(',');
+      var coef;
+      var eqc = 'eq' + o;
+
+      if (eqv[0] < hcurrentsamplerate / 2) {
+
+        if ((typer == 'Highshelf' || typer == 'Lowshelf')) {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '      slope: ' + eqv[2] + '\n';
+          composedeq += '      gain: ' + eqv[1] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + eqv[1];
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+          }
+        }
+        if ((typer == 'Highshelf2' || typer == 'Lowshelf2')) {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer.slice(0, -1) + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '      q: ' + eqv[2] + '\n';
+          composedeq += '      gain: ' + eqv[1] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + eqv[1];
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+          }
+        } else if (typer == 'Peaking') {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '      q: ' + eqv[2] + '\n';
+          composedeq += '      gain: ' + eqv[1] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + eqv[1];
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+          }
+
+        } else if (typer == 'Peaking2') {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer.slice(0, -1) + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '      bandwidth: ' + eqv[2] + '\n';
+          composedeq += '      gain: ' + eqv[1] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + eqv[1];
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+          }
+
+        } else if (typer == 'Conv') {
+          var convtype = self.config.get('convtype')
+          filterr = eval('filter' + o)
+
+          var composedeq = '';
+          composedeq += '  conv' + [o] + ':\n';
+          composedeq += '    type: Conv' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + convtype + '\n';
+          composedeq += '      filename: ' + filterfolder + filterr + '\n';
+          if (convtype != 'Wav') {
+            composedeq += '      format: ' + self.config.get("filter_format") + '\n';
+          }
+          //composedeq += '      ' + skipval + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + convatt
+
+          if (testclipping) {
+            gainmax = ',0'
+          }
+
+          if (o == 1) {
+            pipelineL = '      - conv1\n'
+          }
+          if (o == 2) {
+            pipelineR = '      - conv2\n'
+          }
+
+          //result += composedeq
+
+        } else if ((typer == 'Lowpass' || typer == 'Highpass' || typer == 'Notch')) {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '      q: ' + eqv[1] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + 0
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+
+          }
+
+        } else if ((typer == 'Notch2')) {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer.slice(0, -1) + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '      bandwidth: ' + eqv[1] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + 0
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+
+          }
+
+        } else if (typer == 'LowshelfFO' || typer == 'HighshelfFO') {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '      gain: ' + eqv[1] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + eqv[1]
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+
+          }
+
+        } else if ((typer == 'LowpassFO' || typer == 'HighpassFO')) {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + 0
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+
+          }
+        } else if (typer == 'LinkwitzTransform') {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: Biquad' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer + '\n';
+          composedeq += '      freq_act: ' + eqv[0] + '\n';
+          composedeq += '      q_act: ' + eqv[1] + '\n';
+          composedeq += '      freq_target: ' + eqv[2] + '\n';
+          composedeq += '      q_target: ' + eqv[3] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + 0
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+
+          }
+
+        } else if (typer == 'ButterworthHighpass' || typer == 'ButterworthLowpass') {
+
+          composedeq += '  ' + eqc + ':\n';
+          composedeq += '    type: BiquadCombo' + '\n';
+          composedeq += '    parameters:' + '\n';
+          composedeq += '      type: ' + typer + '\n';
+          composedeq += '      freq: ' + eqv[0] + '\n';
+          composedeq += '      order: ' + eqv[1] + '\n';
+          composedeq += '' + '\n';
+          gainmax = ',' + 0
+          if (scoper == 'L') {
+            pipelineL = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'R') {
+            pipelineR = '      - ' + eqc + '\n';
+
+          } else if (scoper == 'L+R') {
+            pipelineL = '      - ' + eqc + '\n';
+            pipelineR = '      - ' + eqc + '\n';
+
+          }
+
+        } else if (typer == 'None') {
+
+          composedeq = ''
+          pipelineL = ''
+          pipelineR = ''
+          gainmax = ',' + 0
+
+        }
+
+
+        var outlpipeline, outrpipeline;
+        result += composedeq
+        outlpipeline += pipelineL
+        outrpipeline += pipelineR
+        pipelinelr = outlpipeline.slice(17)
+        pipelinerr = outrpipeline.slice(17)
+        if (loudness == false) {
+
+          if (pipelinelr == '') {
+            pipelinelr = 'nulleq2'
+          }
+
+          if (pipelinerr == '') {
+            pipelinerr = 'nulleq2'
+          }
+        }
+        gainmaxused += gainmax
+        if (self.config.get('loudness') && effect) {
+          pipelinelr += '      - highshelf\n';
+          pipelinelr += '      - peakloudness\n';
+          pipelinelr += '      - peakloudness2\n';
+          pipelinelr += '      - peakloudness3\n';
+          pipelinelr += '      - lowshelf\n';
+          pipelinerr += '      - highshelf\n';
+          pipelinerr += '      - peakloudness\n';
+          pipelinerr += '      - peakloudness2\n';
+          pipelinerr += '      - peakloudness3\n';
+          pipelinerr += '      - lowshelf\n';
+        }
+        if (delayscope != 'None') {
+          if (delayscope == 'L') {
+            pipelinelr += '' + '\n';
+
+            pipelinelr += '      - delayG' + '\n';
+
+          } else if (delayscope == 'R') {
+            pipelinerr += '' + '\n';
+            pipelinerr += '      - delayG' + '\n';
+
+          } else if (delayscope == 'L+R') {
+            pipelinelr += '' + '\n';
+            pipelinelr += '      - delayG' + '\n';
+            pipelinerr += '' + '\n';
+            pipelinerr += '      - delayG' + '\n';
+          }
+
+        }
+      }
+    };
+
+  };
+
+  gainmaxused += ',' + loudnessGain
+
+  const withNegativeValues = gainmaxused.split(',').some((val) => val < 0);
+  gainresult = (gainmaxused.toString().split(',').slice(1).sort((a, b) => a - b)).pop();
+
+  //    self.logger.info(logPrefix + ' gainmaxused ' + gainmaxused + ' ' + typeof (withNegativeValues) + withNegativeValues)
+  let monooutput = self.config.get('monooutput')
+
+  if (effect) {
+
+    if (+gainresult == 0 && !withNegativeValues) {
+      gainclipfree = -0.05
+    } else if (+gainresult == 0 && withNegativeValues) {
+      gainclipfree = -2.5
+      self.logger.info(logPrefix + ' else 1  ' + gainclipfree)
+    } else if (+gainresult > 0 && (selectedsp != "convfir")) {
+      gainclipfree = ('-' + ((parseFloat(Number(gainresult).toFixed(2))) + 2.5))
+    } else if (+gainresult > 0 && (selectedsp == "convfir")) {
+      gainclipfree = ('-' + (parseFloat(Number(gainresult))))
+    }
+    if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
+      gainclipfree = 0
+    }
+    self.config.set('gainapplied', gainclipfree)
+
+  }
+  gainclipfree = self.config.get('gainapplied')
+  let leftgain = (+gainclipfree + +leftlevel - +crossatt)
+  let rightgain = (+gainclipfree + +rightlevel - +crossatt);
+  let leftgainmono = (+gainclipfree + +leftlevel - 6.1)
+  let rightgainmono = (+gainclipfree + +rightlevel - 6.1);
+  let permutchannel = self.config.get('permutchannel')
+  var c0 = "0"
+  var c1 = "1"
+  if (permutchannel) {
+    c0 = "1"
+    c1 = "0"
+  }
+
+  ///----mixers and pipelines generation
+  var composedmixer = ''
+  var composedpipeline = ''
+  let muteleft = self.config.get('muteleft')
+  let muteright = self.config.get('muteright')
+
+  if ((crossconfig == 'None') && (effect)) {
+    if (monooutput) {
+      composedmixer += 'mixers:\n'
+      composedmixer += '  mono:\n'
+      composedmixer += '    channels:\n'
+      composedmixer += '      in: 2\n'
+      composedmixer += '      out: 2\n'
+      composedmixer += '    mapping:\n'
+      composedmixer += '      - dest: 0\n'
+      composedmixer += '        sources:\n'
+      composedmixer += '          - channel: 0\n'
+      composedmixer += '            gain: ' + +leftgainmono + '\n'
+      composedmixer += '            inverted: false\n'
+      composedmixer += '            mute: ' + muteleft + '\n'
+      composedmixer += '          - channel: 1\n'
+      composedmixer += '            gain: ' + +leftgainmono + '\n'
+      composedmixer += '            inverted: false\n'
+      composedmixer += '            mute: ' + muteright + '\n'
+      composedmixer += '      - dest: 1\n'
+      composedmixer += '        sources:\n'
+      composedmixer += '          - channel: 0\n'
+      composedmixer += '            gain: ' + +rightgainmono + '\n'
+      composedmixer += '            inverted: false\n'
+      composedmixer += '            mute: ' + muteleft + '\n'
+      composedmixer += '          - channel: 1\n'
+      composedmixer += '            gain: ' + +rightgainmono + '\n'
+      composedmixer += '            inverted: false\n'
+      composedmixer += '            mute: ' + muteright + '\n'
+      composedmixer += '\n'
+
+      composedpipeline += '\n'
+      composedpipeline += 'pipeline:\n'
+      composedpipeline += '  - type: Mixer\n'
+      composedpipeline += '    name: mono\n'
+      composedpipeline += '  - type: Filter\n'
+      composedpipeline += '    channel: 0\n'
+      composedpipeline += '    names:\n'
+      composedpipeline += '      - ' + pipelinelr + '\n'
+      composedpipeline += '  - type: Filter\n'
+      composedpipeline += '    channel: 1\n'
+      composedpipeline += '    names:\n'
+      composedpipeline += '      - ' + pipelinerr + '\n'
+      composedpipeline += '\n'
+    } else {
+      composedmixer += 'mixers:\n'
+      composedmixer += '  stereo:\n'
+      composedmixer += '    channels:\n'
+      composedmixer += '      in: 2\n'
+      composedmixer += '      out: 2\n'
+      composedmixer += '    mapping:\n'
+      composedmixer += '      - dest: 0\n'
+      composedmixer += '        sources:\n'
+      composedmixer += '          - channel: ' + c0 + '\n'
+      composedmixer += '            gain: ' + leftgain + '\n'
+      composedmixer += '            inverted: false\n'
+      composedmixer += '            mute: ' + muteleft + '\n'
+      composedmixer += '      - dest: 1\n'
+      composedmixer += '        sources:\n'
+      composedmixer += '          - channel: ' + c1 + '\n'
+      composedmixer += '            gain: ' + rightgain + '\n'
+      composedmixer += '            inverted: false\n'
+      composedmixer += '            mute: ' + muteright + '\n'
+      composedmixer += '\n'
+
+      composedpipeline += '\n'
+      composedpipeline += 'pipeline:\n'
+      composedpipeline += '  - type: Mixer\n'
+      composedpipeline += '    name: stereo\n'
+      composedpipeline += '  - type: Filter\n'
+      composedpipeline += '    channel: 0\n'
+      composedpipeline += '    names:\n'
+      composedpipeline += '      - ' + pipelinelr + '\n'
+      composedpipeline += '  - type: Filter\n'
+      composedpipeline += '    channel: 1\n'
+      composedpipeline += '    names:\n'
+      composedpipeline += '      - ' + pipelinerr + '\n'
+      composedpipeline += '\n'
+    }
+
+  } else if ((crossconfig != 'None') && (!is_natural) && (effect)) {
+    // -- if a crossfeed is used
+    composedmixer += 'mixers:\n'
+    composedmixer += '  2to4:\n'
+    composedmixer += '    channels:\n'
+    composedmixer += '      in: 2\n'
+    composedmixer += '      out: 4\n'
+    composedmixer += '    mapping:\n'
+    composedmixer += '      - dest: 0\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 0\n'
+    composedmixer += '            gain: ' + leftgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '      - dest: 1\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 0\n'
+    composedmixer += '            gain: ' + leftgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '      - dest: 2\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 1\n'
+    composedmixer += '            gain: ' + rightgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '      - dest: 3\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 1\n'
+    composedmixer += '            gain: ' + rightgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '  stereo:\n'
+    composedmixer += '    channels:\n'
+    composedmixer += '      in: 4\n'
+    composedmixer += '      out: 2\n'
+    composedmixer += '    mapping:\n'
+    composedmixer += '      - dest: 0\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: ' + c0 + '\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteleft + '\n'
+    composedmixer += '          - channel: 2\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteleft + '\n'
+    composedmixer += '      - dest: 1\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: ' + c1 + '\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteright + '\n'
+    composedmixer += '          - channel: 3\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteright + '\n'
+
+    composedpipeline += '\n'
+    composedpipeline += 'pipeline:\n'
+    composedpipeline += '   - type: Mixer\n'
+    composedpipeline += '     name: 2to4\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 0\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - highcross\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 1\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - lpcross\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 1\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - delay\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 2\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - lpcross\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 2\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - delay\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 3\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - highcross\n'
+    composedpipeline += '   - type: Mixer\n'
+    composedpipeline += '     name: stereo\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 0\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '      - ' + pipelinelr + '\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 1\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '      - ' + pipelinerr + '\n'
+
+
+  } else if ((crossconfig != 'None') && (is_natural) && (effect)) {
+    // -- if a crossfeed is used
+    composedmixer += 'mixers:\n'
+    composedmixer += '  2to4:\n'
+    composedmixer += '    channels:\n'
+    composedmixer += '      in: 2\n'
+    composedmixer += '      out: 4\n'
+    composedmixer += '    mapping:\n'
+    composedmixer += '      - dest: 0\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 0\n'
+    composedmixer += '            gain: ' + leftgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '      - dest: 1\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 0\n'
+    composedmixer += '            gain: ' + leftgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '      - dest: 2\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 1\n'
+    composedmixer += '            gain: ' + rightgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '      - dest: 3\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: 1\n'
+    composedmixer += '            gain: ' + rightgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '  stereo:\n'
+    composedmixer += '    channels:\n'
+    composedmixer += '      in: 4\n'
+    composedmixer += '      out: 2\n'
+    composedmixer += '    mapping:\n'
+    composedmixer += '      - dest: 0\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: ' + c0 + '\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteleft + '\n'
+    composedmixer += '          - channel: 2\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteleft + '\n'
+    composedmixer += '      - dest: 1\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: ' + c1 + '\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteright + '\n'
+    composedmixer += '          - channel: 3\n'
+    composedmixer += '            gain: 0\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: ' + muteright + '\n'
+
+    composedpipeline += '\n'
+    composedpipeline += 'pipeline:\n'
+    composedpipeline += '   - type: Mixer\n'
+    composedpipeline += '     name: 2to4\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 0\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - hrtf_conv_ll\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 1\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - hrtf_conv_lr\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 2\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - hrtf_conv_rl\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 3\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '       - hrtf_conv_rr\n'
+    composedpipeline += '   - type: Mixer\n'
+    composedpipeline += '     name: stereo\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 0\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '      - ' + pipelinelr + '\n'
+    composedpipeline += '   - type: Filter\n'
+    composedpipeline += '     channel: 1\n'
+    composedpipeline += '     names:\n'
+    composedpipeline += '      - ' + pipelinerr + '\n'
+
+
+  } else if (effect == false) {
+
+    self.logger.info(logPrefix + ' Effects disabled')
+    gainresult = 0
+    //   gainclipfree = self.config.get('gainapplied')
+
+    composedmixer += 'mixers:\n'
+    composedmixer += '  stereo:\n'
+    composedmixer += '    channels:\n'
+    composedmixer += '      in: 2\n'
+    composedmixer += '      out: 2\n'
+    composedmixer += '    mapping:\n'
+    composedmixer += '      - dest: 0\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: ' + c0 + '\n'
+    composedmixer += '            gain: ' + leftgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false\n'
+    composedmixer += '      - dest: 1\n'
+    composedmixer += '        sources:\n'
+    composedmixer += '          - channel: ' + c1 + '\n'
+    composedmixer += '            gain: ' + rightgain + '\n'
+    composedmixer += '            inverted: false\n'
+    composedmixer += '            mute: false'
+    composedmixer += '\n'
+
+    pipeliner = '      - nulleq2';
+    pipelinelr = pipeliner.slice(8)
+    pipelinerr = pipeliner.slice(8)
+
+    composedpipeline += '\n'
+    composedpipeline += 'pipeline:\n'
+    composedpipeline += '  - type: Mixer\n'
+    composedpipeline += '    name: stereo\n'
+    /*    composedpipeline += '  - type: Filter\n'
+        composedpipeline += '    channel: 0\n'
+        composedpipeline += '    names:\n'
+        composedpipeline += '      - ' + pipelinelr + '\n'
+        composedpipeline += '  - type: Filter\n'
+        composedpipeline += '    channel: 1\n'
+        composedpipeline += '    names:\n'
+        composedpipeline += '      - ' + pipelinerr + '\n'
+        //   composedpipeline += '\n'
+      */
+  }
+
+  let data = fs.readFileSync(__dirname + "/camilladsp.conf.yml", 'utf8');
+
+  let strConfig = data.replace("${resulteq}", result)
+    .replace("${chunksize}", (chunksize))
+    .replace("${resampling}", (composeddevice))
+    .replace("${outputsamplerate}", (outputsamplerate))
+
+    .replace("${composeout}", (composeout))
+    .replace("${mixers}", composedmixer)
+    .replace("${composedpipeline}", composedpipeline.replace(/-       - /g, '- '))
+    //  .replace("${pipelineR}", pipelinerr)
+    ;
+
+  self.logger.debug(logPrefix + result);
+
+  return strConfig;
+
+}
+
+let getCamillaPureGuiConfig = function(plugin, chunksize, samplerate) {
+
+  let strConfig;
+
+  try {
+
+    /*
+     * Read the existing camilladsp.yml configuration file and replace chunksize and capture samplerate.
+     * If capture samplerate is not present in the configuration file (for example, due to an upgrade
+     * of the plugin from a previous version), then append it after "samplerate" to make it compliant.
+     *
+     * If a camilladsp.yml file does not exist, handle the exception and use a vanilla configuration
+     * from the template file.
+     */
+
+    let regexChunksize = /(chunksize): \d+/;
+    let regexCapturesamplerate = /(capture_samplerate): \d+/;
+    let regexSamplerate = /(\s+)(samplerate)(: \d+)/;
+    let regexIsResamplingEnabled = /enable_resampling: true/;
+
+    strConfig = fs.readFileSync("/data/configuration/audio_interface/fusiondsp/camilladsp.yml", "utf-8");
+
+    // If resampling is active, don't alter the "samplerate" parameter
+    // otherwise make it equal as "capture_samplerate" parameter
+    let isResamplingActive = strConfig.search(regexIsResamplingEnabled) !== -1;
+
+    if (isResamplingActive === false)
+      strConfig = strConfig.replace(regexSamplerate, `$1$2: ${samplerate}`);
+
+    // Modify chunksize and capture_samplerate parameters with those coming from stream
+    strConfig = strConfig
+      .replace(regexCapturesamplerate, `$1: ${samplerate}`)
+      .replace(regexChunksize, `$1: ${chunksize}`);
+
+    // In case capture_samplerate is not present, add it right after samplerate
+    if (strConfig.search(regexCapturesamplerate) === -1)
+      strConfig = strConfig.replace(regexSamplerate, `$1$2$3capture_samplerate: ${samplerate}`);
+
+  } catch (err) {
+
+    plugin.logging.warning("camilladsp.yml configuration does not exist, providing bare default from camilladsp-pure.conf.yml");
+    strConfig = fs.readFileSync(__dirname + "/camilladsp-pure.conf.yml", 'utf8');
+
+    strConfig = strConfig.replace("${chunksize}", chunksize)
+        .replace("${outputsamplerate}", samplerate)
+        .replace("${capturesamplerate}", samplerate);
+
+  }
+
+  return strConfig;
+
+}
+
 //------------Here we build CmaillaDsp config file----------------------------------------------
 
 FusionDsp.prototype.createCamilladspfile = function (callback) {
@@ -2548,6 +3634,8 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
   let hchannels = 2;
   let hbitdepth = 32;
   let selectedsp = self.config.get('selectedsp')
+  let chunksize = 4800;
+  let strCamillaConf;
 
   /*
    * Read the sampling rate, format, channels and bitdepth from ALSA provided
@@ -2557,1060 +3645,31 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
   if (self.pushstateSamplerate)
     hcurrentsamplerate = self.pushstateSamplerate;
 
-  if (selectedsp != 'convfir') {
+  if (selectedsp != 'convfir')
     self.logger.info(logPrefix + ' If filter freq >samplerate/2 then disable it');
-  }
 
-  if (selectedsp == 'purecgui') {
-    return;
-  }
   try {
-    fs.readFile(__dirname + "/camilladsp.conf.yml", 'utf8', function (err, data) {
-      if (err) {
-        defer.reject(new Error(err));
-        return self.logger.error(err);
-      }
-      var pipeliner, pipelines, pipelinelr, pipelinerr = '';
-      var eqo, eqc, eqv, eqa
-      var typec, typer;
-      var result = '';
-      var gainmaxused = [];
-      let scopec, scoper;
-      var nbreq = (self.config.get('nbreq'))
-      var effect = self.config.get('effect')
-      var leftlevel = self.config.get('leftlevel')
-      var rightlevel = self.config.get('rightlevel')
-      //----fIr VARIABLES----
-      let leftfilter = self.config.get('leftfilter');
-      let filter1 = leftfilter
-      let rightfilter = self.config.get('rightfilter');
-      let filter2 = rightfilter
-      var attenuation = self.config.get('attenuationl');
-      var testclipping = self.config.get('testclipping')
 
-      // var smpl_rate = self.config.get('smpl_rate')
-      var filter_format = self.config.get('filter_format')
-      if (selectedsp == "convfir") {
-        let val = self.dfiltertype();
-        let skipval = val.skipvalue
-      }
-      var channels = 2;
-      var filterr;
-      let convatt
-      var gainresult, gainclipfree
-      let eqval = self.config.get('mergedeq')
-      let subtypex = eqval.toString().split('|')
-      let resulttype = ''
-      let crossatt, crossfreq
-      let loudnessGain = self.config.get('loudnessGain')
+    if (selectedsp === "purecgui") {
 
-      let enableresampling = self.config.get('enableresampling')
-      let resamplingq = self.config.get('resamplingq')
-      let resamplingset = self.config.get('resamplingset')
-      let allowdownsamplig = true
-      let autoatt = self.config.get('autoatt')
+      strCamillaConf = getCamillaPureGuiConfig(self, chunksize, hcurrentsamplerate);
 
-      //----compose output----
-      if (testclipping) {
-        var composeout = ''
-        composeout += '  playback:' + '\n';
-        composeout += '    type: File' + '\n';
-        composeout += '    channels: 2' + '\n';
-        composeout += '    filename: "/dev/null"' + '\n';
-        composeout += '    format: S32LE' + '\n';
+    } else {
 
-      } else if (testclipping == false) {
-        var composeout = ''
-        composeout += '  playback:' + '\n';
-        composeout += '    type: Alsa' + '\n';
-        composeout += '    channels: 2' + '\n';
-        composeout += '    device: "postDsp"' + '\n';
-        composeout += '    format: S32LE' + '\n';
-      }
-      //------resampling section-----
+      strCamillaConf = getCamillaFiltersConfig(self, selectedsp, chunksize,hcurrentsamplerate);
 
-      var composeddevice = '';
-      let capturesamplerate = hcurrentsamplerate;
-      let outputsamplerate = capturesamplerate;
-      if (enableresampling) {
-        let type
-        switch (resamplingq) {
-          case ("+"):
-            type = 'FastAsync'
-            break;
-          case ("++"):
-            type = 'BalancedAsync'
-            break;
-          case ("+++"):
-            type = 'AccurateAsync'
-            break;
-          default: "++"
-        }
+    }
 
-        composeddevice += '  enable_resampling: true\n';
-        composeddevice += '  resampler_type: ' + type + '\n';
-        composeddevice += '  capture_samplerate: ' + capturesamplerate;
-        outputsamplerate = resamplingset;
-      } else if (enableresampling == false) {
-        composeddevice += '  capture_samplerate: ' + capturesamplerate;
-        composeddevice = '\n';
-      }
-      //------crossfeed section------
+    fs.writeFileSync("/data/configuration/audio_interface/fusiondsp/camilladsp.yml", strCamillaConf, 'utf8');
 
-      var crossconfig = self.config.get('crossfeed')
-      var is_natural = crossconfig.includes("nc_") || crossconfig.includes("sadie_")
-      if ((crossconfig != 'None') && (!is_natural))/* && (effect))*/ {
-        var composedeq = '';
-
-        self.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
-        switch (crossconfig) {
-          case ("bauer"):
-            crossfreq = 700
-            crossatt = 4.5
-            break;
-          case ("chumoy"):
-            crossfreq = 700
-            crossatt = 6
-            break;
-          case ("jameier"):
-            crossfreq = 650
-            crossatt = 9.5
-            break;
-          case ("linkwitz"):
-            crossfreq = 700
-            crossatt = 2
-            break;
-          case ("None"):
-            crossatt = 0
-            //   composedeq += ''
-            break;
-          default: "None"
-
-        }
-
-        composedeq += '  highcross:\n'
-        composedeq += '    type: Biquad\n'
-        composedeq += '    parameters:\n'
-        composedeq += '      type: Highshelf\n'
-        composedeq += '      freq: ' + crossfreq + '\n'
-        composedeq += '      slope: 6\n'
-        composedeq += '      gain: ' + crossatt + '\n'
-        composedeq += '\n'
-        composedeq += '  lpcross:\n'
-        composedeq += '    type: Biquad\n'
-        composedeq += '    parameters:\n'
-        composedeq += '      type: LowpassFO\n'
-        composedeq += '      freq: ' + crossfreq + '\n'
-        composedeq += '\n'
-        composedeq += '  delay:\n'
-        composedeq += '    type: Delay\n'
-        composedeq += '    parameters:\n'
-        composedeq += '      delay: 0.32\n'
-        composedeq += '      unit: ms\n'
-        composedeq += '      subsample: false\n'
-        composedeq += '      \n'
-        result += composedeq
-
-
-      }
-      if ((crossconfig != 'None') && (is_natural) && (effect)) {
-        var composedeq = '';
-
-        let hrtf_filterl = '';
-        let hrtf_filterr = '';
-        crossatt = 3;
-
-        self.logger.info(logPrefix + ' crossfeed  ' + (self.config.get('crossfeed')))
-        switch (crossconfig) {
-          case ("nc_11_30"):
-            hrtf_filterl = "NC_11_30/NC_11_30_Left_$samplerate$.wav";
-            hrtf_filterr = "NC_11_30/NC_11_30_Right_$samplerate$.wav";
-            break;
-          case ("nc_11_50"):
-            hrtf_filterl = "NC_11_50/NC_11_50_Left_$samplerate$.wav";
-            hrtf_filterr = "NC_11_50/NC_11_50_Right_$samplerate$.wav";
-            break;
-          case ("sadie_d1"):
-            hrtf_filterl = "SADIE_D1/SADIE_D1_Left_30deg_$samplerate$.wav";
-            hrtf_filterr = "SADIE_D1/SADIE_D1_Right_30deg_$samplerate$.wav";
-            break;
-          case ("sadie_h15m"):
-            hrtf_filterl = "SADIE_H15/SADIE_H15_mod_Left_30deg_$samplerate$.wav";
-            hrtf_filterr = "SADIE_H15/SADIE_H15_mod_Right_30deg_$samplerate$.wav";
-            break;
-        }
-
-        composedeq += '  hrtf_conv_ll:\n';
-        composedeq += '    type: Conv' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      type: Wav' + '\n';
-        composedeq += '      filename: ' + hrtffilterpath + hrtf_filterl + '\n';
-        composedeq += '      channel: 0\n';
-        composedeq += '      \n'
-        composedeq += '  hrtf_conv_lr:\n';
-        composedeq += '    type: Conv' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      type: Wav' + '\n';
-        composedeq += '      filename: ' + hrtffilterpath + hrtf_filterl + '\n';
-        composedeq += '      channel: 1\n';
-        composedeq += '      \n'
-        composedeq += '  hrtf_conv_rl:\n';
-        composedeq += '    type: Conv' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      type: Wav' + '\n';
-        composedeq += '      filename: ' + hrtffilterpath + hrtf_filterr + '\n';
-        composedeq += '      channel: 0\n';
-        composedeq += '      \n'
-        composedeq += '  hrtf_conv_rr:\n';
-        composedeq += '    type: Conv' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      type: Wav' + '\n';
-        composedeq += '      filename: ' + hrtffilterpath + hrtf_filterr + '\n';
-        composedeq += '      channel: 1\n';
-        composedeq += '      \n'
-        result += composedeq
-
-      } else {
-        crossatt = 0
-        composedeq += ''
-      }
-
-      //------end crossfeed section
-
-      //------delay
-      let delayscope = self.config.get('delayscope')
-      if (delayscope != 'None') {
-        var composedeq = '';
-        var pipelineL = '';
-        var pipelineR = '';
-        composedeq += '  delayG' + ':\n';
-        composedeq += '    type: Delay' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      delay: ' + self.config.get("delay") + '\n';
-        composedeq += '      unit: ms' + '\n';
-        composedeq += '      subsample: false' + '\n';
-        composedeq += '' + '\n';
-        result += composedeq
-
-      }
-      //-----end delay
-
-      //------volume loudness section---
-
-      let loudness = self.config.get('loudness')
-      if ((loudness) && (effect)) {
-        self.logger.info(logPrefix + ' Loudness is ON ' + loudness)
-        var composedeq = '';
-        var pipelineL = '';
-        var pipelineR = '';
-
-        composedeq += '  highshelf:\n'
-        composedeq += '    type: Biquad\n'
-        composedeq += '    parameters:\n'
-        composedeq += '      type: Highshelf\n'
-        composedeq += '      freq: 10620\n'
-        composedeq += '      q: 1.38\n'
-        composedeq += '      gain: ' + ((loudnessGain * 0.2811168954093706)).toFixed(2) + '\n'
-        composedeq += '' + '\n'
-        composedeq += '  lowshelf:\n';
-        composedeq += '    type: Biquad' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      type: LowshelfFO\n';
-        composedeq += '      freq: 120\n';
-        composedeq += '      gain: ' + loudnessGain + '\n';
-        composedeq += '' + '\n'
-        composedeq += '  peakloudness:\n';
-        composedeq += '    type: Biquad' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      type: Peaking\n';
-        composedeq += '      freq: 2000\n';
-        composedeq += '      q: 0.6\n';
-        composedeq += '      gain: ' + ((loudnessGain * -0.061050638902035)).toFixed(2) + '\n';
-        composedeq += '' + '\n'
-        composedeq += '  peakloudness2:\n';
-        composedeq += '    type: Biquad' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      type: Peaking\n';
-        composedeq += '      freq: 4000\n';
-        composedeq += '      q: 0.8\n';
-        composedeq += '      gain: ' + ((loudnessGain * -0.0274491244675816)).toFixed(2) + '\n';
-        composedeq += '' + '\n'
-        composedeq += '  peakloudness3:\n';
-        composedeq += '    type: Biquad' + '\n';
-        composedeq += '    parameters:' + '\n';
-        composedeq += '      type: Peaking\n';
-        composedeq += '      freq: 8000\n';
-        composedeq += '      q: 2.13\n';
-        composedeq += '      gain: ' + ((loudnessGain * 0.0709891150023663)).toFixed(2) + '\n';
-        composedeq += '' + '\n'
-
-        result += composedeq
-        //-----loudness pipeline
-
-        // gainmaxused += loudnessGain
-      }
-      else {
-        loudnessGain = 0
-      }
-
-      for (let o = 1; o < (nbreq + 1); o++) {
-
-        typec = subtypex[((o - 1) * 4) + 1];
-        resulttype += typec
-      }
-      if (resulttype.indexOf('None') == -1) {
-        //self.logger.info(logPrefix+' resultype dif from None ' + resulttype)
-      } else {
-        //self.logger.info(logPrefix+' Resultype only None ' + resulttype)
-        var composedeq = '';
-        composedeq += '  nulleq:' + '\n';
-        composedeq += '    type: Conv' + '\n';
-        pipeliner = '      - nulleq';
-        result += composedeq
-        pipelinelr = pipeliner.slice(8)
-        pipelinerr = pipeliner.slice(8)
-
-        self.logger.info(logPrefix + ' Nulleq applied')
-
-        gainresult = 0
-        gainclipfree = 0
-      }
-
-
-      if (effect == false) {
-        var composedeq = '';
-        composedeq += '  nulleq:' + '\n';
-        composedeq += '    type: Conv' + '\n';
-
-        //self.logger.info(logPrefix + ' Effects disabled')
-        gainresult = 0
-        gainclipfree = self.config.get('gainapplied')
-
-      } else {
-
-        for (let o = 1; o < (nbreq + 1); o++) {
-          eqo = ("eq" + o + "c");
-          eqa = subtypex[((o - 1) * 4) + 3]//("eq" + o);
-          typec = subtypex[((o - 1) * 4) + 1];
-          scoper = subtypex[((o - 1) * 4) + 2]//("scope" + o);
-          convatt = subtypex[((o - 1) * 4) + 3]//("scope" + o);
-
-          var composedeq = '';
-          var gainmax;
-          var pipelineL = '';
-          var pipelineR = '';
-
-          typer = typec//self.config.get(typec);
-          if (eqa == undefined) {
-            self.logger.error(logPrefix + ' Error in eqv! Cannot split values!')
-            return;
-          }
-          eqv = eqa.split(',');
-          var coef;
-          var eqc = 'eq' + o;
-
-          if (eqv[0] < hcurrentsamplerate / 2) {
-
-            if ((typer == 'Highshelf' || typer == 'Lowshelf')) {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '      slope: ' + eqv[2] + '\n';
-              composedeq += '      gain: ' + eqv[1] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + eqv[1];
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-              }
-            }
-            if ((typer == 'Highshelf2' || typer == 'Lowshelf2')) {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer.slice(0, -1) + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '      q: ' + eqv[2] + '\n';
-              composedeq += '      gain: ' + eqv[1] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + eqv[1];
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-              }
-            } else if (typer == 'Peaking') {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '      q: ' + eqv[2] + '\n';
-              composedeq += '      gain: ' + eqv[1] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + eqv[1];
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-              }
-
-            } else if (typer == 'Peaking2') {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer.slice(0, -1) + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '      bandwidth: ' + eqv[2] + '\n';
-              composedeq += '      gain: ' + eqv[1] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + eqv[1];
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-              }
-
-            } else if (typer == 'Conv') {
-              var convtype = self.config.get('convtype')
-              filterr = eval('filter' + o)
-
-              var composedeq = '';
-              composedeq += '  conv' + [o] + ':\n';
-              composedeq += '    type: Conv' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + convtype + '\n';
-              composedeq += '      filename: ' + filterfolder + filterr + '\n';
-              if (convtype != 'Wav') {
-                composedeq += '      format: ' + self.config.get("filter_format") + '\n';
-              }
-              //composedeq += '      ' + skipval + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + convatt
-
-              if (testclipping) {
-                gainmax = ',0'
-              }
-
-              if (o == 1) {
-                pipelineL = '      - conv1\n'
-              }
-              if (o == 2) {
-                pipelineR = '      - conv2\n'
-              }
-
-              //result += composedeq
-
-            } else if ((typer == 'Lowpass' || typer == 'Highpass' || typer == 'Notch')) {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '      q: ' + eqv[1] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + 0
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-
-              }
-
-            } else if ((typer == 'Notch2')) {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer.slice(0, -1) + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '      bandwidth: ' + eqv[1] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + 0
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-
-              }
-
-            } else if (typer == 'LowshelfFO' || typer == 'HighshelfFO') {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '      gain: ' + eqv[1] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + eqv[1]
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-
-              }
-
-            } else if ((typer == 'LowpassFO' || typer == 'HighpassFO')) {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + 0
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-
-              }
-            } else if (typer == 'LinkwitzTransform') {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: Biquad' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer + '\n';
-              composedeq += '      freq_act: ' + eqv[0] + '\n';
-              composedeq += '      q_act: ' + eqv[1] + '\n';
-              composedeq += '      freq_target: ' + eqv[2] + '\n';
-              composedeq += '      q_target: ' + eqv[3] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + 0
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-
-              }
-
-            } else if (typer == 'ButterworthHighpass' || typer == 'ButterworthLowpass') {
-
-              composedeq += '  ' + eqc + ':\n';
-              composedeq += '    type: BiquadCombo' + '\n';
-              composedeq += '    parameters:' + '\n';
-              composedeq += '      type: ' + typer + '\n';
-              composedeq += '      freq: ' + eqv[0] + '\n';
-              composedeq += '      order: ' + eqv[1] + '\n';
-              composedeq += '' + '\n';
-              gainmax = ',' + 0
-              if (scoper == 'L') {
-                pipelineL = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'R') {
-                pipelineR = '      - ' + eqc + '\n';
-
-              } else if (scoper == 'L+R') {
-                pipelineL = '      - ' + eqc + '\n';
-                pipelineR = '      - ' + eqc + '\n';
-
-              }
-
-            } else if (typer == 'None') {
-
-              composedeq = ''
-              pipelineL = ''
-              pipelineR = ''
-              gainmax = ',' + 0
-
-            }
-
-
-            var outlpipeline, outrpipeline;
-            result += composedeq
-            outlpipeline += pipelineL
-            outrpipeline += pipelineR
-            pipelinelr = outlpipeline.slice(17)
-            pipelinerr = outrpipeline.slice(17)
-            if (loudness == false) {
-
-              if (pipelinelr == '') {
-                pipelinelr = 'nulleq2'
-              }
-
-              if (pipelinerr == '') {
-                pipelinerr = 'nulleq2'
-              }
-            }
-            gainmaxused += gainmax
-            if (self.config.get('loudness') && effect) {
-              pipelinelr += '      - highshelf\n';
-              pipelinelr += '      - peakloudness\n';
-              pipelinelr += '      - peakloudness2\n';
-              pipelinelr += '      - peakloudness3\n';
-              pipelinelr += '      - lowshelf\n';
-              pipelinerr += '      - highshelf\n';
-              pipelinerr += '      - peakloudness\n';
-              pipelinerr += '      - peakloudness2\n';
-              pipelinerr += '      - peakloudness3\n';
-              pipelinerr += '      - lowshelf\n';
-            }
-            if (delayscope != 'None') {
-              if (delayscope == 'L') {
-                pipelinelr += '' + '\n';
-
-                pipelinelr += '      - delayG' + '\n';
-
-              } else if (delayscope == 'R') {
-                pipelinerr += '' + '\n';
-                pipelinerr += '      - delayG' + '\n';
-
-              } else if (delayscope == 'L+R') {
-                pipelinelr += '' + '\n';
-                pipelinelr += '      - delayG' + '\n';
-                pipelinerr += '' + '\n';
-                pipelinerr += '      - delayG' + '\n';
-              }
-
-            }
-          }
-        };
-
-      };
-
-      gainmaxused += ',' + loudnessGain
-
-      const withNegativeValues = gainmaxused.split(',').some((val) => val < 0);
-      gainresult = (gainmaxused.toString().split(',').slice(1).sort((a, b) => a - b)).pop();
-
-      //    self.logger.info(logPrefix + ' gainmaxused ' + gainmaxused + ' ' + typeof (withNegativeValues) + withNegativeValues)
-      let monooutput = self.config.get('monooutput')
-
-      if (effect) {
-
-        if (+gainresult == 0 && !withNegativeValues) {
-          gainclipfree = -0.05
-        } else if (+gainresult == 0 && withNegativeValues) {
-          gainclipfree = -2.5
-          self.logger.info(logPrefix + ' else 1  ' + gainclipfree)
-        } else if (+gainresult > 0 && (selectedsp != "convfir")) {
-          gainclipfree = ('-' + ((parseFloat(Number(gainresult).toFixed(2))) + 2.5))
-        } else if (+gainresult > 0 && (selectedsp == "convfir")) {
-          gainclipfree = ('-' + (parseFloat(Number(gainresult))))
-        }
-        if ((gainclipfree === undefined) || ((autoatt == false) && (selectedsp != "convfir"))) {
-          gainclipfree = 0
-        }
-        self.config.set('gainapplied', gainclipfree)
-
-      }
-      gainclipfree = self.config.get('gainapplied')
-      let leftgain = (+gainclipfree + +leftlevel - +crossatt)
-      let rightgain = (+gainclipfree + +rightlevel - +crossatt);
-      let leftgainmono = (+gainclipfree + +leftlevel - 6.1)
-      let rightgainmono = (+gainclipfree + +rightlevel - 6.1);
-      let permutchannel = self.config.get('permutchannel')
-      var c0 = "0"
-      var c1 = "1"
-      if (permutchannel) {
-        c0 = "1"
-        c1 = "0"
-      }
-
-      ///----mixers and pipelines generation
-      var composedmixer = ''
-      var composedpipeline = ''
-      let muteleft = self.config.get('muteleft')
-      let muteright = self.config.get('muteright')
-
-      if ((crossconfig == 'None') && (effect)) {
-        if (monooutput) {
-          composedmixer += 'mixers:\n'
-          composedmixer += '  mono:\n'
-          composedmixer += '    channels:\n'
-          composedmixer += '      in: 2\n'
-          composedmixer += '      out: 2\n'
-          composedmixer += '    mapping:\n'
-          composedmixer += '      - dest: 0\n'
-          composedmixer += '        sources:\n'
-          composedmixer += '          - channel: 0\n'
-          composedmixer += '            gain: ' + +leftgainmono + '\n'
-          composedmixer += '            inverted: false\n'
-          composedmixer += '            mute: ' + muteleft + '\n'
-          composedmixer += '          - channel: 1\n'
-          composedmixer += '            gain: ' + +leftgainmono + '\n'
-          composedmixer += '            inverted: false\n'
-          composedmixer += '            mute: ' + muteright + '\n'
-          composedmixer += '      - dest: 1\n'
-          composedmixer += '        sources:\n'
-          composedmixer += '          - channel: 0\n'
-          composedmixer += '            gain: ' + +rightgainmono + '\n'
-          composedmixer += '            inverted: false\n'
-          composedmixer += '            mute: ' + muteleft + '\n'
-          composedmixer += '          - channel: 1\n'
-          composedmixer += '            gain: ' + +rightgainmono + '\n'
-          composedmixer += '            inverted: false\n'
-          composedmixer += '            mute: ' + muteright + '\n'
-          composedmixer += '\n'
-
-          composedpipeline += '\n'
-          composedpipeline += 'pipeline:\n'
-          composedpipeline += '  - type: Mixer\n'
-          composedpipeline += '    name: mono\n'
-          composedpipeline += '  - type: Filter\n'
-          composedpipeline += '    channel: 0\n'
-          composedpipeline += '    names:\n'
-          composedpipeline += '      - ' + pipelinelr + '\n'
-          composedpipeline += '  - type: Filter\n'
-          composedpipeline += '    channel: 1\n'
-          composedpipeline += '    names:\n'
-          composedpipeline += '      - ' + pipelinerr + '\n'
-          composedpipeline += '\n'
-        } else {
-          composedmixer += 'mixers:\n'
-          composedmixer += '  stereo:\n'
-          composedmixer += '    channels:\n'
-          composedmixer += '      in: 2\n'
-          composedmixer += '      out: 2\n'
-          composedmixer += '    mapping:\n'
-          composedmixer += '      - dest: 0\n'
-          composedmixer += '        sources:\n'
-          composedmixer += '          - channel: ' + c0 + '\n'
-          composedmixer += '            gain: ' + leftgain + '\n'
-          composedmixer += '            inverted: false\n'
-          composedmixer += '            mute: ' + muteleft + '\n'
-          composedmixer += '      - dest: 1\n'
-          composedmixer += '        sources:\n'
-          composedmixer += '          - channel: ' + c1 + '\n'
-          composedmixer += '            gain: ' + rightgain + '\n'
-          composedmixer += '            inverted: false\n'
-          composedmixer += '            mute: ' + muteright + '\n'
-          composedmixer += '\n'
-
-          composedpipeline += '\n'
-          composedpipeline += 'pipeline:\n'
-          composedpipeline += '  - type: Mixer\n'
-          composedpipeline += '    name: stereo\n'
-          composedpipeline += '  - type: Filter\n'
-          composedpipeline += '    channel: 0\n'
-          composedpipeline += '    names:\n'
-          composedpipeline += '      - ' + pipelinelr + '\n'
-          composedpipeline += '  - type: Filter\n'
-          composedpipeline += '    channel: 1\n'
-          composedpipeline += '    names:\n'
-          composedpipeline += '      - ' + pipelinerr + '\n'
-          composedpipeline += '\n'
-        }
-
-      } else if ((crossconfig != 'None') && (!is_natural) && (effect)) {
-        // -- if a crossfeed is used
-        composedmixer += 'mixers:\n'
-        composedmixer += '  2to4:\n'
-        composedmixer += '    channels:\n'
-        composedmixer += '      in: 2\n'
-        composedmixer += '      out: 4\n'
-        composedmixer += '    mapping:\n'
-        composedmixer += '      - dest: 0\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: 0\n'
-        composedmixer += '            gain: ' + leftgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '      - dest: 1\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: 0\n'
-        composedmixer += '            gain: ' + leftgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '      - dest: 2\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: 1\n'
-        composedmixer += '            gain: ' + rightgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '      - dest: 3\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: 1\n'
-        composedmixer += '            gain: ' + rightgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '  stereo:\n'
-        composedmixer += '    channels:\n'
-        composedmixer += '      in: 4\n'
-        composedmixer += '      out: 2\n'
-        composedmixer += '    mapping:\n'
-        composedmixer += '      - dest: 0\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: ' + c0 + '\n'
-        composedmixer += '            gain: 0\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: ' + muteleft + '\n'
-        composedmixer += '          - channel: 2\n'
-        composedmixer += '            gain: 0\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: ' + muteleft + '\n'
-        composedmixer += '      - dest: 1\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: ' + c1 + '\n'
-        composedmixer += '            gain: 0\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: ' + muteright + '\n'
-        composedmixer += '          - channel: 3\n'
-        composedmixer += '            gain: 0\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: ' + muteright + '\n'
-
-        composedpipeline += '\n'
-        composedpipeline += 'pipeline:\n'
-        composedpipeline += '   - type: Mixer\n'
-        composedpipeline += '     name: 2to4\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 0\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - highcross\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 1\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - lpcross\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 1\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - delay\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 2\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - lpcross\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 2\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - delay\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 3\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - highcross\n'
-        composedpipeline += '   - type: Mixer\n'
-        composedpipeline += '     name: stereo\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 0\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '      - ' + pipelinelr + '\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 1\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '      - ' + pipelinerr + '\n'
-
-
-      } else if ((crossconfig != 'None') && (is_natural) && (effect)) {
-        // -- if a crossfeed is used
-        composedmixer += 'mixers:\n'
-        composedmixer += '  2to4:\n'
-        composedmixer += '    channels:\n'
-        composedmixer += '      in: 2\n'
-        composedmixer += '      out: 4\n'
-        composedmixer += '    mapping:\n'
-        composedmixer += '      - dest: 0\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: 0\n'
-        composedmixer += '            gain: ' + leftgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '      - dest: 1\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: 0\n'
-        composedmixer += '            gain: ' + leftgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '      - dest: 2\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: 1\n'
-        composedmixer += '            gain: ' + rightgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '      - dest: 3\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: 1\n'
-        composedmixer += '            gain: ' + rightgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '  stereo:\n'
-        composedmixer += '    channels:\n'
-        composedmixer += '      in: 4\n'
-        composedmixer += '      out: 2\n'
-        composedmixer += '    mapping:\n'
-        composedmixer += '      - dest: 0\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: ' + c0 + '\n'
-        composedmixer += '            gain: 0\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: ' + muteleft + '\n'
-        composedmixer += '          - channel: 2\n'
-        composedmixer += '            gain: 0\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: ' + muteleft + '\n'
-        composedmixer += '      - dest: 1\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: ' + c1 + '\n'
-        composedmixer += '            gain: 0\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: ' + muteright + '\n'
-        composedmixer += '          - channel: 3\n'
-        composedmixer += '            gain: 0\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: ' + muteright + '\n'
-
-        composedpipeline += '\n'
-        composedpipeline += 'pipeline:\n'
-        composedpipeline += '   - type: Mixer\n'
-        composedpipeline += '     name: 2to4\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 0\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - hrtf_conv_ll\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 1\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - hrtf_conv_lr\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 2\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - hrtf_conv_rl\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 3\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '       - hrtf_conv_rr\n'
-        composedpipeline += '   - type: Mixer\n'
-        composedpipeline += '     name: stereo\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 0\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '      - ' + pipelinelr + '\n'
-        composedpipeline += '   - type: Filter\n'
-        composedpipeline += '     channel: 1\n'
-        composedpipeline += '     names:\n'
-        composedpipeline += '      - ' + pipelinerr + '\n'
-
-
-      } else if (effect == false) {
-
-        self.logger.info(logPrefix + ' Effects disabled')
-        gainresult = 0
-        //   gainclipfree = self.config.get('gainapplied')
-
-        composedmixer += 'mixers:\n'
-        composedmixer += '  stereo:\n'
-        composedmixer += '    channels:\n'
-        composedmixer += '      in: 2\n'
-        composedmixer += '      out: 2\n'
-        composedmixer += '    mapping:\n'
-        composedmixer += '      - dest: 0\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: ' + c0 + '\n'
-        composedmixer += '            gain: ' + leftgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false\n'
-        composedmixer += '      - dest: 1\n'
-        composedmixer += '        sources:\n'
-        composedmixer += '          - channel: ' + c1 + '\n'
-        composedmixer += '            gain: ' + rightgain + '\n'
-        composedmixer += '            inverted: false\n'
-        composedmixer += '            mute: false'
-        composedmixer += '\n'
-
-        pipeliner = '      - nulleq2';
-        pipelinelr = pipeliner.slice(8)
-        pipelinerr = pipeliner.slice(8)
-
-        composedpipeline += '\n'
-        composedpipeline += 'pipeline:\n'
-        composedpipeline += '  - type: Mixer\n'
-        composedpipeline += '    name: stereo\n'
-        /*    composedpipeline += '  - type: Filter\n'
-            composedpipeline += '    channel: 0\n'
-            composedpipeline += '    names:\n'
-            composedpipeline += '      - ' + pipelinelr + '\n'
-            composedpipeline += '  - type: Filter\n'
-            composedpipeline += '    channel: 1\n'
-            composedpipeline += '    names:\n'
-            composedpipeline += '      - ' + pipelinerr + '\n'
-            //   composedpipeline += '\n'
-         */
-      }
-
-
-      var chunksize
-      if (selectedsp === "convfir") {
-        chunksize = 4800
-      } else {
-        chunksize = 4800//1024 To check if less bufferunderrun
-      }
-
-
-      let conf = data.replace("${resulteq}", result)
-        .replace("${chunksize}", (chunksize))
-        .replace("${resampling}", (composeddevice))
-        .replace("${outputsamplerate}", (outputsamplerate))
-
-        .replace("${composeout}", (composeout))
-        .replace("${mixers}", composedmixer)
-        .replace("${composedpipeline}", composedpipeline.replace(/-       - /g, '- '))
-        //  .replace("${pipelineR}", pipelinerr)
-        ;
-      fs.writeFileSync("/data/configuration/audio_interface/fusiondsp/camilladsp.yml", conf, 'utf8');
-
-      if (callback) {
-        callback();
-      } else {
-        self.logger.info(logPrefix + result)
-        self.sendCommandToCamilla();
-      }
-
-    });
+    if (callback)
+      callback();
+    else
+      self.sendCommandToCamilla();
 
   } catch (err) {
+
+    self.logger.error(err);
 
   }
 
