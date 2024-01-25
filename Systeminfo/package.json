@@ -1,6 +1,6 @@
 {
 	"name": "Systeminfo",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"description": "Information about your system",
 	"main": "index.js",
 	"scripts": {
@@ -22,7 +22,7 @@
 			"buster"
 		],
 		"details": "Gives information about your system",
-		"changelog": "Buster version"
+		"changelog": "systeminformation node update"
 	},
 	"engines": {
 		"node": ">=8",
