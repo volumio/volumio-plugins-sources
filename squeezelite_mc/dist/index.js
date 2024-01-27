@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _ControllerSqueezeliteMC_instances, _ControllerSqueezeliteMC_serviceName, _ControllerSqueezeliteMC_context, _ControllerSqueezeliteMC_config, _ControllerSqueezeliteMC_commandRouter, _ControllerSqueezeliteMC_playerRunState, _ControllerSqueezeliteMC_playerStatusMonitor, _ControllerSqueezeliteMC_playbackTimer, _ControllerSqueezeliteMC_lastState, _ControllerSqueezeliteMC_volatileCallback, _ControllerSqueezeliteMC_volumioSetVolumeCallback, _ControllerSqueezeliteMC_commandDispatcher, _ControllerSqueezeliteMC_proxy, _ControllerSqueezeliteMC_playerFinder, _ControllerSqueezeliteMC_volumioVolume, _ControllerSqueezeliteMC_playerConfigChangeDelayTimer, _ControllerSqueezeliteMC_playerConfigChangeHandler, _ControllerSqueezeliteMC_playerStartupParams, _ControllerSqueezeliteMC_previousDoubleClickTimeout, _ControllerSqueezeliteMC_doGetUIConfig, _ControllerSqueezeliteMC_initAndStartPlayerFinder, _ControllerSqueezeliteMC_applyFadeOnPauseResume, _ControllerSqueezeliteMC_clearPlayerStatusMonitor, _ControllerSqueezeliteMC_clearPlayerFinder, _ControllerSqueezeliteMC_handlePlayerDisconnect, _ControllerSqueezeliteMC_handlePlayerDiscoveryError, _ControllerSqueezeliteMC_handlePlayerStatusUpdate, _ControllerSqueezeliteMC_pushState, _ControllerSqueezeliteMC_stopCurrentServiceAndSetVolatile, _ControllerSqueezeliteMC_pushEmptyState, _ControllerSqueezeliteMC_getCurrentService, _ControllerSqueezeliteMC_isCurrentService, _ControllerSqueezeliteMC_requestPlayerStatusUpdate, _ControllerSqueezeliteMC_getPlayerConfig, _ControllerSqueezeliteMC_getPlayerStartupParams, _ControllerSqueezeliteMC_getBestSupportedDSDFormat, _ControllerSqueezeliteMC_getVolumioVolume, _ControllerSqueezeliteMC_revalidatePlayerConfig, _ControllerSqueezeliteMC_handlePlayerConfigChange, _ControllerSqueezeliteMC_resolveOnStatusMode;
+var _ControllerSqueezeliteMC_instances, _ControllerSqueezeliteMC_serviceName, _ControllerSqueezeliteMC_context, _ControllerSqueezeliteMC_config, _ControllerSqueezeliteMC_commandRouter, _ControllerSqueezeliteMC_playerRunState, _ControllerSqueezeliteMC_playerStatusMonitor, _ControllerSqueezeliteMC_playbackTimer, _ControllerSqueezeliteMC_lastState, _ControllerSqueezeliteMC_volatileCallback, _ControllerSqueezeliteMC_volumioSetVolumeCallback, _ControllerSqueezeliteMC_commandDispatcher, _ControllerSqueezeliteMC_proxy, _ControllerSqueezeliteMC_playerFinder, _ControllerSqueezeliteMC_volumioVolume, _ControllerSqueezeliteMC_playerConfigChangeDelayTimer, _ControllerSqueezeliteMC_playerConfigChangeHandler, _ControllerSqueezeliteMC_playerStartupParams, _ControllerSqueezeliteMC_previousDoubleClickTimeout, _ControllerSqueezeliteMC_doGetUIConfig, _ControllerSqueezeliteMC_initAndStartPlayerFinder, _ControllerSqueezeliteMC_applyFadeOnPauseResume, _ControllerSqueezeliteMC_clearPlayerStatusMonitor, _ControllerSqueezeliteMC_clearPlayerFinder, _ControllerSqueezeliteMC_handlePlayerDisconnect, _ControllerSqueezeliteMC_handlePlayerDiscoveryError, _ControllerSqueezeliteMC_handlePlayerStatusUpdate, _ControllerSqueezeliteMC_pushState, _ControllerSqueezeliteMC_stopCurrentServiceAndSetVolatile, _ControllerSqueezeliteMC_pushEmptyState, _ControllerSqueezeliteMC_getCurrentService, _ControllerSqueezeliteMC_isCurrentService, _ControllerSqueezeliteMC_requestPlayerStatusUpdate, _ControllerSqueezeliteMC_getPlayerConfig, _ControllerSqueezeliteMC_getAlsaConfig, _ControllerSqueezeliteMC_getPlayerStartupParams, _ControllerSqueezeliteMC_getBestSupportedDSDFormat, _ControllerSqueezeliteMC_getVolumioVolume, _ControllerSqueezeliteMC_revalidatePlayerConfig, _ControllerSqueezeliteMC_handlePlayerConfigChange, _ControllerSqueezeliteMC_resolveOnStatusMode;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
@@ -975,7 +975,28 @@ async function _ControllerSqueezeliteMC_initAndStartPlayerFinder() {
         ...defaultPlayerConfig,
         ...playerConfig
     };
+}, _ControllerSqueezeliteMC_getAlsaConfig = function _ControllerSqueezeliteMC_getAlsaConfig() {
+    const device = __classPrivateFieldGet(this, _ControllerSqueezeliteMC_commandRouter, "f").executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'outputdevice');
+    const card = device.indexOf(',') >= 0 ? device.charAt(0) : device;
+    const mixerType = __classPrivateFieldGet(this, _ControllerSqueezeliteMC_commandRouter, "f").executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'mixer_type'); // Software / Hardware
+    // `mixer` is for squeezelite -V option:
+    // - null for 'None' mixer type (use Squeezelite software volume control)
+    // - Otherwise, set to same as Volumio (e.g. 'SoftMaster' for 'Software' mixer type)
+    const mixer = mixerType !== 'None' ? (() => {
+        const mixerDev = __classPrivateFieldGet(this, _ControllerSqueezeliteMC_commandRouter, "f").executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'mixer');
+        if (mixerDev.indexOf(',') >= 0) {
+            const mixerArr = mixerDev.split(',');
+            return `${mixerArr[0]},${mixerArr[1]}`;
+        }
+        return mixerDev;
+    })() : null;
+    return {
+        card,
+        mixerType,
+        mixer
+    };
 }, _ControllerSqueezeliteMC_getPlayerStartupParams = async function _ControllerSqueezeliteMC_getPlayerStartupParams(getDefault = false) {
+    const alsaConfig = __classPrivateFieldGet(this, _ControllerSqueezeliteMC_instances, "m", _ControllerSqueezeliteMC_getAlsaConfig).call(this);
     const playerConfigType = SqueezeliteMCContext_1.default.getConfigValue('playerConfigType');
     if (playerConfigType === 'basic' || getDefault) {
         const config = SqueezeliteMCContext_1.default.getConfigValue('basicPlayerConfig', getDefault);
@@ -990,20 +1011,7 @@ async function _ControllerSqueezeliteMC_initAndStartPlayerFinder() {
             playerName = os_1.default.hostname();
         }
         // Alsa
-        const device = __classPrivateFieldGet(this, _ControllerSqueezeliteMC_commandRouter, "f").executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'outputdevice');
-        const card = device.indexOf(',') >= 0 ? device.charAt(0) : device;
-        const mixerType = __classPrivateFieldGet(this, _ControllerSqueezeliteMC_commandRouter, "f").executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'mixer_type'); // Software / Hardware
-        // `mixer` is for squeezelite -V option:
-        // - null for 'None' mixer type (use Squeezelite software volume control)
-        // - Otherwise, set to same as Volumio (e.g. 'SoftMaster' for 'Software' mixer type)
-        const mixer = mixerType !== 'None' ? (() => {
-            const mixerDev = __classPrivateFieldGet(this, _ControllerSqueezeliteMC_commandRouter, "f").executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'mixer');
-            if (mixerDev.indexOf(',') >= 0) {
-                const mixerArr = mixerDev.split(',');
-                return `${mixerArr[0]},${mixerArr[1]}`;
-            }
-            return mixerDev;
-        })() : null;
+        const { mixerType, card } = alsaConfig;
         // DSD format
         const dsdPlayback = config.dsdPlayback;
         let dsdFormatPromise, getBestSupportedDSDFormatCalled = false;
@@ -1038,17 +1046,16 @@ async function _ControllerSqueezeliteMC_initAndStartPlayerFinder() {
         return {
             type: 'basic',
             playerName,
-            card,
-            mixerType,
-            mixer,
-            dsdFormat
+            dsdFormat,
+            ...alsaConfig
         };
     }
     // Manual playerConfigType
     const config = SqueezeliteMCContext_1.default.getConfigValue('manualPlayerConfig');
     return {
         type: 'manual',
-        startupOptions: config.startupOptions
+        startupOptions: config.startupOptions,
+        ...alsaConfig
     };
 }, _ControllerSqueezeliteMC_getBestSupportedDSDFormat = async function _ControllerSqueezeliteMC_getBestSupportedDSDFormat(card, noErr = false) {
     const cachedAlsaFormats = SqueezeliteMCContext_1.default.get('alsaFormats', {});

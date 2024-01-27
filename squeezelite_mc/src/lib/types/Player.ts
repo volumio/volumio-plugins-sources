@@ -10,16 +10,19 @@ interface Player {
 
 export type PlayerStartupParams = BasicPlayerStartupParams | ManualPlayerStartupParams;
 
-export interface BasicPlayerStartupParams {
+export interface AlsaConfig {
+  card: string;
+  mixerType: 'Hardware' | 'Software' | 'None';
+  mixer: string | null;
+}
+
+export interface BasicPlayerStartupParams extends AlsaConfig {
   type: 'basic';
   playerName: string;
-  card: string;
-  mixerType: string;
-  mixer: string | null;
   dsdFormat: string | null;
 }
 
-export interface ManualPlayerStartupParams {
+export interface ManualPlayerStartupParams extends AlsaConfig {
   type: 'manual';
   startupOptions: string;
 }
