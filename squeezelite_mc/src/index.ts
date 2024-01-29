@@ -16,7 +16,7 @@ import Proxy, { ProxyStatus } from './lib/Proxy';
 import PlayerFinder, { PlayerFinderStatus } from './lib/PlayerFinder';
 import equal from 'fast-deep-equal';
 import { ServerCredentials } from './lib/types/Server';
-import Player, { BasicPlayerStartupParams, PlayerRunState, PlayerStartupParams, PlayerStatus } from './lib/types/Player';
+import Player, { AlsaConfig, BasicPlayerStartupParams, PlayerRunState, PlayerStartupParams, PlayerStatus } from './lib/types/Player';
 import { BasicPlayerConfig, ManualPlayerConfig, PlayerConfig } from './lib/Config';
 
 interface VolumioState {
@@ -881,9 +881,35 @@ class ControllerSqueezeliteMC {
     };
   }
 
+  #getAlsaConfig(): AlsaConfig {
+    const device: string = this.#commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'outputdevice');
+    const card = device.indexOf(',') >= 0 ? device.charAt(0) : device;
+    const mixerType = this.#commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'mixer_type'); // Software / Hardware
+    // `mixer` is for squeezelite -V option:
+    // - null for 'None' mixer type (use Squeezelite software volume control)
+    // - Otherwise, set to same as Volumio (e.g. 'SoftMaster' for 'Software' mixer type)
+    const mixer = mixerType !== 'None' ? (() => {
+      const mixerDev: string = this.#commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'mixer');
+      if (mixerDev.indexOf(',') >= 0) {
+        const mixerArr = mixerDev.split(',');
+        return `${mixerArr[0]},${mixerArr[1]}`;
+      }
+
+      return mixerDev;
+
+    })() : null;
+
+    return {
+      card,
+      mixerType,
+      mixer
+    };
+  }
+
   async #getPlayerStartupParams(getDefault: true): Promise<BasicPlayerStartupParams>;
   async #getPlayerStartupParams(getDefault?: boolean): Promise<PlayerStartupParams>;
   async #getPlayerStartupParams(getDefault = false): Promise<PlayerStartupParams> {
+    const alsaConfig = this.#getAlsaConfig();
     const playerConfigType = sm.getConfigValue('playerConfigType');
     if (playerConfigType === 'basic' || getDefault) {
       const config = sm.getConfigValue('basicPlayerConfig', getDefault);
@@ -899,22 +925,7 @@ class ControllerSqueezeliteMC {
       }
 
       // Alsa
-      const device: string = this.#commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'outputdevice');
-      const card = device.indexOf(',') >= 0 ? device.charAt(0) : device;
-      const mixerType = this.#commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'mixer_type'); // Software / Hardware
-      // `mixer` is for squeezelite -V option:
-      // - null for 'None' mixer type (use Squeezelite software volume control)
-      // - Otherwise, set to same as Volumio (e.g. 'SoftMaster' for 'Software' mixer type)
-      const mixer = mixerType !== 'None' ? (() => {
-        const mixerDev: string = this.#commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getConfigParam', 'mixer');
-        if (mixerDev.indexOf(',') >= 0) {
-          const mixerArr = mixerDev.split(',');
-          return `${mixerArr[0]},${mixerArr[1]}`;
-        }
-
-        return mixerDev;
-
-      })() : null;
+      const { mixerType, card } = alsaConfig;
 
       // DSD format
       const dsdPlayback = config.dsdPlayback;
@@ -953,10 +964,8 @@ class ControllerSqueezeliteMC {
       return {
         type: 'basic',
         playerName,
-        card,
-        mixerType,
-        mixer,
-        dsdFormat
+        dsdFormat,
+        ...alsaConfig
       };
     }
 
@@ -964,7 +973,8 @@ class ControllerSqueezeliteMC {
     const config = sm.getConfigValue('manualPlayerConfig');
     return {
       type: 'manual',
-      startupOptions: config.startupOptions
+      startupOptions: config.startupOptions,
+      ...alsaConfig
     };
   }
 
