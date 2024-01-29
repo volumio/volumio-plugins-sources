@@ -285,6 +285,7 @@ ControllerSpotify.prototype.parseEventState = function (event) {
       //self.state.status = 'play';
       pushStateforEvent = false;
       self.alignSpotifyVolumeToVolumioVolume();
+      break;
     case 'volume':
       try {
         if (event.data && event.data.value !== undefined) {
@@ -893,7 +894,6 @@ ControllerSpotify.prototype.oauthLogin = function (data) {
         config.then(function (conf) {
           self.commandRouter.broadcastMessage('pushUiConfig', conf);
           self.commandRouter.broadcastMessage('closeAllModals', '');
-          defer.resolve(conf);
         });
       })
       .fail(function (e) {
@@ -979,7 +979,7 @@ ControllerSpotify.prototype.deleteCredentialsFile = function () {
   try {
     fs.unlinkSync(credentialsPath);
   } catch (err) {
-    self.logger.error('Failed to delete credentials file ' + e);
+    self.logger.error('Failed to delete credentials file ' + err);
   }
 };
 
@@ -2355,39 +2355,41 @@ ControllerSpotify.prototype.getArtistTopTracks = function (id) {
 
   self.spotifyCheckAccessToken().then(function (data) {
     let spotifyDefer = self.spotifyApi.getArtistTopTracks(id, 'GB');
-    spotifyDefer.then(function (results) {
-      let response = [];
-      for (let i in results.body.tracks) {
-        let albumart = '';
-        let track = results.body.tracks[i];
-        if (track.album.hasOwnProperty('images') && track.album.images.length > 0) {
-          albumart = track.album.images[0].url;
+    spotifyDefer.then(
+      function (results) {
+        let response = [];
+        for (let i in results.body.tracks) {
+          let albumart = '';
+          let track = results.body.tracks[i];
+          if (track.album.hasOwnProperty('images') && track.album.images.length > 0) {
+            albumart = track.album.images[0].url;
+          }
+          if (self.isTrackAvailableInCountry(track)) {
+            response.push({
+              service: 'spop',
+              type: 'song',
+              name: track.name,
+              title: track.name,
+              artist: track.artists[0].name,
+              album: track.album.name,
+              albumart: albumart,
+              duration: parseInt(track.duration_ms / 1000),
+              samplerate: self.getCurrentBitrate(),
+              bitdepth: '16 bit',
+              bitrate: '',
+              codec: 'ogg',
+              trackType: 'spotify',
+              uri: track.uri,
+            });
+          }
         }
-        if (self.isTrackAvailableInCountry(track)) {
-          response.push({
-            service: 'spop',
-            type: 'song',
-            name: track.name,
-            title: track.name,
-            artist: track.artists[0].name,
-            album: track.album.name,
-            albumart: albumart,
-            duration: parseInt(track.duration_ms / 1000),
-            samplerate: self.getCurrentBitrate(),
-            bitdepth: '16 bit',
-            bitrate: '',
-            codec: 'ogg',
-            trackType: 'spotify',
-            uri: track.uri,
-          });
-        }
-      }
-      defer.resolve(response);
-    }),
+        defer.resolve(response);
+      },
       function (err) {
         self.logger.error('An error occurred while listing Spotify artist tracks ' + err);
         defer.reject('');
-      };
+      },
+    );
   });
 
   return defer.promise;
@@ -2400,18 +2402,20 @@ ControllerSpotify.prototype.getArtistInfo = function (id) {
   let info = {};
   self.spotifyCheckAccessToken().then(function (data) {
     let spotifyDefer = self.spotifyApi.getArtist(id);
-    spotifyDefer.then(function (results) {
-      if (results && results.body && results.body.name) {
-        info.title = results.body.name;
-        info.albumart = results.body.images[0].url;
-        info.type = 'artist';
-      }
-      defer.resolve(info);
-    }),
+    spotifyDefer.then(
+      function (results) {
+        if (results && results.body && results.body.name) {
+          info.title = results.body.name;
+          info.albumart = results.body.images[0].url;
+          info.type = 'artist';
+        }
+        defer.resolve(info);
+      },
       function (err) {
         self.logger.info('An error occurred while listing Spotify artist informations ' + err);
         defer.resolve(info);
-      };
+      },
+    );
   });
 
   return defer.promise;
@@ -2438,17 +2442,19 @@ ControllerSpotify.prototype.getAlbumInfo = function (id) {
       .then(function (artist) {
         return self.spotifyApi.getArtist(artist);
       })
-      .then(function (artistResults) {
-        if (artistResults && artistResults.body && artistResults.body.name) {
-          info.artistImage = artistResults.body.images[0].url;
-          info.artistUri = artistResults.body.uri;
-        }
-        defer.resolve(info);
-      }),
-      function (err) {
-        self.logger.error('An error occurred while listing Spotify album informations ' + err);
-        defer.resolve(info);
-      };
+      .then(
+        function (artistResults) {
+          if (artistResults && artistResults.body && artistResults.body.name) {
+            info.artistImage = artistResults.body.images[0].url;
+            info.artistUri = artistResults.body.uri;
+          }
+          defer.resolve(info);
+        },
+        function (err) {
+          self.logger.error('An error occurred while listing Spotify album informations ' + err);
+          defer.resolve(info);
+        },
+      );
   });
 
   return defer.promise;
