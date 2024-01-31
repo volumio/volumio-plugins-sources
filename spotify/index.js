@@ -1,55 +1,55 @@
 'use strict';
 
-var libQ = require('kew');
-var fs = require('fs-extra');
-var config = new (require('v-conf'))();
-var superagent = require('superagent');
+let libQ = require('kew');
+let fs = require('fs-extra');
+let config = new (require('v-conf'))();
+let superagent = require('superagent');
 var os = require('os');
-var websocket = require('ws');
-var path = require('path');
-var SpotifyWebApi = require('spotify-web-api-node');
-var io = require('socket.io-client');
-var exec = require('child_process').exec;
-var execSync = require('child_process').execSync;
-var NodeCache = require('node-cache');
+let websocket = require('ws');
+let path = require('path');
+let SpotifyWebApi = require('spotify-web-api-node');
+let io = require('socket.io-client');
+let exec = require('child_process').exec;
+let execSync = require('child_process').execSync;
+let NodeCache = require('node-cache');
 var os = require('os');
-var { fetchPagedData, rateLimitedCall } = require('./utils/extendedSpotifyApi');
+let { fetchPagedData, rateLimitedCall } = require('./utils/extendedSpotifyApi');
 
-var configFileDestinationPath = '/tmp/go-librespot-config.yml';
-var credentialsPath = '/data/configuration/music_service/spop/spotifycredentials.json';
-var spotifyDaemonPort = '9879';
-var spotifyLocalApiEndpointBase = 'http://127.0.0.1:' + spotifyDaemonPort;
-var stateSocket = undefined;
+let configFileDestinationPath = '/tmp/go-librespot-config.yml';
+let credentialsPath = '/data/configuration/music_service/spop/spotifycredentials.json';
+let spotifyDaemonPort = '9879';
+let spotifyLocalApiEndpointBase = 'http://127.0.0.1:' + spotifyDaemonPort;
+let stateSocket = undefined;
 
-var selectedBitrate;
-var loggedInUsername;
-var loggedInUserId;
-var userCountry;
-var seekTimer;
-var restartTimeout;
-var wsConnectionStatus = 'started';
+let selectedBitrate;
+let loggedInUsername;
+let loggedInUserId;
+let userCountry;
+let seekTimer;
+let restartTimeout;
+let wsConnectionStatus = 'started';
 
 // State management
-var ws;
-var currentVolumioState;
-var currentSpotifyVolume;
-var currentVolumioVolume;
-var isInVolatileMode = false;
-var ignoreStopEvent = false;
+let ws;
+let currentVolumioState;
+let currentSpotifyVolume;
+let currentVolumioVolume;
+let isInVolatileMode = false;
+let ignoreStopEvent = false;
 
 // Volume limiter
-var deltaVolumeTreshold = 2;
-var volumeDebounce;
+let deltaVolumeTreshold = 2;
+let volumeDebounce;
 
 // Debug
-var isDebugMode = true;
+let isDebugMode = true;
 
 // Define the ControllerSpotify class
 module.exports = ControllerSpotify;
 
 function ControllerSpotify(context) {
   // This fixed variable will let us refer to 'this' object at deeper scopes
-  var self = this;
+  let self = this;
 
   this.context = context;
   this.commandRouter = this.context.coreCommand;
@@ -59,8 +59,8 @@ function ControllerSpotify(context) {
 }
 
 ControllerSpotify.prototype.onVolumioStart = function () {
-  var self = this;
-  var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
+  let self = this;
+  let configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
   this.config = new (require('v-conf'))();
   this.config.loadFile(configFile);
 
@@ -72,8 +72,8 @@ ControllerSpotify.prototype.getConfigurationFiles = function () {
 };
 
 ControllerSpotify.prototype.onStop = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.goLibrespotDaemonWsConnection('stop');
   self.stopLibrespotDaemon();
@@ -85,8 +85,8 @@ ControllerSpotify.prototype.onStop = function () {
 };
 
 ControllerSpotify.prototype.onStart = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.loadI18n();
   self.browseCache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
@@ -97,10 +97,10 @@ ControllerSpotify.prototype.onStart = function () {
 };
 
 ControllerSpotify.prototype.getUIConfig = function () {
-  var defer = libQ.defer();
-  var self = this;
+  let defer = libQ.defer();
+  let self = this;
 
-  var lang_code = self.commandRouter.sharedVars.get('language_code');
+  let lang_code = self.commandRouter.sharedVars.get('language_code');
 
   self.commandRouter
     .i18nJson(
@@ -109,23 +109,23 @@ ControllerSpotify.prototype.getUIConfig = function () {
       __dirname + '/UIConfig.json',
     )
     .then(function (uiconf) {
-      var credentials_type = self.config.get('credentials_type', 'zeroconf');
+      let credentials_type = self.config.get('credentials_type', 'zeroconf');
       if (self.loggedInUserId !== undefined && credentials_type === 'spotify_token') {
         uiconf.sections[1].content[0].hidden = true;
         uiconf.sections[1].content[1].hidden = false;
       }
-      var bitrateNumber = self.config.get('bitrate_number', 320);
+      let bitrateNumber = self.config.get('bitrate_number', 320);
       uiconf.sections[2].content[0].value.value = bitrateNumber;
       uiconf.sections[2].content[0].value.label = self.getLabelForSelect(
         uiconf.sections[2].content[0].options,
         bitrateNumber,
       );
 
-      var normalisationPregainValue = self.config.get('normalisation_pregain', '1.0');
+      let normalisationPregainValue = self.config.get('normalisation_pregain', '1.0');
       uiconf.sections[2].content[2].value.value = normalisationPregainValue;
       uiconf.sections[2].content[2].value.label = normalisationPregainValue;
 
-      var icon = self.config.get('icon', 'avr');
+      let icon = self.config.get('icon', 'avr');
       uiconf.sections[2].content[3].value.value = icon;
       uiconf.sections[2].content[3].value.label = self.getLabelForSelect(uiconf.sections[2].content[3].options, icon);
 
@@ -140,8 +140,8 @@ ControllerSpotify.prototype.getUIConfig = function () {
 };
 
 ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data, def) {
-  var self = this;
-  var setting = self.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
+  let self = this;
+  let setting = self.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data);
 
   if (setting == undefined) {
     setting = def;
@@ -152,7 +152,7 @@ ControllerSpotify.prototype.getAdditionalConf = function (type, controller, data
 // Controls
 
 ControllerSpotify.prototype.goLibrespotDaemonWsConnection = function (action) {
-  var self = this;
+  let self = this;
 
   if (action === 'start') {
     wsConnectionStatus = 'started';
@@ -177,7 +177,7 @@ ControllerSpotify.prototype.goLibrespotDaemonWsConnection = function (action) {
 };
 
 ControllerSpotify.prototype.initializeWsConnection = function () {
-  var self = this;
+  let self = this;
 
   self.logger.info('Initializing connection to go-librespot Websocket');
 
@@ -205,7 +205,7 @@ ControllerSpotify.prototype.initializeWsConnection = function () {
 };
 
 ControllerSpotify.prototype.initializeSpotifyControls = function () {
-  var self = this;
+  let self = this;
 
   self.resetSpotifyState();
   self.startSocketStateListener();
@@ -213,7 +213,7 @@ ControllerSpotify.prototype.initializeSpotifyControls = function () {
 };
 
 ControllerSpotify.prototype.resetSpotifyState = function () {
-  var self = this;
+  let self = this;
 
   this.state = {
     status: 'stop',
@@ -239,9 +239,9 @@ ControllerSpotify.prototype.resetSpotifyState = function () {
 };
 
 ControllerSpotify.prototype.parseEventState = function (event) {
-  var self = this;
+  let self = this;
 
-  var pushStateforEvent = false;
+  let pushStateforEvent = false;
 
   // create a switch case which handles types of events
   // and updates the state accordingly
@@ -324,7 +324,7 @@ ControllerSpotify.prototype.parseEventState = function (event) {
 };
 
 ControllerSpotify.prototype.identifyPlaybackMode = function (data) {
-  var self = this;
+  let self = this;
 
   // This functions checks if Spotify is playing in volatile mode or in Volumio mode (playback started from Volumio UI)
   // play_origin = 'go-librespot' means that Spotify is playing in Volumio mode
@@ -345,7 +345,7 @@ ControllerSpotify.prototype.identifyPlaybackMode = function (data) {
 };
 
 ControllerSpotify.prototype.initializeSpotifyPlaybackInVolatileMode = function () {
-  var self = this;
+  let self = this;
 
   self.logger.info('Spotify is playing in volatile mode');
   ignoreStopEvent = true;
@@ -362,7 +362,7 @@ ControllerSpotify.prototype.initializeSpotifyPlaybackInVolatileMode = function (
 };
 
 ControllerSpotify.prototype.parseDuration = function (spotifyDuration) {
-  var self = this;
+  let self = this;
 
   try {
     return parseInt(spotifyDuration / 1000);
@@ -372,17 +372,17 @@ ControllerSpotify.prototype.parseDuration = function (spotifyDuration) {
 };
 
 ControllerSpotify.prototype.getCurrentBitrate = function () {
-  var self = this;
+  let self = this;
 
   return self.selectedBitrate + ' kbps';
 };
 
 ControllerSpotify.prototype.parseArtists = function (spotifyArtists) {
-  var self = this;
+  let self = this;
 
-  var artist = '';
+  let artist = '';
   if (spotifyArtists.length > 0) {
-    for (var i in spotifyArtists) {
+    for (let i in spotifyArtists) {
       if (!artist.length) {
         artist = spotifyArtists[i];
       } else {
@@ -396,8 +396,8 @@ ControllerSpotify.prototype.parseArtists = function (spotifyArtists) {
 };
 
 ControllerSpotify.prototype.libRespotGoUnsetVolatile = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.debugLog('UNSET VOLATILE');
   self.debugLog(JSON.stringify(currentVolumioState));
@@ -414,7 +414,7 @@ ControllerSpotify.prototype.libRespotGoUnsetVolatile = function () {
 };
 
 ControllerSpotify.prototype.getState = function () {
-  var self = this;
+  let self = this;
 
   self.debugLog('GET STATE SPOTIFY');
   self.debugLog(JSON.stringify(self.state));
@@ -423,7 +423,7 @@ ControllerSpotify.prototype.getState = function () {
 
 // Announce updated Spop state
 ControllerSpotify.prototype.pushState = function (state) {
-  var self = this;
+  let self = this;
 
   self.state.bitrate = self.getCurrentBitrate();
   self.debugLog('PUSH STATE SPOTIFY');
@@ -477,7 +477,7 @@ ControllerSpotify.prototype.play = function () {
 
 ControllerSpotify.prototype.stop = function () {
   this.logger.info('Spotify Stop');
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   this.debugLog('SPOTIFY STOP');
   this.debugLog(JSON.stringify(currentVolumioState));
@@ -533,7 +533,7 @@ ControllerSpotify.prototype.repeat = function (value, repeatSingle) {
 // Volume events
 
 ControllerSpotify.prototype.onSpotifyVolumeChange = function (volume) {
-  var self = this;
+  let self = this;
 
   self.debugLog('RECEIVED SPOTIFY VOLUME ' + volume);
   if (volume !== currentVolumioVolume) {
@@ -545,7 +545,7 @@ ControllerSpotify.prototype.onSpotifyVolumeChange = function (volume) {
 };
 
 ControllerSpotify.prototype.onVolumioVolumeChange = function (volume) {
-  var self = this;
+  let self = this;
 
   self.debugLog('RECEIVED VOLUMIO VOLUME ' + volume);
   if (volume !== currentSpotifyVolume && self.checkSpotifyAndVolumioDeltaVolumeIsEnough(currentSpotifyVolume, volume)) {
@@ -557,7 +557,7 @@ ControllerSpotify.prototype.onVolumioVolumeChange = function (volume) {
 };
 
 ControllerSpotify.prototype.setSpotifyDaemonVolume = function (volume) {
-  var self = this;
+  let self = this;
 
   // Volume limiter
   if (volumeDebounce) {
@@ -570,7 +570,7 @@ ControllerSpotify.prototype.setSpotifyDaemonVolume = function (volume) {
 };
 
 ControllerSpotify.prototype.checkSpotifyAndVolumioDeltaVolumeIsEnough = function (spotifyVolume, volumioVolume) {
-  var self = this;
+  let self = this;
 
   self.debugLog('SPOTIFY VOLUME ' + spotifyVolume);
   self.debugLog('VOLUMIO VOLUME ' + volumioVolume);
@@ -578,7 +578,7 @@ ControllerSpotify.prototype.checkSpotifyAndVolumioDeltaVolumeIsEnough = function
     return self.alignSpotifyVolumeToVolumioVolume();
   }
   try {
-    var isDeltaVolumeEnough = Math.abs(parseInt(spotifyVolume) - parseInt(volumioVolume)) >= deltaVolumeTreshold;
+    let isDeltaVolumeEnough = Math.abs(parseInt(spotifyVolume) - parseInt(volumioVolume)) >= deltaVolumeTreshold;
     self.debugLog('DELTA VOLUME ENOUGH: ' + isDeltaVolumeEnough);
     return isDeltaVolumeEnough;
   } catch (e) {
@@ -587,7 +587,7 @@ ControllerSpotify.prototype.checkSpotifyAndVolumioDeltaVolumeIsEnough = function
 };
 
 ControllerSpotify.prototype.alignSpotifyVolumeToVolumioVolume = function () {
-  var self = this;
+  let self = this;
 
   self.logger.info('Aligning Spotify Volume to Volumio Volume');
 
@@ -608,7 +608,7 @@ ControllerSpotify.prototype.alignSpotifyVolumeToVolumioVolume = function () {
 };
 
 ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
-  var self = this;
+  let self = this;
   self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::clearAddPlayTrack');
   self.resetSpotifyState();
 
@@ -616,7 +616,7 @@ ControllerSpotify.prototype.clearAddPlayTrack = function (track) {
 };
 
 ControllerSpotify.prototype.startSocketStateListener = function () {
-  var self = this;
+  let self = this;
 
   if (self.stateSocket) {
     self.stateSocket.off();
@@ -631,7 +631,7 @@ ControllerSpotify.prototype.startSocketStateListener = function () {
   self.stateSocket.on('pushState', function (data) {
     currentVolumioState = data;
     if (data && data.volume && !data.disableVolumeControl) {
-      var currentVolume = data.volume;
+      let currentVolume = data.volume;
       if (data.mute === true) {
         currentVolume = 0;
       }
@@ -641,7 +641,7 @@ ControllerSpotify.prototype.startSocketStateListener = function () {
 };
 
 ControllerSpotify.prototype.stopSocketStateListener = function () {
-  var self = this;
+  let self = this;
 
   if (self.stateSocket) {
     self.stateSocket.off();
@@ -652,8 +652,8 @@ ControllerSpotify.prototype.stopSocketStateListener = function () {
 // DAEMON MANAGEMENT
 
 ControllerSpotify.prototype.initializeLibrespotDaemon = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   this.selectedBitrate = self.config.get('bitrate_number', '320').toString();
 
@@ -678,8 +678,8 @@ ControllerSpotify.prototype.initializeLibrespotDaemon = function () {
 };
 
 ControllerSpotify.prototype.startLibrespotDaemon = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   exec('/usr/bin/sudo systemctl restart go-librespot-daemon.service', function (error, stdout, stderr) {
     if (error) {
@@ -696,8 +696,8 @@ ControllerSpotify.prototype.startLibrespotDaemon = function () {
 };
 
 ControllerSpotify.prototype.stopLibrespotDaemon = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   exec('/usr/bin/sudo systemctl stop go-librespot-daemon.service', function (error, stdout, stderr) {
     if (error) {
@@ -714,8 +714,8 @@ ControllerSpotify.prototype.stopLibrespotDaemon = function () {
 };
 
 ControllerSpotify.prototype.createConfigFile = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   this.logger.info('Creating Spotify config file');
 
@@ -725,26 +725,26 @@ ControllerSpotify.prototype.createConfigFile = function () {
     this.logger.error('Failed to read template file: ' + e);
   }
 
-  var devicename = this.commandRouter.sharedVars.get('system.name');
-  var selectedBitrate = self.config.get('bitrate_number', '320').toString();
-  var icon = self.config.get('icon', 'avr');
-  var externalVolume = true;
-  var mixerType = self.getAdditionalConf('audio_interface', 'alsa_controller', 'mixer_type', 'None');
+  let devicename = this.commandRouter.sharedVars.get('system.name');
+  let selectedBitrate = self.config.get('bitrate_number', '320').toString();
+  let icon = self.config.get('icon', 'avr');
+  let externalVolume = true;
+  let mixerType = self.getAdditionalConf('audio_interface', 'alsa_controller', 'mixer_type', 'None');
   if (mixerType === 'None') {
     externalVolume = false;
   }
-  var normalisationPregain = self.config.get('normalisation_pregain', '1.0');
+  let normalisationPregain = self.config.get('normalisation_pregain', '1.0');
 
-  var conf = template
+  let conf = template
     .replace('${device_name}', devicename)
     .replace('${bitrate_number}', selectedBitrate)
     .replace('${device_type}', icon)
     .replace('${external_volume}', externalVolume)
     .replace('${normalisation_pregain}', normalisationPregain);
 
-  var credentials_type = self.config.get('credentials_type', 'zeroconf');
-  var logged_user_id = self.config.get('logged_user_id', '');
-  var access_token = self.config.get('access_token', '');
+  let credentials_type = self.config.get('credentials_type', 'zeroconf');
+  let logged_user_id = self.config.get('logged_user_id', '');
+  let access_token = self.config.get('access_token', '');
 
   if (credentials_type === 'spotify_token' && logged_user_id !== '' && access_token !== '') {
     conf += 'credentials: ' + os.EOL;
@@ -770,7 +770,7 @@ ControllerSpotify.prototype.createConfigFile = function () {
 };
 
 ControllerSpotify.prototype.isOauthLoginAlreadyConfiguredOnDaemon = function () {
-  var self = this;
+  let self = this;
 
   try {
     var credentialsFile = fs.readFileSync(credentialsPath, { encoding: 'utf8' }).toString();
@@ -786,10 +786,10 @@ ControllerSpotify.prototype.isOauthLoginAlreadyConfiguredOnDaemon = function () 
 };
 
 ControllerSpotify.prototype.saveGoLibrespotSettings = function (data, avoidBroadcastUiConfig) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
-  var broadcastUiConfig = true;
+  let broadcastUiConfig = true;
   if (avoidBroadcastUiConfig === true) {
     broadcastUiConfig = false;
   }
@@ -817,10 +817,10 @@ ControllerSpotify.prototype.saveGoLibrespotSettings = function (data, avoidBroad
 // OAUTH
 
 ControllerSpotify.prototype.refreshAccessToken = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
-  var refreshToken = self.config.get('refresh_token', 'none');
+  let refreshToken = self.config.get('refresh_token', 'none');
   if (refreshToken !== 'none' && refreshToken !== null && refreshToken !== undefined) {
     superagent
       .post('https://oauth-performer.dfs.volumio.org/spotify/accessToken')
@@ -841,12 +841,12 @@ ControllerSpotify.prototype.refreshAccessToken = function () {
 };
 
 ControllerSpotify.prototype.spotifyClientCredentialsGrant = function () {
-  var self = this;
-  var defer = libQ.defer();
-  var d = new Date();
-  var now = d.getTime();
+  let self = this;
+  let defer = libQ.defer();
+  let d = new Date();
+  let now = d.getTime();
 
-  var refreshToken = self.config.get('refresh_token', 'none');
+  let refreshToken = self.config.get('refresh_token', 'none');
   if (refreshToken !== 'none' && refreshToken !== null && refreshToken !== undefined) {
     self.spotifyApi.setRefreshToken(refreshToken);
     self.refreshAccessToken().then(
@@ -875,7 +875,7 @@ ControllerSpotify.prototype.spotifyClientCredentialsGrant = function () {
 };
 
 ControllerSpotify.prototype.oauthLogin = function (data) {
-  var self = this;
+  let self = this;
 
   self.logger.info('Executing Spotify Oauth Login');
 
@@ -889,7 +889,7 @@ ControllerSpotify.prototype.oauthLogin = function (data) {
         self.config.set('credentials_type', 'spotify_token');
         self.initializeLibrespotDaemon();
         self.initializeSpotifyBrowsingFacility();
-        var config = self.getUIConfig();
+        let config = self.getUIConfig();
         config.then(function (conf) {
           self.commandRouter.broadcastMessage('pushUiConfig', conf);
           self.commandRouter.broadcastMessage('closeAllModals', '');
@@ -905,8 +905,8 @@ ControllerSpotify.prototype.oauthLogin = function (data) {
 };
 
 ControllerSpotify.prototype.externalOauthLogin = function (data) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   if (data && data.refresh_token) {
     self.logger.info('Saving Spotify Refresh Token');
@@ -923,9 +923,9 @@ ControllerSpotify.prototype.externalOauthLogin = function (data) {
 };
 
 ControllerSpotify.prototype.logout = function (avoidBroadcastUiConfig) {
-  var self = this;
+  let self = this;
 
-  var broadcastUiConfig = true;
+  let broadcastUiConfig = true;
   if (avoidBroadcastUiConfig === true) {
     broadcastUiConfig = false;
   }
@@ -943,10 +943,10 @@ ControllerSpotify.prototype.logout = function (avoidBroadcastUiConfig) {
 };
 
 ControllerSpotify.prototype.pushUiConfig = function (broadcastUiConfig) {
-  var self = this;
+  let self = this;
 
   setTimeout(() => {
-    var config = self.getUIConfig();
+    let config = self.getUIConfig();
     config.then((conf) => {
       if (broadcastUiConfig) {
         self.commandRouter.broadcastMessage('pushUiConfig', conf);
@@ -956,7 +956,7 @@ ControllerSpotify.prototype.pushUiConfig = function (broadcastUiConfig) {
 };
 
 ControllerSpotify.prototype.resetSpotifyCredentials = function () {
-  var self = this;
+  let self = this;
 
   self.config.set('logged_user_id', '');
   self.config.set('access_token', '');
@@ -973,7 +973,7 @@ ControllerSpotify.prototype.resetSpotifyCredentials = function () {
 };
 
 ControllerSpotify.prototype.deleteCredentialsFile = function () {
-  var self = this;
+  let self = this;
 
   self.logger.info('Deleting Spotify credentials File');
   try {
@@ -984,9 +984,9 @@ ControllerSpotify.prototype.deleteCredentialsFile = function () {
 };
 
 ControllerSpotify.prototype.spotifyApiConnect = function () {
-  var self = this;
-  var defer = libQ.defer();
-  var d = new Date();
+  let self = this;
+  let defer = libQ.defer();
+  let d = new Date();
 
   self.spotifyApi = new SpotifyWebApi();
 
@@ -1014,10 +1014,10 @@ ControllerSpotify.prototype.spotifyApiConnect = function () {
 };
 
 ControllerSpotify.prototype.refreshAccessToken = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
-  var refreshToken = self.config.get('refresh_token', 'none');
+  let refreshToken = self.config.get('refresh_token', 'none');
   if (refreshToken !== 'none' && refreshToken !== null && refreshToken !== undefined) {
     superagent
       .post('https://oauth-performer.dfs.volumio.org/spotify/accessToken')
@@ -1038,10 +1038,10 @@ ControllerSpotify.prototype.refreshAccessToken = function () {
 };
 
 ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
-  var self = this;
-  var defer = libQ.defer();
-  var d = new Date();
-  var now = d.getTime();
+  let self = this;
+  let defer = libQ.defer();
+  let d = new Date();
+  let now = d.getTime();
 
   if (self.spotifyAccessTokenExpiration < now) {
     self.refreshAccessToken().then(function (data) {
@@ -1059,9 +1059,9 @@ ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
 };
 
 ControllerSpotify.prototype.initializeSpotifyBrowsingFacility = function () {
-  var self = this;
+  let self = this;
 
-  var refreshToken = self.config.get('refresh_token', 'none');
+  let refreshToken = self.config.get('refresh_token', 'none');
   if (refreshToken !== 'none' && refreshToken !== null && refreshToken !== undefined) {
     self
       .spotifyApiConnect()
@@ -1077,8 +1077,8 @@ ControllerSpotify.prototype.initializeSpotifyBrowsingFacility = function () {
 };
 
 ControllerSpotify.prototype.getUserInformations = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.spotifyApi.getMe().then(
     function (data) {
@@ -1103,7 +1103,7 @@ ControllerSpotify.prototype.getUserInformations = function () {
 // CACHE
 
 ControllerSpotify.prototype.flushCache = function () {
-  var self = this;
+  let self = this;
 
   self.browseCache.flushAll();
 };
@@ -1111,7 +1111,7 @@ ControllerSpotify.prototype.flushCache = function () {
 // ALBUMART
 
 ControllerSpotify.prototype._getAlbumArt = function (item) {
-  var albumart = '';
+  let albumart = '';
   if (item.hasOwnProperty('images') && item.images.length > 0) {
     albumart = item.images[0].url;
   }
@@ -1119,13 +1119,13 @@ ControllerSpotify.prototype._getAlbumArt = function (item) {
 };
 
 ControllerSpotify.prototype.getAlbumArt = function (data, path) {
-  var artist, album;
+  let artist, album;
 
   if (data != undefined && data.path != undefined) {
     path = data.path;
   }
 
-  var web;
+  let web;
 
   if (data != undefined && data.artist != undefined) {
     artist = data.artist;
@@ -1135,7 +1135,7 @@ ControllerSpotify.prototype.getAlbumArt = function (data, path) {
     web = '?web=' + encodeURIComponent(artist) + '/' + encodeURIComponent(album) + '/large';
   }
 
-  var url = '/albumart';
+  let url = '/albumart';
 
   if (web != undefined) url = url + web;
 
@@ -1150,10 +1150,10 @@ ControllerSpotify.prototype.getAlbumArt = function (data, path) {
 // TRANSLATIONS
 
 ControllerSpotify.prototype.loadI18n = function () {
-  var self = this;
+  let self = this;
 
   try {
-    var language_code = this.commandRouter.sharedVars.get('language_code');
+    let language_code = this.commandRouter.sharedVars.get('language_code');
     self.i18n = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + '.json');
   } catch (e) {
     self.i18n = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
@@ -1163,11 +1163,11 @@ ControllerSpotify.prototype.loadI18n = function () {
 };
 
 ControllerSpotify.prototype.getI18n = function (key) {
-  var self = this;
+  let self = this;
 
   if (key.indexOf('.') > 0) {
-    var mainKey = key.split('.')[0];
-    var secKey = key.split('.')[1];
+    let mainKey = key.split('.')[0];
+    let secKey = key.split('.')[1];
     if (self.i18n[mainKey][secKey] !== undefined) {
       return self.i18n[mainKey][secKey];
     } else {
@@ -1185,7 +1185,7 @@ ControllerSpotify.prototype.getI18n = function (key) {
 // BROWSING
 
 ControllerSpotify.prototype.addToBrowseSources = function () {
-  var data = {
+  let data = {
     name: 'Spotify',
     uri: 'spotify',
     plugin_type: 'music_service',
@@ -1200,10 +1200,10 @@ ControllerSpotify.prototype.removeToBrowseSources = function () {
 };
 
 ControllerSpotify.prototype.handleBrowseUri = function (curUri) {
-  var self = this;
+  let self = this;
 
   self.commandRouter.logger.info('In handleBrowseUri, curUri=' + curUri);
-  var response;
+  let response;
 
   if (curUri.startsWith('spotify')) {
     if (curUri == 'spotify') {
@@ -1231,7 +1231,7 @@ ControllerSpotify.prototype.handleBrowseUri = function (curUri) {
     } else if (curUri.startsWith('spotify:user:')) {
       response = self.listWebPlaylist(curUri);
     } else if (curUri.startsWith('spotify:playlist:')) {
-      var uriSplitted = curUri.split(':');
+      let uriSplitted = curUri.split(':');
       response = self.listWebPlaylist('spotify:user:spotify:playlist:' + uriSplitted[2]);
     } else if (curUri.startsWith('spotify/new')) {
       response = self.listWebNew(curUri);
@@ -1252,8 +1252,8 @@ ControllerSpotify.prototype.handleBrowseUri = function (curUri) {
 };
 
 ControllerSpotify.prototype.getRoot = function () {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.browseCache.get('root', function (err, value) {
     if (!err) {
@@ -1277,10 +1277,10 @@ ControllerSpotify.prototype.getRoot = function () {
 };
 
 ControllerSpotify.prototype.listRoot = function (curUri) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
-  var response = {
+  let response = {
     navigation: {
       lists: [
         {
@@ -1357,7 +1357,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
     },
   };
 
-  var spotifyRootArray = [
+  let spotifyRootArray = [
     self.featuredPlaylists('spotify/featuredplaylists'),
     self.listWebNew('spotify/new'),
     self.listWebCategories('spotify/categories'),
@@ -1365,7 +1365,7 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
   libQ
     .all(spotifyRootArray)
     .then(function (results) {
-      var discoveryArray = [
+      let discoveryArray = [
         {
           availableListViews: ['grid', 'list'],
           type: 'title',
@@ -1397,11 +1397,11 @@ ControllerSpotify.prototype.listRoot = function (curUri) {
 };
 
 ControllerSpotify.prototype.getMyPlaylists = function (curUri) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var response = {
+    let response = {
       navigation: {
         prev: {
           uri: 'spotify',
@@ -1416,8 +1416,8 @@ ControllerSpotify.prototype.getMyPlaylists = function (curUri) {
     };
     self.spotifyApi.getUserPlaylists(self.loggedInUserId, { limit: 50 }).then(
       function (results) {
-        for (var i in results.body.items) {
-          var playlist = results.body.items[i];
+        for (let i in results.body.items) {
+          let playlist = results.body.items[i];
           response.navigation.lists[0].items.push({
             service: 'spop',
             type: 'playlist',
@@ -1450,8 +1450,8 @@ ControllerSpotify.prototype.getMyAlbums = function () {
       {},
       {
         onData: (items) => {
-          for (var i in items) {
-            var album = items[i].album;
+          for (let i in items) {
+            let album = items[i].album;
             albums.push({
               service: 'spop',
               type: 'folder',
@@ -1503,8 +1503,8 @@ ControllerSpotify.prototype.getMyTracks = function () {
       {},
       {
         onData: (items) => {
-          for (var i in items) {
-            var track = items[i].track;
+          for (let i in items) {
+            let track = items[i].track;
             if (this.isTrackAvailableInCountry(track)) {
               tracks.push({
                 service: 'spop',
@@ -1566,7 +1566,7 @@ ControllerSpotify.prototype.getMyArtists = function () {
       {
         getItems: (data) => data.body?.artists?.items || [],
         onData: (items) => {
-          for (var i in items) {
+          for (let i in items) {
             const artist = items[i];
             artists.push({
               service: 'spop',
@@ -1605,15 +1605,15 @@ ControllerSpotify.prototype.getMyArtists = function () {
 };
 
 ControllerSpotify.prototype.getTopArtists = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getMyTopArtists({ limit: 50 });
+    let spotifyDefer = self.spotifyApi.getMyTopArtists({ limit: 50 });
     spotifyDefer.then(
       function (results) {
-        var response = {
+        let response = {
           navigation: {
             prev: {
               uri: 'spotify',
@@ -1627,8 +1627,8 @@ ControllerSpotify.prototype.getTopArtists = function (curUri) {
           },
         };
 
-        for (var i in results.body.items) {
-          var artist = results.body.items[i];
+        for (let i in results.body.items) {
+          let artist = results.body.items[i];
           response.navigation.lists[0].items.push({
             service: 'spop',
             type: 'folder',
@@ -1650,15 +1650,15 @@ ControllerSpotify.prototype.getTopArtists = function (curUri) {
 };
 
 ControllerSpotify.prototype.getTopTracks = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getMyTopTracks({ limit: 50 });
+    let spotifyDefer = self.spotifyApi.getMyTopTracks({ limit: 50 });
     spotifyDefer.then(
       function (results) {
-        var response = {
+        let response = {
           navigation: {
             prev: {
               uri: 'spotify',
@@ -1672,8 +1672,8 @@ ControllerSpotify.prototype.getTopTracks = function (curUri) {
           },
         };
 
-        for (var i in results.body.items) {
-          var track = results.body.items[i];
+        for (let i in results.body.items) {
+          let track = results.body.items[i];
           if (self.isTrackAvailableInCountry(track)) {
             response.navigation.lists[0].items.push({
               service: 'spop',
@@ -1699,15 +1699,15 @@ ControllerSpotify.prototype.getTopTracks = function (curUri) {
 };
 
 ControllerSpotify.prototype.getRecentTracks = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getMyRecentlyPlayedTracks({ limit: 50 });
+    let spotifyDefer = self.spotifyApi.getMyRecentlyPlayedTracks({ limit: 50 });
     spotifyDefer.then(
       function (results) {
-        var response = {
+        let response = {
           navigation: {
             prev: {
               uri: 'spotify',
@@ -1721,8 +1721,8 @@ ControllerSpotify.prototype.getRecentTracks = function (curUri) {
           },
         };
 
-        for (var i in results.body.items) {
-          var track = results.body.items[i].track;
+        for (let i in results.body.items) {
+          let track = results.body.items[i].track;
           if (self.isTrackAvailableInCountry(track)) {
             response.navigation.lists[0].items.push({
               service: 'spop',
@@ -1748,15 +1748,15 @@ ControllerSpotify.prototype.getRecentTracks = function (curUri) {
 };
 
 ControllerSpotify.prototype.featuredPlaylists = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getFeaturedPlaylists();
+    let spotifyDefer = self.spotifyApi.getFeaturedPlaylists();
     spotifyDefer.then(
       function (results) {
-        var response = {
+        let response = {
           navigation: {
             prev: {
               uri: 'spotify',
@@ -1770,8 +1770,8 @@ ControllerSpotify.prototype.featuredPlaylists = function (curUri) {
           },
         };
 
-        for (var i in results.body.playlists.items) {
-          var playlist = results.body.playlists.items[i];
+        for (let i in results.body.playlists.items) {
+          let playlist = results.body.playlists.items[i];
           response.navigation.lists[0].items.push({
             service: 'spop',
             type: 'playlist',
@@ -1793,15 +1793,15 @@ ControllerSpotify.prototype.featuredPlaylists = function (curUri) {
 };
 
 ControllerSpotify.prototype.listWebPlaylist = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var uriSplitted = curUri.split(':');
+  let uriSplitted = curUri.split(':');
 
-  var spotifyDefer = self.getPlaylistTracks(uriSplitted[2], uriSplitted[4]);
+  let spotifyDefer = self.getPlaylistTracks(uriSplitted[2], uriSplitted[4]);
   spotifyDefer.then(function (results) {
-    var response = {
+    let response = {
       navigation: {
         prev: {
           uri: 'spotify',
@@ -1814,10 +1814,10 @@ ControllerSpotify.prototype.listWebPlaylist = function (curUri) {
         ],
       },
     };
-    for (var i in results) {
+    for (let i in results) {
       response.navigation.lists[0].items.push(results[i]);
     }
-    var playlistInfo = self.getPlaylistInfo(uriSplitted[2], uriSplitted[4]);
+    let playlistInfo = self.getPlaylistInfo(uriSplitted[2], uriSplitted[4]);
     playlistInfo.then(function (results) {
       response.navigation.info = results;
       response.navigation.info.uri = curUri;
@@ -1830,15 +1830,15 @@ ControllerSpotify.prototype.listWebPlaylist = function (curUri) {
 };
 
 ControllerSpotify.prototype.listWebNew = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getNewReleases({ limit: 50 });
+    let spotifyDefer = self.spotifyApi.getNewReleases({ limit: 50 });
     spotifyDefer.then(
       function (results) {
-        var response = {
+        let response = {
           navigation: {
             prev: {
               uri: 'spotify',
@@ -1852,8 +1852,8 @@ ControllerSpotify.prototype.listWebNew = function (curUri) {
           },
         };
 
-        for (var i in results.body.albums.items) {
-          var album = results.body.albums.items[i];
+        for (let i in results.body.albums.items) {
+          let album = results.body.albums.items[i];
           response.navigation.lists[0].items.push({
             service: 'spop',
             type: 'folder',
@@ -1875,13 +1875,13 @@ ControllerSpotify.prototype.listWebNew = function (curUri) {
 };
 
 ControllerSpotify.prototype.listWebAlbum = function (curUri) {
-  var self = this;
-  var defer = libQ.defer();
-  var uriSplitted = curUri.split(':');
+  let self = this;
+  let defer = libQ.defer();
+  let uriSplitted = curUri.split(':');
 
-  var spotifyDefer = self.getAlbumTracks(uriSplitted[2], { limit: 50 });
+  let spotifyDefer = self.getAlbumTracks(uriSplitted[2], { limit: 50 });
   spotifyDefer.then(function (results) {
-    var response = {
+    let response = {
       navigation: {
         prev: {
           uri: 'spotify',
@@ -1895,10 +1895,10 @@ ControllerSpotify.prototype.listWebAlbum = function (curUri) {
       },
     };
 
-    for (var i in results) {
+    for (let i in results) {
       response.navigation.lists[0].items.push(results[i]);
     }
-    var albumInfo = self.getAlbumInfo(uriSplitted[2]);
+    let albumInfo = self.getAlbumInfo(uriSplitted[2]);
     albumInfo.then(function (results) {
       response.navigation.info = results;
       response.navigation.info.uri = curUri;
@@ -1911,15 +1911,15 @@ ControllerSpotify.prototype.listWebAlbum = function (curUri) {
 };
 
 ControllerSpotify.prototype.listWebCategories = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getCategories({ limit: 50 });
+    let spotifyDefer = self.spotifyApi.getCategories({ limit: 50 });
     spotifyDefer.then(
       function (results) {
-        var response = {
+        let response = {
           navigation: {
             prev: {
               uri: 'spotify',
@@ -1933,7 +1933,7 @@ ControllerSpotify.prototype.listWebCategories = function (curUri) {
           },
         };
 
-        for (var i in results.body.categories.items) {
+        for (let i in results.body.categories.items) {
           response.navigation.lists[0].items.push({
             service: 'spop',
             type: 'spotify-category',
@@ -1955,17 +1955,17 @@ ControllerSpotify.prototype.listWebCategories = function (curUri) {
 };
 
 ControllerSpotify.prototype.listWebCategory = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var uriSplitted = curUri.split('/');
+  let uriSplitted = curUri.split('/');
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getPlaylistsForCategory(uriSplitted[2], { limit: 50 });
+    let spotifyDefer = self.spotifyApi.getPlaylistsForCategory(uriSplitted[2], { limit: 50 });
     spotifyDefer.then(
       function (results) {
-        var response = {
+        let response = {
           navigation: {
             prev: {
               uri: 'spotify/categories',
@@ -1979,8 +1979,8 @@ ControllerSpotify.prototype.listWebCategory = function (curUri) {
           },
         };
 
-        for (var i in results.body.playlists.items) {
-          var playlist = results.body.playlists.items[i];
+        for (let i in results.body.playlists.items) {
+          let playlist = results.body.playlists.items[i];
           response.navigation.lists[0].items.push({
             service: 'spop',
             type: 'folder',
@@ -2002,16 +2002,16 @@ ControllerSpotify.prototype.listWebCategory = function (curUri) {
 };
 
 ControllerSpotify.prototype.listWebArtist = function (curUri) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var uriSplitted = curUri.split(':');
+  let uriSplitted = curUri.split(':');
 
-  var artistId = uriSplitted[2];
+  let artistId = uriSplitted[2];
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var response = {
+    let response = {
       navigation: {
         prev: {
           uri: 'spotify',
@@ -2035,10 +2035,10 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
         ],
       },
     };
-    var spotifyDefer = self.listArtistTracks(artistId);
+    let spotifyDefer = self.listArtistTracks(artistId);
     spotifyDefer
       .then(function (results) {
-        for (var i in results) {
+        for (let i in results) {
           response.navigation.lists[0].items.push(results[i]);
         }
         return response;
@@ -2047,7 +2047,7 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
         return self.listArtistAlbums(artistId);
       })
       .then(function (results) {
-        for (var i in results) {
+        for (let i in results) {
           response.navigation.lists[1].items.push(results[i]);
         }
         return response;
@@ -2066,7 +2066,7 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
         return self.getArtistRelatedArtists(artistId);
       })
       .then(function (results) {
-        for (var i in results) {
+        for (let i in results) {
           response.navigation.lists[2].items.push(results[i]);
         }
         defer.resolve(response);
@@ -2081,15 +2081,15 @@ ControllerSpotify.prototype.listWebArtist = function (curUri) {
 };
 
 ControllerSpotify.prototype.listArtistTracks = function (id) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var list = [];
+  let list = [];
 
-  var spotifyDefer = self.getArtistTopTracks(id);
+  let spotifyDefer = self.getArtistTopTracks(id);
   spotifyDefer.then(function (data) {
-    for (var i in data) {
+    for (let i in data) {
       list.push(data[i]);
     }
     defer.resolve(list);
@@ -2099,15 +2099,15 @@ ControllerSpotify.prototype.listArtistTracks = function (id) {
 };
 
 ControllerSpotify.prototype.listArtistAlbums = function (id) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var spotifyDefer = self.spotifyApi.getArtistAlbums(id);
+  let spotifyDefer = self.spotifyApi.getArtistAlbums(id);
   spotifyDefer.then(function (results) {
-    var response = [];
-    for (var i in results.body.items) {
-      var album = results.body.items[i];
+    let response = [];
+    for (let i in results.body.items) {
+      let album = results.body.items[i];
       response.push({
         service: 'spop',
         type: 'folder',
@@ -2123,25 +2123,25 @@ ControllerSpotify.prototype.listArtistAlbums = function (id) {
 };
 
 ControllerSpotify.prototype.getArtistTracks = function (id) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var list = [];
+  let list = [];
 
-  var spotifyDefer = self.getArtistTopTracks(id);
+  let spotifyDefer = self.getArtistTopTracks(id);
   spotifyDefer
     .then(function (data) {
-      for (var i in data) {
+      for (let i in data) {
         list.push(data[i]);
       }
       return list;
     })
     .then(function (data) {
-      var spotifyDefer = self.getArtistAlbumTracks(id);
+      let spotifyDefer = self.getArtistAlbumTracks(id);
       spotifyDefer.then(function (results) {
-        var response = data;
-        for (var i in results) {
+        let response = data;
+        for (let i in results) {
           response.push(results[i]);
         }
         defer.resolve(response);
@@ -2152,30 +2152,30 @@ ControllerSpotify.prototype.getArtistTracks = function (id) {
 };
 
 ControllerSpotify.prototype.getArtistAlbumTracks = function (id) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var list = [];
+  let list = [];
 
-  var spotifyDefer = self.spotifyApi.getArtistAlbums(id);
+  let spotifyDefer = self.spotifyApi.getArtistAlbums(id);
   spotifyDefer
     .then(function (results) {
       //	var response = data;
-      var response = [];
+      let response = [];
       return results.body.items.map(function (a) {
         return a.id;
       });
     })
     .then(function (albums) {
-      var spotifyDefer = self.spotifyApi.getAlbums(albums);
+      let spotifyDefer = self.spotifyApi.getAlbums(albums);
       spotifyDefer.then(function (data) {
-        var results = data;
-        var response = [];
-        for (var i in results.body.albums) {
-          var album = results.body.albums[i];
-          for (var j in album.tracks.items) {
-            var track = album.tracks.items[j];
+        let results = data;
+        let response = [];
+        for (let i in results.body.albums) {
+          let album = results.body.albums[i];
+          for (let j in album.tracks.items) {
+            let track = album.tracks.items[j];
             if (self.isTrackAvailableInCountry(track)) {
               response.push({
                 service: 'spop',
@@ -2198,16 +2198,16 @@ ControllerSpotify.prototype.getArtistAlbumTracks = function (id) {
 };
 
 ControllerSpotify.prototype.getArtistAlbums = function (artistId) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getArtistAlbums(artistId);
+    let spotifyDefer = self.spotifyApi.getArtistAlbums(artistId);
     spotifyDefer.then(function (results) {
-      var response = [];
-      for (var i in results.body.items) {
-        var album = results.body.items[i];
+      let response = [];
+      for (let i in results.body.items) {
+        let album = results.body.items[i];
         response.push({
           service: 'spop',
           type: 'folder',
@@ -2223,20 +2223,20 @@ ControllerSpotify.prototype.getArtistAlbums = function (artistId) {
 };
 
 ControllerSpotify.prototype.getArtistRelatedArtists = function (artistId) {
-  var self = this;
+  let self = this;
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var list = [];
+  let list = [];
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getArtistRelatedArtists(artistId);
+    let spotifyDefer = self.spotifyApi.getArtistRelatedArtists(artistId);
     spotifyDefer.then(function (results) {
-      for (var i in results.body.artists) {
+      for (let i in results.body.artists) {
         var albumart = '';
-        var artist = results.body.artists[i];
+        let artist = results.body.artists[i];
         var albumart = self._getAlbumArt(artist);
-        var item = {
+        let item = {
           service: 'spop',
           type: 'folder',
           title: artist.name,
@@ -2256,18 +2256,18 @@ ControllerSpotify.prototype.getArtistRelatedArtists = function (artistId) {
 };
 
 ControllerSpotify.prototype.getAlbumTracks = function (id) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getAlbum(id);
+    let spotifyDefer = self.spotifyApi.getAlbum(id);
     spotifyDefer.then(
       function (results) {
-        var response = [];
-        var album = results.body.name;
-        var albumart = results.body.images[0].url;
-        for (var i in results.body.tracks.items) {
-          var track = results.body.tracks.items[i];
+        let response = [];
+        let album = results.body.name;
+        let albumart = results.body.images[0].url;
+        for (let i in results.body.tracks.items) {
+          let track = results.body.tracks.items[i];
           if (self.isTrackAvailableInCountry(track)) {
             response.push({
               service: 'spop',
@@ -2300,8 +2300,8 @@ ControllerSpotify.prototype.getAlbumTracks = function (id) {
 };
 
 ControllerSpotify.prototype.getPlaylistTracks = function (userId, playlistId) {
-  var defer = libQ.defer();
-  var response = [];
+  let defer = libQ.defer();
+  let response = [];
 
   this.spotifyCheckAccessToken().then(() => {
     fetchPagedData(
@@ -2310,10 +2310,10 @@ ControllerSpotify.prototype.getPlaylistTracks = function (userId, playlistId) {
       { requiredArgs: [playlistId] },
       {
         onData: (items) => {
-          for (var i in items) {
-            var track = items[i].track;
+          for (let i in items) {
+            let track = items[i].track;
             if (this.isTrackAvailableInCountry(track)) {
-              var item = {
+              let item = {
                 service: 'spop',
                 type: 'song',
                 name: track.name,
@@ -2350,16 +2350,16 @@ ControllerSpotify.prototype.getPlaylistTracks = function (userId, playlistId) {
 };
 
 ControllerSpotify.prototype.getArtistTopTracks = function (id) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getArtistTopTracks(id, 'GB');
+    let spotifyDefer = self.spotifyApi.getArtistTopTracks(id, 'GB');
     spotifyDefer.then(function (results) {
-      var response = [];
-      for (var i in results.body.tracks) {
-        var albumart = '';
-        var track = results.body.tracks[i];
+      let response = [];
+      for (let i in results.body.tracks) {
+        let albumart = '';
+        let track = results.body.tracks[i];
         if (track.album.hasOwnProperty('images') && track.album.images.length > 0) {
           albumart = track.album.images[0].url;
         }
@@ -2394,12 +2394,12 @@ ControllerSpotify.prototype.getArtistTopTracks = function (id) {
 };
 
 ControllerSpotify.prototype.getArtistInfo = function (id) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
-  var info = {};
+  let info = {};
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getArtist(id);
+    let spotifyDefer = self.spotifyApi.getArtist(id);
     spotifyDefer.then(function (results) {
       if (results && results.body && results.body.name) {
         info.title = results.body.name;
@@ -2418,12 +2418,12 @@ ControllerSpotify.prototype.getArtistInfo = function (id) {
 };
 
 ControllerSpotify.prototype.getAlbumInfo = function (id) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
-  var info = {};
+  let info = {};
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getAlbum(id);
+    let spotifyDefer = self.spotifyApi.getAlbum(id);
     spotifyDefer
       .then(function (results) {
         if (results && results.body && results.body.name) {
@@ -2455,12 +2455,12 @@ ControllerSpotify.prototype.getAlbumInfo = function (id) {
 };
 
 ControllerSpotify.prototype.getPlaylistInfo = function (userId, playlistId) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
-  var info = {};
+  let info = {};
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.getPlaylist(playlistId);
+    let spotifyDefer = self.spotifyApi.getPlaylist(playlistId);
     spotifyDefer.then(
       function (results) {
         if (results && results.body && results.body.name) {
@@ -2482,16 +2482,16 @@ ControllerSpotify.prototype.getPlaylistInfo = function (userId, playlistId) {
 };
 
 ControllerSpotify.prototype.getTrack = function (id) {
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
   this.spotifyCheckAccessToken().then(() => {
     rateLimitedCall(this.spotifyApi, 'getTrack', { args: [id], logger: this.logger })
       .then((results) => {
         const track = results.body;
-        var response = [];
-        var artist = '';
-        var album = '';
-        var albumart = '';
+        let response = [];
+        let artist = '';
+        let album = '';
+        let albumart = '';
 
         if (track.artists.length > 0) {
           artist = track.artists[0].name;
@@ -2507,7 +2507,7 @@ ControllerSpotify.prototype.getTrack = function (id) {
           albumart = '';
         }
 
-        var item = {
+        let item = {
           uri: track.uri,
           service: 'spop',
           name: track.name,
@@ -2535,18 +2535,18 @@ ControllerSpotify.prototype.getTrack = function (id) {
 
 // SEARCH FUNCTIONS
 ControllerSpotify.prototype.search = function (query) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.spotifyCheckAccessToken().then(function (data) {
-    var spotifyDefer = self.spotifyApi.search(query.value, ['artist', 'album', 'playlist', 'track']);
+    let spotifyDefer = self.spotifyApi.search(query.value, ['artist', 'album', 'playlist', 'track']);
     spotifyDefer.then(
       function (results) {
-        var list = [];
+        let list = [];
         // Show artists, albums, playlists then tracks
         if (results.body.hasOwnProperty('artists') && results.body.artists.items.length > 0) {
-          var artistlist = [];
-          var artists = self._searchArtists(results);
+          let artistlist = [];
+          let artists = self._searchArtists(results);
           for (var i in artists) {
             artistlist.push(artists[i]);
           }
@@ -2558,8 +2558,8 @@ ControllerSpotify.prototype.search = function (query) {
           });
         }
         if (results.body.hasOwnProperty('albums') && results.body.albums.items.length > 0) {
-          var albumlist = [];
-          var albums = self._searchAlbums(results);
+          let albumlist = [];
+          let albums = self._searchAlbums(results);
           for (var i in albums) {
             albumlist.push(albums[i]);
           }
@@ -2571,8 +2571,8 @@ ControllerSpotify.prototype.search = function (query) {
           });
         }
         if (results.body.hasOwnProperty('playlists') && results.body.playlists.items.length > 0) {
-          var playlistlist = [];
-          var playlists = self._searchPlaylists(results);
+          let playlistlist = [];
+          let playlists = self._searchPlaylists(results);
           for (var i in playlists) {
             playlistlist.push(playlists[i]);
           }
@@ -2584,8 +2584,8 @@ ControllerSpotify.prototype.search = function (query) {
           });
         }
         if (results.body.hasOwnProperty('tracks') && results.body.tracks.items.length > 0) {
-          var songlist = [];
-          var tracks = self._searchTracks(results);
+          let songlist = [];
+          let tracks = self._searchTracks(results);
           for (var i in tracks) {
             songlist.push(tracks[i]);
           }
@@ -2609,15 +2609,15 @@ ControllerSpotify.prototype.search = function (query) {
 };
 
 ControllerSpotify.prototype._searchArtists = function (results) {
-  var list = [];
+  let list = [];
 
-  for (var i in results.body.artists.items) {
-    var albumart = '';
-    var artist = results.body.artists.items[i];
+  for (let i in results.body.artists.items) {
+    let albumart = '';
+    let artist = results.body.artists.items[i];
     if (artist.hasOwnProperty('images') && artist.images.length > 0) {
       albumart = artist.images[0].url;
     }
-    var item = {
+    let item = {
       service: 'spop',
       type: 'folder',
       title: artist.name,
@@ -2634,15 +2634,15 @@ ControllerSpotify.prototype._searchArtists = function (results) {
 };
 
 ControllerSpotify.prototype._searchAlbums = function (results) {
-  var list = [];
+  let list = [];
 
-  for (var i in results.body.albums.items) {
-    var albumart = '';
-    var album = results.body.albums.items[i];
+  for (let i in results.body.albums.items) {
+    let albumart = '';
+    let album = results.body.albums.items[i];
     if (album.hasOwnProperty('images') && album.images.length > 0) {
       albumart = album.images[0].url;
     }
-    var artist = '';
+    let artist = '';
     if (album.artists && album.artists[0] && album.artists[0].name) {
       artist = album.artists[0].name;
     }
@@ -2661,11 +2661,11 @@ ControllerSpotify.prototype._searchAlbums = function (results) {
 };
 
 ControllerSpotify.prototype._searchPlaylists = function (results) {
-  var list = [];
+  let list = [];
 
-  for (var i in results.body.playlists.items) {
-    var albumart = '';
-    var playlist = results.body.playlists.items[i];
+  for (let i in results.body.playlists.items) {
+    let albumart = '';
+    let playlist = results.body.playlists.items[i];
     if (playlist.hasOwnProperty('images') && playlist.images.length > 0) {
       albumart = playlist.images[0].url;
     }
@@ -2682,11 +2682,11 @@ ControllerSpotify.prototype._searchPlaylists = function (results) {
 };
 
 ControllerSpotify.prototype._searchTracks = function (results) {
-  var list = [];
+  let list = [];
 
-  for (var i in results.body.tracks.items) {
-    var albumart = '';
-    var track = results.body.tracks.items[i];
+  for (let i in results.body.tracks.items) {
+    let albumart = '';
+    let track = results.body.tracks.items[i];
     if (track.album.hasOwnProperty('images') && track.album.images.length > 0) {
       albumart = track.album.images[0].url;
     }
@@ -2705,11 +2705,11 @@ ControllerSpotify.prototype._searchTracks = function (results) {
 };
 
 ControllerSpotify.prototype._searchTracks = function (results) {
-  var list = [];
+  let list = [];
 
-  for (var i in results.body.tracks.items) {
-    var albumart = '';
-    var track = results.body.tracks.items[i];
+  for (let i in results.body.tracks.items) {
+    let albumart = '';
+    let track = results.body.tracks.items[i];
     if (track.album.hasOwnProperty('images') && track.album.images.length > 0) {
       albumart = track.album.images[0].url;
     }
@@ -2728,12 +2728,12 @@ ControllerSpotify.prototype._searchTracks = function (results) {
 };
 
 ControllerSpotify.prototype.searchArtistByName = function (artistName) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
   self.spotifyApi.search(artistName, ['artist']).then((results) => {
     if (results.body.hasOwnProperty('artists') && results.body.artists.items.length > 0) {
-      var artistResult = results.body.artists.items[0];
+      let artistResult = results.body.artists.items[0];
       self
         .listWebArtist('spotify:artist:' + artistResult.id)
         .then((result) => {
@@ -2750,13 +2750,13 @@ ControllerSpotify.prototype.searchArtistByName = function (artistName) {
 };
 
 ControllerSpotify.prototype.searchAlbumByName = function (albumName) {
-  var self = this;
-  var defer = libQ.defer();
+  let self = this;
+  let defer = libQ.defer();
 
-  var spotifyDefer = self.spotifyApi.search(albumName, ['album']);
+  let spotifyDefer = self.spotifyApi.search(albumName, ['album']);
   spotifyDefer.then((results) => {
     if (results.body.hasOwnProperty('albums') && results.body.albums.items.length > 0) {
-      var albumResult = results.body.albums.items[0];
+      let albumResult = results.body.albums.items[0];
       self
         .listWebAlbum('spotify:album:' + albumResult.id)
         .then((result) => {
@@ -2773,7 +2773,7 @@ ControllerSpotify.prototype.searchAlbumByName = function (albumName) {
 };
 
 ControllerSpotify.prototype.goto = function (data) {
-  var self = this;
+  let self = this;
 
   if (data.type == 'artist') {
     return self.searchArtistByName(data.value);
@@ -2785,7 +2785,7 @@ ControllerSpotify.prototype.goto = function (data) {
 // PLUGIN FUNCTIONS
 
 ControllerSpotify.prototype.debugLog = function (stringToLog) {
-  var self = this;
+  let self = this;
 
   if (isDebugMode) {
     console.log('SPOTIFY: ' + stringToLog);
@@ -2793,7 +2793,7 @@ ControllerSpotify.prototype.debugLog = function (stringToLog) {
 };
 
 ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackObj) {
-  var self = this;
+  let self = this;
 
   if (
     self.userCountry &&
@@ -2813,15 +2813,15 @@ ControllerSpotify.prototype.isTrackAvailableInCountry = function (currentTrackOb
 };
 
 ControllerSpotify.prototype.explodeUri = function (uri) {
-  var self = this;
+  let self = this;
 
   self.debugLog('EXPLODING URI:' + uri);
 
-  var defer = libQ.defer();
+  let defer = libQ.defer();
 
-  var uriSplitted;
+  let uriSplitted;
 
-  var response;
+  let response;
 
   if (uri.startsWith('spotify/playlists')) {
     response = self.getMyPlaylists();
@@ -2854,7 +2854,7 @@ ControllerSpotify.prototype.explodeUri = function (uri) {
 };
 
 ControllerSpotify.prototype.seekTimerAction = function () {
-  var self = this;
+  let self = this;
 
   if (this.state.status === 'play') {
     if (seekTimer === undefined) {
@@ -2869,8 +2869,8 @@ ControllerSpotify.prototype.seekTimerAction = function () {
 };
 
 ControllerSpotify.prototype.getLabelForSelect = function (options, key) {
-  var n = options.length;
-  for (var i = 0; i < n; i++) {
+  let n = options.length;
+  for (let i = 0; i < n; i++) {
     if (options[i].value === key) {
       return options[i].label;
     }
@@ -2880,7 +2880,7 @@ ControllerSpotify.prototype.getLabelForSelect = function (options, key) {
 };
 
 ControllerSpotify.prototype.getSpotifyVolume = function () {
-  var self = this;
+  let self = this;
 
   self.logger.info('Getting Spotify volume');
   superagent

@@ -1,6 +1,6 @@
-var superagent = require('superagent');
+let superagent = require('superagent');
 
-var apiEndpoint = 'http://127.0.0.1:9879';
+let apiEndpoint = 'http://127.0.0.1:9879';
 
 superagent
   .post(apiEndpoint + '/player/volume')
