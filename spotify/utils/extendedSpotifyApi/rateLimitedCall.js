@@ -40,7 +40,7 @@ function call(api, method, { logger, args, attempt } = {}) {
     } catch (e) {
       if (e.statusCode === 429) {
         logger.warn(
-          `Spotify API method ${method} failed due to "Too many requests". Stop all API requests for ${COOLDOWN_PERIOD} milliseconds.`
+          `Spotify API method ${method} failed due to "Too many requests". Stop all API requests for ${COOLDOWN_PERIOD} milliseconds.`,
         );
         cooldown();
         call(api, method, { logger, args, attempt: attempt + 1 })
