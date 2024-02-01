@@ -6,6 +6,11 @@ export interface PluginConfigSchemaEntry<T, U = false> {
   json: U;
 }
 
+export enum LongStreamFormat {
+  Opus = 'opus',
+  MP3 = 'mp3'
+}
+
 export interface PluginConfigSchema {
   accessToken: PluginConfigSchemaEntry<string>;
   locale: PluginConfigSchemaEntry<string>;
@@ -15,6 +20,7 @@ export interface PluginConfigSchema {
   loadFullPlaylistAlbum: PluginConfigSchemaEntry<boolean>;
   skipPreviewTracks: PluginConfigSchemaEntry<boolean>;
   addPlayedToHistory: PluginConfigSchemaEntry<boolean>;
+  longStreamFormat: PluginConfigSchemaEntry<LongStreamFormat>;
   cacheMaxEntries: PluginConfigSchemaEntry<number>;
   cacheTTL: PluginConfigSchemaEntry<number>;
   // Soundcloud-testing
@@ -30,6 +36,7 @@ export const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema = {
   loadFullPlaylistAlbum: { defaultValue: false, json: false },
   skipPreviewTracks: { defaultValue: false, json: false },
   addPlayedToHistory: { defaultValue: true, json: false },
+  longStreamFormat: { defaultValue: LongStreamFormat.Opus, json: false },
   cacheMaxEntries: { defaultValue: 5000, json: false },
   cacheTTL: { defaultValue: 1800, json: false },
   // Soundcloud-testing

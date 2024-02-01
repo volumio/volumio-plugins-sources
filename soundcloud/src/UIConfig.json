@@ -21,10 +21,7 @@
           "itemsPerPage",
           "itemsPerSection",
           "combinedSearchResults",
-          "loadFullPlaylistAlbum",
-          "skipPreviewTracks",
-          "addPlayedToHistory",
-          "logTranscodings"
+          "loadFullPlaylistAlbum"
         ]
       },
       "content": [
@@ -78,7 +75,29 @@
           "element": "switch",
           "label": "TRANSLATE.SOUNDCLOUD_LOAD_FULL_PLAYLIST_ALBUM",
           "value": false
-        },
+        }
+      ]
+    },
+    {
+      "id": "section_playback",
+      "element": "section",
+      "label": "TRANSLATE.SOUNDCLOUD_SECTION_PLAYBACK",
+      "icon": "fa-play-circle",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/soundcloud",
+        "method": "configSavePlaybackSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SOUNDCLOUD_SAVE",
+        "data": [
+          "skipPreviewTracks",
+          "addPlayedToHistory",
+          "longStreamFormat",
+          "logTranscodings"
+        ]
+      },
+      "content": [
         {
           "id": "skipPreviewTracks",
           "element": "switch",
@@ -90,6 +109,14 @@
           "element": "switch",
           "label": "TRANSLATE.SOUNDCLOUD_ADD_PLAYED_TO_HISTORY",
           "value": true
+        },
+        {
+          "id": "longStreamFormat",
+          "element": "select",
+          "label": "TRANSLATE.SOUNDCLOUD_LONG_STREAM_FMT",
+          "doc": "TRANSLATE.SOUNDCLOUD_DOC_LONG_STREAM_FMT",
+          "value": {},
+          "options": []
         },
         {
           "id": "logTranscodings",
