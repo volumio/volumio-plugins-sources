@@ -114,7 +114,7 @@ export default class OpenWeatherMapAPI {
 
     const doGet = async () => {
       np.getLogger().info('[now-playing] Fetching API key...');
-      const widgetPathRegExp = /<script src="((?:.+)weather-widget-new.(?:.+).js)"><\/script>/gm;
+      const widgetPathRegExp = /<script(?:\s+)src=['"]((?:.+)weather-widget-new.(?:.+).js)['"]><\/script>/gm;
       const appIdRegExp = /appid:"(.+?)"/gm;
 
       const page = await fetchPage(BASE_URL);
