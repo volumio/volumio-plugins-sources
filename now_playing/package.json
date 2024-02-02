@@ -1,6 +1,6 @@
 {
 	"name": "now_playing",
-	"version": "0.5.4",
+	"version": "0.5.5",
 	"description": "Provides a 'Now Playing' screen for your Volumio device.",
 	"main": "./dist/index.js",
 	"scripts": {
