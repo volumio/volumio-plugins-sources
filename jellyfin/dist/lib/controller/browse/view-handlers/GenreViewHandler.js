@@ -9,12 +9,8 @@ const BaseViewHandler_1 = __importDefault(require("./BaseViewHandler"));
 class GenreViewHandler extends BaseViewHandler_1.default {
     async browse() {
         const prevUri = this.constructPrevUri();
-        const view = this.currentView;
         const lists = [];
-        const modelQueryParams = {
-            parentId: view.parentId,
-            recursive: true
-        };
+        const modelQueryParams = this.getModelQueryParams();
         const model = this.getModel(model_1.ModelType.Genre);
         const renderer = this.getRenderer(entities_1.EntityType.Genre);
         const genres = await model.getGenres(modelQueryParams);

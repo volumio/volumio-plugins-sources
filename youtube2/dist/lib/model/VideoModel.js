@@ -34,10 +34,7 @@ class VideoModel extends BaseModel_1.BaseModel {
         _VideoModel_instances.add(this);
     }
     async getPlaybackInfo(videoId) {
-        const innertube = this.getInnertube();
-        if (!innertube) {
-            throw Error('Innertube not ready');
-        }
+        const { innertube } = await this.getInnertube();
         try {
             const info = await innertube.getBasicInfo(videoId);
             const basicInfo = info.basic_info;
@@ -60,7 +57,7 @@ class VideoModel extends BaseModel_1.BaseModel {
                 if (info.has_trailer) {
                     const trailerInfo = info.getTrailerInfo();
                     if (trailerInfo) {
-                        result.stream = __classPrivateFieldGet(this, _VideoModel_instances, "m", _VideoModel_chooseFormat).call(this, trailerInfo);
+                        result.stream = __classPrivateFieldGet(this, _VideoModel_instances, "m", _VideoModel_chooseFormat).call(this, innertube, trailerInfo);
                     }
                 }
                 else {
@@ -68,7 +65,7 @@ class VideoModel extends BaseModel_1.BaseModel {
                 }
             }
             else if (!result.isLive) {
-                result.stream = __classPrivateFieldGet(this, _VideoModel_instances, "m", _VideoModel_chooseFormat).call(this, info);
+                result.stream = __classPrivateFieldGet(this, _VideoModel_instances, "m", _VideoModel_chooseFormat).call(this, innertube, info);
             }
             else {
                 const hlsManifestUrl = info.streaming_data?.hls_manifest_url;
@@ -84,15 +81,11 @@ class VideoModel extends BaseModel_1.BaseModel {
     }
 }
 exports.default = VideoModel;
-_VideoModel_instances = new WeakSet(), _VideoModel_chooseFormat = function _VideoModel_chooseFormat(videoInfo) {
-    const innertube = this.getInnertube();
-    if (innertube) {
-        const format = videoInfo?.chooseFormat(BEST_AUDIO_FORMAT);
-        const streamUrl = format ? format.decipher(innertube.session.player) : null;
-        const streamData = format ? { ...format, url: streamUrl } : null;
-        return __classPrivateFieldGet(this, _VideoModel_instances, "m", _VideoModel_parseStreamData).call(this, streamData);
-    }
-    return null;
+_VideoModel_instances = new WeakSet(), _VideoModel_chooseFormat = function _VideoModel_chooseFormat(innertube, videoInfo) {
+    const format = videoInfo?.chooseFormat(BEST_AUDIO_FORMAT);
+    const streamUrl = format ? format.decipher(innertube.session.player) : null;
+    const streamData = format ? { ...format, url: streamUrl } : null;
+    return __classPrivateFieldGet(this, _VideoModel_instances, "m", _VideoModel_parseStreamData).call(this, streamData);
 }, _VideoModel_parseStreamData = function _VideoModel_parseStreamData(data) {
     if (!data) {
         return null;

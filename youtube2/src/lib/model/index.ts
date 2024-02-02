@@ -16,7 +16,16 @@ export enum ModelType {
   Root = 'Root'
 }
 
-const MODEL_TYPE_TO_CLASS: Record<any, any> = {
+export type ModelOf<T extends ModelType> =
+  T extends ModelType.Account ? AccountModel :
+  T extends ModelType.Config ? ConfigModel :
+  T extends ModelType.Endpoint ? EndpointModel :
+  T extends ModelType.Playlist ? PlaylistModel :
+  T extends ModelType.Search ? SearchModel :
+  T extends ModelType.Video ? VideoModel :
+  T extends ModelType.Root ? RootModel : never;
+
+const MODEL_TYPE_TO_CLASS: Record<ModelType, any> = {
   [ModelType.Account]: AccountModel,
   [ModelType.Config]: ConfigModel,
   [ModelType.Endpoint]: EndpointModel,
@@ -28,14 +37,7 @@ const MODEL_TYPE_TO_CLASS: Record<any, any> = {
 
 export default class Model {
 
-  static getInstance(type: ModelType.Account): AccountModel;
-  static getInstance(type: ModelType.Config): ConfigModel;
-  static getInstance(type: ModelType.Endpoint): EndpointModel;
-  static getInstance(type: ModelType.Playlist): PlaylistModel;
-  static getInstance(type: ModelType.Search): SearchModel;
-  static getInstance(type: ModelType.Video): VideoModel;
-  static getInstance(type: ModelType.Root): RootModel;
-  static getInstance(type: ModelType) {
+  static getInstance<T extends ModelType>(type: T): ModelOf<T> {
     if (MODEL_TYPE_TO_CLASS[type]) {
       return new MODEL_TYPE_TO_CLASS[type]();
     }

@@ -1,26 +1,13 @@
 import yt2 from '../../../YouTube2Context';
-import Model, { ModelType } from '../../../model';
-import AccountModel from '../../../model/AccountModel';
+import Model, { ModelOf, ModelType } from '../../../model';
 import { BaseModel } from '../../../model/BaseModel';
-import ConfigModel from '../../../model/ConfigModel';
-import EndpointModel from '../../../model/EndpointModel';
-import PlaylistModel from '../../../model/PlaylistModel';
-import RootModel from '../../../model/RootModel';
-import SearchModel from '../../../model/SearchModel';
-import VideoModel from '../../../model/VideoModel';
 import { PageElement } from '../../../types';
 import { QueueItem } from './ExplodableViewHandler';
 import View, { ContinuationBundle } from './View';
 import ViewHandler, { RenderedPage } from './ViewHandler';
 import ViewHelper from './ViewHelper';
-import Renderer, { RendererType } from './renderers';
+import Renderer, { RendererOf, RendererType } from './renderers';
 import BaseRenderer, { RenderedListItem } from './renderers/BaseRenderer';
-import ChannelRenderer from './renderers/ChannelRenderer';
-import EndpointLinkRenderer from './renderers/EndpointLinkRenderer';
-import OptionRenderer from './renderers/OptionRenderer';
-import OptionValueRenderer from './renderers/OptionValueRenderer';
-import PlaylistRenderer from './renderers/PlaylistRenderer';
-import VideoRenderer from './renderers/VideoRenderer';
 
 export interface ContinuationData {
   continuation: PageElement.Continuation<any>;
@@ -64,14 +51,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     return this.#previousViews;
   }
 
-  protected getModel(type: ModelType.Account): AccountModel;
-  protected getModel(type: ModelType.Config): ConfigModel;
-  protected getModel(type: ModelType.Endpoint): EndpointModel;
-  protected getModel(type: ModelType.Playlist): PlaylistModel;
-  protected getModel(type: ModelType.Search): SearchModel;
-  protected getModel(type: ModelType.Video): VideoModel;
-  protected getModel(type: ModelType.Root): RootModel;
-  protected getModel(type: ModelType) {
+  protected getModel<T extends ModelType>(type: T): ModelOf<T> {
     if (!this.#models[type]) {
       let model;
       switch (type) {
@@ -102,16 +82,10 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
       this.#models[type] = model;
     }
 
-    return this.#models[type];
+    return this.#models[type] as ModelOf<T>;
   }
 
-  protected getRenderer(type: RendererType.Channel): ChannelRenderer;
-  protected getRenderer(type: RendererType.EndpointLink): EndpointLinkRenderer;
-  protected getRenderer(type: RendererType.Option): OptionRenderer;
-  protected getRenderer(type: RendererType.OptionValue): OptionValueRenderer;
-  protected getRenderer(type: RendererType.Playlist): PlaylistRenderer;
-  protected getRenderer(type: RendererType.Video): VideoRenderer;
-  protected getRenderer(type: RendererType) {
+  protected getRenderer<T extends RendererType>(type: T): RendererOf<T> {
     if (!this.#renderers[type]) {
       let renderer: BaseRenderer<any, any>;
       switch (type) {
@@ -144,7 +118,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
       }
       this.#renderers[type] = renderer;
     }
-    return this.#renderers[type];
+    return this.#renderers[type] as RendererOf<T>;
   }
 
   protected constructPrevUri() {

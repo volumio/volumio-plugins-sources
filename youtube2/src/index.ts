@@ -5,17 +5,17 @@ import libQ from 'kew';
 // @ts-ignore
 import vconf from 'v-conf';
 
-import Innertube from 'volumio-youtubei.js';
 import yt2 from './lib/YouTube2Context';
 import BrowseController from './lib/controller/browse';
 import SearchController, { SearchQuery } from './lib/controller/search/SearchController';
 import PlayController from './lib/controller/play/PlayController';
 import { jsPromiseToKew } from './lib/util';
-import Auth, { AuthStatus } from './lib/util/Auth';
+import { AuthStatus } from './lib/util/Auth';
 import Model, { ModelType } from './lib/model';
-import { Account, I18nOptionValue, I18nOptions } from './lib/types/ConfigData';
+import { Account, I18nOptionValue, I18nOptions } from './lib/types/PluginConfig';
 import { QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
 import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
+import InnertubeLoader from './lib/model/InnertubeLoader';
 
 interface GotoParams extends QueueItem {
   type: 'album' | 'artist';
@@ -43,21 +43,15 @@ class ControllerYouTube2 {
       this.#commandRouter.i18nJson(`${__dirname}/i18n/strings_${langCode}.json`,
         `${__dirname}/i18n/strings_en.json`,
         `${__dirname}/UIConfig.json`),
-      this.#getConfigI18nOptions()
+      this.#getConfigI18nOptions(),
+      this.#getConfigAccountInfo(),
+      this.#getAuthStatus()
     ];
-
-    const authStatus = Auth.getAuthStatus();
-    if (authStatus.status === AuthStatus.SignedIn) {
-      loadConfigPromises.push(this.#getConfigAccountInfo());
-    }
-    else {
-      loadConfigPromises.push(libQ.resolve(null));
-    }
 
     const configModel = Model.getInstance(ModelType.Config);
 
     libQ.all(loadConfigPromises)
-      .then(([ uiconf, i18nOptions, account ]: any) => {
+      .then(([ uiconf, i18nOptions, account, authStatus ]: any) => {
         const i18nUIConf = uiconf.sections[0];
         const accountUIConf = uiconf.sections[1];
         const browseUIConf = uiconf.sections[2];
@@ -74,7 +68,6 @@ class ControllerYouTube2 {
         i18nUIConf.content[1].value = i18nOptions.selected.language;
 
         // Account
-        const authStatus = Auth.getAuthStatus();
         let authStatusDescription;
         switch (authStatus.status) {
           case AuthStatus.SignedIn:
@@ -198,20 +191,15 @@ class ControllerYouTube2 {
   }
 
   onStart() {
-    const defer = libQ.defer();
-
     yt2.init(this.#context, this.#config);
 
     this.#browseController = new BrowseController();
     this.#searchController = new SearchController();
     this.#playController = new PlayController();
 
-    this.#initInnertube().then(() => {
-      this.#addToBrowseSources();
-      defer.resolve();
-    });
+    this.#addToBrowseSources();
 
-    return defer.promise;
+    return libQ.resolve();
   }
 
   onStop() {
@@ -221,46 +209,11 @@ class ControllerYouTube2 {
     this.#searchController = null;
     this.#playController = null;
 
-    Auth.unregisterHandlers();
-
+    InnertubeLoader.reset();
     yt2.reset();
 
     return libQ.resolve();
   }
-
-  #initInnertube() {
-    const defer = libQ.defer();
-
-    const innerTube = yt2.get('innertube');
-    if (innerTube) {
-      Auth.unregisterHandlers();
-      yt2.set('innertube', null);
-    }
-
-    Innertube.create().then((innerTube) => {
-      yt2.set('innertube', innerTube);
-      this.#applyI18nConfigToInnerTube();
-      Auth.registerHandlers();
-      Auth.signIn();
-      defer.resolve(innerTube);
-    })
-      .catch((error) => {
-        defer.reject(error);
-      });
-
-    return defer.promise;
-  }
-
-  #applyI18nConfigToInnerTube = function () {
-    const innertube = yt2.get<Innertube>('innertube');
-    if (innertube) {
-      const region = yt2.getConfigValue('region');
-      const language = yt2.getConfigValue('language');
-
-      innertube.session.context.client.gl = region;
-      innertube.session.context.client.hl = language;
-    }
-  };
 
   getConfigurationFiles() {
     return [ 'config.json' ];
@@ -300,7 +253,21 @@ class ControllerYouTube2 {
       defer.resolve(account);
     })
       .catch((error) => {
-        yt2.getLogger().warn(`Failed to get account config: ${error}`);
+        yt2.getLogger().warn(`[youtube2] Failed to get account config: ${error}`);
+        defer.resolve(null);
+      });
+
+    return defer.promise;
+  }
+
+  #getAuthStatus() {
+    const defer = libQ.defer();
+
+    InnertubeLoader.getInstance().then(({ auth }) => {
+      defer.resolve(auth.getStatus());
+    })
+      .catch((error) => {
+        yt2.getLogger().warn(`[youtube2] Failed to get auth status: ${error}`);
         defer.resolve(null);
       });
 
@@ -317,7 +284,7 @@ class ControllerYouTube2 {
       yt2.setConfigValue('region', region);
       yt2.setConfigValue('language', language);
 
-      this.#applyI18nConfigToInnerTube();
+      InnertubeLoader.applyI18nConfig();
       Model.getInstance(ModelType.Config).clearCache();
       yt2.refreshUIConfig();
     }
@@ -325,16 +292,19 @@ class ControllerYouTube2 {
     yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
   }
 
-  configSignOut = function () {
-    Auth.signOut();
-  };
+  async configSignOut() {
+    if (InnertubeLoader.hasInstance()) {
+      const { auth } = await InnertubeLoader.getInstance();
+      auth.signOut();
+    }
+  }
 
-  configSaveBrowse = function (data: any) {
+  configSaveBrowse(data: any) {
     yt2.setConfigValue('rootContentType', data.rootContentType.value);
     yt2.setConfigValue('loadFullPlaylists', data.loadFullPlaylists);
 
     yt2.toast('success', yt2.getI18n('YOUTUBE2_SETTINGS_SAVED'));
-  };
+  }
 
   configSavePlayback(data: any) {
     yt2.setConfigValue('autoplay', data.autoplay);

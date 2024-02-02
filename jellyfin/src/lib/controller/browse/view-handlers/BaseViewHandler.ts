@@ -139,7 +139,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     });
 
     if ((this.#currentView.startIndex || 0) > 0) {
-      const delta = this.#currentView.limit || jellyfin.getConfigValue('itemsPerPage', 47);
+      const delta = this.#currentView.limit || jellyfin.getConfigValue('itemsPerPage');
       const startIndex = Math.max((this.#currentView.startIndex || 0) - delta, 0);
       segments.push(ViewHelper.constructUriSegmentFromView({
         ...this.#currentView,
@@ -160,7 +160,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     const currentView = nextView || this.#currentView;
 
     if (startIndex === undefined) {
-      startIndex = (currentView.startIndex || 0) + (currentView.limit || jellyfin.getConfigValue('itemsPerPage', 47));
+      startIndex = (currentView.startIndex || 0) + (currentView.limit || jellyfin.getConfigValue('itemsPerPage'));
     }
 
     segments.push(ViewHelper.constructUriSegmentFromView({
@@ -194,7 +194,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
   getModelQueryParams(bundle?: Record<string, any>): GetItemsParams {
     const defaults = {
       startIndex: 0,
-      limit: jellyfin.getConfigValue('itemsPerPage', 47),
+      limit: jellyfin.getConfigValue('itemsPerPage'),
       sortBy: 'SortName',
       sortOrder: 'Ascending'
     };

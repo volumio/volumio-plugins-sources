@@ -14,9 +14,9 @@ export default class ExplodeHelper {
   static getExplodedTrackInfoFromVideo(data: ContentItem.Video): ExplodedTrackInfo {
     return {
       title: data.title,
-      artist: data.author?.name || data.viewCount,
-      albumart: data.thumbnail,
-      endpoint: data.endpoint // Watch endpoint
+      artist: data.author?.name || data.viewCount || '',
+      albumart: data.thumbnail || '',
+      endpoint: data.endpoint
     };
   }
 

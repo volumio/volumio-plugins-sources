@@ -25,7 +25,7 @@ export default class ArtistViewHandler extends FilterableViewHandler<ArtistView>
     const { lists, modelQueryParams } = await this.handleFilters();
 
     if (view.search && view.collatedSearchResults) {
-      modelQueryParams.limit = jellyfin.getConfigValue('searchArtistsResultCount', 11);
+      modelQueryParams.limit = jellyfin.getConfigValue('searchArtistsResultCount');
     }
 
     const model = this.getModel(ModelType.Artist);

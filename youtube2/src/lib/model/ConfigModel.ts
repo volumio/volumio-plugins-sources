@@ -3,8 +3,8 @@ import yt2 from '../YouTube2Context';
 import { findInObject } from '../util';
 import { BaseModel } from './BaseModel';
 import InnertubeResultParser from './InnertubeResultParser';
-import { ConfigData } from '../types';
-import { I18nOptions, PluginConfigSchema } from '../types/ConfigData';
+import { PluginConfig } from '../types';
+import { I18nOptions, PluginConfigSchema } from '../types/PluginConfig';
 
 export const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema = {
   region: { defaultValue: 'US', json: false },
@@ -83,7 +83,7 @@ export default class ConfigModel extends BaseModel {
     const regionMenu = findInObject(contents, __createPredicate('selectCountryCommand', 'gl'))?.[0];
 
     const defualtI18nOptions = this.#getDefaultI18nOptions();
-    const results: ConfigData.I18nOptions = {};
+    const results: PluginConfig.I18nOptions = {};
 
     if (languageMenu) {
       const languageOption = __parseMenu(languageMenu, 'selectLanguageCommand', 'hl');
@@ -128,31 +128,27 @@ export default class ConfigModel extends BaseModel {
   }
 
   async #fetchAccountMenu() {
-    const innertube = this.getInnertube();
+    const { innertube } = await this.getInnertube();
 
     const requestData = {
       client: 'WEB'
     };
 
-    if (innertube) {
-      try {
-        const response = await innertube.session.http.fetch('/account/account_menu', {
-          method: 'POST',
-          body: JSON.stringify(requestData),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+    try {
+      const response = await innertube.session.http.fetch('/account/account_menu', {
+        method: 'POST',
+        body: JSON.stringify(requestData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-        return JSON.parse(await response.text());
-      }
-      catch (error) {
-        yt2.getLogger().error(yt2.getErrorMessage('[youtube2] Error in ConfigModel.#fetchAccountMenu(): ', error));
-        return null;
-      }
+      return JSON.parse(await response.text());
     }
-
-    return null;
+    catch (error) {
+      yt2.getLogger().error(yt2.getErrorMessage('[youtube2] Error in ConfigModel.#fetchAccountMenu(): ', error));
+      return null;
+    }
   }
 
   getRootContentTypeOptions() {

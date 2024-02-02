@@ -1,0 +1,83 @@
+{
+  "_from": "rpio",
+  "_id": "rpio@2.4.2",
+  "_inBundle": false,
+  "_integrity": "sha512-SiWw2VorgUh+0hbu6eJkRGG+luvS9BboXz6PQl8Z49kJ+8Nn7R/b4ohybLIYSMbQqcW1WYqSooadDuv1VOAiFw==",
+  "_location": "/rpio",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "rpio",
+    "name": "rpio",
+    "escapedName": "rpio",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/rpio/-/rpio-2.4.2.tgz",
+  "_shasum": "e16d58f7937cc8b30083c3f8df051f5d9f14a1b3",
+  "_spec": "rpio",
+  "_where": "/home/volumio/bin",
+  "author": {
+    "name": "Jonathan Perkin",
+    "email": "jonathan@perkin.org.uk",
+    "url": "http://www.perkin.org.uk/"
+  },
+  "bugs": {
+    "url": "https://github.com/jperkin/node-rpio/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "bindings": "~1.5.0",
+    "nan": "^2.14.1"
+  },
+  "deprecated": false,
+  "description": "High performance GPIO/i2c/PWM/SPI module for Raspberry Pi, Orange Pi, Banana Pi",
+  "devDependencies": {
+    "eslint": "~6.5.0",
+    "tap": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=0.8"
+  },
+  "gypfile": true,
+  "homepage": "https://www.npmjs.com/package/rpio",
+  "keywords": [
+    "allwinner",
+    "bananapi",
+    "banana pi",
+    "bcm2835",
+    "gpio",
+    "gpiomem",
+    "i2c",
+    "mmap",
+    "orangepi",
+    "orange pi",
+    "pi",
+    "pwm",
+    "raspberry",
+    "raspberrypi",
+    "raspberry pi",
+    "rpi",
+    "spi",
+    "sunxi"
+  ],
+  "license": "(ISC AND GPL-2.0)",
+  "main": "./lib/rpio.js",
+  "name": "rpio",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jperkin/node-rpio.git"
+  },
+  "scripts": {
+    "install": "node-gyp rebuild",
+    "lint": "eslint test/*.js",
+    "node-lt8": "node -e 'process.exit(process.version[1] < 8 ? 0 : 1)'",
+    "test": "npm run --silent node-lt8 || tap"
+  },
+  "version": "2.4.2"
+}

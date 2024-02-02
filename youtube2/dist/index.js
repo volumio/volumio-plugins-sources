@@ -36,22 +36,22 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _ControllerYouTube2_instances, _ControllerYouTube2_context, _ControllerYouTube2_config, _ControllerYouTube2_commandRouter, _ControllerYouTube2_browseController, _ControllerYouTube2_searchController, _ControllerYouTube2_playController, _ControllerYouTube2_initInnertube, _ControllerYouTube2_applyI18nConfigToInnerTube, _ControllerYouTube2_getConfigI18nOptions, _ControllerYouTube2_getConfigAccountInfo, _ControllerYouTube2_configCheckAutoplay, _ControllerYouTube2_addToBrowseSources;
+var _ControllerYouTube2_instances, _ControllerYouTube2_context, _ControllerYouTube2_config, _ControllerYouTube2_commandRouter, _ControllerYouTube2_browseController, _ControllerYouTube2_searchController, _ControllerYouTube2_playController, _ControllerYouTube2_getConfigI18nOptions, _ControllerYouTube2_getConfigAccountInfo, _ControllerYouTube2_getAuthStatus, _ControllerYouTube2_configCheckAutoplay, _ControllerYouTube2_addToBrowseSources;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const v_conf_1 = __importDefault(require("v-conf"));
-const volumio_youtubei_js_1 = __importDefault(require("volumio-youtubei.js"));
 const YouTube2Context_1 = __importDefault(require("./lib/YouTube2Context"));
 const browse_1 = __importDefault(require("./lib/controller/browse"));
 const SearchController_1 = __importDefault(require("./lib/controller/search/SearchController"));
 const PlayController_1 = __importDefault(require("./lib/controller/play/PlayController"));
 const util_1 = require("./lib/util");
-const Auth_1 = __importStar(require("./lib/util/Auth"));
+const Auth_1 = require("./lib/util/Auth");
 const model_1 = __importStar(require("./lib/model"));
 const ViewHelper_1 = __importDefault(require("./lib/controller/browse/view-handlers/ViewHelper"));
+const InnertubeLoader_1 = __importDefault(require("./lib/model/InnertubeLoader"));
 class ControllerYouTube2 {
     constructor(context) {
         _ControllerYouTube2_instances.add(this);
@@ -61,23 +61,6 @@ class ControllerYouTube2 {
         _ControllerYouTube2_browseController.set(this, void 0);
         _ControllerYouTube2_searchController.set(this, void 0);
         _ControllerYouTube2_playController.set(this, void 0);
-        _ControllerYouTube2_applyI18nConfigToInnerTube.set(this, function () {
-            const innertube = YouTube2Context_1.default.get('innertube');
-            if (innertube) {
-                const region = YouTube2Context_1.default.getConfigValue('region');
-                const language = YouTube2Context_1.default.getConfigValue('language');
-                innertube.session.context.client.gl = region;
-                innertube.session.context.client.hl = language;
-            }
-        });
-        this.configSignOut = function () {
-            Auth_1.default.signOut();
-        };
-        this.configSaveBrowse = function (data) {
-            YouTube2Context_1.default.setConfigValue('rootContentType', data.rootContentType.value);
-            YouTube2Context_1.default.setConfigValue('loadFullPlaylists', data.loadFullPlaylists);
-            YouTube2Context_1.default.toast('success', YouTube2Context_1.default.getI18n('YOUTUBE2_SETTINGS_SAVED'));
-        };
         __classPrivateFieldSet(this, _ControllerYouTube2_context, context, "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_commandRouter, context.coreCommand, "f");
     }
@@ -86,18 +69,13 @@ class ControllerYouTube2 {
         const langCode = __classPrivateFieldGet(this, _ControllerYouTube2_commandRouter, "f").sharedVars.get('language_code');
         const loadConfigPromises = [
             __classPrivateFieldGet(this, _ControllerYouTube2_commandRouter, "f").i18nJson(`${__dirname}/i18n/strings_${langCode}.json`, `${__dirname}/i18n/strings_en.json`, `${__dirname}/UIConfig.json`),
-            __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_getConfigI18nOptions).call(this)
+            __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_getConfigI18nOptions).call(this),
+            __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_getConfigAccountInfo).call(this),
+            __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_getAuthStatus).call(this)
         ];
-        const authStatus = Auth_1.default.getAuthStatus();
-        if (authStatus.status === Auth_1.AuthStatus.SignedIn) {
-            loadConfigPromises.push(__classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_getConfigAccountInfo).call(this));
-        }
-        else {
-            loadConfigPromises.push(kew_1.default.resolve(null));
-        }
         const configModel = model_1.default.getInstance(model_1.ModelType.Config);
         kew_1.default.all(loadConfigPromises)
-            .then(([uiconf, i18nOptions, account]) => {
+            .then(([uiconf, i18nOptions, account, authStatus]) => {
             const i18nUIConf = uiconf.sections[0];
             const accountUIConf = uiconf.sections[1];
             const browseUIConf = uiconf.sections[2];
@@ -112,7 +90,6 @@ class ControllerYouTube2 {
             i18nUIConf.content[1].options = i18nOptions.options.language.optionValues;
             i18nUIConf.content[1].value = i18nOptions.selected.language;
             // Account
-            const authStatus = Auth_1.default.getAuthStatus();
             let authStatusDescription;
             switch (authStatus.status) {
                 case Auth_1.AuthStatus.SignedIn:
@@ -224,23 +201,19 @@ class ControllerYouTube2 {
         return kew_1.default.resolve();
     }
     onStart() {
-        const defer = kew_1.default.defer();
         YouTube2Context_1.default.init(__classPrivateFieldGet(this, _ControllerYouTube2_context, "f"), __classPrivateFieldGet(this, _ControllerYouTube2_config, "f"));
         __classPrivateFieldSet(this, _ControllerYouTube2_browseController, new browse_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_searchController, new SearchController_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_playController, new PlayController_1.default(), "f");
-        __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_initInnertube).call(this).then(() => {
-            __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_addToBrowseSources).call(this);
-            defer.resolve();
-        });
-        return defer.promise;
+        __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_addToBrowseSources).call(this);
+        return kew_1.default.resolve();
     }
     onStop() {
         __classPrivateFieldGet(this, _ControllerYouTube2_commandRouter, "f").volumioRemoveToBrowseSources('YouTube2');
         __classPrivateFieldSet(this, _ControllerYouTube2_browseController, null, "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_searchController, null, "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_playController, null, "f");
-        Auth_1.default.unregisterHandlers();
+        InnertubeLoader_1.default.reset();
         YouTube2Context_1.default.reset();
         return kew_1.default.resolve();
     }
@@ -255,10 +228,21 @@ class ControllerYouTube2 {
         if (oldRegion !== region || oldLanguage !== language) {
             YouTube2Context_1.default.setConfigValue('region', region);
             YouTube2Context_1.default.setConfigValue('language', language);
-            __classPrivateFieldGet(this, _ControllerYouTube2_applyI18nConfigToInnerTube, "f").call(this);
+            InnertubeLoader_1.default.applyI18nConfig();
             model_1.default.getInstance(model_1.ModelType.Config).clearCache();
             YouTube2Context_1.default.refreshUIConfig();
         }
+        YouTube2Context_1.default.toast('success', YouTube2Context_1.default.getI18n('YOUTUBE2_SETTINGS_SAVED'));
+    }
+    async configSignOut() {
+        if (InnertubeLoader_1.default.hasInstance()) {
+            const { auth } = await InnertubeLoader_1.default.getInstance();
+            auth.signOut();
+        }
+    }
+    configSaveBrowse(data) {
+        YouTube2Context_1.default.setConfigValue('rootContentType', data.rootContentType.value);
+        YouTube2Context_1.default.setConfigValue('loadFullPlaylists', data.loadFullPlaylists);
         YouTube2Context_1.default.toast('success', YouTube2Context_1.default.getI18n('YOUTUBE2_SETTINGS_SAVED'));
     }
     configSavePlayback(data) {
@@ -384,25 +368,7 @@ class ControllerYouTube2 {
         return defer.promise;
     }
 }
-_ControllerYouTube2_context = new WeakMap(), _ControllerYouTube2_config = new WeakMap(), _ControllerYouTube2_commandRouter = new WeakMap(), _ControllerYouTube2_browseController = new WeakMap(), _ControllerYouTube2_searchController = new WeakMap(), _ControllerYouTube2_playController = new WeakMap(), _ControllerYouTube2_applyI18nConfigToInnerTube = new WeakMap(), _ControllerYouTube2_instances = new WeakSet(), _ControllerYouTube2_initInnertube = function _ControllerYouTube2_initInnertube() {
-    const defer = kew_1.default.defer();
-    const innerTube = YouTube2Context_1.default.get('innertube');
-    if (innerTube) {
-        Auth_1.default.unregisterHandlers();
-        YouTube2Context_1.default.set('innertube', null);
-    }
-    volumio_youtubei_js_1.default.create().then((innerTube) => {
-        YouTube2Context_1.default.set('innertube', innerTube);
-        __classPrivateFieldGet(this, _ControllerYouTube2_applyI18nConfigToInnerTube, "f").call(this);
-        Auth_1.default.registerHandlers();
-        Auth_1.default.signIn();
-        defer.resolve(innerTube);
-    })
-        .catch((error) => {
-        defer.reject(error);
-    });
-    return defer.promise;
-}, _ControllerYouTube2_getConfigI18nOptions = function _ControllerYouTube2_getConfigI18nOptions() {
+_ControllerYouTube2_context = new WeakMap(), _ControllerYouTube2_config = new WeakMap(), _ControllerYouTube2_commandRouter = new WeakMap(), _ControllerYouTube2_browseController = new WeakMap(), _ControllerYouTube2_searchController = new WeakMap(), _ControllerYouTube2_playController = new WeakMap(), _ControllerYouTube2_instances = new WeakSet(), _ControllerYouTube2_getConfigI18nOptions = function _ControllerYouTube2_getConfigI18nOptions() {
     const defer = kew_1.default.defer();
     const model = model_1.default.getInstance(model_1.ModelType.Config);
     model.getI18nOptions().then((options) => {
@@ -430,7 +396,17 @@ _ControllerYouTube2_context = new WeakMap(), _ControllerYouTube2_config = new We
         defer.resolve(account);
     })
         .catch((error) => {
-        YouTube2Context_1.default.getLogger().warn(`Failed to get account config: ${error}`);
+        YouTube2Context_1.default.getLogger().warn(`[youtube2] Failed to get account config: ${error}`);
+        defer.resolve(null);
+    });
+    return defer.promise;
+}, _ControllerYouTube2_getAuthStatus = function _ControllerYouTube2_getAuthStatus() {
+    const defer = kew_1.default.defer();
+    InnertubeLoader_1.default.getInstance().then(({ auth }) => {
+        defer.resolve(auth.getStatus());
+    })
+        .catch((error) => {
+        YouTube2Context_1.default.getLogger().warn(`[youtube2] Failed to get auth status: ${error}`);
         defer.resolve(null);
     });
     return defer.promise;

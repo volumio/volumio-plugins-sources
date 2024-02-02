@@ -1,7 +1,7 @@
 {
 	"name": "motherearthradio",
-	"version": "1.0.0",
-	"description": "Plugin for Mother Earth Radio FLAC/AAC 96k/24bit stream",
+	"version": "1.2.2",
+	"description": "Hi Res Audio and Vinyl streaming",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -21,8 +21,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "Mother Earth Radio Plugin for Volumio",
-		"changelog": "Initial release"
+		"details": "Mother Earth Radio is a free HD music station without advertising. Best audio quality, selected tracks, audiophile only. Stream now!",
+		"changelog": "2.2 plugin store issue 2.1 added Mother Earth Jazz channel"
 	},
 	"engines": {
 		"node": ">=8",

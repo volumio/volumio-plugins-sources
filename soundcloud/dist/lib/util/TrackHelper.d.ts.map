@@ -1,0 +1,1 @@
+{"version":3,"file":"TrackHelper.d.ts","sourceRoot":"","sources":["../../../src/lib/util/TrackHelper.ts"],"names":[],"mappings":"AAEA,OAAO,WAAW,MAAM,yBAAyB,CAAC;AAElD,MAAM,CAAC,OAAO,OAAO,WAAW;IAE9B,MAAM,CAAC,WAAW,CAAC,MAAM,EAAE,WAAW,EAAE,EAAE,WAAW,EAAE,CAAC,OAAO,EAAE,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,KAAK,MAAM;IAS/F,MAAM,CAAC,uBAAuB,CAAC,KAAK,EAAE,WAAW;CAuElD"}

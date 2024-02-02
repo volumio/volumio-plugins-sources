@@ -14,13 +14,8 @@ export declare enum ModelType {
     Video = "Video",
     Root = "Root"
 }
+export type ModelOf<T extends ModelType> = T extends ModelType.Account ? AccountModel : T extends ModelType.Config ? ConfigModel : T extends ModelType.Endpoint ? EndpointModel : T extends ModelType.Playlist ? PlaylistModel : T extends ModelType.Search ? SearchModel : T extends ModelType.Video ? VideoModel : T extends ModelType.Root ? RootModel : never;
 export default class Model {
-    static getInstance(type: ModelType.Account): AccountModel;
-    static getInstance(type: ModelType.Config): ConfigModel;
-    static getInstance(type: ModelType.Endpoint): EndpointModel;
-    static getInstance(type: ModelType.Playlist): PlaylistModel;
-    static getInstance(type: ModelType.Search): SearchModel;
-    static getInstance(type: ModelType.Video): VideoModel;
-    static getInstance(type: ModelType.Root): RootModel;
+    static getInstance<T extends ModelType>(type: T): ModelOf<T>;
 }
 //# sourceMappingURL=index.d.ts.map

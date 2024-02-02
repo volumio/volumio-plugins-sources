@@ -98,11 +98,22 @@ export default class PlayController {
     jellyfin.getLogger().info(`[jellyfin-play] clearAddPlayTrack: ${track.uri}`);
 
     const {song, connection} = await this.getSongFromTrack(track);
-    const streamUrl = this.#getStreamUrl(song, connection);
+    const streamUrl = this.#appendTrackTypeToStreamUrl(this.#getStreamUrl(song, connection), track.trackType);
     this.#monitoredPlaybacks.pending = { song, connection, streamUrl, timer: new StopWatch() };
     this.#addListeners();
     await this.#doPlay(streamUrl, track);
     await this.#markPlayed(song, connection);
+  }
+
+  #appendTrackTypeToStreamUrl(url: string, trackType?: string) {
+    if (!trackType) {
+      return url;
+    }
+    /**
+     * Fool MPD plugin to return correct `trackType` in `parseTrackInfo()` by adding
+     * track type to URL query string as a dummy param.
+     */
+    return `${url}&t.${trackType}`;
   }
 
   // Returns kew promise!
@@ -147,7 +158,7 @@ export default class PlayController {
   }
 
   async prefetch(track: ExplodedTrackInfo) {
-    const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback', true);
+    const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback');
     if (!gaplessPlayback) {
       /**
        * Volumio doesn't check whether `prefetch()` is actually performed or
@@ -165,7 +176,7 @@ export default class PlayController {
     let song: Song, connection: ServerConnection, streamUrl;
     try {
       ({song, connection} = await this.getSongFromTrack(track));
-      streamUrl = this.#getStreamUrl(song, connection);
+      streamUrl = this.#appendTrackTypeToStreamUrl(this.#getStreamUrl(song, connection), track.trackType);
     }
     catch (error: any) {
       jellyfin.getLogger().error(`[jellyfin-play] Prefetch failed: ${error}`);

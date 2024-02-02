@@ -15,7 +15,15 @@ export enum RendererType {
   Video = 'Video'
 }
 
-const RENDERER_TYPE_TO_CLASS: Record<any, any> = {
+export type RendererOf<T extends RendererType> =
+  T extends RendererType.Channel ? ChannelRenderer :
+  T extends RendererType.EndpointLink ? EndpointLinkRenderer :
+  T extends RendererType.Option ? OptionRenderer :
+  T extends RendererType.OptionValue ? OptionValueRenderer :
+  T extends RendererType.Playlist ? PlaylistRenderer :
+  T extends RendererType.Video ? VideoRenderer : never;
+
+const RENDERER_TYPE_TO_CLASS: Record<RendererType, any> = {
   [RendererType.Channel]: ChannelRenderer,
   [RendererType.EndpointLink]: EndpointLinkRenderer,
   [RendererType.Option]: OptionRenderer,
@@ -26,13 +34,7 @@ const RENDERER_TYPE_TO_CLASS: Record<any, any> = {
 
 export default class Renderer {
 
-  static getInstance(type: RendererType.Channel, uri: string, currentView: View, previousViews: View[]): ChannelRenderer;
-  static getInstance(type: RendererType.EndpointLink, uri: string, currentView: View, previousViews: View[]): EndpointLinkRenderer;
-  static getInstance(type: RendererType.Option, uri: string, currentView: View, previousViews: View[]): OptionRenderer;
-  static getInstance(type: RendererType.OptionValue, uri: string, currentView: View, previousViews: View[]): OptionValueRenderer;
-  static getInstance(type: RendererType.Playlist, uri: string, currentView: View, previousViews: View[]): PlaylistRenderer;
-  static getInstance(type: RendererType.Video, uri: string, currentView: View, previousViews: View[]): VideoRenderer;
-  static getInstance(type: RendererType, uri: string, currentView: View, previousViews: View[]) {
+  static getInstance<T extends RendererType>(type: T, uri: string, currentView: View, previousViews: View[]): RendererOf<T> {
     if (RENDERER_TYPE_TO_CLASS[type]) {
       return new RENDERER_TYPE_TO_CLASS[type](uri, currentView, previousViews);
     }

@@ -1,8 +1,11 @@
+import I18nSchema from '../i18n/strings_en.json';
 import format from 'string-format';
 import fs from 'fs-extra';
 import winston from 'winston';
-import { PluginConfigKey, PluginConfigValue } from './types/ConfigData';
+import { PluginConfigKey, PluginConfigValue } from './types/PluginConfig';
 import { PLUGIN_CONFIG_SCHEMA } from './model/ConfigModel';
+
+export type I18nKey = keyof typeof I18nSchema;
 
 class YouTube2Context {
 
@@ -139,7 +142,7 @@ class YouTube2Context {
     return this.#singletons[key];
   }
 
-  getI18n(key: string, ...formatValues: any[]): string {
+  getI18n(key: I18nKey, ...formatValues: any[]): string {
     let str;
     if (key.indexOf('.') > 0) {
       const mainKey = key.split('.')[0];

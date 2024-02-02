@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { PluginConfigKey, PluginConfigValue } from './util/PluginConfig';
 interface DeviceInfo {
     name: string;
     id: string;
@@ -14,9 +15,10 @@ declare class JellyfinContext {
     toast(type: 'success' | 'info' | 'error' | 'warn', message: string, title?: string): void;
     getLogger(): winston.Logger;
     getDeviceInfo(): DeviceInfo;
-    getConfigValue<T>(key: string, defaultValue: T, json?: boolean): T;
+    hasConfigKey<T extends PluginConfigKey>(key: T): boolean;
+    getConfigValue<T extends PluginConfigKey>(key: T): PluginConfigValue<T>;
     deleteConfigValue(key: string): void;
-    setConfigValue(key: string, value: any, json?: boolean): void;
+    setConfigValue<T extends PluginConfigKey>(key: T, value: PluginConfigValue<T>): void;
     getAlbumArtPlugin(): any;
     getMpdPlugin(): any;
     getStateMachine(): any;

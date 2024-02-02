@@ -1,0 +1,1 @@
+{"version":3,"file":"BaseModel.d.ts","sourceRoot":"","sources":["../../../src/lib/model/BaseModel.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAA4C,MAAM,qBAAqB,CAAC;AAKhG,8BAAsB,SAAS;IAE7B,SAAS,CAAC,YAAY;cAIN,iBAAiB,CAAC,QAAQ,EAAE,eAAe,EAAE,GAAG,EAAE,SAAS,GAAG,SAAS;CAwBxF"}

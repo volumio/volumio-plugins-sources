@@ -1,0 +1,22 @@
+{
+  "PLUGIN_CONFIGURATION": "Pirate Audio Plugin Configuratie",
+  "CONFIG": {
+    "TITLE": "Pirate Audio Configuratie",
+    "LISTMAX": "Hoeveel items moeten maximaal worden weergegeven in de lijstweergave?",
+    "GPIOYBUTTON": "Welke GPIO-PIN wordt gebruikt door jouw Pirate Audio-hat en revisie voor de Y-knop?",
+    "SLEEPTIMER": "Na hoeveel minuten moet de sleeptimer Volumio uitschakelen?",
+    "SAVE": "Opslaan"
+  },
+  "DISPLAY": {
+    "MUSICSELECTION": "Muziekselectie",
+    "SHUTDOWN": "Uitschakelen?",
+    "REBOOT": "Pi herstarten?",
+    "LOSTCONNECTION": "Verbinding verloren",
+    "EMPTY": "leeg",
+    "WAIT": "even wachten",
+    "NOTSUPPORTED": "niet ondersteund",
+    "SEEK": "Zoeken",
+    "PREVNEXT": "vorig / volgend nummer",
+    "SETSLEEPTIMER": "Sleeptimer ingesteld"
+  }
+}

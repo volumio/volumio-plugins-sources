@@ -90,7 +90,10 @@ export default class EntityConverter {
     if (data.imageUrl) {
       result.thumbnail = data.imageUrl;
     }
-    if (data.streamUrl) {
+    if (data.streamUrlHQ) {
+      result.streamUrl = data.streamUrlHQ;
+    }
+    else if (data.streamUrl) {
       result.streamUrl = data.streamUrl;
     }
     if (data.album) {

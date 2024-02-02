@@ -26,6 +26,7 @@ const SearchController_1 = __importDefault(require("./lib/controller/search/Sear
 const PlayController_1 = __importDefault(require("./lib/controller/play/PlayController"));
 const util_1 = require("./lib/util");
 const ViewHelper_1 = __importDefault(require("./lib/controller/browse/view-handlers/ViewHelper"));
+const model_1 = __importDefault(require("./lib/model"));
 class ControllerBandcamp {
     constructor(context) {
         _ControllerBandcamp_instances.add(this);
@@ -55,7 +56,14 @@ class ControllerBandcamp {
             generalUIConf.content[2].value = BandcampContext_1.default.getConfigValue('searchByItemType', true);
             generalUIConf.content[3].value = BandcampContext_1.default.getConfigValue('prefetch', true);
             // My Bandcamp
-            myBandcampUIConf.content[0].value = BandcampContext_1.default.getConfigValue('myUsername', '');
+            const myBandcampType = BandcampContext_1.default.getConfigValue('myBandcampType', 'cookie');
+            const myBandcampTypeLabel = myBandcampType === 'cookie' ? BandcampContext_1.default.getI18n('BANDCAMP_COOKIE') : BandcampContext_1.default.getI18n('BANDCAMP_USERNAME');
+            myBandcampUIConf.content[0].value = {
+                value: myBandcampType,
+                label: myBandcampTypeLabel
+            };
+            myBandcampUIConf.content[1].value = BandcampContext_1.default.getConfigValue('myCookie', '');
+            myBandcampUIConf.content[2].value = BandcampContext_1.default.getConfigValue('myUsername', '');
             // Cache
             const cacheMaxEntries = BandcampContext_1.default.getConfigValue('cacheMaxEntries', 5000);
             const cacheTTL = BandcampContext_1.default.getConfigValue('cacheTTL', 1800);
@@ -94,7 +102,22 @@ class ControllerBandcamp {
         BandcampContext_1.default.toast('success', BandcampContext_1.default.getI18n('BANDCAMP_SETTINGS_SAVED'));
     }
     configSaveMyBandcampSettings(data) {
+        const oldType = BandcampContext_1.default.getConfigValue('myBandcampType', 'cookie');
+        const oldMyCookie = BandcampContext_1.default.getConfigValue('myCookie', '');
+        const type = data.myBandcampType.value;
+        const myCookie = data.myCookie.trim();
+        BandcampContext_1.default.setConfigValue('myBandcampType', type);
         BandcampContext_1.default.setConfigValue('myUsername', data.myUsername.trim());
+        BandcampContext_1.default.setConfigValue('myCookie', myCookie);
+        if (type === 'cookie') {
+            model_1.default.setCookie(myCookie);
+        }
+        else {
+            model_1.default.setCookie();
+        }
+        if (oldType !== type || (type === 'cookie' && oldMyCookie !== myCookie)) {
+            BandcampContext_1.default.getCache().clear();
+        }
         BandcampContext_1.default.toast('success', BandcampContext_1.default.getI18n('BANDCAMP_SETTINGS_SAVED'));
     }
     configSaveCacheSettings(data) {
@@ -117,6 +140,7 @@ class ControllerBandcamp {
     }
     configClearCache() {
         BandcampContext_1.default.getCache().clear();
+        model_1.default.clearLibCache();
         BandcampContext_1.default.toast('success', BandcampContext_1.default.getI18n('BANDCAMP_CACHE_CLEARED'));
         this.refreshUIConfig();
     }
@@ -128,6 +152,13 @@ class ControllerBandcamp {
     }
     onStart() {
         BandcampContext_1.default.init(__classPrivateFieldGet(this, _ControllerBandcamp_context, "f"), __classPrivateFieldGet(this, _ControllerBandcamp_config, "f"));
+        const myBandcampType = BandcampContext_1.default.getConfigValue('myBandcampType', 'cookie');
+        if (myBandcampType === 'cookie') {
+            const myCookie = BandcampContext_1.default.getConfigValue('myCookie', '');
+            if (myCookie) {
+                model_1.default.setCookie(myCookie);
+            }
+        }
         __classPrivateFieldSet(this, _ControllerBandcamp_browseController, new browse_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerBandcamp_searchController, new SearchController_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerBandcamp_playController, new PlayController_1.default(), "f");
@@ -139,6 +170,7 @@ class ControllerBandcamp {
         __classPrivateFieldSet(this, _ControllerBandcamp_browseController, null, "f");
         __classPrivateFieldSet(this, _ControllerBandcamp_searchController, null, "f");
         __classPrivateFieldSet(this, _ControllerBandcamp_playController, null, "f");
+        model_1.default.reset();
         BandcampContext_1.default.reset();
         return kew_1.default.resolve();
     }

@@ -26,9 +26,9 @@ export default class SearchController {
     if (!query) {
       return [];
     }
-    const searchAlbums = jellyfin.getConfigValue('searchAlbums', true);
-    const searchArtists = jellyfin.getConfigValue('searchArtists', true);
-    const searchSongs = jellyfin.getConfigValue('searchSongs', true);
+    const searchAlbums = jellyfin.getConfigValue('searchAlbums');
+    const searchArtists = jellyfin.getConfigValue('searchArtists');
+    const searchSongs = jellyfin.getConfigValue('searchSongs');
 
     if (!searchAlbums && !searchArtists && !searchSongs) {
       return [];

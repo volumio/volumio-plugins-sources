@@ -1,0 +1,10 @@
+{
+  "LOCALSETTINGS": "Lokale weergave-instellingen",
+  "SCREENSIZE": "Spectrum-map",
+  "SCREENSIZE_DOC": "Folder for Spectrum. Aangepaste map is in / data / INTERNAL / PeppySppectrum / Templates / en moet de naam myspectrum (weightxnumberofbar) ex collection (800x480x30) krijgen. Als het aantal repen is weggelaten, wordt waarde 30 gebruikt",
+  "CHOOSE_SPECTRUM_DOC": "Selecteer het spectrum in de lijst",
+  "CHOOSE_SPECTRUM":"Selecteer een spectrum",
+  "NBARCHANGE": "Aantal repen in Spectrum veranderd! Nu ingesteld op ",
+  "APPLY": "Toepassen",
+  "SAVE": "Sluiten"
+}

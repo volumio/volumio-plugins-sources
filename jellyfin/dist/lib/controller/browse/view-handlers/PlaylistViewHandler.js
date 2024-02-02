@@ -10,7 +10,7 @@ class PlaylistViewHandler extends BaseViewHandler_1.default {
     async browse() {
         const prevUri = this.constructPrevUri();
         const lists = [];
-        const modelQueryParams = {};
+        const modelQueryParams = this.getModelQueryParams();
         const model = this.getModel(model_1.ModelType.Playlist);
         const renderer = this.getRenderer(entities_1.EntityType.Playlist);
         const playlists = await model.getPlaylists(modelQueryParams);

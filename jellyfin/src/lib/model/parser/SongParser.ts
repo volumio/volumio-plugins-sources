@@ -47,6 +47,10 @@ export default class SongParser extends BaseParser<Song> {
       result.mediaSources = data.MediaSources;
     }
 
+    if (!result.thumbnail && albumThumbnail) {
+      result.thumbnail = albumThumbnail;
+    }
+
     return result;
   }
 }

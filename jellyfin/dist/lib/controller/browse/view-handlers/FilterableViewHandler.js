@@ -176,9 +176,9 @@ _FilterableViewHandler_instances = new WeakSet(), _FilterableViewHandler_getFilt
     });
     return result;
 }, _FilterableViewHandler_getSavedFilterSelection = function _FilterableViewHandler_getSavedFilterSelection(key) {
-    const remember = JellyfinContext_1.default.getConfigValue('rememberFilters', true);
+    const remember = JellyfinContext_1.default.getConfigValue('rememberFilters');
     if (remember && this.serverConnection) {
-        const savedSelections = JellyfinContext_1.default.getConfigValue('savedFilters', null, true);
+        const savedSelections = JellyfinContext_1.default.getConfigValue('savedFilters');
         if (savedSelections) {
             const fullKey = `${this.serverConnection.id}.${key}`;
             return savedSelections[fullKey] || {};
@@ -192,11 +192,11 @@ _FilterableViewHandler_instances = new WeakSet(), _FilterableViewHandler_getFilt
     }
     return filter.placeholder;
 }, _FilterableViewHandler_saveFilters = function _FilterableViewHandler_saveFilters(key) {
-    const remember = JellyfinContext_1.default.getConfigValue('rememberFilters', true);
+    const remember = JellyfinContext_1.default.getConfigValue('rememberFilters');
     const view = this.currentView;
     if (remember && view.saveFilter && this.serverConnection) {
         const saveFilterData = JSON.parse(view.saveFilter);
-        const savedFilters = JellyfinContext_1.default.getConfigValue('savedFilters', null, true) || {};
+        const savedFilters = JellyfinContext_1.default.getConfigValue('savedFilters') || {};
         const fullKey = `${this.serverConnection.id}.${key}`;
         if (!savedFilters[fullKey]) {
             savedFilters[fullKey] = {};
@@ -207,7 +207,7 @@ _FilterableViewHandler_instances = new WeakSet(), _FilterableViewHandler_getFilt
         else {
             delete savedFilters[fullKey][saveFilterData.field];
         }
-        JellyfinContext_1.default.setConfigValue('savedFilters', savedFilters, true);
+        JellyfinContext_1.default.setConfigValue('savedFilters', savedFilters);
         JellyfinContext_1.default.getLogger().info('[jellyfin-browse] Filters saved: ', savedFilters);
     }
 };
