@@ -1,0 +1,36 @@
+{
+	"name": "moode",
+	"version": "1.0.0",
+	"description": "moode audio player docker edition",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "chourmovs",
+	"license": "ISC",
+	"repository": "https://github.com/yourname/yourrepo",
+	"volumio_info": {
+		"prettyName": "Moode Audio",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Lorem ipsum",
+		"changelog": "Lorem ipsum"
+	},
+	"engines": {
+		"node": ">=14.21.3 <15.0.0",
+		"volumio": ">=3.611.0 <4.0.0"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0"
+	}
+}
