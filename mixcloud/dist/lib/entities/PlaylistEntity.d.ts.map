@@ -1,0 +1,1 @@
+{"version":3,"file":"PlaylistEntity.d.ts","sourceRoot":"","sources":["../../../src/lib/entities/PlaylistEntity.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,cAAc,CAAC;AAE1C,MAAM,WAAW,cAAc;IAC7B,IAAI,EAAE,UAAU,CAAC;IACjB,EAAE,EAAE,MAAM,CAAC;IACX,IAAI,EAAE,MAAM,CAAC;IACb,WAAW,CAAC,EAAE,MAAM,CAAC;IACrB,GAAG,CAAC,EAAE,MAAM,CAAC;IACb,KAAK,CAAC,EAAE,UAAU,CAAC;CACpB"}

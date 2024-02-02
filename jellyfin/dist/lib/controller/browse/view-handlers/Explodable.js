@@ -64,13 +64,7 @@ function Explodable(Base) {
             }
             if (source?.Container) {
                 const container = source.Container.toLowerCase();
-                switch (container) {
-                    case 'dsf':
-                        trackType = 'dsd';
-                        break;
-                    default:
-                        trackType = container;
-                }
+                trackType = container;
             }
             const result = {
                 service: 'jellyfin',

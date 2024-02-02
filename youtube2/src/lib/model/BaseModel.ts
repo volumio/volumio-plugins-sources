@@ -1,9 +1,8 @@
-import Innertube from 'volumio-youtubei.js';
-import yt2 from '../YouTube2Context';
+import InnertubeLoader from './InnertubeLoader';
 
 export abstract class BaseModel {
 
   protected getInnertube() {
-    return yt2.get<Innertube>('innertube');
+    return InnertubeLoader.getInstance();
   }
 }

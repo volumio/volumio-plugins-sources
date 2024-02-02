@@ -1,0 +1,49 @@
+begin
+prog = irexec
+button = stop
+config = /usr/local/bin/volumio stop & 
+end
+
+begin
+prog = irexec
+button = up
+config = /usr/local/bin/volumio seek plus & 
+delay = 2
+repeat = 3
+end
+
+begin
+prog = irexec
+button = down
+config = /usr/local/bin/volumio seek minus & 
+delay = 2
+repeat = 3
+end
+
+begin
+prog = irexec
+button = right
+config = /usr/local/bin/volumio next & 
+end
+
+begin
+prog = irexec
+button = left
+config = /usr/local/bin/volumio previous & 
+end
+
+begin
+prog = irexec
+button = pause
+config = /usr/local/bin/volumio toggle & 
+delay = 2
+repeat = 3
+end
+
+begin
+prog = irexec
+button = play
+config = /usr/local/bin/volumio toggle & 
+delay = 2
+repeat = 3
+end

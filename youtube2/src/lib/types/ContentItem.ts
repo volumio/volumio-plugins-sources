@@ -1,26 +1,26 @@
-import Endpoint from './Endpoint';
+import { BrowseContinuationEndpoint, BrowseEndpoint, SearchContinuationEndpoint, SearchEndpoint, WatchEndpoint } from './Endpoint';
 
 export interface Video {
   type: 'video';
   videoId: string;
   title: string;
-  author: Author;
-  thumbnail: string;
-  viewCount: string;
-  published: string;
-  duration: number;
-  endpoint: Endpoint;
+  author?: Author;
+  thumbnail?: string;
+  viewCount?: string;
+  published?: string;
+  duration?: number;
+  endpoint: WatchEndpoint;
 }
 
 export interface Playlist {
   type: 'playlist';
-  playlistId: string;
+  playlistId?: string;
   title: string;
   author?: Author;
   thumbnail?: string;
   videoCount?: string;
-  endpoint?: Endpoint;
-  browseEndpoint?: Endpoint;
+  endpoint?: WatchEndpoint;
+  browseEndpoint?: BrowseEndpoint;
   items?: Video[];
   currentIndex?: number;
   isMix?: boolean;
@@ -31,24 +31,25 @@ export interface EndpointLink {
   title: string;
   thumbnail?: string;
   icon?: string;
-  endpoint: Endpoint;
+  endpoint: BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint |
+    SearchContinuationEndpoint | WatchEndpoint;
 }
 
 export interface Channel {
   type: 'channel';
   name: string;
-  channelId: string;
-  thumbnail: string;
-  subscribers: string;
-  endpoint: Endpoint;
+  channelId?: string;
+  thumbnail?: string;
+  subscribers?: string;
+  endpoint: BrowseEndpoint;
 }
 
 export interface GuideEntry {
   type: 'guideEntry';
   title: string;
-  thumbnail: string;
-  icon: string;
-  endpoint: Endpoint;
+  thumbnail?: string;
+  icon?: string;
+  endpoint: BrowseEndpoint;
   isPrimary: boolean;
 }
 
@@ -56,5 +57,5 @@ export interface Author {
   channelId?: string;
   name: string;
   thumbnail?: string | null;
-  endpoint?: Endpoint | null;
+  endpoint?: BrowseEndpoint | null;
 }

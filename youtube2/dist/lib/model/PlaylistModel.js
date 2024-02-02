@@ -7,11 +7,12 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _PlaylistModel_instances, _PlaylistModel_getContinuationItems, _PlaylistModel_findSectionWithContinuation;
+var _PlaylistModel_instances, _PlaylistModel_findSectionWithContinuation;
 Object.defineProperty(exports, "__esModule", { value: true });
 const YouTube2Context_1 = __importDefault(require("../YouTube2Context"));
 const Endpoint_1 = require("../types/Endpoint");
 const util_1 = require("../util");
+const EndpointHelper_1 = __importDefault(require("../util/EndpointHelper"));
 const EndpointModel_1 = __importDefault(require("./EndpointModel"));
 class PlaylistModel extends EndpointModel_1.default {
     constructor() {
@@ -19,10 +20,10 @@ class PlaylistModel extends EndpointModel_1.default {
         _PlaylistModel_instances.add(this);
     }
     async getContents(endpoint) {
-        if (endpoint.type !== Endpoint_1.EndpointType.Browse && endpoint.type !== Endpoint_1.EndpointType.BrowseContinuation) {
+        if (!EndpointHelper_1.default.isType(endpoint, Endpoint_1.EndpointType.Browse, Endpoint_1.EndpointType.BrowseContinuation)) {
             throw Error(`PlaylistModel.getContents() expects endpoint type Browse or BrowseContinuation, but got ${endpoint.type}`);
         }
-        const contents = await super.getContents({ ...endpoint, type: endpoint.type });
+        const contents = await super.getContents(endpoint);
         const loadAll = YouTube2Context_1.default.getConfigValue('loadFullPlaylists');
         if (!loadAll || !contents) {
             return contents;
@@ -31,33 +32,35 @@ class PlaylistModel extends EndpointModel_1.default {
         const targetSection = __classPrivateFieldGet(this, _PlaylistModel_instances, "m", _PlaylistModel_findSectionWithContinuation).call(this, contents.sections);
         if (targetSection?.continuation) {
             YouTube2Context_1.default.getLogger().info(`[youtube2] PlaylistModel is going to recursively fetch continuation items for playlist with endpoint: ${JSON.stringify(endpoint)}).`);
-            const continuationItems = await __classPrivateFieldGet(this, _PlaylistModel_instances, "m", _PlaylistModel_getContinuationItems).call(this, targetSection.continuation);
+            const continuationItems = await this.getContinuationItems(targetSection.continuation);
             targetSection.items.push(...continuationItems);
             YouTube2Context_1.default.getLogger().info(`[youtube2] Total ${continuationItems.length} continuation items fetched. Total items in playlist: ${targetSection.items.length}.`);
             delete targetSection.continuation;
         }
         return contents;
     }
+    // Do not set this method as private - tsc will down-level `super.getContents()` to wrong JS syntax.
+    async getContinuationItems(continuation, recursive = true, currentItems = []) {
+        if (!continuation) {
+            return [];
+        }
+        const contents = await super.getContents(continuation.endpoint);
+        // There should only be one section for playlist continuation items
+        const targetSection = contents?.sections?.[0];
+        if (targetSection?.items && targetSection.items.length > 0) {
+            currentItems.push(...targetSection.items);
+            YouTube2Context_1.default.getLogger().info(`[youtube2] Fetched ${targetSection.items.length} continuation items.`);
+            if (recursive && targetSection.continuation) {
+                await (0, util_1.sleep)((0, util_1.rnd)(200, 400)); // Rate limit
+                await this.getContinuationItems(targetSection.continuation, recursive, currentItems);
+                delete targetSection.continuation;
+            }
+        }
+        return currentItems;
+    }
 }
 exports.default = PlaylistModel;
-_PlaylistModel_instances = new WeakSet(), _PlaylistModel_getContinuationItems = async function _PlaylistModel_getContinuationItems(continuation, recursive = true, currentItems = []) {
-    if (!continuation) {
-        return [];
-    }
-    const contents = await this.getContents({ ...continuation.endpoint, type: Endpoint_1.EndpointType.BrowseContinuation });
-    // There should only be one section for playlist continuation items
-    const targetSection = contents?.sections?.[0];
-    if (targetSection?.items) {
-        currentItems.push(...targetSection.items);
-        YouTube2Context_1.default.getLogger().info(`[youtube2] Fetched ${targetSection.items.length} continuation items.`);
-        if (recursive && targetSection.continuation) {
-            await (0, util_1.sleep)((0, util_1.rnd)(200, 400)); // Rate limit
-            await __classPrivateFieldGet(this, _PlaylistModel_instances, "m", _PlaylistModel_getContinuationItems).call(this, targetSection.continuation, recursive, currentItems);
-            delete targetSection.continuation;
-        }
-    }
-    return currentItems;
-}, _PlaylistModel_findSectionWithContinuation = function _PlaylistModel_findSectionWithContinuation(sections) {
+_PlaylistModel_instances = new WeakSet(), _PlaylistModel_findSectionWithContinuation = function _PlaylistModel_findSectionWithContinuation(sections) {
     if (!sections) {
         return null;
     }

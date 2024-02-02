@@ -1,4 +1,4 @@
-May 19th 2023
+January 22th 2024
 
 
 ##  For Volumio3 => v 3.236
@@ -140,6 +140,24 @@ everythings it seems ;-)
 - 
 
 ### 4. Last changes
+
+January 22th 2024 v1.0.53 Credits to [Paolo](https://github.com/paolosabatino)
+
+- fix for purecamilla gui
+
+January 18th 2024 v1.0.52
+
+- attempt to fix consumed seconds on track begin Credits to [Paolo](https://github.com/paolosabatino)
+
+November 14th 2023 v1.0.51
+
+- rework alsa pipeline, camilladsp process... Credits to [Paolo](https://github.com/paolosabatino)
+
+September 23th 2023 v1.0.49
+
+- clean install.sh
+- correct default values for eq3
+- better airplay handling
 
 May 10th 2023 v1.0.48
 

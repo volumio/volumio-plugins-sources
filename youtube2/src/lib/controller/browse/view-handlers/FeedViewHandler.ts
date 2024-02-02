@@ -1,7 +1,6 @@
 import yt2 from '../../../YouTube2Context';
 import { ContentItem, PageElement } from '../../../types';
-import Endpoint from '../../../types/Endpoint';
-import PageContent from '../../../types/PageContent';
+import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, EndpointType, SearchContinuationEndpoint, SearchEndpoint, WatchEndpoint } from '../../../types/Endpoint';
 import ExplodableViewHandler from './ExplodableViewHandler';
 import View, { ContinuationBundle } from './View';
 import { RenderedList, RenderedPage } from './ViewHandler';
@@ -9,13 +8,15 @@ import { RendererType } from './renderers';
 import { RenderedHeader, RenderedListItem } from './renderers/BaseRenderer';
 import { ContinuationBundleOption } from './renderers/OptionRenderer';
 import { SectionItem } from '../../../types/PageElement';
+import EndpointHelper from '../../../util/EndpointHelper';
+import { PageContent } from '../../../types/Content';
 
 /**
  * View handler for feed contents consisting of sections and optional header.
  */
 
 export interface FeedView extends View {
-  endpoint?: Endpoint;
+  endpoint?: BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | WatchEndpoint;
 }
 
 type RenderableItem = ContentItem.Channel |
@@ -155,7 +156,7 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
       // (Targeting 'All' in Home, but maybe there are others as well)
       const view = this.currentView;
       const currentViewEndpoint = view.endpoint || null;
-      if (currentViewEndpoint) {
+      if (!EndpointHelper.isType(currentViewEndpoint, EndpointType.Watch)) {
         continuationBundle.section.filters.forEach((filter) => {
           const selected = filter.optionValues.find((ov) => ov.selected);
           if (selected && !selected.endpoint) {
@@ -400,19 +401,26 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
     return result;
   }
 
-  protected findAllEndpointsInSection(target?: PageElement.Section | PageElement.Section[], predicate?: (endpoint: Endpoint) => boolean): Endpoint[] {
+  protected findAllEndpointsInSection<T extends Endpoint>(target?: PageElement.Section | PageElement.Section[], predicate?: (endpoint: Endpoint) => boolean): T[] {
     if (!target) {
       return [];
     }
 
+    const __applyPredicate = (endpoint: Endpoint): endpoint is T => {
+      if (typeof predicate !== 'function') {
+        return true;
+      }
+      return predicate(endpoint);
+    };
+
     if (Array.isArray(target)) {
-      return target.reduce<Endpoint[]>((result, section) => {
-        result.push(...this.findAllEndpointsInSection(section, predicate));
+      return target.reduce<T[]>((result, section) => {
+        result.push(...this.findAllEndpointsInSection<T>(section, predicate));
         return result;
       }, []);
     }
 
-    const result: Endpoint[] = [];
+    const result: T[] = [];
     const haystack = [
       ...target.buttons || [],
       ...target.items
@@ -420,9 +428,9 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
 
     for (const needle of haystack) {
       if (needle.type === 'section') {
-        result.push(...this.findAllEndpointsInSection(needle, predicate));
+        result.push(...this.findAllEndpointsInSection<T>(needle, predicate));
       }
-      else if (needle.endpoint && (typeof predicate !== 'function' || predicate(needle.endpoint))) {
+      else if (needle.endpoint && __applyPredicate(needle.endpoint)) {
         result.push(needle.endpoint);
       }
     }

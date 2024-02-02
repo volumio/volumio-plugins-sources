@@ -1,5 +1,4 @@
-import Innertube from 'volumio-youtubei.js';
 export declare abstract class BaseModel {
-    protected getInnertube(): Innertube | null;
+    protected getInnertube(): Promise<import("./InnertubeLoader").InnertubeLoaderGetInstanceResult>;
 }
 //# sourceMappingURL=BaseModel.d.ts.map

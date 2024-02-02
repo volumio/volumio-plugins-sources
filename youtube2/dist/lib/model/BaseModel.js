@@ -4,10 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseModel = void 0;
-const YouTube2Context_1 = __importDefault(require("../YouTube2Context"));
+const InnertubeLoader_1 = __importDefault(require("./InnertubeLoader"));
 class BaseModel {
     getInnertube() {
-        return YouTube2Context_1.default.get('innertube');
+        return InnertubeLoader_1.default.getInstance();
     }
 }
 exports.BaseModel = BaseModel;

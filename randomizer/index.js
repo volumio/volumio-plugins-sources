@@ -2,30 +2,22 @@
 
 var libQ = require('kew');
 var fs=require('fs-extra');
-var config = new (require('v-conf'))();
-var exec = require('child_process').exec;
-var execSync = require('child_process').execSync;
 var io = require('socket.io-client');
-var musicLib = 0;
-var position = 0;
 var tidyuri = "";
-var tracks = null;
+
 module.exports = randomizer;
+
 function randomizer(context) {
-	var self = this;
 	this.context = context;
 	this.commandRouter = this.context.coreCommand;
 	this.logger = this.context.logger;
 	this.configManager = this.context.configManager;
 }
 
-randomizer.prototype.onVolumioStart = function()
-{
-    var self = this;
+randomizer.prototype.onVolumioStart = function() {
     var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
     this.config = new (require('v-conf'))();
     this.config.loadFile(configFile);
-
     return libQ.resolve();
 }
 
@@ -34,6 +26,17 @@ randomizer.prototype.onStart = function() {
     var defer=libQ.defer();
     self.load18nStrings();
     self.socket = io.connect('http://localhost:3000');
+
+    // Add to browse sources
+    const source = {
+      name: 'Randomizer',
+      uri: 'randomizer',
+      plugin_type: 'user_interface',
+      plugin_name: 'randomizer',
+      albumart: '/albumart?sourceicon=user_interface/randomizer/assets/randomizer.png'
+    };
+    self.commandRouter.volumioAddToBrowseSources(source);
+
     // Once the Plugin has successfull started resolve the promise
     defer.resolve();
 
@@ -49,7 +52,6 @@ randomizer.prototype.randomTracks = function() {
     var defer=libQ.defer();
     var i = 0;
     var queue = 0;
-    var list = 0; 
     self.tracks = self.config.get('tracks');
     if (isNaN(self.tracks)) self.tracks = 25;
     self.socket.emit('browseLibrary', {'uri':'albums://'});
@@ -194,7 +196,6 @@ randomizer.prototype.randomAlbum = function() {
 randomizer.prototype.truePrevious = function() {
      var self = this;
      var defer=libQ.defer();
-     var position = 0;
      self.socket.emit('getState', '');
      self.socket.on('pushState', function (data) {
      if (data.position >= 1)
@@ -218,15 +219,13 @@ randomizer.prototype.onStop = function() {
     var self = this;
     var defer=libQ.defer();
 
+    // Remove from browse sources
+    self.commandRouter.volumioRemoveToBrowseSources('Randomizer');
+
     // Once the Plugin has successfull stopped resolve the promise
     defer.resolve();
 
     return libQ.resolve();
-};
-
-randomizer.prototype.onRestart = function() {
-    var self = this;
-    // Optional, use if you need it
 };
 
 randomizer.prototype.saveSettings = function (data) {
@@ -297,21 +296,59 @@ randomizer.prototype.getConfigurationFiles = function() {
 	return ['config.json'];
 }
 
-randomizer.prototype.setUIConfig = function(data) {
-	var self = this;
-	//Perform your installation tasks here
-};
+randomizer.prototype.handleBrowseUri = function(uri) {
+  
+  switch (uri) {
+    case 'randomizer':
+      break;
+    case 'randomizer/randomTracks':
+      this.randomTracks();
+      break;
+    case 'randomizer/trackToAlbum':
+      this.trackToAlbum();
+      break;
+    case 'randomizer/randomAlbum':
+      this.randomAlbum();
+      break;
+    default:
+      return libQ.reject(`Unknown Randomizer URI: ${uri}`)
+  }
 
-randomizer.prototype.getConf = function(varName) {
-	var self = this;
-	//Perform your installation tasks here
-};
+  let tracks = this.config.get('tracks');
+  if (isNaN(tracks)) tracks = 25;
 
-randomizer.prototype.setConf = function(varName, varValue) {
-	var self = this;
-	//Perform your installation tasks here
-};
-
-
-
-
+  return libQ.resolve({
+    navigation: {
+      prev: { uri: '/' },
+      lists: [
+        {
+          title: this.getI18nString('RANDOMIZER'),
+          availableListViews: [ 'list', 'grid' ],
+          items: [
+            {
+              service: 'randomizer',
+              type: 'item-no-menu',
+              title: this.getI18nString('RANDOMTRACKS_LBL_COUNT').replace('()', tracks),
+              uri: `randomizer/randomTracks`,
+              albumart: '/albumart?sourceicon=user_interface/randomizer/assets/random_tracks.png'
+            },
+            {
+              service: 'randomizer',
+              type: 'item-no-menu',
+              title: this.getI18nString('RANDOMALBUM_LBL'),
+              uri: `randomizer/randomAlbum`,
+              albumart: '/albumart?sourceicon=user_interface/randomizer/assets/random_album.png'
+            },
+            {
+              service: 'randomizer',
+              type: 'item-no-menu',
+              title: this.getI18nString('TRACKTOALBUM_LBL'),
+              uri: `randomizer/trackToAlbum`,
+              albumart: '/albumart?sourceicon=user_interface/randomizer/assets/track_to_album.png'
+            }
+          ]
+        }
+      ]
+    }
+  });
+}

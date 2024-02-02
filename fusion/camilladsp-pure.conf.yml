@@ -1,0 +1,16 @@
+
+devices:
+  samplerate: ${outputsamplerate}
+  chunksize: ${chunksize}
+  capture_samplerate: ${capturesamplerate}
+  capture:
+    type: File
+    channels: 2
+    format: S32LE
+    filename: "/tmp/fusiondspfifo"
+    extra_samples: 4096
+  playback:
+    type: Alsa
+    channels: 2
+    device: postDsp
+    format: S32LE

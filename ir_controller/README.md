@@ -23,15 +23,18 @@ Currently the plugin ships with configurations for the following remote controls
 * Luxman RA-17
 * Marantz RC003PMCD
 * MCE USB
+* NAD AMP 3
 * Odroid Remote
 * PDP Gaming Remote Control
 * Panasonic EUR643824
 * PDP Gaming Remote Control
 * Philips CD723
 * Pioneer CU-PD053
+* Pro-Ject Control it Pre Box S2 Digital
 * Samsung AA59-00431A
 * Samsung_BN59-006XXA
 * Technics RAK-SL948WK
+* Tmall Magic Box 1S Remote Control
 * XBox 360 Remote
 * XBox One Remote
 * Xiaomi IR for TV box

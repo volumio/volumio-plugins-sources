@@ -71,7 +71,7 @@ export default class CollectionViewHandler extends BaseViewHandler<CollectionVie
       itemType: entityType
     };
     if (inSection) {
-      modelQueryParams.limit = jellyfin.getConfigValue('collectionInSectionItems', 11);
+      modelQueryParams.limit = jellyfin.getConfigValue('collectionInSectionItems');
     }
 
     let moreUri;

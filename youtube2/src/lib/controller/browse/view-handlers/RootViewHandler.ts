@@ -1,8 +1,9 @@
 import yt2 from '../../../YouTube2Context';
 import { ModelType } from '../../../model';
+import InnertubeLoader from '../../../model/InnertubeLoader';
 import { ContentItem, PageElement } from '../../../types';
-import PageContent from '../../../types/PageContent';
-import Auth, { AuthStatus } from '../../../util/Auth';
+import { PageContent } from '../../../types/Content';
+import { AuthStatus } from '../../../util/Auth';
 import { ExplodedTrackInfo } from './ExplodableViewHandler';
 import FeedViewHandler, { FeedView } from './FeedViewHandler';
 import { RenderedPage } from './ViewHandler';
@@ -40,8 +41,8 @@ export default class RootViewHandler extends FeedViewHandler<RootView> {
       contents.sections = [];
     }
 
-    const authStatus = Auth.getAuthStatus();
-    if (authStatus.status === AuthStatus.SignedIn) {
+    const { auth } = await InnertubeLoader.getInstance();
+    if (auth.getStatus().status === AuthStatus.SignedIn) {
       const accountModel = this.getModel(ModelType.Account);
       const account = await accountModel.getInfo();
       if (account?.channel) {

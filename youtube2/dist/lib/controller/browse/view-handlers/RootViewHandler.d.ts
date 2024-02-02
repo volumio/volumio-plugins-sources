@@ -1,4 +1,4 @@
-import PageContent from '../../../types/PageContent';
+import { PageContent } from '../../../types/Content';
 import { ExplodedTrackInfo } from './ExplodableViewHandler';
 import FeedViewHandler, { FeedView } from './FeedViewHandler';
 import { RenderedPage } from './ViewHandler';

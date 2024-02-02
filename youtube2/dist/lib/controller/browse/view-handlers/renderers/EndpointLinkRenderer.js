@@ -40,7 +40,17 @@ class EndpointLinkRenderer extends BaseRenderer_1.default {
         if (!EndpointHelper_1.default.validate(data.endpoint)) {
             return null;
         }
-        const targetViewName = data.endpoint.type === Endpoint_1.EndpointType.Search ? 'search' : (VIEW_NAME_BY_BROWSE_ID[data.endpoint.payload.browseId] || 'generic');
+        let targetViewName;
+        switch (data.endpoint.type) {
+            case Endpoint_1.EndpointType.Search:
+                targetViewName = 'search';
+                break;
+            case Endpoint_1.EndpointType.Browse:
+                targetViewName = VIEW_NAME_BY_BROWSE_ID[data.endpoint.payload.browseId] || 'generic';
+                break;
+            default:
+                targetViewName = 'generic';
+        }
         const targetView = {
             name: targetViewName,
             endpoint: data.endpoint
@@ -51,7 +61,7 @@ class EndpointLinkRenderer extends BaseRenderer_1.default {
             // Setting type to 'album' is important for 'watch' endpoint items, as we
             // Only want this item to be exploded and not others in the same list when
             // It is clicked.
-            type: data.endpoint.type === Endpoint_1.EndpointType.Watch ? 'album' : 'item-no-menu',
+            type: EndpointHelper_1.default.isType(data.endpoint, Endpoint_1.EndpointType.Watch) ? 'album' : 'item-no-menu',
             title: data.title,
             uri
         };
@@ -71,10 +81,10 @@ _EndpointLinkRenderer_instances = new WeakSet(), _EndpointLinkRenderer_getIcon =
         return iconByName;
     }
     const endpoint = data.endpoint;
-    if (endpoint.type === Endpoint_1.EndpointType.Browse) {
+    if (EndpointHelper_1.default.isType(endpoint, Endpoint_1.EndpointType.Browse)) {
         return ICON_BY_BROWSE_ID[endpoint.payload.browseId] || 'fa fa-arrow-circle-right';
     }
-    else if (endpoint.type === Endpoint_1.EndpointType.Watch) {
+    else if (EndpointHelper_1.default.isType(endpoint, Endpoint_1.EndpointType.Watch)) {
         return 'fa fa-play-circle';
     }
     return null;

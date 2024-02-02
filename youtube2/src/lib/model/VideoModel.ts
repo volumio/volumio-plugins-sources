@@ -1,4 +1,4 @@
-import { YT, FormatOptions } from 'volumio-youtubei.js';
+import Innertube, { YT, FormatOptions } from 'volumio-youtubei.js';
 import fetch from 'node-fetch';
 import yt2 from '../YouTube2Context';
 import VideoPlaybackInfo from '../types/VideoPlaybackInfo';
@@ -30,10 +30,7 @@ interface HLSPlaylistVariant {
 export default class VideoModel extends BaseModel {
 
   async getPlaybackInfo(videoId: string): Promise<VideoPlaybackInfo | null> {
-    const innertube = this.getInnertube();
-    if (!innertube) {
-      throw Error('Innertube not ready');
-    }
+    const { innertube } = await this.getInnertube();
 
     try {
       const info = await innertube.getBasicInfo(videoId);
@@ -59,7 +56,7 @@ export default class VideoModel extends BaseModel {
         if (info.has_trailer) {
           const trailerInfo = info.getTrailerInfo();
           if (trailerInfo) {
-            result.stream = this.#chooseFormat(trailerInfo);
+            result.stream = this.#chooseFormat(innertube, trailerInfo);
           }
         }
         else {
@@ -67,7 +64,7 @@ export default class VideoModel extends BaseModel {
         }
       }
       else if (!result.isLive) {
-        result.stream = this.#chooseFormat(info);
+        result.stream = this.#chooseFormat(innertube, info);
       }
       else {
         const hlsManifestUrl = info.streaming_data?.hls_manifest_url;
@@ -84,15 +81,11 @@ export default class VideoModel extends BaseModel {
     }
   }
 
-  #chooseFormat(videoInfo: YT.VideoInfo): VideoPlaybackInfo['stream'] | null {
-    const innertube = this.getInnertube();
-    if (innertube) {
-      const format = videoInfo?.chooseFormat(BEST_AUDIO_FORMAT);
-      const streamUrl = format ? format.decipher(innertube.session.player) : null;
-      const streamData = format ? { ...format, url: streamUrl } : null;
-      return this.#parseStreamData(streamData);
-    }
-    return null;
+  #chooseFormat(innertube: Innertube, videoInfo: YT.VideoInfo): VideoPlaybackInfo['stream'] | null {
+    const format = videoInfo?.chooseFormat(BEST_AUDIO_FORMAT);
+    const streamUrl = format ? format.decipher(innertube.session.player) : null;
+    const streamData = format ? { ...format, url: streamUrl } : null;
+    return this.#parseStreamData(streamData);
   }
 
   #parseStreamData(data: any): VideoPlaybackInfo['stream'] | null {

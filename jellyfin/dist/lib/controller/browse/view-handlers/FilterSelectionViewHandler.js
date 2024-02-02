@@ -97,7 +97,7 @@ _FilterSelectionViewHandler_instances = new WeakSet(), _FilterSelectionViewHandl
         return [];
     }
     const baseUri = __classPrivateFieldGet(this, _FilterSelectionViewHandler_instances, "m", _FilterSelectionViewHandler_getBaseUri).call(this, filter.field);
-    const remember = JellyfinContext_1.default.getConfigValue('rememberFilters', true);
+    const remember = JellyfinContext_1.default.getConfigValue('rememberFilters');
     const items = filter.options.map((option) => ({
         service: 'jellyfin',
         type: 'jellyfin-filter-option',

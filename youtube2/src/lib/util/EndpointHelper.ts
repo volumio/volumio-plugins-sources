@@ -1,4 +1,4 @@
-import Endpoint, { EndpointType } from '../types/Endpoint';
+import Endpoint, { EndpointOf, EndpointType } from '../types/Endpoint';
 
 const EXCLUDE_ENDPOINT_BROWSE_IDS = [
   'SPreport_history',
@@ -30,5 +30,12 @@ export default class EndpointHelper {
       default:
         return false;
     }
+  }
+
+  static isType<K extends EndpointType[]>(endpoint: Endpoint | null | undefined, ...types: K): endpoint is EndpointOf<K[number]> {
+    if (!endpoint) {
+      return false;
+    }
+    return types.some((t) => endpoint.type === t);
   }
 }

@@ -18,32 +18,42 @@
       {
         "title": "Mother Earth Radio (flac)",
         "uri": "webmer/0",
-        "url": "http://server9.streamserver24.com:18900/motherearth"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth/motherearth"
       },
       {
         "title": "Mother Earth Klassik (flac)",
         "uri": "webmer/1",
-        "url": "http://server9.streamserver24.com:18910/motherearth.klassik"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_klassik/motherearth.klassik"
       },
       {
         "title": "Mother Earth Instrumental (flac)",
         "uri": "webmer/2",
-        "url": "http://server9.streamserver24.com:18920/motherearth.instrumental"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_instrumental/motherearth.instrumental"
       },
       {
-        "title": "Mother Earth Radio (mp4)",
+        "title": "Mother Earth Jazz (flac)",
         "uri": "webmer/3",
-        "url": "http://server9.streamserver24.com:18900/motherearth.aac"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_jazz/motherearth.jazz"
       },
       {
-        "title": "Mother Earth Klassik (mp4)",
+        "title": "Mother Earth Radio (aac)",
         "uri": "webmer/4",
-        "url": "http://server9.streamserver24.com:18910/motherearth.klassik.aac"
+        "url": "https://motherearth.streamserver24.com/listen/motherearth/motherearth.aac"
       },
       {
-        "title": "Mother Earth Instrumental (mp4)",
-        "uri": "webmer/2",
-        "url": "http://server9.streamserver24.com:18920/motherearth.instrumental.aac"
+        "title": "Mother Earth Klassik (aac)",
+        "uri": "webmer/5",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_klassik/motherearth.klassik.aac"
+      },
+      {
+        "title": "Mother Earth Instrumental (aac)",
+        "uri": "webmer/6",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_instrumental/motherearth.instrumental.aac"
+      },
+      {
+        "title": "Mother Earth Jazz (aac)",
+        "uri": "webmer/7",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_jazz/motherearth.jazz.mp4"
       }
     ]
   }

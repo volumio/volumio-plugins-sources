@@ -1,0 +1,178 @@
+{
+  "page": {
+    "label": "TRANSLATE.SOUNDCLOUD_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "section_general",
+      "element": "section",
+      "label": "TRANSLATE.SOUNDCLOUD_SECTION_GENERAL",
+      "icon": "fa-soundcloud",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/soundcloud",
+        "method": "configSaveGeneralSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SOUNDCLOUD_SAVE",
+        "data": [
+          "accessToken",
+          "locale",
+          "itemsPerPage",
+          "itemsPerSection",
+          "combinedSearchResults",
+          "loadFullPlaylistAlbum"
+        ]
+      },
+      "content": [
+        {
+          "id": "accessToken",
+          "element": "input",
+          "type": "text",
+          "label": "TRANSLATE.SOUNDCLOUD_ACCESS_TOKEN",
+          "doc": "TRANSLATE.SOUNDCLOUD_DOC_ACCESS_TOKEN",
+          "value": ""
+        },
+        {
+          "id": "accessTokenGuide",
+          "element": "button",
+          "label": "TRANSLATE.SOUNDCLOUD_ACCESS_TOKEN_GUIDE",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://github.com/patrickkfkan/soundcloud-fetch/wiki/How-to-obtain-an-access-token"
+          }
+        },
+        {
+          "id": "locale",
+          "element": "select",
+          "label": "TRANSLATE.SOUNDCLOUD_LOCALE",
+          "value": {},
+          "options": []
+        },
+        {
+          "id": "itemsPerPage",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.SOUNDCLOUD_ITEMS_PER_PAGE",
+          "value": 47
+        },
+        {
+          "id": "itemsPerSection",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.SOUNDCLOUD_ITEMS_PER_SECTION",
+          "value": 11
+        },
+        {
+          "id": "combinedSearchResults",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.SOUNDCLOUD_COMBINED_SEARCH_RESULTS",
+          "value": 11
+        },
+        {
+          "id": "loadFullPlaylistAlbum",
+          "element": "switch",
+          "label": "TRANSLATE.SOUNDCLOUD_LOAD_FULL_PLAYLIST_ALBUM",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "section_playback",
+      "element": "section",
+      "label": "TRANSLATE.SOUNDCLOUD_SECTION_PLAYBACK",
+      "icon": "fa-play-circle",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/soundcloud",
+        "method": "configSavePlaybackSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SOUNDCLOUD_SAVE",
+        "data": [
+          "skipPreviewTracks",
+          "addPlayedToHistory",
+          "longStreamFormat",
+          "logTranscodings"
+        ]
+      },
+      "content": [
+        {
+          "id": "skipPreviewTracks",
+          "element": "switch",
+          "label": "TRANSLATE.SOUNDCLOUD_SKIP_PREVIEW_TRACKS",
+          "value": false
+        },
+        {
+          "id": "addPlayedToHistory",
+          "element": "switch",
+          "label": "TRANSLATE.SOUNDCLOUD_ADD_PLAYED_TO_HISTORY",
+          "value": true
+        },
+        {
+          "id": "longStreamFormat",
+          "element": "select",
+          "label": "TRANSLATE.SOUNDCLOUD_LONG_STREAM_FMT",
+          "doc": "TRANSLATE.SOUNDCLOUD_DOC_LONG_STREAM_FMT",
+          "value": {},
+          "options": []
+        },
+        {
+          "id": "logTranscodings",
+          "element": "switch",
+          "label": "TRANSLATE.SOUNDCLOUD_LOG_TRANSCODINGS",
+          "doc": "TRANSLATE.SOUNDCLOUD_DOC_LOG_TRANSCODINGS",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "section_cache",
+      "element": "section",
+      "label": "TRANSLATE.SOUNDCLOUD_SECTION_CACHE",
+      "icon": "fa-hdd-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/soundcloud",
+        "method": "configSaveCacheSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SOUNDCLOUD_SAVE",
+        "data": [
+          "cacheMaxEntries",
+          "cacheTTL"
+        ]
+      },
+      "content": [
+        {
+          "id": "cacheMaxEntries",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.SOUNDCLOUD_CACHE_MAX_ENTRIES",
+          "value": 5000
+        },
+        {
+          "id": "cacheTTL",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.SOUNDCLOUD_CACHE_TTL",
+          "value": 1800
+        },
+        {
+          "id": "clearCache",
+          "element": "button",
+          "label": "TRANSLATE.SOUNDCLOUD_CLEAR_CACHE",
+          "onClick": {
+              "type": "emit",
+              "message": "callMethod",
+              "data": {
+                  "endpoint": "music_service/soundcloud",
+                  "method": "configClearCache"
+              }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -98,7 +98,7 @@ class BandcampContext {
     return this.#pluginContext.coreCommand.stateMachine;
   }
 
-  getCache(): Cache {
+  getCache() {
     return this.#cache;
   }
 
@@ -112,6 +112,8 @@ class BandcampContext {
 
     this.#singletons = {};
     this.#data = {};
+
+    this.#cache.clear();
   }
 
   #getSingleton(key: string, getValue: () => any): any {

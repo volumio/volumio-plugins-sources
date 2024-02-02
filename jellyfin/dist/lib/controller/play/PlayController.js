@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_connectionManager, _PlayController_mpdPlayerStateListener, _PlayController_monitoredPlaybacks, _PlayController_volumioPushStateListener, _PlayController_volumioPushStateHandler, _PlayController_addListeners, _PlayController_removeListeners, _PlayController_mpdAddTags, _PlayController_getStreamUrl, _PlayController_doPlay, _PlayController_markPlayed, _PlayController_millisecondsToTicks, _PlayController_apiReportPlayback, _PlayController_handleMpdPlayerEvent, _VolumioPushStateListener_lastState;
+var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_connectionManager, _PlayController_mpdPlayerStateListener, _PlayController_monitoredPlaybacks, _PlayController_volumioPushStateListener, _PlayController_volumioPushStateHandler, _PlayController_addListeners, _PlayController_removeListeners, _PlayController_appendTrackTypeToStreamUrl, _PlayController_mpdAddTags, _PlayController_getStreamUrl, _PlayController_doPlay, _PlayController_markPlayed, _PlayController_millisecondsToTicks, _PlayController_apiReportPlayback, _PlayController_handleMpdPlayerEvent, _VolumioPushStateListener_lastState;
 Object.defineProperty(exports, "__esModule", { value: true });
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -71,7 +71,7 @@ class PlayController {
     async clearAddPlayTrack(track) {
         JellyfinContext_1.default.getLogger().info(`[jellyfin-play] clearAddPlayTrack: ${track.uri}`);
         const { song, connection } = await this.getSongFromTrack(track);
-        const streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection);
+        const streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_appendTrackTypeToStreamUrl).call(this, __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection), track.trackType);
         __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl, timer: new StopWatch_1.default() };
         __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_addListeners).call(this);
         await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_doPlay).call(this, streamUrl, track);
@@ -112,7 +112,7 @@ class PlayController {
         __classPrivateFieldSet(this, _PlayController_monitoredPlaybacks, { current: null, pending: null }, "f");
     }
     async prefetch(track) {
-        const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback', true);
+        const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback');
         if (!gaplessPlayback) {
             /**
              * Volumio doesn't check whether `prefetch()` is actually performed or
@@ -130,7 +130,7 @@ class PlayController {
         let song, connection, streamUrl;
         try {
             ({ song, connection } = await this.getSongFromTrack(track));
-            streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection);
+            streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_appendTrackTypeToStreamUrl).call(this, __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection), track.trackType);
         }
         catch (error) {
             JellyfinContext_1.default.getLogger().error(`[jellyfin-play] Prefetch failed: ${error}`);
@@ -194,6 +194,15 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = n
         __classPrivateFieldSet(this, _PlayController_volumioPushStateHandler, null, "f");
         __classPrivateFieldSet(this, _PlayController_volumioPushStateListener, null, "f");
     }
+}, _PlayController_appendTrackTypeToStreamUrl = function _PlayController_appendTrackTypeToStreamUrl(url, trackType) {
+    if (!trackType) {
+        return url;
+    }
+    /**
+     * Fool MPD plugin to return correct `trackType` in `parseTrackInfo()` by adding
+     * track type to URL query string as a dummy param.
+     */
+    return `${url}&t.${trackType}`;
 }, _PlayController_mpdAddTags = function _PlayController_mpdAddTags(mpdAddIdResponse, track) {
     const songId = mpdAddIdResponse?.Id;
     // Set tags so that songs show the same title, album and artist as Jellyfin.

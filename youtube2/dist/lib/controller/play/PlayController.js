@@ -47,6 +47,7 @@ const Endpoint_1 = require("../../types/Endpoint");
 const util_1 = require("../../util");
 const ViewHelper_1 = __importDefault(require("../browse/view-handlers/ViewHelper"));
 const ExplodeHelper_1 = __importDefault(require("../../util/ExplodeHelper"));
+const EndpointHelper_1 = __importDefault(require("../../util/EndpointHelper"));
 class PlayController {
     constructor() {
         _PlayController_instances.add(this);
@@ -229,7 +230,7 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_autoplayListener = ne
     }
     const trackView = ViewHelper_1.default.getViewsFromUri(uri)[1];
     if (!trackView || trackView.name !== 'video' ||
-        trackView.explodeTrackData?.endpoint?.type !== Endpoint_1.EndpointType.Watch) {
+        !EndpointHelper_1.default.isType(trackView.explodeTrackData?.endpoint, Endpoint_1.EndpointType.Watch)) {
         return null;
     }
     return trackView.explodeTrackData;
@@ -379,9 +380,9 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_autoplayListener = ne
     // 1. Mix
     if (autoplayItems.length === 0 && relatedItems && autoplayPrefMixRelated) {
         const mixPlaylist = relatedItems.find((item) => item.type === 'playlist' && item.isMix);
-        if (mixPlaylist?.endpoint && mixPlaylist.endpoint.type === Endpoint_1.EndpointType.Watch) {
+        if (mixPlaylist?.endpoint && EndpointHelper_1.default.isType(mixPlaylist.endpoint, Endpoint_1.EndpointType.Watch)) {
             // Get videos in the Mix playlist
-            const mixPlaylistContents = await endpointModel.getContents({ ...mixPlaylist.endpoint, type: mixPlaylist.endpoint.type });
+            const mixPlaylistContents = await endpointModel.getContents(mixPlaylist.endpoint);
             if (mixPlaylistContents?.playlist?.items) {
                 const mixes = mixPlaylistContents.playlist.items.filter((item) => item.videoId !== videoId);
                 autoplayItems.push(...mixes.map((item) => ExplodeHelper_1.default.getExplodedTrackInfoFromVideo(item)));

@@ -166,27 +166,24 @@ class ConfigModel extends BaseModel_1.BaseModel {
 }
 exports.default = ConfigModel;
 _ConfigModel_instances = new WeakSet(), _ConfigModel_fetchAccountMenu = async function _ConfigModel_fetchAccountMenu() {
-    const innertube = this.getInnertube();
+    const { innertube } = await this.getInnertube();
     const requestData = {
         client: 'WEB'
     };
-    if (innertube) {
-        try {
-            const response = await innertube.session.http.fetch('/account/account_menu', {
-                method: 'POST',
-                body: JSON.stringify(requestData),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            return JSON.parse(await response.text());
-        }
-        catch (error) {
-            YouTube2Context_1.default.getLogger().error(YouTube2Context_1.default.getErrorMessage('[youtube2] Error in ConfigModel.#fetchAccountMenu(): ', error));
-            return null;
-        }
+    try {
+        const response = await innertube.session.http.fetch('/account/account_menu', {
+            method: 'POST',
+            body: JSON.stringify(requestData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return JSON.parse(await response.text());
     }
-    return null;
+    catch (error) {
+        YouTube2Context_1.default.getLogger().error(YouTube2Context_1.default.getErrorMessage('[youtube2] Error in ConfigModel.#fetchAccountMenu(): ', error));
+        return null;
+    }
 }, _ConfigModel_getDefaultI18nOptions = function _ConfigModel_getDefaultI18nOptions() {
     return {
         region: {

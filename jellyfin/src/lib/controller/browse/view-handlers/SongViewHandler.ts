@@ -33,8 +33,8 @@ class SongViewHandler extends FilterableViewHandler<SongView> {
     const listViewOnly = isAlbum || isPlaylist;
 
     let pagination: boolean;
-    if ((isAlbum && jellyfin.getConfigValue('showAllAlbumTracks', true)) ||
-      (isPlaylist && jellyfin.getConfigValue('showAllPlaylistTracks', true))) {
+    if ((isAlbum && jellyfin.getConfigValue('showAllAlbumTracks')) ||
+      (isPlaylist && jellyfin.getConfigValue('showAllPlaylistTracks'))) {
       pagination = false;
     }
     else {
@@ -46,7 +46,7 @@ class SongViewHandler extends FilterableViewHandler<SongView> {
     if (isAlbum) {
       modelQueryParams.parentId = albumId;
 
-      if (jellyfin.getConfigValue('showAllAlbumTracks', true)) {
+      if (jellyfin.getConfigValue('showAllAlbumTracks')) {
         modelQueryParams.limit = -1;
       }
     }
@@ -55,12 +55,12 @@ class SongViewHandler extends FilterableViewHandler<SongView> {
       modelQueryParams.sortBy = null;
       modelQueryParams.sortOrder = null;
 
-      if (jellyfin.getConfigValue('showAllPlaylistTracks', true)) {
+      if (jellyfin.getConfigValue('showAllPlaylistTracks')) {
         modelQueryParams.limit = -1;
       }
     }
     else if (view.search && view.collatedSearchResults) {
-      modelQueryParams.limit = jellyfin.getConfigValue('searchSongsResultCount', 11);
+      modelQueryParams.limit = jellyfin.getConfigValue('searchSongsResultCount');
     }
 
     const model = this.getModel(ModelType.Song);
@@ -148,19 +148,19 @@ class SongViewHandler extends FilterableViewHandler<SongView> {
     }
     else if (view.name === 'songs') {
       const { modelQueryParams } = await this.handleFilters();
-      modelQueryParams.limit = jellyfin.getConfigValue('maxTracks', 100);
+      modelQueryParams.limit = jellyfin.getConfigValue('maxTracks');
 
       if (view.albumId) {
         modelQueryParams.parentId = view.albumId;
 
-        if (jellyfin.getConfigValue('noMaxTracksSingleAlbum', true)) {
+        if (jellyfin.getConfigValue('noMaxTracksSingleAlbum')) {
           modelQueryParams.limit = -1;
         }
       }
       else if (view.playlistId) {
         modelQueryParams.parentId = view.playlistId;
 
-        if (jellyfin.getConfigValue('noMaxTracksSinglePlaylist', true)) {
+        if (jellyfin.getConfigValue('noMaxTracksSinglePlaylist')) {
           modelQueryParams.limit = -1;
         }
       }

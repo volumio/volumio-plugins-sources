@@ -213,9 +213,9 @@ export default abstract class FilterableViewHandler<V extends View> extends Base
   }
 
   #getSavedFilterSelection(key: string): FilterSelection {
-    const remember = jellyfin.getConfigValue('rememberFilters', true);
+    const remember = jellyfin.getConfigValue('rememberFilters');
     if (remember && this.serverConnection) {
-      const savedSelections = jellyfin.getConfigValue<FilterSelection | null>('savedFilters', null, true);
+      const savedSelections = jellyfin.getConfigValue('savedFilters');
       if (savedSelections) {
         const fullKey = `${this.serverConnection.id}.${key}`;
         return savedSelections[fullKey] || {};
@@ -234,11 +234,11 @@ export default abstract class FilterableViewHandler<V extends View> extends Base
   }
 
   #saveFilters(key: string) {
-    const remember = jellyfin.getConfigValue('rememberFilters', true);
+    const remember = jellyfin.getConfigValue('rememberFilters');
     const view = this.currentView;
     if (remember && view.saveFilter && this.serverConnection) {
       const saveFilterData = JSON.parse(view.saveFilter);
-      const savedFilters = jellyfin.getConfigValue<FilterSelection | null>('savedFilters', null, true) || {};
+      const savedFilters = jellyfin.getConfigValue('savedFilters') || {};
       const fullKey = `${this.serverConnection.id}.${key}`;
       if (!savedFilters[fullKey]) {
         savedFilters[fullKey] = {};
@@ -249,7 +249,7 @@ export default abstract class FilterableViewHandler<V extends View> extends Base
       else {
         delete savedFilters[fullKey][saveFilterData.field];
       }
-      jellyfin.setConfigValue('savedFilters', savedFilters, true);
+      jellyfin.setConfigValue('savedFilters', savedFilters);
 
       jellyfin.getLogger().info('[jellyfin-browse] Filters saved: ', savedFilters);
     }

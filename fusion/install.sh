@@ -13,7 +13,6 @@ mkdir -m 777 $opath/filter-sources
 mkdir -m 777 $opath/target-curves
 mkdir -m 777 $opath/peq
 mkdir -m 777 $opath/tools
-mkdir -m 777 $opath/hrtf-filters
 
 chmod -R 777 $opath
 chown -R volumio $opath

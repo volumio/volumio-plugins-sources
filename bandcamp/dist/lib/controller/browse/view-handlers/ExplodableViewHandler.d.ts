@@ -10,6 +10,7 @@ export interface ExplodedTrackInfo {
     name: string;
     title: string;
     duration?: number;
+    samplerate?: string;
 }
 export default abstract class ExplodableViewHandler<V extends View, E extends TrackEntity = TrackEntity> extends BaseViewHandler<V> {
     explode(): Promise<ExplodedTrackInfo[]>;

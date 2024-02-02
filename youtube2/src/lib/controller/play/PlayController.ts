@@ -4,7 +4,7 @@ import libQ from 'kew';
 
 import yt2 from '../../YouTube2Context';
 import Model, { ModelType } from '../../model';
-import Endpoint, { EndpointType } from '../../types/Endpoint';
+import { EndpointType, WatchEndpoint } from '../../types/Endpoint';
 import { kewToJSPromise } from '../../util';
 import { ExplodedTrackInfo } from '../browse/view-handlers/ExplodableViewHandler';
 import { QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
@@ -14,6 +14,7 @@ import ExplodeHelper from '../../util/ExplodeHelper';
 import { GenericView } from '../browse/view-handlers/GenericViewHandler';
 import VideoPlaybackInfo from '../../types/VideoPlaybackInfo';
 import { ContentItem } from '../../types';
+import EndpointHelper from '../../util/EndpointHelper';
 
 interface MpdState {
   status: 'play' | 'stop' | 'pause';
@@ -152,7 +153,7 @@ export default class PlayController {
     const trackView = ViewHelper.getViewsFromUri(uri)[1] as VideoView;
 
     if (!trackView || trackView.name !== 'video' ||
-      trackView.explodeTrackData?.endpoint?.type !== EndpointType.Watch) {
+      !EndpointHelper.isType(trackView.explodeTrackData?.endpoint, EndpointType.Watch)) {
       return null;
     }
 
@@ -291,7 +292,7 @@ export default class PlayController {
 
     yt2.getLogger().info(`[youtube2-play] Obtaining autoplay videos for ${videoId}`);
 
-    const autoplayPayload: Endpoint['payload'] = {
+    const autoplayPayload: WatchEndpoint['payload'] = {
       videoId
     };
     if (lastPlayedEndpoint.payload.playlistId) {
@@ -305,10 +306,10 @@ export default class PlayController {
       autoplayPayload.params = lastPlayedEndpoint.payload.params;
     }
 
-    const autoplayFetchEndpoint = {
+    const autoplayFetchEndpoint: WatchEndpoint = {
       type: EndpointType.Watch,
       payload: autoplayPayload
-    } as const;
+    };
 
     const endpointModel = Model.getInstance(ModelType.Endpoint);
     const contents = await endpointModel.getContents(autoplayFetchEndpoint);
@@ -341,9 +342,9 @@ export default class PlayController {
     // 1. Mix
     if (autoplayItems.length === 0 && relatedItems && autoplayPrefMixRelated) {
       const mixPlaylist = relatedItems.find((item) => item.type === 'playlist' && item.isMix) as ContentItem.Playlist;
-      if (mixPlaylist?.endpoint && mixPlaylist.endpoint.type === EndpointType.Watch) {
+      if (mixPlaylist?.endpoint && EndpointHelper.isType(mixPlaylist.endpoint, EndpointType.Watch)) {
         // Get videos in the Mix playlist
-        const mixPlaylistContents = await endpointModel.getContents({...mixPlaylist.endpoint, type: mixPlaylist.endpoint.type});
+        const mixPlaylistContents = await endpointModel.getContents(mixPlaylist.endpoint);
         if (mixPlaylistContents?.playlist?.items) {
           const mixes = mixPlaylistContents.playlist.items.filter((item) => item.videoId !== videoId);
           autoplayItems.push(...mixes.map((item) => ExplodeHelper.getExplodedTrackInfoFromVideo(item)));

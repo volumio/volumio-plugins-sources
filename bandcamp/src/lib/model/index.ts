@@ -1,3 +1,4 @@
+import bcfetch from 'bandcamp-fetch';
 import AlbumModel from './AlbumModel';
 import ArticleModel from './ArticleModel';
 import BandModel from './BandModel';
@@ -48,5 +49,30 @@ export default class Model {
       return new MODEL_TYPE_TO_CLASS[type]();
     }
     throw Error(`Model not found for type ${ModelType}`);
+  }
+
+  static setCookie(value?: string | null) {
+    bcfetch.setCookie(value);
+  }
+
+  static get cookie() {
+    return bcfetch.cookie;
+  }
+
+  static reset() {
+    bcfetch.setCookie();
+    this.clearLibCache();
+  }
+
+  static clearLibCache() {
+    bcfetch.cache.clear();
+  }
+
+  static async ensureStreamURL(url: string) {
+    const testResult = await bcfetch.stream.test(url);
+    if (testResult.ok) {
+      return url;
+    }
+    return await bcfetch.stream.refresh(url);
   }
 }

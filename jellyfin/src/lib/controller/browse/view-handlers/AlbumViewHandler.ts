@@ -30,7 +30,7 @@ class AlbumViewHandler extends FilterableViewHandler<AlbumView> {
     const { lists, modelQueryParams } = await this.handleFilters();
 
     if (view.search && view.collatedSearchResults) {
-      modelQueryParams.limit = jellyfin.getConfigValue('searchAlbumsResultCount', 11);
+      modelQueryParams.limit = jellyfin.getConfigValue('searchAlbumsResultCount');
       const searchResultsMoreView = {
         ...this.currentView,
         collatedSearchResults: undefined
@@ -174,7 +174,7 @@ class AlbumViewHandler extends FilterableViewHandler<AlbumView> {
   }
 
   async getSongsOnExplode(): Promise<Song[]> {
-    const trackLimit = jellyfin.getConfigValue('maxTracks', 100);
+    const trackLimit = jellyfin.getConfigValue('maxTracks');
     const albumModel = this.getModel(ModelType.Album);
     const songModel = this.getModel(ModelType.Song);
     const result: Song[] = [];
