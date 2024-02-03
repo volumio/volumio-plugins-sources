@@ -8,21 +8,19 @@
 	},
 	"author": "chourmovs",
 	"license": "ISC",
-	"repository": "https://github.com/yourname/yourrepo",
+	"repository": "https://github.com/chourmovs/",
 	"volumio_info": {
 		"prettyName": "Moode Audio",
 		"icon": "fa-lightbulb-o",
 		"plugin_type": "music_service",
 		"architectures": [
-			"amd64",
-			"armhf",
-			"i386"
-		],
+			"armhf"
+			],
 		"os": [
 			"buster"
 		],
-		"details": "Lorem ipsum",
-		"changelog": "Lorem ipsum"
+		"details": "Moode Audio Player in a debian docker container",
+		"changelog": "initial commit"
 	},
 	"engines": {
 		"node": ">=14.21.3 <15.0.0",

@@ -6,7 +6,7 @@
 /bin/sh /data/plugins/music_service/moode/Bluereverse.sh
 /bin/sh /data/plugins/music_service/moode/Alsareverse.sh
 /bin/sh /data/plugins/music_service/moode/Volumioreverse.sh
-
+docker system prune -a
 sudo apt-get purge -y docker*  
 sudo apt-get autoremove -y --purge docker*
 sudo umount /var/lib/docker/
