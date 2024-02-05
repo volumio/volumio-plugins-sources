@@ -5,5 +5,10 @@
 "cout":{"type": "string","value": ""},
 "firmware":{"type": "string","value": ""},
 "temperature":{"type": "string","value": ""},
-"storages":{"type": "string","value": ""}
+"storages":{"type": "string","value": ""},
+"iface":{"type": "string","value": ""},
+"type":{"type": "string","value": ""},
+"speed":{"type": "string","value": ""},
+"ip4":{"type": "string","value": ""}
+
  }

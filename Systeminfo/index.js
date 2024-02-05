@@ -1,3 +1,4 @@
+//Systeminfo - balbuze 2024
 'use strict';
 
 var libQ = require('kew');
@@ -139,7 +140,7 @@ Systeminfo.prototype.hwinfo = function () {
             var cmixt = hwinfoJSON.mixer_type.value;
             var cout = hwinfoJSON.outputdevicename.value
             var output_device = hwinfoJSON.outputdevice.value
-            console.log('AAAAAAAAAAAAAAAAAAAAAAAAAA-> ' + output_device + ' <-AAAAAAAAAAAAA');
+           // console.log('AAAAAAAAAAAAAAAAAAAAAAAAAA-> ' + output_device + ' <-AAAAAAAAAAAAA');
 
             self.config.set('cmixt', cmixt);
             self.config.set('cout', cout);
@@ -264,108 +265,122 @@ Systeminfo.prototype.storages = function () {
 
 Systeminfo.prototype.getsysteminfo = function () {
    var self = this;
-   var data;
+
+   // Function to format uptime
+   function formatUptime(uptime) {
+      let seconds = parseInt(uptime, 10);
+      let days = Math.floor(seconds / (3600 * 24));
+      seconds -= days * 3600 * 24;
+      let hrs = Math.floor(seconds / 3600);
+      seconds -= hrs * 3600;
+      let mnts = Math.floor(seconds / 60);
+      seconds -= mnts * 60;
+      return `${days} days, ${hrs} Hrs, ${mnts} Minutes, ${seconds} Seconds`;
+   }
+
+   // Fetch hardware, firmware version, and temperature information
    self.hwinfo();
    self.firmwareversion();
    self.temperature();
    self.storages();
+
+   // Network
+   si.networkInterfaces('default')
+   .then(data => {
+   //  console.log(data, data.iface);
+     
+     // Set configuration values
+     self.config.set("iface", data.iface); // Assuming data is an array and you want the first element
+     self.config.set("ip4", data.ip4);
+     self.config.set("type", data.type);
+     self.config.set("speed", data.speed);
+   })
+   .catch(error => {
+     console.error('Error fetching network interfaces:', error);
+   });
+
+
+   // Fetch system information using si.getAllData()
    si.getAllData()
       .then(data => {
+         // Memory
+         const memtotal = (data.mem.total / 1024).toFixed(0) + ' Ko';
+         const memfree = (data.mem.free / 1024).toFixed(0) + ' Ko';
+         const memused = (data.mem.used / 1024).toFixed(0) + ' Ko';
 
-         //memory
-         var memtotal = data.mem.total / 1024 + ' Ko';
-         var memfree = data.mem.free / 1024 + ' Ko';
-         var memused = data.mem.used / 1024 + ' Ko';
+         // Local storage
+         const storages = self.config.get('storages');
+         const size = storages ? storages.split(' ')[0] : 'N/A';
+         const used = storages ? storages.split(' ')[1] : 'N/A';
+         const avail = storages ? storages.split(' ')[2] : 'N/A';
+         const savail = avail ? avail.slice(0, -2) : 'N/A';
+         const ssize = size ? size.slice(0, -1) : 'N/A';
+         const pcent = ssize && savail ? ((savail / ssize) * 100).toFixed(0) : 'N/A';
 
-         //local storage
-         var storages = self.config.get('storages');
-         var fields = storages.split(' ');
-         var size = fields[0];
-         var used = fields[1];
-         var avail = fields[2];
-         var savail = avail.slice(0, -2)
-         var ssize = size.slice(0, -1)
-         var pcent = ((savail / ssize) * 100).toFixed(0);
-         console.log('internal       ' + avail + '   ' + savail);
+         // Uptime
+         const uptime = formatUptime(data.time.uptime);
 
-         //human readable uptime
-         var uptime = data.time.uptime;
-         var seconds = parseInt(uptime, 10);
-         var days = Math.floor(seconds / (3600 * 24));
-         seconds -= days * 3600 * 24;
-         var hrs = Math.floor(seconds / 3600);
-         seconds -= hrs * 3600;
-         var mnts = Math.floor(seconds / 60);
-         seconds -= mnts * 60;
-         console.log(days + " days, " + hrs + " Hrs, " + mnts + " Minutes, " + seconds + " Seconds");
-         var cuptime = (days + " days, " + hrs + " Hrs, " + mnts + " Minutes, " + seconds + " Seconds");
+         // Audio
+         const nchannels = self.config.get('nchannels');
+         const samplerate = self.config.get('smpl_rate');
+         const cmixt = self.config.get('cmixt');
+         const cout = self.config.get('cout');
 
-         //audio hw
-         var nchannels = self.config.get('nchannels');
-         var samplerate = self.config.get('smpl_rate');
-         var cmixt = self.config.get('cmixt');
-         var cout = self.config.get('cout');
-         console.log('output' + cout + 'cmixt' + cmixt);
-
-         //firmware
-         var firmware;
-         var firm;
-         if (self.config.get('firmware') == 'undefined') {
-            firmware = 'Available only for RPI'
-         } else {
-            firmware = self.config.get('firmware')
-         };
-         //console.log ('MMMMMMMMMMMMMMMMMMMMMMmmm' + firmware);
+         // Network
+         var ni = self.config.get("iface")
+         var ip = self.config.get("ip4")
+         var type = self.config.get("type")
+         var speed = self.config.get("speed")
 
 
-         //temperature
-         var roundtemp = self.config.get('temperature');
+         try {
+            // OS version
+            const sysversionf = self.commandRouter.executeOnPlugin('system_controller', 'system', 'getSystemVersion', '');
+            return sysversionf.then(info => {
+               const result = info.systemversion;
 
-         //messages generation
-         var messages1 = "<br><li>Board info</br></li><ul><li>Manufacturer: " + data.system.manufacturer + "</li><li>Model: " + data.system.model + "</li><li>Version: " + data.system.version + "</li><li>Firmware Version: " + firmware + "</li></ul>";
 
-         var messages2 = "<br><li>CPU info</br></li><ul><li>Brand: " + data.cpu.brand + "</li><li>Speed: " + data.cpu.speed + "Ghz</li><li>Number of cores: " + data.cpu.cores + "</li><li>Physical cores: " + data.cpu.physicalCores + "</li><li>Average load: " + (data.currentLoad.avgLoad * 100).toFixed(0) + "%</li><li>Temperature: " + roundtemp + "°C</li></ul>";
 
-         var messages3 = "<br><li>Memory info</br></li><ul><li>Memory: " + memtotal + "</li><li>Free: " + memfree + "</li><li>Used: " + memused + "</li></ul>";
+               const messages4 = `<br><li>OS info</br></li><ul><li>Version of Volumio: ${result}</li><li>Hostname: ${data.os.hostname}</li><li>Kernel: ${data.os.kernel}</li><li>Governor: ${data.cpu.governor}</li><li>Uptime: ${uptime}</li></ul>`;
 
-         var sysversionf = self.commandRouter.executeOnPlugin('system_controller', 'system', 'getSystemVersion', '')
-         sysversionf.then((info) => {
-            try {
-               var result = info.systemversion
+               // Board and CPU info
+               const messages1 = `<br><li>Board info</br></li><ul><li>Manufacturer: ${data.system.manufacturer}</li><li>Model: ${data.system.model} ${data.baseboard.model} / ${data.baseboard.version} / ${data.chassis.model}</li><li>Version: ${data.system.version} / ${data.baseboard.version}</li><li>Firmware Version: ${self.config.get('firmware') || 'Available only for RPI'}</li></ul>`;
 
-               var messages4 = "<br><li>OS info</br></li><ul><li>Version of Volumio: " + result + "</li><li>Hostname: " + data.os.hostname + "</li><li>Kernel: " + data.os.kernel + "</li><li>Governor: " + data.cpu.governor + "</li><li>Uptime: " + cuptime + "</li></ul>";
+               const messages2 = `<br><li>CPU info</br></li><ul><li>Brand: ${data.cpu.brand}</li><li>Speed: ${data.cpu.speed} GHz</li><li>Family: ${data.cpu.family}</li><li>Model: ${data.cpu.model}</li><li>Number of cores: ${data.cpu.cores}</li><li>Physical cores: ${data.cpu.physicalCores}</li><li>Average load: ${(data.currentLoad.avgLoad * 100).toFixed(0)}%</li><li>Temperature: ${self.config.get('temperature')}°C</li></ul>`;
 
-               //var messages5 = "<br><li>Disks infos</br></li><ul><li>Disks: " + data.fsSize.size +"</li><li>Size: " + data.fsSize.size +"</li><li>Used: " + data.fsSize.use+"</li></ul>";
+               // Memory info
+               const messages3 = `<br><li>Memory info</br></li><ul><li>Memory: ${memtotal}</li><li>Free: ${memfree}</li><li>Used: ${memused}</li></ul>`;
 
-               var messages6 = "<br><li>Audio info</br></li><ul><li>Hw audio configured: " + cout + "</li><li>Mixer type: " + cmixt + "</li><li>Number of channels: " + nchannels + "</li><li>Supported sample rate: " + samplerate + "</li></ul>";
-               var messages7 = "<br><li>Storage info</br></li><ul><li>INTERNAL storage - Size: " + size + "o </li><li>Used: " + used + "o </li><li>Available for storage: " + savail + "Mo (" + pcent + "%) </li></ul>";
+               // Network info
+               const messages8 = `<br><li>Network info</br></li><ul><li>Interface: ${ni}</li><li>IP Address: ${ip}</li><li>Type: ${type}</li><li>Speed: ${speed}Mb/s</li></ul>`;
 
-               var modalData = {
+               // Audio info
+               const messages6 = `<br><li>Audio info</br></li><ul><li>Hw audio configured: ${cout}</li><li>Mixer type: ${cmixt}</li><li>Number of channels: ${nchannels}</li><li>Supported sample rate: ${samplerate}</li></ul>`;
+
+               // Storage info
+               const messages7 = `<br><li>Storage info</br></li><ul><li>INTERNAL storage - Size: ${size}o</li><li>Used: ${used}o</li><li>Available for storage: ${savail}Mo (${pcent}%)</li></ul>`;
+
+               // Combine all messages
+               const combinedMessages = messages4 + messages8 + messages6 + messages1 + messages2 + messages3 + messages7;
+
+               // Display in modal
+               const modalData = {
                   title: 'System Information',
-                  message: messages4 + messages6 + messages1 + messages2 + messages3 + messages7,
+                  message: combinedMessages,
                   size: 'lg',
                   buttons: [{
                      name: 'Close',
                      class: 'btn btn-warning',
                      emit: 'closeModals',
                      payload: ''
-                  },]
-               }
-               self.commandRouter.broadcastMessage("openModal", modalData);
-
-               console.log(result);
-            } catch (e) {
-               self.logger.error('Could not establish connection with Push Updates Facility: ' + e);
-            }
-         });
-
-
+                  }]
+               };
+               self.commandRouter.broadcastMessage('openModal', modalData);
+            });
+         } catch (error) {
+            console.error('Error getting OS version:', error);
+         }
       })
-
-      //console.log(data);
-
-      .catch(error => console.error(error));
-
-
-
+      .catch(error => console.error('Error getting all data:', error));
 };
+
