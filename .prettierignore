@@ -10,4 +10,5 @@
 # add more exceptions to enable for other plugins
 # ...
 
+# those should be the last entries to ignore them again after exceptions
 node_modules/

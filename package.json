@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "format": "prettier --write '**/*.{json,md}' && npm run lint -- --fix",
-    "lint": "eslint .",
+    "format": "prettier --write '**/*.{json,md}' && npm run lint:es -- --fix",
+    "lint": "npm run lint:es && npm run lint:prettier",
+    "lint:es": "eslint .",
+    "lint:prettier": "prettier --check '**/*.{json,md}'",
     "prepare": "husky install"
   },
   "devDependencies": {
