@@ -1,6 +1,6 @@
 {
 	"name": "rotaryencoder2",
-	"version": "1.0.19",
+	"version": "1.0.21",
 	"description": "Alternative implementation of Rotary Encoder controls using the Linux Kernel driver for Rotaries.",
 	"main": "index.js",
 	"scripts": {
@@ -21,7 +21,7 @@
 		],
 		"has_alsa_contribution": false,
 		"details": "Use up to 3 rotary encoders connected to the GPIOs of a Volumio system. Uses Linux kernel level drivers based on 'dtoverlay'.<br>Also provides a function to send commands via Websock.<br>Help and hardware tipps in the <a href=\"https://github.com/volumio/volumio-plugins-sources/blob/master/rotaryencoder2/readme.md\"><u>Documentation</u></a>",
-		"changelog": "Added button function to toggle Fusion DSP and fixed some bugs"
+		"changelog": "Changed Pause toggle behavior for Webradios. Prevented bricking plugin, if wrong GPIOs used. Merged two change branches."
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",
