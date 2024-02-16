@@ -102,7 +102,7 @@ rotaryencoder2.prototype.onStart = function() {
 	})
 
 	self.activateRotaries([...Array(maxRotaries).keys()])
-	.then(_=>{
+	.then(_ =>{
 		return self.activateButtons([...Array(maxRotaries).keys()])
 	})
 	.then(_=> {
@@ -337,6 +337,7 @@ rotaryencoder2.prototype.sanityCheckSettings = function(rotaryIndex, data){
 			} else {
 				//check if any of the numbers used is also used in another active rotary
 				allPins = [...otherPins, ...newPins];
+				if (self.debugLogging) self.logger.info('[ROTARYENCODER2] sanityCheckSettings: allPins:' + allPins );
 				if (allPins.some((item,index) => allPins.indexOf(item) != index)) {
 					self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_PINS_BLOCKED'));
 					self.logger.error('[ROTARYENCODER2] sanityCheckSettings: Pin(s) used in other rotary already.');
@@ -407,7 +408,7 @@ rotaryencoder2.prototype.activateRotaries = function (rotaryIndexArray) {
 		if (rotaryIndexArray.length > 0) {
 			rotaryIndex = rotaryIndexArray[rotaryIndexArray.length - 1];
 			return self.activateRotaries(rotaryIndexArray.slice(0,rotaryIndexArray.length - 1))
-			.then(_=> {
+			.then(_ => {
 				if (self.config.get('enabled'+rotaryIndex)) {
 					return self.addOverlay(self.config.get('pinA'+rotaryIndex),self.config.get('pinB'+rotaryIndex),self.config.get('rotaryType'+rotaryIndex))
 					.then(_=>{
@@ -415,6 +416,10 @@ rotaryencoder2.prototype.activateRotaries = function (rotaryIndexArray) {
 					})
 					.then(handle => {
 						return self.addEventHandle(handle, rotaryIndex)
+					})
+					.fail(err => {
+						self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('TOAST_ERR_ACT_ROTARY_FAILED'));
+						return defer.resolve()
 					})
 				} else {
 					return defer.resolve();
@@ -454,7 +459,7 @@ rotaryencoder2.prototype.deactivateRotaries = function (rotaryIndexArray) {
 					})
 					.fail(msg => {
 						if (self.debugLogging) self.logger.error('[ROTARYENCODER2] deactivateRotaries: failed to deactivate rotary' + (rotaryIndex + 1));
-						self.commandRouter.pushToastMessage('errpr', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
+						self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
 						return defer.resolve();
 					})
 				} else {
@@ -646,7 +651,7 @@ rotaryencoder2.prototype.addEventHandle = function (handle, rotaryIndex) {
 	});
 	self.handles[rotaryIndex].stderr.on('data', (data) => {
 		self.logger.error('[ROTARYENCODER2] addEventHandle: ' + `stderr: ${data}`);
-		self.commandRouter.pushToastMessage('errpr', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_ERR_FROM_STREAM'));
+		self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_ERR_FROM_STREAM'));
 	});
 	self.handles[rotaryIndex].on('close', (code) => {
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle: ' + `child process exited with code ${code} `);
@@ -849,7 +854,7 @@ rotaryencoder2.prototype.addOverlay = function (pinA, pinB, stepsPerPeriod) {
 
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addOverlay: ' + pinA + ' ' + pinB + ' ' + stepsPerPeriod);
 	exec('/usr/bin/sudo /usr/bin/dtoverlay ' + 'rotary-encoder pin_a='+pinA+' pin_b='+pinB+' relative_axis=true steps-per-period='+stepsPerPeriod+' &', {uid: 1000, gid: 1000}, function (err, stdout, stderr) {
-		if (err) {
+		if (stderr) {
 			self.logger.error('[ROTARYENCODER2] addOverlay: ' + stderr);
 			defer.reject(stderr);
 		} else {
@@ -873,7 +878,7 @@ rotaryencoder2.prototype.removeOverlay = function(idx) {
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] removeOverlay: ' + idx);
 	if (idx > -1) {
 		exec('/usr/bin/sudo /usr/bin/dtoverlay -r '+idx+' &', {uid: 1000, gid: 1000}, function (err, stdout, stderr) {
-			if (err) {
+			if (stderr) {
 				defer.reject(stderr);
 			} else {
 				if (self.debugLogging) self.logger.info('[ROTARYENCODER2] removeOverlay: ' + idx + ' returned: ' + stdout);
@@ -956,7 +961,7 @@ rotaryencoder2.prototype.detachListener = function (handle){
         	defer.resolve();
         } else {
             self.logger.error('[ROTARYENCODER2] detachListener: could not kill handler process ' + handle);
-			self.commandRouter.pushToastMessage('errpr', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
+			self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
             defer.resolve();
         }
 

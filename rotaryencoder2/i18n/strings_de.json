@@ -85,6 +85,7 @@
     "TOAST_PINS_BLOCKED":"Pins werden in einem der anderen Drehgeber verwendet",
     "TOAST_NO_TYPE":"Bitte 'Periode pro Schritt' angeben!",
     "TOAST_KILL_HANDLE_FAIL":"Konnte Rotary Resourcen nicht freigeben. Richtige GPIOs gewählt? Bitte korrigieren und System neu starten!",
-    "TOAST_ERR_FROM_STREAM":"Fehler über den Stream vom Rotary, bitte Hardware und GPIO Settings prüfen."
+    "TOAST_ERR_FROM_STREAM":"Fehler über den Stream vom Rotary, bitte Hardware und GPIO Settings prüfen.",
+    "TOAST_ERR_ACT_ROTARY_FAILED":"Konfigurieren des Drehgebers fehlgeschlagen."
   }
 }
