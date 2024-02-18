@@ -415,11 +415,11 @@ rotaryencoder2.prototype.activateRotaries = function (rotaryIndexArray) {
 						return self.attachListener(self.config.get('pinA'+rotaryIndex));
 					})
 					.then(handle => {
-						return self.addEventHandle(handle, rotaryIndex)
+						self.addEventHandle(handle, rotaryIndex)
 					})
 					.fail(err => {
 						self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('TOAST_ERR_ACT_ROTARY_FAILED'));
-						return defer.resolve()
+						return defer.reject()
 					})
 				} else {
 					return defer.resolve();
@@ -651,7 +651,7 @@ rotaryencoder2.prototype.addEventHandle = function (handle, rotaryIndex) {
 	});
 	self.handles[rotaryIndex].stderr.on('data', (data) => {
 		self.logger.error('[ROTARYENCODER2] addEventHandle: ' + `stderr: ${data}`);
-		self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_ERR_FROM_STREAM'));
+		self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_ERR_FROM_STREAM') + '(' + data + ')');
 	});
 	self.handles[rotaryIndex].on('close', (code) => {
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle: ' + `child process exited with code ${code} `);
