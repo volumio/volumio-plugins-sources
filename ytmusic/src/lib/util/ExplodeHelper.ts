@@ -34,6 +34,10 @@ export default class ExplodeHelper {
       return false;
     }
 
+    if (view.noExplode) {
+      return true;
+    }
+
     /**
      * Pre-v1.0 URIs do not have
      */
