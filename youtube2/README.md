@@ -4,6 +4,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ### Changelog
 
+1.1.4
+- Fix broken API requests due to YT changes
+
 1.1.3
 - Fix recursive loading of playlist items (when 'Load Full Playlist' enabled)
 - Lazy-load Innertube API instead of loading when plugin starts, in case API causes system freeze or crash.
