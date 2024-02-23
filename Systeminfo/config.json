@@ -9,6 +9,8 @@
 "iface":{"type": "string","value": ""},
 "type":{"type": "string","value": ""},
 "speed":{"type": "string","value": ""},
-"ip4":{"type": "string","value": ""}
+"ip4":{"type": "string","value": ""},
+"mpdversion":{"type": "string","value": ""}
+
 
  }

@@ -140,7 +140,7 @@ Systeminfo.prototype.hwinfo = function () {
             var cmixt = hwinfoJSON.mixer_type.value;
             var cout = hwinfoJSON.outputdevicename.value
             var output_device = hwinfoJSON.outputdevice.value
-           // console.log('AAAAAAAAAAAAAAAAAAAAAAAAAA-> ' + output_device + ' <-AAAAAAAAAAAAA');
+            // console.log('AAAAAAAAAAAAAAAAAAAAAAAAAA-> ' + output_device + ' <-AAAAAAAAAAAAA');
 
             self.config.set('cmixt', cmixt);
             self.config.set('cout', cout);
@@ -184,7 +184,30 @@ Systeminfo.prototype.hwinfo = function () {
    });
 
 };
+Systeminfo.prototype.mpdversion = function () {
+   var self = this;
 
+   // Execute the command 'mpd -V'
+   exec('mpd -V', (error, stdout, stderr) => {
+      if (error) {
+         self.logger.error(`Error executing command: ${error.message}`);
+         return;
+      }
+      if (stderr) {
+         self.logger.error(`Error: ${stderr}`);
+         return;
+      }
+
+      // Splitting the stdout into lines
+      const lines = stdout.trim().split('\n');
+
+      // Extracting the first line
+      const mpdVersion = lines[0];
+      self.config.set("mpdversion", mpdVersion)
+      // console.log(`MPD Version !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: ${mpdVersion}`);
+   });
+
+}
 
 //here we detect the firmware version for the rpi
 Systeminfo.prototype.firmwareversion = function () {
@@ -283,21 +306,22 @@ Systeminfo.prototype.getsysteminfo = function () {
    self.firmwareversion();
    self.temperature();
    self.storages();
+   self.mpdversion();
 
    // Network
    si.networkInterfaces('default')
-   .then(data => {
-   //  console.log(data, data.iface);
-     
-     // Set configuration values
-     self.config.set("iface", data.iface); // Assuming data is an array and you want the first element
-     self.config.set("ip4", data.ip4);
-     self.config.set("type", data.type);
-     self.config.set("speed", data.speed);
-   })
-   .catch(error => {
-     console.error('Error fetching network interfaces:', error);
-   });
+      .then(data => {
+         //  console.log(data, data.iface);
+
+         // Set configuration values
+         self.config.set("iface", data.iface); // Assuming data is an array and you want the first element
+         self.config.set("ip4", data.ip4);
+         self.config.set("type", data.type);
+         self.config.set("speed", data.speed);
+      })
+      .catch(error => {
+         console.error('Error fetching network interfaces:', error);
+      });
 
 
    // Fetch system information using si.getAllData()
@@ -332,6 +356,9 @@ Systeminfo.prototype.getsysteminfo = function () {
          var type = self.config.get("type")
          var speed = self.config.get("speed")
 
+         // Software
+         var mpdVersion = self.config.get("mpdversion")
+
 
          try {
             // OS version
@@ -360,8 +387,11 @@ Systeminfo.prototype.getsysteminfo = function () {
                // Storage info
                const messages7 = `<br><li>Storage info</br></li><ul><li>INTERNAL storage - Size: ${size}o</li><li>Used: ${used}o</li><li>Available for storage: ${savail}Mo (${pcent}%)</li></ul>`;
 
+               // software info
+               const messages9 = `<br><li>Software info</br></li><ul><li>Mpd version: ${mpdVersion}</li></ul>`;
+
                // Combine all messages
-               const combinedMessages = messages4 + messages8 + messages6 + messages1 + messages2 + messages3 + messages7;
+               const combinedMessages = messages4 + messages8 + messages6 + messages1 + messages2 + messages3 +messages9+ messages7;
 
                // Display in modal
                const modalData = {
