@@ -318,6 +318,8 @@ Systeminfo.prototype.getsysteminfo = function () {
          self.config.set("ip4", data.ip4);
          self.config.set("type", data.type);
          self.config.set("speed", data.speed);
+         self.config.set("mac", data.mac);
+
       })
       .catch(error => {
          console.error('Error fetching network interfaces:', error);
@@ -353,6 +355,7 @@ Systeminfo.prototype.getsysteminfo = function () {
          // Network
          var ni = self.config.get("iface")
          var ip = self.config.get("ip4")
+         var mac = self.config.get("mac")
          var type = self.config.get("type")
          var speed = self.config.get("speed")
 
@@ -379,7 +382,7 @@ Systeminfo.prototype.getsysteminfo = function () {
                const messages3 = `<br><li>Memory info</br></li><ul><li>Memory: ${memtotal}</li><li>Free: ${memfree}</li><li>Used: ${memused}</li></ul>`;
 
                // Network info
-               const messages8 = `<br><li>Network info</br></li><ul><li>Interface: ${ni}</li><li>IP Address: ${ip}</li><li>Type: ${type}</li><li>Speed: ${speed}Mb/s</li></ul>`;
+               const messages8 = `<br><li>Network info</br></li><ul><li>Interface: ${ni}</li><li>IP Address: ${ip}</li><li>MAC Address: ${mac}</li><li>Type: ${type}</li><li>Speed: ${speed}Mb/s</li></ul>`;
 
                // Audio info
                const messages6 = `<br><li>Audio info</br></li><ul><li>Hw audio configured: ${cout}</li><li>Mixer type: ${cmixt}</li><li>Number of channels: ${nchannels}</li><li>Supported sample rate: ${samplerate}</li></ul>`;
