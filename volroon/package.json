@@ -1,0 +1,38 @@
+{
+	"name": "volroon",
+	"version": "1.0.4",
+	"description": "Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Dale Rider",
+	"license": "GPL-3.0",
+	"repository": "https://github.com/charliesjc/volroon",
+	"volumio_info": {
+		"prettyName": "volroon",
+		"icon": "fa-music",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"has_alsa_contribution": "false",
+		"details": "THIS LATEST VERSION REQUIRES YOU TO REAUTHORIZE IN ROON!!! Roon Bridge plugin for Volumio 3 that features track info/album art and control of Roon from Volumio.",
+		"changelog": "Updated Roon Extension ID."
+	},
+	"engines": {
+		"node": ">=14",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0",
+		"node-roon-api": "github:roonlabs/node-roon-api",
+		"node-roon-api-transport": "github:roonlabs/node-roon-api-transport"
+	}
+}
