@@ -189,6 +189,8 @@ class ControllerYTMusic {
   onStop() {
     this.#commandRouter.volumioRemoveToBrowseSources('YouTube Music');
 
+    this.#playController?.reset();
+
     this.#browseController = null;
     this.#searchController = null;
     this.#playController = null;

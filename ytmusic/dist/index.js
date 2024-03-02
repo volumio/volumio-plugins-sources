@@ -196,6 +196,7 @@ class ControllerYTMusic {
     }
     onStop() {
         __classPrivateFieldGet(this, _ControllerYTMusic_commandRouter, "f").volumioRemoveToBrowseSources('YouTube Music');
+        __classPrivateFieldGet(this, _ControllerYTMusic_playController, "f")?.reset();
         __classPrivateFieldSet(this, _ControllerYTMusic_browseController, null, "f");
         __classPrivateFieldSet(this, _ControllerYTMusic_searchController, null, "f");
         __classPrivateFieldSet(this, _ControllerYTMusic_playController, null, "f");
