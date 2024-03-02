@@ -4,6 +4,9 @@ Plugin that enables Volumio to act a YouTube Cast receiver device. Supports cast
 
 # Changelog
 
+1.0.6
+- Fix broken API requests due to YT changes
+
 1.0.5
 - Fix player not reconnecting with MPD after being disconnected, such as when MPD restarts following a change in configuration.
 

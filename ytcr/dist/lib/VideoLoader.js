@@ -186,7 +186,7 @@ class VideoLoader {
             const playerResponse = await __classPrivateFieldGet(this, _VideoLoader_innertube, "f").actions.execute('/player', payload);
             checkAbortSignal();
             // Wrap it in innertube VideoInfo.
-            const innertubeVideoInfo = new InnertubeLib.YT.VideoInfo([playerResponse], __classPrivateFieldGet(this, _VideoLoader_innertube, "f").actions, __classPrivateFieldGet(this, _VideoLoader_innertube, "f").session.player, cpn);
+            const innertubeVideoInfo = new InnertubeLib.YT.VideoInfo([playerResponse], __classPrivateFieldGet(this, _VideoLoader_innertube, "f").actions, cpn);
             const thumbnail = __classPrivateFieldGet(this, _VideoLoader_instances, "m", _VideoLoader_getThumbnail).call(this, innertubeVideoInfo.basic_info.thumbnail);
             const isLive = !!innertubeVideoInfo.basic_info.is_live;
             // Retrieve stream info
@@ -303,7 +303,7 @@ _VideoLoader_innertube = new WeakMap(), _VideoLoader_logger = new WeakMap(), _Vi
 }, _VideoLoader_parseStreamData = function _VideoLoader_parseStreamData(data) {
     const audioBitrate = ITAG_TO_BITRATE[`${data.itag}`];
     return {
-        url: data.url,
+        url: data.url || null,
         mimeType: data.mime_type,
         bitrate: audioBitrate ? `${audioBitrate} kbps` : null,
         sampleRate: data.audio_sample_rate,
