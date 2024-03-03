@@ -200,6 +200,7 @@ class ControllerBandcamp {
 
     this.#browseController = null;
     this.#searchController = null;
+    this.#playController?.dispose();
     this.#playController = null;
 
     Model.reset();
