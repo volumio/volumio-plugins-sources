@@ -4,6 +4,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ### Changelog
 
+1.1.5
+- Fix issues with prefetch and autoplay
+
 1.1.4
 - Fix broken API requests due to YT changes
 

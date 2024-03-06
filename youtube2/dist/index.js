@@ -210,6 +210,7 @@ class ControllerYouTube2 {
     }
     onStop() {
         __classPrivateFieldGet(this, _ControllerYouTube2_commandRouter, "f").volumioRemoveToBrowseSources('YouTube2');
+        __classPrivateFieldGet(this, _ControllerYouTube2_playController, "f")?.reset();
         __classPrivateFieldSet(this, _ControllerYouTube2_browseController, null, "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_searchController, null, "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_playController, null, "f");
