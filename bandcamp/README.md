@@ -12,6 +12,9 @@ As the name implies, the purpose of this plugin is to allow you to discover musi
 
 ## Changelog
 
+1.1.1
+- Fix player state sometimes wrong when playing prefetched track
+
 1.1.0
 - My Bandcamp: add support for cookie-based fetching, thereby allowing access to private collections and high-quality MP3 streams of purchased media.
 - Fix stream URLs sometimes broken (perhaps expired?). URLs are now tested and refreshed if necessary before playback.
