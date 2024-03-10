@@ -1,0 +1,13 @@
+# disabled for all by default
+*
+!.*.js
+
+# enabled for spotify only
+!/spotify/
+!/spotify/**/
+!/spotify/**/*
+
+# add more exceptions to enable for other plugins
+# ...
+
+node_modules/

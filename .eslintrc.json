@@ -1,0 +1,30 @@
+{
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "requireConfigFile": false
+  },
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "rules": {
+    "camelcase": [
+      "warn",
+      { "properties": "never", "ignoreDestructuring": true, "ignoreImports": true, "ignoreGlobals": true }
+    ],
+    "eqeqeq": "warn",
+    "new-cap": "warn",
+    "no-async-promise-executor": "off",
+    "no-console": "off",
+    "no-constant-condition": "off",
+    "no-path-concat": "warn",
+    "no-prototype-builtins": "off",
+    "no-redeclare": "warn",
+    "no-use-before-define": "off",
+    "no-sequences": "error",
+    "no-unused-vars": "warn",
+    "no-var": "warn",
+    "strict": "off"
+  }
+}

@@ -4,7 +4,7 @@ async function fetchPagedData(
   api,
   method,
   { requiredArgs = [], options, paginationType = 'offset' },
-  { getItems = (d) => d.body?.items || [], onData, onEnd }
+  { getItems = (d) => d.body?.items || [], onData, onEnd },
 ) {
   let offset = 0;
   let after = undefined;
