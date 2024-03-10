@@ -82,7 +82,7 @@ echo "Creating Kiosk data dir"
 mkdir -p /data/volumiokiosk || { echo "Creating /data/volumiokiosk failed"; exit 1; }
 chown volumio:volumio /data/volumiokiosk || { echo "Setting permissions to Kiosk data folder failed"; exit 1; }
 
-echo "Creating chromium kiosk start script"
+echo "Creating Volumio kiosk start script"
 echo "#!/bin/bash
 while true; do timeout 3 bash -c \"</dev/tcp/127.0.0.1/3000\" >/dev/null 2>&1 && break; done
 sed -i 's/\"exited_cleanly\":false/\"exited_cleanly\":true/' /data/volumiokiosk/Default/Preferences
@@ -107,8 +107,8 @@ while true; do
     --disable-translate \\
     --user-data-dir='/data/volumiokiosk' \
     http://localhost:3000
-done" > /opt/volumiokiosk.sh || { echo "Creating chromium kiosk start script failed"; exit 1; }
-chmod +x /opt/volumiokiosk.sh || { echo "Making chromium kiosk start script executable failed"; exit 1; }
+done" > /opt/volumiokiosk.sh || { echo "Creating Volumio kiosk start script failed"; exit 1; }
+chmod +x /opt/volumiokiosk.sh || { echo "Making Volumio kiosk start script executable failed"; exit 1; }
 
 echo "Creating Systemd Unit for Kiosk"
 echo "[Unit]
