@@ -1,0 +1,18 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "jest": "^27.5.1",
+    "kew": "^0.7.0",
+    "q": "^1.5.1",
+    "unirest": "^0.6.0",
+    "v-conf": "^1.4.2"
+  }
+}
