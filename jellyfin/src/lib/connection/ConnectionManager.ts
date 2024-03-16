@@ -106,13 +106,13 @@ export default class ConnectionManager extends EventEmitter {
       // By reusing previously-assigned ID, we avoid the Jellyfin server registering multiple
       // Sessions for the user - this can happen when the plugin is restarted within
       // A short timeframe and the session before restart has not yet been marked stale.
-      const cachedDeviceIds = jellyfin.getConfigValue<Record<ServerConnection['id'], string>>('connectionDeviceIds', {}, true);
+      const cachedDeviceIds = jellyfin.getConfigValue('connectionDeviceIds');
       const connectionId = ServerHelper.generateConnectionId(username, server);
       let userDeviceId = cachedDeviceIds[connectionId];
       if (!userDeviceId) {
         userDeviceId = uuidv4();
         cachedDeviceIds[connectionId] = userDeviceId;
-        jellyfin.setConfigValue('connectionDeviceIds', cachedDeviceIds, true);
+        jellyfin.setConfigValue('connectionDeviceIds', cachedDeviceIds);
         jellyfin.getLogger().info(`[jellyfin-conn] Generated new device Id for ${username}@${server.name}: ${userDeviceId}`);
       }
       else {

@@ -17,6 +17,7 @@ var _JellyfinContext_instances, _JellyfinContext_singletons, _JellyfinContext_da
 Object.defineProperty(exports, "__esModule", { value: true });
 const string_format_1 = __importDefault(require("string-format"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
+const PluginConfig_1 = require("./util/PluginConfig");
 const DUMMY_DEVICE_INFO = {
     name: 'Volumio',
     id: '1234567890',
@@ -80,15 +81,19 @@ class JellyfinContext {
         }
         return deviceInfo;
     }
-    getConfigValue(key, defaultValue, json = false) {
+    hasConfigKey(key) {
+        return __classPrivateFieldGet(this, _JellyfinContext_pluginConfig, "f").has(key);
+    }
+    getConfigValue(key) {
+        const schema = PluginConfig_1.PLUGIN_CONFIG_SCHEMA[key];
         if (__classPrivateFieldGet(this, _JellyfinContext_pluginConfig, "f").has(key)) {
             const val = __classPrivateFieldGet(this, _JellyfinContext_pluginConfig, "f").get(key);
-            if (json) {
+            if (schema.json) {
                 try {
                     return JSON.parse(val);
                 }
                 catch (e) {
-                    return defaultValue;
+                    return schema.defaultValue;
                 }
             }
             else {
@@ -96,14 +101,15 @@ class JellyfinContext {
             }
         }
         else {
-            return defaultValue;
+            return schema.defaultValue;
         }
     }
     deleteConfigValue(key) {
         __classPrivateFieldGet(this, _JellyfinContext_pluginConfig, "f").delete(key);
     }
-    setConfigValue(key, value, json = false) {
-        __classPrivateFieldGet(this, _JellyfinContext_pluginConfig, "f").set(key, json ? JSON.stringify(value) : value);
+    setConfigValue(key, value) {
+        const schema = PluginConfig_1.PLUGIN_CONFIG_SCHEMA[key];
+        __classPrivateFieldGet(this, _JellyfinContext_pluginConfig, "f").set(key, schema.json ? JSON.stringify(value) : value);
     }
     getAlbumArtPlugin() {
         return __classPrivateFieldGet(this, _JellyfinContext_instances, "m", _JellyfinContext_getSingleton).call(this, 'albumArtPlugin', () => __classPrivateFieldGet(this, _JellyfinContext_pluginContext, "f").coreCommand.pluginManager.getPlugin('miscellanea', 'albumart'));

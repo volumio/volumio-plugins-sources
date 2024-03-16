@@ -99,7 +99,7 @@ export default class FilterSelectionViewHandler extends BaseViewHandler<FilterSe
       return [];
     }
     const baseUri = this.#getBaseUri(filter.field);
-    const remember = jellyfin.getConfigValue('rememberFilters', true);
+    const remember = jellyfin.getConfigValue('rememberFilters');
     const items = filter.options.map<RenderedListItem>((option) => ({
       service: 'jellyfin',
       type: 'jellyfin-filter-option',

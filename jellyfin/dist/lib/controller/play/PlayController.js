@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_connectionManager, _PlayController_mpdPlayerStateListener, _PlayController_monitoredPlaybacks, _PlayController_volumioPushStateListener, _PlayController_volumioPushStateHandler, _PlayController_addListeners, _PlayController_removeListeners, _PlayController_mpdAddTags, _PlayController_getStreamUrl, _PlayController_doPlay, _PlayController_markPlayed, _PlayController_millisecondsToTicks, _PlayController_apiReportPlayback, _PlayController_handleMpdPlayerEvent, _VolumioPushStateListener_lastState;
+var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_connectionManager, _PlayController_mpdPlayerStateListener, _PlayController_monitoredPlaybacks, _PlayController_volumioPushStateListener, _PlayController_volumioPushStateHandler, _PlayController_prefetchPlaybackStateFixer, _PlayController_addListeners, _PlayController_removeListeners, _PlayController_appendTrackTypeToStreamUrl, _PlayController_mpdAddTags, _PlayController_getStreamUrl, _PlayController_doPlay, _PlayController_markPlayed, _PlayController_millisecondsToTicks, _PlayController_apiReportPlayback, _PlayController_handleMpdPlayerEvent, _VolumioPushStateListener_lastState, _PrefetchPlaybackStateFixer_instances, _PrefetchPlaybackStateFixer_positionAtPrefetch, _PrefetchPlaybackStateFixer_prefetchedTrack, _PrefetchPlaybackStateFixer_volumioPushStateListener, _PrefetchPlaybackStateFixer_addPushStateListener, _PrefetchPlaybackStateFixer_removePushStateListener, _PrefetchPlaybackStateFixer_handleVolumioPushState;
 Object.defineProperty(exports, "__esModule", { value: true });
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -48,6 +48,7 @@ const ServerHelper_1 = __importDefault(require("../../util/ServerHelper"));
 const util_1 = require("../../util");
 const ViewHelper_1 = __importDefault(require("../browse/view-handlers/ViewHelper"));
 const StopWatch_1 = __importDefault(require("../../util/StopWatch"));
+const events_1 = __importDefault(require("events"));
 class PlayController {
     constructor(connectionManager) {
         _PlayController_instances.add(this);
@@ -57,12 +58,14 @@ class PlayController {
         _PlayController_monitoredPlaybacks.set(this, void 0);
         _PlayController_volumioPushStateListener.set(this, void 0);
         _PlayController_volumioPushStateHandler.set(this, void 0);
+        _PlayController_prefetchPlaybackStateFixer.set(this, void 0);
         __classPrivateFieldSet(this, _PlayController_mpdPlugin, JellyfinContext_1.default.getMpdPlugin(), "f");
         __classPrivateFieldSet(this, _PlayController_connectionManager, connectionManager, "f");
         __classPrivateFieldSet(this, _PlayController_mpdPlayerStateListener, null, "f");
         __classPrivateFieldSet(this, _PlayController_monitoredPlaybacks, { current: null, pending: null }, "f");
         __classPrivateFieldSet(this, _PlayController_volumioPushStateListener, null, "f");
         __classPrivateFieldSet(this, _PlayController_volumioPushStateHandler, null, "f");
+        __classPrivateFieldSet(this, _PlayController_prefetchPlaybackStateFixer, new PrefetchPlaybackStateFixer(), "f");
     }
     /**
      * Track uri:
@@ -70,8 +73,9 @@ class PlayController {
      */
     async clearAddPlayTrack(track) {
         JellyfinContext_1.default.getLogger().info(`[jellyfin-play] clearAddPlayTrack: ${track.uri}`);
+        __classPrivateFieldGet(this, _PlayController_prefetchPlaybackStateFixer, "f")?.notifyPrefetchCleared();
         const { song, connection } = await this.getSongFromTrack(track);
-        const streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection);
+        const streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_appendTrackTypeToStreamUrl).call(this, __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection), track.trackType);
         __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl, timer: new StopWatch_1.default() };
         __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_addListeners).call(this);
         await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_doPlay).call(this, streamUrl, track);
@@ -110,9 +114,11 @@ class PlayController {
     dispose() {
         __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_removeListeners).call(this);
         __classPrivateFieldSet(this, _PlayController_monitoredPlaybacks, { current: null, pending: null }, "f");
+        __classPrivateFieldGet(this, _PlayController_prefetchPlaybackStateFixer, "f")?.reset();
+        __classPrivateFieldSet(this, _PlayController_prefetchPlaybackStateFixer, null, "f");
     }
     async prefetch(track) {
-        const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback', true);
+        const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback');
         if (!gaplessPlayback) {
             /**
              * Volumio doesn't check whether `prefetch()` is actually performed or
@@ -130,7 +136,7 @@ class PlayController {
         let song, connection, streamUrl;
         try {
             ({ song, connection } = await this.getSongFromTrack(track));
-            streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection);
+            streamUrl = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_appendTrackTypeToStreamUrl).call(this, __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, song, connection), track.trackType);
         }
         catch (error) {
             JellyfinContext_1.default.getLogger().error(`[jellyfin-play] Prefetch failed: ${error}`);
@@ -139,12 +145,14 @@ class PlayController {
         }
         __classPrivateFieldGet(this, _PlayController_monitoredPlaybacks, "f").pending = { song, connection, streamUrl, timer: new StopWatch_1.default() };
         const mpdPlugin = __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f");
-        return (0, util_1.kewToJSPromise)(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
+        const res = await (0, util_1.kewToJSPromise)(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
             .then((addIdResp) => __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_mpdAddTags).call(this, addIdResp, track))
             .then(() => {
             JellyfinContext_1.default.getLogger().info(`[jellyfin-play] Prefetched and added song to MPD queue: ${song.name}`);
             return mpdPlugin.sendMpdCommand('consume 1', []);
         }));
+        __classPrivateFieldGet(this, _PlayController_prefetchPlaybackStateFixer, "f")?.notifyPrefetched(track);
+        return res;
     }
     async getSongFromTrack(track) {
         const views = ViewHelper_1.default.getViewsFromUri(track.uri);
@@ -170,7 +178,7 @@ class PlayController {
     }
 }
 exports.default = PlayController;
-_PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = new WeakMap(), _PlayController_mpdPlayerStateListener = new WeakMap(), _PlayController_monitoredPlaybacks = new WeakMap(), _PlayController_volumioPushStateListener = new WeakMap(), _PlayController_volumioPushStateHandler = new WeakMap(), _PlayController_instances = new WeakSet(), _PlayController_addListeners = function _PlayController_addListeners() {
+_PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = new WeakMap(), _PlayController_mpdPlayerStateListener = new WeakMap(), _PlayController_monitoredPlaybacks = new WeakMap(), _PlayController_volumioPushStateListener = new WeakMap(), _PlayController_volumioPushStateHandler = new WeakMap(), _PlayController_prefetchPlaybackStateFixer = new WeakMap(), _PlayController_instances = new WeakSet(), _PlayController_addListeners = function _PlayController_addListeners() {
     if (!__classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f")) {
         __classPrivateFieldSet(this, _PlayController_mpdPlayerStateListener, __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_handleMpdPlayerEvent).bind(this), "f");
         __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f").clientMpd.on('system-player', __classPrivateFieldGet(this, _PlayController_mpdPlayerStateListener, "f"));
@@ -194,6 +202,15 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = n
         __classPrivateFieldSet(this, _PlayController_volumioPushStateHandler, null, "f");
         __classPrivateFieldSet(this, _PlayController_volumioPushStateListener, null, "f");
     }
+}, _PlayController_appendTrackTypeToStreamUrl = function _PlayController_appendTrackTypeToStreamUrl(url, trackType) {
+    if (!trackType) {
+        return url;
+    }
+    /**
+     * Fool MPD plugin to return correct `trackType` in `parseTrackInfo()` by adding
+     * track type to URL query string as a dummy param.
+     */
+    return `${url}&t.${trackType}`;
 }, _PlayController_mpdAddTags = function _PlayController_mpdAddTags(mpdAddIdResponse, track) {
     const songId = mpdAddIdResponse?.Id;
     // Set tags so that songs show the same title, album and artist as Jellyfin.
@@ -423,4 +440,89 @@ class VolumioPushStateListener {
     }
 }
 _VolumioPushStateListener_lastState = new WeakMap();
+/**
+ * (Taken from YouTube Music plugin)
+ * https://github.com/patrickkfkan/volumio-ytmusic/blob/master/src/lib/controller/play/PlayController.ts
+ *
+ * Given state is updated by calling `setConsumeUpdateService('mpd', true)` (`consumeIgnoreMetadata`: true), when moving to
+ * prefetched track there's no guarantee the state machine will store the correct consume state obtained from MPD. It depends on
+ * whether the state machine increments `currentPosition` before or after MPD calls `pushState()`. The intended
+ * order is 'before' - but because the increment is triggered through a timer, it is possible that MPD calls `pushState()` first,
+ * thereby causing the state machine to store the wrong state info (title, artist, album...obtained from trackBlock at
+ * `currentPosition` which has not yet been incremented).
+ *
+ * See state machine `syncState()` and  `increasePlaybackTimer()`.
+ *
+ * `PrefetchPlaybackStateFixer` checks whether the state is consistent when prefetched track is played and `currentPosition` updated
+ * and triggers an MPD `pushState()` if necessary.
+ */
+class PrefetchPlaybackStateFixer extends events_1.default {
+    constructor() {
+        super();
+        _PrefetchPlaybackStateFixer_instances.add(this);
+        _PrefetchPlaybackStateFixer_positionAtPrefetch.set(this, void 0);
+        _PrefetchPlaybackStateFixer_prefetchedTrack.set(this, void 0);
+        _PrefetchPlaybackStateFixer_volumioPushStateListener.set(this, void 0);
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, -1, "f");
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_prefetchedTrack, null, "f");
+    }
+    reset() {
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_removePushStateListener).call(this);
+        this.removeAllListeners();
+    }
+    notifyPrefetched(track) {
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, JellyfinContext_1.default.getStateMachine().currentPosition, "f");
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_prefetchedTrack, track, "f");
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_addPushStateListener).call(this);
+    }
+    notifyPrefetchCleared() {
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_removePushStateListener).call(this);
+    }
+    emit(event, ...args) {
+        return super.emit(event, ...args);
+    }
+    on(event, listener) {
+        super.on(event, listener);
+        return this;
+    }
+}
+_PrefetchPlaybackStateFixer_positionAtPrefetch = new WeakMap(), _PrefetchPlaybackStateFixer_prefetchedTrack = new WeakMap(), _PrefetchPlaybackStateFixer_volumioPushStateListener = new WeakMap(), _PrefetchPlaybackStateFixer_instances = new WeakSet(), _PrefetchPlaybackStateFixer_addPushStateListener = function _PrefetchPlaybackStateFixer_addPushStateListener() {
+    if (!__classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, "f")) {
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_handleVolumioPushState).bind(this), "f");
+        JellyfinContext_1.default.volumioCoreCommand?.addCallback('volumioPushState', __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, "f"));
+    }
+}, _PrefetchPlaybackStateFixer_removePushStateListener = function _PrefetchPlaybackStateFixer_removePushStateListener() {
+    if (__classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, "f")) {
+        const listeners = JellyfinContext_1.default.volumioCoreCommand?.callbacks?.['volumioPushState'] || [];
+        const index = listeners.indexOf(__classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, "f"));
+        if (index >= 0) {
+            JellyfinContext_1.default.volumioCoreCommand.callbacks['volumioPushState'].splice(index, 1);
+        }
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, null, "f");
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, -1, "f");
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_prefetchedTrack, null, "f");
+    }
+}, _PrefetchPlaybackStateFixer_handleVolumioPushState = function _PrefetchPlaybackStateFixer_handleVolumioPushState(state) {
+    const sm = JellyfinContext_1.default.getStateMachine();
+    const currentPosition = sm.currentPosition;
+    if (sm.getState().service !== 'jellyfin') {
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_removePushStateListener).call(this);
+        return;
+    }
+    if (__classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, "f") >= 0 && __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, "f") !== currentPosition) {
+        const track = sm.getTrack(currentPosition);
+        const pf = __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_prefetchedTrack, "f");
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_removePushStateListener).call(this);
+        if (track && state && pf && track.service === 'jellyfin' && pf.uri === track.uri) {
+            if (state.uri !== track.uri) {
+                const mpdPlugin = JellyfinContext_1.default.getMpdPlugin();
+                mpdPlugin.getState().then((st) => mpdPlugin.pushState(st));
+            }
+            this.emit('playPrefetch', {
+                track: pf,
+                position: currentPosition
+            });
+        }
+    }
+};
 //# sourceMappingURL=PlayController.js.map

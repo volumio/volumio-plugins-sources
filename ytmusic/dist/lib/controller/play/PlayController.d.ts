@@ -2,6 +2,7 @@ import { QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
 export default class PlayController {
     #private;
     constructor();
+    reset(): void;
     /**
      * Track uri:
      * - ytmusic/[song|video]@@explodeTrackData={...}

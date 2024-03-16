@@ -104,13 +104,13 @@ _ConnectionManager_sdkInitInfo = new WeakMap(), _ConnectionManager_connections =
         // By reusing previously-assigned ID, we avoid the Jellyfin server registering multiple
         // Sessions for the user - this can happen when the plugin is restarted within
         // A short timeframe and the session before restart has not yet been marked stale.
-        const cachedDeviceIds = JellyfinContext_1.default.getConfigValue('connectionDeviceIds', {}, true);
+        const cachedDeviceIds = JellyfinContext_1.default.getConfigValue('connectionDeviceIds');
         const connectionId = ServerHelper_1.default.generateConnectionId(username, server);
         let userDeviceId = cachedDeviceIds[connectionId];
         if (!userDeviceId) {
             userDeviceId = (0, uuid_1.v4)();
             cachedDeviceIds[connectionId] = userDeviceId;
-            JellyfinContext_1.default.setConfigValue('connectionDeviceIds', cachedDeviceIds, true);
+            JellyfinContext_1.default.setConfigValue('connectionDeviceIds', cachedDeviceIds);
             JellyfinContext_1.default.getLogger().info(`[jellyfin-conn] Generated new device Id for ${username}@${server.name}: ${userDeviceId}`);
         }
         else {

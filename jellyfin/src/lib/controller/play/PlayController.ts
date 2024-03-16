@@ -13,6 +13,7 @@ import ServerHelper from '../../util/ServerHelper';
 import { kewToJSPromise } from '../../util';
 import ViewHelper from '../browse/view-handlers/ViewHelper';
 import StopWatch from '../../util/StopWatch';
+import EventEmitter from 'events';
 
 interface PlaybackInfo {
   song: Song;
@@ -52,6 +53,7 @@ export default class PlayController {
   #monitoredPlaybacks: MonitoredPlaybacks;
   #volumioPushStateListener: VolumioPushStateListener | null;
   #volumioPushStateHandler: ((state: any) => void) | null;
+  #prefetchPlaybackStateFixer: PrefetchPlaybackStateFixer | null;
 
   constructor(connectionManager: ConnectionManager) {
     this.#mpdPlugin = jellyfin.getMpdPlugin();
@@ -60,6 +62,7 @@ export default class PlayController {
     this.#monitoredPlaybacks = { current: null, pending: null };
     this.#volumioPushStateListener = null;
     this.#volumioPushStateHandler = null;
+    this.#prefetchPlaybackStateFixer = new PrefetchPlaybackStateFixer();
   }
 
   #addListeners() {
@@ -97,12 +100,25 @@ export default class PlayController {
   async clearAddPlayTrack(track: ExplodedTrackInfo): Promise<void> {
     jellyfin.getLogger().info(`[jellyfin-play] clearAddPlayTrack: ${track.uri}`);
 
+    this.#prefetchPlaybackStateFixer?.notifyPrefetchCleared();
+
     const {song, connection} = await this.getSongFromTrack(track);
-    const streamUrl = this.#getStreamUrl(song, connection);
+    const streamUrl = this.#appendTrackTypeToStreamUrl(this.#getStreamUrl(song, connection), track.trackType);
     this.#monitoredPlaybacks.pending = { song, connection, streamUrl, timer: new StopWatch() };
     this.#addListeners();
     await this.#doPlay(streamUrl, track);
     await this.#markPlayed(song, connection);
+  }
+
+  #appendTrackTypeToStreamUrl(url: string, trackType?: string) {
+    if (!trackType) {
+      return url;
+    }
+    /**
+     * Fool MPD plugin to return correct `trackType` in `parseTrackInfo()` by adding
+     * track type to URL query string as a dummy param.
+     */
+    return `${url}&t.${trackType}`;
   }
 
   // Returns kew promise!
@@ -144,10 +160,12 @@ export default class PlayController {
   dispose() {
     this.#removeListeners();
     this.#monitoredPlaybacks = { current: null, pending: null };
+    this.#prefetchPlaybackStateFixer?.reset();
+    this.#prefetchPlaybackStateFixer = null;
   }
 
   async prefetch(track: ExplodedTrackInfo) {
-    const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback', true);
+    const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback');
     if (!gaplessPlayback) {
       /**
        * Volumio doesn't check whether `prefetch()` is actually performed or
@@ -165,7 +183,7 @@ export default class PlayController {
     let song: Song, connection: ServerConnection, streamUrl;
     try {
       ({song, connection} = await this.getSongFromTrack(track));
-      streamUrl = this.#getStreamUrl(song, connection);
+      streamUrl = this.#appendTrackTypeToStreamUrl(this.#getStreamUrl(song, connection), track.trackType);
     }
     catch (error: any) {
       jellyfin.getLogger().error(`[jellyfin-play] Prefetch failed: ${error}`);
@@ -174,12 +192,16 @@ export default class PlayController {
     }
     this.#monitoredPlaybacks.pending = { song, connection, streamUrl, timer: new StopWatch() };
     const mpdPlugin = this.#mpdPlugin;
-    return kewToJSPromise(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
+    const res = await kewToJSPromise(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
       .then((addIdResp: {Id: string}) => this.#mpdAddTags(addIdResp, track))
       .then(() => {
         jellyfin.getLogger().info(`[jellyfin-play] Prefetched and added song to MPD queue: ${song.name}`);
         return mpdPlugin.sendMpdCommand('consume 1', []);
       }));
+
+    this.#prefetchPlaybackStateFixer?.notifyPrefetched(track);
+
+    return res;
   }
 
   // Returns kew promise!
@@ -468,5 +490,104 @@ class VolumioPushStateListener {
       jellyfin.getStateMachine().checkFavourites(state);
     }
     this.#lastState = state;
+  }
+}
+
+/**
+ * (Taken from YouTube Music plugin)
+ * https://github.com/patrickkfkan/volumio-ytmusic/blob/master/src/lib/controller/play/PlayController.ts
+ *
+ * Given state is updated by calling `setConsumeUpdateService('mpd', true)` (`consumeIgnoreMetadata`: true), when moving to
+ * prefetched track there's no guarantee the state machine will store the correct consume state obtained from MPD. It depends on
+ * whether the state machine increments `currentPosition` before or after MPD calls `pushState()`. The intended
+ * order is 'before' - but because the increment is triggered through a timer, it is possible that MPD calls `pushState()` first,
+ * thereby causing the state machine to store the wrong state info (title, artist, album...obtained from trackBlock at
+ * `currentPosition` which has not yet been incremented).
+ *
+ * See state machine `syncState()` and  `increasePlaybackTimer()`.
+ *
+ * `PrefetchPlaybackStateFixer` checks whether the state is consistent when prefetched track is played and `currentPosition` updated
+ * and triggers an MPD `pushState()` if necessary.
+ */
+class PrefetchPlaybackStateFixer extends EventEmitter {
+
+  #positionAtPrefetch: number;
+  #prefetchedTrack: ExplodedTrackInfo | null;
+  #volumioPushStateListener: ((state: any) => void) | null;
+
+  constructor() {
+    super();
+    this.#positionAtPrefetch = -1;
+    this.#prefetchedTrack = null;
+  }
+
+  reset() {
+    this.#removePushStateListener();
+    this.removeAllListeners();
+  }
+
+  notifyPrefetched(track: ExplodedTrackInfo) {
+    this.#positionAtPrefetch = jellyfin.getStateMachine().currentPosition;
+    this.#prefetchedTrack = track;
+    this.#addPushStateListener();
+  }
+
+  notifyPrefetchCleared() {
+    this.#removePushStateListener();
+  }
+
+  #addPushStateListener() {
+    if (!this.#volumioPushStateListener) {
+      this.#volumioPushStateListener = this.#handleVolumioPushState.bind(this);
+      jellyfin.volumioCoreCommand?.addCallback('volumioPushState', this.#volumioPushStateListener);
+    }
+  }
+
+  #removePushStateListener() {
+    if (this.#volumioPushStateListener) {
+      const listeners = jellyfin.volumioCoreCommand?.callbacks?.['volumioPushState'] || [];
+      const index = listeners.indexOf(this.#volumioPushStateListener);
+      if (index >= 0) {
+        jellyfin.volumioCoreCommand.callbacks['volumioPushState'].splice(index, 1);
+      }
+      this.#volumioPushStateListener = null;
+      this.#positionAtPrefetch = -1;
+      this.#prefetchedTrack = null;
+    }
+  }
+
+  #handleVolumioPushState(state: any) {
+    const sm = jellyfin.getStateMachine();
+    const currentPosition = sm.currentPosition as number;
+    if (sm.getState().service !== 'jellyfin') {
+      this.#removePushStateListener();
+      return;
+    }
+    if (this.#positionAtPrefetch >= 0 && this.#positionAtPrefetch !== currentPosition) {
+      const track = sm.getTrack(currentPosition);
+      const pf = this.#prefetchedTrack;
+      this.#removePushStateListener();
+      if (track && state && pf && track.service === 'jellyfin' && pf.uri === track.uri) {
+        if (state.uri !== track.uri) {
+          const mpdPlugin = jellyfin.getMpdPlugin();
+          mpdPlugin.getState().then((st: any) => mpdPlugin.pushState(st));
+        }
+        this.emit('playPrefetch', {
+          track: pf,
+          position: currentPosition
+        });
+      }
+    }
+  }
+
+  emit(event: 'playPrefetch', info: { track: ExplodedTrackInfo; position: number; }): boolean;
+  emit(event: string | symbol, ...args: any[]): boolean {
+    return super.emit(event, ...args);
+  }
+
+  on(event: 'playPrefetch', listener: (info: { track: ExplodedTrackInfo; position: number; }) => void): this;
+  on(event: string | symbol, listener: (...args: any[]) => void): this {
+    super.on(event, listener);
+    return this;
   }
 }

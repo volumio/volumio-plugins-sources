@@ -1,0 +1,9 @@
+.git
+.github
+node_modules/
+dist/
+tests/
+src/app/client/
+src/app/preview/
+src/app/views/
+src/lib/config/UIConfigSchema.ts

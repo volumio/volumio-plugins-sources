@@ -22,6 +22,17 @@ You can add multiple servers, each with multple user accounts, and those that ar
   
 #### Changelog
 
+1.0.9
+- [Fixed] Player state sometimes wrong when playing prefetched track
+
+1.0.8
+- [Fixed] Track type injection into stream URL breaks native DSD playback
+- [Fixed] Song thumbnail not falling back to album's albumart when album itself has no info
+
+1.0.7
+- [Fixed] Pagination in playlist and genre views
+- [Fixed] Track type missing in player state
+
 1.0.6
 - [Fixed] Wrong seek value reported in 'stop' events ([#6](https://github.com/patrickkfkan/volumio-jellyfin/issues/6))
 - [Changed] Use a more descriptive SDK client name (as shown on Jellyfin dashboard)

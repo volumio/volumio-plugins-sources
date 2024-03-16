@@ -2,18 +2,22 @@
 
 Volumio plugin for discovering Bandcamp music.
 
+This plugin scrapes content from the Bandcamp website. If Bandcamp changes their site, then this plugin may no longer work until it is updated to match those changes. Furthermore, loading of some resources could take a while if the plugin has to gather data from multiple pages.
+
 *This plugin is not affiliated with Bandcamp whatsoever.*
-
-## Limitations
-
-- Bandcamp login is not supported, due to Bandcamp not releasing an API that allows it. This means you will not be able to access your purchases nor stream high-quality music from Bandcamp.
-- This plugin scrapes content from the Bandcamp website. If Bandcamp changes their site, then this plugin may no longer work until it is updated to match those changes. Furthermore, loading of some resources could take a while if the plugin has to gather data from multiple pages.
 
 ## Support Bandcamp and Artists
 
 As the name implies, the purpose of this plugin is to allow you to discover music and artists on Bandcamp through Volumio. If you come across something you like, consider purchasing it on the Bandcamp website. To this end, the plugin displays links for accessing albums, artists and labels on Bandcamp (Volumio Contemporary / Classic UI only). You can also access the album or artist of a currently playing Bandcamp track through the menu in Volumio's player view (click the ellipsis icon to bring up the menu).
 
 ## Changelog
+
+1.1.1
+- Fix player state sometimes wrong when playing prefetched track
+
+1.1.0
+- My Bandcamp: add support for cookie-based fetching, thereby allowing access to private collections and high-quality MP3 streams of purchased media.
+- Fix stream URLs sometimes broken (perhaps expired?). URLs are now tested and refreshed if necessary before playback.
 
 1.0.3
 - Improve Manifest UI detection

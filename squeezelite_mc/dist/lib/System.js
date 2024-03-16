@@ -130,19 +130,29 @@ async function updateSqueezeliteService(params) {
     await execCommand(cpCmd, true);
     return true;
 }
-async function updateAlsaConf(params) {
+async function updateAlsaConf(conf) {
     const template = fs.readFileSync(ALSA_CONF_TEMPLATE_FILE).toString();
+    let ctl;
+    if (conf.mixerType !== 'None') {
+        ctl = `
+      ctl.squeezelite {
+          type hw
+          card ${conf.card}
+      }`;
+    }
+    else {
+        ctl = '';
+    }
     // eslint-disable-next-line no-template-curly-in-string
-    const out = template.replace('${CARD}', params.card);
+    const out = template.replace('${CTL}', ctl);
     fs.writeFileSync(`${ALSA_CONF_TEMPLATE_FILE}.out`, out);
     const cpCmd = `cp ${ALSA_CONF_TEMPLATE_FILE}.out ${ALSA_CONF_FILE}`;
     await execCommand(cpCmd, true);
+    await execCommand('alsactl -L -R nrestore', true);
     return true;
 }
 async function initSqueezeliteService(params) {
-    if (params.type === 'basic') {
-        await updateAlsaConf(params);
-    }
+    await updateAlsaConf(params);
     await updateSqueezeliteService(params);
     await systemctl('daemon-reload');
     return restartSqueezeliteService();

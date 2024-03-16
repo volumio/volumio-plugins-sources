@@ -20,8 +20,8 @@ class SongViewHandler extends FilterableViewHandler_1.default {
         const isPlaylist = !!playlistId;
         const listViewOnly = isAlbum || isPlaylist;
         let pagination;
-        if ((isAlbum && JellyfinContext_1.default.getConfigValue('showAllAlbumTracks', true)) ||
-            (isPlaylist && JellyfinContext_1.default.getConfigValue('showAllPlaylistTracks', true))) {
+        if ((isAlbum && JellyfinContext_1.default.getConfigValue('showAllAlbumTracks')) ||
+            (isPlaylist && JellyfinContext_1.default.getConfigValue('showAllPlaylistTracks'))) {
             pagination = false;
         }
         else {
@@ -30,7 +30,7 @@ class SongViewHandler extends FilterableViewHandler_1.default {
         const { lists, modelQueryParams } = await this.handleFilters();
         if (isAlbum) {
             modelQueryParams.parentId = albumId;
-            if (JellyfinContext_1.default.getConfigValue('showAllAlbumTracks', true)) {
+            if (JellyfinContext_1.default.getConfigValue('showAllAlbumTracks')) {
                 modelQueryParams.limit = -1;
             }
         }
@@ -38,12 +38,12 @@ class SongViewHandler extends FilterableViewHandler_1.default {
             modelQueryParams.parentId = playlistId;
             modelQueryParams.sortBy = null;
             modelQueryParams.sortOrder = null;
-            if (JellyfinContext_1.default.getConfigValue('showAllPlaylistTracks', true)) {
+            if (JellyfinContext_1.default.getConfigValue('showAllPlaylistTracks')) {
                 modelQueryParams.limit = -1;
             }
         }
         else if (view.search && view.collatedSearchResults) {
-            modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('searchSongsResultCount', 11);
+            modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('searchSongsResultCount');
         }
         const model = this.getModel(model_1.ModelType.Song);
         const renderer = this.getRenderer(entities_1.EntityType.Song);
@@ -120,16 +120,16 @@ class SongViewHandler extends FilterableViewHandler_1.default {
         }
         else if (view.name === 'songs') {
             const { modelQueryParams } = await this.handleFilters();
-            modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('maxTracks', 100);
+            modelQueryParams.limit = JellyfinContext_1.default.getConfigValue('maxTracks');
             if (view.albumId) {
                 modelQueryParams.parentId = view.albumId;
-                if (JellyfinContext_1.default.getConfigValue('noMaxTracksSingleAlbum', true)) {
+                if (JellyfinContext_1.default.getConfigValue('noMaxTracksSingleAlbum')) {
                     modelQueryParams.limit = -1;
                 }
             }
             else if (view.playlistId) {
                 modelQueryParams.parentId = view.playlistId;
-                if (JellyfinContext_1.default.getConfigValue('noMaxTracksSinglePlaylist', true)) {
+                if (JellyfinContext_1.default.getConfigValue('noMaxTracksSinglePlaylist')) {
                     modelQueryParams.limit = -1;
                 }
             }

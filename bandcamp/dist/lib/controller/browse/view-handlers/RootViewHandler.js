@@ -10,6 +10,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _RootViewHandler_instances, _RootViewHandler_getFanSummary, _RootViewHandler_getArticles, _RootViewHandler_getShows, _RootViewHandler_getDiscoverResults, _RootViewHandler_getSectionLists;
 Object.defineProperty(exports, "__esModule", { value: true });
 const BandcampContext_1 = __importDefault(require("../../../BandcampContext"));
+const model_1 = require("../../../model");
 const BaseViewHandler_1 = __importDefault(require("./BaseViewHandler"));
 const ViewHandlerFactory_1 = __importDefault(require("./ViewHandlerFactory"));
 class RootViewHandler extends BaseViewHandler_1.default {
@@ -18,8 +19,29 @@ class RootViewHandler extends BaseViewHandler_1.default {
         _RootViewHandler_instances.add(this);
     }
     async browse() {
-        const myUsername = BandcampContext_1.default.getConfigValue('myUsername', null);
-        const fetches = myUsername ? [__classPrivateFieldGet(this, _RootViewHandler_instances, "m", _RootViewHandler_getFanSummary).call(this, myUsername)] : [];
+        const fetches = [];
+        const myBandcampType = BandcampContext_1.default.getConfigValue('myBandcampType', 'cookie');
+        let myUsername = null;
+        if (myBandcampType === 'cookie') {
+            const myCookie = BandcampContext_1.default.getConfigValue('myCookie', '');
+            if (myCookie) {
+                const fanModel = this.getModel(model_1.ModelType.Fan);
+                try {
+                    const myFanInfo = await fanModel.getInfo();
+                    myUsername = myFanInfo.username;
+                }
+                catch (error) {
+                    BandcampContext_1.default.getLogger().error(`[bandcamp] Error getting fan info by cookie${error instanceof Error ? `: ${error.message}` : '.'}`);
+                    BandcampContext_1.default.toast('error', BandcampContext_1.default.getI18n('BANDCAMP_ERR_MY_FAN_INFO'));
+                }
+            }
+        }
+        else if (myBandcampType === 'username') {
+            myUsername = BandcampContext_1.default.getConfigValue('myUsername', '');
+        }
+        if (myUsername) {
+            fetches.push(__classPrivateFieldGet(this, _RootViewHandler_instances, "m", _RootViewHandler_getFanSummary).call(this, myUsername));
+        }
         fetches.push(__classPrivateFieldGet(this, _RootViewHandler_instances, "m", _RootViewHandler_getArticles).call(this), __classPrivateFieldGet(this, _RootViewHandler_instances, "m", _RootViewHandler_getShows).call(this), __classPrivateFieldGet(this, _RootViewHandler_instances, "m", _RootViewHandler_getDiscoverResults).call(this));
         const sectionLists = await Promise.all(fetches);
         const flattenedLists = sectionLists.reduce((result, list) => {

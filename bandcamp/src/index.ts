@@ -18,6 +18,7 @@ import View from './lib/controller/browse/view-handlers/View';
 import { BandView } from './lib/controller/browse/view-handlers/BandViewHandler';
 import { ShowView } from './lib/controller/browse/view-handlers/ShowViewHandler';
 import { ArticleView } from './lib/controller/browse/view-handlers/ArticleViewHandler';
+import Model from './lib/model';
 
 interface GotoParams extends ExplodedTrackInfo {
   type: 'album' | 'artist';
@@ -61,7 +62,14 @@ class ControllerBandcamp {
       generalUIConf.content[3].value = bandcamp.getConfigValue('prefetch', true);
 
       // My Bandcamp
-      myBandcampUIConf.content[0].value = bandcamp.getConfigValue('myUsername', '');
+      const myBandcampType = bandcamp.getConfigValue('myBandcampType', 'cookie');
+      const myBandcampTypeLabel = myBandcampType === 'cookie' ? bandcamp.getI18n('BANDCAMP_COOKIE') : bandcamp.getI18n('BANDCAMP_USERNAME');
+      myBandcampUIConf.content[0].value = {
+        value: myBandcampType,
+        label: myBandcampTypeLabel
+      };
+      myBandcampUIConf.content[1].value = bandcamp.getConfigValue('myCookie', '');
+      myBandcampUIConf.content[2].value = bandcamp.getConfigValue('myUsername', '');
 
       // Cache
       const cacheMaxEntries = bandcamp.getConfigValue('cacheMaxEntries', 5000);
@@ -109,7 +117,25 @@ class ControllerBandcamp {
   }
 
   configSaveMyBandcampSettings(data: any) {
+    const oldType = bandcamp.getConfigValue('myBandcampType', 'cookie');
+    const oldMyCookie = bandcamp.getConfigValue('myCookie', '');
+    const type = data.myBandcampType.value;
+    const myCookie = data.myCookie.trim();
+    bandcamp.setConfigValue('myBandcampType', type);
     bandcamp.setConfigValue('myUsername', data.myUsername.trim());
+    bandcamp.setConfigValue('myCookie', myCookie);
+
+    if (type === 'cookie') {
+      Model.setCookie(myCookie);
+    }
+    else {
+      Model.setCookie();
+    }
+
+    if (oldType !== type || (type === 'cookie' && oldMyCookie !== myCookie)) {
+      bandcamp.getCache().clear();
+    }
+
     bandcamp.toast('success', bandcamp.getI18n('BANDCAMP_SETTINGS_SAVED'));
   }
 
@@ -137,6 +163,7 @@ class ControllerBandcamp {
 
   configClearCache() {
     bandcamp.getCache().clear();
+    Model.clearLibCache();
     bandcamp.toast('success', bandcamp.getI18n('BANDCAMP_CACHE_CLEARED'));
     this.refreshUIConfig();
   }
@@ -150,6 +177,14 @@ class ControllerBandcamp {
 
   onStart() {
     bandcamp.init(this.#context, this.#config);
+
+    const myBandcampType = bandcamp.getConfigValue('myBandcampType', 'cookie');
+    if (myBandcampType === 'cookie') {
+      const myCookie = bandcamp.getConfigValue('myCookie', '');
+      if (myCookie) {
+        Model.setCookie(myCookie);
+      }
+    }
 
     this.#browseController = new BrowseController();
     this.#searchController = new SearchController();
@@ -165,8 +200,10 @@ class ControllerBandcamp {
 
     this.#browseController = null;
     this.#searchController = null;
+    this.#playController?.dispose();
     this.#playController = null;
 
+    Model.reset();
     bandcamp.reset();
 
     return libQ.resolve();

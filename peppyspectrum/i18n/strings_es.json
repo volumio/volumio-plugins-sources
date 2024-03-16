@@ -1,0 +1,10 @@
+{
+  "LOCALSETTINGS": "Configuración local de pantalla",
+  "SCREENSIZE": "Carpeta de espectro",
+  "SCREENSIZE_DOC": "Carpeta para Spectrum. La carpeta personalizada está en /data/INTERNAL/PeppySppectrum/Templates/ y debe llamarse myspectrum(weightxhightxnumberofbar) ex collection(800x480x30). Si se omite el número de barras, se utiliza el valor predeterminado 30",
+  "ELEGIR_ESPECTRO_DOC": "Selecciona el espectro en la lista",
+  "CHOOSE_SPECTRUM": "Seleccionar espectro",
+  "NBARCHANGE": "¡Cambiado el número de barras del espectro! Now set to ",
+  "APLICAR": "Aplicar",
+  "CERRAR": "Cerrar"
+}

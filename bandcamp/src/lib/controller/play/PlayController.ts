@@ -14,13 +14,16 @@ import { ArticleEntityMediaItem } from '../../entities/ArticleEntity';
 import TrackEntity from '../../entities/TrackEntity';
 import { AlbumView } from '../browse/view-handlers/AlbumViewHandler';
 import { kewToJSPromise } from '../../util';
+import EventEmitter from 'events';
 
 export default class PlayController {
 
   #mpdPlugin: any;
+  #prefetchPlaybackStateFixer: PrefetchPlaybackStateFixer | null;
 
   constructor() {
     this.#mpdPlugin = bandcamp.getMpdPlugin();
+    this.#prefetchPlaybackStateFixer = new PrefetchPlaybackStateFixer();
   }
 
   /**
@@ -32,6 +35,8 @@ export default class PlayController {
    */
   async clearAddPlayTrack(track: ExplodedTrackInfo) {
     bandcamp.getLogger().info(`[bandcamp-play] clearAddPlayTrack: ${track.uri}`);
+
+    this.#prefetchPlaybackStateFixer?.notifyPrefetchCleared();
 
     let streamUrl;
     try {
@@ -81,6 +86,11 @@ export default class PlayController {
     return bandcamp.getStateMachine().previous();
   }
 
+  dispose() {
+    this.#prefetchPlaybackStateFixer?.reset();
+    this.#prefetchPlaybackStateFixer = null;
+  }
+
   async prefetch(track: ExplodedTrackInfo) {
     const prefetchEnabled = bandcamp.getConfigValue('prefetch', true);
     if (!prefetchEnabled) {
@@ -108,15 +118,51 @@ export default class PlayController {
     }
 
     const mpdPlugin = this.#mpdPlugin;
-    return kewToJSPromise(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
+    const res = await kewToJSPromise(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
       .then((addIdResp: { Id: string }) => this.#mpdAddTags(addIdResp, track))
       .then(() => {
         bandcamp.getLogger().info(`[bandcamp-play] Prefetched and added track to MPD queue: ${track.name}`);
         return mpdPlugin.sendMpdCommand('consume 1', []);
       }));
+
+    this.#prefetchPlaybackStateFixer?.notifyPrefetched(track);
+
+    return res;
   }
 
   async #getStreamUrl(track: ExplodedTrackInfo, isPrefetching = false): Promise<string> {
+    let streamUrl = await this.#doGetStreamUrl(track, isPrefetching);
+
+    // Ensure stream URL is valid
+    const ensuredUrl = await Model.ensureStreamURL(streamUrl);
+    if (!ensuredUrl) {
+      if (!isPrefetching) {
+        bandcamp.toast('error', bandcamp.getI18n('BANDCAMP_ERR_REFRESH_STREAM', track.title));
+      }
+      throw Error(`Failed to refresh stream URL for ${track.title}: ${streamUrl}`);
+    }
+
+    // Safe
+    streamUrl = ensuredUrl.replace(/"/g, '\\"');
+
+    /**
+     * 1. Add bitrate info to track
+     * 2. Fool MPD plugin to return correct `trackType` in `parseTrackInfo()` by adding
+     * track type to URL query string as a dummy param.
+     */
+    if (streamUrl.includes('mp3-128')) {
+      track.samplerate = '128 kbps';
+      streamUrl += '&t.mp3';
+    }
+    else if (streamUrl.includes('mp3-v0')) {
+      track.samplerate = 'HQ VBR';
+      streamUrl += '&t.mp3';
+    }
+
+    return streamUrl;
+  }
+
+  async #doGetStreamUrl(track: ExplodedTrackInfo, isPrefetching = false): Promise<string> {
 
     const _toast = (type: 'error' | 'warning', msg: string) => {
       if (!isPrefetching) {
@@ -263,5 +309,104 @@ export default class PlayController {
       return this.#mpdPlugin.sendMpdCommandArray(cmds);
     }
     return libQ.resolve();
+  }
+}
+
+/**
+ * (Taken from YouTube Music plugin)
+ * https://github.com/patrickkfkan/volumio-ytmusic/blob/master/src/lib/controller/play/PlayController.ts
+ *
+ * Given state is updated by calling `setConsumeUpdateService('mpd', true)` (`consumeIgnoreMetadata`: true), when moving to
+ * prefetched track there's no guarantee the state machine will store the correct consume state obtained from MPD. It depends on
+ * whether the state machine increments `currentPosition` before or after MPD calls `pushState()`. The intended
+ * order is 'before' - but because the increment is triggered through a timer, it is possible that MPD calls `pushState()` first,
+ * thereby causing the state machine to store the wrong state info (title, artist, album...obtained from trackBlock at
+ * `currentPosition` which has not yet been incremented).
+ *
+ * See state machine `syncState()` and  `increasePlaybackTimer()`.
+ *
+ * `PrefetchPlaybackStateFixer` checks whether the state is consistent when prefetched track is played and `currentPosition` updated
+ * and triggers an MPD `pushState()` if necessary.
+ */
+class PrefetchPlaybackStateFixer extends EventEmitter {
+
+  #positionAtPrefetch: number;
+  #prefetchedTrack: ExplodedTrackInfo | null;
+  #volumioPushStateListener: ((state: any) => void) | null;
+
+  constructor() {
+    super();
+    this.#positionAtPrefetch = -1;
+    this.#prefetchedTrack = null;
+  }
+
+  reset() {
+    this.#removePushStateListener();
+    this.removeAllListeners();
+  }
+
+  notifyPrefetched(track: ExplodedTrackInfo) {
+    this.#positionAtPrefetch = bandcamp.getStateMachine().currentPosition;
+    this.#prefetchedTrack = track;
+    this.#addPushStateListener();
+  }
+
+  notifyPrefetchCleared() {
+    this.#removePushStateListener();
+  }
+
+  #addPushStateListener() {
+    if (!this.#volumioPushStateListener) {
+      this.#volumioPushStateListener = this.#handleVolumioPushState.bind(this);
+      bandcamp.volumioCoreCommand?.addCallback('volumioPushState', this.#volumioPushStateListener);
+    }
+  }
+
+  #removePushStateListener() {
+    if (this.#volumioPushStateListener) {
+      const listeners = bandcamp.volumioCoreCommand?.callbacks?.['volumioPushState'] || [];
+      const index = listeners.indexOf(this.#volumioPushStateListener);
+      if (index >= 0) {
+        bandcamp.volumioCoreCommand.callbacks['volumioPushState'].splice(index, 1);
+      }
+      this.#volumioPushStateListener = null;
+      this.#positionAtPrefetch = -1;
+      this.#prefetchedTrack = null;
+    }
+  }
+
+  #handleVolumioPushState(state: any) {
+    const sm = bandcamp.getStateMachine();
+    const currentPosition = sm.currentPosition as number;
+    if (sm.getState().service !== 'bandcamp') {
+      this.#removePushStateListener();
+      return;
+    }
+    if (this.#positionAtPrefetch >= 0 && this.#positionAtPrefetch !== currentPosition) {
+      const track = sm.getTrack(currentPosition);
+      const pf = this.#prefetchedTrack;
+      this.#removePushStateListener();
+      if (track && state && pf && track.service === 'bandcamp' && pf.uri === track.uri) {
+        if (state.uri !== track.uri) {
+          const mpdPlugin = bandcamp.getMpdPlugin();
+          mpdPlugin.getState().then((st: any) => mpdPlugin.pushState(st));
+        }
+        this.emit('playPrefetch', {
+          track: pf,
+          position: currentPosition
+        });
+      }
+    }
+  }
+
+  emit(event: 'playPrefetch', info: { track: ExplodedTrackInfo; position: number; }): boolean;
+  emit(event: string | symbol, ...args: any[]): boolean {
+    return super.emit(event, ...args);
+  }
+
+  on(event: 'playPrefetch', listener: (info: { track: ExplodedTrackInfo; position: number; }) => void): this;
+  on(event: string | symbol, listener: (...args: any[]) => void): this {
+    super.on(event, listener);
+    return this;
   }
 }

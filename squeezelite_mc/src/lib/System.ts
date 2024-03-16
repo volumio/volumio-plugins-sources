@@ -2,7 +2,7 @@ import path from 'path';
 import sm from './SqueezeliteMCContext';
 import { exec } from 'child_process';
 import * as fs from 'fs';
-import { BasicPlayerStartupParams, PlayerStartupParams } from './types/Player';
+import { AlsaConfig, PlayerStartupParams } from './types/Player';
 import { basicPlayerStartupParamsToSqueezeliteOpts } from './Util';
 
 const SYSTEMD_TEMPLATE_FILE = `${path.resolve(__dirname)}/../templates/systemd/squeezelite.service.template`;
@@ -114,20 +114,30 @@ async function updateSqueezeliteService(params: PlayerStartupParams) {
   return true;
 }
 
-async function updateAlsaConf(params: BasicPlayerStartupParams) {
+async function updateAlsaConf(conf: AlsaConfig) {
   const template = fs.readFileSync(ALSA_CONF_TEMPLATE_FILE).toString();
+  let ctl: string;
+  if (conf.mixerType !== 'None') {
+    ctl = `
+      ctl.squeezelite {
+          type hw
+          card ${conf.card}
+      }`;
+  }
+  else {
+    ctl = '';
+  }
   // eslint-disable-next-line no-template-curly-in-string
-  const out = template.replace('${CARD}', params.card);
+  const out = template.replace('${CTL}', ctl);
   fs.writeFileSync(`${ALSA_CONF_TEMPLATE_FILE}.out`, out);
   const cpCmd = `cp ${ALSA_CONF_TEMPLATE_FILE}.out ${ALSA_CONF_FILE}`;
   await execCommand(cpCmd, true);
+  await execCommand('alsactl -L -R nrestore', true);
   return true;
 }
 
 export async function initSqueezeliteService(params: PlayerStartupParams) {
-  if (params.type === 'basic') {
-    await updateAlsaConf(params);
-  }
+  await updateAlsaConf(params);
   await updateSqueezeliteService(params);
   await systemctl('daemon-reload');
   return restartSqueezeliteService();

@@ -16,6 +16,7 @@ export default class PlayController {
     seek(position: number): any;
     next(): any;
     previous(): any;
+    dispose(): void;
     prefetch(track: ExplodedTrackInfo): Promise<any>;
 }
 //# sourceMappingURL=PlayController.d.ts.map

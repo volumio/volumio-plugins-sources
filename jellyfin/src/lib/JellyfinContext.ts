@@ -1,6 +1,7 @@
 import format from 'string-format';
 import fs from 'fs-extra';
 import winston from 'winston';
+import { PLUGIN_CONFIG_SCHEMA, PluginConfigKey, PluginConfigValue } from './util/PluginConfig';
 
 interface DeviceInfo {
   name: string;
@@ -85,15 +86,20 @@ class JellyfinContext {
     return deviceInfo;
   }
 
-  getConfigValue<T>(key: string, defaultValue: T, json = false): T {
+  hasConfigKey<T extends PluginConfigKey>(key: T): boolean {
+    return this.#pluginConfig.has(key);
+  }
+
+  getConfigValue<T extends PluginConfigKey>(key: T): PluginConfigValue<T> {
+    const schema = PLUGIN_CONFIG_SCHEMA[key];
     if (this.#pluginConfig.has(key)) {
       const val = this.#pluginConfig.get(key);
-      if (json) {
+      if (schema.json) {
         try {
           return JSON.parse(val);
         }
         catch (e) {
-          return defaultValue;
+          return schema.defaultValue;
         }
       }
       else {
@@ -101,7 +107,7 @@ class JellyfinContext {
       }
     }
     else {
-      return defaultValue;
+      return schema.defaultValue;
     }
   }
 
@@ -109,8 +115,9 @@ class JellyfinContext {
     this.#pluginConfig.delete(key);
   }
 
-  setConfigValue(key: string, value: any, json = false) {
-    this.#pluginConfig.set(key, json ? JSON.stringify(value) : value);
+  setConfigValue<T extends PluginConfigKey>(key: T, value: PluginConfigValue<T>) {
+    const schema = PLUGIN_CONFIG_SCHEMA[key];
+    this.#pluginConfig.set(key, schema.json ? JSON.stringify(value) : value);
   }
 
   getAlbumArtPlugin() {
