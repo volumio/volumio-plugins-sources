@@ -1,4 +1,8 @@
 {
+  "servicePort": {
+    "type": "int",
+    "value": 9000
+  },
   "radikoUser": {
     "type": "string",
     "value": ""

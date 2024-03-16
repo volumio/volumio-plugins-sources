@@ -30,7 +30,8 @@ class Radiko {
   #PLAY_URL = 'http://f-radiko.smartstream.ne.jp/%s/_definst_/simul-stream.stream/playlist.m3u8';
   #MAX_RETRY_COUNT = 2;
   #PROG_DAILY_URL = "https://radiko.jp/v3/program/station/date/%s/%s.xml"
-  constructor(logger) {
+  constructor(port, logger) {
+    this.port = port;
     this.logger = logger;
 
     this.token = null;
@@ -336,7 +337,7 @@ class Radiko {
         type: 'song',
         title: title,
         albumart: temp['BannerURL'],
-        uri: 'http://127.0.0.1:9000/radiko/' + station,
+        uri: `http://127.0.0.1:${this.port}/radiko/${station}`,
         name: '',
         samplerate: '',
         bitdepth: 0,

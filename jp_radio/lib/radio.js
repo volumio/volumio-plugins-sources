@@ -1,15 +1,13 @@
 'use strict';
 const express = require('express');
-const app = express();
 const RdkProg = require('./prog');
-
 const Radiko = require('./radiko');
-
 const cron = require('node-cron');
 const IcyMetadata = require('icy-metadata');
 
 class JpRadio {
   constructor(port, logger, acct = null) {
+    this.app = express();
     this.server = null;
     this.port = port || 9000;
     this.logger = logger;
@@ -22,11 +20,11 @@ class JpRadio {
     this.prg = null;
     this.rdk = null;
 
-    app.get('/radiko/', (req, res) => {
+    this.app.get('/radiko/', (req, res) => {
       res.send('Hello, world. You\'re at the radiko_app index.');
     });
     
-    app.get('/radiko/:stationID', async (req, res) => {
+    this.app.get('/radiko/:stationID', async (req, res) => {
       let station = req.params['stationID'];
     
       if (this.rdk.stations.has(station)) {
@@ -70,12 +68,12 @@ class JpRadio {
       this.logger.info('JP_Radio::App already started');
       return Promise.resolve();
     }
-    return new Promise((resolve, reject) => {
-      this.server = app.listen(this.port, async () => {
+    return new Promise(async (resolve, reject) => {
+      this.prg = new RdkProg(this.logger);
+      this.rdk = new Radiko(this.port, this.logger, this.acct);
+      await this.#init(this.acct);
+      this.server = this.app.listen(this.port, async () => {
         this.logger.info(`JP_Radio::App is listening on port ${this.port}.`);
-        this.prg = new RdkProg(this.logger);
-        this.rdk = new Radiko(this.logger, this.acct);
-        await this.#init(this.acct);
         this.task.start();
         resolve();
       }).on('error', err => {

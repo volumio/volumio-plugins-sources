@@ -14,10 +14,87 @@ function ControllerJpRadio(context) {
   this.serviceName = "jp_radio";
 }
 
+ControllerJpRadio.prototype.restartPlugin = function() {
+  var self = this;
+  self.onStop().then(() => {
+    self.onStart().catch(err => {
+      self.commandRouter.pushToastMessage('error', 'Restart Failed', 'The plugin could not be restarted.');
+    });
+  });
+};
+
+ControllerJpRadio.prototype.saveServicePort = function (data) {
+  var self = this;
+  var defer = libQ.defer();
+  var configUpdated = false;
+
+  var message = {
+    title:  'Plugin Restart Required',
+    message: 'Changes have been made that require the JP Radio plugin to be restarted. Please click the restart button below.',
+    size: 'lg',
+    buttons: [
+      {
+        name: self.commandRouter.getI18nString('COMMON.RESTART'),
+        class: 'btn btn-info',
+        emit: 'callMethod',
+        payload: {
+            endpoint: 'music_service/jp_radio',
+            method: 'restartPlugin',
+            data: {}
+        }
+      },
+      {
+        name: self.commandRouter.getI18nString('COMMON.CANCEL'),
+        class: 'btn btn-info',
+        emit: 'closeModals',
+        payload: ''
+      }
+    ]
+  };
+
+  if (self.config.get('servicePort') != data['servicePort']) {
+    var servicePort = parseInt(data['servicePort']);
+    if (!isNaN(servicePort)) {
+      self.config.set('servicePort', servicePort);
+      configUpdated = true;
+    }
+  }
+
+  if (configUpdated) {
+    self.commandRouter.broadcastMessage('openModal', message);
+  }
+  defer.resolve({});
+  return defer.promise;
+};
+
 ControllerJpRadio.prototype.saveRadikoAccount = function (data) {
   var self = this;
   var defer = libQ.defer();
   var configUpdated = false;
+  
+  var message = {
+    title:  'Plugin Restart Required',
+    message: 'Changes have been made that require the JP Radio plugin to be restarted. Please click the restart button below.',
+    size: 'lg',
+    buttons: [
+      {
+        name: self.commandRouter.getI18nString('COMMON.RESTART'),
+        class: 'btn btn-info',
+        emit: 'callMethod',
+        payload: {
+            endpoint: 'music_service/jp_radio',
+            method: 'restartPlugin',
+            data: {}
+        }
+      },
+      {
+        name: self.commandRouter.getI18nString('COMMON.CANCEL'),
+        class: 'btn btn-info',
+        emit: 'closeModals',
+        payload: ''
+      }
+    ]
+  };
 
   if (self.config.get('radikoUser') != data['radikoUser']) {
     self.config.set('radikoUser', data['radikoUser']);
@@ -29,7 +106,7 @@ ControllerJpRadio.prototype.saveRadikoAccount = function (data) {
   }
 
   if (configUpdated) {
-    self.commandRouter.pushToastMessage('success', 'Settings have been saved successfully. Please restart the plugin.');
+    self.commandRouter.broadcastMessage('openModal', message);
   }
   defer.resolve({});
   return defer.promise;
@@ -50,6 +127,11 @@ ControllerJpRadio.prototype.onStart = function () {
   const radikoUser = self.config.get('radikoUser');
   const radikoPass = self.config.get('radikoPass');
 
+  var servicePort = self.config.get('servicePort');
+  if (!(servicePort !== undefined && servicePort)) {
+    servicePort = 9000;
+  }
+
   let acct = null;
 
   if (radikoUser !== undefined && radikoUser && radikoPass !== undefined && radikoPass) {
@@ -59,7 +141,7 @@ ControllerJpRadio.prototype.onStart = function () {
     };
   }
 
-  self.appRadio = new JpRadio(9000, this.logger, acct);
+  self.appRadio = new JpRadio(servicePort, this.logger, acct);
 
   // Once the Plugin has successfull started resolve the promise
   defer.resolve();
@@ -102,8 +184,9 @@ ControllerJpRadio.prototype.getUIConfig = function () {
     __dirname + '/i18n/strings_en.json',
     __dirname + '/UIConfig.json')
     .then(function (uiconf) {
-      uiconf.sections[0].content[0].value = self.config.get('radikoUser');
-      uiconf.sections[0].content[1].value = self.config.get('radikoPass');
+      uiconf.sections[0].content[0].value = self.config.get('servicePort');
+      uiconf.sections[1].content[0].value = self.config.get('radikoUser');
+      uiconf.sections[1].content[1].value = self.config.get('radikoPass');
       defer.resolve(uiconf);
     }).fail(function () {
       defer.reject(new Error());
