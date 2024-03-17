@@ -6,7 +6,7 @@ const path = require('path');
 const os = require('os');
 const { Gpio } = require('onoff');
 let hwShutdown = false;
-let shutdownCtrl, initShutdown;
+let shutdownCtrl, initShutdown, shutdownCtrlGPIO, initShutdownGPIO;
 
 module.exports = remotepi;
 
@@ -37,7 +37,7 @@ remotepi.prototype.onVolumioShutdown = function () {
   try {
     if (!hwShutdown) {
       self.logger.info(self.pluginName + ': Shutdown initiated by UI');
-      // Execute shutdown signal sequence on GPIO15
+      // Execute shutdown signal sequence on GPIO15 respectively GPIO473 on Pi 5
       initShutdown.writeSync(1);
       msleep(125);
       initShutdown.writeSync(0);
@@ -49,24 +49,38 @@ remotepi.prototype.onVolumioShutdown = function () {
       self.logger.info(self.pluginName + ': Shutdown initiated by hardware knob or IR remote control');
     }
     try {
-      // Reconfigure GPIO14 as output with initial "high" level allowing the RemotePi
+      // Reconfigure GPIO14 respectively GPIO472 on Pi 5 as output with initial "high" level allowing the RemotePi
       // to recognize when the shutdown process on the RasPi has been finished
       shutdownCtrl.unwatchAll();
       shutdownCtrl.setEdge('none');
       shutdownCtrl.setDirection('high');
       msleep(4000);
     } catch (e) {
-      self.logger.error(self.pluginName + ': Reconfiguring GPIO 14 for shutdown failed: ' + e);
-      self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_RECONF14') + ': ' + e);
+      self.logger.error(self.pluginName + ': Error reconfiguring GPIO ' + shutdownCtrlGPIO + ' for shutdown: ' + e);
+      self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_RECONF_GPIO') + shutdownCtrlGPIO + ': ' + e);
     }
   } catch (e) {
-    self.logger.error(self.pluginName + ': Wrting the shutdown signal sequence to GPIO 15 failed: ' + e);
+    self.logger.error(self.pluginName + ': Error writing the shutdown signal sequence to GPIO ' + initShutdownGPIO + ': ' + e);
   }
   return libQ.resolve();
 };
 
 remotepi.prototype.onStart = function () {
   const self = this;
+  const defer = libQ.defer();
+  const responseData = {
+    title: self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'),
+    message: self.commandRouter.getI18nString('REMOTEPI.PI5_WARN_MSG'),
+    size: 'lg',
+    buttons: [
+      {
+        name: self.commandRouter.getI18nString('COMMON.GOT_IT'),
+        class: 'btn btn-default',
+        emit: 'closeModals',
+        payload: ''
+      }
+    ]
+  };
 
   self.commandRouter.loadI18nStrings();
   try {
@@ -77,35 +91,46 @@ remotepi.prototype.onStart = function () {
       }
     }
   } catch (e) {
-    self.logger.error(self.pluginName + ': Failed to read default configuration from ' + path.join(__dirname, 'config.json: ') + e);
+    self.logger.error(self.pluginName + ': Error reading default configuration from ' + path.join(__dirname, 'config.json: ') + e);
   }
-  try {
-    // As the RemotePi signals a shutdown event (hardware knob or IR receiver) to the RasPi by
-    // setting the level on the pin of GPIO14 to "high" configure GPIO14 as input and watch it
-    shutdownCtrl = new Gpio(14, 'in', 'rising');
-    shutdownCtrl.watch((err, value) => {
-      if (err) {
-        self.logger.error(self.pluginName + ': Error watching GPIO 14: ' + err);
-      } else if (value === 1) {
-        hwShutdown = true;
-        return self.commandRouter.shutdown();
+  self.detectPi5()
+    .then(pi5 => {
+      if (pi5 && !self.config.get('pi5WarnACK')) {
+        self.commandRouter.broadcastMessage('openModal', responseData);
+        self.config.set('pi5WarnACK', true);
       }
-    });
-  } catch (e) {
-    self.logger.error(self.pluginName + ': Configuring GPIO 14 failed: ' + e);
-    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_CONF14') + ': ' + e);
-    return libQ.reject();
-  }
-  try {
-    initShutdown = new Gpio(15, 'out');
-  } catch (e) {
-    shutdownCtrl.unexport();
-    self.logger.error(self.pluginName + ': Configuring GPIO 15 failed: ' + e);
-    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_CONF15') + ': ' + e);
-    return libQ.reject();
-  }
-  self.modBootConfig(self.config.get('gpio_configuration') ? self.config.get('enable_gpio17') : '');
-  return libQ.resolve();
+      shutdownCtrlGPIO = pi5 ? 472 : 14;
+      initShutdownGPIO = pi5 ? 473 : 15;
+      try {
+        // As the RemotePi signals a shutdown event (hardware knob or IR receiver) to the RasPi by setting the level
+        // on the pin of GPIO14 respectively GPIO472 on Pi 5 to "high" configure GPIO14 (GPIO472) as input and watch it
+        shutdownCtrl = new Gpio(shutdownCtrlGPIO, 'in', 'rising');
+        shutdownCtrl.watch((err, value) => {
+          if (err) {
+            self.logger.error(self.pluginName + ': Error watching GPIO ' + shutdownCtrlGPIO + ': ' + err);
+          } else if (value === 1) {
+            hwShutdown = true;
+            return self.commandRouter.shutdown();
+          }
+        });
+      } catch (e) {
+        self.logger.error(self.pluginName + ': Error configuring GPIO ' + shutdownCtrlGPIO + ': ' + e);
+        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_CONF_GPIO') + shutdownCtrlGPIO + ': ' + e);
+        throw new Error();
+      }
+      try {
+        initShutdown = new Gpio(initShutdownGPIO, 'out');
+      } catch (e) {
+        shutdownCtrl.unexport();
+        self.logger.error(self.pluginName + ': Error configuring GPIO ' + initShutdownGPIO + ': ' + e);
+        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_CONF_GPIO') + initShutdownGPIO + ': ' + e);
+        throw new Error();
+      }
+      self.modBootConfig(self.config.get('gpio_configuration') ? self.config.get('enable_gpio17') : '');
+      defer.resolve();
+    })
+    .fail(() => defer.reject());
+  return defer.promise;
 };
 
 remotepi.prototype.onStop = function () {
@@ -116,7 +141,7 @@ remotepi.prototype.onStop = function () {
     shutdownCtrl.unexport();
     initShutdown.unexport();
   } catch (e) {
-    self.logger.error(self.pluginName + ': Freeing GPIO resources failed: ' + e);
+    self.logger.error(self.pluginName + ': Error freeing GPIO resources: ' + e);
   }
   return libQ.resolve();
 };
@@ -199,12 +224,29 @@ remotepi.prototype.saveConf = function (data) {
 
 // Plugin Methods ------------------------------------------------------------------------------------
 
+remotepi.prototype.detectPi5 = function () {
+  const self = this;
+  const defer = libQ.defer();
+
+  fs.readFile('/proc/cpuinfo', 'utf8', (err, data) => {
+    if (err !== null) {
+      self.logger.info(self.pluginName + ': Raspberry Pi model cannot be determined: ' + err);
+      defer.reject(err);
+    } else {
+      data = data.match(/^Revision\s*:\s.*$/m)[0].split(': ')[1];
+      defer.resolve(parseInt(data, 16).toString(2).charAt(1) === '1' && data.substr(-3, 2) === '17');
+    }
+  });
+  return defer.promise;
+};
+
 remotepi.prototype.modBootConfig = function (gpio17) {
   const self = this;
+  const defer = libQ.defer();
   const kernelVersion = os.release().match(/[0-9]+/g);
   const configTxtBanner = '#### RemotePi lirc setting below: do not alter ####' + os.EOL;
-  const searchexp = configTxtBanner + 'dtoverlay=.*';
-  let bootstring = gpio17 ? 'dtoverlay=gpio-ir,gpio_pin=17' : 'dtoverlay=gpio-ir,gpio_pin=18';
+  const searchExp = configTxtBanner + 'dtoverlay=.*';
+  let bootstring = gpio17 ? 'dtoverlay=gpio-ir,gpio_pin=17' : 'dtoverlay=gpio-ir,gpio_pin=18'; // !!!!!!!!!!!!!!!!!!!!!!!!!!! on Pi5 has 17 to be 475 and has 18 to be 476???????
   let configFile = '/boot/userconfig.txt';
 
   if (Number(kernelVersion[0]) < 4 || (Number(kernelVersion[0]) === 4 && Number(kernelVersion[1]) < 19)) {
@@ -215,7 +257,7 @@ remotepi.prototype.modBootConfig = function (gpio17) {
       // if /boot/userconfig.txt exists, remove rempotepi related banner and bootstring from /boot/config.txt
       try {
         const configTxt = fs.readFileSync('/boot/config.txt', 'utf8');
-        const newConfigTxt = configTxt.replace(new RegExp(os.EOL + searchexp + os.EOL + '*'), '');
+        const newConfigTxt = configTxt.replace(new RegExp(os.EOL + '*' + searchExp + os.EOL + '*'), os.EOL);
         if (newConfigTxt !== configTxt) {
           try {
             fs.writeFileSync('/boot/config.txt', newConfigTxt, 'utf8');
@@ -239,24 +281,30 @@ remotepi.prototype.modBootConfig = function (gpio17) {
       const configTxt = fs.readFileSync(configFile, 'utf8');
       let newConfigTxt = configTxt;
       if (gpio17 === '') {
-        newConfigTxt = configTxt.replace(new RegExp(os.EOL + '*' + searchexp), '');
+        newConfigTxt = configTxt.replace(new RegExp(os.EOL + '*' + searchExp + os.EOL + '*'), os.EOL);
       } else if (configTxt.search(bootstring) === -1) {
-        newConfigTxt = configTxt.replace(new RegExp(searchexp), configTxtBanner + bootstring);
+        newConfigTxt = configTxt.replace(new RegExp(searchExp), configTxtBanner + bootstring);
         if (newConfigTxt === configTxt) {
-          newConfigTxt = configTxt + os.EOL + os.EOL + configTxtBanner + bootstring;
+          newConfigTxt = configTxt + os.EOL + configTxtBanner + bootstring + os.EOL;
         }
       }
       if (newConfigTxt !== configTxt) {
         try {
           fs.writeFileSync(configFile, newConfigTxt, 'utf8');
+          defer.resolve();
         } catch (e) {
           self.logger.error(self.pluginName + ': Error writing ' + configFile + ': ' + e);
           self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_WRITE') + configFile + ': ' + e);
+          defer.reject(new Error());
         }
+      } else {
+        defer.resolve();
       }
     } catch (e) {
       self.logger.error(self.pluginName + ': Error reading ' + configFile + ': ' + e);
       self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_READ') + configFile + ': ' + e);
+      defer.reject(new Error());
     }
   }
+  return defer.promise;
 };
