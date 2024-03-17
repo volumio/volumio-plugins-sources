@@ -246,7 +246,7 @@ remotepi.prototype.modBootConfig = function (gpio17) {
   const kernelVersion = os.release().match(/[0-9]+/g);
   const configTxtBanner = '#### RemotePi lirc setting below: do not alter ####' + os.EOL;
   const searchExp = configTxtBanner + 'dtoverlay=.*';
-  let bootstring = gpio17 ? 'dtoverlay=gpio-ir,gpio_pin=17' : 'dtoverlay=gpio-ir,gpio_pin=18'; // !!!!!!!!!!!!!!!!!!!!!!!!!!! on Pi5 has 17 to be 475 and has 18 to be 476???????
+  let bootstring = gpio17 ? 'dtoverlay=gpio-ir,gpio_pin=17' : 'dtoverlay=gpio-ir,gpio_pin=18';
   let configFile = '/boot/userconfig.txt';
 
   if (Number(kernelVersion[0]) < 4 || (Number(kernelVersion[0]) === 4 && Number(kernelVersion[1]) < 19)) {
