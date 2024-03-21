@@ -1,44 +1,8 @@
 #------ Peppy ALSA Pipe section -------
+
 pcm.peppy_in {
-  type plug
-  route_policy "duplicate"
-  slave.channels 4
-  slave.pcm {
-    type multi
-
-    slaves.a.pcm "peppy_out"
-    slaves.a.channels 2
-    slaves.b.pcm "peppy_fifo"
-    slaves.b.channels 2
-
-    bindings.0 { slave a; channel 0; }
-    bindings.1 { slave a; channel 1; }
-    bindings.2 { slave b; channel 0; }
-    bindings.3 { slave b; channel 1; }
-  }
-}
-
-pcm.peppy_fifo {
-  type plug 
-  slave.pcm "peppyalsa"
-
-  # Having the following causes CamillaDSP to throw
-  # snd_pcm_hw_params_set_period_size_near errors for
-  # some formats. Seems to work fine without these lines
-  # (audio gets resampled to 48000 which is the max supported
-  # by Dummy PCM).
-
-  #slave {
-  #  pcm "peppyalsa"
-  #  format "S16_LE"
-  #  rate 44100
-  #  channels 2
-  #}
-}
-
-pcm.peppyalsa {
   type meter
-  slave.pcm "peppy_dummy"
+  slave.pcm "peppy_out"
   scopes.0 peppyalsa
 }
 
@@ -60,9 +24,4 @@ pcm_scope_type.peppyalsa {
   lib /data/plugins/user_interface/peppyspectrum/alsa-lib/libpeppyalsa.so
 }
 
-pcm.peppy_dummy {
-  type hw
-  card Dummy
-  device 0
-}
 #------ End of Peppy ALSA Pipe section -------
