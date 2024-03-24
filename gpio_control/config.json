@@ -148,5 +148,305 @@
       "value": 0,
       "type": "number"
     }
+  },
+  "muteOn": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "muteOff": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "randomOn": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "randomOff": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "repeatOn": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "repeatOff": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "repeatAllOn": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "repeatAllOff": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "repeatSingleOn": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "repeatSingleOff": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 3,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
   }
 }

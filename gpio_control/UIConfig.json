@@ -50,7 +50,77 @@
 					"musicStopDelay",
 					"musicStopDelayUnits",
 					"musicStopDuration",
-					"musicStopDurationUnits"
+					"musicStopDurationUnits",					
+					"muteOnEnabled",
+					"muteOnPin",
+					"muteOnState",
+					"muteOnDelay",
+					"muteOnDelayUnits",
+					"muteOnDuration",
+					"muteOnDurationUnits",
+					"muteOffEnabled",				
+					"muteOffPin",
+					"muteOffState",
+					"muteOffDelay",
+					"muteOffDelayUnits",
+					"muteOffDuration",
+					"muteOffDurationUnits",					
+					"randomOnEnabled",
+					"randomOnPin",
+					"randomOnState",
+					"randomOnDelay",
+					"randomOnDelayUnits",
+					"randomOnDuration",
+					"randomOnDurationUnits",									
+					"randomOffEnabled",
+					"randomOffPin",
+					"randomOffState",
+					"randomOffDelay",
+					"randomOffDelayUnits",
+					"randomOffDuration",
+					"randomOffDurationUnits",												
+					"repeatOnEnabled",
+					"repeatOnPin",
+					"repeatOnState",
+					"repeatOnDelay",
+					"repeatOnDelayUnits",
+					"repeatOnDuration",
+					"repeatOnDurationUnits",							
+					"repeatOffEnabled",
+					"repeatOffPin",
+					"repeatOffState",
+					"repeatOffDelay",
+					"repeatOffDelayUnits",
+					"repeatOffDuration",
+					"repeatOffDurationUnits",							
+					"repeatAllOnEnabled",
+					"repeatAllOnPin",
+					"repeatAllOnState",
+					"repeatAllOnDelay",
+					"repeatAllOnDelayUnits",
+					"repeatAllOnDuration",
+					"repeatAllOnDurationUnits",					
+					"repeatAllOffEnabled",
+					"repeatAllOffPin",
+					"repeatAllOffState",
+					"repeatAllOffDelay",
+					"repeatAllOffDelayUnits",
+					"repeatAllOffDuration",
+					"repeatAllOffDurationUnits",					
+					"repeatSingleOnEnabled",
+					"repeatSingleOnPin",
+					"repeatSingleOnState",
+					"repeatSingleOnDelay",
+					"repeatSingleOnDelayUnits",
+					"repeatSingleOnDuration",
+					"repeatSingleOnDurationUnits",
+					"repeatSingleOffEnabled",
+					"repeatSingleOffPin",
+					"repeatSingleOffState",
+					"repeatSingleOffDelay",
+					"repeatSingleOffDelayUnits",
+					"repeatSingleOffDuration",
+					"repeatSingleOffDurationUnits"
 				]
 			},
 			"content": [
@@ -71,6 +141,14 @@
 						"label": "0"
 					},
 					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
 						{
 							"value": 2,
 							"label": "2"
@@ -1127,6 +1205,14 @@
 					},
 					"options": [
 						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
 							"value": 2,
 							"label": "2"
 						},
@@ -2181,6 +2267,14 @@
 						"label": "0"
 					},
 					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
 						{
 							"value": 2,
 							"label": "2"
@@ -3237,6 +3331,14 @@
 					},
 					"options": [
 						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
 							"value": 2,
 							"label": "2"
 						},
@@ -4292,6 +4394,14 @@
 					},
 					"options": [
 						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
 							"value": 2,
 							"label": "2"
 						},
@@ -4873,7 +4983,7 @@
 						}
 					],
 					"visibleIf": {
-						"field": "systemShutdownEnabled",
+						"field": "musicStopEnabled",
 						"value": true
 					}
 				},
@@ -5326,6 +5436,10640 @@
 					],
 					"visibleIf": {
 						"field": "musicStopEnabled",
+						"value": true
+					}
+				},
+
+
+
+
+				{
+					"id": "muteOnEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.MUTE_ON",
+					"doc": "TRANSLATE.MUTE_ON_DOC",
+					"value": false
+				},
+				{
+					"id": "muteOnPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOnState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOnDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOnDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOnDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOnDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOffEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.MUTE_OFF",
+					"doc": "TRANSLATE.MUTE_OFF_DOC",
+					"value": false
+				},
+				{
+					"id": "muteOffPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOffState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOffDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOffDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOffDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "muteOffDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "muteOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOnEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.RANDOM_ON",
+					"doc": "TRANSLATE.RANDOM_ON_DOC",
+					"value": false
+				},
+				{
+					"id": "randomOnPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOnState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOnDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOnDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOnDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOnDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOffEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.RANDOM_OFF",
+					"doc": "TRANSLATE.RANDOM_OFF_DOC",
+					"value": false
+				},
+				{
+					"id": "randomOffPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOffState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOffDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOffDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOffDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "randomOffDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "randomOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOnEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.REPEAT_ON",
+					"doc": "TRANSLATE.REPEAT_ON_DOC",
+					"value": false
+				},
+				{
+					"id": "repeatOnPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOnState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOnDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOnDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOnDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOnDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOffEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.REPEAT_OFF",
+					"doc": "TRANSLATE.REPEAT_OFF_DOC",
+					"value": false
+				},
+				{
+					"id": "repeatOffPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOffState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOffDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOffDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOffDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatOffDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOnEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.REPEAT_ALL_ON",
+					"doc": "TRANSLATE.REPEAT_ALL_ON_DOC",
+					"value": false
+				},
+				{
+					"id": "repeatAllOnPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOnState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOnDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOnDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOnDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOnDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOffEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.REPEAT_ALL_OFF",
+					"doc": "TRANSLATE.REPEAT_ALL_OFF_DOC",
+					"value": false
+				},
+				{
+					"id": "repeatAllOffPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOffState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOffDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOffDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOffDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatAllOffDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatAllOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOnEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.REPEAT_SINGLE_ON",
+					"doc": "TRANSLATE.REPEAT_SINGLE_ON_DOC",
+					"value": false
+				},
+				{
+					"id": "repeatSingleOnPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOnState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOnDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOnDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOnDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOnDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOnEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOffEnabled",
+					"element": "switch",
+					"label": "TRANSLATE.REPEAT_SINGLE_OFF",
+					"doc": "TRANSLATE.REPEAT_SINGLE_OFF_DOC",
+					"value": false
+				},
+				{
+					"id": "repeatSingleOffPin",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_PIN",
+					"doc": "TRANSLATE.GPIO_PIN_DOC",
+					"value": {
+						"value": 0,
+						"label": "0"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "0"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOffState",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_STATE",
+					"doc": "TRANSLATE.GPIO_STATE_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.OFF"
+					},
+					"options": [
+						{
+							"value": 1,
+							"label": "TRANSLATE.ON"
+						},
+						{
+							"value": 0,
+							"label": "TRANSLATE.OFF"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOffDelay",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY",
+					"doc": "TRANSLATE.GPIO_DELAY_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DELAY_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DELAY_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOffDelayUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DELAY_UNITS",
+					"doc": "TRANSLATE.GPIO_DELAY_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOffDuration",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION",
+					"doc": "TRANSLATE.GPIO_DURATION_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.DURATION_NONE"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.DURATION_NONE"
+						},
+						{
+							"value": 1,
+							"label": "1"
+						},
+						{
+							"value": 2,
+							"label": "2"
+						},
+						{
+							"value": 3,
+							"label": "3"
+						},
+						{
+							"value": 4,
+							"label": "4"
+						},
+						{
+							"value": 5,
+							"label": "5"
+						},
+						{
+							"value": 6,
+							"label": "6"
+						},
+						{
+							"value": 7,
+							"label": "7"
+						},
+						{
+							"value": 8,
+							"label": "8"
+						},
+						{
+							"value": 9,
+							"label": "9"
+						},
+						{
+							"value": 10,
+							"label": "10"
+						},
+						{
+							"value": 11,
+							"label": "11"
+						},
+						{
+							"value": 12,
+							"label": "12"
+						},
+						{
+							"value": 13,
+							"label": "13"
+						},
+						{
+							"value": 14,
+							"label": "14"
+						},
+						{
+							"value": 15,
+							"label": "15"
+						},
+						{
+							"value": 16,
+							"label": "16"
+						},
+						{
+							"value": 17,
+							"label": "17"
+						},
+						{
+							"value": 18,
+							"label": "18"
+						},
+						{
+							"value": 19,
+							"label": "19"
+						},
+						{
+							"value": 20,
+							"label": "20"
+						},
+						{
+							"value": 21,
+							"label": "21"
+						},
+						{
+							"value": 22,
+							"label": "22"
+						},
+						{
+							"value": 23,
+							"label": "23"
+						},
+						{
+							"value": 24,
+							"label": "24"
+						},
+						{
+							"value": 25,
+							"label": "25"
+						},
+						{
+							"value": 26,
+							"label": "26"
+						},
+						{
+							"value": 27,
+							"label": "27"
+						},
+						{
+							"value": 28,
+							"label": "28"
+						},
+						{
+							"value": 29,
+							"label": "29"
+						},
+						{
+							"value": 30,
+							"label": "30"
+						},
+						{
+							"value": 31,
+							"label": "31"
+						},
+						{
+							"value": 32,
+							"label": "32"
+						},
+						{
+							"value": 33,
+							"label": "33"
+						},
+						{
+							"value": 34,
+							"label": "34"
+						},
+						{
+							"value": 35,
+							"label": "35"
+						},
+						{
+							"value": 36,
+							"label": "36"
+						},
+						{
+							"value": 37,
+							"label": "37"
+						},
+						{
+							"value": 38,
+							"label": "38"
+						},
+						{
+							"value": 39,
+							"label": "39"
+						},
+						{
+							"value": 40,
+							"label": "40"
+						},
+						{
+							"value": 41,
+							"label": "41"
+						},
+						{
+							"value": 42,
+							"label": "42"
+						},
+						{
+							"value": 43,
+							"label": "43"
+						},
+						{
+							"value": 44,
+							"label": "44"
+						},
+						{
+							"value": 45,
+							"label": "45"
+						},
+						{
+							"value": 46,
+							"label": "46"
+						},
+						{
+							"value": 47,
+							"label": "47"
+						},
+						{
+							"value": 48,
+							"label": "48"
+						},
+						{
+							"value": 49,
+							"label": "49"
+						},
+						{
+							"value": 50,
+							"label": "50"
+						},
+						{
+							"value": 51,
+							"label": "51"
+						},
+						{
+							"value": 52,
+							"label": "52"
+						},
+						{
+							"value": 53,
+							"label": "53"
+						},
+						{
+							"value": 54,
+							"label": "54"
+						},
+						{
+							"value": 55,
+							"label": "55"
+						},
+						{
+							"value": 56,
+							"label": "56"
+						},
+						{
+							"value": 57,
+							"label": "57"
+						},
+						{
+							"value": 58,
+							"label": "58"
+						},
+						{
+							"value": 59,
+							"label": "59"
+						},
+						{
+							"value": 60,
+							"label": "60"
+						},
+						{
+							"value": 61,
+							"label": "61"
+						},
+						{
+							"value": 62,
+							"label": "62"
+						},
+						{
+							"value": 63,
+							"label": "63"
+						},
+						{
+							"value": 64,
+							"label": "64"
+						},
+						{
+							"value": 65,
+							"label": "65"
+						},
+						{
+							"value": 66,
+							"label": "66"
+						},
+						{
+							"value": 67,
+							"label": "67"
+						},
+						{
+							"value": 68,
+							"label": "68"
+						},
+						{
+							"value": 69,
+							"label": "69"
+						},
+						{
+							"value": 70,
+							"label": "70"
+						},
+						{
+							"value": 71,
+							"label": "71"
+						},
+						{
+							"value": 72,
+							"label": "72"
+						},
+						{
+							"value": 73,
+							"label": "73"
+						},
+						{
+							"value": 74,
+							"label": "74"
+						},
+						{
+							"value": 75,
+							"label": "75"
+						},
+						{
+							"value": 76,
+							"label": "76"
+						},
+						{
+							"value": 77,
+							"label": "77"
+						},
+						{
+							"value": 78,
+							"label": "78"
+						},
+						{
+							"value": 79,
+							"label": "79"
+						},
+						{
+							"value": 80,
+							"label": "80"
+						},
+						{
+							"value": 81,
+							"label": "81"
+						},
+						{
+							"value": 82,
+							"label": "82"
+						},
+						{
+							"value": 83,
+							"label": "83"
+						},
+						{
+							"value": 84,
+							"label": "84"
+						},
+						{
+							"value": 85,
+							"label": "85"
+						},
+						{
+							"value": 86,
+							"label": "86"
+						},
+						{
+							"value": 87,
+							"label": "87"
+						},
+						{
+							"value": 88,
+							"label": "88"
+						},
+						{
+							"value": 89,
+							"label": "89"
+						},
+						{
+							"value": 90,
+							"label": "90"
+						},
+						{
+							"value": 91,
+							"label": "91"
+						},
+						{
+							"value": 92,
+							"label": "92"
+						},
+						{
+							"value": 93,
+							"label": "93"
+						},
+						{
+							"value": 94,
+							"label": "94"
+						},
+						{
+							"value": 95,
+							"label": "95"
+						},
+						{
+							"value": 96,
+							"label": "96"
+						},
+						{
+							"value": 97,
+							"label": "97"
+						},
+						{
+							"value": 98,
+							"label": "98"
+						},
+						{
+							"value": 99,
+							"label": "99"
+						},
+						{
+							"value": 100,
+							"label": "100"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOffEnabled",
+						"value": true
+					}
+				},
+				{
+					"id": "repeatSingleOffDurationUnits",
+					"element": "select",
+					"label": "TRANSLATE.GPIO_DURATION_UNITS",
+					"doc": "TRANSLATE.GPIO_DURATION_UNITS_DOC",
+					"value": {
+						"value": 0,
+						"label": "TRANSLATE.UNITS_HOURS"
+					},
+					"options": [
+						{
+							"value": 0,
+							"label": "TRANSLATE.UNITS_HOURS"
+						},
+						{
+							"value": 1,
+							"label": "TRANSLATE.UNITS_MINUTES"
+						},
+						{
+							"value": 2,
+							"label": "TRANSLATE.UNITS_SECONDS"
+						},
+						{
+							"value": 3,
+							"label": "TRANSLATE.UNITS_MILLISECONDS"
+						}
+					],
+					"visibleIf": {
+						"field": "repeatSingleOffEnabled",
 						"value": true
 					}
 				}
