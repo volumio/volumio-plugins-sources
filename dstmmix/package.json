@@ -1,0 +1,45 @@
+{
+	"name": "dstmmix",
+	"version": "1.1.7",
+	"description": "Self hosted LMS server with infinite smart mix feature",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "chourmovs",
+	"repository": "https://github.com/chourmovs/volumio-plugins-sources/tree/master/dstmmix",
+	"license": "ISC",
+	"volumio_info": {
+		"prettyName": "DstmMix",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "music_service",
+		"os": [
+			"buster"
+		],
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"details": "Server plugin for the LMS ecosystem and smart mix plugin",
+		"changelog": "LMS update better process"
+	},
+	"engines": {
+		"node": ">=8.11.1",
+		"volumio": ">=2.0.0"
+	},
+	"dependencies": {
+		"child-process": "^1.0.2",
+		"fs-extra": "^0.28.0",
+		"ip": "^1.1.5",
+		"kew": "^0.7.0",
+		"v-conf": "1.4.2"
+	},
+	"keywords": [
+		"audio",
+		"Logitech",
+		"Media",
+		"Server",
+		"volumio"
+	]
+}

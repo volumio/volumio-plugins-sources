@@ -1,0 +1,119 @@
+{
+  "page": {
+    "label": "Moode audio plugin"
+  },
+  "sections": [
+    {
+      "id": "Moode Audio",
+      "element": "section",
+      "label": "Moode audio plugin",
+      "icon": "fa-windows-maximize",
+      "content": []
+    },
+    {
+      "id": "Configuration Alsa",
+      "element": "section",
+      "label": "Configuration Alsa",
+      "description": " Alsa settings in case of external USB DAC (host side)",
+      "icon": "fa-wrench",
+      "content": [
+        {
+          "id": "alsaconf",
+          "element": "button",
+          "label": "Configure Alsa",
+          "doc": "Rearrange alsa-base to make usb external dac available in Moode",
+          "onClick": {
+            "type": "plugin",
+            "endpoint": "music_service/moode",
+            "method": "alsaconf",
+            "data": []
+          }
+        },
+        {
+          "id": "alsarestore",
+          "element": "button",
+          "label": "Restore Alsa",
+          "doc": "Revert Alsa-base.conf to default",
+          "onClick": {
+            "type": "plugin",
+            "endpoint": "music_service/moode",
+            "method": "alsarestore",
+            "data": []
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "Configuration Bluetooth",
+      "element": "section",
+      "label": "Configuration Bluetooth",
+      "description": " Disable Bluetooh service hostside to make it available for Moode",
+      "icon": "fa-wrench",
+      "content": [
+        {
+          "id": "blueconf",
+          "element": "button",
+          "label": "Configure Bluetooth",
+          "doc": "launch a script to mask bluetooth service host-side",
+          "onClick": {
+            "type": "plugin",
+            "endpoint": "music_service/moode",
+            "method": "blueconf",
+            "data": []
+          }
+        },
+        {
+          "id": "bluerestore",
+          "element": "button",
+          "label": "Restore Bluetooth",
+          "doc": "Revert bluetooth to default",
+          "onClick": {
+            "type": "plugin",
+            "endpoint": "music_service/moode",
+            "method": "bluerestore",
+            "data": []
+          }
+        }
+      ]
+    },
+
+
+    {
+      "id": "Configuration Volumio",
+      "element": "section",
+      "label": "Configuration Volumio's services",
+      "description": " Disable MPD,NFS and SAMBA services hostside to make them available for Moode",
+      "icon": "fa-wrench",
+      "content": [
+        {
+          "id": "blueconf",
+          "element": "button",
+          "label": "Configure Volumio",
+          "doc": "launch a script to mask MPD,NFS and SAMBA service host-side",
+          "onClick": {
+            "type": "plugin",
+            "endpoint": "music_service/moode",
+            "method": "volumioconf",
+            "data": []
+          }
+        },
+        {
+          "id": "volumiorestore",
+          "element": "button",
+          "label": "Restore Volumio",
+          "doc": "Revert MPD,NFS and SAMBA to default",
+          "onClick": {
+            "type": "plugin",
+            "endpoint": "music_service/moode",
+            "method": "volumiorestore",
+            "data": []
+          }
+        }
+      ]
+    }
+
+
+
+  ]
+}
