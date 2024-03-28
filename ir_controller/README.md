@@ -15,6 +15,7 @@ Currently the plugin ships with configurations for the following remote controls
 * Apple Remote A1294 Alternative
 * Apple Remote A1294
 * Arcam ir-DAC-II Remote
+* Argon Remote
 * Atrix Remote
 * Bluesound RC1
 * Copland RC-102A

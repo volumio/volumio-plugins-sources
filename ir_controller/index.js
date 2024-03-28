@@ -56,7 +56,7 @@ IrController.prototype.onStart = function () {
                   self.logger.info(self.pluginName + ': HAT did not load /proc/device-tree/lirc_rpi!');
                 }
                 // determine header pincount by Raspberry Pi revision code (https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes)
-                exec('awk \'/^Revision/ {sub("^1000", "", $3); print $3}\' /proc/cpuinfo', { uid: 1000, gid: 1000 }, (error, stdout, stderr) => {
+                exec('/usr/bin/awk \'/^Revision/ {sub("^1000", "", $3); print $3}\' /proc/cpuinfo', { uid: 1000, gid: 1000 }, (error, stdout, stderr) => {
                   if (error !== null) {
                     self.logger.info(self.pluginName + ': Raspberry Pi model cannot be determined: ' + error);
                   } else {
@@ -81,7 +81,7 @@ IrController.prototype.onStart = function () {
                           gpioConfigurable = false;
                           break;
                         default:
-                          // Models B+, A+, 2B, 3B, 3B+, 3A+, 4B, Zero, Zero W, Zero 2 W, Pi 400, CM4 IO Board: 40pin header (P1)
+                          // Models B+, A+, 2B, 3B, 3B+, 3A+, 4B, Zero, Zero W, Zero 2 W, Pi 400, CM4 IO Board, 5: 40pin header (P1)
                           header = '40';
                       }
                     }
