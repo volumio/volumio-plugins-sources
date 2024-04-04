@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_getStreamUrl, _PlayController_doGetStreamUrl, _PlayController_doPlay, _PlayController_mpdAddTags;
+var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_prefetchPlaybackStateFixer, _PlayController_getStreamUrl, _PlayController_doGetStreamUrl, _PlayController_doPlay, _PlayController_mpdAddTags, _PrefetchPlaybackStateFixer_instances, _PrefetchPlaybackStateFixer_positionAtPrefetch, _PrefetchPlaybackStateFixer_prefetchedTrack, _PrefetchPlaybackStateFixer_volumioPushStateListener, _PrefetchPlaybackStateFixer_addPushStateListener, _PrefetchPlaybackStateFixer_removePushStateListener, _PrefetchPlaybackStateFixer_handleVolumioPushState;
 Object.defineProperty(exports, "__esModule", { value: true });
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -45,11 +45,14 @@ const BandcampContext_1 = __importDefault(require("../../BandcampContext"));
 const ViewHelper_1 = __importDefault(require("../browse/view-handlers/ViewHelper"));
 const model_1 = __importStar(require("../../model"));
 const util_1 = require("../../util");
+const events_1 = __importDefault(require("events"));
 class PlayController {
     constructor() {
         _PlayController_instances.add(this);
         _PlayController_mpdPlugin.set(this, void 0);
+        _PlayController_prefetchPlaybackStateFixer.set(this, void 0);
         __classPrivateFieldSet(this, _PlayController_mpdPlugin, BandcampContext_1.default.getMpdPlugin(), "f");
+        __classPrivateFieldSet(this, _PlayController_prefetchPlaybackStateFixer, new PrefetchPlaybackStateFixer(), "f");
     }
     /**
      * Track uri:
@@ -60,6 +63,7 @@ class PlayController {
      */
     async clearAddPlayTrack(track) {
         BandcampContext_1.default.getLogger().info(`[bandcamp-play] clearAddPlayTrack: ${track.uri}`);
+        __classPrivateFieldGet(this, _PlayController_prefetchPlaybackStateFixer, "f")?.notifyPrefetchCleared();
         let streamUrl;
         try {
             streamUrl = await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getStreamUrl).call(this, track);
@@ -100,6 +104,10 @@ class PlayController {
         BandcampContext_1.default.getStateMachine().setConsumeUpdateService(undefined);
         return BandcampContext_1.default.getStateMachine().previous();
     }
+    dispose() {
+        __classPrivateFieldGet(this, _PlayController_prefetchPlaybackStateFixer, "f")?.reset();
+        __classPrivateFieldSet(this, _PlayController_prefetchPlaybackStateFixer, null, "f");
+    }
     async prefetch(track) {
         const prefetchEnabled = BandcampContext_1.default.getConfigValue('prefetch', true);
         if (!prefetchEnabled) {
@@ -126,16 +134,18 @@ class PlayController {
             return;
         }
         const mpdPlugin = __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f");
-        return (0, util_1.kewToJSPromise)(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
+        const res = await (0, util_1.kewToJSPromise)(mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
             .then((addIdResp) => __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_mpdAddTags).call(this, addIdResp, track))
             .then(() => {
             BandcampContext_1.default.getLogger().info(`[bandcamp-play] Prefetched and added track to MPD queue: ${track.name}`);
             return mpdPlugin.sendMpdCommand('consume 1', []);
         }));
+        __classPrivateFieldGet(this, _PlayController_prefetchPlaybackStateFixer, "f")?.notifyPrefetched(track);
+        return res;
     }
 }
 exports.default = PlayController;
-_PlayController_mpdPlugin = new WeakMap(), _PlayController_instances = new WeakSet(), _PlayController_getStreamUrl = async function _PlayController_getStreamUrl(track, isPrefetching = false) {
+_PlayController_mpdPlugin = new WeakMap(), _PlayController_prefetchPlaybackStateFixer = new WeakMap(), _PlayController_instances = new WeakSet(), _PlayController_getStreamUrl = async function _PlayController_getStreamUrl(track, isPrefetching = false) {
     let streamUrl = await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_doGetStreamUrl).call(this, track, isPrefetching);
     // Ensure stream URL is valid
     const ensuredUrl = await model_1.default.ensureStreamURL(streamUrl);
@@ -295,5 +305,90 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_instances = new WeakS
         return __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f").sendMpdCommandArray(cmds);
     }
     return kew_1.default.resolve();
+};
+/**
+ * (Taken from YouTube Music plugin)
+ * https://github.com/patrickkfkan/volumio-ytmusic/blob/master/src/lib/controller/play/PlayController.ts
+ *
+ * Given state is updated by calling `setConsumeUpdateService('mpd', true)` (`consumeIgnoreMetadata`: true), when moving to
+ * prefetched track there's no guarantee the state machine will store the correct consume state obtained from MPD. It depends on
+ * whether the state machine increments `currentPosition` before or after MPD calls `pushState()`. The intended
+ * order is 'before' - but because the increment is triggered through a timer, it is possible that MPD calls `pushState()` first,
+ * thereby causing the state machine to store the wrong state info (title, artist, album...obtained from trackBlock at
+ * `currentPosition` which has not yet been incremented).
+ *
+ * See state machine `syncState()` and  `increasePlaybackTimer()`.
+ *
+ * `PrefetchPlaybackStateFixer` checks whether the state is consistent when prefetched track is played and `currentPosition` updated
+ * and triggers an MPD `pushState()` if necessary.
+ */
+class PrefetchPlaybackStateFixer extends events_1.default {
+    constructor() {
+        super();
+        _PrefetchPlaybackStateFixer_instances.add(this);
+        _PrefetchPlaybackStateFixer_positionAtPrefetch.set(this, void 0);
+        _PrefetchPlaybackStateFixer_prefetchedTrack.set(this, void 0);
+        _PrefetchPlaybackStateFixer_volumioPushStateListener.set(this, void 0);
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, -1, "f");
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_prefetchedTrack, null, "f");
+    }
+    reset() {
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_removePushStateListener).call(this);
+        this.removeAllListeners();
+    }
+    notifyPrefetched(track) {
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, BandcampContext_1.default.getStateMachine().currentPosition, "f");
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_prefetchedTrack, track, "f");
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_addPushStateListener).call(this);
+    }
+    notifyPrefetchCleared() {
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_removePushStateListener).call(this);
+    }
+    emit(event, ...args) {
+        return super.emit(event, ...args);
+    }
+    on(event, listener) {
+        super.on(event, listener);
+        return this;
+    }
+}
+_PrefetchPlaybackStateFixer_positionAtPrefetch = new WeakMap(), _PrefetchPlaybackStateFixer_prefetchedTrack = new WeakMap(), _PrefetchPlaybackStateFixer_volumioPushStateListener = new WeakMap(), _PrefetchPlaybackStateFixer_instances = new WeakSet(), _PrefetchPlaybackStateFixer_addPushStateListener = function _PrefetchPlaybackStateFixer_addPushStateListener() {
+    if (!__classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, "f")) {
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_handleVolumioPushState).bind(this), "f");
+        BandcampContext_1.default.volumioCoreCommand?.addCallback('volumioPushState', __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, "f"));
+    }
+}, _PrefetchPlaybackStateFixer_removePushStateListener = function _PrefetchPlaybackStateFixer_removePushStateListener() {
+    if (__classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, "f")) {
+        const listeners = BandcampContext_1.default.volumioCoreCommand?.callbacks?.['volumioPushState'] || [];
+        const index = listeners.indexOf(__classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, "f"));
+        if (index >= 0) {
+            BandcampContext_1.default.volumioCoreCommand.callbacks['volumioPushState'].splice(index, 1);
+        }
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_volumioPushStateListener, null, "f");
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, -1, "f");
+        __classPrivateFieldSet(this, _PrefetchPlaybackStateFixer_prefetchedTrack, null, "f");
+    }
+}, _PrefetchPlaybackStateFixer_handleVolumioPushState = function _PrefetchPlaybackStateFixer_handleVolumioPushState(state) {
+    const sm = BandcampContext_1.default.getStateMachine();
+    const currentPosition = sm.currentPosition;
+    if (sm.getState().service !== 'bandcamp') {
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_removePushStateListener).call(this);
+        return;
+    }
+    if (__classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, "f") >= 0 && __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_positionAtPrefetch, "f") !== currentPosition) {
+        const track = sm.getTrack(currentPosition);
+        const pf = __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_prefetchedTrack, "f");
+        __classPrivateFieldGet(this, _PrefetchPlaybackStateFixer_instances, "m", _PrefetchPlaybackStateFixer_removePushStateListener).call(this);
+        if (track && state && pf && track.service === 'bandcamp' && pf.uri === track.uri) {
+            if (state.uri !== track.uri) {
+                const mpdPlugin = BandcampContext_1.default.getMpdPlugin();
+                mpdPlugin.getState().then((st) => mpdPlugin.pushState(st));
+            }
+            this.emit('playPrefetch', {
+                track: pf,
+                position: currentPosition
+            });
+        }
+    }
 };
 //# sourceMappingURL=PlayController.js.map

@@ -169,6 +169,7 @@ class ControllerBandcamp {
         __classPrivateFieldGet(this, _ControllerBandcamp_commandRouter, "f").volumioRemoveToBrowseSources('Bandcamp Discover');
         __classPrivateFieldSet(this, _ControllerBandcamp_browseController, null, "f");
         __classPrivateFieldSet(this, _ControllerBandcamp_searchController, null, "f");
+        __classPrivateFieldGet(this, _ControllerBandcamp_playController, "f")?.dispose();
         __classPrivateFieldSet(this, _ControllerBandcamp_playController, null, "f");
         model_1.default.reset();
         BandcampContext_1.default.reset();

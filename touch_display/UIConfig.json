@@ -12,7 +12,7 @@
                 "hidden": "false",
                 "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveScreensaverConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "timeout",
                                       "afterPlay"
@@ -51,7 +51,7 @@
                 "hidden": "false",
                 "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveBrightnessConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "autoMode",
                                       "minBr",
@@ -213,7 +213,7 @@
                 "hidden": "false",
                 "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveOrientationConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "angle"
                                       ]
@@ -255,7 +255,7 @@
                 "hidden": "false",
                 "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveGpuMemConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "controlGpuMem",
                                       "gpuMem"
@@ -295,7 +295,7 @@
                 "hidden": "false",
                 "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"savePointerConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "showPointer"
                                       ]
@@ -319,7 +319,7 @@
                 "hidden": "false",
                 "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveScaleConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "scale"
                                       ]

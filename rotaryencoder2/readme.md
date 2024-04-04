@@ -5,6 +5,7 @@ This is an alternative implementation of a rotary encoder driver for integration
 
 ### Content
 * [Configuring the plugin](#configuring-the-plugin)
+* [Simple Test-Setups on a Breadboard](#test-setups)
 * [Debouncing (tips for hardware debouncing)](#tips-for-debouncing-your-encoder)
 * [Some basics about Hardware Design (Pull-Up, Pull-Down, Rotary Encoders, RC-filter)](#some-basics-about-hardware-design)
 * [Debugging Instructions](#debugging-instructions)
@@ -57,6 +58,7 @@ Pick the functionality you would like for your encoder:
 - Emit websocket message<br>
 
 The Emit function opens four additional text boxes for providing the websocket commands and data for clockwise (CW) and counter-clockwise (CCW) turns. It allows, to provide commands to a websock emitter and can be used to trigger other functions inside other plugins. For example, if you have a Plugin named "MyDimmer" in the plugin category "System Hardware" controlling a Dimmer with a function `dim` taking an argument `'up'` or `'down'` you would need to put the following:
+
 **Call Function on Plugin**:
 - Command CW: `callMethod`
 - Command CCW:  `callMethod`
@@ -73,8 +75,8 @@ You could also send Volumio Volume or Skip functions via this option (just to gi
 **Skip**:
 - Command CW: `prev`
 - Command CCW: `next`
-- Data CW: `` (empty, _prev_ takes no argument) 
-- Data CCW: `` (empty, _next_ takes no argument)
+- Data CW: `{}` (empty, _prev_ takes no argument) 
+- Data CCW: `{}` (empty, _next_ takes no argument)
 
 **WARNING:**    
 If you use the _Emit_ function, remember that a fast turn of the knob can send a lot of messages in short time, so the called function better be fast or prepared for 'flooding'.    
@@ -107,6 +109,16 @@ Available Commands:
 - System Reboot
 - Emit websocket message
 
+## Test Setups
+Below are some simple test-setups which you can try out on a Breadboard. They do not use the most sophisticated hardware debouncing, but already work very smoothly. If you want to improve debouncing, refer to the next chapter with tips.    
+![Simple Test-setup with a normal rotary-encoder with push-button and external pull-ups.](./img/RotaryTestSetup_Steckplatine.jpg)    
+**Img 3:** _Rotary Encoder on a Breadboard with three 10kΩ Pull-ups and a 100nF capacitor for debouncing of the switch. GPIO 5 & 6 are used for the rotation and GPIO 13 get's connected to the switch._
+
+![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_Steckplatine.jpg)   
+**Img 4:** _KY-040 on a Breadboard with a 10kΩ Pull-up. Also here, GPIOs 5,6 and 13 are used._
+
+![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_intPU_Steckplatine.jpg)   
+**Img 5:** _KY-040 on a Breadboard without Pull-up. In this setup, you have to make sure, that the internal pull-up is enabled. If it is not, you may get unreliable behavior. And guess what, we use GPIOs 5, 6 and 13 again._
 
 ## Tips for debouncing your Encoder
 [back to TOC](#content)

@@ -4,6 +4,13 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+1.0.2
+- Fix issues with prefetch and autoplay
+
+1.0.1
+- Fix broken API requests due to YT changes
+- Fix bogus error when playing list of songs with Next item (e.g. search results)
+
 1.0.0
 - Rewrite in Typescript; major code overhaul with more generic fetching / processing of content.
 - Add prefetch support and 'Prefer gapless Opus' option.

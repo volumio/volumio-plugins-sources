@@ -1,6 +1,6 @@
 {
 	"name": "Systeminfo",
-	"version": "3.0.1",
+	"version": "3.0.5",
 	"description": "Information about your system",
 	"main": "index.js",
 	"scripts": {
@@ -22,16 +22,16 @@
 			"buster"
 		],
 		"details": "Gives information about your system",
-		"changelog": "systeminformation node update"
+		"changelog": "systeminformation node update + more info"
 	},
 	"engines": {
 		"node": ">=8",
 		"volumio": ">=3"
 	},
 	"dependencies": {
-		"kew": "^0.7.0",
-		"v-conf": "^0.10.0",
 		"fs-extra": "^4.0.2",
-		"systeminformation": ""
+		"kew": "^0.7.0",
+		"systeminformation": "",
+		"v-conf": "^0.10.0"
 	}
 }

@@ -205,6 +205,8 @@ class ControllerYouTube2 {
   onStop() {
     this.#commandRouter.volumioRemoveToBrowseSources('YouTube2');
 
+    this.#playController?.reset();
+
     this.#browseController = null;
     this.#searchController = null;
     this.#playController = null;

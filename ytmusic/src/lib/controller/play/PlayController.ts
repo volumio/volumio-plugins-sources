@@ -18,6 +18,7 @@ import AutoplayContext from '../../types/AutoplayContext';
 import { AlbumView } from '../browse/view-handlers/AlbumViewHandler';
 import { GenericView } from '../browse/view-handlers/GenericViewHandler';
 import EndpointHelper from '../../util/EndpointHelper';
+import EventEmitter from 'events';
 
 interface MpdState {
   status: 'play' | 'stop' | 'pause';
@@ -33,10 +34,21 @@ export default class PlayController {
     track: QueueItem;
     position: number;
   };
+  #prefetchPlaybackStateFixer: PrefetchPlaybackStateFixer | null;
 
   constructor() {
     this.#mpdPlugin = ytmusic.getMpdPlugin();
     this.#autoplayListener = null;
+    this.#prefetchPlaybackStateFixer = new PrefetchPlaybackStateFixer();
+    this.#prefetchPlaybackStateFixer.on('playPrefetch', (info: { track: QueueItem; position: number; }) => {
+      this.#lastPlaybackInfo = info;
+    });
+  }
+
+  reset() {
+    this.#removeAutoplayListener();
+    this.#prefetchPlaybackStateFixer?.reset();
+    this.#prefetchPlaybackStateFixer = null;
   }
 
   #addAutoplayListener() {
@@ -68,6 +80,8 @@ export default class PlayController {
   async clearAddPlayTrack(track: QueueItem) {
     ytmusic.getLogger().info(`[ytmusic-play] clearAddPlayTrack: ${track.uri}`);
 
+    this.#prefetchPlaybackStateFixer?.notifyPrefetchCleared();
+
     const {videoId, info: playbackInfo} = await this.#getPlaybackInfoFromUri(track.uri);
 
     if (!playbackInfo) {
@@ -80,20 +94,22 @@ export default class PlayController {
       throw Error(`Stream not found for: ${videoId}`);
     }
 
-    track.title = playbackInfo.title || track.title;
-    track.name = playbackInfo.title || track.title;
-    track.artist = playbackInfo.artist?.name || track.artist;
-    track.album = playbackInfo.album?.title || track.album;
-    track.albumart = playbackInfo.thumbnail || track.albumart;
-    track.duration = playbackInfo.duration;
+    const sm = ytmusic.getStateMachine();
 
-    if (stream.bitrate) {
-      track.samplerate = stream.bitrate;
+    this.#updateTrackWithPlaybackInfo(track, playbackInfo);
+    if (playbackInfo.duration) {
+      /**
+       * Notes:
+       * - Ideally, we should have duration in `explodeTrackData` (set at browse time), but we didn't do this
+       *   plus there is no guarantee that duration is always available when browsing.
+       * - So we directly set `currentSongDuration` of statemachine -- required to trigger prefetch.
+       */
+      sm.currentSongDuration = playbackInfo.duration * 1000;
     }
 
     this.#lastPlaybackInfo = {
       track,
-      position: ytmusic.getStateMachine().getState().position
+      position: sm.getState().position
     };
 
     const safeStreamUrl = stream.url.replace(/"/g, '\\"');
@@ -111,6 +127,19 @@ export default class PlayController {
         ytmusic.getLogger().error(ytmusic.getErrorMessage(`[ytmusic-play] Error: could not add to history (${videoId}): `, error));
       }
     }
+  }
+
+  #updateTrackWithPlaybackInfo(track: QueueItem, playbackInfo: MusicItemPlaybackInfo) {
+    track.title = playbackInfo.title || track.title;
+    track.name = playbackInfo.title || track.title;
+    track.artist = playbackInfo.artist?.name || track.artist;
+    track.album = playbackInfo.album?.title || track.album;
+    track.albumart = playbackInfo.thumbnail || track.albumart;
+    track.duration = playbackInfo.duration;
+    if (playbackInfo.stream?.bitrate) {
+      track.samplerate = playbackInfo.stream.bitrate;
+    }
+    return track;
   }
 
   // Returns kew promise!
@@ -393,9 +422,10 @@ export default class PlayController {
     try {
       const { videoId, info: playbackInfo } = await this.#getPlaybackInfoFromUri(track.uri);
       streamUrl = playbackInfo?.stream?.url;
-      if (!streamUrl) {
+      if (!streamUrl || !playbackInfo) {
         throw Error(`Stream not found for: '${videoId}'`);
       }
+      this.#updateTrackWithPlaybackInfo(track, playbackInfo);
     }
     catch (error: any) {
       ytmusic.getLogger().error(`[ytmusic-play] Prefetch failed: ${error}`);
@@ -404,12 +434,16 @@ export default class PlayController {
     }
 
     const mpdPlugin = this.#mpdPlugin;
-    return kewToJSPromise(mpdPlugin.sendMpdCommand(`addid "${this.#appendTrackTypeToStreamUrl(streamUrl)}"`, [])
+    const res = await kewToJSPromise(mpdPlugin.sendMpdCommand(`addid "${this.#appendTrackTypeToStreamUrl(streamUrl)}"`, [])
       .then((addIdResp: { Id: string }) => this.#mpdAddTags(addIdResp, track))
       .then(() => {
         ytmusic.getLogger().info(`[ytmusic-play] Prefetched and added track to MPD queue: ${track.name}`);
         return mpdPlugin.sendMpdCommand('consume 1', []);
       }));
+
+    this.#prefetchPlaybackStateFixer?.notifyPrefetched(track);
+
+    return res;
   }
 
   async getGotoUri(type: 'album' | 'artist', uri: QueueItem['uri']): Promise<string | null> {
@@ -454,5 +488,101 @@ export default class PlayController {
     }
 
     return null;
+  }
+}
+
+/**
+ * Given state is updated by calling `setConsumeUpdateService('mpd', true)` (`consumeIgnoreMetadata`: true), when moving to
+ * prefetched track there's no guarantee the state machine will store the correct consume state obtained from MPD. It depends on
+ * whether the state machine increments `currentPosition` before or after MPD calls `pushState()`. The intended
+ * order is 'before' - but because the increment is triggered through a timer, it is possible that MPD calls `pushState()` first,
+ * thereby causing the state machine to store the wrong state info (title, artist, album...obtained from trackBlock at
+ * `currentPosition` which has not yet been incremented).
+ *
+ * See state machine `syncState()` and  `increasePlaybackTimer()`.
+ *
+ * `PrefetchPlaybackStateFixer` checks whether the state is consistent when prefetched track is played and `currentPosition` updated
+ * and triggers an MPD `pushState()` if necessary.
+ */
+class PrefetchPlaybackStateFixer extends EventEmitter {
+
+  #positionAtPrefetch: number;
+  #prefetchedTrack: QueueItem | null;
+  #volumioPushStateListener: ((state: any) => void) | null;
+
+  constructor() {
+    super();
+    this.#positionAtPrefetch = -1;
+    this.#prefetchedTrack = null;
+  }
+
+  reset() {
+    this.#removePushStateListener();
+    this.removeAllListeners();
+  }
+
+  notifyPrefetched(track: QueueItem) {
+    this.#positionAtPrefetch = ytmusic.getStateMachine().currentPosition;
+    this.#prefetchedTrack = track;
+    this.#addPushStateListener();
+  }
+
+  notifyPrefetchCleared() {
+    this.#removePushStateListener();
+  }
+
+  #addPushStateListener() {
+    if (!this.#volumioPushStateListener) {
+      this.#volumioPushStateListener = this.#handleVolumioPushState.bind(this);
+      ytmusic.volumioCoreCommand?.addCallback('volumioPushState', this.#volumioPushStateListener);
+    }
+  }
+
+  #removePushStateListener() {
+    if (this.#volumioPushStateListener) {
+      const listeners = ytmusic.volumioCoreCommand?.callbacks?.['volumioPushState'] || [];
+      const index = listeners.indexOf(this.#volumioPushStateListener);
+      if (index >= 0) {
+        ytmusic.volumioCoreCommand.callbacks['volumioPushState'].splice(index, 1);
+      }
+      this.#volumioPushStateListener = null;
+      this.#positionAtPrefetch = -1;
+      this.#prefetchedTrack = null;
+    }
+  }
+
+  #handleVolumioPushState(state: any) {
+    const sm = ytmusic.getStateMachine();
+    const currentPosition = sm.currentPosition as number;
+    if (sm.getState().service !== 'ytmusic') {
+      this.#removePushStateListener();
+      return;
+    }
+    if (this.#positionAtPrefetch >= 0 && this.#positionAtPrefetch !== currentPosition) {
+      const track = sm.getTrack(currentPosition);
+      const pf = this.#prefetchedTrack;
+      this.#removePushStateListener();
+      if (track && state && pf && track.service === 'ytmusic' && pf.uri === track.uri) {
+        if (state.uri !== track.uri) {
+          const mpdPlugin = ytmusic.getMpdPlugin();
+          mpdPlugin.getState().then((st: any) => mpdPlugin.pushState(st));
+        }
+        this.emit('playPrefetch', {
+          track: pf,
+          position: currentPosition
+        });
+      }
+    }
+  }
+
+  emit(event: 'playPrefetch', info: { track: QueueItem; position: number; }): boolean;
+  emit(event: string | symbol, ...args: any[]): boolean {
+    return super.emit(event, ...args);
+  }
+
+  on(event: 'playPrefetch', listener: (info: { track: QueueItem; position: number; }) => void): this;
+  on(event: string | symbol, listener: (...args: any[]) => void): this {
+    super.on(event, listener);
+    return this;
   }
 }
