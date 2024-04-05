@@ -17,8 +17,8 @@ if [ ! -f $INSTALLING ]; then
 
 		echo "Installing php-server..."
 		apt-get install -f php -y
-		
-		
+
+
 		# Download latest version of LMS
 		echo "Downloading installation package..."
 		if [ ! -d /home/volumio/logitechmediaserver ];
@@ -27,23 +27,41 @@ if [ ! -f $INSTALLING ]; then
 		else
 			rm -rf /home/volumio/logitechmediaserver/*.*
 		fi
+		
+		LATEST="https://lyrion.org/lms-server-repository/latest.xml"
+		LATEST_LOCATION="/home/volumio/logitechmediaserver/latest.xml"
+
+		wget -O $LATEST_LOCATION $LATEST
 
 		cd /home/volumio/logitechmediaserver/
-		wget https://downloads.slimdevices.com/LogitechMediaServer_v8.3.1/logitechmediaserver_8.3.1_all.deb
-		echo "Download finished..."
 
+		if [ -f $LATEST_LOCATION ]; then
+		echo "Latest.xml downloaded successfully"
+		else
+		echo "Failed to download Latest.xml"
+		exit 1
+		fi
+		apt-get install libxml2-utils
+
+
+		FILE="$(xmllint --xpath "//deb/@url" $LATEST_LOCATION | awk -F'"' '{print $2}')"
+		echo "FILE: $FILE"
+		wget -O /home/volumio/logitechmediaserver/logitechmediaserver.deb $FILE
+				
 		# Move the binary to the expected directory
 		if [ -f /etc/squeezeboxserver ];
 		then
 			mv /etc/squeezeboxserver /usr/sbin/squeezeboxserver
 		fi
-
 		# Install package and dependencies
+		apt-get -f install -y
 		echo "Installing downloaded package"
-		dpkg --force-depends --install logitechmediaserver_8.3.1_all.deb
+		dpkg --force-depends -i /home/volumio/logitechmediaserver/logitechmediaserver.deb
+		
 
 		# Needed for SSL connections; e.g. github
-		apt-get install libio-socket-ssl-perl lame unzip -y
+		apt --fix-broken install
+		apt-get install libio-socket-ssl-perl libcrypt-openssl-rsa-perl lame unzip -y
 		apt-get -f install -y
 
 		# These directories still use the old name; probably legacy code
@@ -67,6 +85,14 @@ if [ ! -f $INSTALLING ]; then
 
 		# Tidy up
 		rm -rf /home/volumio/logitechmediaserver
+
+		# Verify if the directory is deleted
+		if [ ! -d /home/volumio/logitechmediaserver ]; then
+		echo "Directory /home/volumio/logitechmediaserver deleted successfully"
+		else
+		echo "Failed to delete directory /home/volumio/logitechmediaserver"
+		exit 1
+		fi
 
 		# Reload the systemd unit
 		systemctl daemon-reload
