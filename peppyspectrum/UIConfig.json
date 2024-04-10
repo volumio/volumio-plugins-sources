@@ -26,8 +26,8 @@
 					"doc": "TRANSLATE.SCREENSIZE_DOC",
 					"label": "TRANSLATE.SCREENSIZE",
 					"value": {
-						"value": "medium",
-						"label": "medium"
+						"value": "480x320",
+						"label": "480x320"
 					},
 					"options": []
 				}

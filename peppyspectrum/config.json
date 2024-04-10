@@ -1,6 +1,6 @@
 {
 "spectrum":{"type":"string","value":"Random"},
-"screensize":{"type":"string","value":"medium"},
+"screensize":{"type":"string","value":"320x240"},
 "screenwidth":{"type":"string","value":""},
 "screenheight":{"type":"string","value":""},
 "spectrumsize":{"type":"number","value":30},

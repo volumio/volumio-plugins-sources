@@ -9,6 +9,7 @@ var libQ = require('kew');
 //var config = new (require('v-conf'))();
 const io = require('socket.io-client');
 const path = require('path');
+const { basename } = require('path');
 
 
 // Define the peppyspectrum class
@@ -40,14 +41,14 @@ peppyspectrum.prototype.getConfigurationFiles = function () {
 peppyspectrum.prototype.getI18nFile = function (langCode) {
     const i18nFiles = fs.readdirSync(path.join(__dirname, 'i18n'));
     const langFile = 'strings_' + langCode + '.json';
-  
+
     // check for i18n file fitting the system language
     if (i18nFiles.some(function (i18nFile) { return i18nFile === langFile; })) {
-      return path.join(__dirname, 'i18n', langFile);
+        return path.join(__dirname, 'i18n', langFile);
     }
     // return default i18n file
     return path.join(__dirname, 'i18n', 'strings_en.json');
-  }
+}
 // Plugin methods -----------------------------------------------------------------------------
 
 peppyspectrum.prototype.onStop = function () {
@@ -70,7 +71,7 @@ peppyspectrum.prototype.onStart = function () {
     var defer = libQ.defer();
     self.socket = io.connect('http://localhost:3000');
 
-    self.modprobedummy()
+    // self.modprobedummy()
     self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile')
 
         .then(function (e) {
@@ -233,14 +234,14 @@ peppyspectrum.prototype.getUIConfig = function () {
             // Call the function
             readDirectory()
                 .then(folders => {
-                 //   console.log('Folders in the directory:', folders);
+                    //   console.log('Folders in the directory:', folders);
 
-                    let allfolder = 'small,medium,large,wide,' + folders;
+                    let allfolder = '320x240,480x320,800x480,1280x400,' + folders;
                     //   self.logger.info('list is ' + allfilter)
                     var litems = allfolder.split(',');
 
                     for (let a in litems) {
-                    //    console.log('Text between brackets:', litems[a]);
+                        //    console.log('Text between brackets:', litems[a]);
 
                         self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', {
                             value: litems[a],
@@ -286,7 +287,7 @@ peppyspectrum.prototype.getUIConfig = function () {
             self.configManager.setUIConfigParam(uiconf, 'sections[1].content[0].value.label', valuespectrum);
 
             try {
-                if ((valuescreen == 'small') || (valuescreen == 'medium') || (valuescreen == 'large') || (valuescreen == 'wide')) {
+                if ((valuescreen == '320x240') || (valuescreen == '480x320') || (valuescreen == '800x480') || (valuescreen == '1280x400')) {
                     spectrumfolder = '/data/plugins/user_interface/peppyspectrum/PeppySpectrum/'
                 } else {
                     spectrumfolder = '/data/INTERNAL/PeppySpectrum/Templates/'
@@ -369,7 +370,7 @@ peppyspectrum.prototype.savepeppy = function (data) {
 
     const defer = libQ.defer();
     function hasOpeningParenthesis(screensize) {
-        return screensize.includes('(');
+        return screensize.includes('x');
     }
     var screensize = (data['screensize'].value);
 
@@ -384,26 +385,43 @@ peppyspectrum.prototype.savepeppy = function (data) {
 
     if (hasOpeningParenthesis(screensize)) {
 
-        autovalue = screensize.split('(')
+        autovalue = screensize.split('x')//.slice(0, 3)
+
+        console.log('aaaaaaaaaaa ' + autovalue)
+        self.logger.info("iiiiiiiiiiiiiiiiiiiiiiiiiiicc " + autovalue[0] + autovalue[1])// + autovalue[2])
+
+
     } else {
         myNumberx = '';
         myNumbery = '';
         spectrumsizef = 30
+
     }
-    if ((screensize === 'small') || (screensize === 'medium') || (screensize === 'large') || (screensize === 'wide')) {
+    if ((screensize === '320x240') || (screensize === '480x320') || (screensize === '800x480') || (screensize === '1280x400')) {
         myNumberx = '';
         myNumbery = '';
         spectrumsizef = 30
     } else {
 
-        var sizef = autovalue[1]
-        //   console.log('aaaaaaaaaaa ' + autovalue)
+        var sizef = autovalue[0]
 
-        var size = sizef.slice(0, -1)
-        var sizen = size.split('x')
-        screenwidth = sizen[0]
-        screenheight = sizen[1]
-        spectrumsizef = sizen[2]
+        var size = sizef//.slice(0, -1)
+        // Split the string by comma and convert each element to integer
+        var sizen = sizef.split(',').map(function (value) {
+            return parseInt(value, 10);
+        });
+
+        // Extract width and height (assuming valid format)
+        screenwidth = parseInt(autovalue[0], 10);
+        screenheight = parseInt(autovalue[1].split('+')[0], 10); // Extract height before '+'
+
+        // Extract the value after '+' (assuming it's 34)
+        spectrumsizef = parseInt(autovalue[1].split('+')[1], 10);
+
+        //screenwidth = autovalue[0]
+        //screenheight = autovalue[1].split('+').split("-")[0]
+        //spectrumsizef = autovalue[2].split('-')[0]
+        self.logger.info("iiiiiiiiiiiiiiiiiiiiiiiiiii" + screenwidth + screenheight + spectrumsizef)
         myNumberx = parseInt(screenwidth, 10);
         myNumbery = parseInt(screenheight, 10);
         mySpectrumSize = parseInt(spectrumsizef, 10);
@@ -417,7 +435,7 @@ peppyspectrum.prototype.savepeppy = function (data) {
             // console.log('The variable is a finite number.' + myNumberx + " " + myNumbery + " " + mySpectrumSize);
         } else if (((!truex && !truey && !trues)) || (size == undefined)) {
             console.log('The variable is not a finite number.');
-            self.commandRouter.pushToastMessage('error', "Can't determine screen size because the folder is not properly named!,Must be Mycustom(widthxheight) ex : Metal(800x600), please check!");
+            self.commandRouter.pushToastMessage('error', "Can't determine screen size because the folder is not properly named!,Must be widthxheight+bars-description ex : 800x600+30-metal, No 'x' allowed in description! please check!");
             myNumberx = '480'
             myNumbery = '240'
             spectrumsizef = 30;
@@ -433,12 +451,14 @@ peppyspectrum.prototype.savepeppy = function (data) {
     self.config.set('screenheight', myNumbery);
 
     var storedspectrumsize = self.config.get("spectrumsize")
+    //  mySpectrumsize = self.config.get("spectrumsize")
+
     console.log("spectrumsizef " + typeof parseInt(spectrumsizef, 10) + "  storedspectrumsize " + typeof storedspectrumsize)
     if (parseInt(spectrumsizef, 10) !== storedspectrumsize) {
 
         if (spectrumsizef == undefined) {
             spectrumsizef = 30
-            //     self.config.set('spectrumsize', spectrumsizef)
+            self.config.set('spectrumsize', mySpectrumSize)
         }
         self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('NBARCHANGE') + spectrumsizef);
 
@@ -576,14 +596,16 @@ peppyspectrum.prototype.savepeppyconfig = function () {
             var autosize = self.config.get('autosize')
 
             var screensize = self.config.get('screensize')
-            if ((screensize == 'small') || (screensize == 'medium') || (screensize == 'large') || (screensize == 'wide')) {
-                var screenwidth = ''
-                var screenheight = ''
+            if ((screensize == '320x240') || (screensize == '480x320') || (screensize == '800x480') || (screensize == '1280x400')) {
+                var screenwidth = self.config.get("screenwidth")
+                var screenheight = self.config.get("screenheight")
+                var basefolder = ''
 
             } else {
-                screensize = ('/data/INTERNAL/PeppySpectrum/Templates/' + self.config.get("screensize"))
+                screensize = (/*µ'/data/INTERNAL/PeppySpectrum/Templates/' +*/ self.config.get("screensize"))
                 screenwidth = self.config.get("screenwidth")
                 screenheight = self.config.get("screenheight")
+                basefolder = ('/data/INTERNAL/PeppySpectrum/Templates')
             }
 
 
@@ -600,7 +622,15 @@ peppyspectrum.prototype.savepeppyconfig = function () {
             }
             else if (debuglogd = 'False');
 
+            self.logger.info("--------------------spectrum" + spectrum)
+            self.logger.info("--------------------$basefolder" + basefolder)
+            self.logger.info("--------------------screensize" + screensize)
+            self.logger.info("--------------------screenwidth" + screenwidth)
+            self.logger.info("--------------------screenheight" + screenheight)
+            self.logger.info("--------------------spectrumsize" + spectrumsize)
+
             const conf1 = data.replace("${spectrum}", spectrum)
+                .replace("${basefolder}", basefolder)
                 .replace("${screensize}", screensize)
                 .replace("${screenwidth}", screenwidth)
                 .replace("${screenheight}", screenheight)
@@ -610,8 +640,11 @@ peppyspectrum.prototype.savepeppyconfig = function () {
 
             fs.writeFile("/data/plugins/user_interface/peppyspectrum/PeppySpectrum/config.txt", conf1, 'utf8', function (err) {
                 if (err)
+
                     defer.reject(new Error(err));
                 else defer.resolve();
+                self.logger.error("Error writing config " + err);
+
             });
 
         });
