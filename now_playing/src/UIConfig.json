@@ -142,7 +142,9 @@
       "saveButton": {
         "label": "TRANSLATE.NOW_PLAYING_SAVE",
         "data": [
-          "geniusAccessToken"
+          "geniusAccessToken",
+          "excludeParenthesized",
+          "parenthesisType"
         ]
       },
       "content": [
@@ -161,6 +163,39 @@
           "onClick": {
             "type": "openUrl"
           }
+        },
+        {
+          "id": "excludeParenthesized",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_EXC_PARENTHESIZED",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_EXC_PARENTHESIZED"
+        },
+        {
+          "id": "parenthesisType",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PARENTHESIS_TYPE",
+          "visibleIf": {
+            "field": "excludeParenthesized",
+            "value": true
+          },
+          "value": {
+            "value": "round",
+            "label": "TRANSLATE.NOW_PLAYING_ROUND_BRACKETS"
+          },
+          "options": [
+            {
+              "value": "round",
+              "label": "TRANSLATE.NOW_PLAYING_ROUND_BRACKETS"
+            },
+            {
+              "value": "square",
+              "label": "TRANSLATE.NOW_PLAYING_SQUARE_BRACKETS"
+            },
+            {
+              "value": "round+square",
+              "label": "TRANSLATE.NOW_PLAYING_ROUND_SQUARE_BRACKETS"
+            }
+          ]
         },
         {
           "id": "clearMetadataCache",

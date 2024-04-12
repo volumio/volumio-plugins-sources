@@ -114,7 +114,7 @@ _OpenWeatherMapAPI_apiKey = new WeakMap(), _OpenWeatherMapAPI_apiKeyPromise = ne
     }
     const doGet = async () => {
         NowPlayingContext_1.default.getLogger().info('[now-playing] Fetching API key...');
-        const widgetPathRegExp = /<script(?:\s+)src=['"]((?:.+)weather-widget-new.(?:.+).js)['"]><\/script>/gm;
+        const widgetPathRegExp = /<script(?:\s+)src=['"]((?:.+)weather-app.(?:.+).js)['"]><\/script>/gm;
         const appIdRegExp = /appid:"(.+?)"/gm;
         const page = await fetchPage(BASE_URL);
         const widgetPath = page ? widgetPathRegExp.exec(page)?.[1] : null;

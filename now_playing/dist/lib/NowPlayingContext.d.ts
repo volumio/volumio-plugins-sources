@@ -22,6 +22,7 @@ declare class NowPlayingContext {
     getLogger(): winston.Logger;
     getDeviceInfo(): DeviceInfo;
     getLanguageCode(): string;
+    getPluginSetting(type: string, plugin: string, setting: string): any;
     getErrorMessage(message: string, error: any, stack?: boolean): string;
     hasConfigKey<T extends PluginConfigKey>(key: T): boolean;
     getConfigValue<T extends PluginConfigKey>(key: T, raw: true): any;

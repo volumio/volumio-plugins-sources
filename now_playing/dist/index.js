@@ -327,8 +327,13 @@ class ControllerNowPlaying {
     }
     configSaveMetadataServiceSettings(data) {
         const token = data['geniusAccessToken'].trim();
-        NowPlayingContext_1.default.setConfigValue('geniusAccessToken', token);
-        MetadataAPI_1.default.setAccessToken(token);
+        const settings = {
+            geniusAccessToken: token,
+            excludeParenthesized: data['excludeParenthesized'],
+            parenthesisType: data['parenthesisType'].value
+        };
+        NowPlayingContext_1.default.setConfigValue('metadataService', settings);
+        MetadataAPI_1.default.updateSettings(settings);
         NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
     }
     configSaveIdleScreenSettings(data) {
@@ -583,7 +588,24 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     /**
      * Metadata Service conf
      */
-    metadataServiceUIConf.content.geniusAccessToken.value = NowPlayingContext_1.default.getConfigValue('geniusAccessToken');
+    const metadataServiceOptions = NowPlayingContext_1.default.getConfigValue('metadataService');
+    metadataServiceUIConf.content.geniusAccessToken.value = metadataServiceOptions.geniusAccessToken;
+    metadataServiceUIConf.content.excludeParenthesized.value = metadataServiceOptions.excludeParenthesized;
+    metadataServiceUIConf.content.parenthesisType.value = {
+        value: metadataServiceOptions.parenthesisType,
+        label: ''
+    };
+    switch (metadataServiceOptions.parenthesisType) {
+        case 'round':
+            metadataServiceUIConf.content.parenthesisType.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_ROUND_BRACKETS');
+            break;
+        case 'square':
+            metadataServiceUIConf.content.parenthesisType.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_SQUARE_BRACKETS');
+            break;
+        case 'round+square':
+            metadataServiceUIConf.content.parenthesisType.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_ROUND_SQUARE_BRACKETS');
+            break;
+    }
     const accessTokenSetupUrl = `${url}/genius_setup`;
     metadataServiceUIConf.content.accessTokenGuide.onClick = {
         type: 'openUrl',
@@ -1782,7 +1804,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
 }, _ControllerNowPlaying_doOnStart = async function _ControllerNowPlaying_doOnStart() {
     NowPlayingContext_1.default.init(__classPrivateFieldGet(this, _ControllerNowPlaying_context, "f"), __classPrivateFieldGet(this, _ControllerNowPlaying_config, "f"));
     await ConfigUpdater_1.default.checkAndUpdate();
-    MetadataAPI_1.default.setAccessToken(NowPlayingContext_1.default.getConfigValue('geniusAccessToken'));
+    MetadataAPI_1.default.updateSettings(NowPlayingContext_1.default.getConfigValue('metadataService'));
     __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_configureWeatherApi).call(this);
     // Register language change listener
     __classPrivateFieldSet(this, _ControllerNowPlaying_volumioLanguageChangeCallback, __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_onVolumioLanguageChanged).bind(this), "f");

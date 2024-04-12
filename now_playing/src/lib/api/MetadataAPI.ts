@@ -2,7 +2,10 @@ import Genius, { Album, Artist, Song, TextFormat } from 'genius-fetch';
 import md5 from 'md5';
 import np from '../NowPlayingContext';
 import Cache from '../utils/Cache';
+import { removeSongNumber } from '../utils/Misc';
 import { Metadata, MetadataAlbumInfo, MetadataArtistInfo, MetadataSongInfo } from 'now-playing-common';
+import { MetadataServiceOptions } from '../config/PluginConfig';
+import { escapeRegExp } from 'lodash';
 
 type ItemType = 'song' | 'album' | 'artist';
 
@@ -11,7 +14,7 @@ class MetadataAPI {
   #fetchPromises: Record<ItemType, Record<string, Promise<Metadata>>>;
 
   #genius: Genius;
-  #accessToken: string | null;
+  #settings: MetadataServiceOptions | null;
   #cache: Cache;
 
   constructor() {
@@ -21,7 +24,7 @@ class MetadataAPI {
       'artist': {}
     };
     this.#genius = new Genius();
-    this.#accessToken = null;
+    this.#settings = null;
     this.#cache = new Cache(
       { song: 3600, album: 3600, artist: 3600 },
       { song: 200, album: 200, artist: 200 });
@@ -33,13 +36,14 @@ class MetadataAPI {
     this.#cache.clear();
   }
 
-  setAccessToken(accessToken: string) {
-    if (accessToken === this.#accessToken) {
-      return;
+  updateSettings(settings: MetadataServiceOptions) {
+    const tokenChanged = !this.#settings || settings.geniusAccessToken !== this.#settings.geniusAccessToken;
+
+    this.#settings = settings;
+    if (tokenChanged) {
+      this.#genius.config({ accessToken: settings.geniusAccessToken });
+      this.clearCache();
     }
-    this.#genius.config({ accessToken });
-    this.clearCache();
-    this.#accessToken = accessToken;
   }
 
   #getFetchPromise(type: ItemType, params: Record<string, any>, callback: () => Promise<Metadata>) {
@@ -210,15 +214,23 @@ class MetadataAPI {
   }
 
   async fetchInfo(params: { type: ItemType; name: string; album?: string; artist?: string; }) {
-    if (!np.getConfigValue('geniusAccessToken')) {
+    const isTrackNumberEnabled = np.getPluginSetting('music_service', 'mpd', 'tracknumbers');
+
+    if (!np.getConfigValue('metadataService').geniusAccessToken) {
       throw Error(np.getI18n('NOW_PLAYING_ERR_METADATA_NO_TOKEN'));
     }
     try {
       let info: Metadata;
+      params = {
+        type: params.type,
+        ...this.#excludeParenthesis(params)
+      };
+      np.getLogger().info(`[now-playing] Fetch metadata: ${JSON.stringify(params)}`);
       const cacheKey = md5(JSON.stringify(params));
       if (params.type === 'song' && params.album) {
         const album = params.album;
-        info = await this.#cache.getOrSet('song', cacheKey, () => this.#getSongInfo({ ...params, album }));
+        const name = isTrackNumberEnabled ? removeSongNumber(params.name) : params.name;
+        info = await this.#cache.getOrSet('song', cacheKey, () => this.#getSongInfo({ ...params, album, name }));
       }
       else if (params.type === 'album') {
         info = await this.#cache.getOrSet('album', cacheKey, () => this.#getAlbumInfo(params));
@@ -243,6 +255,44 @@ class MetadataAPI {
       }
       throw Error(msg);
     }
+  }
+
+  #excludeParenthesis(params: { name: string; album?: string; artist?: string; }) {
+    if (!this.#settings || !this.#settings.excludeParenthesized) {
+      return params;
+    }
+
+    const __strip = (s: string | undefined, parentheses: Array<'()' | '[]'>) => {
+      if (!s) {
+        return s;
+      }
+      let result = s;
+      for (const p of parentheses) {
+        const [ opening, closing ] = p;
+        const regexStr = `(${escapeRegExp(opening)}.*?${escapeRegExp(closing)})`;
+        result = result.replace(new RegExp(regexStr, 'gm'), '');
+      }
+      return result;
+    };
+
+    let parentheses: Array<'()' | '[]'>;
+    switch (this.#settings.parenthesisType) {
+      case 'round':
+        parentheses = [ '()' ];
+        break;
+      case 'square':
+        parentheses = [ '[]' ];
+        break;
+      case 'round+square':
+        parentheses = [ '()', '[]' ];
+        break;
+    }
+
+    return {
+      name: __strip(params.name, parentheses)?.trim() || params.name,
+      album: __strip(params.album, parentheses)?.trim() || params.album,
+      artist: __strip(params.artist, parentheses)?.trim() || params.artist
+    };
   }
 }
 

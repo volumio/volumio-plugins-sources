@@ -94,7 +94,7 @@ _a = ConfigUpdater, _ConfigUpdater_getUpdaters = function _ConfigUpdater_getUpda
             return;
         }
     }
-    const applyIndex = updaters.findIndex((up) => up.fromVersion === fromVersion || semver.gt(up.fromVersion, fromVersion));
+    const applyIndex = updaters.findIndex((up) => semver.eq(up.fromVersion, fromVersion) || semver.gt(up.fromVersion, fromVersion));
     const applyUpdater = applyIndex >= 0 ? updaters[applyIndex] : null;
     if (!applyUpdater) {
         NowPlayingContext_1.default.getLogger().info(`[now-playing] ConfigUpdater: no ${remainingUpdaters ? 'more ' : ''}config updaters found.`);

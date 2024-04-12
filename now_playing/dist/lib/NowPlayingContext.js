@@ -84,6 +84,9 @@ class NowPlayingContext {
     getLanguageCode() {
         return __classPrivateFieldGet(this, _NowPlayingContext_pluginContext, "f").coreCommand.sharedVars.get('language_code');
     }
+    getPluginSetting(type, plugin, setting) {
+        return __classPrivateFieldGet(this, _NowPlayingContext_pluginContext, "f").coreCommand.executeOnPlugin(type, plugin, 'getConfigParam', setting);
+    }
     getErrorMessage(message, error, stack = true) {
         let result = message;
         if (typeof error == 'object') {
