@@ -97,6 +97,10 @@ class NowPlayingContext {
     return this.#pluginContext.coreCommand.sharedVars.get('language_code');
   }
 
+  getPluginSetting(type: string, plugin: string, setting: string): any {
+    return this.#pluginContext.coreCommand.executeOnPlugin(type, plugin, 'getConfigParam', setting);
+  }
+
   getErrorMessage(message: string, error: any, stack = true): string {
     let result = message;
     if (typeof error == 'object') {
