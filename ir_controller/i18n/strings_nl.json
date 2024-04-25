@@ -15,6 +15,7 @@
     "GPIO_DESC":"De plugin controleert niet of de GPIO nummers in de keuzelijst al in gebruik zijn voor andere doeleinden. Daarom is het belangrijk om voor het kiezen van een GPIO nummer te controleren of deze daadwerkelijk beschikbaar is.",
     "GPIO_IN_PIN":"Selecteer GPIO van de IR ontvanger",
     "GPIO_IN_PIN_DOC":"GPIO-nummer dat wordt gebruikt door de signaallijn van de IR-sensor.<br /><br />NOOT: Dit is niet het nummer van de fysieke pin waarop de IR-ontvanger is aangesloten, maar het Broadcom-pin-nummer (BCM), cf. https://pinout.xyz/#.",
+    "SHOW_MORE":"Meer parameters weergeven",
     "GPIO_PULL":"Selecteer \"pull-up/down\" instelling",
     "GPIO_PULL_DOC":"Wanneer deze is ingesteld op \"up\" zal de ingang een \"high\" status lezen, wanneer deze is ingesteld op \"down\" zal de ingang een \"low\" status lezen wanneer er geen signaal is van de IR ontvanger. Als de waarde is ingesteld op \"uit\" zal de ingang zweven als er geen signaal is van de IR ontvanger. De standaardwaarde is \"up\".",
     "GPIO_PULL_OFF":"uit",
