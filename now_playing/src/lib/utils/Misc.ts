@@ -50,3 +50,11 @@ export function getVolumioBackgrounds() {
 export function rnd(min: number, max: number) {
   return Math.floor(Math.random() * (max - min) + min);
 }
+
+export function removeSongNumber(name: string) {
+  // Translates "8 - Yellow Dog" to "Yellow Dog" for good Match on Genius service.
+  const songNameRegex = /^(?:\d+\s*-\s*)([\w\d\s\p{L}.()-].+)$/u;
+  const matches = name.match(songNameRegex);
+  const newName = matches && matches?.length > 1 ? matches[1] : name;
+  return newName;
+}

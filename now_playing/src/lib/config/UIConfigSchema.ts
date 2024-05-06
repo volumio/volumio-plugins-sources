@@ -41,6 +41,8 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
   K extends 'section_metadata_service' ?
     'geniusAccessToken' | 
     'accessTokenGuide' | 
+    'excludeParenthesized' | 
+    'parenthesisType' | 
     'clearMetadataCache' :
 
   K extends 'section_weather_service' ?
@@ -305,6 +307,8 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
   K extends 'section_metadata_service' ? (
     C extends 'geniusAccessToken' ? UIConfigInput<K, 'text'> :
     C extends 'accessTokenGuide' ? UIConfigButton<K> :
+    C extends 'excludeParenthesized' ? UIConfigSwitch<K> :
+    C extends 'parenthesisType' ? UIConfigSelect<K> :
     C extends 'clearMetadataCache' ? UIConfigButton<K> :
     never
   ) : 

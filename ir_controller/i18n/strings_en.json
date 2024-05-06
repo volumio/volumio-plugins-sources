@@ -15,6 +15,7 @@
     "GPIO_DESC":"The Plugin does not check, if the GPIO numbers in the select list are already in use for different purposes. Therefore before chosing a GPIO number it is crucial to ensure that it is actually available.",
     "GPIO_IN_PIN":"Select GPIO of the IR receiver",
     "GPIO_IN_PIN_DOC":"GPIO number used by the IR sensors signal line.<br /><br />NOTE: This is not the number of the physical pin the IR receiver is connected to, but the Broadcom pin number (BCM), cf. https://pinout.xyz/#.",
+    "SHOW_MORE":"Show more parameters",
     "GPIO_PULL":"Select \"pull-up/down\" setting",
     "GPIO_PULL_DOC":"When set to \"up\" the input will read a \"high\" state, when set to \"down\" the input will read a \"low\" state when there is no signal from the IR receiver. When set to \"off\" the input will be floating when there is no signal from the IR receiver. Default value is \"up\".",
     "GPIO_PULL_OFF":"off",

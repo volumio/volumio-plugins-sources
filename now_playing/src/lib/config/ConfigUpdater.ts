@@ -71,7 +71,7 @@ export default class ConfigUpdater {
         return;
       }
     }
-    const applyIndex = updaters.findIndex((up) => up.fromVersion === fromVersion || semver.gt(up.fromVersion, fromVersion));
+    const applyIndex = updaters.findIndex((up) => semver.eq(up.fromVersion, fromVersion) || semver.gt(up.fromVersion, fromVersion));
     const applyUpdater = applyIndex >= 0 ? updaters[applyIndex] : null;
 
     if (!applyUpdater) {

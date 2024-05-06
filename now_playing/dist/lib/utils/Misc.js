@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rnd = exports.getVolumioBackgrounds = exports.kewToJSPromise = exports.jsPromiseToKew = void 0;
+exports.removeSongNumber = exports.rnd = exports.getVolumioBackgrounds = exports.kewToJSPromise = exports.jsPromiseToKew = void 0;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
@@ -75,4 +75,12 @@ function rnd(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 exports.rnd = rnd;
+function removeSongNumber(name) {
+    // Translates "8 - Yellow Dog" to "Yellow Dog" for good Match on Genius service.
+    const songNameRegex = /^(?:\d+\s*-\s*)([\w\d\s\p{L}.()-].+)$/u;
+    const matches = name.match(songNameRegex);
+    const newName = matches && matches?.length > 1 ? matches[1] : name;
+    return newName;
+}
+exports.removeSongNumber = removeSongNumber;
 //# sourceMappingURL=Misc.js.map

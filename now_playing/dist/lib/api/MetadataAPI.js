@@ -36,18 +36,20 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _MetadataAPI_instances, _MetadataAPI_fetchPromises, _MetadataAPI_genius, _MetadataAPI_accessToken, _MetadataAPI_cache, _MetadataAPI_getFetchPromise, _MetadataAPI_getSongSnippet, _MetadataAPI_getAlbumSnippet, _MetadataAPI_getArtistSnippet, _MetadataAPI_getSongByNameOrBestMatch, _MetadataAPI_getSongInfo, _MetadataAPI_getAlbumByNameOrBestMatch, _MetadataAPI_getAlbumInfo, _MetadataAPI_getArtistInfo;
+var _MetadataAPI_instances, _MetadataAPI_fetchPromises, _MetadataAPI_genius, _MetadataAPI_settings, _MetadataAPI_cache, _MetadataAPI_getFetchPromise, _MetadataAPI_getSongSnippet, _MetadataAPI_getAlbumSnippet, _MetadataAPI_getArtistSnippet, _MetadataAPI_getSongByNameOrBestMatch, _MetadataAPI_getSongInfo, _MetadataAPI_getAlbumByNameOrBestMatch, _MetadataAPI_getAlbumInfo, _MetadataAPI_getArtistInfo, _MetadataAPI_excludeParenthesis;
 Object.defineProperty(exports, "__esModule", { value: true });
 const genius_fetch_1 = __importStar(require("genius-fetch"));
 const md5_1 = __importDefault(require("md5"));
 const NowPlayingContext_1 = __importDefault(require("../NowPlayingContext"));
 const Cache_1 = __importDefault(require("../utils/Cache"));
+const Misc_1 = require("../utils/Misc");
+const lodash_1 = require("lodash");
 class MetadataAPI {
     constructor() {
         _MetadataAPI_instances.add(this);
         _MetadataAPI_fetchPromises.set(this, void 0);
         _MetadataAPI_genius.set(this, void 0);
-        _MetadataAPI_accessToken.set(this, void 0);
+        _MetadataAPI_settings.set(this, void 0);
         _MetadataAPI_cache.set(this, void 0);
         __classPrivateFieldSet(this, _MetadataAPI_fetchPromises, {
             'song': {},
@@ -55,31 +57,38 @@ class MetadataAPI {
             'artist': {}
         }, "f");
         __classPrivateFieldSet(this, _MetadataAPI_genius, new genius_fetch_1.default(), "f");
-        __classPrivateFieldSet(this, _MetadataAPI_accessToken, null, "f");
+        __classPrivateFieldSet(this, _MetadataAPI_settings, null, "f");
         __classPrivateFieldSet(this, _MetadataAPI_cache, new Cache_1.default({ song: 3600, album: 3600, artist: 3600 }, { song: 200, album: 200, artist: 200 }), "f");
     }
     clearCache() {
         __classPrivateFieldGet(this, _MetadataAPI_genius, "f").clearCache();
         __classPrivateFieldGet(this, _MetadataAPI_cache, "f").clear();
     }
-    setAccessToken(accessToken) {
-        if (accessToken === __classPrivateFieldGet(this, _MetadataAPI_accessToken, "f")) {
-            return;
+    updateSettings(settings) {
+        const tokenChanged = !__classPrivateFieldGet(this, _MetadataAPI_settings, "f") || settings.geniusAccessToken !== __classPrivateFieldGet(this, _MetadataAPI_settings, "f").geniusAccessToken;
+        __classPrivateFieldSet(this, _MetadataAPI_settings, settings, "f");
+        if (tokenChanged) {
+            __classPrivateFieldGet(this, _MetadataAPI_genius, "f").config({ accessToken: settings.geniusAccessToken });
+            this.clearCache();
         }
-        __classPrivateFieldGet(this, _MetadataAPI_genius, "f").config({ accessToken });
-        this.clearCache();
-        __classPrivateFieldSet(this, _MetadataAPI_accessToken, accessToken, "f");
     }
     async fetchInfo(params) {
-        if (!NowPlayingContext_1.default.getConfigValue('geniusAccessToken')) {
+        const isTrackNumberEnabled = NowPlayingContext_1.default.getPluginSetting('music_service', 'mpd', 'tracknumbers');
+        if (!NowPlayingContext_1.default.getConfigValue('metadataService').geniusAccessToken) {
             throw Error(NowPlayingContext_1.default.getI18n('NOW_PLAYING_ERR_METADATA_NO_TOKEN'));
         }
         try {
             let info;
+            params = {
+                type: params.type,
+                ...__classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_excludeParenthesis).call(this, params)
+            };
+            NowPlayingContext_1.default.getLogger().info(`[now-playing] Fetch metadata: ${JSON.stringify(params)}`);
             const cacheKey = (0, md5_1.default)(JSON.stringify(params));
             if (params.type === 'song' && params.album) {
                 const album = params.album;
-                info = await __classPrivateFieldGet(this, _MetadataAPI_cache, "f").getOrSet('song', cacheKey, () => __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_getSongInfo).call(this, { ...params, album }));
+                const name = isTrackNumberEnabled ? (0, Misc_1.removeSongNumber)(params.name) : params.name;
+                info = await __classPrivateFieldGet(this, _MetadataAPI_cache, "f").getOrSet('song', cacheKey, () => __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_getSongInfo).call(this, { ...params, album, name }));
             }
             else if (params.type === 'album') {
                 info = await __classPrivateFieldGet(this, _MetadataAPI_cache, "f").getOrSet('album', cacheKey, () => __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_getAlbumInfo).call(this, params));
@@ -106,7 +115,7 @@ class MetadataAPI {
         }
     }
 }
-_MetadataAPI_fetchPromises = new WeakMap(), _MetadataAPI_genius = new WeakMap(), _MetadataAPI_accessToken = new WeakMap(), _MetadataAPI_cache = new WeakMap(), _MetadataAPI_instances = new WeakSet(), _MetadataAPI_getFetchPromise = function _MetadataAPI_getFetchPromise(type, params, callback) {
+_MetadataAPI_fetchPromises = new WeakMap(), _MetadataAPI_genius = new WeakMap(), _MetadataAPI_settings = new WeakMap(), _MetadataAPI_cache = new WeakMap(), _MetadataAPI_instances = new WeakSet(), _MetadataAPI_getFetchPromise = function _MetadataAPI_getFetchPromise(type, params, callback) {
     const key = (0, md5_1.default)(JSON.stringify(params));
     if (Object.keys(__classPrivateFieldGet(this, _MetadataAPI_fetchPromises, "f")[type]).includes(key)) {
         return __classPrivateFieldGet(this, _MetadataAPI_fetchPromises, "f")[type][key];
@@ -233,6 +242,39 @@ _MetadataAPI_fetchPromises = new WeakMap(), _MetadataAPI_genius = new WeakMap(),
         result.artist = __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_getArtistSnippet).call(this, artist.items[0]);
         return result;
     });
+}, _MetadataAPI_excludeParenthesis = function _MetadataAPI_excludeParenthesis(params) {
+    if (!__classPrivateFieldGet(this, _MetadataAPI_settings, "f") || !__classPrivateFieldGet(this, _MetadataAPI_settings, "f").excludeParenthesized) {
+        return params;
+    }
+    const __strip = (s, parentheses) => {
+        if (!s) {
+            return s;
+        }
+        let result = s;
+        for (const p of parentheses) {
+            const [opening, closing] = p;
+            const regexStr = `(${(0, lodash_1.escapeRegExp)(opening)}.*?${(0, lodash_1.escapeRegExp)(closing)})`;
+            result = result.replace(new RegExp(regexStr, 'gm'), '');
+        }
+        return result;
+    };
+    let parentheses;
+    switch (__classPrivateFieldGet(this, _MetadataAPI_settings, "f").parenthesisType) {
+        case 'round':
+            parentheses = ['()'];
+            break;
+        case 'square':
+            parentheses = ['[]'];
+            break;
+        case 'round+square':
+            parentheses = ['()', '[]'];
+            break;
+    }
+    return {
+        name: __strip(params.name, parentheses)?.trim() || params.name,
+        album: __strip(params.album, parentheses)?.trim() || params.album,
+        artist: __strip(params.artist, parentheses)?.trim() || params.artist
+    };
 };
 const metadataAPI = new MetadataAPI();
 exports.default = metadataAPI;

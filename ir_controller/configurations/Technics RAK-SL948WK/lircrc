@@ -16,7 +16,7 @@ button = KEY_STOP
 config = /usr/local/bin/volumio stop
 repeat = 0
 end
-bbegin
+begin
 prog = irexec
 button = KEY_PREVIOUS
 config = /usr/local/bin/volumio previous

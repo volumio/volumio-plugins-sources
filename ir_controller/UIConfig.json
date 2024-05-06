@@ -338,11 +338,18 @@
                               						}
                                					]
                              },
+							 {
+							 "id": "show_more",
+							 "element": "switch",
+							 "label": "TRANSLATE.IRCONTROLLER.SHOW_MORE",
+							 "value": false
+							 },
                              {
                              "id": "gpio_pull",
                              "element": "select",
                              "doc": "TRANSLATE.IRCONTROLLER.GPIO_PULL_DOC",
                              "label": "TRANSLATE.IRCONTROLLER.GPIO_PULL",
+							 "visibleIf": {"field": "show_more", "value": true},
                              "value": {"value": "up", "label": "TRANSLATE.IRCONTROLLER.GPIO_PULL_UP"},
                              "options": [
                                           {
@@ -364,6 +371,7 @@
                               "element": "switch",
                               "doc": "TRANSLATE.IRCONTROLLER.FORCE_ACTIVE_STATE_DOC",
                               "label": "TRANSLATE.IRCONTROLLER.FORCE_ACTIVE_STATE",
+							  "visibleIf": {"field": "show_more", "value": true},
                               "value": false
                               },
                               {

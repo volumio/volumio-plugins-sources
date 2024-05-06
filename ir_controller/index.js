@@ -218,11 +218,11 @@ IrController.prototype.getUIConfig = function () {
                 uiconf.sections[1].content[2].value.label = self.config.get('gpio_in_pin', 25);
                 break;
             }
-            uiconf.sections[1].content[3].value.value = self.config.get('gpio_pull', 'up');
-            uiconf.sections[1].content[3].value.label = self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[3].options'), self.config.get('gpio_pull', 'up'));
-            uiconf.sections[1].content[4].value = self.config.get('forceActiveState', false);
-            uiconf.sections[1].content[5].value.value = self.config.get('activeState', 1);
-            uiconf.sections[1].content[5].value.label = self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[5].options'), self.config.get('activeState', 1));
+            uiconf.sections[1].content[4].value.value = self.config.get('gpio_pull', 'up');
+            uiconf.sections[1].content[4].value.label = self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[4].options'), self.config.get('gpio_pull', 'up'));
+            uiconf.sections[1].content[5].value = self.config.get('forceActiveState', false);
+            uiconf.sections[1].content[6].value.value = self.config.get('activeState', 1);
+            uiconf.sections[1].content[6].value.label = self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[6].options'), self.config.get('activeState', 1));
           } else {
             uiconf.sections[1].hidden = true;
           }

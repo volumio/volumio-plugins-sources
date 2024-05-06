@@ -20,6 +20,7 @@ import { CommonSettingsCategory, LocalizationSettings, NowPlayingScreenSettings,
 import UIConfigHelper from './lib/config/UIConfigHelper';
 import ConfigBackupHelper from './lib/config/ConfigBackupHelper';
 import myBackgroundMonitor from './lib/utils/MyBackgroundMonitor';
+import { MetadataServiceOptions } from './lib/config/PluginConfig';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type DockedComponentKey<T = keyof NowPlayingScreenSettings> = T extends `docked${infer _X}` ? T : never;
@@ -148,7 +149,24 @@ class ControllerNowPlaying {
     /**
      * Metadata Service conf
      */
-    metadataServiceUIConf.content.geniusAccessToken.value = np.getConfigValue('geniusAccessToken');
+    const metadataServiceOptions = np.getConfigValue('metadataService');
+    metadataServiceUIConf.content.geniusAccessToken.value = metadataServiceOptions.geniusAccessToken;
+    metadataServiceUIConf.content.excludeParenthesized.value = metadataServiceOptions.excludeParenthesized;
+    metadataServiceUIConf.content.parenthesisType.value = {
+      value: metadataServiceOptions.parenthesisType,
+      label: ''
+    };
+    switch (metadataServiceOptions.parenthesisType) {
+      case 'round':
+        metadataServiceUIConf.content.parenthesisType.value.label = np.getI18n('NOW_PLAYING_ROUND_BRACKETS');
+        break;
+      case 'square':
+        metadataServiceUIConf.content.parenthesisType.value.label = np.getI18n('NOW_PLAYING_SQUARE_BRACKETS');
+        break;
+      case 'round+square':
+        metadataServiceUIConf.content.parenthesisType.value.label = np.getI18n('NOW_PLAYING_ROUND_SQUARE_BRACKETS');
+        break;
+    }
     const accessTokenSetupUrl = `${url}/genius_setup`;
     metadataServiceUIConf.content.accessTokenGuide.onClick = {
       type: 'openUrl',
@@ -1672,8 +1690,13 @@ class ControllerNowPlaying {
 
   configSaveMetadataServiceSettings(data: Record<string, any>) {
     const token = data['geniusAccessToken'].trim();
-    np.setConfigValue('geniusAccessToken', token);
-    metadataAPI.setAccessToken(token);
+    const settings: MetadataServiceOptions = {
+      geniusAccessToken: token,
+      excludeParenthesized: data['excludeParenthesized'],
+      parenthesisType: data['parenthesisType'].value
+    };
+    np.setConfigValue('metadataService', settings);
+    metadataAPI.updateSettings(settings);
     np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
   }
 
@@ -1872,7 +1895,7 @@ class ControllerNowPlaying {
 
     await ConfigUpdater.checkAndUpdate();
 
-    metadataAPI.setAccessToken(np.getConfigValue('geniusAccessToken'));
+    metadataAPI.updateSettings(np.getConfigValue('metadataService'));
     this.#configureWeatherApi();
 
     // Register language change listener
