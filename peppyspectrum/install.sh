@@ -39,8 +39,6 @@ git clone https://github.com/project-owner/PeppySpectrum.git $peppymeterpath
 chmod 777 -R $peppymeterpath
 sudo chown -R volumio "$spath" "$customfolder"
 sudo chgrp -R volumio "$spath" "$customfolder"
-mv 800x480+99-99bars.zip.r 800x480+99-99bars.zip
-miniunzip 800x480+99-99bars.zip -d $customfolder
 echo "installing apt packages"
 
 sudo apt-get -y install python3-pygame python3

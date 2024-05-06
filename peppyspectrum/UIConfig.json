@@ -150,6 +150,48 @@
 					"value": true
 				}
 			]
+		},
+		{
+			"id": "section_dl",
+			"element": "section",
+			"label": "Download Spectrums packet",
+			"icon": "fa-microchip",
+			"onSave": {
+				"type": "controller",
+				"endpoint": "user_interface/peppyspectrum",
+				"method": "dlspectrum"
+			},
+			"saveButton": {
+				"label": "TRANSLATE.DOWNLOAD",
+				"data": [
+					"zipfile"
+				]
+			},
+			"content": [
+				{
+					"id": "chsp",
+					"element": "select",
+					"doc": "Select a file",
+					"label": "Select a file",
+					"value": {
+						"value": "",
+						"label":""
+					},
+					"options": []
+				},
+				{
+					"id": "updatelist",
+					"element": "button",
+					"label": "TRANSLATE.CLICK_TO_UPDATE_LIST",
+					"description": "TRANSLATE.CLICK_TO_UPDATE_LIST_DESC",
+					"onClick": {
+					  "type": "plugin",
+					  "endpoint": "user_interface/peppyspectrum",
+					  "method": "updatelist",
+					  "data": []
+					}
+				  }
+			]
 		}
 	]
 }

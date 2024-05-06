@@ -1,10 +1,17 @@
 {
   "LOCALSETTINGS": "Impostazioni del display locale",
-  "SCREENSIZE": "Cartella spettro",
-  "SCREENSIZE_DOC": "Cartella per lo spettro. La cartella personalizzata si trova in /data/INTERNAL/PeppySppectrum/Templates/ e deve essere denominata myspectrum(weightxhightxnumberofbar) ex collection(800x480x30). Se il numero di barre viene omesso, viene utilizzato il valore predefinito 30",
-  "SCEGLI_SPETTRO_DOC": "Seleziona lo spettro nell'elenco",
-  "CHOOSE_SPECTRUM": "Seleziona spettro",
-  "NBARCHANGE": "Il numero di barre nello spettro è cambiato! Ora è impostato su ",
-  "APPLICA": "Applica",
-  "SALVA": "Chiudi"
+  "SCREENSIZE": "Cartella Spectrum",
+  "SCREENSIZE_DOC": "Cartella per lo spettro. La cartella personalizzata è in /data/INTERNAL/PeppySppectrum/Templates/ e deve essere chiamata weightxheight+numberofbar-description. ex 800x480+30-collection. Se il numero di barre omesse, valore di defaut 30 è usato",
+  "CHOOSE_SPECTRUM_DOC": "Seleziona lo spettro nella lista",
+  "CHOOSE_SPECTRUM":"Seleziona spettro",
+  "NBARCHANGE": "Numero di barre in Spectrum cambiato! Ora impostato su ",
+  "APPLY": "Applicare",
+  "SAVE": "Chiudi",
+  "SCARICA":"Scarica",
+  "SPECTRUM_FOLDER_NAME":"Impossibile determinare la dimensione dello schermo perché la cartella non ha un nome corretto! ,Deve essere widthxheight + bar-descrizione ex : 800x600 + 30-metallo. No 'x' consentito nella descrizione! si prega di controllare!" ,
+  "SPECTRUM_INSTALL_TITLE":"Avanzamento dell'installazione",
+  "SPECTRUM_INSTALL_WAIT":"Attendere prego...",
+  "Elenco degli aggiornamenti":"Elenco degli aggiornamenti",
+  "Elenco aggiornato": "Elenco aggiornato",
+  "LIST_FAIL_UPDATE": "Impossibile aggiornare la lista"
 }

@@ -1,6 +1,6 @@
 ## PeppySpectrum for RPI
 
-### for From Volumio buster >= 3.2
+### for From Volumio buster >= 3.661
 
 
 source for peppyspectrum and peppyalsa : [peppy](https://github.com/project-owner)

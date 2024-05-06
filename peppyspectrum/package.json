@@ -1,6 +1,6 @@
 {
   "name": "peppyspectrum",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "description": "Peppy-spectrum for Volumio",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "os": [
       "buster"
     ],
-    "changelog": "Picasso Edition fix",
+    "changelog": "Download menu",
     "details": "Easy install Peppy-spectrum",
     "architectures": [
       "armhf"

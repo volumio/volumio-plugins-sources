@@ -6,5 +6,6 @@
 "spectrumsize":{"type":"number","value":30},
 "debuglog":{"type":"boolean","value":false},
 "showsize":{"type":"boolean","value":false},
-"autosize":{"type":"boolean","value":true}
+"autosize":{"type":"boolean","value":true},
+"zipfile":{"type":"string","value":"800x480+99-99bars-o"}
 }
