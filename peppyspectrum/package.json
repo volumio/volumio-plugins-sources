@@ -1,6 +1,6 @@
 {
   "name": "peppyspectrum",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Peppy-spectrum for Volumio",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,8 @@
     "architectures": [
       "armhf"
     ],
-    "has_alsa_contribution": true
+    "has_alsa_contribution": true,
+    "manually_installed": true
   },
   "dependencies": {
     "child_process": "",

@@ -169,7 +169,7 @@
 			},
 			"content": [
 				{
-					"id": "chsp",
+					"id": "zipfile",
 					"element": "select",
 					"doc": "Select a file",
 					"label": "Select a file",

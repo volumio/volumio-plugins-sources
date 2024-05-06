@@ -685,7 +685,9 @@ peppyspectrum.prototype.savepeppyconfig = function () {
 
 peppyspectrum.prototype.dlspectrum = function (data) {
     const self = this;
-    let zipfile = self.config.get("zipfile")// + ".zip"
+    let zipfile = data["zipfile"].value// + ".zip"
+    ///self.config.set('debuglog', data['debuglog']);
+
 
     return new Promise(function (resolve, reject) {
         try {
@@ -698,7 +700,7 @@ peppyspectrum.prototype.dlspectrum = function (data) {
             self.commandRouter.broadcastMessage("openModal", modalData);
 
             let cp3 = execSync('/usr/bin/wget -P /tmp https://github.com/balbuze/Spectrum-peppyspectrum/raw/main/Zipped-folders/' + zipfile + '.zip');
-            let cp9 = execSync('sudo chmod -R 766 /data/' + spectrumspath)
+          //  let cp9 = execSync('sudo chmod -R 766 /data/' + spectrumspath)
             let cp5 = execSync('miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + spectrumspath);
             self.logger.info(logPrefix + 'message miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + spectrumspath);
 
@@ -711,7 +713,6 @@ peppyspectrum.prototype.dlspectrum = function (data) {
         }
       //  self.config.set('zipfile', zipfile);
       let cp6 = execSync('/bin/rm /tmp/' + zipfile + '.zip*');
-
         resolve();
     });
 };
