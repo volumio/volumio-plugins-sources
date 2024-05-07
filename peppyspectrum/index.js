@@ -1,5 +1,6 @@
 'use strict';
-
+/*By balbuze May 2024
+*/
 var fs = require('fs-extra');
 var libFsExtra = require('fs-extra');
 var exec = require('child_process').exec;
@@ -701,7 +702,9 @@ peppyspectrum.prototype.dlspectrum = function (data) {
 
             let cp3 = execSync('/usr/bin/wget -P /tmp https://github.com/balbuze/Spectrum-peppyspectrum/raw/main/Zipped-folders/' + zipfile + '.zip');
           //  let cp9 = execSync('sudo chmod -R 766 /data/' + spectrumspath)
-            let cp5 = execSync('miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + spectrumspath);
+           // let cp5 = execSync('miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + spectrumspath);
+            let cp5 = execSync('miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + spectrumspath+' && sudo chmod -R 777 /data/' + spectrumspath);
+
             self.logger.info(logPrefix + 'message miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + spectrumspath);
 
 
