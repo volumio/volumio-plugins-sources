@@ -6,13 +6,11 @@
           "availableListViews": [
             "list"
           ],
-          "items": [
-          ]
+          "items": []
         }
       ]
     }
   },
-
   "stations": {
     "rparadise": [
       {
@@ -34,6 +32,11 @@
         "title": "Radio Paradise World/Etc Mix (FLAC)",
         "uri": "webrp/3",
         "url": "https://stream.radioparadise.com/world-etc-flac"
+      },
+      {
+        "title": "Radio Paradise Radio 2050 (FLAC)",
+        "uri": "webrp/9",
+        "url": "http://stream.radioparadise.com/radio2050-flac"
       },
       {
         "title": "Radio Paradise (AAC 320k)",
