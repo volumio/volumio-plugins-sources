@@ -34,11 +34,6 @@
         "url": "https://stream.radioparadise.com/world-etc-flac"
       },
       {
-        "title": "Radio Paradise Radio 2050 (FLAC)",
-        "uri": "webrp/9",
-        "url": "http://stream.radioparadise.com/radio2050-flac"
-      },
-      {
         "title": "Radio Paradise (AAC 320k)",
         "uri": "webrp/4",
         "url": "http://stream-uk1.radioparadise.com/aac-320"
@@ -62,6 +57,11 @@
         "title": "Radio Paradise (MP3 128k)",
         "uri": "webrp/8",
         "url": "http://stream-uk1.radioparadise.com/mp3-128"
+      },
+      {
+        "title": "Radio Paradise Radio 2050 (FLAC)",
+        "uri": "webrp/9",
+        "url": "http://stream.radioparadise.com/radio2050-flac"
       }
     ]
   }
