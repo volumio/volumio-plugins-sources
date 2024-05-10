@@ -17,6 +17,7 @@ export type UIConfigSectionKey =
               'section_docked_volume_indicator' | 
               'section_docked_clock' | 
               'section_docked_weather' | 
+              'section_docked_media_format' | 
               'section_idle_view' | 
               'section_extra_screens' | 
               'section_kiosk' | 
@@ -100,6 +101,11 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'seekbarVisibility' | 
     'playbackButtonSizeType' | 
     'playbackButtonSize' | 
+    'seekbarStyling' | 
+    'seekbarThickness' | 
+    'seekbarBorderRadius' | 
+    'seekbarShowThumb' | 
+    'seekbarThumbSize' | 
     'widgetMargins' | 
     'playbackButtonsMargin' | 
     'seekbarMargin' :
@@ -142,7 +148,11 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'showVolumeSlider' :
 
   K extends 'section_docked_menu' ?
-    'enabled' :
+    'enabled' | 
+    'iconSettings' | 
+    'iconStyle' | 
+    'iconSize' | 
+    'margin' :
 
   K extends 'section_docked_action_panel_trigger' ?
     'enabled' | 
@@ -203,6 +213,15 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'iconSize' | 
     'iconMonoColor' | 
     'iconAnimate' | 
+    'margin' :
+
+  K extends 'section_docked_media_format' ?
+    'enabled' | 
+    'placement' | 
+    'displayOrder' | 
+    'fontSettings' | 
+    'fontSize' | 
+    'fontColor' | 
     'margin' :
 
   K extends 'section_idle_view' ?
@@ -374,6 +393,11 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'seekbarVisibility' ? UIConfigSwitch<K> :
     C extends 'playbackButtonSizeType' ? UIConfigSelect<K> :
     C extends 'playbackButtonSize' ? UIConfigInput<K, 'text'> :
+    C extends 'seekbarStyling' ? UIConfigSelect<K> :
+    C extends 'seekbarThickness' ? UIConfigInput<K, 'text'> :
+    C extends 'seekbarBorderRadius' ? UIConfigInput<K, 'text'> :
+    C extends 'seekbarShowThumb' ? UIConfigSwitch<K> :
+    C extends 'seekbarThumbSize' ? UIConfigInput<K, 'text'> :
     C extends 'widgetMargins' ? UIConfigSelect<K> :
     C extends 'playbackButtonsMargin' ? UIConfigInput<K, 'text'> :
     C extends 'seekbarMargin' ? UIConfigInput<K, 'text'> :
@@ -425,6 +449,10 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
 
   K extends 'section_docked_menu' ? (
     C extends 'enabled' ? UIConfigSwitch<K> :
+    C extends 'iconSettings' ? UIConfigSelect<K> :
+    C extends 'iconStyle' ? UIConfigSelect<K> :
+    C extends 'iconSize' ? UIConfigInput<K, 'text'> :
+    C extends 'margin' ? UIConfigInput<K, 'text'> :
     never
   ) : 
 
@@ -493,6 +521,17 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'iconSize' ? UIConfigInput<K, 'text'> :
     C extends 'iconMonoColor' ? UIConfigInput<K, 'color'> :
     C extends 'iconAnimate' ? UIConfigSwitch<K> :
+    C extends 'margin' ? UIConfigInput<K, 'text'> :
+    never
+  ) : 
+
+  K extends 'section_docked_media_format' ? (
+    C extends 'enabled' ? UIConfigSwitch<K> :
+    C extends 'placement' ? UIConfigSelect<K> :
+    C extends 'displayOrder' ? UIConfigInput<K, 'number'> :
+    C extends 'fontSettings' ? UIConfigSelect<K> :
+    C extends 'fontSize' ? UIConfigInput<K, 'text'> :
+    C extends 'fontColor' ? UIConfigInput<K, 'color'> :
     C extends 'margin' ? UIConfigInput<K, 'text'> :
     never
   ) : 

@@ -80,6 +80,12 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.6.0
+- Add seekbar styling options
+- Add 'Dock Component - Media Format'
+- Add more 'Dock Component - Menu' options
+- Update web client v0.6.0
+
 0.5.6
 - Fix weather not displayed following changes in openweathermap.org
 - Metadata service: 

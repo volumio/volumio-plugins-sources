@@ -217,6 +217,11 @@ class ControllerNowPlaying {
             seekbarVisibility: data.seekbarVisibility,
             playbackButtonSizeType: data.playbackButtonSizeType.value,
             playbackButtonSize: data.playbackButtonSize,
+            seekbarStyling: data.seekbarStyling.value,
+            seekbarThickness: data.seekbarThickness,
+            seekbarBorderRadius: data.seekbarBorderRadius,
+            seekbarShowThumb: data.seekbarShowThumb,
+            seekbarThumbSize: data.seekbarThumbSize,
             widgetMargins: data.widgetMargins.value,
             playbackButtonsMargin: data.playbackButtonsMargin,
             seekbarMargin: data.seekbarMargin
@@ -284,6 +289,9 @@ class ControllerNowPlaying {
     }
     configSaveDockedWeatherSettings(data) {
         __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_configSaveDockedComponentSettings).call(this, data, 'dockedWeather');
+    }
+    configSaveDockedMediaFormatSettings(data) {
+        __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_configSaveDockedComponentSettings).call(this, data, 'dockedMediaFormat');
     }
     configSaveLocalizationSettings(data) {
         const settings = {
@@ -515,6 +523,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     const dockedVolumeIndicatorUIConf = uiconf.section_docked_volume_indicator;
     const dockedClockUIConf = uiconf.section_docked_clock;
     const dockedWeatherUIConf = uiconf.section_docked_weather;
+    const dockedMediaFormatUIConf = uiconf.section_docked_media_format;
     const idleScreenUIConf = uiconf.section_idle_view;
     const extraScreensUIConf = uiconf.section_extra_screens;
     const kioskUIConf = uiconf.section_kiosk;
@@ -751,6 +760,14 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
         label: nowPlayingScreen.playbackButtonSizeType == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
     };
     widgetStylesUIConf.content.playbackButtonSize.value = nowPlayingScreen.playbackButtonSize;
+    widgetStylesUIConf.content.seekbarStyling.value = {
+        value: nowPlayingScreen.seekbarStyling,
+        label: nowPlayingScreen.seekbarStyling == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    widgetStylesUIConf.content.seekbarThickness.value = nowPlayingScreen.seekbarThickness;
+    widgetStylesUIConf.content.seekbarBorderRadius.value = nowPlayingScreen.seekbarBorderRadius;
+    widgetStylesUIConf.content.seekbarShowThumb.value = nowPlayingScreen.seekbarShowThumb;
+    widgetStylesUIConf.content.seekbarThumbSize.value = nowPlayingScreen.seekbarThumbSize;
     widgetStylesUIConf.content.widgetMargins.value = {
         value: nowPlayingScreen.widgetMargins,
         label: nowPlayingScreen.widgetMargins == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -995,6 +1012,32 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
      */
     const dockedMenu = nowPlayingScreen.dockedMenu;
     dockedMenuUIConf.content.enabled.value = dockedMenu.enabled;
+    dockedMenuUIConf.content.iconSettings.value = {
+        value: dockedMenu.iconSettings,
+        label: dockedMenu.iconSettings == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    dockedMenuUIConf.content.iconStyle.value = {
+        value: dockedMenu.iconStyle,
+        label: ''
+    };
+    switch (dockedMenu.iconStyle) {
+        case 'ellipsis_h':
+            dockedMenuUIConf.content.iconStyle.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_ELLIPSIS_H');
+            break;
+        case 'hamburger':
+            dockedMenuUIConf.content.iconStyle.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_HAMBURGER');
+            break;
+        default:
+            dockedMenuUIConf.content.iconStyle.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_ELLIPSIS_V');
+    }
+    dockedMenuUIConf.content.iconSize.value = dockedMenu.iconSize;
+    dockedMenuUIConf.content.margin.value = dockedMenu.margin;
+    if (!dockedMenu.enabled) {
+        dockedMenuUIConf.content = [dockedMenuUIConf.content.enabled];
+        if (dockedMenuUIConf.saveButton) {
+            dockedMenuUIConf.saveButton.data = ['enabled'];
+        }
+    }
     /**
      * Docked Action Panel Trigger
      */
@@ -1324,6 +1367,54 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
         dockedWeatherUIConf.content = [dockedWeatherUIConf.content.enabled];
         if (dockedWeatherUIConf.saveButton) {
             dockedWeatherUIConf.saveButton.data = ['enabled'];
+        }
+    }
+    /**
+     * Docked Media Format
+     */
+    const dockedMediaFormat = nowPlayingScreen.dockedMediaFormat;
+    dockedMediaFormatUIConf.content.enabled.value = dockedMediaFormat.enabled;
+    dockedMediaFormatUIConf.content.placement.value = {
+        value: dockedMediaFormat.placement,
+        label: ''
+    };
+    switch (dockedMediaFormat.placement) {
+        case 'top-left':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_TOP_LEFT');
+            break;
+        case 'top':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_TOP');
+            break;
+        case 'top-right':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_TOP_RIGHT');
+            break;
+        case 'left':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_LEFT');
+            break;
+        case 'right':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_RIGHT');
+            break;
+        case 'bottom-left':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_BOTTOM_LEFT');
+            break;
+        case 'bottom':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_BOTTOM');
+            break;
+        default:
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_BOTTOM_RIGHT');
+    }
+    dockedMediaFormatUIConf.content.displayOrder.value = UIConfigHelper_1.default.sanitizeNumberInput(dockedMediaFormat.displayOrder);
+    dockedMediaFormatUIConf.content.fontSettings.value = {
+        value: dockedMediaFormat.fontSettings,
+        label: dockedMediaFormat.fontSettings == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    dockedMediaFormatUIConf.content.fontSize.value = dockedMediaFormat.fontSize;
+    dockedMediaFormatUIConf.content.fontColor.value = dockedMediaFormat.fontColor;
+    dockedMediaFormatUIConf.content.margin.value = dockedMediaFormat.margin;
+    if (!dockedMediaFormat.enabled) {
+        dockedMediaFormatUIConf.content = [dockedMediaFormatUIConf.content.enabled];
+        if (dockedMediaFormatUIConf.saveButton) {
+            dockedMediaFormatUIConf.saveButton.data = ['enabled'];
         }
     }
     /**

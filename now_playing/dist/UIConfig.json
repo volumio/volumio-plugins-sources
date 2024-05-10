@@ -874,6 +874,11 @@
           "seekbarVisibility",
           "playbackButtonSizeType",
           "playbackButtonSize",
+          "seekbarStyling",
+          "seekbarThickness",
+          "seekbarBorderRadius",
+          "seekbarShowThumb",
+          "seekbarThumbSize",
           "widgetMargins",
           "playbackButtonsMargin",
           "seekbarMargin"
@@ -995,6 +1000,71 @@
           "value": "",
           "visibleIf": {
             "field": "playbackButtonSizeType",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarStyling",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_STYLING",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "seekbarThickness",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_HEIGHT",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_THICKNESS",
+          "value": "",
+          "visibleIf": {
+            "field": "seekbarStyling",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarBorderRadius",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BORDER_RADIUS",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_BORDER_RADIUS",
+          "value": "",
+          "visibleIf": {
+            "field": "seekbarStyling",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarShowThumb",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_SHOW_THUMB",
+          "value": true,
+          "visibleIf": {
+            "field": "seekbarStyling",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarThumbSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_THUMB_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "seekbarStyling",
             "value": "custom"
           }
         },
@@ -1154,7 +1224,7 @@
           "id": "albumartBorderRadius",
           "type": "text",
           "element": "input",
-          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BORDER_RADIUS",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_ALBUM_ART_BORDER_RADIUS",
           "label": "TRANSLATE.NOW_PLAYING_BORDER_RADIUS",
           "value": ""
         }
@@ -1678,7 +1748,11 @@
       "saveButton": {
         "label": "TRANSLATE.NOW_PLAYING_SAVE",
         "data": [
-          "enabled"
+          "enabled",
+          "iconSettings",
+          "iconStyle",
+          "iconSize",
+          "margin"
         ]
       },
       "content": [
@@ -1688,6 +1762,72 @@
           "doc": "",
           "label": "TRANSLATE.NOW_PLAYING_ENABLED",
           "value": true
+        },
+        {
+          "id": "iconSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "iconStyle",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_STYLE",
+          "value": {
+            "value": "ellipsis_v",
+            "label": "TRANSLATE.NOW_PLAYING_ELLIPSIS_V"
+          },
+          "options": [
+            {
+              "value": "ellipsis_h",
+              "label": "TRANSLATE.NOW_PLAYING_ELLIPSIS_H"
+            },
+            {
+              "value": "ellipsis_v",
+              "label": "TRANSLATE.NOW_PLAYING_ELLIPSIS_V"
+            },
+            {
+              "value": "hamburger", 
+              "label": "TRANSLATE.NOW_PLAYING_HAMBURGER"
+            }
+          ],
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "margin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": ""
         }
       ]
     },
@@ -2667,6 +2807,144 @@
           "value": false,
           "visibleIf": {
             "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "margin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_docked_media_format",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_MEDIA_FORMAT",
+      "icon": "fa-music",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedMediaFormatSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled",
+          "placement",
+          "displayOrder",
+          "fontSettings",
+          "fontSize",
+          "fontColor",
+          "margin"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": false
+        },
+        {
+          "id": "placement",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PLACEMENT",
+          "value": {
+            "value": "bottom-right", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+          },
+          "options": [
+            {
+              "value": "top-left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_LEFT"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "top-right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_RIGHT"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "bottom-left",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_LEFT"
+            },
+            {
+              "value": "bottom",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "bottom-right",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+            }
+          ]
+        },
+        {
+          "id": "displayOrder",
+          "type": "number",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DOCK_COMPONENT_ORDER",
+          "label": "TRANSLATE.NOW_PLAYING_DOCK_COMPONENT_ORDER",
+          "value": ""
+        },
+        {
+          "id": "fontSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "fontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_COLOR_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
             "value": "custom"
           }
         },
