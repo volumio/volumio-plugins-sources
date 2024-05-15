@@ -45,7 +45,7 @@ fi
 
 
 DAEMON_BASE_URL=https://github.com/devgianlu/go-librespot/releases/download/v
-VERSION=0.0.14
+VERSION=0.0.15
 DAEMON_ARCHIVE=go-librespot_linux_$ARCH.tar.gz
 DAEMON_DOWNLOAD_URL=$DAEMON_BASE_URL$VERSION/$DAEMON_ARCHIVE
 DAEMON_DOWNLOAD_PATH=/home/volumio/$DAEMON_ARCHIVE
