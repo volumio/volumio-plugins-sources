@@ -20,6 +20,7 @@ declare class ControllerNowPlaying {
     configSaveDockedVolumeIndicatorSettings(data: Record<string, any>): void;
     configSaveDockedClockSettings(data: Record<string, any>): void;
     configSaveDockedWeatherSettings(data: Record<string, any>): void;
+    configSaveDockedMediaFormatSettings(data: Record<string, any>): void;
     configSaveLocalizationSettings(data: Record<string, any>): void;
     configSaveMetadataServiceSettings(data: Record<string, any>): void;
     configSaveIdleScreenSettings(data: Record<string, any>): void;
