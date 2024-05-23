@@ -1,6 +1,6 @@
 {
   "name": "peppyspectrum",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "Peppy-spectrum for Volumio",
   "main": "index.js",
   "scripts": {
@@ -15,13 +15,12 @@
     "os": [
       "buster"
     ],
-    "changelog": "Fix access right for Templates",
+    "changelog": "Fix install",
     "details": "Easy install Peppy-spectrum",
     "architectures": [
       "armhf"
     ],
-    "has_alsa_contribution": true,
-    "manually_installed": true
+    "has_alsa_contribution": true
   },
   "dependencies": {
     "child_process": "",
