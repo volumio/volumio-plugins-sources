@@ -725,7 +725,7 @@ peppyspectrum.prototype.updatelist = function (data) {
     let path = 'https://github.com/balbuze/Spectrum-peppyspectrum/raw/main';
     let name = 'spectrumslist.txt';
     let defer = libQ.defer();
-    var destpath = ' \'/data/configuration/user_interface/peppyspectrum';
+    var destpath = ' \'/data/plugins/user_interface/peppyspectrum';
     // self.config.set('importeq', namepath)
     var toDownload = (path + '/' + name + '\'');
     self.logger.info(logPrefix + ' wget \'' + toDownload)
