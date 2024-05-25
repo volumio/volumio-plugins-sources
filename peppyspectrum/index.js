@@ -335,7 +335,7 @@ peppyspectrum.prototype.getUIConfig = function () {
 
 
                     try {
-                        let listf = fs.readFileSync('/data/configuration/user_interface/peppyspectrum/spectrumslist.txt', "utf8");
+                        let listf = fs.readFileSync('/data/plugins/user_interface/peppyspectrum/spectrumslist.txt', "utf8");
                         var result = (listf.split('\n'));
                         let i;
                         for (i = 0; i < result.length; i++) {
