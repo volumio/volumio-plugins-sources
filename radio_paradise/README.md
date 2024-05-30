@@ -1,6 +1,6 @@
-# radio-paradise Volumio2 plugin
+# radio-paradise Volumio 3 plugin
 
-A [Radio Paradise](http://www.radioparadise.com) plugin for Volumio2. It adds streams in different quality as a music service, including a lossless FLAC option.
+A [Radio Paradise](http://www.radioparadise.com) plugin for Volumio 3. It adds streams in different quality as a music service, including a lossless FLAC option.
 
 ![alt text](https://i.imgur.com/Wsad3Gj.png "Screenshot Volumio2 GUI")
 
