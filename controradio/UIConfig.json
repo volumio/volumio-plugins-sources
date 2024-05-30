@@ -1,0 +1,21 @@
+{
+  "page": {
+		"label": "TRANSLATE.CONFIG.CONFIG_SECTION_TITLE"
+	},
+  "sections": [
+		{
+			"id": "CONTRORADIO_SECTION",
+			"element": "section",
+			"label": "TRANSLATE.CONFIG.SECTION_ACCOUNT",
+			"icon": "fa-user",
+			"image": "fa-user",
+			"description": "TRANSLATE.CONFIG.ACCOUNT_LOGIN_DESC",
+			"hidden":false,
+			"onSave": {
+				"type": "controller",
+				"endpoint": "music_service/controradio",
+				"method": "saveAccountCredentials"
+		 	}
+    }
+  ]
+}
