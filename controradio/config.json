@@ -1,7 +1,6 @@
 {
-    "enabled": {
-      "type": "boolean",
-      "value": false
-    }
-  }
-  
+    "apiDelay": {
+    "type": "string",
+    "value": "30"
+} 
+}

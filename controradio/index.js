@@ -16,6 +16,9 @@ function ControllerControradio(context) {
 	this.logger = this.context.logger;
 	this.configManager = this.context.configManager;
 
+	self.state = {};
+    self.timer = null;
+
 }
 
 
@@ -23,11 +26,9 @@ function ControllerControradio(context) {
 ControllerControradio.prototype.onVolumioStart = function()
 {
 	var self = this;
-	var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
-	self.getConf(self.configFile);
-	this.config = new (require('v-conf'))();
-	this.config.loadFile(configFile);
-
+    var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
+    this.config = new (require('v-conf'))();
+    this.config.loadFile(configFile);
     return libQ.resolve();
 }
 
@@ -36,8 +37,9 @@ ControllerControradio.prototype.onStart = function() {
 
     self.mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service', 'mpd');
 
-    self.loadControradioI18nStrings();
-    self.addControradioResource();
+	
+    self.loadRadioI18nStrings();
+    self.addRadioResource();
     self.addToBrowseSources();
 
     self.serviceName = "controradio";
@@ -47,8 +49,11 @@ ControllerControradio.prototype.onStart = function() {
 };
 
 ControllerControradio.prototype.onStop = function() {
-    var self = this;
-    self.removeFromBrowseSources();
+    var defer=libQ.defer();
+
+    // Once the Plugin has successfull stopped resolve the promise
+    defer.resolve();
+
     return libQ.resolve();
 };
 
@@ -101,10 +106,17 @@ ControllerControradio.prototype.getConf = function(varName) {
 
 ControllerControradio.prototype.setConf = function(varName, varValue) {
 	var self = this;
+  
     fs.writeJsonSync(self.configFile, JSON.stringify(conf));
 };
 
+ControllerControradio.prototype.updateConfig = function (data) {
+    var self = this;
+    var defer = libQ.defer();
 
+  
+    return defer.promise;
+  };
 
 // Playback Controls ---------------------------------------------------------------------------------------
 // If your plugin is not a music_sevice don't use this part and delete it
@@ -112,18 +124,18 @@ ControllerControradio.prototype.setConf = function(varName, varValue) {
 
 ControllerControradio.prototype.addToBrowseSources = function () {
 	// Use this function to add your music service plugin to music sources
-	 var self = this;
+	var self = this;
 
-	 self.commandRouter.volumioAddToBrowseSources({
-		 name: self.getRadioI18nString('PLUGIN_NAME'),
-		 uri: 'controradio',
-		 plugin_type: 'music_service',
-		 plugin_name: "controradio",
-		 albumart: '/albumart?sourceicon=music_service/controradio/controradio-logo.jpeg'
-	 });
+	self.commandRouter.volumioAddToBrowseSources({
+		name: 'Controradio',
+		uri: 'cradio',
+		plugin_type: 'music_service',
+		plugin_name: "controradio",
+		albumart: '/albumart?sourceicon=music_service/controradio/controradio-logo.jpeg'
+	});
 };
 
-ControllerRadioParadise.prototype.removeFromBrowseSources = function () {
+ControllerControradio.prototype.removeFromBrowseSources = function () {
     // Use this function to add your music service plugin to music sources
     var self = this;
 
@@ -132,12 +144,42 @@ ControllerRadioParadise.prototype.removeFromBrowseSources = function () {
 
 ControllerControradio.prototype.handleBrowseUri = function (curUri) {
     var self = this;
-
-    //self.commandRouter.logger.info(curUri);
     var response;
+    if (curUri.startsWith('rparadise')) {
+        response = self.getRadioContent('rparadise');
+    }
+    return response
+        .fail(function (e) {
+            self.logger.info('[' + Date.now() + '] ' + '[RadioParadise] handleBrowseUri failed');
+            libQ.reject(new Error());
+        });
+};
 
+ControllerControradio.prototype.getRadioContent = function (station) {
+    var self = this;
+    var response;
+    var radioStation;
+    var defer = libQ.defer();
 
-    return response;
+    radioStation = self.radioStations.rparadise;
+
+    response = self.radioNavigation;
+    response.navigation.lists[0].items = [];
+    for (var i in radioStation) {
+        var channel = {
+            service: self.serviceName,
+            type: 'mywebradio',
+            title: radioStation[i].title,
+            artist: '',
+            album: '',
+            icon: 'fa fa-music',
+            uri: radioStation[i].uri
+        };
+        response.navigation.lists[0].items.push(channel);
+    }
+    defer.resolve(response);
+
+    return defer.promise;
 };
 
 
@@ -200,13 +242,20 @@ ControllerControradio.prototype.pushState = function(state) {
 
 
 ControllerControradio.prototype.explodeUri = function(uri) {
-	var self = this;
-	var defer=libQ.defer();
+        var self = this;
+    
+        var defer=libQ.defer();
+    
+        defer.resolve({
+            uri: uri,
+            service: 'webradio',
+            name: uri,
+            type: 'track'
+        });
+    
+        return defer.promise;
+    };
 
-	// Mandatory: retrieve all info for a given URI
-
-	return defer.promise;
-};
 
 ControllerControradio.prototype.getAlbumArt = function (data, path) {
 
@@ -243,23 +292,31 @@ ControllerControradio.prototype.getAlbumArt = function (data, path) {
 	return url;
 };
 
-ControllerControradio.prototype.addControradioadioResource = function () {
+ControllerControradio.prototype.getRadioI18nString = function (key) {
     var self = this;
 
-    var radioResource = fs.readJsonSync(__dirname + '/controradio.json');
-    var baseNavigation = radioResource.baseNavigation;
-
-    self.radioStations = radioResource.stations;
-    self.rootNavigation = JSON.parse(JSON.stringify(baseNavigation));
-    self.radioNavigation = JSON.parse(JSON.stringify(baseNavigation));
+    if (self.i18nStrings[key] !== undefined)
+        return self.i18nStrings[key];
+    else
+        return self.i18nStringsDefaults[key];
 };
 
-ControllerControradio.prototype.loadControradioI18nStrings = function () {
+ControllerControradio.prototype.loadRadioI18nStrings = function () {
     var self = this;
     self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
     self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
 };
 
+ControllerControradio.prototype.addRadioResource = function () {
+    var self = this;
+
+    var radioResource = fs.readJsonSync(__dirname + '/controradio.json');
+    var baseNavigation = radioResource.baseNavigation;
+
+   /* self.radioStations = radioResource.stations;
+    self.rootNavigation = JSON.parse(JSON.stringify(baseNavigation));
+    self.radioNavigation = JSON.parse(JSON.stringify(baseNavigation));*/
+};
 
 
 ControllerControradio.prototype.search = function (query) {

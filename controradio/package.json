@@ -1,14 +1,14 @@
 {
 	"name": "controradio",
 	"version": "1.0.0",
-	"description": "A Controradio plugin for Volumio",
+	"description": "A Controradio plugin",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Volumio Team",
 	"license": "ISC",
-	"repository": "https://github.com/yourname/yourrepo",
+	"repository": "https://github.com/Aoblu87/volumio-plugins-sources/controradio",
 	"volumio_info": {
 		"prettyName": "Controradio",
 		"icon": "fa-lightbulb-o",
@@ -21,8 +21,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "Lorem ipsum",
-		"changelog": "Lorem ipsum"
+		"details": "Volumio plugin to use controradio",
+		"changelog": ""
 	},
 	"engines": {
 		"node": ">=8",

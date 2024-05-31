@@ -1,21 +1,34 @@
 {
   "page": {
-		"label": "TRANSLATE.CONFIG.CONFIG_SECTION_TITLE"
-	},
+    "label": "Controradio Configuration"
+  },
   "sections": [
-		{
-			"id": "CONTRORADIO_SECTION",
-			"element": "section",
-			"label": "TRANSLATE.CONFIG.SECTION_ACCOUNT",
-			"icon": "fa-user",
-			"image": "fa-user",
-			"description": "TRANSLATE.CONFIG.ACCOUNT_LOGIN_DESC",
-			"hidden":false,
-			"onSave": {
-				"type": "controller",
-				"endpoint": "music_service/controradio",
-				"method": "saveAccountCredentials"
-		 	}
+    {
+      "id": "delay",
+      "element": "section",
+      "label": "delay",
+      "icon": "fa-cogs",
+      "description": "The API delay for metadata (artist, title) in seconds.",
+      "onSave": {
+        "type": "controller",
+        "endpoint":"music_service/controradio",
+        "method":"updateConfig"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "apiDelay"
+        ]
+      },
+      "content": [
+        {
+          "id": "apiDelay",
+          "type":"text",
+          "element": "input",
+          "label": "API Delay (in seconds)",
+          "value": "30"
+        }
+      ]
     }
   ]
 }
