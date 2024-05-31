@@ -62,6 +62,16 @@
         "title": "Radio Paradise Radio 2050 (FLAC)",
         "uri": "webrp/9",
         "url": "http://stream.radioparadise.com/radio2050-flac"
+      },
+      {
+        "title": "Radio Paradise Rock Mix (AAC 320k)",
+        "uri": "webrp/10",
+        "url": "http://stream.radioparadise.com/rock-320"
+      },
+      {
+        "title": "Radio Paradise Rock Mix (MP3 192k)",
+        "uri": "webrp/11",
+        "url": "http://stream.radioparadise.com/rock-192"
       }
     ]
   }
