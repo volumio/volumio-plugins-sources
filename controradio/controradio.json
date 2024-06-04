@@ -1,33 +1,20 @@
 {
-   "baseNavigation": {
-      "navigation": {
-         "title": "Controradio",
-         "icon": "fa fa-music",
-         "availableListViews": [
-            "list",
-            "grid"
-         ],
-         "items": [
-            {
-               "service": "spop",
-               "type": "item-no-menu",
-               "title": "Controradio",
-               "albumart": "",
-               "uri": ""
-            }
-         ]
-      },
-      "prev": {
-         "uri": "cradio"
-      }
-   },
-   "stations": {
-      "cradio": [
-         {
-            "title": "Radio Paradise Main Mix (FLAC)",
-            "uri": "webrp/0",
-            "url": "https://ondemand.controradio.it/rss/Home.xml"
-         }
+  "baseNavigation": {
+    "navigation": {
+      "lists": [
+        {
+          "availableListViews": [
+            "list"
+          ],
+          "items": []
+        }
       ]
-   }
+    }
+  },
+  "stations": {
+    "cradio": [
+
+    ]
+  }
 }
+      

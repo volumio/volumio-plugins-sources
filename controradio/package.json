@@ -31,6 +31,8 @@
 	"dependencies": {
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
+		"node-fetch": "^2.7.0",
+		"node-html-parser": "^6.1.13",
 		"v-conf": "^1.4.0"
 	}
 }
