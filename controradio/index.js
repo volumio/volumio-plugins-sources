@@ -48,8 +48,6 @@ ControllerControradio.prototype.onStart = function () {
   self.addToBrowseSources();
 
 
-  self.serviceName = "controradio";
-
   return libQ.resolve();
 };
 
@@ -251,27 +249,23 @@ ControllerControradio.prototype.getRadioContent = function (station) {
         var items = feeds.rss.channel.item;
 
         for (var item of items) {
-          if (item && item['content:encoded']) {
-            var root = HTMLParser.parse(item['content:encoded']);
-
-            var audioElement = root.querySelector('audio');
-            var imgElement = root.querySelector('img');
-
-            if (audioElement && imgElement) {
-              var audioSrc = audioElement.getAttribute('src');
-              var imgSrc = imgElement.getAttribute('src');
-            }
-          }
+    
           var channel = {
-            service: self.serviceName,
+            service: 'controradio',
             type: 'webradio',
-            title: item.title,
-            uri: audioSrc,
-            albumart:imgSrc,
+            title : item.title.replace(/^[^\w\s]/, ''),
+            uri: self.extractAudioSrc(item['content:encoded']),
+            albumart: self.extractImgSrc(item['content:encoded']),
           };
-          self.logger.info("controradio", channel)
 
-          response.navigation.lists[0].items.push(channel);
+          if ((channel.albumart === null || channel.albumart === undefined) && channel.albumart.endsWith('.webp')) {
+            channel.icon = 'fa fa-music';
+          }
+          self.logger.info("controraio" + JSON.stringify(channel))
+          if (channel.uri != null) {
+
+            response.navigation.lists[0].items.push(channel);
+          }
         }
 
         defer.resolve(response);
@@ -293,29 +287,49 @@ ControllerControradio.prototype.getRadioContent = function (station) {
 
 
 ControllerControradio.prototype.extractAudioSrc = function (html) {
-  var defer = libQ.defer();
+  var self = this;
+  var audioElement = null;
   if (html) {
     try {
       var root = HTMLParser.parse(html);
 
-      var audioElement = root.querySelector('audio').getAttribute('src');
+      audioElement = root.querySelector('audio').getAttribute('src');
 
       if (!audioElement) {
-        defer.reject('[Controradio] extractAudioSrc:: audio element not found');
+        self.logger.error('[Controradio] extractAudioSrc:: audio element not found');
       } else {
-        defer.resolve(audioElement);
+        return audioElement;
       }
     } catch (error) {
-      defer.reject('[Controradio] extractAudioSrc:: failed to parse html', error);
+      self.logger.error('[Controradio] extractAudioSrc:: failed to parse html', error);
     }
   } else {
-    defer.reject('[Controradio] extractAudioSrc:: failed to parse html (empty input)');
+    self.logger.error('[Controradio] extractAudioSrc:: failed to parse html (empty input)');
   }
-  return defer.promise();
+  return audioElement;
 };
 
 ControllerControradio.prototype.extractImgSrc = function (html) {
-  var defer = libQ.defer();
+  var self = this;
+  var imgElement = null;
+  if (html) {
+    try {
+      var root = HTMLParser.parse(html);
+
+      imgElement = root.querySelector('img').getAttribute('src');
+
+      if (!imgElement) {
+        self.logger.error('[Controradio] extractImgSrc:: Img element not found');
+      } else {
+        return imgElement;
+      }
+    } catch (error) {
+      self.logger.error('[Controradio] extractImgSrc:: failed to parse html', error);
+    }
+  } else {
+    self.logger.error('[Controradio] extractImgSrc:: failed to parse html (empty input)');
+  }
+  return imgElement;
 
 
 };
@@ -326,11 +340,32 @@ ControllerControradio.prototype.extractImgSrc = function (html) {
 // Define a method to clear, add, and play an array of tracks
 ControllerControradio.prototype.clearAddPlayTrack = function (track) {
   var self = this;
+  console.log('PLAY');
+  console.log(track);
   self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::clearAddPlayTrack');
 
-  self.commandRouter.logger.info(JSON.stringify(track));
+  var safeUri = track.uri;
 
-  return self.sendSpopCommand('uplay', [track.uri]);
+
+  return self.mpdPlugin.sendMpdCommand('stop', [])
+    .then(function () {
+      return self.mpdPlugin.sendMpdCommand('clear', []);
+    })
+    .then(function () {
+      if (track && track.uri && track.uri.includes('m3u8')) {
+        return self.mpdPlugin.sendMpdCommand('add "' + safeUri + '"', []);
+      } else {
+        return self.mpdPlugin.sendMpdCommand('load "' + safeUri + '"', []);
+      }
+    })
+    .fail(function (e) {
+      return self.mpdPlugin.sendMpdCommand('add "' + safeUri + '"', []);
+    })
+    .then(function () {
+      self.commandRouter.stateMachine.setConsumeUpdateService('mpd');
+      return self.mpdPlugin.sendMpdCommand('play', []);
+    });
+
 };
 
 ControllerControradio.prototype.seek = function (timepos) {
@@ -376,18 +411,21 @@ ControllerControradio.prototype.pushState = function (state) {
   var self = this;
   self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::pushState');
 
-  return self.commandRouter.servicePushState(state, self.servicename);
+  return self.commandRouter.servicePushState(state, 'controradio');
 };
 
 
 ControllerControradio.prototype.explodeUri = function (uri) {
   var self = this;
-  var defer = libQ.defer();
-  var response = [];
 
+  var defer=libQ.defer();
 
-
-  defer.resolve(response);
+  defer.resolve({
+        uri: uri,
+        service: 'controradio',
+        name: uri,
+        type: 'track'
+    });
 
   return defer.promise;
 };
