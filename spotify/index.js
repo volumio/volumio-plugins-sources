@@ -2927,7 +2927,7 @@ ControllerSpotify.prototype.getSpotifyVolume = function () {
             }
         })
 };
-/*
+
 ControllerSpotify.prototype.prefetch = function (track) {
     var self=this;
 
@@ -2937,4 +2937,3 @@ ControllerSpotify.prototype.prefetch = function (track) {
 
     return self.sendSpotifyLocalApiCommandWithPayload('/player/add_to_queue', { uri: track.uri });
 };
-*/
