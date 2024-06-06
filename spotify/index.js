@@ -829,7 +829,7 @@ ControllerSpotify.prototype.refreshAccessToken = function () {
 
     var refreshToken = self.config.get('refresh_token', 'none');
     if (refreshToken !== 'none' && refreshToken !== null && refreshToken !== undefined) {
-        superagent.post('https://oauth-performer.dfs.volumio.org/spotify/accessToken')
+        superagent.post('https://oauth-performer.prod.vlmapi.io/spotify/accessToken')
             .send({refreshToken: refreshToken})
             .then(function (results) {
                 if (results && results.body && results.body.accessToken) {
