@@ -2,13 +2,9 @@
 
 var libQ = require('kew');
 var fs = require('fs-extra');
-var config = new (require('v-conf'))();
-var exec = require('child_process').exec;
-var execSync = require('child_process').execSync;
 var { XMLParser } = require('fast-xml-parser');
-var { serialize } = require('v8');
-var fetch = require('node-fetch');
 var HTMLParser = require('node-html-parser');
+var unirest = require('unirest');
 
 
 
@@ -47,7 +43,6 @@ ControllerControradio.prototype.onStart = function () {
 
   self.addToBrowseSources();
 
-
   return libQ.resolve();
 };
 
@@ -82,7 +77,6 @@ ControllerControradio.prototype.getConfigurationFiles = function () {
 
 ControllerControradio.prototype.setUIConfig = function (data) {
   var self = this;
-  var uiconf = fs.readJsonSync(__dirname + '/UIConfig.json');
 
   return libQ.resolve();
 };
@@ -114,65 +108,24 @@ ControllerControradio.prototype.fetchRssUrl = function (url) {
   var self = this;
   var defer = libQ.defer();
 
-
-  var request = {
-    type: 'GET',
-    url: url,
-    dataType: 'text',
-    headers: {
-      'Accept': '*/*',
-      'User-Agent': 'Mozilla/5.0'
-    },
-    timeoutMs: 5000
-  };
-  var headers = request.headers || {};
-  var fetchRequest = {
-    headers,
-    method: request.type,
-    credentials: 'same-origin'
-  };
-  let contentType = request.contentType;
-  if (contentType) {
-    headers['Content-Type'] = contentType;
-  }
-
-  return new Promise((resolve, reject) => {
-    var timeout = setTimeout(reject, request.timeoutMs);
-    var options = fetchRequest || {};
-    options.credentials = 'same-origin';
-
-    fetch(request.url, options).then(
-      (response) => {
-        clearTimeout(timeout);
-        return response;
-      },
-      (error) => {
-        clearTimeout(timeout);
-        self.logger.info("ControllerControradio::fetchRssUrl:timed out: [" +
-          Date.now() + "] url=" + request.url + ", error=" + error);
-        return defer.reject();
-      }
-    )
-      .then((response) => response.text())
-      .then((fetchData) => {
+  unirest.get(url)
+    .timeout(4000)
+    .end(function (response) {
+      if (response.ok) {
         var options = {
           ignoreAttributes: false,
           attributeNamePrefix: ""
         };
-
         var parser = new XMLParser(options);
-        var feed = parser.parse(fetchData);
-        resolve(feed);
-      })
-      .catch((error) => {
-        self.logger.error('ControllerControradio::fetchRssUrl: [' +
-          Date.now() + '] ' + '[Controradio] Error: ' + error);
-        return defer.reject();
-      });
-    
-      return defer.promise;
+        var feed = parser.parse(response.body);
+        defer.resolve(feed);
+      } else {
+        self.logger.error('Controradio::fetchRssUrl - failed to fetch data from uri ' + url + ': ' + response.statusCode);
+      }
+    });
 
-  });
+  return defer.promise;
+
 };
 
 ControllerControradio.prototype.addToBrowseSources = function () {
@@ -246,18 +199,20 @@ ControllerControradio.prototype.getRadioContent = function (station) {
   };
 
   var url = 'https://ondemand.controradio.it/rss/Home.xml';
+
   self.fetchRssUrl(url)
     .then((feeds) => {
+
       if (feeds && feeds.rss.channel && feeds.rss.channel.item && feeds.rss.channel.item.length) {
 
         var items = feeds.rss.channel.item;
 
         for (var item of items) {
-
+          console.log("ITWMMMMM", item)
           var channel = {
             service: 'controradio',
             type: 'webradio',
-            title: item.title.replace(/^[^\w\s]/, ''),
+            title: self.formatString(item.title),
             uri: self.extractAudioSrc(item['content:encoded']),
             albumart: self.extractImgSrc(item['content:encoded']),
           };
@@ -271,24 +226,44 @@ ControllerControradio.prototype.getRadioContent = function (station) {
             self.radioItems.push(channel);
           }
         }
-
         defer.resolve(response);
 
       } else {
         self.logger.error('Failed to fetch data from channel list');
-        defer.reject();
       }
     })
-    .catch(error => {
-      self.logger.error('GetRadioContent::failed to load channel list' + error);
-      defer.reject();
-
-    })
-
 
   return defer.promise;
 };
 
+ControllerControradio.prototype.formatString = function (title) {
+  var self = this;
+
+  var regex = /del (\d{2}) (\w+) (\d{4}) (\d{2}:\d{2})/;
+  title = title.replace(/^[^\w\s]/, '');
+  var matches = title.match(regex);
+
+  if (!matches) {
+    return title;
+  }
+
+  var months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+
+  var day = matches[1];
+  var monthName = matches[2];
+  var year = matches[3];
+  var time = matches[4];
+
+  var monthNumber = months.indexOf(monthName) + 1;
+
+  var formattedDate = `${day}/${monthNumber.toString().padStart(2, '0')}/${year}`;
+
+  var titleString = title.replace(regex, '').trim();
+
+  var formattedString = `${formattedDate} - ${time} - ${titleString}`;
+
+  return formattedString;
+};
 
 ControllerControradio.prototype.extractAudioSrc = function (html) {
   var self = this;
@@ -342,64 +317,17 @@ ControllerControradio.prototype.checkImageUrl = function (url) {
   var self = this;
   var defer = libQ.defer();
 
-
-  var request = {
-    type: 'GET',
-    url: url,
-    dataType: 'text',
-    headers: {
-      'Accept': '*/*',
-      'User-Agent': 'Mozilla/5.0'
-    },
-    timeoutMs: 5000
-  };
-
-  var headers = request.headers || {};
-  var fetchRequest = {
-    headers,
-    method: request.type,
-    credentials: 'same-origin'
-  };
-
-  let contentType = request.contentType;
-  if (contentType) {
-    headers['Content-Type'] = contentType;
-  }
-
-  return new Promise((resolve, reject) => {
-    var timeout = setTimeout(() => {
-      self.logger.info("ControllerControradio::checkImageUrl: timed out: [" +
-        Date.now() + "] url=" + request.url);
-      return defer.resolve(false);
-    }, request.timeoutMs);
-
-    fetch(request.url, fetchRequest).then(
-      (response) => {
-        clearTimeout(timeout);
-        if (response.status === 200) {
-          resolve(true);
-        } else {
-          self.logger.info("ControllerControradio::checkImageUrl: response status: [" +
-            response.status + "] url=" + request.url);
-          return defer.resolve(false);
-        }
-      },
-      (error) => {
-        clearTimeout(timeout);
-        self.logger.info("ControllerControradio::checkImageUrl: failed: [" +
-          Date.now() + "] url=" + request.url + ", error=" + error);
-        return defer.resolve(false);
+  unirest.get(url)
+    .timeout(4000)
+    .end(function (response) {
+      if (response.status === 200 && response.body) {
+        defer.resolve(true);
+      } else {
+        defer.resolve(false);
       }
-    ).catch((error) => {
-      clearTimeout(timeout);
-      self.logger.error('ControllerControradio::checkImageUrl: [' +
-        Date.now() + '] ' + '[Controradio] Error: ' + error);
-      return defer.resolve(false);
     });
 
-    return defer.promise;
-
-  });
+  return defer.promise;
 };
 
 
@@ -407,68 +335,86 @@ ControllerControradio.prototype.checkImageUrl = function (url) {
 // Define a method to clear, add, and play an array of tracks
 ControllerControradio.prototype.clearAddPlayTrack = function (track) {
   var self = this;
+  var defer = libQ.defer();
 
   self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::clearAddPlayTrack');
 
-  var safeUri = track.uri;
-
-
-  return self.mpdPlugin.sendMpdCommand('stop', [])
+  self.mpdPlugin.sendMpdCommand('stop', [])
     .then(function () {
       return self.mpdPlugin.sendMpdCommand('clear', []);
     })
+    .then(function (e) {
+      return self.mpdPlugin.sendMpdCommand('add "' + track.uri + '"', []);
+    })
     .then(function () {
-      if (track && track.uri) {
-        return self.mpdPlugin.sendMpdCommand('add "' + safeUri + '"', []);
-      } else {
-        return self.mpdPlugin.sendMpdCommand('load "' + safeUri + '"', []);
-      }
+      self.commandRouter.stateMachine.setConsumeUpdateService('mpd', true);
+      return self.mpdPlugin.sendMpdCommand('play', []);
     })
     .fail(function (e) {
-      self.logger.error('ClearAddPlayTrack:: fail to load/add track')
-      return self.mpdPlugin.sendMpdCommand('add "' + safeUri + '"', []);
-    })
-    .then(function () {
-      self.commandRouter.stateMachine.setConsumeUpdateService('mpd');
-      return self.mpdPlugin.sendMpdCommand('play', []);
+      self.logger.error('Could not Clear and Play Controradio Track: ' + e);
+      defer.reject(new Error());
     });
 
+  return defer.promise;
+
 };
 
-ControllerControradio.prototype.seek = function (position) {
-  var self = this;
-  this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::seek to ' + timepos);
-
-  return self.mpdPlugin.seek(position);
-};
-
-
-
-// Stop
 ControllerControradio.prototype.stop = function () {
   var self = this;
   self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::stop');
 
-  return self.mpdPlugin.sendMpdCommand('stop', []);
-
-
+  self.commandRouter.stateMachine.setConsumeUpdateService('mpd');
+  return self.mpdPlugin.stop();
 };
 
-// Spop pause
+
 ControllerControradio.prototype.pause = function () {
   var self = this;
   self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::pause');
 
-  return self.mpdPlugin.sendMpdCommand('pause', []);
+  // TODO don't send 'toggle' if already paused
+  self.commandRouter.stateMachine.setConsumeUpdateService('mpd');
+  return self.mpdPlugin.pause();
+};
 
+
+ControllerControradio.prototype.resume = function () {
+  var self = this;
+  self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::resume');
+
+  // TODO don't send 'toggle' if already playing
+  self.commandRouter.stateMachine.setConsumeUpdateService('mpd', true);
+  return self.mpdPlugin.resume();
+};
+
+ControllerControradio.prototype.seek = function (position) {
+  var self = this;
+  this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::seek');
+
+  self.commandRouter.stateMachine.setConsumeUpdateService('mpd', true);
+  return self.mpdPlugin.seek(position);
+};
+
+ControllerControradio.prototype.next = function () {
+  var self = this;
+
+  self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::next');
+  self.commandRouter.stateMachine.setConsumeUpdateService();
+  return this.commandRouter.stateMachine.next();
+};
+
+ControllerControradio.prototype.previous = function () {
+  var self = this;
+
+  self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::previous');
+  self.commandRouter.stateMachine.setConsumeUpdateService();
+  return this.commandRouter.stateMachine.previous();
 };
 
 // Get state
 ControllerControradio.prototype.getState = function () {
   var self = this;
   self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerControradio::getState');
-
-
 };
 
 //Parse state
@@ -495,37 +441,27 @@ ControllerControradio.prototype.explodeUri = function (uri) {
   var albumartUrl;
 
   if (trackItem && trackItem.albumart) {
-    self.checkImageUrl(trackItem.albumart)
-      .then((isImageUrlValid) => {
-        console.log("isImageUrlValid", isImageUrlValid);
-        if (!isImageUrlValid) {
-          albumartUrl = 'albumart/albumart';
-        } else {
-          albumartUrl = trackItem.albumart;
-        }
+    self.checkImageUrl(trackItem.albumart).then(function (isImageUrlValid) {
 
-        response.push({
-          uri: uri,
-          service: 'webradio',
-          name: trackItem.title,
-          albumart: albumartUrl,
-          type: 'track'
-        });
+      if (!isImageUrlValid) {
+        albumartUrl = '/albumart';
+      } else {
+        albumartUrl = trackItem.albumart;
+      }
 
-        defer.resolve(response);
-      })
-      .catch((error) => {
-        self.logger.error('ControllerControradio::fail to validate img url: [' +
-          Date.now() + '] ' + '[Controradio] Error: ' + error);
-        albumartUrl = 'albumart/albumart';
+      response.push({
+        uri: uri,
+        service: 'controradio',
+        name: trackItem.title,
+        albumart: albumartUrl,
+        type: 'webradio'
       });
-  } else {
-    albumartUrl = 'albumart/albumart';
+
+      defer.resolve(response);
+    });
   }
 
-
   return defer.promise;
-
 };
 
 
