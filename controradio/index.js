@@ -514,8 +514,7 @@ ControllerControradio.prototype.loadRadioI18nStrings = function () {
 ControllerControradio.prototype.search = function (query) {
   var self = this;
   var defer = libQ.defer();
-  var lowercaseQuery = query.value.toLowerCase();
-  var totalResults = [];
+   var lowercaseQuery = query.value.toLowerCase();
 
   self.getControradioData(url)
     .then((feeds) => {
@@ -526,34 +525,31 @@ ControllerControradio.prototype.search = function (query) {
         for (var item of items) {
           var lowercaseTitle = item.title.toLowerCase();
           var foundItem = lowercaseTitle.includes(lowercaseQuery);
-          console.log('FONDITEM' + foundItem)
-          if (foundItem) {
-            totalResults.push( {
-              service: 'controradio',
-              type: 'webradio',
-              title: self.formatString(foundItem.title),
-              uri: self.extractAudioSrc(foundItem['content:encoded']),
-              albumart: self.extractImgSrc(foundItem['content:encoded']),
-            });
-            console.log('CHANNELResult' + channelResult)
 
-            if ((channelResult.albumart === null || channelResult.albumart === undefined)) {
-              channelResult.icon = 'fa fa-music';
-            }
-            if (channelResult.uri != null) {
+          var channel = {
+            service: 'controradio',
+            type: 'webradio',
+            title: self.formatString(foundItem.title),
+            uri: self.extractAudioSrc(foundItem['content:encoded']),
+            albumart: self.extractImgSrc(foundItem['content:encoded']),
+          };
 
-              baseNavigation.navigation.lists[0].items.push(channelResult);
-              self.radioItems.push(channelResult);
-            }
+          if ((channel.albumart === null || channel.albumart === undefined)) {
+            channel.icon = 'fa fa-music';
           }
+          if (channel.uri != null) {
+
+            baseNavigation.navigation.lists[0].items.push(channel);
+          }
+
+          
         }
-        defer.resolve(baseNavigation);
+        return defer.resolve(baseNavigation);
+        
       } else {
         self.logger.error('Failed to find data from search');
       }
     })
-
-  return defer.promise;
 };
 
 ControllerControradio.prototype._searchArtists = function (results) {
