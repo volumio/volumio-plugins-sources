@@ -5,7 +5,24 @@ var fs = require('fs-extra');
 var { XMLParser } = require('fast-xml-parser');
 var HTMLParser = require('node-html-parser');
 var unirest = require('unirest');
+var url = 'https://ondemand.controradio.it/rss/Home.xml';
+var baseNavigation = {
+  'navigation': {
+    'lists': [
+      {
+        'availableListViews': [
+          'list'
+        ],
+        'items': [
 
+        ]
+      }
+    ],
+    'prev': {
+      'uri': 'radio'
+    }
+  }
+};
 
 
 
@@ -104,7 +121,7 @@ ControllerControradio.prototype.updateConfig = function (data) {
 
 // Playback Controls ---------------------------------------------------------------------------------------
 // If your plugin is not a music_sevice don't use this part and delete it
-ControllerControradio.prototype.fetchRssUrl = function (url) {
+ControllerControradio.prototype.getControradioData = function (url) {
   var self = this;
   var defer = libQ.defer();
 
@@ -120,7 +137,7 @@ ControllerControradio.prototype.fetchRssUrl = function (url) {
         var feed = parser.parse(response.body);
         defer.resolve(feed);
       } else {
-        self.logger.error('Controradio::fetchRssUrl - failed to fetch data from uri ' + url + ': ' + response.statusCode);
+        self.logger.error('Controradio::getControradioData - failed to fetch data from uri ' + url + ': ' + response.statusCode);
       }
     });
 
@@ -180,27 +197,7 @@ ControllerControradio.prototype.getRadioContent = function (station) {
   var self = this;
   var defer = libQ.defer();
 
-  var response = {
-    'navigation': {
-      'lists': [
-        {
-          'availableListViews': [
-            'list'
-          ],
-          'items': [
-
-          ]
-        }
-      ],
-      'prev': {
-        'uri': 'radio'
-      }
-    }
-  };
-
-  var url = 'https://ondemand.controradio.it/rss/Home.xml';
-
-  self.fetchRssUrl(url)
+  self.getControradioData(url)
     .then((feeds) => {
 
       if (feeds && feeds.rss.channel && feeds.rss.channel.item && feeds.rss.channel.item.length) {
@@ -208,25 +205,25 @@ ControllerControradio.prototype.getRadioContent = function (station) {
         var items = feeds.rss.channel.item;
 
         for (var item of items) {
-          console.log("ITWMMMMM", item)
           var channel = {
             service: 'controradio',
             type: 'webradio',
             title: self.formatString(item.title),
             uri: self.extractAudioSrc(item['content:encoded']),
             albumart: self.extractImgSrc(item['content:encoded']),
+            icon: ''
           };
 
-          if ((channel.albumart === null || channel.albumart === undefined) && channel.albumart.endsWith('.webp')) {
+          if ((channel.albumart === null || channel.albumart === undefined)) {
             channel.icon = 'fa fa-music';
           }
           if (channel.uri != null) {
 
-            response.navigation.lists[0].items.push(channel);
+            baseNavigation.navigation.lists[0].items.push(channel);
             self.radioItems.push(channel);
           }
         }
-        defer.resolve(response);
+        defer.resolve(baseNavigation);
 
       } else {
         self.logger.error('Failed to fetch data from channel list');
@@ -464,7 +461,6 @@ ControllerControradio.prototype.explodeUri = function (uri) {
   return defer.promise;
 };
 
-
 ControllerControradio.prototype.getAlbumArt = function (data, path) {
 
   var artist, album;
@@ -518,8 +514,44 @@ ControllerControradio.prototype.loadRadioI18nStrings = function () {
 ControllerControradio.prototype.search = function (query) {
   var self = this;
   var defer = libQ.defer();
+  var lowercaseQuery = query.value.toLowerCase();
+  var totalResults = [];
 
-  // Mandatory, search. You can divide the search in sections using following functions
+  self.getControradioData(url)
+    .then((feeds) => {
+      if (feeds && feeds.rss.channel && feeds.rss.channel.item && feeds.rss.channel.item.length) {
+
+        var items = feeds.rss.channel.item;
+
+        for (var item of items) {
+          var lowercaseTitle = item.title.toLowerCase();
+          var foundItem = lowercaseTitle.includes(lowercaseQuery);
+          console.log('FONDITEM' + foundItem)
+          if (foundItem) {
+            totalResults.push( {
+              service: 'controradio',
+              type: 'webradio',
+              title: self.formatString(foundItem.title),
+              uri: self.extractAudioSrc(foundItem['content:encoded']),
+              albumart: self.extractImgSrc(foundItem['content:encoded']),
+            });
+            console.log('CHANNELResult' + channelResult)
+
+            if ((channelResult.albumart === null || channelResult.albumart === undefined)) {
+              channelResult.icon = 'fa fa-music';
+            }
+            if (channelResult.uri != null) {
+
+              baseNavigation.navigation.lists[0].items.push(channelResult);
+              self.radioItems.push(channelResult);
+            }
+          }
+        }
+        defer.resolve(baseNavigation);
+      } else {
+        self.logger.error('Failed to find data from search');
+      }
+    })
 
   return defer.promise;
 };
