@@ -82,10 +82,23 @@ ControllerControradio.prototype.onRestart = function () {
 
 ControllerControradio.prototype.getUIConfig = function () {
   var defer = libQ.defer();
-  var self = this;
+    var self = this;
 
+    var lang_code = this.commandRouter.sharedVars.get('language_code');
 
-  return defer.promise;
+    self.getConf(this.configFile);
+    self.commandRouter.i18nJson(__dirname + '/i18n/strings_' + lang_code + '.json',
+        __dirname + '/i18n/strings_en.json',
+        __dirname + '/UIConfig.json')
+        .then(function (uiconf) {
+            uiconf.sections[0].content[0].value = self.config.get('apiDelay');
+            defer.resolve(uiconf);
+        })
+        .fail(function () {
+            defer.reject(new Error());
+        });
+
+    return defer.promise;
 };
 
 ControllerControradio.prototype.getConfigurationFiles = function () {
@@ -94,8 +107,9 @@ ControllerControradio.prototype.getConfigurationFiles = function () {
 
 ControllerControradio.prototype.setUIConfig = function (data) {
   var self = this;
+    var uiconf = fs.readJsonSync(__dirname + '/UIConfig.json');
 
-  return libQ.resolve();
+    return libQ.resolve();
 };
 
 ControllerControradio.prototype.getConf = function (varName) {
@@ -153,7 +167,7 @@ ControllerControradio.prototype.addToBrowseSources = function () {
     uri: 'cradio',
     plugin_type: 'music_service',
     plugin_name: "controradio",
-    albumart: '/albumart?sourceicon=music_service/controradio/logo-controradio-bianco.png'
+    albumart: '/albumart?sourceicon=music_service/controradio/albumart.png'
   };
 
   self.commandRouter.volumioAddToBrowseSources(data);

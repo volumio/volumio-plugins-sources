@@ -11,7 +11,7 @@
 	"repository": "https://github.com/Aoblu87/volumio-plugins-sources/controradio",
 	"volumio_info": {
 		"prettyName": "Controradio",
-		"icon": "fa-lightbulb-o",
+		"icon": "fa fa-headphones fa-lg",
 		"plugin_type": "music_service",
 		"architectures": [
 			"amd64",
