@@ -1,4 +1,5 @@
 import { ActionPanelSettings, BackgroundSettings, DefaultActionPanelSettings, DefaultBackgroundSettings, DefaultIdleScreenSettings, DefaultLocalizationSettings, DefaultNowPlayingScreenSettings, DefaultPerformanceSettings, DefaultThemeSettings, IdleScreenSettings, LocalizationSettings, NowPlayingScreenSettings, PerformanceSettings, ThemeSettings } from 'now-playing-common';
+import { ContentRegionSettings, DefaultContentRegionSettings } from 'now-playing-common/dist/config/ContentRegionSettings';
 import { DefaultStartupOptions, StartupOptions } from 'now-playing-common/dist/config/StartupOptions';
 
 export type PluginConfigKey = keyof PluginConfigSchema;
@@ -13,6 +14,7 @@ export interface PluginConfigSchema {
   port: PluginConfigSchemaEntry<number>;
   startup: PluginConfigSchemaEntry<StartupOptions, true>;
   metadataService: PluginConfigSchemaEntry<MetadataServiceOptions, true>;
+  contentRegion: PluginConfigSchemaEntry<ContentRegionSettings, true>;
   ['screen.nowPlaying']: PluginConfigSchemaEntry<NowPlayingScreenSettings, true>;
   background: PluginConfigSchemaEntry<BackgroundSettings, true>;
   actionPanel: PluginConfigSchemaEntry<ActionPanelSettings, true>;
@@ -59,6 +61,7 @@ export const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema = {
   port: { defaultValue: 4004, json: false },
   startup: { defaultValue: DefaultStartupOptions, json: true },
   metadataService: { defaultValue: DefaultMetadataServiceOptions, json: true },
+  contentRegion: { defaultValue: DefaultContentRegionSettings, json: true },
   'screen.nowPlaying': { defaultValue: DefaultNowPlayingScreenSettings, json: true },
   background: { defaultValue: DefaultBackgroundSettings, json: true },
   actionPanel: { defaultValue: DefaultActionPanelSettings, json: true },

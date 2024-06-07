@@ -50,6 +50,7 @@ async function index(req, res) {
     const html = await renderView('index', req, {
         settings: {
             [now_playing_common_1.CommonSettingsCategory.Startup]: CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.Startup),
+            [now_playing_common_1.CommonSettingsCategory.ContentRegion]: CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.ContentRegion),
             [now_playing_common_1.CommonSettingsCategory.NowPlayingScreen]: CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.NowPlayingScreen),
             [now_playing_common_1.CommonSettingsCategory.IdleScreen]: CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.IdleScreen),
             [now_playing_common_1.CommonSettingsCategory.Background]: CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.Background),

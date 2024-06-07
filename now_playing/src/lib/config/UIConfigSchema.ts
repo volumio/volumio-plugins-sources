@@ -7,6 +7,7 @@ export type UIConfigSectionKey =
               'section_metadata_service' | 
               'section_weather_service' | 
               'section_startup_options' | 
+              'section_content_region' | 
               'section_text_styles' | 
               'section_widget_styles' | 
               'section_album_art_style' | 
@@ -52,6 +53,11 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
   K extends 'section_startup_options' ?
     'activeScreen' | 
     'activateIdleScreen' :
+
+  K extends 'section_content_region' ?
+    'padding' | 
+    'npBasicViewPadding' | 
+    'npInfoViewPadding' :
 
   K extends 'section_text_styles' ?
     'trackInfoVisibility' | 
@@ -117,7 +123,8 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'albumartHeight' | 
     'albumartFit' | 
     'albumartBorder' | 
-    'albumartBorderRadius' :
+    'albumartBorderRadius' | 
+    'albumartMargin' :
 
   K extends 'section_background_style' ?
     'backgroundType' | 
@@ -343,6 +350,13 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     never
   ) : 
 
+  K extends 'section_content_region' ? (
+    C extends 'padding' ? UIConfigSelect<K> :
+    C extends 'npBasicViewPadding' ? UIConfigInput<K, 'text'> :
+    C extends 'npInfoViewPadding' ? UIConfigInput<K, 'text'> :
+    never
+  ) : 
+
   K extends 'section_text_styles' ? (
     C extends 'trackInfoVisibility' ? UIConfigSelect<K> :
     C extends 'titleVisibility' ? UIConfigSwitch<K> :
@@ -412,6 +426,7 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'albumartFit' ? UIConfigSelect<K> :
     C extends 'albumartBorder' ? UIConfigInput<K, 'text'> :
     C extends 'albumartBorderRadius' ? UIConfigInput<K, 'text'> :
+    C extends 'albumartMargin' ? UIConfigInput<K, 'text'> :
     never
   ) : 
 

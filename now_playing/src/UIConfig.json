@@ -288,6 +288,70 @@
       ]
     },
     {
+      "id": "section_content_region",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_CONTENT_REGION",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveContentRegionSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "padding",
+          "npBasicViewPadding",
+          "npInfoViewPadding"
+        ]
+      },
+      "content": [
+        {
+          "id": "padding",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PADDING",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "npBasicViewPadding",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_BASIC_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "npInfoViewPadding",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
       "id": "section_text_styles",
       "element": "section",
       "label": "TRANSLATE.NOW_PLAYING_TEXT_STYLES",
@@ -1132,7 +1196,8 @@
           "albumartHeight",
           "albumartFit",
           "albumartBorder",
-          "albumartBorderRadius"
+          "albumartBorderRadius",
+          "albumartMargin"
         ]
       },
       "content": [
@@ -1226,6 +1291,14 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_ALBUM_ART_BORDER_RADIUS",
           "label": "TRANSLATE.NOW_PLAYING_BORDER_RADIUS",
+          "value": ""
+        },
+        {
+          "id": "albumartMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
           "value": ""
         }
       ]

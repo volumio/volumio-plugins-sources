@@ -154,6 +154,14 @@ class ControllerNowPlaying {
          * startup options are applied only once during app startup.
          */
     }
+    configSaveContentRegionSettings(data) {
+        const apply = __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_parseConfigSaveData).call(this, data);
+        const current = NowPlayingContext_1.default.getConfigValue('contentRegion');
+        const updated = Object.assign(current, apply);
+        NowPlayingContext_1.default.setConfigValue('contentRegion', updated);
+        NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+        __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.ContentRegion);
+    }
     configSaveTextStyles(data) {
         const maxTitleLines = data.maxTitleLines !== '' ? parseInt(data.maxTitleLines, 10) : '';
         const maxArtistLines = data.maxArtistLines !== '' ? parseInt(data.maxArtistLines, 10) : '';
@@ -513,6 +521,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     const localizationUIConf = uiconf.section_localization;
     const metadataServiceUIConf = uiconf.section_metadata_service;
     const startupOptionsUIConf = uiconf.section_startup_options;
+    const contentRegionUIConf = uiconf.section_content_region;
     const textStylesUIConf = uiconf.section_text_styles;
     const widgetStylesUIConf = uiconf.section_widget_styles;
     const albumartStylesUIConf = uiconf.section_album_art_style;
@@ -639,6 +648,16 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
             startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_BASIC');
     }
     startupOptionsUIConf.content.activateIdleScreen.value = startupOptions.activateIdleScreen;
+    /**
+     * Content region conf
+     */
+    const contentRegion = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.ContentRegion);
+    contentRegionUIConf.content.padding.value = {
+        value: contentRegion.padding,
+        label: contentRegion.padding == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    contentRegionUIConf.content.npBasicViewPadding.value = contentRegion.npBasicViewPadding;
+    contentRegionUIConf.content.npInfoViewPadding.value = contentRegion.npInfoViewPadding;
     /**
      * Text Styles conf
      */
@@ -800,6 +819,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     }
     albumartStylesUIConf.content.albumartBorder.value = nowPlayingScreen.albumartBorder;
     albumartStylesUIConf.content.albumartBorderRadius.value = nowPlayingScreen.albumartBorderRadius;
+    albumartStylesUIConf.content.albumartMargin.value = nowPlayingScreen.albumartMargin;
     if (!nowPlayingScreen.albumartVisibility) {
         albumartStylesUIConf.content = [albumartStylesUIConf.content.albumartVisibility];
         if (albumartStylesUIConf.saveButton) {

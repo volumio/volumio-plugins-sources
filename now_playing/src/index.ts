@@ -57,6 +57,7 @@ class ControllerNowPlaying {
     const localizationUIConf = uiconf.section_localization;
     const metadataServiceUIConf = uiconf.section_metadata_service;
     const startupOptionsUIConf = uiconf.section_startup_options;
+    const contentRegionUIConf = uiconf.section_content_region;
     const textStylesUIConf = uiconf.section_text_styles;
     const widgetStylesUIConf = uiconf.section_widget_styles;
     const albumartStylesUIConf = uiconf.section_album_art_style;
@@ -193,6 +194,17 @@ class ControllerNowPlaying {
         startupOptionsUIConf.content.activeScreen.value.label = np.getI18n('NOW_PLAYING_NP_BASIC');
     }
     startupOptionsUIConf.content.activateIdleScreen.value = startupOptions.activateIdleScreen;
+
+    /**
+     * Content region conf
+     */
+    const contentRegion = CommonSettingsLoader.get(CommonSettingsCategory.ContentRegion);
+    contentRegionUIConf.content.padding.value = {
+      value: contentRegion.padding,
+      label: contentRegion.padding == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    contentRegionUIConf.content.npBasicViewPadding.value = contentRegion.npBasicViewPadding;
+    contentRegionUIConf.content.npInfoViewPadding.value = contentRegion.npInfoViewPadding;
 
     /**
      * Text Styles conf
@@ -371,6 +383,7 @@ class ControllerNowPlaying {
     }
     albumartStylesUIConf.content.albumartBorder.value = nowPlayingScreen.albumartBorder;
     albumartStylesUIConf.content.albumartBorderRadius.value = nowPlayingScreen.albumartBorderRadius;
+    albumartStylesUIConf.content.albumartMargin.value = nowPlayingScreen.albumartMargin;
     if (!nowPlayingScreen.albumartVisibility) {
       albumartStylesUIConf.content = [ albumartStylesUIConf.content.albumartVisibility ] as any;
       if (albumartStylesUIConf.saveButton) {
@@ -1537,6 +1550,16 @@ class ControllerNowPlaying {
      * Note here we don't broadcast 'settings updated' message, because
      * startup options are applied only once during app startup.
      */
+  }
+
+  configSaveContentRegionSettings(data: Record<string, any>) {
+    const apply = this.#parseConfigSaveData(data);
+    const current = np.getConfigValue('contentRegion');
+    const updated = Object.assign(current, apply);
+    np.setConfigValue('contentRegion', updated);
+    np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+
+    this.#notifyCommonSettingsUpdated(CommonSettingsCategory.ContentRegion);
   }
 
   configSaveTextStyles(data: Record<string, any>) {
