@@ -153,7 +153,7 @@ ControllerControradio.prototype.addToBrowseSources = function () {
     uri: 'cradio',
     plugin_type: 'music_service',
     plugin_name: "controradio",
-    albumart: '/albumart?sourceicon=music_service/controradio/controradio-logo.jpeg'
+    albumart: '/albumart?sourceicon=music_service/controradio/logo-controradio-bianco.png'
   };
 
   self.commandRouter.volumioAddToBrowseSources(data);
@@ -514,7 +514,16 @@ ControllerControradio.prototype.loadRadioI18nStrings = function () {
 ControllerControradio.prototype.search = function (query) {
   var self = this;
   var defer = libQ.defer();
-   var lowercaseQuery = query.value.toLowerCase();
+  var lowercaseQuery = query.value.toLowerCase();
+  var searchResultsObject = {
+    "title": "Controradio",
+    "icon": "fa fa-music",
+    "availableListViews": [
+      "list", "grid"
+    ],
+    "items": [
+    ]
+  };
 
   self.getControradioData(url)
     .then((feeds) => {
@@ -524,32 +533,35 @@ ControllerControradio.prototype.search = function (query) {
 
         for (var item of items) {
           var lowercaseTitle = item.title.toLowerCase();
-          var foundItem = lowercaseTitle.includes(lowercaseQuery);
+          if (lowercaseTitle.includes(lowercaseQuery)) {
 
-          var channel = {
-            service: 'controradio',
-            type: 'webradio',
-            title: self.formatString(foundItem.title),
-            uri: self.extractAudioSrc(foundItem['content:encoded']),
-            albumart: self.extractImgSrc(foundItem['content:encoded']),
-          };
+            var channel = {
+              service: 'controradio',
+              type: 'webradio',
+              title: self.formatString(item.title),
+              uri: self.extractAudioSrc(item['content:encoded']),
+              albumart: self.extractImgSrc(item['content:encoded']),
+              icon: ''
 
-          if ((channel.albumart === null || channel.albumart === undefined)) {
-            channel.icon = 'fa fa-music';
+            };
+
+            if ((channel.albumart === null || channel.albumart === undefined)) {
+              channel.icon = 'fa fa-music';
+            }
+            if (channel.uri != null) {
+
+              searchResultsObject.items.push(channel);
+            }
           }
-          if (channel.uri != null) {
-
-            baseNavigation.navigation.lists[0].items.push(channel);
-          }
-
-          
         }
-        return defer.resolve(baseNavigation);
-        
+
+        defer.resolve(searchResultsObject);
+
       } else {
         self.logger.error('Failed to find data from search');
       }
     })
+  return defer.promise;
 };
 
 ControllerControradio.prototype._searchArtists = function (results) {

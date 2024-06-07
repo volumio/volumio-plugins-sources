@@ -1,20 +1,3 @@
 {
-  "baseNavigation": {
-    "navigation": {
-      "lists": [
-        {
-          "availableListViews": [
-            "list"
-          ],
-          "items": []
-        }
-      ]
-    }
-  },
-  "stations": {
-    "cradio": [
-
-    ]
-  }
 }
       
