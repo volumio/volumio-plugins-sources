@@ -1532,18 +1532,6 @@ ControllerSpotify.prototype.getMyTracks = function () {
                     }
                 },
                 onEnd: () => {
-                    tracks.sort((a, b) => {
-                        if (a.artist !== b.artist) {
-                            return a.artist > b.artist ? 1 : -1;
-                        }
-                        if (a.year !== b.year) {
-                            return a.year > b.year ? 1 : -1;
-                        }
-                        if (a.album !== b.album) {
-                            return a.album > b.album ? 1 : -1;
-                        }
-                        return a.tracknumber > b.tracknumber ? 1 : a.tracknumber === b.tracknumber ? 0 : -1;
-                    });
                     defer.resolve({
                         navigation: {
                             prev: {
