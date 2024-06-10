@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.api = exports.myBackground = exports.preview = exports.index = void 0;
+exports.font = exports.api = exports.myBackground = exports.preview = exports.index = void 0;
 const ejs_1 = __importDefault(require("ejs"));
 const fs_1 = __importDefault(require("fs"));
 const NowPlayingContext_1 = __importDefault(require("../lib/NowPlayingContext"));
@@ -40,6 +40,7 @@ const now_playing_common_1 = require("now-playing-common");
 const MyBackgroundMonitor_1 = __importDefault(require("../lib/utils/MyBackgroundMonitor"));
 const Misc_1 = require("../lib/utils/Misc");
 const SystemUtils = __importStar(require("../lib/utils/System"));
+const FontHelper_1 = require("../lib/utils/FontHelper");
 const APIs = {
     metadata: MetadataAPI_1.default,
     settings: SettingsAPI_1.default,
@@ -133,6 +134,20 @@ async function api(apiName, method, params, res) {
     }
 }
 exports.api = api;
+async function font(filename, res) {
+    const assetPath = `${FontHelper_1.FONT_DIR}/${filename}`;
+    if (!SystemUtils.fileExists(assetPath)) {
+        return res.send(404);
+    }
+    try {
+        fs_1.default.createReadStream(assetPath).pipe(res);
+    }
+    catch (error) {
+        NowPlayingContext_1.default.getLogger().error(NowPlayingContext_1.default.getErrorMessage(`[now-playing] Error piping ${assetPath} to response`, error, true));
+        return res.send(400);
+    }
+}
+exports.font = font;
 function getNowPlayingURL(req) {
     return `${req.protocol}://${req.hostname}:${NowPlayingContext_1.default.getConfigValue('port')}`;
 }

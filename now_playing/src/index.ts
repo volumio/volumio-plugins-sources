@@ -21,6 +21,7 @@ import UIConfigHelper from './lib/config/UIConfigHelper';
 import ConfigBackupHelper from './lib/config/ConfigBackupHelper';
 import myBackgroundMonitor from './lib/utils/MyBackgroundMonitor';
 import { MetadataServiceOptions } from './lib/config/PluginConfig';
+import FontHelper from './lib/utils/FontHelper';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type DockedComponentKey<T = keyof NowPlayingScreenSettings> = T extends `docked${infer _X}` ? T : never;
@@ -219,6 +220,19 @@ class ControllerNowPlaying {
     textStylesUIConf.content.artistVisibility.value = nowPlayingScreen.artistVisibility;
     textStylesUIConf.content.albumVisibility.value = nowPlayingScreen.albumVisibility;
     textStylesUIConf.content.mediaInfoVisibility.value = nowPlayingScreen.mediaInfoVisibility;
+
+    textStylesUIConf.content.fontStyles.value = {
+      value: nowPlayingScreen.fontStyles,
+      label: nowPlayingScreen.fontStyles == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    FontHelper.fillUIConfSelectElements(
+      { el: textStylesUIConf.content.titleFontStyle, value: nowPlayingScreen.titleFontStyle },
+      { el: textStylesUIConf.content.artistFontStyle, value: nowPlayingScreen.artistFontStyle},
+      { el: textStylesUIConf.content.albumFontStyle, value: nowPlayingScreen.albumFontStyle},
+      { el: textStylesUIConf.content.mediaInfoFontStyle, value: nowPlayingScreen.mediaInfoFontStyle},
+      { el: textStylesUIConf.content.seekTimeFontStyle, value: nowPlayingScreen.seekTimeFontStyle},
+      { el: textStylesUIConf.content.metadataFontStyle, value: nowPlayingScreen.metadataFontStyle}
+    );
 
     textStylesUIConf.content.fontSizes.value = {
       value: nowPlayingScreen.fontSizes,
@@ -1576,6 +1590,13 @@ class ControllerNowPlaying {
       artistVisibility: data.artistVisibility,
       albumVisibility: data.albumVisibility,
       mediaInfoVisibility: data.mediaInfoVisibility,
+      fontStyles: data.fontStyles.value,
+      titleFontStyle: data.titleFontStyle.value,
+      artistFontStyle: data.artistFontStyle.value,
+      albumFontStyle: data.albumFontStyle.value,
+      mediaInfoFontStyle: data.mediaInfoFontStyle.value,
+      seekTimeFontStyle: data.seekTimeFontStyle.value,
+      metadataFontStyle: data.metadataFontStyle.value,
       fontSizes: data.fontSizes.value,
       titleFontSize: data.titleFontSize,
       artistFontSize: data.artistFontSize,

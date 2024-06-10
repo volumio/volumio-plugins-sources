@@ -80,6 +80,10 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.6.3
+- Add font style settings
+- Update web client v0.6.2
+
 0.6.2
 - Add Spanish translation ([PR #13](https://github.com/patrickkfkan/volumio-now-playing/pull/13) by [Victor-arias](https://github.com/Victor-arias))
 

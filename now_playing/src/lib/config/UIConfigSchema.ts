@@ -65,6 +65,13 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'artistVisibility' | 
     'albumVisibility' | 
     'mediaInfoVisibility' | 
+    'fontStyles' | 
+    'titleFontStyle' | 
+    'artistFontStyle' | 
+    'albumFontStyle' | 
+    'mediaInfoFontStyle' | 
+    'seekTimeFontStyle' | 
+    'metadataFontStyle' | 
     'fontSizes' | 
     'titleFontSize' | 
     'artistFontSize' | 
@@ -363,6 +370,13 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'artistVisibility' ? UIConfigSwitch<K> :
     C extends 'albumVisibility' ? UIConfigSwitch<K> :
     C extends 'mediaInfoVisibility' ? UIConfigSwitch<K> :
+    C extends 'fontStyles' ? UIConfigSelect<K> :
+    C extends 'titleFontStyle' ? UIConfigSelect<K> :
+    C extends 'artistFontStyle' ? UIConfigSelect<K> :
+    C extends 'albumFontStyle' ? UIConfigSelect<K> :
+    C extends 'mediaInfoFontStyle' ? UIConfigSelect<K> :
+    C extends 'seekTimeFontStyle' ? UIConfigSelect<K> :
+    C extends 'metadataFontStyle' ? UIConfigSelect<K> :
     C extends 'fontSizes' ? UIConfigSelect<K> :
     C extends 'titleFontSize' ? UIConfigInput<K, 'text'> :
     C extends 'artistFontSize' ? UIConfigInput<K, 'text'> :

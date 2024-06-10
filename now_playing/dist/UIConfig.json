@@ -369,6 +369,13 @@
           "artistVisibility",
           "albumVisibility",
           "mediaInfoVisibility",
+          "fontStyles",
+          "titleFontStyle",
+          "artistFontStyle",
+          "albumFontStyle",
+          "mediaInfoFontStyle",
+          "seekTimeFontStyle",
+          "metadataFontStyle",
           "fontSizes",
           "titleFontSize",
           "artistFontSize",
@@ -460,6 +467,149 @@
           "value": true,
           "visibleIf": {
             "field": "trackInfoVisibility",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontStyles",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_FONT",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_STYLES",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "titleFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "artistFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "mediaInfoFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekTimeFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
             "value": "custom"
           }
         },

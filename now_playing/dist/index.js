@@ -58,6 +58,7 @@ const now_playing_common_1 = require("now-playing-common");
 const UIConfigHelper_1 = __importDefault(require("./lib/config/UIConfigHelper"));
 const ConfigBackupHelper_1 = __importDefault(require("./lib/config/ConfigBackupHelper"));
 const MyBackgroundMonitor_1 = __importDefault(require("./lib/utils/MyBackgroundMonitor"));
+const FontHelper_1 = __importDefault(require("./lib/utils/FontHelper"));
 class ControllerNowPlaying {
     constructor(context) {
         _ControllerNowPlaying_instances.add(this);
@@ -176,6 +177,13 @@ class ControllerNowPlaying {
             artistVisibility: data.artistVisibility,
             albumVisibility: data.albumVisibility,
             mediaInfoVisibility: data.mediaInfoVisibility,
+            fontStyles: data.fontStyles.value,
+            titleFontStyle: data.titleFontStyle.value,
+            artistFontStyle: data.artistFontStyle.value,
+            albumFontStyle: data.albumFontStyle.value,
+            mediaInfoFontStyle: data.mediaInfoFontStyle.value,
+            seekTimeFontStyle: data.seekTimeFontStyle.value,
+            metadataFontStyle: data.metadataFontStyle.value,
             fontSizes: data.fontSizes.value,
             titleFontSize: data.titleFontSize,
             artistFontSize: data.artistFontSize,
@@ -670,6 +678,11 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.artistVisibility.value = nowPlayingScreen.artistVisibility;
     textStylesUIConf.content.albumVisibility.value = nowPlayingScreen.albumVisibility;
     textStylesUIConf.content.mediaInfoVisibility.value = nowPlayingScreen.mediaInfoVisibility;
+    textStylesUIConf.content.fontStyles.value = {
+        value: nowPlayingScreen.fontStyles,
+        label: nowPlayingScreen.fontStyles == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    FontHelper_1.default.fillUIConfSelectElements({ el: textStylesUIConf.content.titleFontStyle, value: nowPlayingScreen.titleFontStyle }, { el: textStylesUIConf.content.artistFontStyle, value: nowPlayingScreen.artistFontStyle }, { el: textStylesUIConf.content.albumFontStyle, value: nowPlayingScreen.albumFontStyle }, { el: textStylesUIConf.content.mediaInfoFontStyle, value: nowPlayingScreen.mediaInfoFontStyle }, { el: textStylesUIConf.content.seekTimeFontStyle, value: nowPlayingScreen.seekTimeFontStyle }, { el: textStylesUIConf.content.metadataFontStyle, value: nowPlayingScreen.metadataFontStyle });
     textStylesUIConf.content.fontSizes.value = {
         value: nowPlayingScreen.fontSizes,
         label: nowPlayingScreen.fontSizes == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')

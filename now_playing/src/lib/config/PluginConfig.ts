@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import { ActionPanelSettings, BackgroundSettings, DefaultActionPanelSettings, DefaultBackgroundSettings, DefaultIdleScreenSettings, DefaultLocalizationSettings, DefaultNowPlayingScreenSettings, DefaultPerformanceSettings, DefaultThemeSettings, IdleScreenSettings, LocalizationSettings, NowPlayingScreenSettings, PerformanceSettings, ThemeSettings } from 'now-playing-common';
 import { ContentRegionSettings, DefaultContentRegionSettings } from 'now-playing-common/dist/config/ContentRegionSettings';
 import { DefaultStartupOptions, StartupOptions } from 'now-playing-common/dist/config/StartupOptions';
@@ -59,16 +60,16 @@ export interface I18nOptionValue {
 
 export const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema = {
   port: { defaultValue: 4004, json: false },
-  startup: { defaultValue: DefaultStartupOptions, json: true },
-  metadataService: { defaultValue: DefaultMetadataServiceOptions, json: true },
-  contentRegion: { defaultValue: DefaultContentRegionSettings, json: true },
-  'screen.nowPlaying': { defaultValue: DefaultNowPlayingScreenSettings, json: true },
-  background: { defaultValue: DefaultBackgroundSettings, json: true },
-  actionPanel: { defaultValue: DefaultActionPanelSettings, json: true },
-  'screen.idle': { defaultValue: DefaultIdleScreenSettings, json: true },
-  theme: { defaultValue: DefaultThemeSettings, json: true },
-  performance: { defaultValue: DefaultPerformanceSettings, json: true },
-  localization: { defaultValue: DefaultLocalizationSettings, json: true },
+  startup: { defaultValue: lodash.cloneDeep(DefaultStartupOptions), json: true },
+  metadataService: { defaultValue: lodash.cloneDeep(DefaultMetadataServiceOptions), json: true },
+  contentRegion: { defaultValue: lodash.cloneDeep(DefaultContentRegionSettings), json: true },
+  'screen.nowPlaying': { defaultValue: lodash.cloneDeep(DefaultNowPlayingScreenSettings), json: true },
+  background: { defaultValue: lodash.cloneDeep(DefaultBackgroundSettings), json: true },
+  actionPanel: { defaultValue: lodash.cloneDeep(DefaultActionPanelSettings), json: true },
+  'screen.idle': { defaultValue: lodash.cloneDeep(DefaultIdleScreenSettings), json: true },
+  theme: { defaultValue: lodash.cloneDeep(DefaultThemeSettings), json: true },
+  performance: { defaultValue: lodash.cloneDeep(DefaultPerformanceSettings), json: true },
+  localization: { defaultValue: lodash.cloneDeep(DefaultLocalizationSettings), json: true },
   kioskDisplay: { defaultValue: 'default', json: false },
   configVersion: { defaultValue: null, json: false }
 };
