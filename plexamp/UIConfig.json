@@ -1,0 +1,233 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "connect",
+      "element": "section",
+      "label": "TRANSLATE.PLUGIN_CRED_DESC",
+      "icon": "fa-plug",
+      "content": [
+        {
+          "id": "connected",
+          "element": "switch",
+          "value": false,
+          "label": "TRANSLATE.CONNECT_TO_PLEX"
+        },
+        {
+          "id": "getpin",
+          "element": "button",
+          "label": "TRANSLATE.GET_PIN_PROMPT",
+          "doc": "Get a fresh PIN from Plex to Link Volumio with your Plex",
+          "onClick": {
+            "type": "controller",
+            "endpoint": "music_service/plexamp",
+            "method": "getPinAndUpdateConfig"
+          },
+          "visibleIf": {
+            "field": "connected",
+            "value": false
+          }
+
+        },
+        {
+          "id": "linkplex",
+          "element": "button",
+          "label": "TRANSLATE.LAUNCH_PLEX_PROMPT",
+          "doc": "Link Volumio to your Plex Account using the PIN provided",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://www.plex.tv/link/"
+          },
+          "visibleIf": {
+            "field": "connected",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "options",
+      "element": "section",
+      "label": "TRANSLATE.PLUGIN_OPTS_DESC",
+      "icon": "fa-wrench",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/plexamp",
+        "method": "savePluginOptions"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "timeOut",
+          "library",
+          "local",
+          "recentAddedLimit",
+          "recentPlayedLimit"
+        ]
+      },
+      "content": [
+        {
+          "id": "library",
+          "type": "text",
+          "element": "select",
+          "value": {
+            "value": {},
+            "label": "Music"
+          },
+          "options": [],
+          "hidden": true,
+          "doc": "TRANSLATE.MUSIC_LIBRARY_DOC",
+          "label": "TRANSLATE.MUSIC_LIBRARY"
+        },
+        {
+          "id": "local",
+          "element": "switch",
+          "value": true,
+          "label": "TRANSLATE.LOCAL_ACCESS",
+          "doc": "TRANSLATE.LOCAL_ACCESS_DOC",
+          "hidden": true
+        },
+        {
+          "id": "recentAddedLimit",
+          "type": "text",
+          "element": "select",
+          "value": {
+            "value": 30,
+            "label": "30 Latest albums"
+          },
+          "options": [{
+            "value": 30,
+            "label": "30 Latest albums"
+          },
+            {
+              "value": 60,
+              "label": "60 Latest albums"
+            }],
+          "doc": "TRANSLATE.RECENTLY_ADDED_DOC",
+          "label": "TRANSLATE.RECENTLY_ADDED",
+          "hidden": true
+        },
+        {
+          "id": "recentPlayedLimit",
+          "type": "text",
+          "element": "select",
+          "value": {
+            "value": 50,
+            "label": "50 Recently played albums"
+          },
+          "options": [{
+            "value": 50,
+            "label": "50 Recently played albums"
+          },
+            {
+              "value": 100,
+              "label": "100 Recently played albums"
+            }],
+          "doc": "TRANSLATE.RECENTLY_PLAYED_DOC",
+          "label": "TRANSLATE.RECENTLY_PLAYED",
+          "hidden": true
+        },
+        {
+          "id": "timeOut",
+          "doc": "TRANSLATE.TIME_OUT_DOC",
+          "label": "TRANSLATE.TIME_OUT",
+          "element": "select",
+          "value": {
+            "value": 600,
+            "label": "10mn"
+          },
+          "options": [{
+            "value": 300,
+            "label": "5mn"
+          },
+            {
+              "value": 600,
+              "label": "10mn"
+            },
+            {
+              "value": 1200,
+              "label": "20mn"
+            },
+            {
+              "value": 3600,
+              "label": "1h"
+            },
+            {
+              "value": 7200,
+              "label": "2h"
+            },
+            {
+              "value": 14400,
+              "label": "4h"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "headlessplexamp",
+      "element": "section",
+      "label": "TRANSLATE.PLEXAMP_INSTALL_SECTION",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/plexamp",
+        "method": "installPlexAmp"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.INSTALL_PLEXAMP",
+        "data": [
+          "version"
+        ]
+      },
+      "content": [
+        {
+          "id": "version",
+          "type": "text",
+          "label": "TRANSLATE.PLEXAMP_VERSION",
+          "element": "select",
+          "value": {
+            "value": "NA",
+            "label": "Not installed"
+          },
+          "options": [{
+            "value": "NA",
+            "label": "Not installed"
+          },
+            {
+              "value": "4_4_0",
+              "label": "PlexAmp (4.4.0)"
+            }
+          ]
+        },
+        {
+          "id": "plexampEnabled",
+          "element": "switch",
+          "value": false,
+          "label": "TRANSLATE.PLEXAMP_ENABLED",
+          "visibleIf": {
+            "field": "version",
+            "value": 1
+          }
+        },
+        {
+          "id": "showplexamp",
+          "element": "button",
+          "label": "TRANSLATE.LAUNCH_PLEXAMP_UI",
+          "doc": "Launch PlexAmp configuration UI",
+          "onClick": {
+            "type": "openUrl",
+            "url": ""
+          },
+          "visibleIf": {
+            "field": "plexampEnabled",
+            "value": true
+          }
+        }
+
+      ]
+    }
+  ]
+}
