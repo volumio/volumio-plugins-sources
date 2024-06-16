@@ -11,7 +11,7 @@ from time import strftime, gmtime, sleep, time  # v.0.0.7
 from threading import Thread
 from PIL import ImageFont, Image, ImageDraw, ImageStat, ImageFilter
 import ST7789  # v0.0.6
-from socketIO_client import SocketIO
+import socketio
 import requests
 from numpy import mean
 import RPi.GPIO as GPIO
@@ -39,6 +39,8 @@ DISP = ST7789.ST7789(
     offset_top=0  # v0.0.6
 )
 
+# Create Socketio client
+SOCKETIO = socketio.Client()
 
 # read json file (plugin values)
 with open('/data/configuration/system_hardware/pirateaudio/config.json', 'r') as myfile:
@@ -125,19 +127,17 @@ for sig in (signal.SIGABRT, signal.SIGILL, signal.SIGINT, signal.SIGSEGV, signal
     signal.signal(sig, clean)
 
 
-def on_connect():
+@SOCKETIO.event
+def connect():
     """execute some stuff on connect"""
     # start_time = time()  # debug, time of code execution
-    SOCKETIO.on('pushState', on_push_state)
-    SOCKETIO.emit('getState', '', on_push_state)
-    SOCKETIO.on('pushBrowseSources', on_push_browsesources)
-    SOCKETIO.on('pushBrowseLibrary', on_push_browselibrary)
-    SOCKETIO.on('pushQueue', on_push_queue)
-    SOCKETIO.emit('getQueue', on_push_queue)
+    SOCKETIO.emit('getState', '')
+    SOCKETIO.emit('getQueue')
     # print("on_connect--- %s seconds ---" % (time() - start_time))  # debug, time of code execution
 
 
-def on_disconnect():
+@SOCKETIO.event
+def disconnect():
     """changes display on disconnect"""
     display_stuff(IMAGE_DICT['BG_DEFAULT'], OBJ_TRANS['DISPLAY']['LOSTCONNECTION'], 0, 0, 'info')
 
@@ -159,6 +159,7 @@ def navigation_handler():
     # print("navigation_handler--- %s seconds ---" % (time() - start_time))  # debug, time of code execution
 
 
+@SOCKETIO.on('pushBrowseSources')
 def on_push_browsesources(*args):
     """processes websocket informations of browsesources"""
     # start_time = time()  # debug, time of code execution
@@ -171,6 +172,7 @@ def on_push_browsesources(*args):
     # print("on_push_browsesources--- %s seconds ---" % (time() - start_time))  # debug, time of code execution
 
 
+@SOCKETIO.on('pushBrowseLibrary')
 def on_push_browselibrary(*args):
     """processes websocket informations of browselibrary"""
     # start_time = time()  # debug, time of code execution
@@ -307,8 +309,7 @@ def display_stuff(picture, text, marked, start, icons='nav'):  # v.0.0.4 test fo
 
 # position in code is important, so display_stuff works v.0.0.4
 display_stuff(IMAGE_DICT['BG_DEFAULT'], OBJ_TRANS['DISPLAY']['WAIT'], 0, 0, 'info')
-SOCKETIO = SocketIO('localhost', 3000)
-
+SOCKETIO.connect('http://localhost:3000')
 
 def seeking(direction):
     """processes seeking commands"""
@@ -347,6 +348,7 @@ def prevnext(direction):
     # print("prevnext--- %s seconds ---" % (time() - start_time))  # debug, time of code execution
 
 
+@SOCKETIO.on('pushQueue')
 def on_push_queue(*args):
     """processes websocket informations of queue"""
     # start_time = time()  # debug, time of code execution
@@ -359,6 +361,7 @@ def on_push_queue(*args):
     # print("on_push_queue--- %s seconds ---" % (time() - start_time))  # debug, time of code execution
 
 
+@SOCKETIO.on('pushState')
 def on_push_state(*args):
     """processes websocket informations of push state"""
     # start_time = time()  # debug, time of code execution
@@ -514,8 +517,6 @@ def on_push_state(*args):
 
 # IMG = Image.new('RGBA', (240, 240), color=(0, 0, 0, 25))  # v.0.0.7 not needed, as we always open an image
 # draw = ImageDraw.Draw(IMG, 'RGBA') v.0.0.7
-SOCKETIO.once('connect', on_connect)
-SOCKETIO.on('disconnect', on_disconnect)
 
 
 def handle_button(pin):
@@ -606,14 +607,14 @@ def button_a(mode, status):  # optimieren, VOLUMIO_DICT['MODE'] durch mode (loka
             return
         #elif NAV_ARRAY_TYPE[NAV_DICT['MARKER']] == 'prevnext':  # v.0.0.4
         if NAV_ARRAY_TYPE[NAV_DICT['MARKER']] == 'prevnext':  # v.0.0.4
-            SOCKETIO.emit('getQueue', on_push_queue)  # refresh variables of queue
+            SOCKETIO.emit('getQueue')  # refresh variables of queue
             VOLUMIO_DICT['MODE'] = 'prevnext'  # optimieren wg. global bzw. wird das überhaupt benötigt
             display_stuff(IMAGE_DICT['BG_DEFAULT'], [''.join([str(VOLUMIO_DICT['POSITION'] + 1), '/', str(LEN_QUEUE)]), OBJ_TRANS['DISPLAY']['PREVNEXT'], TITLE_QUEUE[VOLUMIO_DICT['POSITION']]], 1, 0, 'seek')
             return
         # only get called if no return before was executed
         #else:  # browsesource
         reset_variable('navigation')
-        SOCKETIO.emit('getBrowseSources', '', on_push_browsesources)
+        SOCKETIO.emit('getBrowseSources', '')
     #else:
     if mode not in ['player', 'navigation', 'menu']:
         reset_variable('player')

@@ -17,7 +17,7 @@ systemctl enable pirateaudio.service
 echo "Installing new python 3.x and pip3 dependencies for pirateaudio plugin"
 sudo apt-get update
 sudo apt-get install -y python3-rpi.gpio python3-spidev python3-pip python3-pil python3-numpy
-sudo pip3 install st7789 socketIO-client
+sudo pip3 install st7789 "python-socketio>=4,<5"
 
 # undo changes to userconfig for pirate audio hat in case of updating plugin
 sudo sed -i '/### End of parameters for pirateaudio plugin ###/d' /boot/userconfig.txt
