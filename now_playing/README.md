@@ -80,6 +80,10 @@ Starting from version 0.2.0, the web client and preview page are implemented in 
 
 ## Changelog
 
+0.6.4
+- Add portrait-related options to 'Content Region' settings
+- Update web client v0.6.3
+
 0.6.3
 - Add font style settings
 - Update web client v0.6.2

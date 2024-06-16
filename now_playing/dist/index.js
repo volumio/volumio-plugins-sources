@@ -665,7 +665,9 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
         label: contentRegion.padding == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
     };
     contentRegionUIConf.content.npBasicViewPadding.value = contentRegion.npBasicViewPadding;
+    contentRegionUIConf.content.npBasicViewPaddingPortrait.value = contentRegion.npBasicViewPaddingPortrait;
     contentRegionUIConf.content.npInfoViewPadding.value = contentRegion.npInfoViewPadding;
+    contentRegionUIConf.content.npInfoViewPaddingPortrait.value = contentRegion.npInfoViewPaddingPortrait;
     /**
      * Text Styles conf
      */

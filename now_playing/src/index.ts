@@ -205,7 +205,9 @@ class ControllerNowPlaying {
       label: contentRegion.padding == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
     };
     contentRegionUIConf.content.npBasicViewPadding.value = contentRegion.npBasicViewPadding;
+    contentRegionUIConf.content.npBasicViewPaddingPortrait.value = contentRegion.npBasicViewPaddingPortrait;
     contentRegionUIConf.content.npInfoViewPadding.value = contentRegion.npInfoViewPadding;
+    contentRegionUIConf.content.npInfoViewPaddingPortrait.value = contentRegion.npInfoViewPaddingPortrait;
 
     /**
      * Text Styles conf

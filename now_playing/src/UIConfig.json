@@ -302,7 +302,9 @@
         "data": [
           "padding",
           "npBasicViewPadding",
-          "npInfoViewPadding"
+          "npBasicViewPaddingPortrait",
+          "npInfoViewPadding",
+          "npInfoViewPaddingPortrait"
         ]
       },
       "content": [
@@ -338,11 +340,35 @@
           }
         },
         {
+          "id": "npBasicViewPaddingPortrait",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_BASIC_LI_PORTRAIT",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
           "id": "npInfoViewPadding",
           "type": "text",
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
           "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "npInfoViewPaddingPortrait",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LI_PORTRAIT",
           "value": "",
           "visibleIf": {
             "field": "padding",

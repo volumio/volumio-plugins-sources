@@ -57,7 +57,9 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
   K extends 'section_content_region' ?
     'padding' | 
     'npBasicViewPadding' | 
-    'npInfoViewPadding' :
+    'npBasicViewPaddingPortrait' | 
+    'npInfoViewPadding' | 
+    'npInfoViewPaddingPortrait' :
 
   K extends 'section_text_styles' ?
     'trackInfoVisibility' | 
@@ -360,7 +362,9 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
   K extends 'section_content_region' ? (
     C extends 'padding' ? UIConfigSelect<K> :
     C extends 'npBasicViewPadding' ? UIConfigInput<K, 'text'> :
+    C extends 'npBasicViewPaddingPortrait' ? UIConfigInput<K, 'text'> :
     C extends 'npInfoViewPadding' ? UIConfigInput<K, 'text'> :
+    C extends 'npInfoViewPaddingPortrait' ? UIConfigInput<K, 'text'> :
     never
   ) : 
 
