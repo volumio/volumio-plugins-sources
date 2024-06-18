@@ -10,8 +10,6 @@ install_pkg() {
         return 0
     fi
 
-    ARCH="$(dpkg --print-architecture)"
-
     if [ "${ARCH}" == "amd64" ] || [ "${ARCH}" == "armhf" ]; then
         PKG_NAME="jellyfin_${TARGET_VERSION}-${ARCH}.tar.gz"
         PKG_URL="https://repo.jellyfin.org/files/server/linux/stable/v${TARGET_VERSION}/${ARCH}/${PKG_NAME}"
@@ -48,9 +46,32 @@ install_pkg() {
 }
 
 install_ffmpeg() {
-    echo_dt "Installing ffmpeg..."
-
-    apt-get update && apt-get install -y ffmpeg
+    set +eE
+    trap - ERR
+    dpkg-query -W -f='${Status}' jellyfin-ffmpeg6 2>/dev/null | grep -q "install ok installed"
+    if [ $? -ne 0 ]; then
+        FFMPEG_INSTALLED=false;
+    else
+        CURRENT_FFMPEG_VERSION=$(dpkg-query -f='${Version}' --show jellyfin-ffmpeg6)
+        if $(dpkg --compare-versions "${CURRENT_FFMPEG_VERSION}" lt "${FFMPEG_TARGET_VERSION}"); then
+            FFMPEG_INSTALLED=false;
+        else
+            FFMPEG_INSTALLED=true;
+        fi
+    fi
+    set -eE
+    trap 'on_error' ERR
+    if [ $FFMPEG_INSTALLED == true ]; then
+        echo_dt "jellyfin-ffmpeg v${FFMPEG_TARGET_VERSION} already installed"
+    else
+        PKG_TMP="$(mktemp --suffix ".deb")"
+        echo_dt "Downloading jellyfin-ffmpeg package from ${FFMPEG_PKG_URL}; saving to ${PKG_TMP}..."
+        wget -O "${PKG_TMP}" "${FFMPEG_PKG_URL}"
+        echo_dt "Installing jellyfin-ffmpeg dependencies..."
+        apt-get update && apt-get install -y ocl-icd-libopencl1 libllvm13 libxcb-randr0
+        echo_dt "Installing jellyfin-ffmpeg..."
+        dpkg -i "${PKG_TMP}"
+    fi    
 }
 
 create_systemd_service() {

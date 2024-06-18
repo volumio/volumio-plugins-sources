@@ -1,6 +1,6 @@
 {
 	"name": "jellyfin_server",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Installs the Jellyfin media server app. Note: will likely choke on devices with less than 1GB RAM (recommended 2GB or more).",
 	"main": "./dist/index.js",
 	"scripts": {
