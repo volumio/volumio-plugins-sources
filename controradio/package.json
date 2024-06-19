@@ -1,0 +1,38 @@
+{
+	"name": "controradio",
+	"version": "1.0.0",
+	"description": "A Controradio plugin",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Volumio Team",
+	"license": "ISC",
+	"repository": "https://github.com/Aoblu87/volumio-plugins-sources/controradio",
+	"volumio_info": {
+		"prettyName": "Controradio",
+		"icon": "fa fa-headphones fa-lg",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Volumio plugin to use controradio",
+		"changelog": ""
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"node-html-parser": "^6.1.13",
+		"unirest": "^0.6.0",
+		"v-conf": "^1.4.0"
+	}
+}
