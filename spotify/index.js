@@ -118,13 +118,15 @@ ControllerSpotify.prototype.getUIConfig = function () {
             uiconf.sections[2].content[0].value.value = bitrateNumber
             uiconf.sections[2].content[0].value.label = self.getLabelForSelect(uiconf.sections[2].content[0].options, bitrateNumber);
 
-            var normalisationPregainValue = self.config.get('normalisation_pregain', '1.0');
-            uiconf.sections[2].content[2].value.value = normalisationPregainValue;
-            uiconf.sections[2].content[2].value.label = normalisationPregainValue;
+            uiconf.sections[2].content[2].value = self.config.get('normalisation_enabled', false);
 
+            var normalisationPregain = self.config.get('normalisation_pregain', '0');
+            uiconf.sections[2].content[3].value.value = normalisationPregain;
+            uiconf.sections[2].content[3].value.label = self.getLabelForSelect(uiconf.sections[2].content[3].options, normalisationPregain);
+      
             var icon = self.config.get('icon', 'avr');
-            uiconf.sections[2].content[3].value.value = icon;
-            uiconf.sections[2].content[3].value.label =  self.getLabelForSelect(uiconf.sections[2].content[3].options, icon);
+            uiconf.sections[2].content[4].value.value = icon;
+            uiconf.sections[2].content[4].value.label = self.getLabelForSelect(uiconf.sections[2].content[4].options, icon);
 
             defer.resolve(uiconf);
         })
@@ -737,12 +739,13 @@ ControllerSpotify.prototype.createConfigFile = function () {
     if (mixerType === 'None') {
         externalVolume = false;
     }
-    var normalisationPregain = self.config.get('normalisation_pregain', '1.0');
+    var normalisationPregain = self.config.get('normalisation_pregain', '0');
 
     var conf = template.replace('${device_name}', devicename)
         .replace('${bitrate_number}', selectedBitrate)
         .replace('${device_type}', icon)
         .replace('${external_volume}', externalVolume)
+        .replace('${normalisation_disabled}', !self.config.get('normalisation_enabled', false))
         .replace('${normalisation_pregain}', normalisationPregain);
 
     var credentials_type = self.config.get('credentials_type', 'zeroconf');
@@ -791,34 +794,25 @@ ControllerSpotify.prototype.isOauthLoginAlreadyConfiguredOnDaemon = function () 
     }
 };
 
-ControllerSpotify.prototype.saveGoLibrespotSettings = function (data, avoidBroadcastUiConfig) {
-    var self = this;
-    var defer = libQ.defer();
-
-    var broadcastUiConfig = true;
-    if (avoidBroadcastUiConfig === true){
-        broadcastUiConfig = false;
-    }
-
+ControllerSpotify.prototype.saveGoLibrespotSettings = function (data) {
     if (data.bitrate !== undefined && data.bitrate.value !== undefined) {
-        self.config.set('bitrate_number', data.bitrate.value);
+        this.config.set('bitrate_number', data.bitrate.value);
     }
 
     if (data.debug !== undefined) {
-        self.config.set('debug', data.debug);
+        this.config.set('debug', data.debug);
     }
     if (data.icon && data.icon.value !== undefined) {
-        self.config.set('icon', data.icon.value);
+        this.config.set('icon', data.icon.value);
     }
+    this.config.set('normalisation_enabled', !!data.normalisation_enabled);
     if (data.normalisation_pregain && data.normalisation_pregain.value !== undefined) {
-        self.config.set('normalisation_pregain', data.normalisation_pregain.value);
+        this.config.set('normalisation_pregain', data.normalisation_pregain.value);
     }
 
-
-    self.selectedBitrate = self.config.get('bitrate_number', '320').toString();
-    self.initializeLibrespotDaemon();
-
-    return defer.promise;
+    this.selectedBitrate = this.config.get('bitrate_number', '320').toString();
+    this.initializeLibrespotDaemon();
+    this.commandRouter.pushToastMessage('info', this.getI18n('CONFIGURATION_SUCCESSFULLY_UPDATED'))
 };
 
 // OAUTH
