@@ -53,7 +53,7 @@ cleanup_exit_err() {
     exit -1
 }
 
-if [ $ARCH = "armv6l" ] || [ $ARCH = "armv7l" ] || [ $ARCH = "aarch64" ] ; then
+if [[ "$ARCH" =~ ^(armv6l|armv7l|aarch64)$ ]]; then
     PEPPY_ALSA_PATH="${ALSA_BASE_PATH}/armhf"
 elif [ $ARCH = "x86_64" ]; then
     PEPPY_ALSA_PATH="${ALSA_BASE_PATH}/x86_64"
