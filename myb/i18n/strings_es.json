@@ -1,0 +1,20 @@
+{
+  "UI": {
+    "MUSIC_YOUR_BRAND": "Music Your Brand",
+    "LOGIN_TO_YOUR_ACCOUNT": "Accede a tu cuenta myb",
+    "LOGOUT_TO_YOUR_ACCOUNT": "Sales a tu cuenta myb",
+    "SAVE": "Guardar",
+    "LEAVE": "Desconectar",
+    "LOGOUT": "Desconexión",
+    "LOGOUT_SUCCESSFUL": "Desconexión exitosa",
+    "EMAIL_PLACEHOLDER": "introduce un correo electrónico, ej: juanperez@gmail.com",
+    "PASSWORD_PLACEHOLDER": "ingresa tu contraseña",
+    "OPEN_MUSIC_YOUR_BRAND": "Ir al sitio Music Your Brand",
+    "LOGIN": "Acceso",
+    "LOGIN_SUCCESSFUL": "Iniciar sesión exitosamente",
+    "ERROR": "Error",
+    "GENERIC_ERROR": "Error genérico, intenta iniciar sesión nuevamente",
+    "LOGIN_FAILED": "Correo electrónico o contraseña incorrecta, vuelve a intentarlo",
+    "USEFULL_LINKS": "Enlaces útiles"
+  }
+}

@@ -1,7 +1,7 @@
 {
 	"name": "spop",
 	"version": "4.0.4",
-	"description": "Spotify plugin for Volumio3",
+	"description": "Spotify plugin for Volumio3 hello",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -19,7 +19,7 @@
 		"os": [
 			"buster"
 		],
-		"details": "Spotify plugin for Volumio3",
+		"details": "Spotify plugin for Volumio3 helloooooooo",
 		"changelog": "",
 		"architectures": [
 			"amd64",
