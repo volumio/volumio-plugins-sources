@@ -829,7 +829,7 @@ ControllerSpotify.prototype.refreshAccessToken = function () {
 
     var refreshToken = self.config.get('refresh_token', 'none');
     if (refreshToken !== 'none' && refreshToken !== null && refreshToken !== undefined) {
-        superagent.post('https://oauth-performer.dfs.volumio.org/spotify/accessToken')
+        superagent.post('https://oauth-performer.prod.vlmapi.io/spotify/accessToken')
             .send({refreshToken: refreshToken})
             .then(function (results) {
                 if (results && results.body && results.body.accessToken) {
@@ -1006,29 +1006,6 @@ ControllerSpotify.prototype.spotifyApiConnect = function () {
 
     return defer.promise;
 }
-
-ControllerSpotify.prototype.refreshAccessToken = function () {
-    var self = this;
-    var defer = libQ.defer();
-
-    var refreshToken = self.config.get('refresh_token', 'none');
-    if (refreshToken !== 'none' && refreshToken !== null && refreshToken !== undefined) {
-        superagent.post('https://oauth-performer.dfs.volumio.org/spotify/accessToken')
-            .send({refreshToken: refreshToken})
-            .then(function (results) {
-                if (results && results.body && results.body.accessToken) {
-                    defer.resolve(results)
-                } else {
-                    defer.resject('No access token received');
-                }
-            })
-            .catch(function (err) {
-                self.logger.info('An error occurred while refreshing Spotify Token ' + err);
-            });
-    }
-
-    return defer.promise;
-};
 
 ControllerSpotify.prototype.spotifyCheckAccessToken = function () {
     var self = this;
