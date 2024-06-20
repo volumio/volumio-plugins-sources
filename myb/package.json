@@ -8,7 +8,7 @@
 	},
 	"author": "Music Your Brand",
 	"license": "ISC",
-	"repository": "https://github.com/bitroadie/volumio-plugins-sources",
+	"repository": "https://github.com/bitroadie/volumio-plugins-sources.git",
 	"volumio_info": {
 		"prettyName": "Myb",
 		"icon": "fa-solid fa-music",
