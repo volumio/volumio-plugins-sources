@@ -27,7 +27,7 @@
         "element": "button",
         "label": "TRANSLATE.AUTHORIZE",
         "description": "TRANSLATE.AUTHORIZE_PERSONAL_CONTENT",
-        "onClick": {"type":"oauth", "performerUrl":"http://oauth-performer.dfs.volumio.org/spotify","plugin":"music_service/spop", "scopes":[
+        "onClick": {"type":"oauth", "performerUrl":"https://oauth-performer.prod.vlmapi.io/spotify","plugin":"music_service/spop", "scopes":[
           "user-modify-playback-state",
           "user-read-playback-state",
           "user-read-currently-playing",
