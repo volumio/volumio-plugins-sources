@@ -1,6 +1,6 @@
 {
   "name": "peppyspectrum",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "description": "Peppy-spectrum for Volumio",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,8 @@
     "changelog": "Fix installation on RPI5",
     "details": "Easy install Peppy-spectrum",
     "architectures": [
-      "armhf"
+      "armhf",
+      "amd64"
     ],
     "has_alsa_contribution": true
   },

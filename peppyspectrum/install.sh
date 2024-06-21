@@ -41,7 +41,7 @@ sudo chown -R volumio "$spath" "$customfolder"
 sudo chgrp -R volumio "$spath" "$customfolder"
 echo "installing apt packages"
 
-sudo apt-get -y install python3-pygame python3-pip
+sudo apt-get -y install python3-pygame python3-pip python3-dev libjpeg-dev zlib1g-dev
 ##echo "Installing peppyalsa plugin if needed"
 
 ARCH="$(arch)"
