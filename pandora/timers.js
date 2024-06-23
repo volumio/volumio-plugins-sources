@@ -73,6 +73,13 @@ class Timer {
 
         return libQ.resolve();
     }
+
+    is_active() {
+        const self = this;
+        const fnName = 'is_active';
+
+        return libQ.resolve(self.active);
+    }
 }
 
 class ExpireOldTracks extends Timer {
