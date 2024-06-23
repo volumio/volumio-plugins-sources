@@ -1,6 +1,6 @@
 {
   "name": "peppyspectrum",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "Peppy-spectrum for Volumio",
   "main": "index.js",
   "scripts": {
