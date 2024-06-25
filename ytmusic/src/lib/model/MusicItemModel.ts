@@ -8,14 +8,16 @@ import { ContentItem } from '../types';
 import EndpointHelper from '../util/EndpointHelper';
 
 // https://gist.github.com/sidneys/7095afe4da4ae58694d128b1034e01e2
+// https://gist.github.com/MartinEesmaa/2f4b261cb90a47e9c41ba115a011a4aa
 const ITAG_TO_BITRATE: Record<string, string> = {
   '139': '48',
   '140': '128',
   '141': '256',
   '171': '128',
-  '249': '50',
-  '250': '70',
-  '251': '160'
+  '249': 'VBR 50',
+  '250': 'VBR 70',
+  '251': 'VBR 160',
+  '774': 'VBR 256'
 };
 
 const BEST_AUDIO_FORMAT: FormatOptions = {

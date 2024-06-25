@@ -11,8 +11,8 @@ export abstract class BaseModel {
 
   protected async expandSectionList(response: IParsedResponse, url: '/browse' | '/search') {
     const { innertube } = await this.getInnertube();
-    const sectionList = response.contents_memo?.getType(YTNodes.SectionList)?.first();
-    if (sectionList) {
+    const sectionLists = response.contents_memo?.getType(YTNodes.SectionList) || [];
+    for (const sectionList of sectionLists) {
       let sectionListContinuation = sectionList.continuation;
       if (sectionList.continuation_type !== 'next') {
         sectionListContinuation = undefined;
