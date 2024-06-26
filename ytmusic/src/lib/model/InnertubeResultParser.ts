@@ -5,6 +5,7 @@ import { ContentItem, PageElement } from '../types';
 import { SectionItem } from '../types/PageElement';
 import EndpointHelper from '../util/EndpointHelper';
 import { ContentOf, PageContent, WatchContent, WatchContinuationContent } from '../types/Content';
+import { TextRun } from 'volumio-youtubei.js/dist/src/parser/misc';
 
 type ParseableInnertubeResponse = INextResponse | ISearchResponse | IBrowseResponse | IParsedResponse;
 
@@ -210,7 +211,7 @@ export default class InnertubeResultParser {
     if (data.header) {
       const dataHeader = this.unwrap(data.header);
       if (dataHeader && !Array.isArray(dataHeader)) {
-        const header = this.#parseHeader(dataHeader);
+        const header = this.#parseHeader(dataHeader, originatingEndpoint);
         if (header) {
           result.header = header;
         }
@@ -222,6 +223,16 @@ export default class InnertubeResultParser {
     if (dataContents && !Array.isArray(dataContents) && dataContents.hasKey('tabs')) {
       const tabs = this.unwrap(dataContents.tabs);
       if (tabs && Array.isArray(tabs)) {
+        if (!result.header) {
+          // Album / Playlist has MusicResponsiveHeader wrapped in 'content'
+          const hiddenHeader = this.#findNodesByType(tabs, YTNodes.MusicResponsiveHeader)?.[0];
+          if (hiddenHeader) {
+            const header = this.#parseHeader(hiddenHeader, originatingEndpoint);
+            if (header) {
+              result.header = header;
+            }
+          }
+        }
         const reducedTabs = tabs.reduce<PageElement.Tab[]>((result, tab) => {
           const endpoint = this.parseEndpoint(tab.endpoint) || originatingEndpoint;
           let tabTitle = this.unwrap(tab.title);
@@ -267,10 +278,18 @@ export default class InnertubeResultParser {
       }
     }
 
+    if (dataContents && !Array.isArray(dataContents) && dataContents.hasKey('secondary_contents')) {
+      const secondaryContents = this.unwrap(dataContents.secondary_contents);
+      const parsedSection = this.#parseContentToSection({contents: secondaryContents} as SectionContent, originatingEndpoint.type);
+      if (parsedSection) {
+        result.sections.push(parsedSection);
+      }
+    }
+
     return result;
   }
 
-  static #parseHeader(data: YTHelpers.YTNode): PageElement.Header | PageElement.PlaylistHeader | null {
+  static #parseHeader(data: YTHelpers.YTNode, originatingEndpoint: Endpoint): PageElement.Header | PageElement.PlaylistHeader | null {
     if (!data) {
       return null;
     }
@@ -278,7 +297,7 @@ export default class InnertubeResultParser {
     // MusicEditablePlaylistDetailHeader
     // Occurs in playlists; wraps around actual header (MusicDetailHeader)
     if (data instanceof YTNodes.MusicEditablePlaylistDetailHeader) {
-      return this.#parseHeader(data.header);
+      return this.#parseHeader(data.header, originatingEndpoint);
     }
 
     let type: PageElement.Header['type'] | null = null,
@@ -305,6 +324,7 @@ export default class InnertubeResultParser {
       }
     }
     // Album / Playlist
+    // -- Legacy: might remove in future - should now be MusicResponsiveHeader
     else if (data instanceof YTNodes.MusicDetailHeader) {
       title = this.unwrap(data.title);
       if (data.description) {
@@ -368,6 +388,65 @@ export default class InnertubeResultParser {
         }
       }
     }
+    else if (data instanceof YTNodes.MusicResponsiveHeader) {
+      title = this.unwrap(data.title);
+      if (data.description) {
+        description = this.unwrap(data.description.description);
+      }
+      const textOne = data.strapline_text_one;
+      const textOneStr = this.unwrap(textOne);
+      const textOneEndpoint = textOne.endpoint;
+      if (textOneEndpoint && textOneStr) {
+        const authorTextRun = textOne.runs?.find((run) => {
+          const runEndpoint = this.parseEndpoint((run as TextRun).endpoint, EndpointType.Browse);
+          return EndpointHelper.isChannelEndpoint(runEndpoint);
+        }) as TextRun;
+        const authorEndpoint = authorTextRun.endpoint;
+        const channelId = this.parseEndpoint(authorEndpoint, EndpointType.Browse)?.payload.browseId;
+        if (channelId) {
+          channel = {
+            type: 'channel',
+            channelId,
+            name: textOneStr,
+            endpoint
+          };
+        }
+      }
+      const primarySubtitle = this.unwrap(data.subtitle);
+      const secondSubtitle = this.unwrap(data.second_subtitle);
+      if (primarySubtitle) {
+        subtitles.push(primarySubtitle);
+      }
+      if (secondSubtitle) {
+        subtitles.push(secondSubtitle);
+      }
+      thumbnail = this.parseThumbnail(data.thumbnail?.contents);
+      // Type
+      type = EndpointHelper.isAlbumEndpoint(originatingEndpoint) ? 'album' : 'playlist';
+      // Play endpoint
+      const playButton = data.buttons.find((button) => button instanceof YTNodes.MusicPlayButton) as YTNodes.MusicPlayButton | undefined;
+      if (playButton) {
+        endpoint = this.parseEndpoint(playButton.endpoint, EndpointType.Watch);
+      }
+      // Shuffle endpoint
+      const mdhMenu = data.buttons.find((button) => button instanceof YTNodes.Menu);
+      if (mdhMenu instanceof YTNodes.Menu) {
+        for (const menuItem of mdhMenu.items) {
+          if (menuItem instanceof YTNodes.MenuNavigationItem && menuItem.icon_type === 'MUSIC_SHUFFLE') {
+            const mdhShufflePlayEndpoint = this.parseEndpoint(menuItem.endpoint, EndpointType.Watch);
+            const mdhShufflePlayText = this.unwrap(menuItem.text);
+            if (mdhShufflePlayEndpoint && mdhShufflePlayText) {
+              shufflePlay = {
+                type: 'endpointLink',
+                title: mdhShufflePlayText,
+                endpoint: mdhShufflePlayEndpoint,
+                icon: menuItem.icon_type
+              };
+            }
+          }
+        }
+      }
+    }
     // Generic - MusicHeader (e.g. Explore -> Charts)
     else if (data instanceof YTNodes.MusicHeader) {
       type = 'generic';
@@ -407,7 +486,6 @@ export default class InnertubeResultParser {
           playlistHeader.shufflePlay = shufflePlay;
         }
       }
-
       return result;
     }
 
