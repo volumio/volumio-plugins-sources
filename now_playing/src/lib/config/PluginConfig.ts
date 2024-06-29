@@ -34,12 +34,16 @@ export interface MetadataServiceOptions {
   geniusAccessToken: string;
   excludeParenthesized: boolean;
   parenthesisType: 'round' | 'square' | 'round+square';
+  queryMusicServices: boolean;
+  enableSyncedLyrics: boolean;
 }
 
 export const DefaultMetadataServiceOptions: MetadataServiceOptions = {
   geniusAccessToken: '',
   excludeParenthesized: false,
-  parenthesisType: 'round'
+  parenthesisType: 'round',
+  queryMusicServices: true,
+  enableSyncedLyrics: true
 };
 
 export interface I18nOptions {

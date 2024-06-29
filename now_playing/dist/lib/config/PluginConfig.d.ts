@@ -26,6 +26,8 @@ export interface MetadataServiceOptions {
     geniusAccessToken: string;
     excludeParenthesized: boolean;
     parenthesisType: 'round' | 'square' | 'round+square';
+    queryMusicServices: boolean;
+    enableSyncedLyrics: boolean;
 }
 export declare const DefaultMetadataServiceOptions: MetadataServiceOptions;
 export interface I18nOptions {

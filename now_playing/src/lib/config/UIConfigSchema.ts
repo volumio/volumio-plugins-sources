@@ -45,7 +45,9 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'accessTokenGuide' | 
     'excludeParenthesized' | 
     'parenthesisType' | 
-    'clearMetadataCache' :
+    'clearMetadataCache' | 
+    'queryMusicServices' | 
+    'enableSyncedLyrics' :
 
   K extends 'section_weather_service' ?
     'clearWeatherCache' :
@@ -81,6 +83,7 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'mediaInfoFontSize' | 
     'seekTimeFontSize' | 
     'metadataFontSize' | 
+    'syncedLyricsCurrentLineFontSize' | 
     'fontColors' | 
     'titleFontColor' | 
     'artistFontColor' | 
@@ -88,6 +91,8 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'mediaInfoFontColor' | 
     'seekTimeFontColor' | 
     'metadataFontColor' | 
+    'syncedLyricsColor' | 
+    'syncedLyricsCurrentLineColor' | 
     'textMargins' | 
     'titleMargin' | 
     'artistMargin' | 
@@ -310,7 +315,8 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'unmountNowPlayingScreenOnExit' | 
     'unmountBrowseScreenOnExit' | 
     'unmountQueueScreenOnExit' | 
-    'unmountVolumioScreenOnExit' :
+    'unmountVolumioScreenOnExit' | 
+    'syncedLyricsDelay' :
 
   K extends 'section_backup_config' ?
     'backupName' :
@@ -345,6 +351,8 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'excludeParenthesized' ? UIConfigSwitch<K> :
     C extends 'parenthesisType' ? UIConfigSelect<K> :
     C extends 'clearMetadataCache' ? UIConfigButton<K> :
+    C extends 'queryMusicServices' ? UIConfigSwitch<K> :
+    C extends 'enableSyncedLyrics' ? UIConfigSwitch<K> :
     never
   ) : 
 
@@ -388,6 +396,7 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'mediaInfoFontSize' ? UIConfigInput<K, 'text'> :
     C extends 'seekTimeFontSize' ? UIConfigInput<K, 'text'> :
     C extends 'metadataFontSize' ? UIConfigInput<K, 'text'> :
+    C extends 'syncedLyricsCurrentLineFontSize' ? UIConfigInput<K, 'text'> :
     C extends 'fontColors' ? UIConfigSelect<K> :
     C extends 'titleFontColor' ? UIConfigInput<K, 'color'> :
     C extends 'artistFontColor' ? UIConfigInput<K, 'color'> :
@@ -395,6 +404,8 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'mediaInfoFontColor' ? UIConfigInput<K, 'color'> :
     C extends 'seekTimeFontColor' ? UIConfigInput<K, 'color'> :
     C extends 'metadataFontColor' ? UIConfigInput<K, 'color'> :
+    C extends 'syncedLyricsColor' ? UIConfigInput<K, 'color'> :
+    C extends 'syncedLyricsCurrentLineColor' ? UIConfigInput<K, 'color'> :
     C extends 'textMargins' ? UIConfigSelect<K> :
     C extends 'titleMargin' ? UIConfigInput<K, 'text'> :
     C extends 'artistMargin' ? UIConfigInput<K, 'text'> :
@@ -644,6 +655,7 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'unmountBrowseScreenOnExit' ? UIConfigSwitch<K> :
     C extends 'unmountQueueScreenOnExit' ? UIConfigSwitch<K> :
     C extends 'unmountVolumioScreenOnExit' ? UIConfigSwitch<K> :
+    C extends 'syncedLyricsDelay' ? UIConfigInput<K, 'number'> :
     never
   ) : 
 

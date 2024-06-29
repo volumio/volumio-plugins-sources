@@ -191,6 +191,7 @@ class ControllerNowPlaying {
             mediaInfoFontSize: data.mediaInfoFontSize,
             seekTimeFontSize: data.seekTimeFontSize,
             metadataFontSize: data.metadataFontSize,
+            syncedLyricsCurrentLineFontSize: data.syncedLyricsCurrentLineFontSize,
             fontColors: data.fontColors.value,
             titleFontColor: data.titleFontColor,
             artistFontColor: data.artistFontColor,
@@ -198,6 +199,8 @@ class ControllerNowPlaying {
             mediaInfoFontColor: data.mediaInfoFontColor,
             seekTimeFontColor: data.seekTimeFontColor,
             metadataFontColor: data.metadataFontColor,
+            syncedLyricsColor: data.syncedLyricsColor,
+            syncedLyricsCurrentLineColor: data.syncedLyricsCurrentLineColor,
             textAlignmentH: data.textAlignmentH.value,
             textAlignmentV: data.textAlignmentV.value,
             textAlignmentLyrics: data.textAlignmentLyrics.value,
@@ -354,7 +357,9 @@ class ControllerNowPlaying {
         const settings = {
             geniusAccessToken: token,
             excludeParenthesized: data['excludeParenthesized'],
-            parenthesisType: data['parenthesisType'].value
+            parenthesisType: data['parenthesisType'].value,
+            queryMusicServices: data['queryMusicServices'],
+            enableSyncedLyrics: data['enableSyncedLyrics']
         };
         NowPlayingContext_1.default.setConfigValue('metadataService', settings);
         MetadataAPI_1.default.updateSettings(settings);
@@ -412,6 +417,7 @@ class ControllerNowPlaying {
         __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.Theme);
     }
     configSavePerformanceSettings(data) {
+        const syncedLyricsDelay = data.syncedLyricsDelay !== '' ? parseInt(data.syncedLyricsDelay, 10) : 0;
         const settings = {
             transitionEffectsKiosk: data.transitionEffectsKiosk,
             transitionEffectsOtherDevices: data.transitionEffectsOtherDevices,
@@ -419,7 +425,8 @@ class ControllerNowPlaying {
             unmountNowPlayingScreenOnExit: data.unmountNowPlayingScreenOnExit,
             unmountBrowseScreenOnExit: data.unmountBrowseScreenOnExit,
             unmountQueueScreenOnExit: data.unmountQueueScreenOnExit,
-            unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit
+            unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit,
+            syncedLyricsDelay
         };
         NowPlayingContext_1.default.setConfigValue('performance', settings);
         NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
@@ -637,6 +644,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
         type: 'openUrl',
         url: accessTokenSetupUrl
     };
+    metadataServiceUIConf.content.queryMusicServices.value = metadataServiceOptions.queryMusicServices;
+    metadataServiceUIConf.content.enableSyncedLyrics.value = metadataServiceOptions.enableSyncedLyrics;
     const startupOptions = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.Startup);
     startupOptionsUIConf.content.activeScreen.value = {
         value: startupOptions.activeScreen,
@@ -695,6 +704,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.mediaInfoFontSize.value = nowPlayingScreen.mediaInfoFontSize;
     textStylesUIConf.content.seekTimeFontSize.value = nowPlayingScreen.seekTimeFontSize;
     textStylesUIConf.content.metadataFontSize.value = nowPlayingScreen.metadataFontSize;
+    textStylesUIConf.content.syncedLyricsCurrentLineFontSize.value = nowPlayingScreen.syncedLyricsCurrentLineFontSize;
     textStylesUIConf.content.fontColors.value = {
         value: nowPlayingScreen.fontColors,
         label: nowPlayingScreen.fontColors == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -705,6 +715,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.mediaInfoFontColor.value = nowPlayingScreen.mediaInfoFontColor;
     textStylesUIConf.content.seekTimeFontColor.value = nowPlayingScreen.seekTimeFontColor;
     textStylesUIConf.content.metadataFontColor.value = nowPlayingScreen.metadataFontColor;
+    textStylesUIConf.content.syncedLyricsColor.value = nowPlayingScreen.syncedLyricsColor;
+    textStylesUIConf.content.syncedLyricsCurrentLineColor.value = nowPlayingScreen.syncedLyricsCurrentLineColor;
     textStylesUIConf.content.textMargins.value = {
         value: nowPlayingScreen.textMargins,
         label: nowPlayingScreen.textMargins == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -1828,6 +1840,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     performanceUIConf.content.unmountBrowseScreenOnExit.value = performanceSettings.unmountBrowseScreenOnExit;
     performanceUIConf.content.unmountQueueScreenOnExit.value = performanceSettings.unmountQueueScreenOnExit;
     performanceUIConf.content.unmountVolumioScreenOnExit.value = performanceSettings.unmountVolumioScreenOnExit;
+    performanceUIConf.content.syncedLyricsDelay.value = UIConfigHelper_1.default.sanitizeNumberInput(performanceSettings.syncedLyricsDelay);
     // Backup Config conf
     const backups = await ConfigBackupHelper_1.default.getBackupNames();
     if (backups.length > 0) {

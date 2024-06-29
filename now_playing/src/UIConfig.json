@@ -144,7 +144,9 @@
         "data": [
           "geniusAccessToken",
           "excludeParenthesized",
-          "parenthesisType"
+          "parenthesisType",
+          "queryMusicServices",
+          "enableSyncedLyrics"
         ]
       },
       "content": [
@@ -209,6 +211,20 @@
                 "method": "clearMetadataCache"
             }
           }
+        },
+        {
+          "id": "queryMusicServices",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_QUERY_MUSIC_SERVICES",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_QUERY_MUSIC_SERVICES",
+          "value": false
+        },
+        {
+          "id": "enableSyncedLyrics",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLE_SYNCED_LYRICS",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_ENABLE_SYNCED_LYRICS",
+          "value": false
         }
       ]
     },
@@ -409,6 +425,7 @@
           "mediaInfoFontSize",
           "seekTimeFontSize",
           "metadataFontSize",
+          "syncedLyricsCurrentLineFontSize",
           "fontColors",
           "titleFontColor",
           "artistFontColor",
@@ -416,6 +433,8 @@
           "mediaInfoFontColor",
           "seekTimeFontColor",
           "metadataFontColor",
+          "syncedLyricsColor",
+          "syncedLyricsCurrentLineColor",
           "textMargins",
           "titleMargin",
           "artistMargin",
@@ -725,6 +744,18 @@
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
           "label": "TRANSLATE.NOW_PLAYING_METADATA",
           "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsCurrentLineFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_CURRENT_LINE",
+          "value": "",
           "attributes": [
             { "style": "margin-bottom: 32px;" }
           ],
@@ -818,6 +849,30 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
           "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsCurrentLineColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_CURRENT_LINE",
           "value": "",
           "visibleIf": {
             "field": "fontColors",
@@ -4227,7 +4282,8 @@
           "unmountNowPlayingScreenOnExit",
           "unmountBrowseScreenOnExit",
           "unmountQueueScreenOnExit",
-          "unmountVolumioScreenOnExit"
+          "unmountVolumioScreenOnExit",
+          "syncedLyricsDelay"
         ]
       },
       "content": [
@@ -4304,6 +4360,14 @@
             "field": "unmountScreensOnExit",
             "value": "custom"
           }
+        },
+        {
+          "id": "syncedLyricsDelay",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_DELAY",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_SYNCED_LYRICS_DELAY",
+          "value": ""
         }
       ]
     },

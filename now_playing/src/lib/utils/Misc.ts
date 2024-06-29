@@ -2,6 +2,7 @@
 // @ts-ignore
 import libQ from 'kew';
 
+import lodash from 'lodash';
 import * as SystemUtils from './System';
 import np from '../NowPlayingContext';
 
@@ -57,4 +58,18 @@ export function removeSongNumber(name: string) {
   const matches = name.match(songNameRegex);
   const newName = matches && matches?.length > 1 ? matches[1] : name;
   return newName;
+}
+
+const mergeSettingsCustomizer = (target: any, src: any): any => {
+  if (typeof target === 'object' && !Array.isArray(target)) {
+    return lodash.mergeWith(target, src, mergeSettingsCustomizer);
+  }
+  if (target === undefined || target === null || (typeof target === 'string' && target.trim() === '')) {
+    return src;
+  }
+  return target;
+};
+
+export function assignObjectEmptyProps<TObject, TSrc1, TSrc2>(object: TObject, src1: TSrc1, src2: TSrc2) {
+  return lodash.mergeWith(object, src1, src2, mergeSettingsCustomizer);
 }

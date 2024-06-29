@@ -11,7 +11,9 @@ const StartupOptions_1 = require("now-playing-common/dist/config/StartupOptions"
 exports.DefaultMetadataServiceOptions = {
     geniusAccessToken: '',
     excludeParenthesized: false,
-    parenthesisType: 'round'
+    parenthesisType: 'round',
+    queryMusicServices: true,
+    enableSyncedLyrics: true
 };
 exports.PLUGIN_CONFIG_SCHEMA = {
     port: { defaultValue: 4004, json: false },

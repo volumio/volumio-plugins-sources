@@ -66,6 +66,8 @@
   "NOW_PLAYING_TRACK_INFO_MARQUEE_TITLE": "Apply Marquee Effect on Track Info Title",
   "NOW_PLAYING_SEEK_TIME": "- Seek Bar Times",
   "NOW_PLAYING_METADATA": "- Metadata",
+  "NOW_PLAYING_SYNCED_LYRICS": "- Synced Lyrics",
+  "NOW_PLAYING_SYNCED_LYRICS_CURRENT_LINE": "- Synced Lyrics Current Line",
   "NOW_PLAYING_PRIMARY": "- Primary",
   "NOW_PLAYING_HIGHLIGHT": "- Highlight",
   "NOW_PLAYING_PLAYBACK_BUTTONS": "- Playback Buttons",
@@ -189,6 +191,9 @@
   "NOW_PLAYING_ROUND_SQUARE_BRACKETS": "(Round) + [Square] brackets",
   "NOW_PLAYING_CLEAR_CACHE": "Clear Cache",
   "NOW_PLAYING_CACHE_CLEARED": "Cache Cleared",
+  "NOW_PLAYING_QUERY_MUSIC_SERVICES": "Query Music Service Plugins",
+  "NOW_PLAYING_ENABLE_SYNCED_LYRICS": "Enable Synced Lyrics",
+  "NOW_PLAYING_SYNCED_LYRICS_DELAY": "Synced Lyrics Delay",
   "NOW_PLAYING_LOCALIZATION": "Localization",
   "NOW_PLAYING_GEO_COORD": "Geographic Coordinates (Latitude, Longitude)",
   "NOW_PLAYING_GEO_COORD_GUIDE": "Geographic Coordinates Guide",
@@ -331,5 +336,8 @@
   "NOW_PLAYING_ERR_NO_BACKUP_NAME": "No backup name provided",
   "NOW_PLAYING_ERR_BACKUP_CONFIG": "Failed to backup settings: {}",
   "NOW_PLAYING_ERR_RESTORE_CONFIG": "Failed to restore settings: {}",
-  "NOW_PLAYING_ERR_DELETE_BACKUP": "Failed to delete backup: {}"
+  "NOW_PLAYING_ERR_DELETE_BACKUP": "Failed to delete backup: {}",
+  "NOW_PLAYING_DOC_QUERY_MUSIC_SERVICES": "Whether to query the relevant music service plugin for metadata.",
+  "NOW_PLAYING_DOC_ENABLE_SYNCED_LYRICS": "If disabled, synced lyrics will be displayed as plain text.",
+  "NOW_PLAYING_DOC_SYNCED_LYRICS_DELAY": "Shifts the synced lyrics timing (in milliseconds) forwards or backwards."
 }

@@ -18,6 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const string_format_1 = __importDefault(require("string-format"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const PluginConfig_1 = require("./config/PluginConfig");
+const Misc_1 = require("./utils/Misc");
 const DUMMY_DEVICE_INFO = {
     name: 'Volumio',
     id: '1234567890',
@@ -87,6 +88,9 @@ class NowPlayingContext {
     getPluginSetting(type, plugin, setting) {
         return __classPrivateFieldGet(this, _NowPlayingContext_pluginContext, "f").coreCommand.executeOnPlugin(type, plugin, 'getConfigParam', setting);
     }
+    getMusicServicePlugin(name) {
+        return __classPrivateFieldGet(this, _NowPlayingContext_pluginContext, "f").coreCommand.pluginManager.getPlugin('music_service', name) || null;
+    }
     getErrorMessage(message, error, stack = true) {
         let result = message;
         if (typeof error == 'object') {
@@ -114,7 +118,9 @@ class NowPlayingContext {
             const val = __classPrivateFieldGet(this, _NowPlayingContext_pluginConfig, "f").get(key);
             if (schema.json) {
                 try {
-                    return JSON.parse(val);
+                    const parseVal = JSON.parse(val);
+                    const merged = (0, Misc_1.assignObjectEmptyProps)({}, parseVal, schema.defaultValue);
+                    return merged;
                 }
                 catch (e) {
                     return schema.defaultValue;

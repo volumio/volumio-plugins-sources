@@ -11,6 +11,8 @@ declare class MetadataAPI {
         name: string;
         album?: string;
         artist?: string;
+        uri?: string;
+        service?: string;
     }): Promise<Metadata>;
 }
 declare const metadataAPI: MetadataAPI;
