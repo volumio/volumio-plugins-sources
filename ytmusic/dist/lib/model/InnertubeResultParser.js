@@ -504,6 +504,48 @@ class InnertubeResultParser {
         }
         return null;
     }
+    static parseLyrics(response) {
+        // Try parse synced lyrics
+        // Note TimedLyrics is introspected by Innertube
+        const syncedLyricsRawData = response.contents_memo?.get('TimedLyrics')?.[0];
+        if (syncedLyricsRawData) {
+            if (syncedLyricsRawData.hasKey('lyrics_data') && Reflect.has(syncedLyricsRawData.lyrics_data, 'timedLyricsData')) {
+                const timedLyricsData = syncedLyricsRawData.lyrics_data.timedLyricsData;
+                if (typeof timedLyricsData === 'object') {
+                    const isValid = Object.values(timedLyricsData).every((line) => typeof line === 'object' &&
+                        Reflect.has(line, 'lyricLine') &&
+                        Reflect.has(line, 'cueRange') &&
+                        typeof line.cueRange === 'object' &&
+                        Reflect.has(line.cueRange, 'startTimeMilliseconds'));
+                    if (isValid) {
+                        const lines = Object.values(timedLyricsData).map((line) => ({
+                            text: line.lyricLine,
+                            start: line.cueRange.startTimeMilliseconds,
+                            end: line.cueRange.endTimeMilliseconds
+                        }));
+                        return {
+                            type: 'synced',
+                            lines
+                        };
+                    }
+                }
+            }
+            throw Error('Invalid synced lyrics data');
+        }
+        // Try parse plain lyrics
+        const shelf = response.contents_memo?.getType(volumio_youtubei_js_1.YTNodes.MusicDescriptionShelf).first();
+        if (shelf) {
+            const lyricsText = shelf.description.text;
+            if (lyricsText) {
+                const lines = lyricsText.split('\n');
+                return {
+                    type: 'plain',
+                    lines
+                };
+            }
+        }
+        return null;
+    }
 }
 exports.default = InnertubeResultParser;
 _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpointResult = function _InnertubeResultParser_parseWatchContinuationEndpointResult(data) {
@@ -802,6 +844,8 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
             }
         }
     }
+    // Album / Playlist
+    // -- Current (replaces MusicDetailHeader)
     else if (data instanceof volumio_youtubei_js_1.YTNodes.MusicResponsiveHeader) {
         title = this.unwrap(data.title);
         if (data.description) {

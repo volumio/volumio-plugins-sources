@@ -6,9 +6,7 @@ import ytmusic from '../../YTMusicContext';
 import Model, { ModelType } from '../../model';
 import { EndpointType } from '../../types/Endpoint';
 import { kewToJSPromise } from '../../util';
-import { ExplodedTrackInfo } from '../browse/view-handlers/ExplodableViewHandler';
 import { QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
-import { MusicItemView } from '../browse/view-handlers/MusicItemViewHandler';
 import ViewHelper from '../browse/view-handlers/ViewHelper';
 import ExplodeHelper from '../../util/ExplodeHelper';
 import { ContentItem } from '../../types';
@@ -17,7 +15,6 @@ import AutoplayHelper from '../../util/AutoplayHelper';
 import AutoplayContext from '../../types/AutoplayContext';
 import { AlbumView } from '../browse/view-handlers/AlbumViewHandler';
 import { GenericView } from '../browse/view-handlers/GenericViewHandler';
-import EndpointHelper from '../../util/EndpointHelper';
 import EventEmitter from 'events';
 
 interface MpdState {
@@ -82,7 +79,7 @@ export default class PlayController {
 
     this.#prefetchPlaybackStateFixer?.notifyPrefetchCleared();
 
-    const {videoId, info: playbackInfo} = await this.#getPlaybackInfoFromUri(track.uri);
+    const {videoId, info: playbackInfo} = await PlayController.getPlaybackInfoFromUri(track.uri);
 
     if (!playbackInfo) {
       throw Error(`Could not obtain playback info for: ${videoId})`);
@@ -179,23 +176,8 @@ export default class PlayController {
     return ytmusic.getStateMachine().previous();
   }
 
-  #getExplodedTrackInfoFromUri(uri: string): ExplodedTrackInfo | null {
-    if (!uri) {
-      return null;
-    }
-
-    const trackView = ViewHelper.getViewsFromUri(uri)[1] as MusicItemView;
-
-    if (!trackView || (trackView.name !== 'video' && trackView.name !== 'song') ||
-      !EndpointHelper.isType(trackView.explodeTrackData?.endpoint, EndpointType.Watch)) {
-      return null;
-    }
-
-    return trackView.explodeTrackData;
-  }
-
-  async #getPlaybackInfoFromUri(uri: QueueItem['uri']): Promise<{videoId: string; info: MusicItemPlaybackInfo | null}> {
-    const endpoint = this.#getExplodedTrackInfoFromUri(uri)?.endpoint;
+  static async getPlaybackInfoFromUri(uri: QueueItem['uri']): Promise<{videoId: string; info: MusicItemPlaybackInfo | null}> {
+    const endpoint = ExplodeHelper.getExplodedTrackInfoFromUri(uri)?.endpoint;
     const videoId = endpoint?.payload?.videoId;
 
     if (!videoId) {
@@ -318,7 +300,7 @@ export default class PlayController {
   }
 
   async #getAutoplayItems(): Promise<QueueItem[]> {
-    const explodedTrackInfo = this.#getExplodedTrackInfoFromUri(this.#lastPlaybackInfo?.track?.uri);
+    const explodedTrackInfo = ExplodeHelper.getExplodedTrackInfoFromUri(this.#lastPlaybackInfo?.track?.uri);
     const autoplayContext = explodedTrackInfo?.autoplayContext;
 
     if (autoplayContext) {
@@ -374,7 +356,7 @@ export default class PlayController {
 
     if (autoplayItems.length === 0) {
       // Fetch from radio endpoint as last resort.
-      const playbackInfo = await this.#getPlaybackInfoFromUri(this.#lastPlaybackInfo.track.uri);
+      const playbackInfo = await PlayController.getPlaybackInfoFromUri(this.#lastPlaybackInfo.track.uri);
       const radioEndpoint = playbackInfo.info?.radioEndpoint;
       if (radioEndpoint && (!autoplayContext || radioEndpoint.payload.playlistId !== autoplayContext.fetchEndpoint.payload.playlistId)) {
         const radioContents = await endpointModel.getContents(radioEndpoint);
@@ -420,7 +402,7 @@ export default class PlayController {
     }
     let streamUrl;
     try {
-      const { videoId, info: playbackInfo } = await this.#getPlaybackInfoFromUri(track.uri);
+      const { videoId, info: playbackInfo } = await PlayController.getPlaybackInfoFromUri(track.uri);
       streamUrl = playbackInfo?.stream?.url;
       if (!streamUrl || !playbackInfo) {
         throw Error(`Stream not found for: '${videoId}'`);
@@ -447,7 +429,7 @@ export default class PlayController {
   }
 
   async getGotoUri(type: 'album' | 'artist', uri: QueueItem['uri']): Promise<string | null> {
-    const playbackInfo = (await this.#getPlaybackInfoFromUri(uri))?.info;
+    const playbackInfo = (await PlayController.getPlaybackInfoFromUri(uri))?.info;
     if (!playbackInfo) {
       return null;
     }
