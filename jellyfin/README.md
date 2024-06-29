@@ -19,8 +19,13 @@ You can add multiple servers, each with multple user accounts, and those that ar
   2. Also on the browsing screen, clicking the heart icon of a song that has been marked favorite will not unmark it. You would have to do it in Volumio -> Favorites. You can also unmark the song on the player screen *while it is playing*.
   3. When playing a song with the Jellyfin plugin, the favorite status is reflected correctly by the heart icon on the player screen. However, during this time if you mark or unmark another song from any source as favorite, the heart icon will change to show the updated status of that song instead.
   4. The heart icon on the player screen can be used to mark or unmark a song as favorite *while it is playing*. However, if the song is not playing, Volumio will bypass the custom logic implemented in the Jellyfin plugin. The result is that the favorite status of the song will not be updated on the Jellyfin server and the song's URI added to Favorites will not be one canonicalized by the plugin.
+
+The [Jellyfin SDK]((https://github.com/patrickkfkan/jellyfin-sdk-typescript/)) used by this plugin was forked from https://github.com/jellyfin/jellyfin-sdk-typescript. It has been adapted to work under the Node 14 + CommonJS environment of Volumio.
   
 #### Changelog
+
+1.1.1
+- [Fixed] Missing dependency
 
 1.1.0
 - [Changed] Bump Jellyfin SDK v0.10.0. As a result, support moved to server version 10.9.x.
