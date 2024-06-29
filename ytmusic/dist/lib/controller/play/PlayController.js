@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_autoplayListener, _PlayController_lastPlaybackInfo, _PlayController_prefetchPlaybackStateFixer, _PlayController_addAutoplayListener, _PlayController_removeAutoplayListener, _PlayController_updateTrackWithPlaybackInfo, _PlayController_getExplodedTrackInfoFromUri, _PlayController_getPlaybackInfoFromUri, _PlayController_doPlay, _PlayController_appendTrackTypeToStreamUrl, _PlayController_mpdAddTags, _PlayController_handleAutoplay, _PlayController_findLastPlayedTrackQueueIndex, _PlayController_getAutoplayItems, _PrefetchPlaybackStateFixer_instances, _PrefetchPlaybackStateFixer_positionAtPrefetch, _PrefetchPlaybackStateFixer_prefetchedTrack, _PrefetchPlaybackStateFixer_volumioPushStateListener, _PrefetchPlaybackStateFixer_addPushStateListener, _PrefetchPlaybackStateFixer_removePushStateListener, _PrefetchPlaybackStateFixer_handleVolumioPushState;
+var _PlayController_instances, _PlayController_mpdPlugin, _PlayController_autoplayListener, _PlayController_lastPlaybackInfo, _PlayController_prefetchPlaybackStateFixer, _PlayController_addAutoplayListener, _PlayController_removeAutoplayListener, _PlayController_updateTrackWithPlaybackInfo, _PlayController_doPlay, _PlayController_appendTrackTypeToStreamUrl, _PlayController_mpdAddTags, _PlayController_handleAutoplay, _PlayController_findLastPlayedTrackQueueIndex, _PlayController_getAutoplayItems, _PrefetchPlaybackStateFixer_instances, _PrefetchPlaybackStateFixer_positionAtPrefetch, _PrefetchPlaybackStateFixer_prefetchedTrack, _PrefetchPlaybackStateFixer_volumioPushStateListener, _PrefetchPlaybackStateFixer_addPushStateListener, _PrefetchPlaybackStateFixer_removePushStateListener, _PrefetchPlaybackStateFixer_handleVolumioPushState;
 Object.defineProperty(exports, "__esModule", { value: true });
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -48,7 +48,6 @@ const util_1 = require("../../util");
 const ViewHelper_1 = __importDefault(require("../browse/view-handlers/ViewHelper"));
 const ExplodeHelper_1 = __importDefault(require("../../util/ExplodeHelper"));
 const AutoplayHelper_1 = __importDefault(require("../../util/AutoplayHelper"));
-const EndpointHelper_1 = __importDefault(require("../../util/EndpointHelper"));
 const events_1 = __importDefault(require("events"));
 class PlayController {
     constructor() {
@@ -77,7 +76,7 @@ class PlayController {
     async clearAddPlayTrack(track) {
         YTMusicContext_1.default.getLogger().info(`[ytmusic-play] clearAddPlayTrack: ${track.uri}`);
         __classPrivateFieldGet(this, _PlayController_prefetchPlaybackStateFixer, "f")?.notifyPrefetchCleared();
-        const { videoId, info: playbackInfo } = await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getPlaybackInfoFromUri).call(this, track.uri);
+        const { videoId, info: playbackInfo } = await PlayController.getPlaybackInfoFromUri(track.uri);
         if (!playbackInfo) {
             throw Error(`Could not obtain playback info for: ${videoId})`);
         }
@@ -146,6 +145,18 @@ class PlayController {
         YTMusicContext_1.default.getStateMachine().setConsumeUpdateService(undefined);
         return YTMusicContext_1.default.getStateMachine().previous();
     }
+    static async getPlaybackInfoFromUri(uri) {
+        const endpoint = ExplodeHelper_1.default.getExplodedTrackInfoFromUri(uri)?.endpoint;
+        const videoId = endpoint?.payload?.videoId;
+        if (!videoId) {
+            throw Error(`Invalid track uri: ${uri}`);
+        }
+        const model = model_1.default.getInstance(model_1.ModelType.MusicItem);
+        return {
+            videoId,
+            info: await model.getPlaybackInfo(endpoint)
+        };
+    }
     async prefetch(track) {
         const prefetchEnabled = YTMusicContext_1.default.getConfigValue('prefetch');
         if (!prefetchEnabled) {
@@ -164,7 +175,7 @@ class PlayController {
         }
         let streamUrl;
         try {
-            const { videoId, info: playbackInfo } = await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getPlaybackInfoFromUri).call(this, track.uri);
+            const { videoId, info: playbackInfo } = await PlayController.getPlaybackInfoFromUri(track.uri);
             streamUrl = playbackInfo?.stream?.url;
             if (!streamUrl || !playbackInfo) {
                 throw Error(`Stream not found for: '${videoId}'`);
@@ -187,7 +198,7 @@ class PlayController {
         return res;
     }
     async getGotoUri(type, uri) {
-        const playbackInfo = (await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getPlaybackInfoFromUri).call(this, uri))?.info;
+        const playbackInfo = (await PlayController.getPlaybackInfoFromUri(uri))?.info;
         if (!playbackInfo) {
             return null;
         }
@@ -256,27 +267,6 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_autoplayListener = ne
         track.samplerate = playbackInfo.stream.bitrate;
     }
     return track;
-}, _PlayController_getExplodedTrackInfoFromUri = function _PlayController_getExplodedTrackInfoFromUri(uri) {
-    if (!uri) {
-        return null;
-    }
-    const trackView = ViewHelper_1.default.getViewsFromUri(uri)[1];
-    if (!trackView || (trackView.name !== 'video' && trackView.name !== 'song') ||
-        !EndpointHelper_1.default.isType(trackView.explodeTrackData?.endpoint, Endpoint_1.EndpointType.Watch)) {
-        return null;
-    }
-    return trackView.explodeTrackData;
-}, _PlayController_getPlaybackInfoFromUri = async function _PlayController_getPlaybackInfoFromUri(uri) {
-    const endpoint = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getExplodedTrackInfoFromUri).call(this, uri)?.endpoint;
-    const videoId = endpoint?.payload?.videoId;
-    if (!videoId) {
-        throw Error(`Invalid track uri: ${uri}`);
-    }
-    const model = model_1.default.getInstance(model_1.ModelType.MusicItem);
-    return {
-        videoId,
-        info: await model.getPlaybackInfo(endpoint)
-    };
 }, _PlayController_doPlay = function _PlayController_doPlay(streamUrl, track) {
     const mpdPlugin = __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f");
     return (0, util_1.kewToJSPromise)(mpdPlugin.sendMpdCommand('stop', [])
@@ -363,7 +353,7 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_autoplayListener = ne
     }
     return -1;
 }, _PlayController_getAutoplayItems = async function _PlayController_getAutoplayItems() {
-    const explodedTrackInfo = __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getExplodedTrackInfoFromUri).call(this, __classPrivateFieldGet(this, _PlayController_lastPlaybackInfo, "f")?.track?.uri);
+    const explodedTrackInfo = ExplodeHelper_1.default.getExplodedTrackInfoFromUri(__classPrivateFieldGet(this, _PlayController_lastPlaybackInfo, "f")?.track?.uri);
     const autoplayContext = explodedTrackInfo?.autoplayContext;
     if (autoplayContext) {
         YTMusicContext_1.default.getLogger().info(`[ytmusic-play] Obtaining autoplay videos from endpoint: ${JSON.stringify(autoplayContext.fetchEndpoint)}`);
@@ -413,7 +403,7 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_autoplayListener = ne
     }
     if (autoplayItems.length === 0) {
         // Fetch from radio endpoint as last resort.
-        const playbackInfo = await __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_getPlaybackInfoFromUri).call(this, __classPrivateFieldGet(this, _PlayController_lastPlaybackInfo, "f").track.uri);
+        const playbackInfo = await PlayController.getPlaybackInfoFromUri(__classPrivateFieldGet(this, _PlayController_lastPlaybackInfo, "f").track.uri);
         const radioEndpoint = playbackInfo.info?.radioEndpoint;
         if (radioEndpoint && (!autoplayContext || radioEndpoint.payload.playlistId !== autoplayContext.fetchEndpoint.payload.playlistId)) {
             const radioContents = await endpointModel.getContents(radioEndpoint);

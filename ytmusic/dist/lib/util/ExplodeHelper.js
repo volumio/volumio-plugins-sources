@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const YTMusicContext_1 = __importDefault(require("../YTMusicContext"));
 const ViewHelper_1 = __importDefault(require("../controller/browse/view-handlers/ViewHelper"));
 const Endpoint_1 = require("../types/Endpoint");
+const EndpointHelper_1 = __importDefault(require("./EndpointHelper"));
 class ExplodeHelper {
     // Creates a bundle that contains the data needed by explode() to
     // Generate the final exploded item.
@@ -28,6 +29,17 @@ class ExplodeHelper {
             result.autoplayContext = data.autoplayContext;
         }
         return result;
+    }
+    static getExplodedTrackInfoFromUri(uri) {
+        if (!uri) {
+            return null;
+        }
+        const trackView = ViewHelper_1.default.getViewsFromUri(uri)[1];
+        if (!trackView || (trackView.name !== 'video' && trackView.name !== 'song') ||
+            !EndpointHelper_1.default.isType(trackView.explodeTrackData?.endpoint, Endpoint_1.EndpointType.Watch)) {
+            return null;
+        }
+        return trackView.explodeTrackData;
     }
     static validateExplodeUri(uri) {
         // Current view

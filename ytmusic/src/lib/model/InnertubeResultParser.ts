@@ -6,6 +6,7 @@ import { SectionItem } from '../types/PageElement';
 import EndpointHelper from '../util/EndpointHelper';
 import { ContentOf, PageContent, WatchContent, WatchContinuationContent } from '../types/Content';
 import { TextRun } from 'volumio-youtubei.js/dist/src/parser/misc';
+import { MetadataLyrics, MetadataSyncedLyrics } from 'now-playing-common';
 
 type ParseableInnertubeResponse = INextResponse | ISearchResponse | IBrowseResponse | IParsedResponse;
 
@@ -388,6 +389,8 @@ export default class InnertubeResultParser {
         }
       }
     }
+    // Album / Playlist
+    // -- Current (replaces MusicDetailHeader)
     else if (data instanceof YTNodes.MusicResponsiveHeader) {
       title = this.unwrap(data.title);
       if (data.description) {
@@ -1805,6 +1808,51 @@ export default class InnertubeResultParser {
       }
 
       return mainItem;
+    }
+
+    return null;
+  }
+
+  static parseLyrics(response: IParsedResponse): MetadataLyrics | null {
+    // Try parse synced lyrics
+    // Note TimedLyrics is introspected by Innertube
+    const syncedLyricsRawData = response.contents_memo?.get('TimedLyrics')?.[0];
+    if (syncedLyricsRawData) {
+      if (syncedLyricsRawData.hasKey('lyrics_data') && Reflect.has(syncedLyricsRawData.lyrics_data, 'timedLyricsData')) {
+        const timedLyricsData = syncedLyricsRawData.lyrics_data.timedLyricsData;
+        if (typeof timedLyricsData === 'object') {
+          const isValid = Object.values(timedLyricsData).every((line: any) =>
+            typeof line === 'object' &&
+            Reflect.has(line, 'lyricLine') &&
+            Reflect.has(line, 'cueRange') &&
+            typeof line.cueRange === 'object' &&
+            Reflect.has(line.cueRange, 'startTimeMilliseconds'));
+          if (isValid) {
+            const lines: MetadataSyncedLyrics['lines'] = Object.values(timedLyricsData).map((line: any) => ({
+              text: line.lyricLine,
+              start: line.cueRange.startTimeMilliseconds,
+              end: line.cueRange.endTimeMilliseconds
+            }));
+            return {
+              type: 'synced',
+              lines
+            };
+          }
+        }
+      }
+      throw Error('Invalid synced lyrics data');
+    }
+    // Try parse plain lyrics
+    const shelf = response.contents_memo?.getType(YTNodes.MusicDescriptionShelf).first();
+    if (shelf) {
+      const lyricsText = shelf.description.text;
+      if (lyricsText) {
+        const lines = lyricsText.split('\n');
+        return {
+          type: 'plain',
+          lines
+        };
+      }
     }
 
     return null;

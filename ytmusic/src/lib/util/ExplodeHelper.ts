@@ -6,6 +6,7 @@ import View from '../controller/browse/view-handlers/View';
 import ViewHelper from '../controller/browse/view-handlers/ViewHelper';
 import { ContentItem } from '../types';
 import { EndpointType, WatchContinuationEndpoint, WatchEndpoint } from '../types/Endpoint';
+import EndpointHelper from './EndpointHelper';
 
 export default class ExplodeHelper {
 
@@ -24,6 +25,21 @@ export default class ExplodeHelper {
       result.autoplayContext = data.autoplayContext;
     }
     return result;
+  }
+
+  static getExplodedTrackInfoFromUri(uri?: string | null): ExplodedTrackInfo | null {
+    if (!uri) {
+      return null;
+    }
+
+    const trackView = ViewHelper.getViewsFromUri(uri)[1] as MusicItemView;
+
+    if (!trackView || (trackView.name !== 'video' && trackView.name !== 'song') ||
+      !EndpointHelper.isType(trackView.explodeTrackData?.endpoint, EndpointType.Watch)) {
+      return null;
+    }
+
+    return trackView.explodeTrackData;
   }
 
   static validateExplodeUri(uri: string) {
