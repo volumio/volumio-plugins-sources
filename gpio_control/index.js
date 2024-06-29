@@ -5,7 +5,8 @@ const logging = false;
 // I used tomatpasser's gpio-buttons plugin as a basis for this project
 const libQ = require("kew");
 const fs = require("fs-extra");
-const Gpio = require("onoff").Gpio;
+//const Gpio = require("onoff").Gpio;
+const gpiox = require("@iiot2k/gpiox");
 const config = new (require("v-conf"))();
 const io = require('socket.io-client');
 const sleep = require('sleep');
@@ -291,7 +292,7 @@ GPIOControl.prototype.createGPIOs = function() {
 
 			self.log(msg);
 
-			const gpio = new Gpio(pin, "out");
+			/*const gpio = new Gpio(pin, "out");
 			gpio.e = e;
 			gpio.state = state ? 1 : 0;
 			gpio.pin = pin;
@@ -299,7 +300,21 @@ GPIOControl.prototype.createGPIOs = function() {
 			gpio.duration = duration;
 			gpio.delayTimeoutId = 0;
 			gpio.durationTimeoutId = 0;
+			*/
+
+			const gpio = {
+				e: e,
+				state: state ? 1 : 0,
+				pin: pin,
+				delay: delay,
+				duration: duration,
+				delayTimeoutId: 0,
+				durationTimeoutId: 0
+			};
+
 			self.GPIOs.push(gpio);
+
+			gpiox.init_gpio(pin, gpiox.GPIO_MODE_OUTPUT, state ? 0 : 1);
 		}
 	});
 
@@ -328,7 +343,8 @@ GPIOControl.prototype.clearGPIOs = function () {
 		clearTimeout(gpio.delayTimeoutId);
 		clearTimeout(gpio.durationTimeoutId);
 		self.log("Destroying GPIO " + gpio.pin);
-		gpio.unexport();
+		//gpio.unexport();
+		gpiox.deinit_gpio(gpio.pin);
 	});
 
 	self.GPIOs = [];
@@ -446,7 +462,8 @@ GPIOControl.prototype.handleEvent = function(e) {
 
 				self.log(`Turning GPIO ${gpio.pin} ${self.boolToString(gpio.state)} (${e})`);
 
-				gpio.writeSync(gpio.state);
+				//gpio.writeSync(gpio.state);
+				gpiox.set_gpio(gpio.pin, gpio.state);
 
 				// If a duration has been specified then write to GPIO after specified duration
 				if (gpio.duration > 0){
@@ -456,7 +473,8 @@ GPIOControl.prototype.handleEvent = function(e) {
 					// Create timeout to pull GPIO
 					gpio.durationTimeoutId = setTimeout(() => {
 						self.log(`Turning GPIO ${gpio.pin} ${self.boolToString(!gpio.state)} (${e})`);
-						gpio.writeSync(!gpio.state);
+						//gpio.writeSync(!gpio.state);
+						gpiox.set_gpio(gpio.pin, !gpio.state);
 					}, gpio.duration);
 				}
 			}, gpio.delay);

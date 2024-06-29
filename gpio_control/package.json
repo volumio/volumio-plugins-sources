@@ -1,6 +1,6 @@
 {
 	"name": "gpio_control",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"description": "GPIO output control for Volumio 3",
 	"main": "index.js",
 	"scripts": {
@@ -27,6 +27,7 @@
 		"volumio": ">=3"
 	},
 	"dependencies": {
+		"@iiot2k/gpiox": "^2.1.2",
 		"child_process": "",
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
