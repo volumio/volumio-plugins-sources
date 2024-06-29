@@ -16,8 +16,6 @@ import UserViewViewHandler from './UserViewViewHandler';
 import SongViewHandler from './SongViewHandler';
 import CollectionsViewHandler from './CollectionsViewHandler';
 import ServerHelper from '../../../util/ServerHelper';
-import jellyfin from '../../../JellyfinContext';
-import Server from '../../../entities/Server';
 
 type HandlerClass<V extends View, T extends BaseViewHandler<V>> =
   new (uri: string, currentView: V, previousViews: View[], connection: ServerConnection | null) => T;
@@ -56,41 +54,7 @@ export default class ViewHandlerFactory {
       throw Error('Invalid URI: no parseable view.');
     }
 
-    let connection: ServerConnection | null = null;
-    if (currentView.serverId) {
-      if (connectionTarget instanceof ConnectionManager) {
-        let username = currentView.username || '';
-        let targetServer: Server | null;
-        const isLegacyUri = !username;
-        if (isLegacyUri) {
-          const onlineServers = jellyfin.get<Server[]>('onlineServers', []);
-          targetServer = onlineServers.find((server) => server.id === currentView.serverId) || null;
-        }
-        else {
-          targetServer = ServerHelper.getOnlineServerByIdAndUsername(currentView.serverId, username);
-        }
-        if (!targetServer) {
-          throw Error('Server unavailable');
-        }
-        if (isLegacyUri) {
-          // Fetch username from server config
-          const matchUrl = targetServer.connectionUrl;
-          const serverConfEntries = ServerHelper.getServersFromConfig();
-          const serverConf = serverConfEntries.find((conf) => ServerHelper.getConnectionUrl(conf.url) === matchUrl);
-          if (serverConf) {
-            username = serverConf.username;
-          }
-          else {
-            throw Error('Could not obtain default username for legacy URI (no matching server config found)');
-          }
-        }
-        connection = await connectionTarget.getAuthenticatedConnection(
-          targetServer, username, ServerHelper.fetchPasswordFromConfig.bind(ServerHelper));
-      }
-      else {
-        connection = connectionTarget;
-      }
-    }
+    const connection = await ServerHelper.getConnectionByView(currentView, connectionTarget);
 
     return new VIEW_NAME_TO_CLASS[currentView.name](uri, currentView, previousViews, connection);
   }

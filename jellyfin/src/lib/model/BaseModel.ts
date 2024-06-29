@@ -1,5 +1,4 @@
 import { Api } from '@jellyfin/sdk';
-import { ItemsApiGetItemsByUserIdRequest } from '@jellyfin/sdk/lib/generated-client/api/items-api';
 import { getItemsApi } from '@jellyfin/sdk/lib/utils/api/items-api';
 import { getUserLibraryApi } from '@jellyfin/sdk/lib/utils/api/user-library-api';
 import { getFilterApi } from '@jellyfin/sdk/lib/utils/api/filter-api';
@@ -8,9 +7,10 @@ import { FilterApiGetQueryFiltersLegacyRequest } from '@jellyfin/sdk/lib/generat
 import { UserLibraryApiGetItemRequest } from '@jellyfin/sdk/lib/generated-client/api/user-library-api';
 import { ImageType } from '@jellyfin/sdk/lib/generated-client/models/image-type';
 import Parser from './parser/Parser';
-import { BaseItemDto, BaseItemKind, ItemFields, ItemFilter } from '@jellyfin/sdk/lib/generated-client/models';
+import { BaseItemDto, BaseItemKind, ItemFields, ItemFilter, ItemSortBy } from '@jellyfin/sdk/lib/generated-client/models';
 import ServerConnection from '../connection/ServerConnection';
 import { EntityType } from '../entities';
+import { ItemsApiGetItemsRequest } from '@jellyfin/sdk/lib/generated-client/api/items-api';
 
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
@@ -35,8 +35,8 @@ export interface GetItemsParams {
   parentId?: string;
   startIndex?: number;
   limit?: number; // Negative value: no limit
-  sortBy?: string[] | string | null; // `null`: do not set sortBy (use Jellyfin default)
-  sortOrder?: SortOrder[] | string | null; // `null`: do not set sortOrder (use Jellyfin default)
+  sortBy?: ItemSortBy[] | ItemSortBy | null; // `null`: do not set sortBy (use Jellyfin default)
+  sortOrder?: SortOrder[] | SortOrder | null; // `null`: do not set sortOrder (use Jellyfin default)
   recursive?: boolean;
   filters?: ItemFilter[] | string;
   nameStartsWith?: string;
@@ -83,7 +83,7 @@ export default class BaseModel {
     }
     else {
       const itemsApi = getItemsApi(this.#connection.api);
-      response = await itemsApi.getItemsByUserId(apiParams);
+      response = await itemsApi.getItems(apiParams);
     }
 
     const responseItems = response.data?.Items || [];
@@ -118,11 +118,11 @@ export default class BaseModel {
     return parser.parseDto(response.data, this.#connection.api);
   }
 
-  #toApiGetItemsParams(params: GetItemsParams): ItemsApiGetItemsByUserIdRequest {
+  #toApiGetItemsParams(params: GetItemsParams): ItemsApiGetItemsRequest {
     if (!this.#connection.auth?.User?.Id) {
       throw Error('No auth');
     }
-    const result: Mutable<ItemsApiGetItemsByUserIdRequest> = {
+    const result: Mutable<ItemsApiGetItemsRequest> = {
       userId: this.#connection.auth.User.Id,
       enableImageTypes: [ ImageType.Primary ],
       imageTypeLimit: 1,

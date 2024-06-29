@@ -39,7 +39,7 @@ class AlbumViewHandler extends FilterableViewHandler_1.default {
             const showAppearsOnList = listType === 'all' || listType === 'appearsOn';
             const albumNextView = { ...this.currentView, artistAlbumListType: 'albums' };
             const appearsOnNextView = { ...this.currentView, artistAlbumListType: 'appearsOn' };
-            const sortBy = 'PremiereDate,ProductionYear,Sortname';
+            const sortBy = [models_1.ItemSortBy.PremiereDate, models_1.ItemSortBy.ProductionYear, models_1.ItemSortBy.SortName];
             const sortOrder = models_1.SortOrder.Descending;
             let albumList, appearsOnList;
             if (view.artistId) {

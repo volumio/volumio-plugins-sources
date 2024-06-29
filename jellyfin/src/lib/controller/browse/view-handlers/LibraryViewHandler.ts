@@ -15,6 +15,7 @@ import { ArtistView } from './ArtistViewHandler';
 import { PlaylistView } from './PlaylistViewHandler';
 import { GenreView } from './GenreViewHandler';
 import { SongView } from './SongViewHandler';
+import { ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
 
 export interface LibraryView extends View {
   name: 'library';
@@ -135,14 +136,14 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
   #getLatestMusic(libraryId: string, baseUri: string): Promise<RenderedList> {
     const params: GetItemsParams = {
       parentId: libraryId,
-      sortBy: 'DateCreated,SortName',
-      sortOrder: 'Descending,Ascending',
+      sortBy: [ ItemSortBy.DateCreated, ItemSortBy.SortName ],
+      sortOrder: [ SortOrder.Descending, SortOrder.Ascending ],
       limit: jellyfin.getConfigValue('latestMusicSectionItems')
     };
     const albumView: AlbumView = {
       name: 'albums',
       parentId: libraryId,
-      sortBy: 'DateCreated,SortName',
+      sortBy: [ ItemSortBy.DateCreated, ItemSortBy.SortName ],
       sortOrder: 'Descending,Ascending',
       fixedView: 'latest'
     };
@@ -154,8 +155,8 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
   #getRecentlyPlayed(libraryId: string, baseUri: string): Promise<RenderedList> {
     const params: GetItemsParams = {
       parentId: libraryId,
-      sortBy: 'DatePlayed,SortName',
-      sortOrder: 'Descending,Ascending',
+      sortBy: [ ItemSortBy.DatePlayed, ItemSortBy.SortName ],
+      sortOrder: [ SortOrder.Descending, SortOrder.Ascending ],
       filters: 'IsPlayed',
       limit: jellyfin.getConfigValue('recentlyPlayedSectionItems')
     };
@@ -175,8 +176,8 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
   #getFrequentlyPlayed(libraryId: string, baseUri: string): Promise<RenderedList> {
     const params: GetItemsParams = {
       parentId: libraryId,
-      sortBy: 'PlayCount,SortName',
-      sortOrder: 'Descending,Ascending',
+      sortBy: [ ItemSortBy.PlayCount, ItemSortBy.SortName ],
+      sortOrder: [ SortOrder.Descending, SortOrder.Ascending ],
       filters: 'IsPlayed',
       limit: jellyfin.getConfigValue('frequentlyPlayedSectionItems')
     };

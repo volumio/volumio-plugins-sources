@@ -1,3 +1,4 @@
+import { ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
 import { EntityType } from '../entities';
 import Album from '../entities/Album';
 import Artist from '../entities/Artist';
@@ -22,8 +23,8 @@ export default class CollectionModel extends BaseModel {
     const overrideParams = {
       ...params,
       recursive: false,
-      sortBy: 'IsFolder,SortName',
-      sortOrder: 'Ascending'
+      sortBy: [ ItemSortBy.IsFolder, ItemSortBy.SortName ],
+      sortOrder: SortOrder.Ascending
     };
     return this.getItemsFromAPI<Collection>(overrideParams, parser);
   }
@@ -63,8 +64,8 @@ export default class CollectionModel extends BaseModel {
     const normalizedParams: GetItemsParams = {
       ...params,
       recursive: false,
-      sortBy: '',
-      sortOrder: '',
+      sortBy: null,
+      sortOrder: null,
       itemTypes: [ params.itemType ]
     };
 

@@ -34,7 +34,7 @@ class BaseModel {
         }
         else {
             const itemsApi = (0, items_api_1.getItemsApi)(__classPrivateFieldGet(this, _BaseModel_connection, "f").api);
-            response = await itemsApi.getItemsByUserId(apiParams);
+            response = await itemsApi.getItems(apiParams);
         }
         const responseItems = response.data?.Items || [];
         const filtered = await this.parseItemDtos(responseItems, parser);

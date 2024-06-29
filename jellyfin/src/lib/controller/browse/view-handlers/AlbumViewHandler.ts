@@ -8,7 +8,7 @@ import jellyfin from '../../../JellyfinContext';
 import { Explodable } from './Explodable';
 import { FilterType } from '../../../model/filter/FilterModel';
 import { GetItemsParams } from '../../../model/BaseModel';
-import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
+import { ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
 
 export interface AlbumView extends View {
   name: 'albums';
@@ -43,7 +43,7 @@ class AlbumViewHandler extends FilterableViewHandler<AlbumView> {
       const showAppearsOnList = listType === 'all' || listType === 'appearsOn';
       const albumNextView = { ...this.currentView, artistAlbumListType: 'albums' };
       const appearsOnNextView = { ...this.currentView, artistAlbumListType: 'appearsOn' };
-      const sortBy = 'PremiereDate,ProductionYear,Sortname';
+      const sortBy = [ ItemSortBy.PremiereDate, ItemSortBy.ProductionYear, ItemSortBy.SortName ];
       const sortOrder = SortOrder.Descending;
       let albumList, appearsOnList;
       if (view.artistId) {

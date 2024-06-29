@@ -13,7 +13,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _ControllerJellyfin_instances, _ControllerJellyfin_context, _ControllerJellyfin_config, _ControllerJellyfin_commandRouter, _ControllerJellyfin_serverPoller, _ControllerJellyfin_connectionManager, _ControllerJellyfin_browseController, _ControllerJellyfin_searchController, _ControllerJellyfin_playController, _ControllerJellyfin_addToBrowseSources, _ControllerJellyfin_setSongFavorite;
+var _ControllerJellyfin_instances, _ControllerJellyfin_context, _ControllerJellyfin_config, _ControllerJellyfin_commandRouter, _ControllerJellyfin_serverPoller, _ControllerJellyfin_connectionManager, _ControllerJellyfin_browseController, _ControllerJellyfin_searchController, _ControllerJellyfin_playController, _ControllerJellyfin_nowPlayingMetadataProvider, _ControllerJellyfin_addToBrowseSources, _ControllerJellyfin_setSongFavorite;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
@@ -32,6 +32,7 @@ const util_1 = require("./lib/util");
 const ServerHelper_1 = __importDefault(require("./lib/util/ServerHelper"));
 const ViewHelper_1 = __importDefault(require("./lib/controller/browse/view-handlers/ViewHelper"));
 const SongHelper_1 = __importDefault(require("./lib/util/SongHelper"));
+const JellyfinNowPlayingMetadataProvider_1 = __importDefault(require("./lib/util/JellyfinNowPlayingMetadataProvider"));
 class ControllerJellyfin {
     constructor(context) {
         _ControllerJellyfin_instances.add(this);
@@ -43,6 +44,7 @@ class ControllerJellyfin {
         _ControllerJellyfin_browseController.set(this, void 0);
         _ControllerJellyfin_searchController.set(this, void 0);
         _ControllerJellyfin_playController.set(this, void 0);
+        _ControllerJellyfin_nowPlayingMetadataProvider.set(this, void 0);
         __classPrivateFieldSet(this, _ControllerJellyfin_context, context, "f");
         __classPrivateFieldSet(this, _ControllerJellyfin_commandRouter, context.coreCommand, "f");
     }
@@ -343,6 +345,7 @@ class ControllerJellyfin {
         __classPrivateFieldSet(this, _ControllerJellyfin_browseController, new browse_1.default(__classPrivateFieldGet(this, _ControllerJellyfin_connectionManager, "f")), "f");
         __classPrivateFieldSet(this, _ControllerJellyfin_searchController, new SearchController_1.default(__classPrivateFieldGet(this, _ControllerJellyfin_connectionManager, "f")), "f");
         __classPrivateFieldSet(this, _ControllerJellyfin_playController, new PlayController_1.default(__classPrivateFieldGet(this, _ControllerJellyfin_connectionManager, "f")), "f");
+        __classPrivateFieldSet(this, _ControllerJellyfin_nowPlayingMetadataProvider, new JellyfinNowPlayingMetadataProvider_1.default(__classPrivateFieldGet(this, _ControllerJellyfin_connectionManager, "f")), "f");
         __classPrivateFieldGet(this, _ControllerJellyfin_instances, "m", _ControllerJellyfin_addToBrowseSources).call(this);
         JellyfinContext_1.default.getLogger().info('[jellyfin] Initialized plugin with device info: ', deviceInfo);
         return kew_1.default.resolve();
@@ -357,6 +360,7 @@ class ControllerJellyfin {
         __classPrivateFieldSet(this, _ControllerJellyfin_searchController, null, "f");
         __classPrivateFieldGet(this, _ControllerJellyfin_playController, "f")?.dispose();
         __classPrivateFieldSet(this, _ControllerJellyfin_playController, null, "f");
+        __classPrivateFieldSet(this, _ControllerJellyfin_nowPlayingMetadataProvider, null, "f");
         if (__classPrivateFieldGet(this, _ControllerJellyfin_connectionManager, "f")) {
             __classPrivateFieldGet(this, _ControllerJellyfin_connectionManager, "f")?.logoutAll().then(() => {
                 JellyfinContext_1.default.reset();
@@ -458,8 +462,11 @@ class ControllerJellyfin {
     removeFromFavourites(data) {
         return __classPrivateFieldGet(this, _ControllerJellyfin_instances, "m", _ControllerJellyfin_setSongFavorite).call(this, data.uri, false);
     }
+    getNowPlayingMetadataProvider() {
+        return __classPrivateFieldGet(this, _ControllerJellyfin_nowPlayingMetadataProvider, "f");
+    }
 }
-_ControllerJellyfin_context = new WeakMap(), _ControllerJellyfin_config = new WeakMap(), _ControllerJellyfin_commandRouter = new WeakMap(), _ControllerJellyfin_serverPoller = new WeakMap(), _ControllerJellyfin_connectionManager = new WeakMap(), _ControllerJellyfin_browseController = new WeakMap(), _ControllerJellyfin_searchController = new WeakMap(), _ControllerJellyfin_playController = new WeakMap(), _ControllerJellyfin_instances = new WeakSet(), _ControllerJellyfin_addToBrowseSources = function _ControllerJellyfin_addToBrowseSources() {
+_ControllerJellyfin_context = new WeakMap(), _ControllerJellyfin_config = new WeakMap(), _ControllerJellyfin_commandRouter = new WeakMap(), _ControllerJellyfin_serverPoller = new WeakMap(), _ControllerJellyfin_connectionManager = new WeakMap(), _ControllerJellyfin_browseController = new WeakMap(), _ControllerJellyfin_searchController = new WeakMap(), _ControllerJellyfin_playController = new WeakMap(), _ControllerJellyfin_nowPlayingMetadataProvider = new WeakMap(), _ControllerJellyfin_instances = new WeakSet(), _ControllerJellyfin_addToBrowseSources = function _ControllerJellyfin_addToBrowseSources() {
     const data = {
         name: 'Jellyfin',
         uri: 'jellyfin',

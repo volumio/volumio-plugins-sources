@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const models_1 = require("@jellyfin/sdk/lib/generated-client/models");
 const entities_1 = require("../entities");
 const BaseModel_1 = __importDefault(require("./BaseModel"));
 const AlbumParser_1 = __importDefault(require("./parser/AlbumParser"));
@@ -16,8 +17,8 @@ class CollectionModel extends BaseModel_1.default {
         const overrideParams = {
             ...params,
             recursive: false,
-            sortBy: 'IsFolder,SortName',
-            sortOrder: 'Ascending'
+            sortBy: [models_1.ItemSortBy.IsFolder, models_1.ItemSortBy.SortName],
+            sortOrder: models_1.SortOrder.Ascending
         };
         return this.getItemsFromAPI(overrideParams, parser);
     }
@@ -45,8 +46,8 @@ class CollectionModel extends BaseModel_1.default {
         const normalizedParams = {
             ...params,
             recursive: false,
-            sortBy: '',
-            sortOrder: '',
+            sortBy: null,
+            sortOrder: null,
             itemTypes: [params.itemType]
         };
         if (params.itemType === entities_1.EntityType.Playlist) {

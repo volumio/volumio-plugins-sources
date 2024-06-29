@@ -22,6 +22,8 @@ import { AlbumView } from './lib/controller/browse/view-handlers/AlbumViewHandle
 import { RenderedPage } from './lib/controller/browse/view-handlers/ViewHandler';
 import SongHelper from './lib/util/SongHelper';
 import { PluginConfigKey } from './lib/util/PluginConfig';
+import { NowPlayingPluginSupport } from 'now-playing-common';
+import JellyfinNowPlayingMetadataProvider from './lib/util/JellyfinNowPlayingMetadataProvider';
 
 interface GotoParams extends ExplodedTrackInfo {
   type: 'album' | 'artist';
@@ -33,7 +35,7 @@ type SetSongFavoriteResponse = {
   favourite: boolean
 } | { success: false } | undefined;
 
-class ControllerJellyfin {
+class ControllerJellyfin implements NowPlayingPluginSupport {
   #context: any;
   #config: any;
   #commandRouter: any;
@@ -43,6 +45,8 @@ class ControllerJellyfin {
   #browseController: BrowseController | null;
   #searchController: SearchController | null;
   #playController: PlayController | null;
+
+  #nowPlayingMetadataProvider: JellyfinNowPlayingMetadataProvider | null;
 
   constructor(context: any) {
     this.#context = context;
@@ -389,6 +393,8 @@ class ControllerJellyfin {
     this.#searchController = new SearchController(this.#connectionManager);
     this.#playController = new PlayController(this.#connectionManager);
 
+    this.#nowPlayingMetadataProvider = new JellyfinNowPlayingMetadataProvider(this.#connectionManager);
+
     this.#addToBrowseSources();
 
     jellyfin.getLogger().info('[jellyfin] Initialized plugin with device info: ', deviceInfo);
@@ -409,6 +415,8 @@ class ControllerJellyfin {
     this.#searchController = null;
     this.#playController?.dispose();
     this.#playController = null;
+
+    this.#nowPlayingMetadataProvider = null;
 
     if (this.#connectionManager) {
       this.#connectionManager?.logoutAll().then(() => {
@@ -608,6 +616,10 @@ class ControllerJellyfin {
         return { success: false };
       }
     })());
+  }
+
+  getNowPlayingMetadataProvider() {
+    return this.#nowPlayingMetadataProvider;
   }
 }
 
