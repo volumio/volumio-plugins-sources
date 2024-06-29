@@ -1,6 +1,6 @@
 'use strict';
 // Logging: sudo journalctl -f
-const logging = false;
+const logging = true;
 
 // I used tomatpasser's gpio-buttons plugin as a basis for this project
 const libQ = require("kew");
@@ -314,7 +314,8 @@ GPIOControl.prototype.createGPIOs = function() {
 
 			self.GPIOs.push(gpio);
 
-			gpiox.init_gpio(pin, gpiox.GPIO_MODE_OUTPUT, state ? 0 : 1);
+			// Default state is off
+			gpiox.init_gpio(pin, gpiox.GPIO_MODE_OUTPUT, 0);
 		}
 	});
 
@@ -357,7 +358,7 @@ GPIOControl.prototype.clearGPIOs = function () {
 GPIOControl.prototype.statusChanged = function(state) {
 	const self = this;
 
-	self.log("State has changed!");
+	self.log(`Status changed: ${state.status}`);
 
 	// Player status
 	if (state.status == STATE_PLAY && self.previousState.status != STATE_PLAY){
@@ -440,6 +441,8 @@ GPIOControl.prototype.statusChanged = function(state) {
 // An event has happened so do something about it
 GPIOControl.prototype.handleEvent = function(e) {
 	const self = this;
+
+	self.log(`Handling event: ${e}`);
 
 	self.GPIOs.forEach((gpio) => {
 		if (gpio.e == e){
