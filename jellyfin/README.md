@@ -1,6 +1,6 @@
 # Jellyfin plugin for Volumio
 
-Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested with Jellyfin 10.8.3.
+Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested with Jellyfin 10.9.6.
 
 #### Adding a Jellyfin Server
 
@@ -21,6 +21,10 @@ You can add multiple servers, each with multple user accounts, and those that ar
   4. The heart icon on the player screen can be used to mark or unmark a song as favorite *while it is playing*. However, if the song is not playing, Volumio will bypass the custom logic implemented in the Jellyfin plugin. The result is that the favorite status of the song will not be updated on the Jellyfin server and the song's URI added to Favorites will not be one canonicalized by the plugin.
   
 #### Changelog
+
+1.1.0
+- [Changed] Bump Jellyfin SDK v0.10.0. As a result, support moved to server version 10.9.x.
+- [Added] Provide metadata to Now Playing plugin
 
 1.0.9
 - [Fixed] Player state sometimes wrong when playing prefetched track

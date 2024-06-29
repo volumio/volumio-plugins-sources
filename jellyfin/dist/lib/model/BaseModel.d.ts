@@ -1,7 +1,7 @@
 import { Api } from '@jellyfin/sdk';
 import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models/sort-order';
 import Parser from './parser/Parser';
-import { BaseItemDto, ItemFields, ItemFilter } from '@jellyfin/sdk/lib/generated-client/models';
+import { BaseItemDto, ItemFields, ItemFilter, ItemSortBy } from '@jellyfin/sdk/lib/generated-client/models';
 import ServerConnection from '../connection/ServerConnection';
 import { EntityType } from '../entities';
 export interface GetItemsResult<T> {
@@ -19,8 +19,8 @@ export interface GetItemsParams {
     parentId?: string;
     startIndex?: number;
     limit?: number;
-    sortBy?: string[] | string | null;
-    sortOrder?: SortOrder[] | string | null;
+    sortBy?: ItemSortBy[] | ItemSortBy | null;
+    sortOrder?: SortOrder[] | SortOrder | null;
     recursive?: boolean;
     filters?: ItemFilter[] | string;
     nameStartsWith?: string;
