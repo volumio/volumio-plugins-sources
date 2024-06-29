@@ -26,10 +26,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeSongNumber = exports.rnd = exports.getVolumioBackgrounds = exports.kewToJSPromise = exports.jsPromiseToKew = void 0;
+exports.assignObjectEmptyProps = exports.removeSongNumber = exports.rnd = exports.getVolumioBackgrounds = exports.kewToJSPromise = exports.jsPromiseToKew = void 0;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
+const lodash_1 = __importDefault(require("lodash"));
 const SystemUtils = __importStar(require("./System"));
 const NowPlayingContext_1 = __importDefault(require("../NowPlayingContext"));
 const VOLUMIO_BG_PATH = '/data/backgrounds';
@@ -83,4 +84,17 @@ function removeSongNumber(name) {
     return newName;
 }
 exports.removeSongNumber = removeSongNumber;
+const mergeSettingsCustomizer = (target, src) => {
+    if (typeof target === 'object' && !Array.isArray(target)) {
+        return lodash_1.default.mergeWith(target, src, mergeSettingsCustomizer);
+    }
+    if (target === undefined || target === null || (typeof target === 'string' && target.trim() === '')) {
+        return src;
+    }
+    return target;
+};
+function assignObjectEmptyProps(object, src1, src2) {
+    return lodash_1.default.mergeWith(object, src1, src2, mergeSettingsCustomizer);
+}
+exports.assignObjectEmptyProps = assignObjectEmptyProps;
 //# sourceMappingURL=Misc.js.map

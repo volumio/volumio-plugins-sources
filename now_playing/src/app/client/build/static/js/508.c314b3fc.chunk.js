@@ -1,2 +1,0 @@
-!function(){var e=0,a=null,t=0;function n(){a&&(clearInterval(a),a=null)}function s(a){e>(t=a)&&(e=t),postMessage({event:"seek",seek:e})}onmessage=function(t){switch(t.data.command){case"start":!function(t,o){n(),e=t,s(o),a||(a=setInterval((function(){e=Math.min(e+1e3,o),postMessage({event:"seek",seek:e})}),1e3))}(t.data.beginSeek,t.data.max);break;case"pause":!function(a,t){n(),void 0!==a&&(e=Math.min(a,t));s(t)}(t.data.pauseSeek,t.data.max);break;case"stop":n(),e=0,postMessage({event:"seek",seek:0})}}}();
-//# sourceMappingURL=508.c314b3fc.chunk.js.map

@@ -21,6 +21,7 @@ import UIConfigHelper from './lib/config/UIConfigHelper';
 import ConfigBackupHelper from './lib/config/ConfigBackupHelper';
 import myBackgroundMonitor from './lib/utils/MyBackgroundMonitor';
 import { MetadataServiceOptions } from './lib/config/PluginConfig';
+import FontHelper from './lib/utils/FontHelper';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type DockedComponentKey<T = keyof NowPlayingScreenSettings> = T extends `docked${infer _X}` ? T : never;
@@ -57,6 +58,7 @@ class ControllerNowPlaying {
     const localizationUIConf = uiconf.section_localization;
     const metadataServiceUIConf = uiconf.section_metadata_service;
     const startupOptionsUIConf = uiconf.section_startup_options;
+    const contentRegionUIConf = uiconf.section_content_region;
     const textStylesUIConf = uiconf.section_text_styles;
     const widgetStylesUIConf = uiconf.section_widget_styles;
     const albumartStylesUIConf = uiconf.section_album_art_style;
@@ -173,6 +175,8 @@ class ControllerNowPlaying {
       type: 'openUrl',
       url: accessTokenSetupUrl
     };
+    metadataServiceUIConf.content.queryMusicServices.value = metadataServiceOptions.queryMusicServices;
+    metadataServiceUIConf.content.enableSyncedLyrics.value = metadataServiceOptions.enableSyncedLyrics;
 
     const startupOptions = CommonSettingsLoader.get(CommonSettingsCategory.Startup);
     startupOptionsUIConf.content.activeScreen.value = {
@@ -195,6 +199,19 @@ class ControllerNowPlaying {
     startupOptionsUIConf.content.activateIdleScreen.value = startupOptions.activateIdleScreen;
 
     /**
+     * Content region conf
+     */
+    const contentRegion = CommonSettingsLoader.get(CommonSettingsCategory.ContentRegion);
+    contentRegionUIConf.content.padding.value = {
+      value: contentRegion.padding,
+      label: contentRegion.padding == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    contentRegionUIConf.content.npBasicViewPadding.value = contentRegion.npBasicViewPadding;
+    contentRegionUIConf.content.npBasicViewPaddingPortrait.value = contentRegion.npBasicViewPaddingPortrait;
+    contentRegionUIConf.content.npInfoViewPadding.value = contentRegion.npInfoViewPadding;
+    contentRegionUIConf.content.npInfoViewPaddingPortrait.value = contentRegion.npInfoViewPaddingPortrait;
+
+    /**
      * Text Styles conf
      */
     const nowPlayingScreen = CommonSettingsLoader.get(CommonSettingsCategory.NowPlayingScreen);
@@ -208,6 +225,19 @@ class ControllerNowPlaying {
     textStylesUIConf.content.albumVisibility.value = nowPlayingScreen.albumVisibility;
     textStylesUIConf.content.mediaInfoVisibility.value = nowPlayingScreen.mediaInfoVisibility;
 
+    textStylesUIConf.content.fontStyles.value = {
+      value: nowPlayingScreen.fontStyles,
+      label: nowPlayingScreen.fontStyles == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    FontHelper.fillUIConfSelectElements(
+      { el: textStylesUIConf.content.titleFontStyle, value: nowPlayingScreen.titleFontStyle },
+      { el: textStylesUIConf.content.artistFontStyle, value: nowPlayingScreen.artistFontStyle},
+      { el: textStylesUIConf.content.albumFontStyle, value: nowPlayingScreen.albumFontStyle},
+      { el: textStylesUIConf.content.mediaInfoFontStyle, value: nowPlayingScreen.mediaInfoFontStyle},
+      { el: textStylesUIConf.content.seekTimeFontStyle, value: nowPlayingScreen.seekTimeFontStyle},
+      { el: textStylesUIConf.content.metadataFontStyle, value: nowPlayingScreen.metadataFontStyle}
+    );
+
     textStylesUIConf.content.fontSizes.value = {
       value: nowPlayingScreen.fontSizes,
       label: nowPlayingScreen.fontSizes == 'auto' ? np.getI18n('NOW_PLAYING_AUTO') : np.getI18n('NOW_PLAYING_CUSTOM')
@@ -218,6 +248,7 @@ class ControllerNowPlaying {
     textStylesUIConf.content.mediaInfoFontSize.value = nowPlayingScreen.mediaInfoFontSize;
     textStylesUIConf.content.seekTimeFontSize.value = nowPlayingScreen.seekTimeFontSize;
     textStylesUIConf.content.metadataFontSize.value = nowPlayingScreen.metadataFontSize;
+    textStylesUIConf.content.syncedLyricsCurrentLineFontSize.value = nowPlayingScreen.syncedLyricsCurrentLineFontSize;
 
     textStylesUIConf.content.fontColors.value = {
       value: nowPlayingScreen.fontColors,
@@ -229,6 +260,8 @@ class ControllerNowPlaying {
     textStylesUIConf.content.mediaInfoFontColor.value = nowPlayingScreen.mediaInfoFontColor;
     textStylesUIConf.content.seekTimeFontColor.value = nowPlayingScreen.seekTimeFontColor;
     textStylesUIConf.content.metadataFontColor.value = nowPlayingScreen.metadataFontColor;
+    textStylesUIConf.content.syncedLyricsColor.value = nowPlayingScreen.syncedLyricsColor;
+    textStylesUIConf.content.syncedLyricsCurrentLineColor.value = nowPlayingScreen.syncedLyricsCurrentLineColor;
 
     textStylesUIConf.content.textMargins.value = {
       value: nowPlayingScreen.textMargins,
@@ -371,6 +404,7 @@ class ControllerNowPlaying {
     }
     albumartStylesUIConf.content.albumartBorder.value = nowPlayingScreen.albumartBorder;
     albumartStylesUIConf.content.albumartBorderRadius.value = nowPlayingScreen.albumartBorderRadius;
+    albumartStylesUIConf.content.albumartMargin.value = nowPlayingScreen.albumartMargin;
     if (!nowPlayingScreen.albumartVisibility) {
       albumartStylesUIConf.content = [ albumartStylesUIConf.content.albumartVisibility ] as any;
       if (albumartStylesUIConf.saveButton) {
@@ -1385,6 +1419,7 @@ class ControllerNowPlaying {
     performanceUIConf.content.unmountBrowseScreenOnExit.value = performanceSettings.unmountBrowseScreenOnExit;
     performanceUIConf.content.unmountQueueScreenOnExit.value = performanceSettings.unmountQueueScreenOnExit;
     performanceUIConf.content.unmountVolumioScreenOnExit.value = performanceSettings.unmountVolumioScreenOnExit;
+    performanceUIConf.content.syncedLyricsDelay.value = UIConfigHelper.sanitizeNumberInput(performanceSettings.syncedLyricsDelay);
 
     // Backup Config conf
     const backups = await ConfigBackupHelper.getBackupNames();
@@ -1539,6 +1574,16 @@ class ControllerNowPlaying {
      */
   }
 
+  configSaveContentRegionSettings(data: Record<string, any>) {
+    const apply = this.#parseConfigSaveData(data);
+    const current = np.getConfigValue('contentRegion');
+    const updated = Object.assign(current, apply);
+    np.setConfigValue('contentRegion', updated);
+    np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+
+    this.#notifyCommonSettingsUpdated(CommonSettingsCategory.ContentRegion);
+  }
+
   configSaveTextStyles(data: Record<string, any>) {
     const maxTitleLines = data.maxTitleLines !== '' ? parseInt(data.maxTitleLines, 10) : '';
     const maxArtistLines = data.maxArtistLines !== '' ? parseInt(data.maxArtistLines, 10) : '';
@@ -1553,6 +1598,13 @@ class ControllerNowPlaying {
       artistVisibility: data.artistVisibility,
       albumVisibility: data.albumVisibility,
       mediaInfoVisibility: data.mediaInfoVisibility,
+      fontStyles: data.fontStyles.value,
+      titleFontStyle: data.titleFontStyle.value,
+      artistFontStyle: data.artistFontStyle.value,
+      albumFontStyle: data.albumFontStyle.value,
+      mediaInfoFontStyle: data.mediaInfoFontStyle.value,
+      seekTimeFontStyle: data.seekTimeFontStyle.value,
+      metadataFontStyle: data.metadataFontStyle.value,
       fontSizes: data.fontSizes.value,
       titleFontSize: data.titleFontSize,
       artistFontSize: data.artistFontSize,
@@ -1560,6 +1612,7 @@ class ControllerNowPlaying {
       mediaInfoFontSize: data.mediaInfoFontSize,
       seekTimeFontSize: data.seekTimeFontSize,
       metadataFontSize: data.metadataFontSize,
+      syncedLyricsCurrentLineFontSize: data.syncedLyricsCurrentLineFontSize,
       fontColors: data.fontColors.value,
       titleFontColor: data.titleFontColor,
       artistFontColor: data.artistFontColor,
@@ -1567,6 +1620,8 @@ class ControllerNowPlaying {
       mediaInfoFontColor: data.mediaInfoFontColor,
       seekTimeFontColor: data.seekTimeFontColor,
       metadataFontColor: data.metadataFontColor,
+      syncedLyricsColor: data.syncedLyricsColor,
+      syncedLyricsCurrentLineColor: data.syncedLyricsCurrentLineColor,
       textAlignmentH: data.textAlignmentH.value,
       textAlignmentV: data.textAlignmentV.value,
       textAlignmentLyrics: data.textAlignmentLyrics.value,
@@ -1787,7 +1842,9 @@ class ControllerNowPlaying {
     const settings: MetadataServiceOptions = {
       geniusAccessToken: token,
       excludeParenthesized: data['excludeParenthesized'],
-      parenthesisType: data['parenthesisType'].value
+      parenthesisType: data['parenthesisType'].value,
+      queryMusicServices: data['queryMusicServices'],
+      enableSyncedLyrics: data['enableSyncedLyrics']
     };
     np.setConfigValue('metadataService', settings);
     metadataAPI.updateSettings(settings);
@@ -1852,6 +1909,7 @@ class ControllerNowPlaying {
   }
 
   configSavePerformanceSettings(data: Record<string, any>) {
+    const syncedLyricsDelay = data.syncedLyricsDelay !== '' ? parseInt(data.syncedLyricsDelay, 10) : 0;
     const settings: PerformanceSettings = {
       transitionEffectsKiosk: data.transitionEffectsKiosk,
       transitionEffectsOtherDevices: data.transitionEffectsOtherDevices,
@@ -1859,7 +1917,8 @@ class ControllerNowPlaying {
       unmountNowPlayingScreenOnExit: data.unmountNowPlayingScreenOnExit,
       unmountBrowseScreenOnExit: data.unmountBrowseScreenOnExit,
       unmountQueueScreenOnExit: data.unmountQueueScreenOnExit,
-      unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit
+      unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit,
+      syncedLyricsDelay
     };
     np.setConfigValue('performance', settings);
     np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));

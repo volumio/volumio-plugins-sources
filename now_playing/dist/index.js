@@ -58,6 +58,7 @@ const now_playing_common_1 = require("now-playing-common");
 const UIConfigHelper_1 = __importDefault(require("./lib/config/UIConfigHelper"));
 const ConfigBackupHelper_1 = __importDefault(require("./lib/config/ConfigBackupHelper"));
 const MyBackgroundMonitor_1 = __importDefault(require("./lib/utils/MyBackgroundMonitor"));
+const FontHelper_1 = __importDefault(require("./lib/utils/FontHelper"));
 class ControllerNowPlaying {
     constructor(context) {
         _ControllerNowPlaying_instances.add(this);
@@ -154,6 +155,14 @@ class ControllerNowPlaying {
          * startup options are applied only once during app startup.
          */
     }
+    configSaveContentRegionSettings(data) {
+        const apply = __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_parseConfigSaveData).call(this, data);
+        const current = NowPlayingContext_1.default.getConfigValue('contentRegion');
+        const updated = Object.assign(current, apply);
+        NowPlayingContext_1.default.setConfigValue('contentRegion', updated);
+        NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+        __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.ContentRegion);
+    }
     configSaveTextStyles(data) {
         const maxTitleLines = data.maxTitleLines !== '' ? parseInt(data.maxTitleLines, 10) : '';
         const maxArtistLines = data.maxArtistLines !== '' ? parseInt(data.maxArtistLines, 10) : '';
@@ -168,6 +177,13 @@ class ControllerNowPlaying {
             artistVisibility: data.artistVisibility,
             albumVisibility: data.albumVisibility,
             mediaInfoVisibility: data.mediaInfoVisibility,
+            fontStyles: data.fontStyles.value,
+            titleFontStyle: data.titleFontStyle.value,
+            artistFontStyle: data.artistFontStyle.value,
+            albumFontStyle: data.albumFontStyle.value,
+            mediaInfoFontStyle: data.mediaInfoFontStyle.value,
+            seekTimeFontStyle: data.seekTimeFontStyle.value,
+            metadataFontStyle: data.metadataFontStyle.value,
             fontSizes: data.fontSizes.value,
             titleFontSize: data.titleFontSize,
             artistFontSize: data.artistFontSize,
@@ -175,6 +191,7 @@ class ControllerNowPlaying {
             mediaInfoFontSize: data.mediaInfoFontSize,
             seekTimeFontSize: data.seekTimeFontSize,
             metadataFontSize: data.metadataFontSize,
+            syncedLyricsCurrentLineFontSize: data.syncedLyricsCurrentLineFontSize,
             fontColors: data.fontColors.value,
             titleFontColor: data.titleFontColor,
             artistFontColor: data.artistFontColor,
@@ -182,6 +199,8 @@ class ControllerNowPlaying {
             mediaInfoFontColor: data.mediaInfoFontColor,
             seekTimeFontColor: data.seekTimeFontColor,
             metadataFontColor: data.metadataFontColor,
+            syncedLyricsColor: data.syncedLyricsColor,
+            syncedLyricsCurrentLineColor: data.syncedLyricsCurrentLineColor,
             textAlignmentH: data.textAlignmentH.value,
             textAlignmentV: data.textAlignmentV.value,
             textAlignmentLyrics: data.textAlignmentLyrics.value,
@@ -338,7 +357,9 @@ class ControllerNowPlaying {
         const settings = {
             geniusAccessToken: token,
             excludeParenthesized: data['excludeParenthesized'],
-            parenthesisType: data['parenthesisType'].value
+            parenthesisType: data['parenthesisType'].value,
+            queryMusicServices: data['queryMusicServices'],
+            enableSyncedLyrics: data['enableSyncedLyrics']
         };
         NowPlayingContext_1.default.setConfigValue('metadataService', settings);
         MetadataAPI_1.default.updateSettings(settings);
@@ -396,6 +417,7 @@ class ControllerNowPlaying {
         __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.Theme);
     }
     configSavePerformanceSettings(data) {
+        const syncedLyricsDelay = data.syncedLyricsDelay !== '' ? parseInt(data.syncedLyricsDelay, 10) : 0;
         const settings = {
             transitionEffectsKiosk: data.transitionEffectsKiosk,
             transitionEffectsOtherDevices: data.transitionEffectsOtherDevices,
@@ -403,7 +425,8 @@ class ControllerNowPlaying {
             unmountNowPlayingScreenOnExit: data.unmountNowPlayingScreenOnExit,
             unmountBrowseScreenOnExit: data.unmountBrowseScreenOnExit,
             unmountQueueScreenOnExit: data.unmountQueueScreenOnExit,
-            unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit
+            unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit,
+            syncedLyricsDelay
         };
         NowPlayingContext_1.default.setConfigValue('performance', settings);
         NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
@@ -513,6 +536,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     const localizationUIConf = uiconf.section_localization;
     const metadataServiceUIConf = uiconf.section_metadata_service;
     const startupOptionsUIConf = uiconf.section_startup_options;
+    const contentRegionUIConf = uiconf.section_content_region;
     const textStylesUIConf = uiconf.section_text_styles;
     const widgetStylesUIConf = uiconf.section_widget_styles;
     const albumartStylesUIConf = uiconf.section_album_art_style;
@@ -620,6 +644,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
         type: 'openUrl',
         url: accessTokenSetupUrl
     };
+    metadataServiceUIConf.content.queryMusicServices.value = metadataServiceOptions.queryMusicServices;
+    metadataServiceUIConf.content.enableSyncedLyrics.value = metadataServiceOptions.enableSyncedLyrics;
     const startupOptions = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.Startup);
     startupOptionsUIConf.content.activeScreen.value = {
         value: startupOptions.activeScreen,
@@ -640,6 +666,18 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     }
     startupOptionsUIConf.content.activateIdleScreen.value = startupOptions.activateIdleScreen;
     /**
+     * Content region conf
+     */
+    const contentRegion = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.ContentRegion);
+    contentRegionUIConf.content.padding.value = {
+        value: contentRegion.padding,
+        label: contentRegion.padding == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    contentRegionUIConf.content.npBasicViewPadding.value = contentRegion.npBasicViewPadding;
+    contentRegionUIConf.content.npBasicViewPaddingPortrait.value = contentRegion.npBasicViewPaddingPortrait;
+    contentRegionUIConf.content.npInfoViewPadding.value = contentRegion.npInfoViewPadding;
+    contentRegionUIConf.content.npInfoViewPaddingPortrait.value = contentRegion.npInfoViewPaddingPortrait;
+    /**
      * Text Styles conf
      */
     const nowPlayingScreen = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.NowPlayingScreen);
@@ -651,6 +689,11 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.artistVisibility.value = nowPlayingScreen.artistVisibility;
     textStylesUIConf.content.albumVisibility.value = nowPlayingScreen.albumVisibility;
     textStylesUIConf.content.mediaInfoVisibility.value = nowPlayingScreen.mediaInfoVisibility;
+    textStylesUIConf.content.fontStyles.value = {
+        value: nowPlayingScreen.fontStyles,
+        label: nowPlayingScreen.fontStyles == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    FontHelper_1.default.fillUIConfSelectElements({ el: textStylesUIConf.content.titleFontStyle, value: nowPlayingScreen.titleFontStyle }, { el: textStylesUIConf.content.artistFontStyle, value: nowPlayingScreen.artistFontStyle }, { el: textStylesUIConf.content.albumFontStyle, value: nowPlayingScreen.albumFontStyle }, { el: textStylesUIConf.content.mediaInfoFontStyle, value: nowPlayingScreen.mediaInfoFontStyle }, { el: textStylesUIConf.content.seekTimeFontStyle, value: nowPlayingScreen.seekTimeFontStyle }, { el: textStylesUIConf.content.metadataFontStyle, value: nowPlayingScreen.metadataFontStyle });
     textStylesUIConf.content.fontSizes.value = {
         value: nowPlayingScreen.fontSizes,
         label: nowPlayingScreen.fontSizes == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -661,6 +704,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.mediaInfoFontSize.value = nowPlayingScreen.mediaInfoFontSize;
     textStylesUIConf.content.seekTimeFontSize.value = nowPlayingScreen.seekTimeFontSize;
     textStylesUIConf.content.metadataFontSize.value = nowPlayingScreen.metadataFontSize;
+    textStylesUIConf.content.syncedLyricsCurrentLineFontSize.value = nowPlayingScreen.syncedLyricsCurrentLineFontSize;
     textStylesUIConf.content.fontColors.value = {
         value: nowPlayingScreen.fontColors,
         label: nowPlayingScreen.fontColors == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -671,6 +715,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.mediaInfoFontColor.value = nowPlayingScreen.mediaInfoFontColor;
     textStylesUIConf.content.seekTimeFontColor.value = nowPlayingScreen.seekTimeFontColor;
     textStylesUIConf.content.metadataFontColor.value = nowPlayingScreen.metadataFontColor;
+    textStylesUIConf.content.syncedLyricsColor.value = nowPlayingScreen.syncedLyricsColor;
+    textStylesUIConf.content.syncedLyricsCurrentLineColor.value = nowPlayingScreen.syncedLyricsCurrentLineColor;
     textStylesUIConf.content.textMargins.value = {
         value: nowPlayingScreen.textMargins,
         label: nowPlayingScreen.textMargins == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -800,6 +846,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     }
     albumartStylesUIConf.content.albumartBorder.value = nowPlayingScreen.albumartBorder;
     albumartStylesUIConf.content.albumartBorderRadius.value = nowPlayingScreen.albumartBorderRadius;
+    albumartStylesUIConf.content.albumartMargin.value = nowPlayingScreen.albumartMargin;
     if (!nowPlayingScreen.albumartVisibility) {
         albumartStylesUIConf.content = [albumartStylesUIConf.content.albumartVisibility];
         if (albumartStylesUIConf.saveButton) {
@@ -1793,6 +1840,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     performanceUIConf.content.unmountBrowseScreenOnExit.value = performanceSettings.unmountBrowseScreenOnExit;
     performanceUIConf.content.unmountQueueScreenOnExit.value = performanceSettings.unmountQueueScreenOnExit;
     performanceUIConf.content.unmountVolumioScreenOnExit.value = performanceSettings.unmountVolumioScreenOnExit;
+    performanceUIConf.content.syncedLyricsDelay.value = UIConfigHelper_1.default.sanitizeNumberInput(performanceSettings.syncedLyricsDelay);
     // Backup Config conf
     const backups = await ConfigBackupHelper_1.default.getBackupNames();
     if (backups.length > 0) {

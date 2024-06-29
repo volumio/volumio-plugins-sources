@@ -26,4 +26,9 @@ router.get('/api/:apiName/:method', (req, res) => {
   handler.api(apiName, method, req.query, res);
 });
 
+router.get('/font/:file', (req, res) => {
+  const {file} = req.params;
+  handler.font(file, res);
+});
+
 export default router;

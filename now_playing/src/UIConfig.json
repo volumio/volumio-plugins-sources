@@ -144,7 +144,9 @@
         "data": [
           "geniusAccessToken",
           "excludeParenthesized",
-          "parenthesisType"
+          "parenthesisType",
+          "queryMusicServices",
+          "enableSyncedLyrics"
         ]
       },
       "content": [
@@ -209,6 +211,20 @@
                 "method": "clearMetadataCache"
             }
           }
+        },
+        {
+          "id": "queryMusicServices",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_QUERY_MUSIC_SERVICES",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_QUERY_MUSIC_SERVICES",
+          "value": false
+        },
+        {
+          "id": "enableSyncedLyrics",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLE_SYNCED_LYRICS",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_ENABLE_SYNCED_LYRICS",
+          "value": false
         }
       ]
     },
@@ -288,6 +304,96 @@
       ]
     },
     {
+      "id": "section_content_region",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_CONTENT_REGION",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveContentRegionSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "padding",
+          "npBasicViewPadding",
+          "npBasicViewPaddingPortrait",
+          "npInfoViewPadding",
+          "npInfoViewPaddingPortrait"
+        ]
+      },
+      "content": [
+        {
+          "id": "padding",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PADDING",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "npBasicViewPadding",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_BASIC_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "npBasicViewPaddingPortrait",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_BASIC_LI_PORTRAIT",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "npInfoViewPadding",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "npInfoViewPaddingPortrait",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LI_PORTRAIT",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
       "id": "section_text_styles",
       "element": "section",
       "label": "TRANSLATE.NOW_PLAYING_TEXT_STYLES",
@@ -305,6 +411,13 @@
           "artistVisibility",
           "albumVisibility",
           "mediaInfoVisibility",
+          "fontStyles",
+          "titleFontStyle",
+          "artistFontStyle",
+          "albumFontStyle",
+          "mediaInfoFontStyle",
+          "seekTimeFontStyle",
+          "metadataFontStyle",
           "fontSizes",
           "titleFontSize",
           "artistFontSize",
@@ -312,6 +425,7 @@
           "mediaInfoFontSize",
           "seekTimeFontSize",
           "metadataFontSize",
+          "syncedLyricsCurrentLineFontSize",
           "fontColors",
           "titleFontColor",
           "artistFontColor",
@@ -319,6 +433,8 @@
           "mediaInfoFontColor",
           "seekTimeFontColor",
           "metadataFontColor",
+          "syncedLyricsColor",
+          "syncedLyricsCurrentLineColor",
           "textMargins",
           "titleMargin",
           "artistMargin",
@@ -396,6 +512,149 @@
           "value": true,
           "visibleIf": {
             "field": "trackInfoVisibility",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontStyles",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_FONT",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_STYLES",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "titleFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "artistFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "mediaInfoFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekTimeFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
             "value": "custom"
           }
         },
@@ -484,6 +743,18 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
           "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsCurrentLineFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_CURRENT_LINE",
           "value": "",
           "attributes": [
             { "style": "margin-bottom: 32px;" }
@@ -578,6 +849,30 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
           "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsCurrentLineColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_CURRENT_LINE",
           "value": "",
           "visibleIf": {
             "field": "fontColors",
@@ -1132,7 +1427,8 @@
           "albumartHeight",
           "albumartFit",
           "albumartBorder",
-          "albumartBorderRadius"
+          "albumartBorderRadius",
+          "albumartMargin"
         ]
       },
       "content": [
@@ -1226,6 +1522,14 @@
           "element": "input",
           "doc": "TRANSLATE.NOW_PLAYING_DOC_ALBUM_ART_BORDER_RADIUS",
           "label": "TRANSLATE.NOW_PLAYING_BORDER_RADIUS",
+          "value": ""
+        },
+        {
+          "id": "albumartMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
           "value": ""
         }
       ]
@@ -3978,7 +4282,8 @@
           "unmountNowPlayingScreenOnExit",
           "unmountBrowseScreenOnExit",
           "unmountQueueScreenOnExit",
-          "unmountVolumioScreenOnExit"
+          "unmountVolumioScreenOnExit",
+          "syncedLyricsDelay"
         ]
       },
       "content": [
@@ -4055,6 +4360,14 @@
             "field": "unmountScreensOnExit",
             "value": "custom"
           }
+        },
+        {
+          "id": "syncedLyricsDelay",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_DELAY",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_SYNCED_LYRICS_DELAY",
+          "value": ""
         }
       ]
     },
