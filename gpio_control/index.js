@@ -1,11 +1,11 @@
 'use strict';
+
 // Logging: sudo journalctl -f
-const logging = true;
+const logging = false;
 
 // I used tomatpasser's gpio-buttons plugin as a basis for this project
 const libQ = require("kew");
 const fs = require("fs-extra");
-//const Gpio = require("onoff").Gpio;
 const gpiox = require("@iiot2k/gpiox");
 const config = new (require("v-conf"))();
 const io = require('socket.io-client');
@@ -13,45 +13,60 @@ const sleep = require('sleep');
 const socket = io.connect("http://localhost:3000");
 const execSync = require('child_process').execSync;
 
-// Event string consts
-const SYSTEM_STARTUP = "systemStartup";
-const SYSTEM_SHUTDOWN = "systemShutdown";
-const MUSIC_PLAY = "musicPlay";
-const MUSIC_PAUSE = "musicPause";
-const MUSIC_STOP = "musicStop";
-const MUTE_ON = "muteOn";
-const MUTE_OFF = "muteOff";
-const RANDOM_ON = "randomOn";
-const RANDOM_OFF = "randomOff";
-const REPEAT_ON = "repeatOn";
-const REPEAT_OFF = "repeatOff";
-const REPEAT_ALL_ON = "repeatAllOn";
-const REPEAT_ALL_OFF = "repeatAllOff";
-const REPEAT_SINGLE_ON = "repeatSingleOn";
-const REPEAT_SINGLE_OFF = "repeatSingleOff";
+// gpiox library
+// https://www.npmjs.com/package/@iiot2k/gpiox?activeTab=readme
 
-// State constants
-const STATE_PLAY = "play";
-const STATE_PAUSE = "pause";
-const STATE_STOP = "stop";
+// Duration enum
+const DURATION = {
+	HOURS: 0,
+	MINUTES: 1,
+	SECONDS: 2,
+	MILLISECONDS: 3
+}
+
+// State enum
+const STATE = {
+	PLAY: "play",
+	PAUSE: "pause",
+	STOP: "stop"
+};
+
+// Events enum
+const EVENT = {
+	SYSTEM_STARTUP: "systemStartup",
+	SYSTEM_SHUTDOWN: "systemShutdown",
+	MUSIC_PLAY: "musicPlay",
+	MUSIC_PAUSE: "musicPause",
+	MUSIC_STOP: "musicStop",
+	MUTE_ON: "muteOn",
+	MUTE_OFF: "muteOff",
+	RANDOM_ON: "randomOn",
+	RANDOM_OFF: "randomOff",
+	REPEAT_ON: "repeatOn",
+	REPEAT_OFF: "repeatOff",
+	REPEAT_ALL_ON: "repeatAllOn",
+	REPEAT_ALL_OFF: "repeatAllOff",
+	REPEAT_SINGLE_ON: "repeatSingleOn",
+	REPEAT_SINGLE_OFF: "repeatSingleOff"	
+};
 
 // Events that we can detect and do something
 const events = [
-	SYSTEM_STARTUP, 
-	SYSTEM_SHUTDOWN, 
-	MUSIC_PLAY, 
-	MUSIC_PAUSE, 
-	MUSIC_STOP, 
-	MUTE_ON, 
-	MUTE_OFF, 
-	RANDOM_ON, 
-	RANDOM_OFF, 
-	REPEAT_ON, 
-	REPEAT_ALL_ON, 
-	REPEAT_ALL_OFF, 
-	REPEAT_SINGLE_ON, 
-	REPEAT_SINGLE_OFF,
-	REPEAT_OFF
+	EVENT.SYSTEM_STARTUP, 
+	EVENT.SYSTEM_SHUTDOWN, 
+	EVENT.MUSIC_PLAY, 
+	EVENT.MUSIC_PAUSE, 
+	EVENT.MUSIC_STOP, 
+	EVENT.MUTE_ON, 
+	EVENT.MUTE_OFF, 
+	EVENT.RANDOM_ON, 
+	EVENT.RANDOM_OFF, 
+	EVENT.REPEAT_ON, 
+	EVENT.REPEAT_ALL_ON, 
+	EVENT.REPEAT_ALL_OFF, 
+	EVENT.REPEAT_SINGLE_ON, 
+	EVENT.REPEAT_SINGLE_OFF,
+	EVENT.REPEAT_OFF
 ];
 
 module.exports = GPIOControl;
@@ -82,7 +97,7 @@ GPIOControl.prototype.onVolumioStart = function(){
 GPIOControl.prototype.onVolumioShutdown = function() {
 	const self = this;
 
-	self.handleEvent(SYSTEM_SHUTDOWN);
+	self.handleEvent(EVENT.SYSTEM_SHUTDOWN);
 
 	return libQ.resolve();
 };
@@ -108,12 +123,12 @@ GPIOControl.prototype.onStart = function() {
 
 	// Create pin objects
 	self.createGPIOs()
-		.then ((result) => {
-			self.log("GPIOs created");
-			self.handleEvent(SYSTEM_STARTUP);
+	.then ((result) => {
+		self.log("GPIOs created");
+		self.handleEvent(EVENT.SYSTEM_STARTUP);
 
-			defer.resolve();
-		});
+		defer.resolve();
+	});
 
 	return defer.promise;
 };
@@ -124,10 +139,10 @@ GPIOControl.prototype.onStop = function() {
 	const defer = libQ.defer();
 
 	self.clearGPIOs()
-		.then ((result) => {
-			self.log("GPIOs destroyed");
-			defer.resolve();
-		});
+	.then ((result) => {
+		self.log("GPIOs destroyed");
+		defer.resolve();
+	});
 
 	return libQ.resolve();
 };
@@ -154,27 +169,26 @@ GPIOControl.prototype.getUIConfig = function() {
 		__dirname + "/i18n/strings_en.json",
 		UIConfigFile
 	)
-	.then((uiconf) =>
-	{
+	.then((uiconf) => {
 		events.forEach((e) => {
 
 			// Strings for data fields
-			const s1 = e.concat("Enabled");
-			const s2 = e.concat("Pin");
-			const s3 = e.concat("State");
-			const s4 = e.concat("Delay");
-			const s5 = e.concat("DelayUnits");
-			const s6 = e.concat("Duration");
-			const s7 = e.concat("DurationUnits");
+			const enabled = e.concat("Enabled");
+			const pin = e.concat("Pin");
+			const state = e.concat("State");
+			const delay = e.concat("Delay");
+			const delayUnits = e.concat("DelayUnits");
+			const duration = e.concat("Duration");
+			const durationUnits = e.concat("DurationUnits");
 
 			// Strings for config
-			const c1 = e.concat(".enabled");
-			const c2 = e.concat(".pin");
-			const c3 = e.concat(".state");
-			const c4 = e.concat(".delay");
-			const c5 = e.concat(".delayUnits");
-			const c6 = e.concat(".duration");
-			const c7 = e.concat(".durationUnits");
+			const configEnabled = e.concat(".enabled");
+			const configPin = e.concat(".pin");
+			const configState = e.concat(".state");
+			const configDelay = e.concat(".delay");
+			const configDelayUnits = e.concat(".delayUnits");
+			const configDuration = e.concat(".duration");
+			const configDurationUnits = e.concat(".durationUnits");
 
 			// Extend the find method on the content array - mental but works
 			uiconf.sections[0].content.findItem = function(obj) {
@@ -187,13 +201,13 @@ GPIOControl.prototype.getUIConfig = function() {
 			}
 
 			// Populate our controls
-			self.setSwitchElement(uiconf, s1, config.get(c1)); // event on/off
-			self.setSelectElementStr(uiconf, s2, config.get(c2)); // GPIO pin
-			self.setSelectElement(uiconf, s3, config.get(c3), self.boolToString(config.get(c3))); // state
-			self.setSelectElement(uiconf, s4, config.get(c4), self.delayToString(config.get(c4))); // delay
-			self.setSelectElement(uiconf, s5, config.get(c5), self.unitsToString(config.get(c5))); // delay units
-			self.setSelectElement(uiconf, s6, config.get(c6), self.durationToString(config.get(c6))); // duration
-			self.setSelectElement(uiconf, s7, config.get(c7), self.unitsToString(config.get(c7))); // duration units
+			self.setSwitchElement(uiconf, enabled, config.get(configEnabled)); // event on/off
+			self.setSelectElementStr(uiconf, pin, config.get(configPin)); // GPIO pin
+			self.setSelectElement(uiconf, state, config.get(configState), self.boolToString(config.get(configState))); // state
+			self.setSelectElement(uiconf, delay, config.get(configDelay), self.delayToString(config.get(configDelay))); // delay
+			self.setSelectElement(uiconf, delayUnits, config.get(configDelayUnits), self.unitsToString(config.get(configDelayUnits))); // delay units
+			self.setSelectElement(uiconf, duration, config.get(configDuration), self.durationToString(config.get(configDuration))); // duration
+			self.setSelectElement(uiconf, durationUnits, config.get(configDurationUnits), self.unitsToString(config.get(configDurationUnits))); // duration units
 		});
 
 		defer.resolve(uiconf);
@@ -216,30 +230,22 @@ GPIOControl.prototype.saveConfig = function(data){
 	events.forEach((item) => {
 
 		// Element names
-		const e1 = item.concat("Enabled");
-		const e2 = item.concat("Pin");
-		const e3 = item.concat("State");
-		const e4 = item.concat("Delay");
-		const e5 = item.concat("DelayUnits");
-		const e6 = item.concat("Duration");
-		const e7 = item.concat("DurationUnits");
+		const enabled = item.concat("Enabled");
+		const pin = item.concat("Pin");
+		const state = item.concat("State");
+		const delay = item.concat("Delay");
+		const delayUnits = item.concat("DelayUnits");
+		const duration = item.concat("Duration");
+		const durationUnits = item.concat("DurationUnits");
 
-		// Strings for config
-		const c1 = item.concat(".enabled");
-		const c2 = item.concat(".pin");
-		const c3 = item.concat(".state");
-		const c4 = item.concat(".delay");
-		const c5 = item.concat(".delayUnits");
-		const c6 = item.concat(".duration");
-		const c7 = item.concat(".durationUnits");
-
-		config.set(c1, data[e1]);
-		config.set(c2, data[e2]["value"]);
-		config.set(c3, data[e3]["value"]);
-		config.set(c4, data[e4]["value"]);
-		config.set(c5, data[e5]["value"]);
-		config.set(c6, data[e6]["value"]);
-		config.set(c7, data[e7]["value"]);
+		// Save config
+		config.set(item.concat(".enabled"), data[enabled]);
+		config.set(item.concat(".pin"), data[pin]["value"]);
+		config.set(item.concat(".state"), data[state]["value"]);
+		config.set(item.concat(".delay"), data[delay]["value"]);
+		config.set(item.concat(".delayUnits"), data[delayUnits]["value"]);
+		config.set(item.concat(".duration"), data[duration]["value"]);
+		config.set(item.concat(".durationUnits"), data[durationUnits]["value"]);
 	});
 
 	// Clear any previous states
@@ -249,12 +255,13 @@ GPIOControl.prototype.saveConfig = function(data){
 	self.createGPIOs();
 
 	// Pins have been reset so fire off system startup
-	self.handleEvent(SYSTEM_STARTUP);
+	self.handleEvent(EVENT.SYSTEM_STARTUP);
 
-	// retrieve playing status
+	// Retrieve playing status
 	socket.emit("getState", "");
 
-	self.commandRouter.pushToastMessage('success', self.getI18nString("PLUGIN_CONFIGURATION"), self.getI18nString("SETTINGS_SAVED"));
+	// Display toaster message
+	self.commandRouter.pushToastMessage("success", self.getI18nString("PLUGIN_CONFIGURATION"), self.getI18nString("SETTINGS_SAVED"));
 };
 
 // Create GPIO objects for future events
@@ -264,43 +271,33 @@ GPIOControl.prototype.createGPIOs = function() {
 	self.log("Reading config and creating GPIOs");
 
 	events.forEach((e) => {
-		const c1 = e.concat(".enabled");
-		const c2 = e.concat(".pin");
-		const c3 = e.concat(".state");
-		const c4 = e.concat(".delay");
-		const c5 = e.concat(".delayUnits");	
-		const c6 = e.concat(".duration");
-		const c7 = e.concat(".durationUnits");	
+		const configEnabled = e.concat(".enabled");
+		const configPin = e.concat(".pin");
+		const configState = e.concat(".state");
+		const configDelay = e.concat(".delay");
+		const configDelayUnits = e.concat(".delayUnits");	
+		const configDuration = e.concat(".duration");
+		const configDurationUnits = e.concat(".durationUnits");	
 
-		const enabled = config.get(c1);
-		const pin = config.get(c2);
-		const state = config.get(c3);
-		const delay = self.getDurationMs(config.get(c4), config.get(c5));
-		const delayUnits = self.unitsToString(config.get(c5));
-		const duration = self.getDurationMs(config.get(c6), config.get(c7));
-		const durationUnits = self.unitsToString(config.get(c7));
+		const enabled = config.get(configEnabled);
+		const pin = config.get(configPin);
+		const state = config.get(configState);
+		const delay = self.getDurationMs(config.get(configDelay), config.get(configDelayUnits));
+		const delayUnits = self.unitsToString(config.get(configDelayUnits));
+		const duration = self.getDurationMs(config.get(configDuration), config.get(configDurationUnits));
+		const durationUnits = self.unitsToString(config.get(configDurationUnits));
 
 		if (enabled){
 			var msg = `On ${e} will set GPIO ${pin} to ${self.boolToString(state)}`;
 
 			if (delay > 0){
-				msg += ` after ${config.get(c4)} ${delayUnits} delay`;
+				msg += ` after ${config.get(configDelay)} ${delayUnits} delay`;
 			}
 			if (duration > 0){
-				msg += ` for ${config.get(c6)} ${durationUnits}`;
+				msg += ` for ${config.get(configDuration)} ${durationUnits}`;
 			}
 
 			self.log(msg);
-
-			/*const gpio = new Gpio(pin, "out");
-			gpio.e = e;
-			gpio.state = state ? 1 : 0;
-			gpio.pin = pin;
-			gpio.delay = delay;
-			gpio.duration = duration;
-			gpio.delayTimeoutId = 0;
-			gpio.durationTimeoutId = 0;
-			*/
 
 			const gpio = {
 				e: e,
@@ -314,7 +311,7 @@ GPIOControl.prototype.createGPIOs = function() {
 
 			self.GPIOs.push(gpio);
 
-			// Default state is off
+			// Default state for GPIO is off
 			gpiox.init_gpio(pin, gpiox.GPIO_MODE_OUTPUT, 0);
 		}
 	});
@@ -344,7 +341,6 @@ GPIOControl.prototype.clearGPIOs = function () {
 		clearTimeout(gpio.delayTimeoutId);
 		clearTimeout(gpio.durationTimeoutId);
 		self.log("Destroying GPIO " + gpio.pin);
-		//gpio.unexport();
 		gpiox.deinit_gpio(gpio.pin);
 	});
 
@@ -361,75 +357,75 @@ GPIOControl.prototype.statusChanged = function(state) {
 	self.log(`Status changed: ${state.status}`);
 
 	// Player status
-	if (state.status == STATE_PLAY && self.previousState.status != STATE_PLAY){
-		self.handleEvent(MUSIC_PLAY);
+	if (state.status == STATE.PLAY && self.previousState.status != STATE.PLAY){
+		self.handleEvent(EVENT.MUSIC_PLAY);
 	}
-	if (state.status == STATE_PAUSE && self.previousState.status != STATE_PAUSE){
-		self.handleEvent(MUSIC_PAUSE);
+	if (state.status == STATE.PAUSE && self.previousState.status != STATE.PAUSE){
+		self.handleEvent(EVENT.MUSIC_PAUSE);
 	}
-	if (state.status == STATE_STOP && self.previousState.status != STATE_STOP){
-		self.handleEvent(MUSIC_STOP);
+	if (state.status == STATE.STOP && self.previousState.status != STATE.STOP){
+		self.handleEvent(EVENT.MUSIC_STOP);
 	}
 
 	// mute
 	if (state.mute && !self.previousState.mute){
-		self.handleEvent(MUTE_ON);
+		self.handleEvent(EVENT.MUTE_ON);
 	}
 	if (!state.mute && self.previousState.mute){
-		self.handleEvent(MUTE_OFF);
+		self.handleEvent(EVENT.MUTE_OFF);
 	}
 	
 	// randomize
 	if (state.random && !self.previousState.random){
-		self.handleEvent(RANDOM_ON);
+		self.handleEvent(EVENT.RANDOM_ON);
 	}
 	if (!state.random && self.previousState.random){
-		self.handleEvent(RANDOM_OFF);
+		self.handleEvent(EVENT.RANDOM_OFF);
 	}
 	
 	// Handle any repeat events
 	if (!self.previousState){
 		if (state.repeat){
-			self.handleEvent(REPEAT_ON);
+			self.handleEvent(EVENT.REPEAT_ON);
 		}
 		if (state.repeat && !state.repeatSingle){
-			self.handleEvent(REPEAT_ALL_ON);
+			self.handleEvent(EVENT.REPEAT_ALL_ON);
 		}
 		if (!state.repeat && !state.repeatSingle){
-			self.handleEvent(REPEAT_ALL_OFF);
+			self.handleEvent(EVENT.REPEAT_ALL_OFF);
 		}
 		if (state.repeat && state.repeatSingle){
-			self.handleEvent(REPEAT_SINGLE_ON);
+			self.handleEvent(EVENT.REPEAT_SINGLE_ON);
 		}
 		if (!state.repeat && state.repeatSingle){
-			self.handleEvent(REPEAT_SINGLE_OFF);        
+			self.handleEvent(EVENT.REPEAT_SINGLE_OFF);        
 		}
 		if (!state.repeat){
-			self.handleEvent(REPEAT_OFF);
+			self.handleEvent(EVENT.REPEAT_OFF);
 		}
 	}
 	else{
 		if (state.repeat && !self.previousState.repeat){
-			self.handleEvent(REPEAT_ON);
+			self.handleEvent(EVENT.REPEAT_ON);
 		}
 		
 		// repeat all
 		if (state.repeat && !state.repeatSingle && (!self.previousState.repeat || self.previousState.repeatSingle)){
-			self.handleEvent(REPEAT_ALL_ON);
+			self.handleEvent(EVENT.REPEAT_ALL_ON);
 		}
 		
 		// repeat single
 		if (state.repeat && state.repeatSingle && (!self.previousState.repeat || !self.previousState.repeatSingle)){
-			self.handleEvent(REPEAT_SINGLE_ON);
+			self.handleEvent(EVENT.REPEAT_SINGLE_ON);
 		}
 
 		if (!state.repeat && self.previousState.repeat){
-			self.handleEvent(REPEAT_OFF);
+			self.handleEvent(EVENT.REPEAT_OFF);
 			if (self.previousState.repeatSingle){
-				self.handleEvent(REPEAT_SINGLE_OFF); 
+				self.handleEvent(EVENT.REPEAT_SINGLE_OFF); 
 			}
 			else{
-				self.handleEvent(REPEAT_ALL_OFF);
+				self.handleEvent(EVENT.REPEAT_ALL_OFF);
 			}
 		}
 	}
@@ -462,10 +458,8 @@ GPIOControl.prototype.handleEvent = function(e) {
 
 			// Create a delay to writing to GPIO
 			gpio.delayTimeoutId = setTimeout(() => {
-
 				self.log(`Turning GPIO ${gpio.pin} ${self.boolToString(gpio.state)} (${e})`);
 
-				//gpio.writeSync(gpio.state);
 				gpiox.set_gpio(gpio.pin, gpio.state);
 
 				// If a duration has been specified then write to GPIO after specified duration
@@ -476,14 +470,13 @@ GPIOControl.prototype.handleEvent = function(e) {
 					// Create timeout to pull GPIO
 					gpio.durationTimeoutId = setTimeout(() => {
 						self.log(`Turning GPIO ${gpio.pin} ${self.boolToString(!gpio.state)} (${e})`);
-						//gpio.writeSync(!gpio.state);
 						gpiox.set_gpio(gpio.pin, !gpio.state);
 					}, gpio.duration);
 				}
 			}, gpio.delay);
 
 			// Shutdown after a short wait
-			if (e == SYSTEM_SHUTDOWN){
+			if (e == EVENT.SYSTEM_SHUTDOWN){
 				sleep.sleep(5);
 			}
 		}
@@ -527,13 +520,13 @@ GPIOControl.prototype.unitsToString = function(value){
 	const self = this;
 
 	switch (value){
-		case 0: // hours;
+		case DURATION.HOURS:
 			return self.getI18nString("UNITS_HOURS");
-		case 1: // minutes;
+		case DURATION.MINUTES:
 			return self.getI18nString("UNITS_MINUTES");
-		case 2: // seconds;
+		case DURATION.SECONDS:
 			return self.getI18nString("UNITS_SECONDS");
-		case 3: //ms
+		case DURATION.MILLISECONDS:
 			return self.getI18nString("UNITS_MILLISECONDS");
 	}
 }
@@ -558,10 +551,10 @@ GPIOControl.prototype.load18nStrings = function() {
 GPIOControl.prototype.getI18nString = function (key) {
 	const self = this;
 
-	if (self.i18nStrings[key] !== undefined)
+	if (self.i18nStrings[key] !== undefined){
 		return self.i18nStrings[key];
-	else
-		return self.i18nStringsDefaults[key];
+	}
+	return self.i18nStringsDefaults[key];
 };
 
 // Retrieve a UI element from UI config
@@ -579,10 +572,10 @@ GPIOControl.prototype.setSwitchElement = function(obj, field, value){
 	
 	if (result){
 		result.value = value;
+		return;
 	}
-	else{
-		self.log(`Could not find control ${field}`);
-	}
+
+	self.log(`Could not find control ${field}`);
 }
 
 // Populate select UI element
@@ -593,10 +586,10 @@ GPIOControl.prototype.setSelectElement = function(obj, field, value, label){
 	if (result){
 		result.value.value = value;
 		result.value.label = label;
+		return;
 	}
-	else{
-		self.log(`Could not find control ${field}`);
-	}
+
+	self.log(`Could not find control ${field}`);
 }
 
 // Populate select UI element when value matches the label

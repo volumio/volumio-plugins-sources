@@ -1,6 +1,6 @@
 {
 	"name": "gpio_control",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"description": "GPIO output control for Volumio 3",
 	"main": "index.js",
 	"scripts": {
