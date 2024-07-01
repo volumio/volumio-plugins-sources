@@ -19,7 +19,7 @@
 		"os": [
 			"buster"
 		],
-		"details": "Spotify plugin for Volumio3 helloooooooo",
+		"details": "Spotify plugin for Volumio3",
 		"changelog": "",
 		"architectures": [
 			"amd64",
