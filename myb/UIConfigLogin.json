@@ -1,0 +1,63 @@
+{
+  "page": {
+    "label": "TRANSLATE.UI.MUSIC_YOUR_BRAND"
+  },
+  "sections": [
+    {
+      "id": "section_account",
+      "element": "section",
+      "label": "TRANSLATE.UI.LOGIN_TO_YOUR_ACCOUNT",
+      "icon": "fa-brands fa-soundcloud",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/myb",
+        "method": "login"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.UI.SAVE",
+        "data": [
+          "email",
+          "password"
+        ]
+      },
+      "content": [
+        {
+          "id": "email",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.UI.EMAIL_PLACEHOLDER",
+          "label": "Email",
+          "attributes": [
+            {"placeholder": "TRANSLATE.UI.EMAIL_PLACEHOLDER"}, {"maxlength": 50}
+          ],
+          "value": ""
+        },
+        {
+          "id": "password",
+          "type": "password",
+          "element": "input",
+          "doc": "TRANSLATE.UI.PASSWORD_PLACEHOLDER",
+          "label": "Password",
+          "attributes": [
+            {"placeholder": "TRANSLATE.UI.PASSWORD_PLACEHOLDER"}, {"maxlength": 50}
+          ],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "section_link",
+      "element": "section",
+      "label": "TRANSLATE.UI.USEFULL_LINKS",
+      "icon": "fa-link",
+      "content": [
+        {
+          "id": "volumiolink",
+          "element": "button",
+          "label": "TRANSLATE.UI.OPEN_MUSIC_YOUR_BRAND",
+          "onClick": {"type": "openUrl", "url": "https://my.musicyourbrand.com/"}
+        }
+      ]
+    }
+  ]
+}

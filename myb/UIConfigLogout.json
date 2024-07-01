@@ -1,0 +1,39 @@
+{
+  "page": {
+    "label": "TRANSLATE.UI.MUSIC_YOUR_BRAND"
+  },
+  "sections": [
+    {
+      "id": "section_logout_account",
+      "element": "section",
+      "label": "TRANSLATE.UI.LOGOUT_TO_YOUR_ACCOUNT",
+      "icon": "fa-brands fa-soundcloud",
+      "content": [
+        {
+          "id": "logoutButton",
+          "element": "button",
+          "label": "TRANSLATE.UI.LEAVE",
+          "onClick": {
+            "type": "controller",
+            "endpoint": "music_service/myb",
+            "method": "logout"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_link",
+      "element": "section",
+      "label": "TRANSLATE.UI.USEFULL_LINKS",
+      "icon": "fa-link",
+      "content": [
+        {
+          "id": "volumiolink",
+          "element": "button",
+          "label": "TRANSLATE.UI.OPEN_MUSIC_YOUR_BRAND",
+          "onClick": {"type": "openUrl", "url": "https://my.musicyourbrand.com/"}
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "UI": {
+    "MUSIC_YOUR_BRAND": "Music Your Brand",
+    "LOGIN_TO_YOUR_ACCOUNT": "Login to your myb account",
+    "LOGOUT_TO_YOUR_ACCOUNT": "Logout to your myb account",
+    "SAVE": "Save",
+    "LEAVE": "Disconnect",
+    "LOGOUT": "Disconnection",
+    "LOGOUT_SUCCESSFUL": "Disconnection successful",
+    "EMAIL_PLACEHOLDER": "enter an email, ex: johndoe@gmail.com",
+    "PASSWORD_PLACEHOLDER": "Enter your password",
+    "OPEN_MUSIC_YOUR_BRAND": "Go to Music Your Brand website",
+    "LOGIN": "Login",
+    "LOGIN_SUCCESSFUL": "Login successfully",
+    "ERROR": "Error",
+    "GENERIC_ERROR": "Generic error, try logging in again",
+    "LOGIN_FAILED": "Incorrect email or password, please try again.",
+    "USEFULL_LINKS": "Useful Links"
+  }
+}
