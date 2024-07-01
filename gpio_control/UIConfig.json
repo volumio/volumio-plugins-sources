@@ -16088,7 +16088,7 @@
 					"description": "TRANSLATE.FORUM_LINK.DESC",
 					"onClick": { 
 						"type" : "openUrl", 
-						"url" : "https://community.volumio.com/t/plugin-gpio-control-control-gpio-with-volumio2-events" 
+						"url" : "https://community.volumio.com/t/plugin-gpio-control-control-gpio-with-volumio-3-events-now-rpi5-compatible" 
 					}   
 				},
 				{
