@@ -13,8 +13,8 @@ class BaseModel {
     }
     async expandSectionList(response, url) {
         const { innertube } = await this.getInnertube();
-        const sectionList = response.contents_memo?.getType(volumio_youtubei_js_1.YTNodes.SectionList)?.first();
-        if (sectionList) {
+        const sectionLists = response.contents_memo?.getType(volumio_youtubei_js_1.YTNodes.SectionList) || [];
+        for (const sectionList of sectionLists) {
             let sectionListContinuation = sectionList.continuation;
             if (sectionList.continuation_type !== 'next') {
                 sectionListContinuation = undefined;
