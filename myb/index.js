@@ -256,7 +256,7 @@ ControllerMyb.prototype.logout = function () {
 
 
 ControllerMyb.prototype.removeAllRadios = function () {
-  this.saveConfigData('radios', {});
+  this.saveConfigData('radios', null);
 };
 
 
