@@ -646,7 +646,7 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
     if (data.header) {
         const dataHeader = this.unwrap(data.header);
         if (dataHeader && !Array.isArray(dataHeader)) {
-            const header = __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_parseHeader).call(this, dataHeader);
+            const header = __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_parseHeader).call(this, dataHeader, originatingEndpoint);
             if (header) {
                 result.header = header;
             }
@@ -656,6 +656,16 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
     if (dataContents && !Array.isArray(dataContents) && dataContents.hasKey('tabs')) {
         const tabs = this.unwrap(dataContents.tabs);
         if (tabs && Array.isArray(tabs)) {
+            if (!result.header) {
+                // Album / Playlist has MusicResponsiveHeader wrapped in 'content'
+                const hiddenHeader = __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_findNodesByType).call(this, tabs, volumio_youtubei_js_1.YTNodes.MusicResponsiveHeader)?.[0];
+                if (hiddenHeader) {
+                    const header = __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_parseHeader).call(this, hiddenHeader, originatingEndpoint);
+                    if (header) {
+                        result.header = header;
+                    }
+                }
+            }
             const reducedTabs = tabs.reduce((result, tab) => {
                 const endpoint = this.parseEndpoint(tab.endpoint) || originatingEndpoint;
                 let tabTitle = this.unwrap(tab.title);
@@ -696,15 +706,22 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
             result.sections.push(parsedSection);
         }
     }
+    if (dataContents && !Array.isArray(dataContents) && dataContents.hasKey('secondary_contents')) {
+        const secondaryContents = this.unwrap(dataContents.secondary_contents);
+        const parsedSection = __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_parseContentToSection).call(this, { contents: secondaryContents }, originatingEndpoint.type);
+        if (parsedSection) {
+            result.sections.push(parsedSection);
+        }
+    }
     return result;
-}, _InnertubeResultParser_parseHeader = function _InnertubeResultParser_parseHeader(data) {
+}, _InnertubeResultParser_parseHeader = function _InnertubeResultParser_parseHeader(data, originatingEndpoint) {
     if (!data) {
         return null;
     }
     // MusicEditablePlaylistDetailHeader
     // Occurs in playlists; wraps around actual header (MusicDetailHeader)
     if (data instanceof volumio_youtubei_js_1.YTNodes.MusicEditablePlaylistDetailHeader) {
-        return __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_parseHeader).call(this, data.header);
+        return __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_parseHeader).call(this, data.header, originatingEndpoint);
     }
     let type = null, title = null, description = null, thumbnail = null, endpoint = null, channel = null, shufflePlay = null;
     const subtitles = [];
@@ -723,6 +740,7 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
         }
     }
     // Album / Playlist
+    // -- Legacy: might remove in future - should now be MusicResponsiveHeader
     else if (data instanceof volumio_youtubei_js_1.YTNodes.MusicDetailHeader) {
         title = this.unwrap(data.title);
         if (data.description) {
@@ -780,6 +798,65 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
                         type = 'album';
                         endpoint = this.parseEndpoint(button.endpoint, Endpoint_1.EndpointType.Watch);
                         break;
+                }
+            }
+        }
+    }
+    else if (data instanceof volumio_youtubei_js_1.YTNodes.MusicResponsiveHeader) {
+        title = this.unwrap(data.title);
+        if (data.description) {
+            description = this.unwrap(data.description.description);
+        }
+        const textOne = data.strapline_text_one;
+        const textOneStr = this.unwrap(textOne);
+        const textOneEndpoint = textOne.endpoint;
+        if (textOneEndpoint && textOneStr) {
+            const authorTextRun = textOne.runs?.find((run) => {
+                const runEndpoint = this.parseEndpoint(run.endpoint, Endpoint_1.EndpointType.Browse);
+                return EndpointHelper_1.default.isChannelEndpoint(runEndpoint);
+            });
+            const authorEndpoint = authorTextRun.endpoint;
+            const channelId = this.parseEndpoint(authorEndpoint, Endpoint_1.EndpointType.Browse)?.payload.browseId;
+            if (channelId) {
+                channel = {
+                    type: 'channel',
+                    channelId,
+                    name: textOneStr,
+                    endpoint
+                };
+            }
+        }
+        const primarySubtitle = this.unwrap(data.subtitle);
+        const secondSubtitle = this.unwrap(data.second_subtitle);
+        if (primarySubtitle) {
+            subtitles.push(primarySubtitle);
+        }
+        if (secondSubtitle) {
+            subtitles.push(secondSubtitle);
+        }
+        thumbnail = this.parseThumbnail(data.thumbnail?.contents);
+        // Type
+        type = EndpointHelper_1.default.isAlbumEndpoint(originatingEndpoint) ? 'album' : 'playlist';
+        // Play endpoint
+        const playButton = data.buttons.find((button) => button instanceof volumio_youtubei_js_1.YTNodes.MusicPlayButton);
+        if (playButton) {
+            endpoint = this.parseEndpoint(playButton.endpoint, Endpoint_1.EndpointType.Watch);
+        }
+        // Shuffle endpoint
+        const mdhMenu = data.buttons.find((button) => button instanceof volumio_youtubei_js_1.YTNodes.Menu);
+        if (mdhMenu instanceof volumio_youtubei_js_1.YTNodes.Menu) {
+            for (const menuItem of mdhMenu.items) {
+                if (menuItem instanceof volumio_youtubei_js_1.YTNodes.MenuNavigationItem && menuItem.icon_type === 'MUSIC_SHUFFLE') {
+                    const mdhShufflePlayEndpoint = this.parseEndpoint(menuItem.endpoint, Endpoint_1.EndpointType.Watch);
+                    const mdhShufflePlayText = this.unwrap(menuItem.text);
+                    if (mdhShufflePlayEndpoint && mdhShufflePlayText) {
+                        shufflePlay = {
+                            type: 'endpointLink',
+                            title: mdhShufflePlayText,
+                            endpoint: mdhShufflePlayEndpoint,
+                            icon: menuItem.icon_type
+                        };
+                    }
                 }
             }
         }
