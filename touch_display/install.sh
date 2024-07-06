@@ -75,6 +75,12 @@ else # on other hardware
   ln -fs /usr/bin/chromium /usr/bin/chromium-browser || { echo "Linking /usr/bin/chromium to /usr/bin/chromium-browser failed"; exit 1; }
 fi
 
+echo "Installing touch keyboard"
+cd "$PLUGIN_DIR"
+wget https://github.com/xontab/chrome-virtual-keyboard/archive/master.tar.gz
+tar -xvzf master.tar.gz
+rm -f master.tar.gz
+ 
 echo "Installing japanese, korean, chinese and taiwanese fonts"
 apt-get -y install fonts-arphic-ukai fonts-arphic-gbsn00lp fonts-unfonts-core || { echo "Installation of fonts failed"; exit 1; }
 
@@ -105,6 +111,7 @@ while true; do
     --disable-infobars \\
     --disable-session-crashed-bubble \\
     --disable-translate \\
+    --load-extension='$PLUGIN_DIR/chrome-virtual-keyboard-master/' \\
     --user-data-dir='/data/volumiokiosk' \
     http://localhost:3000
 done" > /opt/volumiokiosk.sh || { echo "Creating Volumio kiosk start script failed"; exit 1; }
