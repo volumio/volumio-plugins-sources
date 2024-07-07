@@ -155,6 +155,18 @@ class ControllerNowPlaying {
          * startup options are applied only once during app startup.
          */
     }
+    configSaveLayouts(data) {
+        const apply = __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_parseConfigSaveData).call(this, data);
+        const screen = NowPlayingContext_1.default.getConfigValue('screen.nowPlaying');
+        const infoViewLayout = screen.infoViewLayout || {};
+        infoViewLayout.type = apply.npInfoViewLayoutType;
+        infoViewLayout.layout = apply.npInfoViewLayout;
+        infoViewLayout.preferBiggerAlbumArt = apply.npInfoViewLayoutPreferBiggerAlbumArt;
+        screen.infoViewLayout = infoViewLayout;
+        NowPlayingContext_1.default.setConfigValue('screen.nowPlaying', screen);
+        NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+        __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.NowPlayingScreen);
+    }
     configSaveContentRegionSettings(data) {
         const apply = __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_parseConfigSaveData).call(this, data);
         const current = NowPlayingContext_1.default.getConfigValue('contentRegion');
@@ -537,6 +549,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     const metadataServiceUIConf = uiconf.section_metadata_service;
     const startupOptionsUIConf = uiconf.section_startup_options;
     const contentRegionUIConf = uiconf.section_content_region;
+    const layoutsUIConf = uiconf.section_layouts;
     const textStylesUIConf = uiconf.section_text_styles;
     const widgetStylesUIConf = uiconf.section_widget_styles;
     const albumartStylesUIConf = uiconf.section_album_art_style;
@@ -553,6 +566,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     const kioskUIConf = uiconf.section_kiosk;
     const performanceUIConf = uiconf.section_performance;
     const backupConfigUIConf = uiconf.section_backup_config;
+    const nowPlayingScreen = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.NowPlayingScreen);
     const volumioBackgrounds = (0, Misc_1.getVolumioBackgrounds)();
     const myBackgrounds = MyBackgroundMonitor_1.default.getImages();
     /**
@@ -678,9 +692,23 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     contentRegionUIConf.content.npInfoViewPadding.value = contentRegion.npInfoViewPadding;
     contentRegionUIConf.content.npInfoViewPaddingPortrait.value = contentRegion.npInfoViewPaddingPortrait;
     /**
+     * Layouts conf
+     */
+    const infoViewLayout = nowPlayingScreen.infoViewLayout;
+    layoutsUIConf.content.npInfoViewLayoutType.value = {
+        value: infoViewLayout.type,
+        label: infoViewLayout.type == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    layoutsUIConf.content.npInfoViewLayoutPreferBiggerAlbumArt.value = infoViewLayout.preferBiggerAlbumArt;
+    layoutsUIConf.content.npInfoViewLayout.value = {
+        value: infoViewLayout.layout,
+        label: infoViewLayout.layout == 'big-art' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_BIG_ART_LAYOUT') :
+            infoViewLayout.layout == 'ultra-wide' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_ULTRA_WIDE_LAYOUT') :
+                NowPlayingContext_1.default.getI18n('NOW_PLAYING_STANDARD_LAYOUT')
+    };
+    /**
      * Text Styles conf
      */
-    const nowPlayingScreen = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.NowPlayingScreen);
     textStylesUIConf.content.trackInfoVisibility.value = {
         value: nowPlayingScreen.trackInfoVisibility,
         label: nowPlayingScreen.trackInfoVisibility == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')

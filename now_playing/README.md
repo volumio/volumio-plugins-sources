@@ -91,6 +91,11 @@ Starting from v0.7.0, the Now Playing plugin can query the relevant music servic
 
 ## Changelog
 
+0.7.1
+- Minor bug fixes
+- Add 'Layouts -> Info View' settings
+- Update web client v0.7.1
+
 0.7.0
 - Add synced lyrics support
 - Query corresponding music service for metadata (requires service to implement `NowPlayingMetadataProvider` interface)

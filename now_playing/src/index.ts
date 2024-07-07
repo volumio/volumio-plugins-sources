@@ -59,6 +59,7 @@ class ControllerNowPlaying {
     const metadataServiceUIConf = uiconf.section_metadata_service;
     const startupOptionsUIConf = uiconf.section_startup_options;
     const contentRegionUIConf = uiconf.section_content_region;
+    const layoutsUIConf = uiconf.section_layouts;
     const textStylesUIConf = uiconf.section_text_styles;
     const widgetStylesUIConf = uiconf.section_widget_styles;
     const albumartStylesUIConf = uiconf.section_album_art_style;
@@ -76,6 +77,7 @@ class ControllerNowPlaying {
     const performanceUIConf = uiconf.section_performance;
     const backupConfigUIConf = uiconf.section_backup_config;
 
+    const nowPlayingScreen = CommonSettingsLoader.get(CommonSettingsCategory.NowPlayingScreen);
     const volumioBackgrounds = getVolumioBackgrounds();
     const myBackgrounds = myBackgroundMonitor.getImages();
 
@@ -212,10 +214,24 @@ class ControllerNowPlaying {
     contentRegionUIConf.content.npInfoViewPaddingPortrait.value = contentRegion.npInfoViewPaddingPortrait;
 
     /**
+     * Layouts conf
+     */
+    const infoViewLayout = nowPlayingScreen.infoViewLayout;
+    layoutsUIConf.content.npInfoViewLayoutType.value = {
+      value: infoViewLayout.type,
+      label: infoViewLayout.type == 'auto' ? np.getI18n('NOW_PLAYING_AUTO') : np.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    layoutsUIConf.content.npInfoViewLayoutPreferBiggerAlbumArt.value = infoViewLayout.preferBiggerAlbumArt;
+    layoutsUIConf.content.npInfoViewLayout.value = {
+      value: infoViewLayout.layout,
+      label: infoViewLayout.layout == 'big-art' ? np.getI18n('NOW_PLAYING_BIG_ART_LAYOUT') :
+        infoViewLayout.layout == 'ultra-wide' ? np.getI18n('NOW_PLAYING_ULTRA_WIDE_LAYOUT') :
+          np.getI18n('NOW_PLAYING_STANDARD_LAYOUT')
+    };
+
+    /**
      * Text Styles conf
      */
-    const nowPlayingScreen = CommonSettingsLoader.get(CommonSettingsCategory.NowPlayingScreen);
-
     textStylesUIConf.content.trackInfoVisibility.value = {
       value: nowPlayingScreen.trackInfoVisibility,
       label: nowPlayingScreen.trackInfoVisibility == 'default' ? np.getI18n('NOW_PLAYING_DEFAULT') : np.getI18n('NOW_PLAYING_CUSTOM')
@@ -1572,6 +1588,20 @@ class ControllerNowPlaying {
      * Note here we don't broadcast 'settings updated' message, because
      * startup options are applied only once during app startup.
      */
+  }
+
+  configSaveLayouts(data: Record<string, any>) {
+    const apply = this.#parseConfigSaveData(data);
+    const screen = np.getConfigValue('screen.nowPlaying');
+    const infoViewLayout = screen.infoViewLayout || {};
+    infoViewLayout.type = apply.npInfoViewLayoutType;
+    infoViewLayout.layout = apply.npInfoViewLayout;
+    infoViewLayout.preferBiggerAlbumArt = apply.npInfoViewLayoutPreferBiggerAlbumArt;
+    screen.infoViewLayout = infoViewLayout;
+    np.setConfigValue('screen.nowPlaying', screen);
+    np.toast('success', np.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+
+    this.#notifyCommonSettingsUpdated(CommonSettingsCategory.NowPlayingScreen);
   }
 
   configSaveContentRegionSettings(data: Record<string, any>) {

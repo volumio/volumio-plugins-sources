@@ -8,6 +8,7 @@ export type UIConfigSectionKey =
               'section_weather_service' | 
               'section_startup_options' | 
               'section_content_region' | 
+              'section_layouts' | 
               'section_text_styles' | 
               'section_widget_styles' | 
               'section_album_art_style' | 
@@ -62,6 +63,11 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'npBasicViewPaddingPortrait' | 
     'npInfoViewPadding' | 
     'npInfoViewPaddingPortrait' :
+
+  K extends 'section_layouts' ?
+    'npInfoViewLayoutType' | 
+    'npInfoViewLayoutPreferBiggerAlbumArt' | 
+    'npInfoViewLayout' :
 
   K extends 'section_text_styles' ?
     'trackInfoVisibility' | 
@@ -373,6 +379,13 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'npBasicViewPaddingPortrait' ? UIConfigInput<K, 'text'> :
     C extends 'npInfoViewPadding' ? UIConfigInput<K, 'text'> :
     C extends 'npInfoViewPaddingPortrait' ? UIConfigInput<K, 'text'> :
+    never
+  ) : 
+
+  K extends 'section_layouts' ? (
+    C extends 'npInfoViewLayoutType' ? UIConfigSelect<K> :
+    C extends 'npInfoViewLayoutPreferBiggerAlbumArt' ? UIConfigSwitch<K> :
+    C extends 'npInfoViewLayout' ? UIConfigSelect<K> :
     never
   ) : 
 

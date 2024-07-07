@@ -61,7 +61,7 @@ export function removeSongNumber(name: string) {
 }
 
 const mergeSettingsCustomizer = (target: any, src: any): any => {
-  if (typeof target === 'object' && !Array.isArray(target)) {
+  if (target && typeof target === 'object' && !Array.isArray(target)) {
     return lodash.mergeWith(target, src, mergeSettingsCustomizer);
   }
   if (target === undefined || target === null || (typeof target === 'string' && target.trim() === '')) {

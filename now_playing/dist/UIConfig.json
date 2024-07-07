@@ -394,6 +394,83 @@
       ]
     },
     {
+      "id": "section_layouts",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_LAYOUTS",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveLayouts"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "npInfoViewLayoutType",
+          "npInfoViewLayout",
+          "npInfoViewLayoutPreferBiggerAlbumArt"
+        ]
+      },
+      "content": [
+        {
+          "id": "npInfoViewLayoutType",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_NP_INFO",
+          "value": {
+            "value": "auto", 
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "npInfoViewLayoutPreferBiggerAlbumArt",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_PREFER_BIG_ART",
+          "value": false,
+          "visibleIf": {
+            "field": "npInfoViewLayoutType",
+            "value": "auto"
+          }
+        },
+        {
+          "id": "npInfoViewLayout",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_LAYOUT_LI",
+          "value": {
+            "value": "standard", 
+            "label": "TRANSLATE.NOW_PLAYING_STANDARD_LAYOUT"
+          },
+          "options": [
+            {
+              "value": "standard",
+              "label": "TRANSLATE.NOW_PLAYING_STANDARD_LAYOUT"
+            },
+            {
+              "value": "big-art",
+              "label": "TRANSLATE.NOW_PLAYING_BIG_ART_LAYOUT"
+            },
+            {
+              "value": "ultra-wide",
+              "label": "TRANSLATE.NOW_PLAYING_ULTRA_WIDE_LAYOUT"
+            }
+          ],
+          "visibleIf": {
+            "field": "npInfoViewLayoutType",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
       "id": "section_text_styles",
       "element": "section",
       "label": "TRANSLATE.NOW_PLAYING_TEXT_STYLES",
