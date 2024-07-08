@@ -91,6 +91,10 @@ Starting from v0.7.0, the Now Playing plugin can query the relevant music servic
 
 ## Changelog
 
+0.7.2
+- Startup options -> Active screen: separate "Info View" into tabs 
+- Update web client v0.7.2
+
 0.7.1
 - Minor bug fixes
 - Add 'Layouts -> Info View' settings

@@ -667,7 +667,16 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     };
     switch (startupOptions.activeScreen) {
         case 'nowPlaying.infoView':
-            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO');
+            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO_SONG');
+            break;
+        case 'nowPlaying.infoView.artist':
+            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO_ARTIST');
+            break;
+        case 'nowPlaying.infoView.album':
+            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO_ALBUM');
+            break;
+        case 'nowPlaying.infoView.lyrics':
+            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO_LYRICS');
             break;
         case 'browse':
             startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_BROWSE');

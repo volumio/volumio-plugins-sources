@@ -1,6 +1,6 @@
 {
 	"name": "now_playing",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"description": "Provides a 'Now Playing' screen for your Volumio device.",
 	"main": "./dist/index.js",
 	"scripts": {
@@ -69,7 +69,7 @@
 		"md5": "^2.3.0",
 		"node-cache": "^5.1.2",
 		"node-fetch": "^2.6.9",
-		"now-playing-common": "git+https://github.com/patrickkfkan/volumio-now-playing-common#v0.3.1",
+		"now-playing-common": "git+https://github.com/patrickkfkan/volumio-now-playing-common#v0.3.2",
 		"semver": "^7.5.4",
 		"string-format": "^2.0.0",
 		"v-conf": "^1.4.3",

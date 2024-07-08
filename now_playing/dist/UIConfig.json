@@ -283,7 +283,19 @@
             },
             {
               "value": "nowPlaying.infoView",
-              "label": "TRANSLATE.NOW_PLAYING_NP_INFO"
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO_SONG"
+            },
+            {
+              "value": "nowPlaying.infoView.artist",
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO_ARTIST"
+            },
+            {
+              "value": "nowPlaying.infoView.album",
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO_ALBUM"
+            },
+            {
+              "value": "nowPlaying.infoView.lyrics",
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LYRICS"
             },
             {
               "value": "browse",
