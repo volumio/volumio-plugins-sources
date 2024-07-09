@@ -1,5 +1,5 @@
 import ytmusic from '../YTMusicContext';
-import Innertube, { FormatOptions, YTNodes, Endpoints as YTEndpoints, Utils as YTUtils, YTMusic } from 'volumio-youtubei.js';
+import Innertube, { FormatOptions, YTNodes, Endpoints as YTEndpoints, Utils as YTUtils, YTMusic, Parser } from 'volumio-youtubei.js';
 import { BaseModel } from './BaseModel';
 import InnertubeResultParser from './InnertubeResultParser';
 import Endpoint, { EndpointType } from '../types/Endpoint';
@@ -174,4 +174,34 @@ export default class MusicItemModel extends BaseModel {
     return InnertubeResultParser.parseContentItem(match);
   }
 
+  async #getLyricsId(videoId: string) {
+    const { innertube } = await this.getInnertube();
+    const response = await innertube.actions.execute('/next', {
+      videoId,
+      client: 'YTMUSIC_ANDROID'
+    });
+    const parsed = Parser.parseResponse(response.data);
+    const tabs = parsed.contents_memo?.getType(YTNodes.Tab);
+    const tab = tabs?.matchCondition((tab) => tab.endpoint.payload.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType === 'MUSIC_PAGE_TYPE_TRACK_LYRICS');
+    if (!tab) {
+      throw Error('Could not find lyrics tab.');
+    }
+    const lyricsId = tab.endpoint.payload.browseId;
+    if (!lyricsId) {
+      throw Error('No lyrics ID found in endpoint');
+    }
+    return lyricsId;
+  }
+
+  async getLyrics(videoId: string) {
+    const { innertube } = await this.getInnertube();
+    const lyricsId = await this.#getLyricsId(videoId);
+    const payload = {
+      browseId: lyricsId,
+      client: 'YTMUSIC_ANDROID'
+    };
+    const response = await innertube.actions.execute('/browse', payload);
+    const parsed = Parser.parseResponse(response.data);
+    return InnertubeResultParser.parseLyrics(parsed);
+  }
 }
