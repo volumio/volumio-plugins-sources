@@ -17,6 +17,7 @@ var _YTCRContext_instances, _YTCRContext_singletons, _YTCRContext_data, _YTCRCon
 Object.defineProperty(exports, "__esModule", { value: true });
 const string_format_1 = __importDefault(require("string-format"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
+const Utils_1 = require("./Utils");
 class YTCRContext {
     constructor() {
         _YTCRContext_instances.add(this);
@@ -80,7 +81,18 @@ class YTCRContext {
         __classPrivateFieldGet(this, _YTCRContext_pluginConfig, "f").set(key, json ? JSON.stringify(value) : value);
     }
     getMpdPlugin() {
-        return __classPrivateFieldGet(this, _YTCRContext_instances, "m", _YTCRContext_getSingleton).call(this, 'mpdPlugin', () => __classPrivateFieldGet(this, _YTCRContext_pluginContext, "f").coreCommand.pluginManager.getPlugin('music_service', 'mpd'));
+        return __classPrivateFieldGet(this, _YTCRContext_instances, "m", _YTCRContext_getSingleton).call(this, 'mpdPlugin', () => this.getMusicServicePlugin('mpd'));
+    }
+    getMusicServicePlugin(name) {
+        return __classPrivateFieldGet(this, _YTCRContext_pluginContext, "f").coreCommand.pluginManager.getPlugin('music_service', name) || null;
+    }
+    async getPluginInfo(name, category) {
+        const installed = await (0, Utils_1.kewToJSPromise)(__classPrivateFieldGet(this, _YTCRContext_pluginContext, "f").coreCommand.pluginManager.getInstalledPlugins());
+        return installed.find((p) => {
+            const matchName = p.name === name;
+            const matchCategory = category ? category === p.category : true;
+            return matchName && matchCategory;
+        }) || null;
     }
     getStateMachine() {
         return __classPrivateFieldGet(this, _YTCRContext_pluginContext, "f").coreCommand.stateMachine;

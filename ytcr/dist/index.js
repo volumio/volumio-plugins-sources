@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _ControllerYTCR_instances, _ControllerYTCR_serviceName, _ControllerYTCR_context, _ControllerYTCR_config, _ControllerYTCR_commandRouter, _ControllerYTCR_volatileCallback, _ControllerYTCR_previousTrackTimer, _ControllerYTCR_logger, _ControllerYTCR_player, _ControllerYTCR_volumeControl, _ControllerYTCR_receiver, _ControllerYTCR_dataStore, _ControllerYTCR_getMpdConfig, _ControllerYTCR_hasConnectedSenders, _ControllerYTCR_checkSendersAndPromptBeforeRestart;
+var _ControllerYTCR_instances, _ControllerYTCR_serviceName, _ControllerYTCR_context, _ControllerYTCR_config, _ControllerYTCR_commandRouter, _ControllerYTCR_volatileCallback, _ControllerYTCR_previousTrackTimer, _ControllerYTCR_logger, _ControllerYTCR_player, _ControllerYTCR_volumeControl, _ControllerYTCR_receiver, _ControllerYTCR_dataStore, _ControllerYTCR_nowPlayingMetadataProvider, _ControllerYTCR_getMpdConfig, _ControllerYTCR_hasConnectedSenders, _ControllerYTCR_checkSendersAndPromptBeforeRestart;
 const yt_cast_receiver_1 = __importStar(require("yt-cast-receiver"));
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -53,6 +53,7 @@ const utils = __importStar(require("./lib/Utils.js"));
 const VideoLoader_js_1 = __importDefault(require("./lib/VideoLoader.js"));
 const PairingHelper_js_1 = __importDefault(require("./lib/PairingHelper.js"));
 const ReceiverDataStore_js_1 = __importDefault(require("./lib/ReceiverDataStore.js"));
+const YTCRNowPlayingMetadataProvider_1 = __importDefault(require("./lib/YTCRNowPlayingMetadataProvider"));
 const IDLE_STATE = {
     status: 'stop',
     service: 'ytcr',
@@ -83,6 +84,7 @@ class ControllerYTCR {
         _ControllerYTCR_volumeControl.set(this, void 0);
         _ControllerYTCR_receiver.set(this, void 0);
         _ControllerYTCR_dataStore.set(this, void 0);
+        _ControllerYTCR_nowPlayingMetadataProvider.set(this, void 0);
         __classPrivateFieldSet(this, _ControllerYTCR_context, context, "f");
         __classPrivateFieldSet(this, _ControllerYTCR_commandRouter, context.coreCommand, "f");
         __classPrivateFieldSet(this, _ControllerYTCR_dataStore, new ReceiverDataStore_js_1.default(), "f");
@@ -310,6 +312,7 @@ class ControllerYTCR {
             await __classPrivateFieldGet(this, _ControllerYTCR_volumeControl, "f").init();
             await __classPrivateFieldGet(this, _ControllerYTCR_player, "f").init();
             __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Receiver started with options:', receiverOptions);
+            __classPrivateFieldSet(this, _ControllerYTCR_nowPlayingMetadataProvider, new YTCRNowPlayingMetadataProvider_1.default(__classPrivateFieldGet(this, _ControllerYTCR_player, "f"), __classPrivateFieldGet(this, _ControllerYTCR_logger, "f")), "f");
             defer.resolve();
         })
             .catch((error) => {
@@ -411,6 +414,7 @@ class ControllerYTCR {
             __classPrivateFieldGet(this, _ControllerYTCR_volumeControl, "f").unregisterVolumioVolumeChangeListener();
             await __classPrivateFieldGet(this, _ControllerYTCR_player, "f").destroy();
             YTCRContext_js_1.default.reset();
+            __classPrivateFieldSet(this, _ControllerYTCR_nowPlayingMetadataProvider, null, "f");
             defer.resolve();
         })
             .catch((error) => {
@@ -504,8 +508,11 @@ class ControllerYTCR {
         }
         return utils.jsPromiseToKew(__classPrivateFieldGet(this, _ControllerYTCR_player, "f").previous());
     }
+    getNowPlayingMetadataProvider() {
+        return __classPrivateFieldGet(this, _ControllerYTCR_nowPlayingMetadataProvider, "f");
+    }
 }
-_ControllerYTCR_serviceName = new WeakMap(), _ControllerYTCR_context = new WeakMap(), _ControllerYTCR_config = new WeakMap(), _ControllerYTCR_commandRouter = new WeakMap(), _ControllerYTCR_volatileCallback = new WeakMap(), _ControllerYTCR_previousTrackTimer = new WeakMap(), _ControllerYTCR_logger = new WeakMap(), _ControllerYTCR_player = new WeakMap(), _ControllerYTCR_volumeControl = new WeakMap(), _ControllerYTCR_receiver = new WeakMap(), _ControllerYTCR_dataStore = new WeakMap(), _ControllerYTCR_instances = new WeakSet(), _ControllerYTCR_getMpdConfig = function _ControllerYTCR_getMpdConfig() {
+_ControllerYTCR_serviceName = new WeakMap(), _ControllerYTCR_context = new WeakMap(), _ControllerYTCR_config = new WeakMap(), _ControllerYTCR_commandRouter = new WeakMap(), _ControllerYTCR_volatileCallback = new WeakMap(), _ControllerYTCR_previousTrackTimer = new WeakMap(), _ControllerYTCR_logger = new WeakMap(), _ControllerYTCR_player = new WeakMap(), _ControllerYTCR_volumeControl = new WeakMap(), _ControllerYTCR_receiver = new WeakMap(), _ControllerYTCR_dataStore = new WeakMap(), _ControllerYTCR_nowPlayingMetadataProvider = new WeakMap(), _ControllerYTCR_instances = new WeakSet(), _ControllerYTCR_getMpdConfig = function _ControllerYTCR_getMpdConfig() {
     return {
         path: '/run/mpd/socket'
     };

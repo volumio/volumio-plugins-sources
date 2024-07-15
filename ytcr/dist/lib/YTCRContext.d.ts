@@ -3,6 +3,16 @@ interface DeviceInfo {
     uuid: string;
     time: string;
 }
+export interface PluginInfo {
+    prettyName: string;
+    name: string;
+    category: string;
+    version: string;
+    icon: string;
+    isManuallyInstalled: boolean;
+    enabled: boolean;
+    active: boolean;
+}
 declare class YTCRContext {
     #private;
     constructor();
@@ -15,6 +25,8 @@ declare class YTCRContext {
     deleteConfigValue(key: string): void;
     setConfigValue(key: string, value: any, json?: boolean): void;
     getMpdPlugin(): any;
+    getMusicServicePlugin(name: string): any;
+    getPluginInfo(name: string, category?: string): Promise<PluginInfo | null>;
     getStateMachine(): any;
     reset(): void;
     getI18n(key: string, ...formatValues: any[]): string;

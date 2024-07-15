@@ -1,10 +1,22 @@
 import format from 'string-format';
 import fs from 'fs-extra';
+import { kewToJSPromise } from './Utils';
 
 interface DeviceInfo {
   name: string;
   uuid: string;
   time: string;
+}
+
+export interface PluginInfo {
+  prettyName: string;
+  name: string;
+  category: string;
+  version: string;
+  icon: string;
+  isManuallyInstalled: boolean;
+  enabled: boolean;
+  active: boolean;
 }
 
 class YTCRContext {
@@ -83,7 +95,20 @@ class YTCRContext {
   }
 
   getMpdPlugin(): any {
-    return this.#getSingleton('mpdPlugin', () => this.#pluginContext.coreCommand.pluginManager.getPlugin('music_service', 'mpd'));
+    return this.#getSingleton('mpdPlugin', () => this.getMusicServicePlugin('mpd'));
+  }
+
+  getMusicServicePlugin(name: string): any {
+    return this.#pluginContext.coreCommand.pluginManager.getPlugin('music_service', name) || null;
+  }
+
+  async getPluginInfo(name: string, category?: string): Promise<PluginInfo | null> {
+    const installed = await kewToJSPromise(this.#pluginContext.coreCommand.pluginManager.getInstalledPlugins()) as PluginInfo[];
+    return installed.find((p) => {
+      const matchName = p.name === name;
+      const matchCategory = category ? category === p.category : true;
+      return matchName && matchCategory;
+    }) || null;
   }
 
   getStateMachine(): any {
