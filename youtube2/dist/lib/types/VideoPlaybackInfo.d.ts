@@ -5,6 +5,7 @@ interface VideoPlaybackInfo {
         channelId?: string;
         name?: string;
     };
+    description?: string | null;
     thumbnail: string;
     isLive?: boolean;
     stream?: VideoStream | null;

@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _ControllerYouTube2_instances, _ControllerYouTube2_context, _ControllerYouTube2_config, _ControllerYouTube2_commandRouter, _ControllerYouTube2_browseController, _ControllerYouTube2_searchController, _ControllerYouTube2_playController, _ControllerYouTube2_getConfigI18nOptions, _ControllerYouTube2_getConfigAccountInfo, _ControllerYouTube2_getAuthStatus, _ControllerYouTube2_configCheckAutoplay, _ControllerYouTube2_addToBrowseSources;
+var _ControllerYouTube2_instances, _ControllerYouTube2_context, _ControllerYouTube2_config, _ControllerYouTube2_commandRouter, _ControllerYouTube2_browseController, _ControllerYouTube2_searchController, _ControllerYouTube2_playController, _ControllerYouTube2_nowPlayingMetadataProvider, _ControllerYouTube2_getConfigI18nOptions, _ControllerYouTube2_getConfigAccountInfo, _ControllerYouTube2_getAuthStatus, _ControllerYouTube2_configCheckAutoplay, _ControllerYouTube2_addToBrowseSources;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
@@ -52,6 +52,7 @@ const Auth_1 = require("./lib/util/Auth");
 const model_1 = __importStar(require("./lib/model"));
 const ViewHelper_1 = __importDefault(require("./lib/controller/browse/view-handlers/ViewHelper"));
 const InnertubeLoader_1 = __importDefault(require("./lib/model/InnertubeLoader"));
+const YouTube2NowPlayingMetadataProvider_1 = __importDefault(require("./lib/util/YouTube2NowPlayingMetadataProvider"));
 class ControllerYouTube2 {
     constructor(context) {
         _ControllerYouTube2_instances.add(this);
@@ -61,6 +62,7 @@ class ControllerYouTube2 {
         _ControllerYouTube2_browseController.set(this, void 0);
         _ControllerYouTube2_searchController.set(this, void 0);
         _ControllerYouTube2_playController.set(this, void 0);
+        _ControllerYouTube2_nowPlayingMetadataProvider.set(this, void 0);
         __classPrivateFieldSet(this, _ControllerYouTube2_context, context, "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_commandRouter, context.coreCommand, "f");
     }
@@ -205,6 +207,7 @@ class ControllerYouTube2 {
         __classPrivateFieldSet(this, _ControllerYouTube2_browseController, new browse_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_searchController, new SearchController_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_playController, new PlayController_1.default(), "f");
+        __classPrivateFieldSet(this, _ControllerYouTube2_nowPlayingMetadataProvider, new YouTube2NowPlayingMetadataProvider_1.default(), "f");
         __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_addToBrowseSources).call(this);
         return kew_1.default.resolve();
     }
@@ -214,6 +217,7 @@ class ControllerYouTube2 {
         __classPrivateFieldSet(this, _ControllerYouTube2_browseController, null, "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_searchController, null, "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_playController, null, "f");
+        __classPrivateFieldSet(this, _ControllerYouTube2_nowPlayingMetadataProvider, null, "f");
         InnertubeLoader_1.default.reset();
         YouTube2Context_1.default.reset();
         return kew_1.default.resolve();
@@ -368,8 +372,11 @@ class ControllerYouTube2 {
         });
         return defer.promise;
     }
+    getNowPlayingMetadataProvider() {
+        return __classPrivateFieldGet(this, _ControllerYouTube2_nowPlayingMetadataProvider, "f");
+    }
 }
-_ControllerYouTube2_context = new WeakMap(), _ControllerYouTube2_config = new WeakMap(), _ControllerYouTube2_commandRouter = new WeakMap(), _ControllerYouTube2_browseController = new WeakMap(), _ControllerYouTube2_searchController = new WeakMap(), _ControllerYouTube2_playController = new WeakMap(), _ControllerYouTube2_instances = new WeakSet(), _ControllerYouTube2_getConfigI18nOptions = function _ControllerYouTube2_getConfigI18nOptions() {
+_ControllerYouTube2_context = new WeakMap(), _ControllerYouTube2_config = new WeakMap(), _ControllerYouTube2_commandRouter = new WeakMap(), _ControllerYouTube2_browseController = new WeakMap(), _ControllerYouTube2_searchController = new WeakMap(), _ControllerYouTube2_playController = new WeakMap(), _ControllerYouTube2_nowPlayingMetadataProvider = new WeakMap(), _ControllerYouTube2_instances = new WeakSet(), _ControllerYouTube2_getConfigI18nOptions = function _ControllerYouTube2_getConfigI18nOptions() {
     const defer = kew_1.default.defer();
     const model = model_1.default.getInstance(model_1.ModelType.Config);
     model.getI18nOptions().then((options) => {

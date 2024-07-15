@@ -4,6 +4,10 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ### Changelog
 
+1.2.0
+- Provide metadata to Now Playing plugin
+- Bug fixes
+
 1.1.6
 - Fix broken playback due to YT changes (credit: [#682](https://github.com/LuanRT/YouTube.js/pull/682))
 
