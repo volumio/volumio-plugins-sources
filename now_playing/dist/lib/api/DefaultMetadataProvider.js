@@ -40,6 +40,7 @@ var _DefaultMetadataProvider_instances, _DefaultMetadataProvider_genius, _Defaul
 Object.defineProperty(exports, "__esModule", { value: true });
 const genius_fetch_1 = __importStar(require("genius-fetch"));
 const NowPlayingContext_1 = __importDefault(require("../NowPlayingContext"));
+const lrclib_1 = __importDefault(require("./lrclib"));
 class DefaultMetadataProvider {
     constructor() {
         _DefaultMetadataProvider_instances.add(this);
@@ -48,50 +49,66 @@ class DefaultMetadataProvider {
         __classPrivateFieldSet(this, _DefaultMetadataProvider_genius, new genius_fetch_1.default(), "f");
     }
     config(params) {
-        this.version = '1.0.0';
+        this.version = '1.1.0';
         __classPrivateFieldSet(this, _DefaultMetadataProvider_accessToken, params.accessToken, "f");
         __classPrivateFieldGet(this, _DefaultMetadataProvider_genius, "f").config(params);
     }
-    async getSongInfo(songTitle, albumTitle, artistName) {
+    async getSongInfo(songTitle, albumTitle, artistName, duration, _uri, fillTarget) {
+        const needGetLyrics = !fillTarget ||
+            !fillTarget.lyrics ||
+            (fillTarget.lyrics?.type !== 'synced' && NowPlayingContext_1.default.getConfigValue('metadataService').enableSyncedLyrics);
+        const result = {
+            title: songTitle,
+            lyrics: needGetLyrics ? await lrclib_1.default.getLyrics(songTitle, albumTitle, artistName, duration) : null
+        };
         if (!__classPrivateFieldGet(this, _DefaultMetadataProvider_accessToken, "f")) {
+            if (result.lyrics) {
+                return result;
+            }
             throw Error(NowPlayingContext_1.default.getI18n('NOW_PLAYING_ERR_METADATA_NO_TOKEN'));
         }
-        // Do not include album, as compilation albums tend to result in false hits
-        const matchParams = {
-            name: songTitle,
-            artist: artistName
-        };
-        const song = await __classPrivateFieldGet(this, _DefaultMetadataProvider_instances, "m", _DefaultMetadataProvider_getSongByNameOrBestMatch).call(this, matchParams);
-        const songSnippet = __classPrivateFieldGet(this, _DefaultMetadataProvider_instances, "m", _DefaultMetadataProvider_getSongSnippet).call(this, song);
-        const result = {
-            title: songTitle
-        };
-        if (song && songSnippet) {
-            const { title, description, image, embed } = songSnippet;
-            result.title = title;
-            result.description = description;
-            result.image = image;
-            if (song.artists && song.artists.primary) {
-                const artist = await __classPrivateFieldGet(this, _DefaultMetadataProvider_genius, "f").getArtistById(song.artists.primary.id, { textFormat: genius_fetch_1.TextFormat.Plain });
-                result.artist = __classPrivateFieldGet(this, _DefaultMetadataProvider_instances, "m", _DefaultMetadataProvider_getArtistSnippet).call(this, artist);
-            }
-            if (embed) {
-                const embedContents = await __classPrivateFieldGet(this, _DefaultMetadataProvider_genius, "f").parseSongEmbed(embed);
-                if (embedContents) {
-                    result.lyrics = {
-                        type: 'html',
-                        lines: embedContents.contentParts.join()
-                    };
+        // Fetch from Genius
+        try {
+            // Do not include album, as compilation albums tend to result in false hits
+            const matchParams = {
+                name: songTitle,
+                artist: artistName
+            };
+            const song = await __classPrivateFieldGet(this, _DefaultMetadataProvider_instances, "m", _DefaultMetadataProvider_getSongByNameOrBestMatch).call(this, matchParams);
+            const songSnippet = __classPrivateFieldGet(this, _DefaultMetadataProvider_instances, "m", _DefaultMetadataProvider_getSongSnippet).call(this, song);
+            if (song && songSnippet) {
+                const { title, description, image, embed } = songSnippet;
+                result.title = title;
+                result.description = description;
+                result.image = image;
+                if (song.artists && song.artists.primary) {
+                    const artist = await __classPrivateFieldGet(this, _DefaultMetadataProvider_genius, "f").getArtistById(song.artists.primary.id, { textFormat: genius_fetch_1.TextFormat.Plain });
+                    result.artist = __classPrivateFieldGet(this, _DefaultMetadataProvider_instances, "m", _DefaultMetadataProvider_getArtistSnippet).call(this, artist);
+                }
+                if (embed && !result.lyrics) {
+                    const embedContents = await __classPrivateFieldGet(this, _DefaultMetadataProvider_genius, "f").parseSongEmbed(embed);
+                    if (embedContents) {
+                        result.lyrics = {
+                            type: 'html',
+                            lines: embedContents.contentParts.join()
+                        };
+                    }
                 }
             }
+            // No song found, but still attempt to fetch artist info
+            else if (artistName) {
+                result.artist = await this.getArtistInfo(artistName);
+            }
+            // Finally, fetch album info
+            if (albumTitle) {
+                result.album = await this.getAlbumInfo(albumTitle, artistName);
+            }
         }
-        // No song found, but still attempt to fetch artist info
-        else if (artistName) {
-            result.artist = await this.getArtistInfo(artistName);
-        }
-        // Finally, fetch album info
-        if (albumTitle) {
-            result.album = await this.getAlbumInfo(albumTitle, artistName);
+        catch (error) {
+            NowPlayingContext_1.default.getLogger().error(NowPlayingContext_1.default.getErrorMessage('[now-playing] Error fetching from Genius:', error));
+            if (!result.lyrics) {
+                throw error;
+            }
         }
         return result;
     }

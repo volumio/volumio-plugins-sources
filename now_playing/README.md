@@ -91,6 +91,10 @@ Starting from v0.7.0, the Now Playing plugin can query the relevant music servic
 
 ## Changelog
 
+0.7.3
+- Fetch lyrics from [LRCLIB](https://lrclib.net/)
+- Update web client v0.7.3
+
 0.7.2
 - Startup options -> Active screen: separate "Info View" into tabs 
 - Update web client v0.7.2

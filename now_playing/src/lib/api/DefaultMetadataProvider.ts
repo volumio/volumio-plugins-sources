@@ -1,10 +1,11 @@
 import Genius, { Album, Artist, Song, TextFormat } from 'genius-fetch';
 import { MetadataAlbumInfo, MetadataArtistInfo, MetadataSongInfo, NowPlayingMetadataProvider } from 'now-playing-common';
 import np from '../NowPlayingContext';
+import LRCLibAPI from './lrclib';
 
-export default class DefaultMetadataProvider implements NowPlayingMetadataProvider {
+export default class DefaultMetadataProvider implements NowPlayingMetadataProvider<'1.1.0'> {
 
-  version: '1.0.0';
+  version: '1.1.0';
 
   #genius: Genius;
   #accessToken: string;
@@ -14,52 +15,69 @@ export default class DefaultMetadataProvider implements NowPlayingMetadataProvid
   }
 
   config(params: { accessToken: string }) {
-    this.version = '1.0.0';
+    this.version = '1.1.0';
     this.#accessToken = params.accessToken;
     this.#genius.config(params);
   }
 
-  async getSongInfo(songTitle: string, albumTitle?: string, artistName?: string): Promise<MetadataSongInfo | null> {
+  async getSongInfo(songTitle: string, albumTitle?: string, artistName?: string, duration?: number, _uri?: string, fillTarget?: MetadataSongInfo | null): Promise<MetadataSongInfo | null> {
+    const needGetLyrics =
+      !fillTarget ||
+      !fillTarget.lyrics ||
+      (fillTarget.lyrics?.type !== 'synced' && np.getConfigValue('metadataService').enableSyncedLyrics);
+    const result: MetadataSongInfo = {
+      title: songTitle,
+      lyrics: needGetLyrics ? await LRCLibAPI.getLyrics(songTitle, albumTitle, artistName, duration) : null
+    };
     if (!this.#accessToken) {
+      if (result.lyrics) {
+        return result;
+      }
       throw Error(np.getI18n('NOW_PLAYING_ERR_METADATA_NO_TOKEN'));
     }
-    // Do not include album, as compilation albums tend to result in false hits
-    const matchParams = {
-      name: songTitle,
-      artist: artistName
-    };
-    const song = await this.#getSongByNameOrBestMatch(matchParams);
-    const songSnippet = this.#getSongSnippet(song);
-    const result: MetadataSongInfo = {
-      title: songTitle
-    };
-    if (song && songSnippet) {
-      const { title, description, image, embed } = songSnippet;
-      result.title = title;
-      result.description = description;
-      result.image = image;
-      if (song.artists && song.artists.primary) {
-        const artist = await this.#genius.getArtistById(song.artists.primary.id, { textFormat: TextFormat.Plain });
-        result.artist = this.#getArtistSnippet(artist);
-      }
-      if (embed) {
-        const embedContents = await this.#genius.parseSongEmbed(embed);
-        if (embedContents) {
-          result.lyrics = {
-            type: 'html',
-            lines: embedContents.contentParts.join()
-          };
+    // Fetch from Genius
+    try {
+      // Do not include album, as compilation albums tend to result in false hits
+      const matchParams = {
+        name: songTitle,
+        artist: artistName
+      };
+      const song = await this.#getSongByNameOrBestMatch(matchParams);
+      const songSnippet = this.#getSongSnippet(song);
+      if (song && songSnippet) {
+        const { title, description, image, embed } = songSnippet;
+        result.title = title;
+        result.description = description;
+        result.image = image;
+        if (song.artists && song.artists.primary) {
+          const artist = await this.#genius.getArtistById(song.artists.primary.id, { textFormat: TextFormat.Plain });
+          result.artist = this.#getArtistSnippet(artist);
+        }
+        if (embed && !result.lyrics) {
+          const embedContents = await this.#genius.parseSongEmbed(embed);
+          if (embedContents) {
+            result.lyrics = {
+              type: 'html',
+              lines: embedContents.contentParts.join()
+            };
+          }
         }
       }
-    }
-    // No song found, but still attempt to fetch artist info
-    else if (artistName) {
-      result.artist = await this.getArtistInfo(artistName);
-    }
+      // No song found, but still attempt to fetch artist info
+      else if (artistName) {
+        result.artist = await this.getArtistInfo(artistName);
+      }
 
-    // Finally, fetch album info
-    if (albumTitle) {
-      result.album = await this.getAlbumInfo(albumTitle, artistName);
+      // Finally, fetch album info
+      if (albumTitle) {
+        result.album = await this.getAlbumInfo(albumTitle, artistName);
+      }
+    }
+    catch (error) {
+      np.getLogger().error(np.getErrorMessage('[now-playing] Error fetching from Genius:', error));
+      if (!result.lyrics) {
+        throw error;
+      }
     }
 
     return result;

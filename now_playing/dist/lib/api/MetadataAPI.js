@@ -50,28 +50,27 @@ class MetadataAPI {
     }
     async fetchInfo(params) {
         const { info, provider } = await __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_doFetchInfo).call(this, params);
-        if (provider instanceof DefaultMetadataProvider_1.default) {
-            return info;
-        }
-        let needFillInfo = false;
-        switch (params.type) {
-            case 'song':
-                needFillInfo = !__classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_isSongInfoComplete).call(this, info);
-                break;
-            case 'album':
-                needFillInfo = !__classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_isBasicAlbumInfoComplete).call(this, info);
-                break;
-            case 'artist':
-                needFillInfo = !__classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_isBasicArtistInfoComplete).call(this, info);
-                break;
-        }
-        if (needFillInfo) {
-            try {
-                const { info: fillInfo } = await __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_doFetchInfo).call(this, params, true);
-                return (0, Misc_1.assignObjectEmptyProps)({}, info, fillInfo);
+        if (!(provider instanceof DefaultMetadataProvider_1.default)) {
+            let needFillInfo = false;
+            switch (params.type) {
+                case 'song':
+                    needFillInfo = !__classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_isSongInfoComplete).call(this, info);
+                    break;
+                case 'album':
+                    needFillInfo = !__classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_isBasicAlbumInfoComplete).call(this, info);
+                    break;
+                case 'artist':
+                    needFillInfo = !__classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_isBasicArtistInfoComplete).call(this, info);
+                    break;
             }
-            catch (error) {
-                // Do nothing
+            if (needFillInfo) {
+                try {
+                    const { info: fillInfo } = await __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_doFetchInfo).call(this, params, true, info);
+                    return (0, Misc_1.assignObjectEmptyProps)({}, info, fillInfo);
+                }
+                catch (error) {
+                    // Do nothing
+                }
             }
         }
         if (info.song?.lyrics?.type === 'synced' && !NowPlayingContext_1.default.getConfigValue('metadataService').enableSyncedLyrics) {
@@ -99,7 +98,7 @@ _MetadataAPI_fetchPromises = new WeakMap(), _MetadataAPI_defaultMetadataProvider
     return !!(info?.album && info.album.description && __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_isBasicArtistInfoComplete).call(this, info));
 }, _MetadataAPI_isBasicArtistInfoComplete = function _MetadataAPI_isBasicArtistInfoComplete(info) {
     return !!(info?.artist && info.artist.description && info.artist.image);
-}, _MetadataAPI_doFetchInfo = async function _MetadataAPI_doFetchInfo(params, useDefaultProvider = false) {
+}, _MetadataAPI_doFetchInfo = async function _MetadataAPI_doFetchInfo(params, useDefaultProvider = false, fillTarget) {
     const isTrackNumberEnabled = NowPlayingContext_1.default.getPluginSetting('music_service', 'mpd', 'tracknumbers');
     const { provider, service: providerSource } = useDefaultProvider ? {
         provider: __classPrivateFieldGet(this, _MetadataAPI_defaultMetadataProvider, "f"),
@@ -109,6 +108,7 @@ _MetadataAPI_fetchPromises = new WeakMap(), _MetadataAPI_defaultMetadataProvider
         params = {
             type: params.type,
             ...__classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_excludeParenthesis).call(this, params),
+            duration: params.duration,
             uri: params.uri,
             service: providerSource
         };
@@ -118,7 +118,20 @@ _MetadataAPI_fetchPromises = new WeakMap(), _MetadataAPI_defaultMetadataProvider
         const info = await __classPrivateFieldGet(this, _MetadataAPI_instances, "m", _MetadataAPI_getFetchPromise).call(this, cacheKey, async () => {
             if (params.type === 'song') {
                 const name = isTrackNumberEnabled ? (0, Misc_1.removeSongNumber)(params.name) : params.name;
-                const songInfo = await __classPrivateFieldGet(this, _MetadataAPI_cache, "f").getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, params.uri));
+                let songInfo;
+                switch (provider.version) {
+                    case '1.0.0':
+                        songInfo = await __classPrivateFieldGet(this, _MetadataAPI_cache, "f").getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, params.uri));
+                        break;
+                    case '1.1.0':
+                        if (provider instanceof DefaultMetadataProvider_1.default && fillTarget) {
+                            songInfo = await __classPrivateFieldGet(this, _MetadataAPI_cache, "f").getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, Number(params.duration), params.uri, fillTarget['song']));
+                        }
+                        else {
+                            songInfo = await __classPrivateFieldGet(this, _MetadataAPI_cache, "f").getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, Number(params.duration), params.uri));
+                        }
+                        break;
+                }
                 return {
                     song: songInfo || null,
                     album: songInfo?.album || null,

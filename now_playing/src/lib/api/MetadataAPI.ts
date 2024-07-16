@@ -11,6 +11,16 @@ import semver from 'semver';
 
 type ItemType = 'song' | 'album' | 'artist';
 
+export interface MetadataAPIFetchInfoParams {
+  type: ItemType;
+  name: string;
+  album?: string;
+  artist?: string;
+  duration?: number;
+  uri?: string;
+  service?: string;
+}
+
 const REQUIRED_PROVIDER_VERSION = '1.x';
 
 class MetadataAPI {
@@ -56,30 +66,29 @@ class MetadataAPI {
     return promise;
   }
 
-  async fetchInfo(params: { type: ItemType; name: string; album?: string; artist?: string; uri?: string; service?: string; }) {
+  async fetchInfo(params: MetadataAPIFetchInfoParams) {
     const { info, provider } = await this.#doFetchInfo(params);
-    if (provider instanceof DefaultMetadataProvider) {
-      return info;
-    }
-    let needFillInfo = false;
-    switch (params.type) {
-      case 'song':
-        needFillInfo = !this.#isSongInfoComplete(info);
-        break;
-      case 'album':
-        needFillInfo = !this.#isBasicAlbumInfoComplete(info);
-        break;
-      case 'artist':
-        needFillInfo = !this.#isBasicArtistInfoComplete(info);
-        break;
-    }
-    if (needFillInfo) {
-      try {
-        const { info: fillInfo } = await this.#doFetchInfo(params, true);
-        return assignObjectEmptyProps({}, info, fillInfo);
+    if (!(provider instanceof DefaultMetadataProvider)) {
+      let needFillInfo = false;
+      switch (params.type) {
+        case 'song':
+          needFillInfo = !this.#isSongInfoComplete(info);
+          break;
+        case 'album':
+          needFillInfo = !this.#isBasicAlbumInfoComplete(info);
+          break;
+        case 'artist':
+          needFillInfo = !this.#isBasicArtistInfoComplete(info);
+          break;
       }
-      catch (error) {
-        // Do nothing
+      if (needFillInfo) {
+        try {
+          const { info: fillInfo } = await this.#doFetchInfo(params, true, info);
+          return assignObjectEmptyProps({}, info, fillInfo);
+        }
+        catch (error) {
+          // Do nothing
+        }
       }
     }
     if (info.song?.lyrics?.type === 'synced' && !np.getConfigValue('metadataService').enableSyncedLyrics) {
@@ -103,14 +112,9 @@ class MetadataAPI {
     return !!(info?.artist && info.artist.description && info.artist.image);
   }
 
-  async #doFetchInfo(params: {
-    type: ItemType;
-    name: string;
-    album?: string;
-    artist?: string;
-    uri?: string;
-    service?: string;
-  }, useDefaultProvider = false): Promise<{ info: Metadata; provider: NowPlayingMetadataProvider; }> {
+  async #doFetchInfo(params: MetadataAPIFetchInfoParams, useDefaultProvider: true, fillTarget?: Metadata): Promise<{ info: Metadata; provider: NowPlayingMetadataProvider<any>; }>;
+  async #doFetchInfo(params: MetadataAPIFetchInfoParams, useDefaultProvider?: false): Promise<{ info: Metadata; provider: NowPlayingMetadataProvider<any>; }>;
+  async #doFetchInfo(params: MetadataAPIFetchInfoParams, useDefaultProvider = false, fillTarget?: Metadata): Promise<{ info: Metadata; provider: NowPlayingMetadataProvider<any>; }> {
     const isTrackNumberEnabled = np.getPluginSetting('music_service', 'mpd', 'tracknumbers');
     const { provider, service: providerSource } = useDefaultProvider ? {
       provider: this.#defaultMetadataProvider,
@@ -120,6 +124,7 @@ class MetadataAPI {
       params = {
         type: params.type,
         ...this.#excludeParenthesis(params),
+        duration: params.duration,
         uri: params.uri,
         service: providerSource
       };
@@ -129,7 +134,20 @@ class MetadataAPI {
       const info = await this.#getFetchPromise(cacheKey, async () => {
         if (params.type === 'song') {
           const name = isTrackNumberEnabled ? removeSongNumber(params.name) : params.name;
-          const songInfo = await this.#cache.getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, params.uri));
+          let songInfo;
+          switch (provider.version) {
+            case '1.0.0':
+              songInfo = await this.#cache.getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, params.uri));
+              break;
+            case '1.1.0':
+              if (provider instanceof DefaultMetadataProvider && fillTarget) {
+                songInfo = await this.#cache.getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, Number(params.duration), params.uri, fillTarget['song']));
+              }
+              else {
+                songInfo = await this.#cache.getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, Number(params.duration), params.uri));
+              }
+              break;
+          }
           return {
             song: songInfo || null,
             album: songInfo?.album || null,
@@ -231,7 +249,7 @@ class MetadataAPI {
       if (service) {
         const plugin = np.getMusicServicePlugin(service);
         if (this.#hasNowPlayingMetadataProvider(plugin)) {
-          const provider = plugin.getNowPlayingMetadataProvider();
+          const provider = plugin.getNowPlayingMetadataProvider<any>();
           if (provider && this.#validateNowPlayingMetadataProvider(provider, service)) {
             return {
               provider,
