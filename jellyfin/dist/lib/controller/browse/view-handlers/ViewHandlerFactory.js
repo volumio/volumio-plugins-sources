@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ConnectionManager_1 = __importDefault(require("../../../connection/ConnectionManager"));
 const AlbumViewHandler_1 = __importDefault(require("./AlbumViewHandler"));
 const ArtistViewHandler_1 = __importDefault(require("./ArtistViewHandler"));
 const CollectionViewHandler_1 = __importDefault(require("./CollectionViewHandler"));
@@ -18,7 +17,6 @@ const UserViewViewHandler_1 = __importDefault(require("./UserViewViewHandler"));
 const SongViewHandler_1 = __importDefault(require("./SongViewHandler"));
 const CollectionsViewHandler_1 = __importDefault(require("./CollectionsViewHandler"));
 const ServerHelper_1 = __importDefault(require("../../../util/ServerHelper"));
-const JellyfinContext_1 = __importDefault(require("../../../JellyfinContext"));
 const VIEW_NAME_TO_CLASS = {
     'root': RootViewHandler_1.default,
     'userViews': UserViewViewHandler_1.default,
@@ -47,40 +45,7 @@ class ViewHandlerFactory {
         if (!currentView) {
             throw Error('Invalid URI: no parseable view.');
         }
-        let connection = null;
-        if (currentView.serverId) {
-            if (connectionTarget instanceof ConnectionManager_1.default) {
-                let username = currentView.username || '';
-                let targetServer;
-                const isLegacyUri = !username;
-                if (isLegacyUri) {
-                    const onlineServers = JellyfinContext_1.default.get('onlineServers', []);
-                    targetServer = onlineServers.find((server) => server.id === currentView.serverId) || null;
-                }
-                else {
-                    targetServer = ServerHelper_1.default.getOnlineServerByIdAndUsername(currentView.serverId, username);
-                }
-                if (!targetServer) {
-                    throw Error('Server unavailable');
-                }
-                if (isLegacyUri) {
-                    // Fetch username from server config
-                    const matchUrl = targetServer.connectionUrl;
-                    const serverConfEntries = ServerHelper_1.default.getServersFromConfig();
-                    const serverConf = serverConfEntries.find((conf) => ServerHelper_1.default.getConnectionUrl(conf.url) === matchUrl);
-                    if (serverConf) {
-                        username = serverConf.username;
-                    }
-                    else {
-                        throw Error('Could not obtain default username for legacy URI (no matching server config found)');
-                    }
-                }
-                connection = await connectionTarget.getAuthenticatedConnection(targetServer, username, ServerHelper_1.default.fetchPasswordFromConfig.bind(ServerHelper_1.default));
-            }
-            else {
-                connection = connectionTarget;
-            }
-        }
+        const connection = await ServerHelper_1.default.getConnectionByView(currentView, connectionTarget);
         return new VIEW_NAME_TO_CLASS[currentView.name](uri, currentView, previousViews, connection);
     }
 }

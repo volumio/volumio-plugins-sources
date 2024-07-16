@@ -1,0 +1,1 @@
+{"version":3,"file":"LyricsParser.d.ts","sourceRoot":"","sources":["../../../../src/lib/model/parser/LyricsParser.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,qDAAqD,CAAC;AAC/E,OAAO,EAAE,cAAc,EAAE,MAAM,oBAAoB,CAAC;AAEpD,MAAM,CAAC,OAAO,OAAO,YAAY;IAEzB,QAAQ,CAAC,IAAI,EAAE,QAAQ,GAAG,OAAO,CAAC,cAAc,GAAG,IAAI,CAAC;CAuC/D"}
