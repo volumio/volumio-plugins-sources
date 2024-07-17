@@ -1103,7 +1103,7 @@ ControllerSpotify.prototype.flushCache = function() {
 ControllerSpotify.prototype._getAlbumArt = function (item) {
 
     var albumart = '';
-    if (item.hasOwnProperty('images') && item.images.length > 0) {
+    if (item && item.images && item.images.length && item.images.length > 0) {
         albumart = item.images[0].url;
     }
     return albumart;
