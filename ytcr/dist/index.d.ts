@@ -1,5 +1,7 @@
 import { VolumioState } from './lib/MPDPlayer.js';
-declare class ControllerYTCR {
+import { NowPlayingPluginSupport } from 'now-playing-common';
+import YTCRNowPlayingMetadataProvider from './lib/YTCRNowPlayingMetadataProvider';
+declare class ControllerYTCR implements NowPlayingPluginSupport {
     #private;
     constructor(context: any);
     getUIConfig(): any;
@@ -28,6 +30,7 @@ declare class ControllerYTCR {
     seek(position: number): any;
     next(): any;
     previous(): any;
+    getNowPlayingMetadataProvider(): YTCRNowPlayingMetadataProvider | null;
 }
 export = ControllerYTCR;
 //# sourceMappingURL=index.d.ts.map

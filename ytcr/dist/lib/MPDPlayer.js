@@ -351,6 +351,9 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
     get videoLoader() {
         return __classPrivateFieldGet(this, _MPDPlayer_videoLoader, "f");
     }
+    get currentVideo() {
+        return __classPrivateFieldGet(this, _MPDPlayer_currentVideoInfo, "f");
+    }
     on(event, listener) {
         super.on(event, listener);
         return this;

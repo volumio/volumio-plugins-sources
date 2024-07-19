@@ -14,6 +14,8 @@ import * as utils from './lib/Utils.js';
 import VideoLoader from './lib/VideoLoader.js';
 import PairingHelper from './lib/PairingHelper.js';
 import ReceiverDataStore from './lib/ReceiverDataStore.js';
+import { NowPlayingPluginSupport } from 'now-playing-common';
+import YTCRNowPlayingMetadataProvider from './lib/YTCRNowPlayingMetadataProvider';
 
 const IDLE_STATE = {
   status: 'stop',
@@ -32,7 +34,7 @@ const IDLE_STATE = {
   channels: undefined
 };
 
-class ControllerYTCR {
+class ControllerYTCR implements NowPlayingPluginSupport {
 
   #serviceName = 'ytcr';
   #context: any;
@@ -46,6 +48,8 @@ class ControllerYTCR {
   #volumeControl: VolumeControl;
   #receiver: YouTubeCastReceiver;
   #dataStore: ReceiverDataStore;
+
+  #nowPlayingMetadataProvider: YTCRNowPlayingMetadataProvider | null;
 
   constructor(context: any) {
     this.#context = context;
@@ -307,6 +311,7 @@ class ControllerYTCR {
       await this.#volumeControl.init();
       await this.#player.init();
       this.#logger.debug('[ytcr] Receiver started with options:', receiverOptions);
+      this.#nowPlayingMetadataProvider = new YTCRNowPlayingMetadataProvider(this.#player, this.#logger);
       defer.resolve();
     })
       .catch((error: any) => {
@@ -320,6 +325,7 @@ class ControllerYTCR {
         // Still resolve, in case error is caused by wrong setting (e.g. conflicting port).
         defer.resolve();
       });
+
 
     return defer.promise;
   }
@@ -473,6 +479,7 @@ class ControllerYTCR {
       this.#volumeControl.unregisterVolumioVolumeChangeListener();
       await this.#player.destroy();
       ytcr.reset();
+      this.#nowPlayingMetadataProvider = null;
       defer.resolve();
     })
       .catch((error) => {
@@ -581,6 +588,10 @@ class ControllerYTCR {
       return this.#player.seek(0);
     }
     return utils.jsPromiseToKew(this.#player.previous());
+  }
+
+  getNowPlayingMetadataProvider() {
+    return this.#nowPlayingMetadataProvider;
   }
 }
 

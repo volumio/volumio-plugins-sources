@@ -91,6 +91,7 @@ export default class MPDPlayer extends Player {
     }>;
     getVolumioState(): Promise<VolumioState | null>;
     get videoLoader(): VideoLoader;
+    get currentVideo(): MPDPlayerVideoInfo | null;
     on(event: string | symbol, listener: (...args: any[]) => void): this;
     on(event: 'action', listener: (args: ActionEvent) => void): this;
     on(event: 'error', listener: (args: MPDPlayerError) => void): this;
