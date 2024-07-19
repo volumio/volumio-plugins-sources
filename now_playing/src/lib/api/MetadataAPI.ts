@@ -1,38 +1,46 @@
-import Genius, { Album, Artist, Song, TextFormat } from 'genius-fetch';
 import md5 from 'md5';
 import np from '../NowPlayingContext';
 import Cache from '../utils/Cache';
-import { removeSongNumber } from '../utils/Misc';
-import { Metadata, MetadataAlbumInfo, MetadataArtistInfo, MetadataSongInfo } from 'now-playing-common';
+import { assignObjectEmptyProps, removeSongNumber } from '../utils/Misc';
+import { Metadata, NowPlayingMetadataProvider, NowPlayingPluginSupport } from 'now-playing-common';
 import { MetadataServiceOptions } from '../config/PluginConfig';
 import { escapeRegExp } from 'lodash';
+import DefaultMetadataProvider from './DefaultMetadataProvider';
+import escapeHTML from 'escape-html';
+import semver from 'semver';
 
 type ItemType = 'song' | 'album' | 'artist';
 
+export interface MetadataAPIFetchInfoParams {
+  type: ItemType;
+  name: string;
+  album?: string;
+  artist?: string;
+  duration?: number;
+  uri?: string;
+  service?: string;
+}
+
+const REQUIRED_PROVIDER_VERSION = '1.x';
+
 class MetadataAPI {
 
-  #fetchPromises: Record<ItemType, Record<string, Promise<Metadata>>>;
-
-  #genius: Genius;
+  #fetchPromises: Record<string, Promise<Metadata>>;
+  #defaultMetadataProvider: DefaultMetadataProvider;
   #settings: MetadataServiceOptions | null;
   #cache: Cache;
 
   constructor() {
-    this.#fetchPromises = {
-      'song': {},
-      'album': {},
-      'artist': {}
-    };
-    this.#genius = new Genius();
+    this.#fetchPromises = {};
+    this.#defaultMetadataProvider = new DefaultMetadataProvider();
     this.#settings = null;
     this.#cache = new Cache(
       { song: 3600, album: 3600, artist: 3600 },
       { song: 200, album: 200, artist: 200 });
-
   }
 
   clearCache() {
-    this.#genius.clearCache();
+    this.#defaultMetadataProvider.clearCache();
     this.#cache.clear();
   }
 
@@ -41,209 +49,139 @@ class MetadataAPI {
 
     this.#settings = settings;
     if (tokenChanged) {
-      this.#genius.config({ accessToken: settings.geniusAccessToken });
+      this.#defaultMetadataProvider.config({ accessToken: settings.geniusAccessToken });
       this.clearCache();
     }
   }
 
-  #getFetchPromise(type: ItemType, params: Record<string, any>, callback: () => Promise<Metadata>) {
-    const key = md5(JSON.stringify(params));
-    if (Object.keys(this.#fetchPromises[type]).includes(key)) {
-      return this.#fetchPromises[type][key];
+  #getFetchPromise(key: string, callback: () => Promise<Metadata>) {
+    if (Object.keys(this.#fetchPromises).includes(key)) {
+      return this.#fetchPromises[key];
     }
-
     const promise = callback();
-    this.#fetchPromises[type][key] = promise;
+    this.#fetchPromises[key] = promise;
     promise.finally(() => {
-      delete this.#fetchPromises[type][key];
+      delete this.#fetchPromises[key];
     });
     return promise;
-
   }
 
-  #getSongSnippet(info: Song | null): MetadataSongInfo | null {
-    if (!info) {
-      return null;
-    }
-    return {
-      title: info.title.regular,
-      description: info.description,
-      image: info.image,
-      embed: info.embed
-    };
-  }
-
-  #getAlbumSnippet(info: Album | null): MetadataAlbumInfo | null {
-    if (!info) {
-      return null;
-    }
-    return {
-      title: info.title.regular,
-      description: info.description,
-      releaseDate: info.releaseDate?.text,
-      image: info.image
-    };
-  }
-
-  #getArtistSnippet(info: Artist | null): MetadataArtistInfo | null{
-    if (!info) {
-      return null;
-    }
-    return {
-      name: info.name,
-      description: info.description,
-      image: info.image
-    };
-  }
-
-  async #getSongByNameOrBestMatch(params: { name: string; artist?: string; }) {
-    if (!params.name) {
-      return null;
-    }
-
-    if (params.artist) {
-      return this.#genius.getSongByBestMatch(
-        { ...params, artist: params.artist },
-        { textFormat: TextFormat.Plain, obtainFullInfo: true });
-    }
-
-    const song = await this.#genius.getSongsByName(
-      params.name,
-      { textFormat: TextFormat.Plain, obtainFullInfo: true, limit: 1 });
-
-    return song.items[0] || null;
-
-  }
-
-  #getSongInfo(params: { name: string; album: string; artist?: string; }) {
-    return this.#getFetchPromise('song', params, async () => {
-      const result: Metadata = {
-        song: null,
-        artist: null,
-        album: null
-      };
-
-      // Do not include album, as compilation albums tend to result in false hits
-      const matchParams = {
-        name: params.name,
-        artist: params.artist
-      };
-      const song = await this.#getSongByNameOrBestMatch(matchParams);
-      if (song) {
-        result.song = this.#getSongSnippet(song);
-        if (song.artists && song.artists.primary) {
-          const artist = await this.#genius.getArtistById(song.artists.primary.id, { textFormat: TextFormat.Plain });
-          result.artist = this.#getArtistSnippet(artist);
+  async fetchInfo(params: MetadataAPIFetchInfoParams) {
+    const { info, provider } = await this.#doFetchInfo(params);
+    if (!(provider instanceof DefaultMetadataProvider)) {
+      let needFillInfo = false;
+      switch (params.type) {
+        case 'song':
+          needFillInfo = !this.#isSongInfoComplete(info);
+          break;
+        case 'album':
+          needFillInfo = !this.#isBasicAlbumInfoComplete(info);
+          break;
+        case 'artist':
+          needFillInfo = !this.#isBasicArtistInfoComplete(info);
+          break;
+      }
+      if (needFillInfo) {
+        try {
+          const { info: fillInfo } = await this.#doFetchInfo(params, true, info);
+          return assignObjectEmptyProps({}, info, fillInfo);
         }
-
-        if (result.song?.embed) {
-          const embedContents = await this.#genius.parseSongEmbed(result.song.embed);
-          if (embedContents) {
-            result.song.embedContents = embedContents;
-          }
+        catch (error) {
+          // Do nothing
         }
       }
-      // No song found, but still attempt to fetch artist info
-      else if (params.artist) {
-        const artistInfo = await this.#getArtistInfo({ name: params.artist });
-        if (artistInfo.artist) {
-          result.artist = artistInfo.artist;
-        }
-      }
-
-      // Finally, fetch album info
-      const albumInfo = await this.#getAlbumInfo({
-        name: params.album,
-        artist: params.artist
-      });
-      if (albumInfo) {
-        result.album = albumInfo.album;
-      }
-
-      return result;
-    });
-  }
-
-  async #getAlbumByNameOrBestMatch(params: { name: string; artist?: string; }) {
-    if (!params.name) {
-      return null;
     }
-
-    if (params.artist) {
-      return this.#genius.getAlbumByBestMatch(
-        { ...params, artist: params.artist },
-        { textFormat: TextFormat.Plain, obtainFullInfo: true });
+    if (info.song?.lyrics?.type === 'synced' && !np.getConfigValue('metadataService').enableSyncedLyrics) {
+      info.song.lyrics = {
+        type: 'plain',
+        lines: info.song.lyrics.lines.map((line) => escapeHTML(line.text))
+      };
     }
-
-    const album = await this.#genius.getAlbumsByName(
-      params.name,
-      { textFormat: TextFormat.Plain, obtainFullInfo: true, limit: 1 });
-
-    return album.items[0] || null;
-
+    return info;
   }
 
-  #getAlbumInfo(params: { name: string; artist?: string; }) {
-    return this.#getFetchPromise('album', params, async () => {
-      const result: Metadata = {
-        album: null,
-        artist: null
-      };
-      const album = await this.#getAlbumByNameOrBestMatch(params);
-      result.album = this.#getAlbumSnippet(album);
-      if (album && album.artist) {
-        const artist = await this.#genius.getArtistById(album.artist.id, { textFormat: TextFormat.Plain });
-        result.artist = this.#getArtistSnippet(artist);
-      }
-      return result;
-    });
+  #isSongInfoComplete(info?: Metadata | null) {
+    return !!(info?.song && info.song.description && info.song.lyrics && this.#isBasicAlbumInfoComplete(info));
   }
 
-  #getArtistInfo(params: { name: string; }) {
-    return this.#getFetchPromise('artist', params, async () => {
-      const result: Metadata = {
-        artist: null
-      };
-      if (!params.name) {
-        return result;
-      }
-      const artist = await this.#genius.getArtistsByName(params.name, { textFormat: TextFormat.Plain, obtainFullInfo: true, limit: 1 });
-      result.artist = this.#getArtistSnippet(artist.items[0]);
-      return result;
-    });
+  #isBasicAlbumInfoComplete(info?: Metadata | null) {
+    return !!(info?.album && info.album.description && this.#isBasicArtistInfoComplete(info));
   }
 
-  async fetchInfo(params: { type: ItemType; name: string; album?: string; artist?: string; }) {
+  #isBasicArtistInfoComplete(info?: Metadata | null) {
+    return !!(info?.artist && info.artist.description && info.artist.image);
+  }
+
+  async #doFetchInfo(params: MetadataAPIFetchInfoParams, useDefaultProvider: true, fillTarget?: Metadata): Promise<{ info: Metadata; provider: NowPlayingMetadataProvider<any>; }>;
+  async #doFetchInfo(params: MetadataAPIFetchInfoParams, useDefaultProvider?: false): Promise<{ info: Metadata; provider: NowPlayingMetadataProvider<any>; }>;
+  async #doFetchInfo(params: MetadataAPIFetchInfoParams, useDefaultProvider = false, fillTarget?: Metadata): Promise<{ info: Metadata; provider: NowPlayingMetadataProvider<any>; }> {
     const isTrackNumberEnabled = np.getPluginSetting('music_service', 'mpd', 'tracknumbers');
-
-    if (!np.getConfigValue('metadataService').geniusAccessToken) {
-      throw Error(np.getI18n('NOW_PLAYING_ERR_METADATA_NO_TOKEN'));
-    }
+    const { provider, service: providerSource } = useDefaultProvider ? {
+      provider: this.#defaultMetadataProvider,
+      service: ''
+    } : this.#getProvider(params.uri, params.service);
     try {
-      let info: Metadata;
       params = {
         type: params.type,
-        ...this.#excludeParenthesis(params)
+        ...this.#excludeParenthesis(params),
+        duration: params.duration,
+        uri: params.uri,
+        service: providerSource
       };
-      np.getLogger().info(`[now-playing] Fetch metadata: ${JSON.stringify(params)}`);
-      const cacheKey = md5(JSON.stringify(params));
-      if (params.type === 'song' && params.album) {
-        const album = params.album;
-        const name = isTrackNumberEnabled ? removeSongNumber(params.name) : params.name;
-        info = await this.#cache.getOrSet('song', cacheKey, () => this.#getSongInfo({ ...params, album, name }));
-      }
-      else if (params.type === 'album') {
-        info = await this.#cache.getOrSet('album', cacheKey, () => this.#getAlbumInfo(params));
-      }
-      else if (params.type === 'artist') {
-        info = await this.#cache.getOrSet('artist', cacheKey, () => this.#getArtistInfo(params));
-      }
-      else {
+      const providerStr = providerSource ? `(${providerSource} plugin)` : '(DefaultMetadataProvider)';
+      np.getLogger().info(`[now-playing] Fetch metadata ${providerStr}: ${JSON.stringify(params)}`);
+      const cacheKey = md5(JSON.stringify({...params, providerSource}));
+      const info = await this.#getFetchPromise(cacheKey, async () => {
+        if (params.type === 'song') {
+          const name = isTrackNumberEnabled ? removeSongNumber(params.name) : params.name;
+          let songInfo;
+          switch (provider.version) {
+            case '1.0.0':
+              songInfo = await this.#cache.getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, params.uri));
+              break;
+            case '1.1.0':
+              if (provider instanceof DefaultMetadataProvider && fillTarget) {
+                songInfo = await this.#cache.getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, Number(params.duration), params.uri, fillTarget['song']));
+              }
+              else {
+                songInfo = await this.#cache.getOrSet('song', cacheKey, () => provider.getSongInfo(name, params.album, params.artist, Number(params.duration), params.uri));
+              }
+              break;
+          }
+          return {
+            song: songInfo || null,
+            album: songInfo?.album || null,
+            artist: songInfo?.artist || null
+          };
+        }
+        else if (params.type === 'album') {
+          const albumInfo = await this.#cache.getOrSet('album', cacheKey, () => provider.getAlbumInfo(params.name, params.artist, params.uri));
+          return {
+            album: albumInfo || null,
+            artist: albumInfo?.artist || null
+          };
+        }
+        else if (params.type === 'artist') {
+          const artistInfo = await this.#cache.getOrSet('artist', cacheKey, () => provider.getArtistInfo(params.name, params.uri));
+          return {
+            artist: artistInfo || null
+          };
+        }
+
         throw Error(`Unknown metadata type ${params.type}`);
-      }
-      return info;
+
+      });
+      return {
+        info,
+        provider
+      };
     }
     catch (e: any) {
+      if (!(provider instanceof DefaultMetadataProvider)) {
+        np.getLogger().error(`[now_playing] Error fetching metdata using ${providerSource} plugin: ${e instanceof Error ? e.message : e}`);
+        np.getLogger().error('[now_playing] Falling back to DefaultMetadataProvider');
+        return this.#doFetchInfo(params, true);
+      }
       const { message, statusCode, statusMessage } = e;
       const status = (statusCode && statusMessage) ? `${statusCode} - ${statusMessage}` : (statusCode || statusMessage);
       let msg;
@@ -293,6 +231,66 @@ class MetadataAPI {
       album: __strip(params.album, parentheses)?.trim() || params.album,
       artist: __strip(params.artist, parentheses)?.trim() || params.artist
     };
+  }
+
+  #getProvider(uri?: string, service?: string) {
+    if (np.getConfigValue('metadataService').queryMusicServices) {
+      /**
+       * Always get service by URI if possible.
+       * Volumio has this long-standing bug where the MPD plugin sets service as 'mpd' even when
+       * consume state is on (consuming on behalf of another service).
+       */
+      if (uri) {
+        const _service = uri.split('/')[0];
+        if (_service) {
+          service = _service;
+        }
+      }
+      if (service) {
+        const plugin = np.getMusicServicePlugin(service);
+        if (this.#hasNowPlayingMetadataProvider(plugin)) {
+          const provider = plugin.getNowPlayingMetadataProvider<any>();
+          if (provider && this.#validateNowPlayingMetadataProvider(provider, service)) {
+            return {
+              provider,
+              service
+            };
+          }
+        }
+      }
+    }
+    return {
+      provider: this.#defaultMetadataProvider,
+      service: ''
+    };
+  }
+
+  #hasNowPlayingMetadataProvider(plugin: any): plugin is { getNowPlayingMetadataProvider: NowPlayingPluginSupport['getNowPlayingMetadataProvider'] } {
+    return plugin && typeof plugin['getNowPlayingMetadataProvider'] === 'function';
+  }
+
+  #validateNowPlayingMetadataProvider(provider: any, service: string) {
+    const logPrefix = `[now-playing] NowPlayingPluginMetadataProvider for '${service}' plugin`;
+    if (typeof provider !== 'object') {
+      np.getLogger().error(`${logPrefix} has wrong type`);
+      return false;
+    }
+    if (!Reflect.has(provider, 'version')) {
+      np.getLogger().warn(`${logPrefix} is missing version number`);
+    }
+    else if (!semver.satisfies(provider.version, REQUIRED_PROVIDER_VERSION)) {
+      np.getLogger().warn(`${logPrefix} has version '${provider.version}' which does not satisfy '${REQUIRED_PROVIDER_VERSION}'`);
+    }
+    const fns = [
+      'getSongInfo',
+      'getAlbumInfo',
+      'getArtistInfo'
+    ];
+    if (!fns.every((fn) => Reflect.has(provider, fn) && typeof provider[fn] === 'function')) {
+      np.getLogger().error(`${logPrefix} is missing one of the following functions: ${fns.map((fn) => `${fn}()`).join(', ')}`);
+      return false;
+    }
+    return true;
   }
 }
 
