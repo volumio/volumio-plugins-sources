@@ -43,6 +43,7 @@ export default class VideoModel extends BaseModel {
           channelId: basicInfo.channel_id,
           name: basicInfo.author
         },
+        description: basicInfo.short_description,
         thumbnail: InnertubeResultParser.parseThumbnail(basicInfo.thumbnail) || '',
         isLive: !!basicInfo.is_live,
         duration: basicInfo.duration,
