@@ -21,8 +21,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "Initial Version 1.0.0",
-		"changelog": "Initial Version"
+		"details": "Version 1.0.1",
+		"changelog": "Version 1.0.1 reviewed by Balbuze"
 	},
 	"engines": {
 		"node": ">=14.21.3 <15.0.0"
