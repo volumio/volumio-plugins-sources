@@ -13,9 +13,6 @@ if [ ! -f $INSTALLING ]; then
 	apt-get -f autoremove shellinabox -y --purge
 
 	apt-get -f clang libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libsqlite3-dev -y --purge
-
-	pip remove requests
-	apt-get -f autoremove python-pip -y --purge
 	
 	rm -r /data/configuration/user_interface/smartqueue
 	

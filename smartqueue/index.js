@@ -39,10 +39,23 @@ smartqueue.prototype.onVolumioStart = function () {
 // Plugin methods -----------------------------------------------------------------------------
 smartqueue.prototype.onStop = function () {
 	var defer = libQ.defer();
-		let cp6 = exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15");
-		let cp7 = exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15");
-		let cp8 = exec("/usr/bin/pgrep python | xargs -r /bin/kill -15");
-	defer.resolve();
+	
+    exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+        if (err) {
+            console.error(`Error killing shellinabox: ${err}`);
+        }
+        exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+            if (err) {
+                console.error(`Error killing blissify: ${err}`);
+            }
+            exec("/usr/bin/pgrep python | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+                if (err) {
+                    console.error(`Error killing python: ${err}`);
+                }
+                defer.resolve();
+            });
+        });
+    });
 	return libQ.resolve();
 };
 
