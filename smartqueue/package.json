@@ -1,0 +1,35 @@
+{
+	"name": "smartqueue",
+	"version": "1.0.0",
+	"description": "SmartQueue will use LastFM or Blissify to feed your music queue in the smartest way.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "chourmovs",
+	"license": "ISC",
+	"repository": "https://github.com/yourname/yourrepo",
+	"volumio_info": {
+		"prettyName": "SmartQueue",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "user_interface",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Initial Version 1.0.0",
+		"changelog": "Initial Version"
+	},
+	"engines": {
+		"node": ">=14.21.3 <15.0.0"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0"
+	}
+}
