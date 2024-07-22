@@ -14,7 +14,6 @@ if [ ! -f $INSTALLING ]; then
 
 	apt-get -f clang libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libsqlite3-dev -y --purge
 	
-	rm -r /data/configuration/user_interface/smartqueue
 	
  	# Not uninstalling dependencies, because they might be used by other plugins.
 

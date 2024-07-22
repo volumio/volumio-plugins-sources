@@ -17,74 +17,107 @@ function smartqueue(context) {
 };
 
 smartqueue.prototype.onVolumioStart = function () {
-    var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
-    this.config = new (require('v-conf'))();
-    this.config.loadFile(configFile);
-	
-	// Read and log the configuration values correctly
-    const autoqueueValue = this.config.get('Autoqueue.value') === 'true' ? true : true;
-    const blissmixerValue = this.config.get('Blissmixer.value') === 'false' ? false : false;
-    const tracksnValue = parseInt(this.config.get('Tracksn.value')) || 5;
-    const driftValue = parseInt(this.config.get('Drift.value')) || 0;
-    
-    // Set the configuration values to ensure they're used correctly in the plugin
-    this.config.set('Autoqueue', autoqueueValue);
-    this.config.set('Blissmixer', blissmixerValue);
-    this.config.set('Tracksn', tracksnValue);
-    this.config.set('Drift', driftValue);
+	var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
+	this.config = new (require('v-conf'))();
+	this.config.loadFile(configFile);
 
-    return libQ.resolve();
+	// Read and log the configuration values correctly
+	const autoqueueValue = this.config.get('Autoqueue.value') === 'true' ? true : true;
+	const blissmixerValue = this.config.get('Blissmixer.value') === 'false' ? false : false;
+	const tracksnValue = parseInt(this.config.get('Tracksn.value')) || 5;
+	const driftValue = parseInt(this.config.get('Drift.value')) || 0;
+
+	// Set the configuration values to ensure they're used correctly in the plugin
+	this.config.set('Autoqueue', autoqueueValue);
+	this.config.set('Blissmixer', blissmixerValue);
+	this.config.set('Tracksn', tracksnValue);
+	this.config.set('Drift', driftValue);
+
+	return libQ.resolve();
 };
 
 // Plugin methods -----------------------------------------------------------------------------
 smartqueue.prototype.onStop = function () {
 	var defer = libQ.defer();
-	
-    exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-        if (err) {
-            console.error(`Error killing shellinabox: ${err}`);
-        }
-        exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-            if (err) {
-                console.error(`Error killing blissify: ${err}`);
-            }
-            exec("/usr/bin/pgrep python | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-                if (err) {
-                    console.error(`Error killing python: ${err}`);
-                }
-                defer.resolve();
-            });
-        });
-    });
+
+	exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+		if (err) {
+			console.error(`Error killing shellinabox: ${err}`);
+		}
+		exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+			if (err) {
+				console.error(`Error killing blissify: ${err}`);
+			}
+			exec("/usr/bin/pgrep python | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+				if (err) {
+					console.error(`Error killing python: ${err}`);
+				}
+				defer.resolve();
+			});
+		});
+	});
 	return libQ.resolve();
 };
 
 
 smartqueue.prototype.onStart = function () {
 	var self = this;
-		var defer = libQ.defer();
-		let cp8 = exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15");
-		let cp6 = exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15");
-		self.logger.info("performing shellinabox kill from onStart");
-		let cp7 = exec('/bin/sh /data/plugins/user_interface/smartqueue/unit/shellbox.sh');
-		let cp9 = exec('/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py');
-		self.logger.info("performing shellinabox launch from onStart");
-		self.getIP();
-		defer.resolve();
+	var defer = libQ.defer();
+	exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+		if (err) {
+			console.error(`Error killing blissify: ${err}`);
+		}
+		exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+			if (err) {
+				console.error(`Error killing shellinabox: ${err}`);
+			}
+
+			exec("/bin/sh /data/plugins/user_interface/smartqueue/unit/shellbox.sh", (err, stdout, stderr) => {
+				if (err) {
+					console.error(`Error launching shellbox: ${err}`);
+				}
+
+				exec("/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py", (err, stdout, stderr) => {
+					if (err) {
+						console.error(`Error launching corechooser: ${err}`);
+					}
+				});
+			});
+		});
+	});
+
+	self.getIP();
+	defer.resolve();
 	return defer.promise;
 }
 
 smartqueue.prototype.onRestart = function () {
 	// Do nothing
 	var self = this;
-	self.logger.info("performing onRestart action");
-	let cp8 = exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15");
-	let cp6 = exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15");
-	self.logger.info("performing shellinabox kill from onReStart");
-	let cp7 = exec('/bin/sh /data/plugins/user_interface/smartqueue/shellbox.sh');
-	let cp9 = exec('/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py');
-	self.logger.info("performing shellinabox launch from onReStart");
-	
+
+	exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+		if (err) {
+			console.error(`Error killing blissify: ${err}`);
+		}
+		exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+			if (err) {
+				console.error(`Error killing shellinabox: ${err}`);
+			}
+
+			exec("/bin/sh /data/plugins/user_interface/smartqueue/unit/shellbox.sh", (err, stdout, stderr) => {
+				if (err) {
+					console.error(`Error launching shellbox: ${err}`);
+				}
+
+				exec("/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py", (err, stdout, stderr) => {
+					if (err) {
+						console.error(`Error launching corechooser: ${err}`);
+					}
+				});
+			});
+		});
+	});
+
 };
 
 smartqueue.prototype.saveSettings = function (data) {
@@ -95,20 +128,21 @@ smartqueue.prototype.saveSettings = function (data) {
 	this.config.set('Drift', data['Drift']);
 
 
-	setTimeout(() => {exec('/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py', (error, stdout, stderr) => {
-		console.log('Executing corechooser.py...');
+	setTimeout(() => {
+		exec('/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py', (error, stdout, stderr) => {
+			console.log('Executing corechooser.py...');
 
-		if (error) {
-			console.error(`Error executing corechooser.py: ${error.message}`);
-			return;
-		}
+			if (error) {
+				console.error(`Error executing corechooser.py: ${error.message}`);
+				return;
+			}
 
-		console.log(`Output: ${stdout}`);
-		if (stderr) {
-			console.error(`stderr: ${stderr}`);
-		}
-	});
-}, 2000); // 2000 milliseconds delay
+			console.log(`Output: ${stdout}`);
+			if (stderr) {
+				console.error(`stderr: ${stderr}`);
+			}
+		});
+	}, 2000); // 2000 milliseconds delay
 
 	this.commandRouter.pushToastMessage('success', "Success at applying " + data['Autoqueue'] + " " + data['Blissmixer'] + " " + data['Tracksn'] + " " + data['Drift']);
 };
@@ -127,9 +161,9 @@ smartqueue.prototype.getUIConfig = function () {
 
 			var IPaddress = self.config.get('address');
 			self.logger.info("Autoqueue: " + self.config.get('Autoqueue'));
-            self.logger.info("Blissmixer: " + self.config.get('Blissmixer'));
-            self.logger.info("Tracksn: " + self.config.get('Tracksn'));
-            self.logger.info("Drift: " + self.config.get('Drift'));
+			self.logger.info("Blissmixer: " + self.config.get('Blissmixer'));
+			self.logger.info("Tracksn: " + self.config.get('Tracksn'));
+			self.logger.info("Drift: " + self.config.get('Drift'));
 
 			uiconf.sections[0].content.push(
 				{
@@ -157,26 +191,27 @@ smartqueue.prototype.getUIConfig = function () {
 					'value': self.config.get('Tracksn')
 				}),
 
-			uiconf.sections[0].content.push(
-				{
-					"id": "Drift",
-					"element": "equalizer",
-					"doc": "Number of tracks to drift from lastfm or blissify, to avoid repetition (typical 0,1,2)",
-					"label": "Number of tracks to drift",
-					"config": {
-						"orientation": "horizontal",
-						"bars": [
-						  {
-							"min": "0",
-							"max": "2",
-							"step": "1",
-							"value": self.config.get('Drift'),
-							"tooltip": "always"
-						  }
-						]  }
-				}),
+				uiconf.sections[0].content.push(
+					{
+						"id": "Drift",
+						"element": "equalizer",
+						"doc": "Number of tracks to drift from lastfm or blissify, to avoid repetition (typical 0,1,2)",
+						"label": "Number of tracks to drift",
+						"config": {
+							"orientation": "horizontal",
+							"bars": [
+								{
+									"min": "0",
+									"max": "2",
+									"step": "1",
+									"value": self.config.get('Drift'),
+									"tooltip": "always"
+								}
+							]
+						}
+					}),
 
-			uiconf.sections[0].saveButton.data.push('Autoqueue')
+				uiconf.sections[0].saveButton.data.push('Autoqueue')
 			uiconf.sections[0].saveButton.data.push('Blissmixer')
 			uiconf.sections[0].saveButton.data.push('Tracksn')
 			uiconf.sections[0].saveButton.data.push('Drift')
@@ -204,7 +239,7 @@ smartqueue.prototype.getUIConfig = function () {
 						"url": "http://" + IPaddress + ":10003/update"
 					}
 				})
-			
+
 			defer.resolve(uiconf);
 		})
 		.fail(function () {
