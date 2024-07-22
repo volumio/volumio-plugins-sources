@@ -22,7 +22,7 @@ smartqueue.prototype.onVolumioStart = function () {
 	this.config.loadFile(configFile);
 
 	// Read and log the configuration values correctly
-	const autoqueueValue = this.config.get('Autoqueue.value') === 'true' ? true : true;
+	const autoqueueValue = this.config.get('Autoqueue.value') === 'true' ? false : false;
 	const blissmixerValue = this.config.get('Blissmixer.value') === 'false' ? false : false;
 	const tracksnValue = parseInt(this.config.get('Tracksn.value')) || 5;
 	const driftValue = parseInt(this.config.get('Drift.value')) || 0;
