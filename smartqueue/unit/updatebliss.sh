@@ -18,9 +18,9 @@ if [ -f "$DB_PATH" ]; then
     echo "song.db found, updating blissify..."
     # Lancer la commande de mise à jour si le fichier existe
     #/usr/bin/cpulimit -l 80 -- /home/volumio/.cargo/bin/blissify update
-     /usr/bin/nice -15 /home/volumio/.cargo/bin/blissify update
+     /usr/bin/nice -15 /home/volumio/.cargo/bin/blissify update --number-cores 2
 else
     echo "song.db not found, initializing blissify..."
     # Lancer la commande d'initialisation si le fichier n'existe pas
-     /usr/bin/nice -15 /home/volumio/.cargo/bin/blissify init /mnt
+     /usr/bin/nice -15 /home/volumio/.cargo/bin/blissify --number-cores 2 init /mnt
 fi
