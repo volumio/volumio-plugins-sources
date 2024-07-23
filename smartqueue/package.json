@@ -20,8 +20,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "Version 1.0.2",
-		"changelog": "Version 1.0.2 reviewed by Balbuze"
+		"details": "Version 1.0.3",
+		"changelog": "Version 1.0.3 reviewed by Balbuze"
 	},
 	"engines": {
 		"volumio": ">=3",
