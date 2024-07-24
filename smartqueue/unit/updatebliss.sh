@@ -22,5 +22,5 @@ if [ -f "$DB_PATH" ]; then
 else
     echo "song.db not found, initializing blissify..."
     # Lancer la commande d'initialisation si le fichier n'existe pas
-     /usr/bin/nice -15 /home/volumio/.cargo/bin/blissify --number-cores 2 init /mnt
+     /usr/bin/nice -15 /home/volumio/.cargo/bin/blissify init --number-cores 2 /mnt
 fi
