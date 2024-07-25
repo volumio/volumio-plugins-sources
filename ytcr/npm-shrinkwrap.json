@@ -1,13 +1,13 @@
 {
 	"name": "ytcr",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"lockfileVersion": 2,
 	"requires": true,
 	"//": "Redirects yt-cast-receiver/youtubei.js dependency to volumio-youtubei.js (for Node 14 compatibility)",
 	"packages": {
 		"": {
 			"name": "ytcr",
-			"version": "1.1.0",
+			"version": "1.1.1",
 			"license": "MIT",
 			"dependencies": {
 				"abort-controller": "^3.0.0",
@@ -19,7 +19,7 @@
 				"semver": "^7.6.2",
 				"string-format": "^2.0.0",
 				"v-conf": "^1.4.2",
-				"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.3.6",
+				"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.3.8",
 				"yt-cast-receiver": "^1.2.4"
 			},
 			"devDependencies": {
@@ -3447,8 +3447,8 @@
 			}
 		},
 		"node_modules/volumio-youtubei.js": {
-			"version": "0.3.6",
-			"resolved": "git+ssh://git@github.com/patrickkfkan/Volumio-YouTube.js.git#d1f09458220ee27f9beb4ac93a3677e0657f1d0e",
+			"version": "0.3.8",
+			"resolved": "git+ssh://git@github.com/patrickkfkan/Volumio-YouTube.js.git#63b3ffda9edd98aad7af325ba752f79f19a971a2",
 			"funding": [
 				"https://github.com/sponsors/LuanRT"
 			],
@@ -6174,8 +6174,8 @@
 			"integrity": "sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg=="
 		},
 		"volumio-youtubei.js": {
-			"version": "git+ssh://git@github.com/patrickkfkan/Volumio-YouTube.js.git#d1f09458220ee27f9beb4ac93a3677e0657f1d0e",
-			"from": "volumio-youtubei.js@git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.3.6",
+			"version": "git+ssh://git@github.com/patrickkfkan/Volumio-YouTube.js.git#63b3ffda9edd98aad7af325ba752f79f19a971a2",
+			"from": "volumio-youtubei.js@git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.3.8",
 			"requires": {
 				"event-target-polyfill": "0.0.3",
 				"jintr": "^2.0.0",
