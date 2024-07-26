@@ -3,6 +3,7 @@ import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, EndpointOf, Endpo
 import { ContentItem } from '../types';
 import { SectionItem } from '../types/PageElement';
 import { ContentOf } from '../types/Content';
+import { MetadataLyrics } from 'now-playing-common';
 type ParseableInnertubeResponse = INextResponse | ISearchResponse | IBrowseResponse | IParsedResponse;
 export default class InnertubeResultParser {
     #private;
@@ -21,6 +22,7 @@ export default class InnertubeResultParser {
     }): string | null;
     static parseEndpoint(data?: YTNodes.NavigationEndpoint | null): BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | WatchEndpoint | null;
     static parseEndpoint<K extends EndpointType[]>(data?: YTNodes.NavigationEndpoint | null, ...requireTypes: K): EndpointOf<K[number]> | null;
+    static parseLyrics(response: IParsedResponse): MetadataLyrics | null;
 }
 export {};
 //# sourceMappingURL=InnertubeResultParser.d.ts.map

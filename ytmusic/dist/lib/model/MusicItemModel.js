@@ -7,7 +7,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _MusicItemModel_instances, _MusicItemModel_getTrackInfo, _MusicItemModel_extractStreamData, _MusicItemModel_getInfoFromUpNextTab;
+var _MusicItemModel_instances, _MusicItemModel_getTrackInfo, _MusicItemModel_extractStreamData, _MusicItemModel_getInfoFromUpNextTab, _MusicItemModel_getLyricsId;
 Object.defineProperty(exports, "__esModule", { value: true });
 const YTMusicContext_1 = __importDefault(require("../YTMusicContext"));
 const volumio_youtubei_js_1 = require("volumio-youtubei.js");
@@ -16,14 +16,16 @@ const InnertubeResultParser_1 = __importDefault(require("./InnertubeResultParser
 const Endpoint_1 = require("../types/Endpoint");
 const EndpointHelper_1 = __importDefault(require("../util/EndpointHelper"));
 // https://gist.github.com/sidneys/7095afe4da4ae58694d128b1034e01e2
+// https://gist.github.com/MartinEesmaa/2f4b261cb90a47e9c41ba115a011a4aa
 const ITAG_TO_BITRATE = {
     '139': '48',
     '140': '128',
     '141': '256',
     '171': '128',
-    '249': '50',
-    '250': '70',
-    '251': '160'
+    '249': 'VBR 50',
+    '250': 'VBR 70',
+    '251': 'VBR 160',
+    '774': 'VBR 256'
 };
 const BEST_AUDIO_FORMAT = {
     type: 'audio',
@@ -78,6 +80,17 @@ class MusicItemModel extends BaseModel_1.BaseModel {
             },
             radioEndpoint: musicItem?.radioEndpoint
         };
+    }
+    async getLyrics(videoId) {
+        const { innertube } = await this.getInnertube();
+        const lyricsId = await __classPrivateFieldGet(this, _MusicItemModel_instances, "m", _MusicItemModel_getLyricsId).call(this, videoId);
+        const payload = {
+            browseId: lyricsId,
+            client: 'YTMUSIC_ANDROID'
+        };
+        const response = await innertube.actions.execute('/browse', payload);
+        const parsed = volumio_youtubei_js_1.Parser.parseResponse(response.data);
+        return InnertubeResultParser_1.default.parseLyrics(parsed);
     }
 }
 exports.default = MusicItemModel;
@@ -168,5 +181,22 @@ async function _MusicItemModel_getTrackInfo(innertube, endpoint) {
         }
     });
     return InnertubeResultParser_1.default.parseContentItem(match);
+}, _MusicItemModel_getLyricsId = async function _MusicItemModel_getLyricsId(videoId) {
+    const { innertube } = await this.getInnertube();
+    const response = await innertube.actions.execute('/next', {
+        videoId,
+        client: 'YTMUSIC_ANDROID'
+    });
+    const parsed = volumio_youtubei_js_1.Parser.parseResponse(response.data);
+    const tabs = parsed.contents_memo?.getType(volumio_youtubei_js_1.YTNodes.Tab);
+    const tab = tabs?.matchCondition((tab) => tab.endpoint.payload.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType === 'MUSIC_PAGE_TYPE_TRACK_LYRICS');
+    if (!tab) {
+        throw Error('Could not find lyrics tab.');
+    }
+    const lyricsId = tab.endpoint.payload.browseId;
+    if (!lyricsId) {
+        throw Error('No lyrics ID found in endpoint');
+    }
+    return lyricsId;
 };
 //# sourceMappingURL=MusicItemModel.js.map

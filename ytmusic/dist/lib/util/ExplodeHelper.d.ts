@@ -3,6 +3,7 @@ import { ContentItem } from '../types';
 export default class ExplodeHelper {
     #private;
     static getExplodedTrackInfoFromMusicItem(data: ContentItem.MusicItem): ExplodedTrackInfo;
+    static getExplodedTrackInfoFromUri(uri?: string | null): ExplodedTrackInfo | null;
     static validateExplodeUri(uri: string): any;
     /**
      * Converts a legacy URI (pre-v1.0) to one that current version can explode.

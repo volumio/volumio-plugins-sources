@@ -16,12 +16,14 @@ import { Account, I18nOptionValue, I18nOptions } from './lib/types/PluginConfig'
 import { QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
 import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
 import InnertubeLoader from './lib/model/InnertubeLoader';
+import { NowPlayingPluginSupport } from 'now-playing-common';
+import YouTube2NowPlayingMetadataProvider from './lib/util/YouTube2NowPlayingMetadataProvider';
 
 interface GotoParams extends QueueItem {
   type: 'album' | 'artist';
 }
 
-class ControllerYouTube2 {
+class ControllerYouTube2 implements NowPlayingPluginSupport {
   #context: any;
   #config: any;
   #commandRouter: any;
@@ -29,6 +31,8 @@ class ControllerYouTube2 {
   #browseController: BrowseController | null;
   #searchController: SearchController | null;
   #playController: PlayController | null;
+
+  #nowPlayingMetadataProvider: YouTube2NowPlayingMetadataProvider | null;
 
   constructor(context: any) {
     this.#context = context;
@@ -197,6 +201,8 @@ class ControllerYouTube2 {
     this.#searchController = new SearchController();
     this.#playController = new PlayController();
 
+    this.#nowPlayingMetadataProvider = new YouTube2NowPlayingMetadataProvider();
+
     this.#addToBrowseSources();
 
     return libQ.resolve();
@@ -210,6 +216,8 @@ class ControllerYouTube2 {
     this.#browseController = null;
     this.#searchController = null;
     this.#playController = null;
+
+    this.#nowPlayingMetadataProvider = null;
 
     InnertubeLoader.reset();
     yt2.reset();
@@ -491,6 +499,10 @@ class ControllerYouTube2 {
     });
 
     return defer.promise;
+  }
+
+  getNowPlayingMetadataProvider() {
+    return this.#nowPlayingMetadataProvider;
   }
 }
 

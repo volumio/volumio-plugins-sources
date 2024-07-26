@@ -119,6 +119,7 @@ class InnertubeResultParser {
                     payload: __createPayload(['videoId', 'playlistId', 'params', 'index'])
                 };
                 return __checkType(weResult);
+            case '/next':
             case 'next':
                 if (data?.payload?.request === 'CONTINUATION_REQUEST_TYPE_WATCH_NEXT') {
                     const result = {
@@ -128,6 +129,13 @@ class InnertubeResultParser {
                         }
                     };
                     return __checkType(result);
+                }
+                if (data?.metadata?.page_type === 'WEB_PAGE_TYPE_WATCH') {
+                    const weResult = {
+                        type: Endpoint_1.EndpointType.Watch,
+                        payload: __createPayload(['videoId', 'playlistId', 'params', 'index'])
+                    };
+                    return __checkType(weResult);
                 }
                 break;
             default:
@@ -272,7 +280,8 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
     if (data.header) {
         const dataHeader = this.unwrap(data.header);
         if (dataHeader && !Array.isArray(dataHeader)) {
-            const header = __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_parseHeader).call(this, dataHeader);
+            const metadata = this.unwrap(data.metadata);
+            const header = __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_parseHeader).call(this, dataHeader, !Array.isArray(metadata) ? metadata : null);
             if (header) {
                 result.header = header;
             }
@@ -314,7 +323,7 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
         }
     }
     return result;
-}, _InnertubeResultParser_parseHeader = function _InnertubeResultParser_parseHeader(data) {
+}, _InnertubeResultParser_parseHeader = function _InnertubeResultParser_parseHeader(data, metadata) {
     if (!data) {
         return null;
     }
@@ -402,6 +411,35 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
             if (detailsSubtitle) {
                 subtitles.push(detailsSubtitle);
             }
+        }
+    }
+    // Generic PageHeader - need to check if 'channel' type
+    else if (data instanceof volumio_youtubei_js_1.YTNodes.PageHeader && metadata instanceof volumio_youtubei_js_1.YTNodes.ChannelMetadata) {
+        type = 'channel';
+        title = this.unwrap(data.content?.title?.text);
+        description = metadata.description;
+        thumbnail = this.parseThumbnail(metadata.avatar);
+        if (data.content?.metadata?.metadata_rows) {
+            for (const row of data.content?.metadata?.metadata_rows || []) {
+                const parts = row.metadata_parts?.reduce((result, { text }) => {
+                    const t = this.unwrap(text);
+                    if (t) {
+                        subtitles.push(t);
+                    }
+                    return result;
+                }, []);
+                if (parts) {
+                    subtitles.push(...parts);
+                }
+            }
+        }
+        if (metadata.external_id) {
+            endpoint = {
+                type: Endpoint_1.EndpointType.Browse,
+                payload: {
+                    browseId: metadata.external_id
+                }
+            };
         }
     }
     if (type && title) {

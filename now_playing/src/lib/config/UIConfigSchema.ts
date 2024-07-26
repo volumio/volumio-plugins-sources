@@ -7,6 +7,8 @@ export type UIConfigSectionKey =
               'section_metadata_service' | 
               'section_weather_service' | 
               'section_startup_options' | 
+              'section_content_region' | 
+              'section_layouts' | 
               'section_text_styles' | 
               'section_widget_styles' | 
               'section_album_art_style' | 
@@ -17,6 +19,7 @@ export type UIConfigSectionKey =
               'section_docked_volume_indicator' | 
               'section_docked_clock' | 
               'section_docked_weather' | 
+              'section_docked_media_format' | 
               'section_idle_view' | 
               'section_extra_screens' | 
               'section_kiosk' | 
@@ -43,7 +46,9 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'accessTokenGuide' | 
     'excludeParenthesized' | 
     'parenthesisType' | 
-    'clearMetadataCache' :
+    'clearMetadataCache' | 
+    'queryMusicServices' | 
+    'enableSyncedLyrics' :
 
   K extends 'section_weather_service' ?
     'clearWeatherCache' :
@@ -52,12 +57,31 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'activeScreen' | 
     'activateIdleScreen' :
 
+  K extends 'section_content_region' ?
+    'padding' | 
+    'npBasicViewPadding' | 
+    'npBasicViewPaddingPortrait' | 
+    'npInfoViewPadding' | 
+    'npInfoViewPaddingPortrait' :
+
+  K extends 'section_layouts' ?
+    'npInfoViewLayoutType' | 
+    'npInfoViewLayoutPreferBiggerAlbumArt' | 
+    'npInfoViewLayout' :
+
   K extends 'section_text_styles' ?
     'trackInfoVisibility' | 
     'titleVisibility' | 
     'artistVisibility' | 
     'albumVisibility' | 
     'mediaInfoVisibility' | 
+    'fontStyles' | 
+    'titleFontStyle' | 
+    'artistFontStyle' | 
+    'albumFontStyle' | 
+    'mediaInfoFontStyle' | 
+    'seekTimeFontStyle' | 
+    'metadataFontStyle' | 
     'fontSizes' | 
     'titleFontSize' | 
     'artistFontSize' | 
@@ -65,6 +89,7 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'mediaInfoFontSize' | 
     'seekTimeFontSize' | 
     'metadataFontSize' | 
+    'syncedLyricsCurrentLineFontSize' | 
     'fontColors' | 
     'titleFontColor' | 
     'artistFontColor' | 
@@ -72,6 +97,8 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'mediaInfoFontColor' | 
     'seekTimeFontColor' | 
     'metadataFontColor' | 
+    'syncedLyricsColor' | 
+    'syncedLyricsCurrentLineColor' | 
     'textMargins' | 
     'titleMargin' | 
     'artistMargin' | 
@@ -100,6 +127,11 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'seekbarVisibility' | 
     'playbackButtonSizeType' | 
     'playbackButtonSize' | 
+    'seekbarStyling' | 
+    'seekbarThickness' | 
+    'seekbarBorderRadius' | 
+    'seekbarShowThumb' | 
+    'seekbarThumbSize' | 
     'widgetMargins' | 
     'playbackButtonsMargin' | 
     'seekbarMargin' :
@@ -111,7 +143,8 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'albumartHeight' | 
     'albumartFit' | 
     'albumartBorder' | 
-    'albumartBorderRadius' :
+    'albumartBorderRadius' | 
+    'albumartMargin' :
 
   K extends 'section_background_style' ?
     'backgroundType' | 
@@ -142,7 +175,11 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'showVolumeSlider' :
 
   K extends 'section_docked_menu' ?
-    'enabled' :
+    'enabled' | 
+    'iconSettings' | 
+    'iconStyle' | 
+    'iconSize' | 
+    'margin' :
 
   K extends 'section_docked_action_panel_trigger' ?
     'enabled' | 
@@ -203,6 +240,15 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'iconSize' | 
     'iconMonoColor' | 
     'iconAnimate' | 
+    'margin' :
+
+  K extends 'section_docked_media_format' ?
+    'enabled' | 
+    'placement' | 
+    'displayOrder' | 
+    'fontSettings' | 
+    'fontSize' | 
+    'fontColor' | 
     'margin' :
 
   K extends 'section_idle_view' ?
@@ -275,7 +321,8 @@ export type UIConfigSectionContentKeyOf<K extends UIConfigSectionKey> =
     'unmountNowPlayingScreenOnExit' | 
     'unmountBrowseScreenOnExit' | 
     'unmountQueueScreenOnExit' | 
-    'unmountVolumioScreenOnExit' :
+    'unmountVolumioScreenOnExit' | 
+    'syncedLyricsDelay' :
 
   K extends 'section_backup_config' ?
     'backupName' :
@@ -310,6 +357,8 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'excludeParenthesized' ? UIConfigSwitch<K> :
     C extends 'parenthesisType' ? UIConfigSelect<K> :
     C extends 'clearMetadataCache' ? UIConfigButton<K> :
+    C extends 'queryMusicServices' ? UIConfigSwitch<K> :
+    C extends 'enableSyncedLyrics' ? UIConfigSwitch<K> :
     never
   ) : 
 
@@ -324,12 +373,35 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     never
   ) : 
 
+  K extends 'section_content_region' ? (
+    C extends 'padding' ? UIConfigSelect<K> :
+    C extends 'npBasicViewPadding' ? UIConfigInput<K, 'text'> :
+    C extends 'npBasicViewPaddingPortrait' ? UIConfigInput<K, 'text'> :
+    C extends 'npInfoViewPadding' ? UIConfigInput<K, 'text'> :
+    C extends 'npInfoViewPaddingPortrait' ? UIConfigInput<K, 'text'> :
+    never
+  ) : 
+
+  K extends 'section_layouts' ? (
+    C extends 'npInfoViewLayoutType' ? UIConfigSelect<K> :
+    C extends 'npInfoViewLayoutPreferBiggerAlbumArt' ? UIConfigSwitch<K> :
+    C extends 'npInfoViewLayout' ? UIConfigSelect<K> :
+    never
+  ) : 
+
   K extends 'section_text_styles' ? (
     C extends 'trackInfoVisibility' ? UIConfigSelect<K> :
     C extends 'titleVisibility' ? UIConfigSwitch<K> :
     C extends 'artistVisibility' ? UIConfigSwitch<K> :
     C extends 'albumVisibility' ? UIConfigSwitch<K> :
     C extends 'mediaInfoVisibility' ? UIConfigSwitch<K> :
+    C extends 'fontStyles' ? UIConfigSelect<K> :
+    C extends 'titleFontStyle' ? UIConfigSelect<K> :
+    C extends 'artistFontStyle' ? UIConfigSelect<K> :
+    C extends 'albumFontStyle' ? UIConfigSelect<K> :
+    C extends 'mediaInfoFontStyle' ? UIConfigSelect<K> :
+    C extends 'seekTimeFontStyle' ? UIConfigSelect<K> :
+    C extends 'metadataFontStyle' ? UIConfigSelect<K> :
     C extends 'fontSizes' ? UIConfigSelect<K> :
     C extends 'titleFontSize' ? UIConfigInput<K, 'text'> :
     C extends 'artistFontSize' ? UIConfigInput<K, 'text'> :
@@ -337,6 +409,7 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'mediaInfoFontSize' ? UIConfigInput<K, 'text'> :
     C extends 'seekTimeFontSize' ? UIConfigInput<K, 'text'> :
     C extends 'metadataFontSize' ? UIConfigInput<K, 'text'> :
+    C extends 'syncedLyricsCurrentLineFontSize' ? UIConfigInput<K, 'text'> :
     C extends 'fontColors' ? UIConfigSelect<K> :
     C extends 'titleFontColor' ? UIConfigInput<K, 'color'> :
     C extends 'artistFontColor' ? UIConfigInput<K, 'color'> :
@@ -344,6 +417,8 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'mediaInfoFontColor' ? UIConfigInput<K, 'color'> :
     C extends 'seekTimeFontColor' ? UIConfigInput<K, 'color'> :
     C extends 'metadataFontColor' ? UIConfigInput<K, 'color'> :
+    C extends 'syncedLyricsColor' ? UIConfigInput<K, 'color'> :
+    C extends 'syncedLyricsCurrentLineColor' ? UIConfigInput<K, 'color'> :
     C extends 'textMargins' ? UIConfigSelect<K> :
     C extends 'titleMargin' ? UIConfigInput<K, 'text'> :
     C extends 'artistMargin' ? UIConfigInput<K, 'text'> :
@@ -374,6 +449,11 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'seekbarVisibility' ? UIConfigSwitch<K> :
     C extends 'playbackButtonSizeType' ? UIConfigSelect<K> :
     C extends 'playbackButtonSize' ? UIConfigInput<K, 'text'> :
+    C extends 'seekbarStyling' ? UIConfigSelect<K> :
+    C extends 'seekbarThickness' ? UIConfigInput<K, 'text'> :
+    C extends 'seekbarBorderRadius' ? UIConfigInput<K, 'text'> :
+    C extends 'seekbarShowThumb' ? UIConfigSwitch<K> :
+    C extends 'seekbarThumbSize' ? UIConfigInput<K, 'text'> :
     C extends 'widgetMargins' ? UIConfigSelect<K> :
     C extends 'playbackButtonsMargin' ? UIConfigInput<K, 'text'> :
     C extends 'seekbarMargin' ? UIConfigInput<K, 'text'> :
@@ -388,6 +468,7 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'albumartFit' ? UIConfigSelect<K> :
     C extends 'albumartBorder' ? UIConfigInput<K, 'text'> :
     C extends 'albumartBorderRadius' ? UIConfigInput<K, 'text'> :
+    C extends 'albumartMargin' ? UIConfigInput<K, 'text'> :
     never
   ) : 
 
@@ -425,6 +506,10 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
 
   K extends 'section_docked_menu' ? (
     C extends 'enabled' ? UIConfigSwitch<K> :
+    C extends 'iconSettings' ? UIConfigSelect<K> :
+    C extends 'iconStyle' ? UIConfigSelect<K> :
+    C extends 'iconSize' ? UIConfigInput<K, 'text'> :
+    C extends 'margin' ? UIConfigInput<K, 'text'> :
     never
   ) : 
 
@@ -493,6 +578,17 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'iconSize' ? UIConfigInput<K, 'text'> :
     C extends 'iconMonoColor' ? UIConfigInput<K, 'color'> :
     C extends 'iconAnimate' ? UIConfigSwitch<K> :
+    C extends 'margin' ? UIConfigInput<K, 'text'> :
+    never
+  ) : 
+
+  K extends 'section_docked_media_format' ? (
+    C extends 'enabled' ? UIConfigSwitch<K> :
+    C extends 'placement' ? UIConfigSelect<K> :
+    C extends 'displayOrder' ? UIConfigInput<K, 'number'> :
+    C extends 'fontSettings' ? UIConfigSelect<K> :
+    C extends 'fontSize' ? UIConfigInput<K, 'text'> :
+    C extends 'fontColor' ? UIConfigInput<K, 'color'> :
     C extends 'margin' ? UIConfigInput<K, 'text'> :
     never
   ) : 
@@ -572,6 +668,7 @@ export type UIConfigElementOf<K extends UIConfigSectionKey, C extends UIConfigSe
     C extends 'unmountBrowseScreenOnExit' ? UIConfigSwitch<K> :
     C extends 'unmountQueueScreenOnExit' ? UIConfigSwitch<K> :
     C extends 'unmountVolumioScreenOnExit' ? UIConfigSwitch<K> :
+    C extends 'syncedLyricsDelay' ? UIConfigInput<K, 'number'> :
     never
   ) : 
 

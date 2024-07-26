@@ -1,9 +1,11 @@
 import { SearchQuery } from './lib/controller/search/SearchController';
 import { ExplodedTrackInfo } from './lib/controller/browse/view-handlers/Explodable';
+import { NowPlayingPluginSupport } from 'now-playing-common';
+import JellyfinNowPlayingMetadataProvider from './lib/util/JellyfinNowPlayingMetadataProvider';
 interface GotoParams extends ExplodedTrackInfo {
     type: 'album' | 'artist';
 }
-declare class ControllerJellyfin {
+declare class ControllerJellyfin implements NowPlayingPluginSupport {
     #private;
     constructor(context: any);
     getUIConfig(): any;
@@ -38,6 +40,7 @@ declare class ControllerJellyfin {
         uri: string;
         service: string;
     }): any;
+    getNowPlayingMetadataProvider(): JellyfinNowPlayingMetadataProvider | null;
 }
 export = ControllerJellyfin;
 //# sourceMappingURL=index.d.ts.map

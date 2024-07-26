@@ -1,5 +1,5 @@
 import ytmusic from '../YTMusicContext';
-import Innertube, { FormatOptions, YTNodes, Endpoints as YTEndpoints, Utils as YTUtils, YTMusic } from 'volumio-youtubei.js';
+import Innertube, { FormatOptions, YTNodes, Endpoints as YTEndpoints, Utils as YTUtils, YTMusic, Parser } from 'volumio-youtubei.js';
 import { BaseModel } from './BaseModel';
 import InnertubeResultParser from './InnertubeResultParser';
 import Endpoint, { EndpointType } from '../types/Endpoint';
@@ -8,14 +8,16 @@ import { ContentItem } from '../types';
 import EndpointHelper from '../util/EndpointHelper';
 
 // https://gist.github.com/sidneys/7095afe4da4ae58694d128b1034e01e2
+// https://gist.github.com/MartinEesmaa/2f4b261cb90a47e9c41ba115a011a4aa
 const ITAG_TO_BITRATE: Record<string, string> = {
   '139': '48',
   '140': '128',
   '141': '256',
   '171': '128',
-  '249': '50',
-  '250': '70',
-  '251': '160'
+  '249': 'VBR 50',
+  '250': 'VBR 70',
+  '251': 'VBR 160',
+  '774': 'VBR 256'
 };
 
 const BEST_AUDIO_FORMAT: FormatOptions = {
@@ -172,4 +174,34 @@ export default class MusicItemModel extends BaseModel {
     return InnertubeResultParser.parseContentItem(match);
   }
 
+  async #getLyricsId(videoId: string) {
+    const { innertube } = await this.getInnertube();
+    const response = await innertube.actions.execute('/next', {
+      videoId,
+      client: 'YTMUSIC_ANDROID'
+    });
+    const parsed = Parser.parseResponse(response.data);
+    const tabs = parsed.contents_memo?.getType(YTNodes.Tab);
+    const tab = tabs?.matchCondition((tab) => tab.endpoint.payload.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType === 'MUSIC_PAGE_TYPE_TRACK_LYRICS');
+    if (!tab) {
+      throw Error('Could not find lyrics tab.');
+    }
+    const lyricsId = tab.endpoint.payload.browseId;
+    if (!lyricsId) {
+      throw Error('No lyrics ID found in endpoint');
+    }
+    return lyricsId;
+  }
+
+  async getLyrics(videoId: string) {
+    const { innertube } = await this.getInnertube();
+    const lyricsId = await this.#getLyricsId(videoId);
+    const payload = {
+      browseId: lyricsId,
+      client: 'YTMUSIC_ANDROID'
+    };
+    const response = await innertube.actions.execute('/browse', payload);
+    const parsed = Parser.parseResponse(response.data);
+    return InnertubeResultParser.parseLyrics(parsed);
+  }
 }

@@ -58,6 +58,7 @@ const now_playing_common_1 = require("now-playing-common");
 const UIConfigHelper_1 = __importDefault(require("./lib/config/UIConfigHelper"));
 const ConfigBackupHelper_1 = __importDefault(require("./lib/config/ConfigBackupHelper"));
 const MyBackgroundMonitor_1 = __importDefault(require("./lib/utils/MyBackgroundMonitor"));
+const FontHelper_1 = __importDefault(require("./lib/utils/FontHelper"));
 class ControllerNowPlaying {
     constructor(context) {
         _ControllerNowPlaying_instances.add(this);
@@ -154,6 +155,26 @@ class ControllerNowPlaying {
          * startup options are applied only once during app startup.
          */
     }
+    configSaveLayouts(data) {
+        const apply = __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_parseConfigSaveData).call(this, data);
+        const screen = NowPlayingContext_1.default.getConfigValue('screen.nowPlaying');
+        const infoViewLayout = screen.infoViewLayout || {};
+        infoViewLayout.type = apply.npInfoViewLayoutType;
+        infoViewLayout.layout = apply.npInfoViewLayout;
+        infoViewLayout.preferBiggerAlbumArt = apply.npInfoViewLayoutPreferBiggerAlbumArt;
+        screen.infoViewLayout = infoViewLayout;
+        NowPlayingContext_1.default.setConfigValue('screen.nowPlaying', screen);
+        NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+        __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.NowPlayingScreen);
+    }
+    configSaveContentRegionSettings(data) {
+        const apply = __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_parseConfigSaveData).call(this, data);
+        const current = NowPlayingContext_1.default.getConfigValue('contentRegion');
+        const updated = Object.assign(current, apply);
+        NowPlayingContext_1.default.setConfigValue('contentRegion', updated);
+        NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
+        __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.ContentRegion);
+    }
     configSaveTextStyles(data) {
         const maxTitleLines = data.maxTitleLines !== '' ? parseInt(data.maxTitleLines, 10) : '';
         const maxArtistLines = data.maxArtistLines !== '' ? parseInt(data.maxArtistLines, 10) : '';
@@ -168,6 +189,13 @@ class ControllerNowPlaying {
             artistVisibility: data.artistVisibility,
             albumVisibility: data.albumVisibility,
             mediaInfoVisibility: data.mediaInfoVisibility,
+            fontStyles: data.fontStyles.value,
+            titleFontStyle: data.titleFontStyle.value,
+            artistFontStyle: data.artistFontStyle.value,
+            albumFontStyle: data.albumFontStyle.value,
+            mediaInfoFontStyle: data.mediaInfoFontStyle.value,
+            seekTimeFontStyle: data.seekTimeFontStyle.value,
+            metadataFontStyle: data.metadataFontStyle.value,
             fontSizes: data.fontSizes.value,
             titleFontSize: data.titleFontSize,
             artistFontSize: data.artistFontSize,
@@ -175,6 +203,7 @@ class ControllerNowPlaying {
             mediaInfoFontSize: data.mediaInfoFontSize,
             seekTimeFontSize: data.seekTimeFontSize,
             metadataFontSize: data.metadataFontSize,
+            syncedLyricsCurrentLineFontSize: data.syncedLyricsCurrentLineFontSize,
             fontColors: data.fontColors.value,
             titleFontColor: data.titleFontColor,
             artistFontColor: data.artistFontColor,
@@ -182,6 +211,8 @@ class ControllerNowPlaying {
             mediaInfoFontColor: data.mediaInfoFontColor,
             seekTimeFontColor: data.seekTimeFontColor,
             metadataFontColor: data.metadataFontColor,
+            syncedLyricsColor: data.syncedLyricsColor,
+            syncedLyricsCurrentLineColor: data.syncedLyricsCurrentLineColor,
             textAlignmentH: data.textAlignmentH.value,
             textAlignmentV: data.textAlignmentV.value,
             textAlignmentLyrics: data.textAlignmentLyrics.value,
@@ -217,6 +248,11 @@ class ControllerNowPlaying {
             seekbarVisibility: data.seekbarVisibility,
             playbackButtonSizeType: data.playbackButtonSizeType.value,
             playbackButtonSize: data.playbackButtonSize,
+            seekbarStyling: data.seekbarStyling.value,
+            seekbarThickness: data.seekbarThickness,
+            seekbarBorderRadius: data.seekbarBorderRadius,
+            seekbarShowThumb: data.seekbarShowThumb,
+            seekbarThumbSize: data.seekbarThumbSize,
             widgetMargins: data.widgetMargins.value,
             playbackButtonsMargin: data.playbackButtonsMargin,
             seekbarMargin: data.seekbarMargin
@@ -285,6 +321,9 @@ class ControllerNowPlaying {
     configSaveDockedWeatherSettings(data) {
         __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_configSaveDockedComponentSettings).call(this, data, 'dockedWeather');
     }
+    configSaveDockedMediaFormatSettings(data) {
+        __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_configSaveDockedComponentSettings).call(this, data, 'dockedMediaFormat');
+    }
     configSaveLocalizationSettings(data) {
         const settings = {
             geoCoordinates: data.geoCoordinates,
@@ -330,7 +369,9 @@ class ControllerNowPlaying {
         const settings = {
             geniusAccessToken: token,
             excludeParenthesized: data['excludeParenthesized'],
-            parenthesisType: data['parenthesisType'].value
+            parenthesisType: data['parenthesisType'].value,
+            queryMusicServices: data['queryMusicServices'],
+            enableSyncedLyrics: data['enableSyncedLyrics']
         };
         NowPlayingContext_1.default.setConfigValue('metadataService', settings);
         MetadataAPI_1.default.updateSettings(settings);
@@ -388,6 +429,7 @@ class ControllerNowPlaying {
         __classPrivateFieldGet(this, _ControllerNowPlaying_instances, "m", _ControllerNowPlaying_notifyCommonSettingsUpdated).call(this, now_playing_common_1.CommonSettingsCategory.Theme);
     }
     configSavePerformanceSettings(data) {
+        const syncedLyricsDelay = data.syncedLyricsDelay !== '' ? parseInt(data.syncedLyricsDelay, 10) : 0;
         const settings = {
             transitionEffectsKiosk: data.transitionEffectsKiosk,
             transitionEffectsOtherDevices: data.transitionEffectsOtherDevices,
@@ -395,7 +437,8 @@ class ControllerNowPlaying {
             unmountNowPlayingScreenOnExit: data.unmountNowPlayingScreenOnExit,
             unmountBrowseScreenOnExit: data.unmountBrowseScreenOnExit,
             unmountQueueScreenOnExit: data.unmountQueueScreenOnExit,
-            unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit
+            unmountVolumioScreenOnExit: data.unmountVolumioScreenOnExit,
+            syncedLyricsDelay
         };
         NowPlayingContext_1.default.setConfigValue('performance', settings);
         NowPlayingContext_1.default.toast('success', NowPlayingContext_1.default.getI18n('NOW_PLAYING_SETTINGS_SAVED'));
@@ -505,6 +548,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     const localizationUIConf = uiconf.section_localization;
     const metadataServiceUIConf = uiconf.section_metadata_service;
     const startupOptionsUIConf = uiconf.section_startup_options;
+    const contentRegionUIConf = uiconf.section_content_region;
+    const layoutsUIConf = uiconf.section_layouts;
     const textStylesUIConf = uiconf.section_text_styles;
     const widgetStylesUIConf = uiconf.section_widget_styles;
     const albumartStylesUIConf = uiconf.section_album_art_style;
@@ -515,11 +560,13 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     const dockedVolumeIndicatorUIConf = uiconf.section_docked_volume_indicator;
     const dockedClockUIConf = uiconf.section_docked_clock;
     const dockedWeatherUIConf = uiconf.section_docked_weather;
+    const dockedMediaFormatUIConf = uiconf.section_docked_media_format;
     const idleScreenUIConf = uiconf.section_idle_view;
     const extraScreensUIConf = uiconf.section_extra_screens;
     const kioskUIConf = uiconf.section_kiosk;
     const performanceUIConf = uiconf.section_performance;
     const backupConfigUIConf = uiconf.section_backup_config;
+    const nowPlayingScreen = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.NowPlayingScreen);
     const volumioBackgrounds = (0, Misc_1.getVolumioBackgrounds)();
     const myBackgrounds = MyBackgroundMonitor_1.default.getImages();
     /**
@@ -611,6 +658,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
         type: 'openUrl',
         url: accessTokenSetupUrl
     };
+    metadataServiceUIConf.content.queryMusicServices.value = metadataServiceOptions.queryMusicServices;
+    metadataServiceUIConf.content.enableSyncedLyrics.value = metadataServiceOptions.enableSyncedLyrics;
     const startupOptions = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.Startup);
     startupOptionsUIConf.content.activeScreen.value = {
         value: startupOptions.activeScreen,
@@ -618,7 +667,16 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     };
     switch (startupOptions.activeScreen) {
         case 'nowPlaying.infoView':
-            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO');
+            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO_SONG');
+            break;
+        case 'nowPlaying.infoView.artist':
+            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO_ARTIST');
+            break;
+        case 'nowPlaying.infoView.album':
+            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO_ALBUM');
+            break;
+        case 'nowPlaying.infoView.lyrics':
+            startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_NP_INFO_LYRICS');
             break;
         case 'browse':
             startupOptionsUIConf.content.activeScreen.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_BROWSE');
@@ -631,9 +689,35 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     }
     startupOptionsUIConf.content.activateIdleScreen.value = startupOptions.activateIdleScreen;
     /**
+     * Content region conf
+     */
+    const contentRegion = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.ContentRegion);
+    contentRegionUIConf.content.padding.value = {
+        value: contentRegion.padding,
+        label: contentRegion.padding == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    contentRegionUIConf.content.npBasicViewPadding.value = contentRegion.npBasicViewPadding;
+    contentRegionUIConf.content.npBasicViewPaddingPortrait.value = contentRegion.npBasicViewPaddingPortrait;
+    contentRegionUIConf.content.npInfoViewPadding.value = contentRegion.npInfoViewPadding;
+    contentRegionUIConf.content.npInfoViewPaddingPortrait.value = contentRegion.npInfoViewPaddingPortrait;
+    /**
+     * Layouts conf
+     */
+    const infoViewLayout = nowPlayingScreen.infoViewLayout;
+    layoutsUIConf.content.npInfoViewLayoutType.value = {
+        value: infoViewLayout.type,
+        label: infoViewLayout.type == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    layoutsUIConf.content.npInfoViewLayoutPreferBiggerAlbumArt.value = infoViewLayout.preferBiggerAlbumArt;
+    layoutsUIConf.content.npInfoViewLayout.value = {
+        value: infoViewLayout.layout,
+        label: infoViewLayout.layout == 'big-art' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_BIG_ART_LAYOUT') :
+            infoViewLayout.layout == 'ultra-wide' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_ULTRA_WIDE_LAYOUT') :
+                NowPlayingContext_1.default.getI18n('NOW_PLAYING_STANDARD_LAYOUT')
+    };
+    /**
      * Text Styles conf
      */
-    const nowPlayingScreen = CommonSettingsLoader_1.default.get(now_playing_common_1.CommonSettingsCategory.NowPlayingScreen);
     textStylesUIConf.content.trackInfoVisibility.value = {
         value: nowPlayingScreen.trackInfoVisibility,
         label: nowPlayingScreen.trackInfoVisibility == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -642,6 +726,11 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.artistVisibility.value = nowPlayingScreen.artistVisibility;
     textStylesUIConf.content.albumVisibility.value = nowPlayingScreen.albumVisibility;
     textStylesUIConf.content.mediaInfoVisibility.value = nowPlayingScreen.mediaInfoVisibility;
+    textStylesUIConf.content.fontStyles.value = {
+        value: nowPlayingScreen.fontStyles,
+        label: nowPlayingScreen.fontStyles == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    FontHelper_1.default.fillUIConfSelectElements({ el: textStylesUIConf.content.titleFontStyle, value: nowPlayingScreen.titleFontStyle }, { el: textStylesUIConf.content.artistFontStyle, value: nowPlayingScreen.artistFontStyle }, { el: textStylesUIConf.content.albumFontStyle, value: nowPlayingScreen.albumFontStyle }, { el: textStylesUIConf.content.mediaInfoFontStyle, value: nowPlayingScreen.mediaInfoFontStyle }, { el: textStylesUIConf.content.seekTimeFontStyle, value: nowPlayingScreen.seekTimeFontStyle }, { el: textStylesUIConf.content.metadataFontStyle, value: nowPlayingScreen.metadataFontStyle });
     textStylesUIConf.content.fontSizes.value = {
         value: nowPlayingScreen.fontSizes,
         label: nowPlayingScreen.fontSizes == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -652,6 +741,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.mediaInfoFontSize.value = nowPlayingScreen.mediaInfoFontSize;
     textStylesUIConf.content.seekTimeFontSize.value = nowPlayingScreen.seekTimeFontSize;
     textStylesUIConf.content.metadataFontSize.value = nowPlayingScreen.metadataFontSize;
+    textStylesUIConf.content.syncedLyricsCurrentLineFontSize.value = nowPlayingScreen.syncedLyricsCurrentLineFontSize;
     textStylesUIConf.content.fontColors.value = {
         value: nowPlayingScreen.fontColors,
         label: nowPlayingScreen.fontColors == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -662,6 +752,8 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     textStylesUIConf.content.mediaInfoFontColor.value = nowPlayingScreen.mediaInfoFontColor;
     textStylesUIConf.content.seekTimeFontColor.value = nowPlayingScreen.seekTimeFontColor;
     textStylesUIConf.content.metadataFontColor.value = nowPlayingScreen.metadataFontColor;
+    textStylesUIConf.content.syncedLyricsColor.value = nowPlayingScreen.syncedLyricsColor;
+    textStylesUIConf.content.syncedLyricsCurrentLineColor.value = nowPlayingScreen.syncedLyricsCurrentLineColor;
     textStylesUIConf.content.textMargins.value = {
         value: nowPlayingScreen.textMargins,
         label: nowPlayingScreen.textMargins == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -751,6 +843,14 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
         label: nowPlayingScreen.playbackButtonSizeType == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
     };
     widgetStylesUIConf.content.playbackButtonSize.value = nowPlayingScreen.playbackButtonSize;
+    widgetStylesUIConf.content.seekbarStyling.value = {
+        value: nowPlayingScreen.seekbarStyling,
+        label: nowPlayingScreen.seekbarStyling == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    widgetStylesUIConf.content.seekbarThickness.value = nowPlayingScreen.seekbarThickness;
+    widgetStylesUIConf.content.seekbarBorderRadius.value = nowPlayingScreen.seekbarBorderRadius;
+    widgetStylesUIConf.content.seekbarShowThumb.value = nowPlayingScreen.seekbarShowThumb;
+    widgetStylesUIConf.content.seekbarThumbSize.value = nowPlayingScreen.seekbarThumbSize;
     widgetStylesUIConf.content.widgetMargins.value = {
         value: nowPlayingScreen.widgetMargins,
         label: nowPlayingScreen.widgetMargins == 'auto' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_AUTO') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
@@ -783,6 +883,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     }
     albumartStylesUIConf.content.albumartBorder.value = nowPlayingScreen.albumartBorder;
     albumartStylesUIConf.content.albumartBorderRadius.value = nowPlayingScreen.albumartBorderRadius;
+    albumartStylesUIConf.content.albumartMargin.value = nowPlayingScreen.albumartMargin;
     if (!nowPlayingScreen.albumartVisibility) {
         albumartStylesUIConf.content = [albumartStylesUIConf.content.albumartVisibility];
         if (albumartStylesUIConf.saveButton) {
@@ -995,6 +1096,32 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
      */
     const dockedMenu = nowPlayingScreen.dockedMenu;
     dockedMenuUIConf.content.enabled.value = dockedMenu.enabled;
+    dockedMenuUIConf.content.iconSettings.value = {
+        value: dockedMenu.iconSettings,
+        label: dockedMenu.iconSettings == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    dockedMenuUIConf.content.iconStyle.value = {
+        value: dockedMenu.iconStyle,
+        label: ''
+    };
+    switch (dockedMenu.iconStyle) {
+        case 'ellipsis_h':
+            dockedMenuUIConf.content.iconStyle.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_ELLIPSIS_H');
+            break;
+        case 'hamburger':
+            dockedMenuUIConf.content.iconStyle.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_HAMBURGER');
+            break;
+        default:
+            dockedMenuUIConf.content.iconStyle.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_ELLIPSIS_V');
+    }
+    dockedMenuUIConf.content.iconSize.value = dockedMenu.iconSize;
+    dockedMenuUIConf.content.margin.value = dockedMenu.margin;
+    if (!dockedMenu.enabled) {
+        dockedMenuUIConf.content = [dockedMenuUIConf.content.enabled];
+        if (dockedMenuUIConf.saveButton) {
+            dockedMenuUIConf.saveButton.data = ['enabled'];
+        }
+    }
     /**
      * Docked Action Panel Trigger
      */
@@ -1324,6 +1451,54 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
         dockedWeatherUIConf.content = [dockedWeatherUIConf.content.enabled];
         if (dockedWeatherUIConf.saveButton) {
             dockedWeatherUIConf.saveButton.data = ['enabled'];
+        }
+    }
+    /**
+     * Docked Media Format
+     */
+    const dockedMediaFormat = nowPlayingScreen.dockedMediaFormat;
+    dockedMediaFormatUIConf.content.enabled.value = dockedMediaFormat.enabled;
+    dockedMediaFormatUIConf.content.placement.value = {
+        value: dockedMediaFormat.placement,
+        label: ''
+    };
+    switch (dockedMediaFormat.placement) {
+        case 'top-left':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_TOP_LEFT');
+            break;
+        case 'top':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_TOP');
+            break;
+        case 'top-right':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_TOP_RIGHT');
+            break;
+        case 'left':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_LEFT');
+            break;
+        case 'right':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_RIGHT');
+            break;
+        case 'bottom-left':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_BOTTOM_LEFT');
+            break;
+        case 'bottom':
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_BOTTOM');
+            break;
+        default:
+            dockedMediaFormatUIConf.content.placement.value.label = NowPlayingContext_1.default.getI18n('NOW_PLAYING_POSITION_BOTTOM_RIGHT');
+    }
+    dockedMediaFormatUIConf.content.displayOrder.value = UIConfigHelper_1.default.sanitizeNumberInput(dockedMediaFormat.displayOrder);
+    dockedMediaFormatUIConf.content.fontSettings.value = {
+        value: dockedMediaFormat.fontSettings,
+        label: dockedMediaFormat.fontSettings == 'default' ? NowPlayingContext_1.default.getI18n('NOW_PLAYING_DEFAULT') : NowPlayingContext_1.default.getI18n('NOW_PLAYING_CUSTOM')
+    };
+    dockedMediaFormatUIConf.content.fontSize.value = dockedMediaFormat.fontSize;
+    dockedMediaFormatUIConf.content.fontColor.value = dockedMediaFormat.fontColor;
+    dockedMediaFormatUIConf.content.margin.value = dockedMediaFormat.margin;
+    if (!dockedMediaFormat.enabled) {
+        dockedMediaFormatUIConf.content = [dockedMediaFormatUIConf.content.enabled];
+        if (dockedMediaFormatUIConf.saveButton) {
+            dockedMediaFormatUIConf.saveButton.data = ['enabled'];
         }
     }
     /**
@@ -1702,6 +1877,7 @@ _ControllerNowPlaying_context = new WeakMap(), _ControllerNowPlaying_config = ne
     performanceUIConf.content.unmountBrowseScreenOnExit.value = performanceSettings.unmountBrowseScreenOnExit;
     performanceUIConf.content.unmountQueueScreenOnExit.value = performanceSettings.unmountQueueScreenOnExit;
     performanceUIConf.content.unmountVolumioScreenOnExit.value = performanceSettings.unmountVolumioScreenOnExit;
+    performanceUIConf.content.syncedLyricsDelay.value = UIConfigHelper_1.default.sanitizeNumberInput(performanceSettings.syncedLyricsDelay);
     // Backup Config conf
     const backups = await ConfigBackupHelper_1.default.getBackupNames();
     if (backups.length > 0) {

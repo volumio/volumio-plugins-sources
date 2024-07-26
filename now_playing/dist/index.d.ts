@@ -10,6 +10,8 @@ declare class ControllerNowPlaying {
     configSaveDaemon(data: Record<string, any>): void;
     configConfirmSaveDaemon(data: Record<string, any>): void;
     configSaveStartupOptions(data: Record<string, any>): void;
+    configSaveLayouts(data: Record<string, any>): void;
+    configSaveContentRegionSettings(data: Record<string, any>): void;
     configSaveTextStyles(data: Record<string, any>): void;
     configSaveWidgetStyles(data: Record<string, any>): void;
     configSaveAlbumartStyles(data: Record<string, any>): void;
@@ -20,6 +22,7 @@ declare class ControllerNowPlaying {
     configSaveDockedVolumeIndicatorSettings(data: Record<string, any>): void;
     configSaveDockedClockSettings(data: Record<string, any>): void;
     configSaveDockedWeatherSettings(data: Record<string, any>): void;
+    configSaveDockedMediaFormatSettings(data: Record<string, any>): void;
     configSaveLocalizationSettings(data: Record<string, any>): void;
     configSaveMetadataServiceSettings(data: Record<string, any>): void;
     configSaveIdleScreenSettings(data: Record<string, any>): void;

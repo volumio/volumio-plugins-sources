@@ -1,9 +1,11 @@
 import { SearchQuery } from './lib/controller/search/SearchController';
 import { QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
+import { NowPlayingPluginSupport } from 'now-playing-common';
+import YouTube2NowPlayingMetadataProvider from './lib/util/YouTube2NowPlayingMetadataProvider';
 interface GotoParams extends QueueItem {
     type: 'album' | 'artist';
 }
-declare class ControllerYouTube2 {
+declare class ControllerYouTube2 implements NowPlayingPluginSupport {
     #private;
     constructor(context: any);
     getUIConfig(): any;
@@ -29,6 +31,7 @@ declare class ControllerYouTube2 {
     prefetch(track: QueueItem): any;
     search(query: SearchQuery): any;
     goto(data: GotoParams): any;
+    getNowPlayingMetadataProvider(): YouTube2NowPlayingMetadataProvider | null;
 }
 export = ControllerYouTube2;
 //# sourceMappingURL=index.d.ts.map
