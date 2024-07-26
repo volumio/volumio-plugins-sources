@@ -9,7 +9,7 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var axios = require('axios');
 
-axios.defaults.baseURL = 'https://api-dev.musicyourbrand.com/api'
+axios.defaults.baseURL = 'https://api.musicyourbrand.com/api'
 
 module.exports = ControllerMyb;
 
@@ -48,7 +48,7 @@ ControllerMyb.prototype.onVolumioStart = function () {
 
 ControllerMyb.prototype.firstCallOnStart = function () {
 
-  axios.defaults.baseURL = 'https://api-dev.musicyourbrand.com'
+  axios.defaults.baseURL = 'https://api.musicyourbrand.com'
   setTimeout( () => { 
   
     axios.get('/')
@@ -66,7 +66,7 @@ ControllerMyb.prototype.firstCallOnStart = function () {
 ControllerMyb.prototype.loginOnStart = function () {
   var defer = libQ.defer();
   
-  axios.defaults.baseURL = 'https://api-dev.musicyourbrand.com/api'
+  axios.defaults.baseURL = 'https://api.musicyourbrand.com/api'
   try {
     var token = this.getConfigData('token');
     if (token) {
