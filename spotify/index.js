@@ -1080,7 +1080,7 @@ ControllerSpotify.prototype.flushCache = function() {
 ControllerSpotify.prototype._getAlbumArt = function (item) {
 
     var albumart = '';
-    if (item.hasOwnProperty('images') && item.images.length > 0) {
+    if (item && item.images && item.images.length && item.images.length > 0) {
         albumart = item.images[0].url;
     }
     return albumart;
@@ -1509,18 +1509,6 @@ ControllerSpotify.prototype.getMyTracks = function () {
                     }
                 },
                 onEnd: () => {
-                    tracks.sort((a, b) => {
-                        if (a.artist !== b.artist) {
-                            return a.artist > b.artist ? 1 : -1;
-                        }
-                        if (a.year !== b.year) {
-                            return a.year > b.year ? 1 : -1;
-                        }
-                        if (a.album !== b.album) {
-                            return a.album > b.album ? 1 : -1;
-                        }
-                        return a.tracknumber > b.tracknumber ? 1 : a.tracknumber === b.tracknumber ? 0 : -1;
-                    });
                     defer.resolve({
                         navigation: {
                             prev: {
@@ -2903,4 +2891,14 @@ ControllerSpotify.prototype.getSpotifyVolume = function () {
                 currentSpotifyVolume = results.body.value;
             }
         })
+};
+
+ControllerSpotify.prototype.prefetch = function (track) {
+    var self=this;
+
+    // TODO: To finish this we need consume API or queue edititing ability from Spotify
+
+    self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerSpotify::prefetch');
+
+    return self.sendSpotifyLocalApiCommandWithPayload('/player/add_to_queue', { uri: track.uri });
 };
