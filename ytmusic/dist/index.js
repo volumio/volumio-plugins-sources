@@ -36,7 +36,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _ControllerYTMusic_instances, _ControllerYTMusic_context, _ControllerYTMusic_config, _ControllerYTMusic_commandRouter, _ControllerYTMusic_browseController, _ControllerYTMusic_searchController, _ControllerYTMusic_playController, _ControllerYTMusic_getConfigI18nOptions, _ControllerYTMusic_getConfigAccountInfo, _ControllerYTMusic_getAuthStatus, _ControllerYTMusic_addToBrowseSources;
+var _ControllerYTMusic_instances, _ControllerYTMusic_context, _ControllerYTMusic_config, _ControllerYTMusic_commandRouter, _ControllerYTMusic_browseController, _ControllerYTMusic_searchController, _ControllerYTMusic_playController, _ControllerYTMusic_nowPlayingMetadataProvider, _ControllerYTMusic_getConfigI18nOptions, _ControllerYTMusic_getConfigAccountInfo, _ControllerYTMusic_getAuthStatus, _ControllerYTMusic_addToBrowseSources;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
@@ -52,6 +52,7 @@ const Auth_1 = require("./lib/util/Auth");
 const model_1 = __importStar(require("./lib/model"));
 const ViewHelper_1 = __importDefault(require("./lib/controller/browse/view-handlers/ViewHelper"));
 const InnertubeLoader_1 = __importDefault(require("./lib/model/InnertubeLoader"));
+const YTMusicNowPlayingMetadataProvider_1 = __importDefault(require("./lib/util/YTMusicNowPlayingMetadataProvider"));
 class ControllerYTMusic {
     constructor(context) {
         _ControllerYTMusic_instances.add(this);
@@ -61,6 +62,7 @@ class ControllerYTMusic {
         _ControllerYTMusic_browseController.set(this, void 0);
         _ControllerYTMusic_searchController.set(this, void 0);
         _ControllerYTMusic_playController.set(this, void 0);
+        _ControllerYTMusic_nowPlayingMetadataProvider.set(this, void 0);
         __classPrivateFieldSet(this, _ControllerYTMusic_context, context, "f");
         __classPrivateFieldSet(this, _ControllerYTMusic_commandRouter, context.coreCommand, "f");
     }
@@ -191,6 +193,7 @@ class ControllerYTMusic {
         __classPrivateFieldSet(this, _ControllerYTMusic_browseController, new BrowseController_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerYTMusic_searchController, new SearchController_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerYTMusic_playController, new PlayController_1.default(), "f");
+        __classPrivateFieldSet(this, _ControllerYTMusic_nowPlayingMetadataProvider, new YTMusicNowPlayingMetadataProvider_1.default(), "f");
         __classPrivateFieldGet(this, _ControllerYTMusic_instances, "m", _ControllerYTMusic_addToBrowseSources).call(this);
         return kew_1.default.resolve();
     }
@@ -200,6 +203,7 @@ class ControllerYTMusic {
         __classPrivateFieldSet(this, _ControllerYTMusic_browseController, null, "f");
         __classPrivateFieldSet(this, _ControllerYTMusic_searchController, null, "f");
         __classPrivateFieldSet(this, _ControllerYTMusic_playController, null, "f");
+        __classPrivateFieldSet(this, _ControllerYTMusic_nowPlayingMetadataProvider, null, "f");
         InnertubeLoader_1.default.reset();
         YTMusicContext_1.default.reset();
         return kew_1.default.resolve();
@@ -339,8 +343,11 @@ class ControllerYTMusic {
         });
         return defer.promise;
     }
+    getNowPlayingMetadataProvider() {
+        return __classPrivateFieldGet(this, _ControllerYTMusic_nowPlayingMetadataProvider, "f");
+    }
 }
-_ControllerYTMusic_context = new WeakMap(), _ControllerYTMusic_config = new WeakMap(), _ControllerYTMusic_commandRouter = new WeakMap(), _ControllerYTMusic_browseController = new WeakMap(), _ControllerYTMusic_searchController = new WeakMap(), _ControllerYTMusic_playController = new WeakMap(), _ControllerYTMusic_instances = new WeakSet(), _ControllerYTMusic_getConfigI18nOptions = function _ControllerYTMusic_getConfigI18nOptions() {
+_ControllerYTMusic_context = new WeakMap(), _ControllerYTMusic_config = new WeakMap(), _ControllerYTMusic_commandRouter = new WeakMap(), _ControllerYTMusic_browseController = new WeakMap(), _ControllerYTMusic_searchController = new WeakMap(), _ControllerYTMusic_playController = new WeakMap(), _ControllerYTMusic_nowPlayingMetadataProvider = new WeakMap(), _ControllerYTMusic_instances = new WeakSet(), _ControllerYTMusic_getConfigI18nOptions = function _ControllerYTMusic_getConfigI18nOptions() {
     const defer = kew_1.default.defer();
     const model = model_1.default.getInstance(model_1.ModelType.Config);
     model.getI18nOptions().then((options) => {

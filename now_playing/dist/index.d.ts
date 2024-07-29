@@ -10,6 +10,8 @@ declare class ControllerNowPlaying {
     configSaveDaemon(data: Record<string, any>): void;
     configConfirmSaveDaemon(data: Record<string, any>): void;
     configSaveStartupOptions(data: Record<string, any>): void;
+    configSaveLayouts(data: Record<string, any>): void;
+    configSaveContentRegionSettings(data: Record<string, any>): void;
     configSaveTextStyles(data: Record<string, any>): void;
     configSaveWidgetStyles(data: Record<string, any>): void;
     configSaveAlbumartStyles(data: Record<string, any>): void;

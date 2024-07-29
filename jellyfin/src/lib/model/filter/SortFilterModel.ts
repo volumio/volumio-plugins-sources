@@ -27,7 +27,7 @@ interface SortBySetEntry {
 
 interface SortOrderSetEntry {
   i18nKey: string;
-  value: SortOrder.Ascending | SortOrder.Descending
+  value: typeof SortOrder.Ascending | typeof SortOrder.Descending
 }
 
 const SORT_BY_SETS: Record<SortFilterItemType, SortBySetEntry[]> = {

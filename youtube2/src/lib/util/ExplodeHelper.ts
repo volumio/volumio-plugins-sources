@@ -6,6 +6,7 @@ import ViewHelper from '../controller/browse/view-handlers/ViewHelper';
 import Model, { ModelType } from '../model';
 import { ContentItem } from '../types';
 import { EndpointType } from '../types/Endpoint';
+import EndpointHelper from './EndpointHelper';
 
 export default class ExplodeHelper {
 
@@ -18,6 +19,21 @@ export default class ExplodeHelper {
       albumart: data.thumbnail || '',
       endpoint: data.endpoint
     };
+  }
+
+  static getExplodedTrackInfoFromUri(uri: string): ExplodedTrackInfo | null {
+    if (!uri) {
+      return null;
+    }
+
+    const trackView = ViewHelper.getViewsFromUri(uri)[1] as VideoView;
+
+    if (!trackView || trackView.name !== 'video' ||
+      !EndpointHelper.isType(trackView.explodeTrackData?.endpoint, EndpointType.Watch)) {
+      return null;
+    }
+
+    return trackView.explodeTrackData;
   }
 
   static validateExplodeUri(uri: string) {

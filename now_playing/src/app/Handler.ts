@@ -12,6 +12,7 @@ import { CommonSettingsCategory } from 'now-playing-common';
 import myBackgroundMonitor from '../lib/utils/MyBackgroundMonitor';
 import { rnd } from '../lib/utils/Misc';
 import * as SystemUtils from '../lib/utils/System';
+import { FONT_DIR } from '../lib/utils/FontHelper';
 
 interface RenderViewData {
   i18n?: typeof np['getI18n'];
@@ -31,6 +32,7 @@ export async function index(req: express.Request, res: express.Response) {
   const html = await renderView('index', req, {
     settings: {
       [CommonSettingsCategory.Startup]: CommonSettingsLoader.get(CommonSettingsCategory.Startup),
+      [CommonSettingsCategory.ContentRegion]: CommonSettingsLoader.get(CommonSettingsCategory.ContentRegion),
       [CommonSettingsCategory.NowPlayingScreen]: CommonSettingsLoader.get(CommonSettingsCategory.NowPlayingScreen),
       [CommonSettingsCategory.IdleScreen]: CommonSettingsLoader.get(CommonSettingsCategory.IdleScreen),
       [CommonSettingsCategory.Background]: CommonSettingsLoader.get(CommonSettingsCategory.Background),
@@ -111,6 +113,20 @@ export async function api(apiName: string, method: string, params: Record<string
       success: false,
       error: `Invalid API endpoint ${apiName}/${method}`
     });
+  }
+}
+
+export async function font(filename: string, res: express.Response) {
+  const assetPath = `${FONT_DIR}/${filename}`;
+  if (!SystemUtils.fileExists(assetPath)) {
+    return res.send(404);
+  }
+  try {
+    fs.createReadStream(assetPath).pipe(res);
+  }
+  catch (error: any) {
+    np.getLogger().error(np.getErrorMessage(`[now-playing] Error piping ${assetPath} to response`, error, true));
+    return res.send(400);
   }
 }
 

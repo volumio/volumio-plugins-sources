@@ -23,8 +23,8 @@ Restart=no
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=volumio
-User=volumio
-Group=volumio
+User=root
+Group=root
 TimeoutSec=1
 [Install]
 WantedBy=multi-user.target

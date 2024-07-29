@@ -36,6 +36,7 @@ const YouTube2Context_1 = __importDefault(require("../YouTube2Context"));
 const ViewHelper_1 = __importDefault(require("../controller/browse/view-handlers/ViewHelper"));
 const model_1 = __importStar(require("../model"));
 const Endpoint_1 = require("../types/Endpoint");
+const EndpointHelper_1 = __importDefault(require("./EndpointHelper"));
 class ExplodeHelper {
     // Creates a bundle that contains the data needed by explode() to
     // Generate the final exploded item.
@@ -46,6 +47,17 @@ class ExplodeHelper {
             albumart: data.thumbnail || '',
             endpoint: data.endpoint
         };
+    }
+    static getExplodedTrackInfoFromUri(uri) {
+        if (!uri) {
+            return null;
+        }
+        const trackView = ViewHelper_1.default.getViewsFromUri(uri)[1];
+        if (!trackView || trackView.name !== 'video' ||
+            !EndpointHelper_1.default.isType(trackView.explodeTrackData?.endpoint, Endpoint_1.EndpointType.Watch)) {
+            return null;
+        }
+        return trackView.explodeTrackData;
     }
     static validateExplodeUri(uri) {
         // Current view

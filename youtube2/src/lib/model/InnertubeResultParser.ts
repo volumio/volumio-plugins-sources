@@ -209,7 +209,8 @@ export default class InnertubeResultParser {
     if (data.header) {
       const dataHeader = this.unwrap(data.header);
       if (dataHeader && !Array.isArray(dataHeader)) {
-        const header = this.#parseHeader(dataHeader);
+        const metadata = this.unwrap(data.metadata);
+        const header = this.#parseHeader(dataHeader, !Array.isArray(metadata) ? metadata : null);
         if (header) {
           result.header = header;
         }
@@ -259,7 +260,7 @@ export default class InnertubeResultParser {
     return result;
   }
 
-  static #parseHeader(data: YTHelpers.YTNode): PageElement.Header | PageElement.PlaylistHeader | null {
+  static #parseHeader(data: YTHelpers.YTNode, metadata?: YTHelpers.YTNode | null): PageElement.Header | PageElement.PlaylistHeader | null {
     if (!data) {
       return null;
     }
@@ -359,6 +360,35 @@ export default class InnertubeResultParser {
         if (detailsSubtitle) {
           subtitles.push(detailsSubtitle);
         }
+      }
+    }
+    // Generic PageHeader - need to check if 'channel' type
+    else if (data instanceof YTNodes.PageHeader && metadata instanceof YTNodes.ChannelMetadata) {
+      type = 'channel';
+      title = this.unwrap(data.content?.title?.text);
+      description = metadata.description;
+      thumbnail = this.parseThumbnail(metadata.avatar);
+      if (data.content?.metadata?.metadata_rows) {
+        for (const row of data.content?.metadata?.metadata_rows || []) {
+          const parts = row.metadata_parts?.reduce<string[]>((result, { text }) => {
+            const t = this.unwrap(text);
+            if (t) {
+              subtitles.push(t);
+            }
+            return result;
+          }, []);
+          if (parts) {
+            subtitles.push(...parts);
+          }
+        }
+      }
+      if (metadata.external_id) {
+        endpoint = {
+          type: EndpointType.Browse,
+          payload: {
+            browseId: metadata.external_id
+          }
+        };
       }
     }
 
@@ -1043,6 +1073,7 @@ export default class InnertubeResultParser {
         };
         return __checkType(weResult);
 
+      case '/next':
       case 'next':
         if (data?.payload?.request === 'CONTINUATION_REQUEST_TYPE_WATCH_NEXT') {
           const result: WatchContinuationEndpoint = {
@@ -1052,6 +1083,13 @@ export default class InnertubeResultParser {
             }
           };
           return __checkType(result);
+        }
+        if (data?.metadata?.page_type === 'WEB_PAGE_TYPE_WATCH') {
+          const weResult: WatchEndpoint = {
+            type: EndpointType.Watch,
+            payload: __createPayload<WatchEndpoint>([ 'videoId', 'playlistId', 'params', 'index' ])
+          };
+          return __checkType(weResult);
         }
         break;
 

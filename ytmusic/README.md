@@ -4,6 +4,15 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+1.1.2
+- Fix broken playback due to YT changes (credit: [#698](https://github.com/LuanRT/YouTube.js/pull/698))
+
+1.1.1
+- Fix broken playback due to YT changes (credit: [#682](https://github.com/LuanRT/YouTube.js/pull/682))
+
+1.1.0
+- Provide metadata to Now Playing plugin
+
 1.0.3
 - Fix issues following YT Music changes
   - No items returned for albums / playlists

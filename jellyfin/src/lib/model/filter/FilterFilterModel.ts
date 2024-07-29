@@ -16,7 +16,7 @@ export interface FilterFilterModelConfig {
 
 interface FilterSetEntry {
   i18nKey: string;
-  value: ItemFilter.IsFavorite | ItemFilter.IsPlayed | ItemFilter.IsUnplayed
+  value: typeof ItemFilter.IsFavorite | typeof ItemFilter.IsPlayed | typeof ItemFilter.IsUnplayed
 }
 
 const FILTER_SETS: Record<FilterFilterItemType, FilterSetEntry[]> = {

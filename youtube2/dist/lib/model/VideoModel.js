@@ -45,6 +45,7 @@ class VideoModel extends BaseModel_1.BaseModel {
                     channelId: basicInfo.channel_id,
                     name: basicInfo.author
                 },
+                description: basicInfo.short_description,
                 thumbnail: InnertubeResultParser_1.default.parseThumbnail(basicInfo.thumbnail) || '',
                 isLive: !!basicInfo.is_live,
                 duration: basicInfo.duration,

@@ -15,6 +15,7 @@ const JellyfinContext_1 = __importDefault(require("../../../JellyfinContext"));
 const entities_1 = require("../../../entities");
 const ViewHandlerFactory_1 = __importDefault(require("./ViewHandlerFactory"));
 const ViewHelper_1 = __importDefault(require("./ViewHelper"));
+const models_1 = require("@jellyfin/sdk/lib/generated-client/models");
 class LibraryViewHandler extends BaseViewHandler_1.default {
     constructor() {
         super(...arguments);
@@ -135,14 +136,14 @@ _LibraryViewHandler_instances = new WeakSet(), _LibraryViewHandler_getTopItemLis
 }, _LibraryViewHandler_getLatestMusic = function _LibraryViewHandler_getLatestMusic(libraryId, baseUri) {
     const params = {
         parentId: libraryId,
-        sortBy: 'DateCreated,SortName',
-        sortOrder: 'Descending,Ascending',
+        sortBy: [models_1.ItemSortBy.DateCreated, models_1.ItemSortBy.SortName],
+        sortOrder: [models_1.SortOrder.Descending, models_1.SortOrder.Ascending],
         limit: JellyfinContext_1.default.getConfigValue('latestMusicSectionItems')
     };
     const albumView = {
         name: 'albums',
         parentId: libraryId,
-        sortBy: 'DateCreated,SortName',
+        sortBy: [models_1.ItemSortBy.DateCreated, models_1.ItemSortBy.SortName],
         sortOrder: 'Descending,Ascending',
         fixedView: 'latest'
     };
@@ -151,8 +152,8 @@ _LibraryViewHandler_instances = new WeakSet(), _LibraryViewHandler_getTopItemLis
 }, _LibraryViewHandler_getRecentlyPlayed = function _LibraryViewHandler_getRecentlyPlayed(libraryId, baseUri) {
     const params = {
         parentId: libraryId,
-        sortBy: 'DatePlayed,SortName',
-        sortOrder: 'Descending,Ascending',
+        sortBy: [models_1.ItemSortBy.DatePlayed, models_1.ItemSortBy.SortName],
+        sortOrder: [models_1.SortOrder.Descending, models_1.SortOrder.Ascending],
         filters: 'IsPlayed',
         limit: JellyfinContext_1.default.getConfigValue('recentlyPlayedSectionItems')
     };
@@ -169,8 +170,8 @@ _LibraryViewHandler_instances = new WeakSet(), _LibraryViewHandler_getTopItemLis
 }, _LibraryViewHandler_getFrequentlyPlayed = function _LibraryViewHandler_getFrequentlyPlayed(libraryId, baseUri) {
     const params = {
         parentId: libraryId,
-        sortBy: 'PlayCount,SortName',
-        sortOrder: 'Descending,Ascending',
+        sortBy: [models_1.ItemSortBy.PlayCount, models_1.ItemSortBy.SortName],
+        sortOrder: [models_1.SortOrder.Descending, models_1.SortOrder.Ascending],
         filters: 'IsPlayed',
         limit: JellyfinContext_1.default.getConfigValue('frequentlyPlayedSectionItems')
     };

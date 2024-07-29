@@ -1,30 +1,19 @@
-import lodash from 'lodash';
 import np from '../NowPlayingContext';
 import ConfigHelper from './ConfigHelper';
-import { CommonSettingsCategory, CommonSettingsOf, DefaultSettings } from 'now-playing-common';
-
-const mergeSettingsCustomizer = (target: any, src: any): any => {
-  if (typeof target === 'object') {
-    return lodash.mergeWith(target, src, mergeSettingsCustomizer);
-  }
-  if (target === undefined || target === null || (typeof target === 'string' && target.trim() === '')) {
-    return src;
-  }
-  return target;
-};
+import { CommonSettingsCategory, CommonSettingsOf } from 'now-playing-common';
 
 export default class CommonSettingsLoader {
 
-  static get<T extends CommonSettingsCategory>(category: T) {
+  static get<T extends CommonSettingsCategory>(category: T): CommonSettingsOf<T> {
     if (category === CommonSettingsCategory.Localization) {
       return this.#getLocalizationSettings() as unknown as CommonSettingsOf<T>;
     }
 
-    return this.#getDefaultNormalized(category);
+    return np.getConfigValue(category);
   }
 
   static #getLocalizationSettings() {
-    const localization = this.#getDefaultNormalized(CommonSettingsCategory.Localization);
+    const localization = np.getConfigValue(CommonSettingsCategory.Localization);
 
     switch (localization.locale) {
       case 'matchVolumio':
@@ -51,11 +40,5 @@ export default class CommonSettingsLoader {
     }
 
     return localization;
-  }
-
-  static #getDefaultNormalized<T extends CommonSettingsCategory>(category: T): CommonSettingsOf<T> {
-    const settings = np.getConfigValue(category);
-    const merged = lodash.mergeWith({}, settings, DefaultSettings[category], mergeSettingsCustomizer);
-    return merged;
   }
 }
