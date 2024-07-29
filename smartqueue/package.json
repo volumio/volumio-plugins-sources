@@ -1,6 +1,6 @@
 {
 	"name": "smartqueue",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"description": "SmartQueue will use LastFM or Blissify to feed your music queue in the smartest way.",
 	"main": "index.js",
 	"scripts": {
@@ -20,8 +20,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "Version 1.0.6",
-		"changelog": "Version 1.0.6 blissify command corrected"
+		"details": "Version 1.0.7",
+		"changelog": "Version 1.0.7 blissify rewrite"
 	},
 	"engines": {
 		"volumio": ">=3",

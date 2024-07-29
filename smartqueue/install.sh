@@ -13,9 +13,6 @@ if [ ! -f $INSTALLING ]; then
 		echo "Installing ShellInAbox..."
 		apt-get install -f shellinabox -y
 
-		#echo "Installing php-server..."
-		#apt-get install -f php -y
-
 		# Needed for blissify
 		apt --fix-broken install
 		apt install -f clang libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libsqlite3-dev -y
@@ -23,11 +20,6 @@ if [ ! -f $INSTALLING ]; then
 		pip install requests
 		apt-get -f install -y
 		apt --fix-broken install
-
-		mkdir -p /data/configuration/user_interface/smartqueue
-		cp /data/plugins/user_interface/smartqueue/config.json /data/configuration/user_interface/smartqueue/config.json
-		chown volumio:volumio /data/configuration/user_interface/smartqueue/config.json
-		chmod 755 /data/configuration/user_interface/smartqueue/config.json
 
 		sleep 1
 
