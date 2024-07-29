@@ -1,0 +1,36 @@
+{
+	"name": "moosbox",
+	"version": "1.0.0",
+	"description": "Moosbox",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Mooxbox",
+	"license": "ISC",
+	"repository": "https://github.com/yourname/yourrepo",
+	"volumio_info": {
+		"prettyName": "Moosbox",
+		"icon": "fa-solid fa-music",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Moosbox plugin for Volumio: unique music for commercial and professional spaces",
+		"changelog": ""
+	},
+	"engines": {
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.703.0 <4.0.0"
+	},
+	"dependencies": {
+		"axios": "^1.7.2",
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.0"
+	}
+}
