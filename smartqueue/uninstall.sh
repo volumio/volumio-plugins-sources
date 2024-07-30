@@ -8,10 +8,10 @@ if [ ! -f $INSTALLING ]; then
 
 	apt-get -f autoremove shellinabox -y --purge
 
-	apt-get -f clang libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libsqlite3-dev -y --purge
-	
- 	# Not uninstalling dependencies, because they might be used by other plugins.
+	rm -rf /home/volumio/blissify
 
+	# apt-get -f clang libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libsqlite3-dev -y --purge
+	
  	rm $INSTALLING
 
 # 	#required to end the plugin uninstall

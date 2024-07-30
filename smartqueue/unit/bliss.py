@@ -55,7 +55,7 @@ def run_blissify_and_export_playlist(tracksn):
     try:
         print("Running blissify to generate playlist...")
         result = subprocess.check_output(
-            ["/home/volumio/.cargo/bin/blissify", "playlist", str(tracksn), "--dry-run"],
+            ["/home/volumio/blissify/blissify", "playlist", str(tracksn), "--dry-run"],
             stderr=subprocess.STDOUT
         )
         # Decode the output and split it into lines

@@ -14,8 +14,8 @@ if [ ! -f $INSTALLING ]; then
 		apt-get install -f shellinabox -y
 
 		# Needed for blissify
-		apt --fix-broken install
-		apt install -f clang libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libsqlite3-dev -y
+		# apt --fix-broken install
+		# apt install -f clang libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libsqlite3-dev -y
 		apt install -f python-pip -y
 		pip install requests
 		apt-get -f install -y
