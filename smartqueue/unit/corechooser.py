@@ -22,7 +22,7 @@ def run_core_under_conditions(config):
         return "Applied settings: Autoqueue true, Blissmixer false"
     
     elif not autoqueue and not blissmixer:
-        command = "/usr/bin/pgrep python | xargs -r /bin/kill -15"
+        command = "/usr/bin/pgrep python3 | xargs -r /bin/kill -15"
         print("Running command for both Autoqueue and Blissmixer false: {}".format(command))
         subprocess.call(command, shell=True)
         return "Applied settings: Both Autoqueue and Blissmixer false"
