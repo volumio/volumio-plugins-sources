@@ -1,8 +1,9 @@
 'use strict';
 
-var exec = require('child_process').exec;
-var fs = require('fs-extra');
 var libQ = require('kew');
+var fs = require('fs-extra');
+var exec = require('child_process').exec;
+var execSync = require('child_process').execSync;
 
 
 // Define the blissify class
@@ -10,34 +11,32 @@ module.exports = smartqueue;
 
 
 function smartqueue(context) {
+	var self = this;
+
 	this.context = context;
 	this.commandRouter = this.context.coreCommand;
 	this.logger = this.context.logger;
 	this.configManager = this.context.configManager;
 };
 
-smartqueue.prototype.onVolumioStart = function () {
+smartqueue.prototype.onVolumioStart = function () 
+ {
+	var self = this;
 	var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
 	this.config = new (require('v-conf'))();
 	this.config.loadFile(configFile);
-
-	// Read and log the configuration values correctly
-	const autoqueueValue = this.config.get('Autoqueue.value') === 'true' ? false : false;
-	const blissmixerValue = this.config.get('Blissmixer.value') === 'false' ? false : false;
-	const tracksnValue = parseInt(this.config.get('Tracksn.value')) || 5;
-	const driftValue = parseInt(this.config.get('Drift.value')) || 0;
-
-	// Set the configuration values to ensure they're used correctly in the plugin
-	this.config.set('Autoqueue', autoqueueValue);
-	this.config.set('Blissmixer', blissmixerValue);
-	this.config.set('Tracksn', tracksnValue);
-	this.config.set('Drift', driftValue);
-
+ 
 	return libQ.resolve();
-};
+ };
+
+ smartqueue.prototype.getConfigurationFiles = function () {
+	var self = this;
+	return ['config.json'];
+ };
 
 // Plugin methods -----------------------------------------------------------------------------
 smartqueue.prototype.onStop = function () {
+	var self = this;
 	var defer = libQ.defer();
 
 	exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
@@ -88,12 +87,14 @@ smartqueue.prototype.onStart = function () {
 
 	self.getIP();
 	defer.resolve();
-	return defer.promise;
+	return libQ.resolve();
 }
 
 smartqueue.prototype.onRestart = function () {
 	// Do nothing
 	var self = this;
+
+	var defer = libQ.defer();
 
 	exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
 		if (err) {
@@ -117,7 +118,8 @@ smartqueue.prototype.onRestart = function () {
 			});
 		});
 	});
-
+	defer.resolve();
+	return libQ.resolve();
 };
 
 smartqueue.prototype.saveSettings = function (data) {
@@ -211,7 +213,7 @@ smartqueue.prototype.getUIConfig = function () {
 						}
 					}),
 
-				uiconf.sections[0].saveButton.data.push('Autoqueue')
+			uiconf.sections[0].saveButton.data.push('Autoqueue')
 			uiconf.sections[0].saveButton.data.push('Blissmixer')
 			uiconf.sections[0].saveButton.data.push('Tracksn')
 			uiconf.sections[0].saveButton.data.push('Drift')
@@ -255,20 +257,23 @@ smartqueue.prototype.setUIConfig = function (data) {
 	return libQ.resolve();
 };
 
-smartqueue.prototype.getConf = function (configFile) {
+smartqueue.prototype.getConf = function (varName) {
 	var self = this;
-	return libQ.resolve();
-};
+  
+	self.config = new (require('v-conf'))();
+	self.config.loadFile(configFile);
+  };
 
-smartqueue.prototype.setConf = function (conf) {
+smartqueue.prototype.setConf = function (varName, varValue) {
 	var self = this;
-	return libQ.resolve();
-};
+  
+	fs.writeJsonSync(self.configFile, JSON.stringify(conf));
+  };
 
 // Public Methods ---------------------------------------------------------------------------------------
 
 smartqueue.prototype.getIP = function () {
-	const self = this;
+	var self = this;
 	var address
 	var iPAddresses = self.commandRouter.executeOnPlugin('system_controller', 'network', 'getCachedIPAddresses', '');
 	if (iPAddresses && iPAddresses.eth0 && iPAddresses.eth0 != '') {

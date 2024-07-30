@@ -1,11 +1,11 @@
 {
     "Autoqueue": {
         "type": "boolean",
-        "value": "false"
+        "value": false
     },
     "Blissmixer": {
         "type": "boolean",
-        "value": "false"
+        "value": false
     },
     "Tracksn": {
         "type": "number",

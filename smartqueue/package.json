@@ -1,6 +1,6 @@
 {
 	"name": "smartqueue",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "SmartQueue will use LastFM or Blissify to feed your music queue in the smartest way.",
 	"main": "index.js",
 	"scripts": {
@@ -8,7 +8,7 @@
 	},
 	"author": "chourmovs",
 	"license": "ISC",
-	"repository": "https://github.com/yourname/yourrepo",
+	"repository": "https://github.com/chourmovs/volumio-plugins-sources",
 	"volumio_info": {
 		"prettyName": "SmartQueue",
 		"icon": "fa-lightbulb-o",
@@ -20,16 +20,16 @@
 		"os": [
 			"buster"
 		],
-		"details": "Version 1.0.8",
-		"changelog": "Version 1.0.8 blissify and install part rewrite"
+		"details": "SmartQueue will use LastFM or Blissify to feed your music queue in the smartest way",
+		"changelog": "Plugin install correction for config.json"
 	},
 	"engines": {
-		"volumio": ">=3",
-		"node": ">=14"
+		"volumio": ">=3.236",
+		"node": ">=8"
 	},
 	"dependencies": {
-		"fs-extra": "^0.28.0",
+		"fs-extra": "^4.0.2",
 		"kew": "^0.7.0",
-		"v-conf": "^1.4.0"
+		"v-conf": "^1.4.3"
 	}
 }

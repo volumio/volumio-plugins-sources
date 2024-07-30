@@ -1,31 +1,16 @@
+#!/bin/bash
+
 ##  installation script
 echo "Installing Smartqueue and its dependencies..."
-INSTALLING="/home/volumio/Smartqueue.installing"
 
-if [ ! -f $INSTALLING ]; then
+sudo apt-get update
 
-	touch $INSTALLING
-	arch=$(arch)
-	echo "Detected architecture: " $arch
+echo "Installing ShellInAbox..."
+sudo apt-get install -f shellinabox -y
+sudo apt-get install -f python-pip -y
+sudo pip install requests
 
-		apt-get update
+sudo apt-get -f install -y
+sudo apt --fix-broken install
 
-		echo "Installing ShellInAbox..."
-		apt-get install -f shellinabox -y
-
-		# Needed for blissify
-		# apt --fix-broken install
-		# apt install -f clang libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libsqlite3-dev -y
-		apt install -f python-pip -y
-		pip install requests
-		apt-get -f install -y
-		apt --fix-broken install
-
-		sleep 1
-
-	rm $INSTALLING
- #required to end the plugin install
-	echo "plugininstallend"
-else
-	echo "Plugin is already installing! Not continuing..."
-fi
+echo "plugininstallend"
