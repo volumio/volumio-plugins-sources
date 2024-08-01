@@ -26,7 +26,7 @@ case "$ARCH" in
         URL=${BINARIES_URLS[2]}
         ;;
     *)
-        echo "Architecture $ARCH non supportée."
+        echo "Architecture $ARCH not supported."
         exit 1
         ;;
 esac
@@ -43,12 +43,12 @@ esac
 
 cd /home/volumio/blissify
 
-echo "Téléchargement du binaire pour l'architecture $ARCH..."
+echo "Binary donwload for architecture $ARCH..."
 curl -L -o blissify "$URL"
 
 # Rendre le binaire exécutable
 chmod +x blissify
 
 echo ""
-echo "Blissify installé et prêt à l'emploi."
+echo "Blissify installed and ready to serve."
 echo ""
