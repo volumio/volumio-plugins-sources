@@ -47,9 +47,9 @@ smartqueue.prototype.onStop = function () {
 			if (err) {
 				console.error(`Error killing blissify: ${err}`);
 			}
-			exec("/usr/bin/pgrep python | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+			exec("/usr/bin/pgrep python3 | xargs -r /bin/kill -15", (err, stdout, stderr) => {
 				if (err) {
-					console.error(`Error killing python: ${err}`);
+					console.error(`Error killing python3: ${err}`);
 				}
 				defer.resolve();
 			});
@@ -76,7 +76,7 @@ smartqueue.prototype.onStart = function () {
 					console.error(`Error launching shellbox: ${err}`);
 				}
 
-				exec("/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py", (err, stdout, stderr) => {
+				exec("/usr/bin/python3 /data/plugins/user_interface/smartqueue/unit/corechooser.py", (err, stdout, stderr) => {
 					if (err) {
 						console.error(`Error launching corechooser: ${err}`);
 					}
@@ -110,7 +110,7 @@ smartqueue.prototype.onRestart = function () {
 					console.error(`Error launching shellbox: ${err}`);
 				}
 
-				exec("/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py", (err, stdout, stderr) => {
+				exec("/usr/bin/python3 /data/plugins/user_interface/smartqueue/unit/corechooser.py", (err, stdout, stderr) => {
 					if (err) {
 						console.error(`Error launching corechooser: ${err}`);
 					}
@@ -131,7 +131,7 @@ smartqueue.prototype.saveSettings = function (data) {
 
 
 	setTimeout(() => {
-		exec('/usr/bin/python /data/plugins/user_interface/smartqueue/unit/corechooser.py', (error, stdout, stderr) => {
+		exec('/usr/bin/python3 /data/plugins/user_interface/smartqueue/unit/corechooser.py', (error, stdout, stderr) => {
 			console.log('Executing corechooser.py...');
 
 			if (error) {

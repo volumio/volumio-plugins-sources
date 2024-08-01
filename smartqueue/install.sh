@@ -3,14 +3,12 @@
 ##  installation script
 echo "Installing Smartqueue and its dependencies..."
 
-sudo apt-get update
+apt-get update
 
 echo "Installing ShellInAbox..."
-sudo apt-get install -f shellinabox -y
-sudo apt-get install -f python-requests -y
-## sudo pip install requests
-
-## sudo apt-get -f install -y
-## sudo apt --fix-broken install
+apt-get install -f shellinabox -y
+apt-get install -f python3-requests -y
+apt-get -f install -y
+apt --fix-broken install
 
 echo "plugininstallend"
