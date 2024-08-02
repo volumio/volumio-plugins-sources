@@ -46,7 +46,7 @@ export default class Auth extends EventEmitter {
       onSuccess: auth.#handleSuccess.bind(auth),
       onPending: auth.#handlePending.bind(auth),
       onError: auth.#handleError.bind(auth),
-      onCredentials: auth.#handleUpdateCredentials.bind(auth)
+      onCredentials: auth.#handleSuccess.bind(auth)
     };
     auth.#registerHandlers();
     return auth;
@@ -72,15 +72,20 @@ export default class Auth extends EventEmitter {
   }
 
   #handleSuccess(data: { credentials: Credentials }) {
+    const oldStatusInfo = yt2.get<AuthStatusInfo>('authStatusInfo');
     yt2.set<AuthStatusInfo>('authStatusInfo', {
       status: AuthStatus.SignedIn
     });
-
     yt2.setConfigValue('authCredentials', data.credentials);
-
-    yt2.toast('success', yt2.getI18n('YOUTUBE2_SIGN_IN_SUCCESS'));
-    yt2.refreshUIConfig();
-    this.emit(AuthEvent.SignIn);
+    if (!oldStatusInfo || oldStatusInfo.status !== AuthStatus.SignedIn) {
+      yt2.getLogger().info('[youtube2] Auth success');
+      yt2.toast('success', yt2.getI18n('YOUTUBE2_SIGN_IN_SUCCESS'));
+      yt2.refreshUIConfig();
+      this.emit(AuthEvent.SignIn);
+    }
+    else {
+      yt2.getLogger().info('[youtube2] Auth credentials updated');
+    }
   }
 
   #handleError(err: YTUtils.OAuthError) {
@@ -99,10 +104,6 @@ export default class Auth extends EventEmitter {
 
     yt2.refreshUIConfig();
     this.emit(AuthEvent.Error);
-  }
-
-  #handleUpdateCredentials(data: { credentials: Credentials }) {
-    yt2.setConfigValue('authCredentials', data.credentials);
   }
 
   #registerHandlers() {
