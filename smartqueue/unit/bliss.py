@@ -34,6 +34,31 @@ def get_tracksn_variable():
         print(f"Error reading Tracksn variable: {e}")
         return ''
 
+def get_sine_variable():
+    try:
+        with open('/data/configuration/user_interface/smartqueue/config.json', 'r', encoding='utf-8') as config_file:
+            config_data = json.load(config_file)
+            sine_data = config_data.get('Sine', {})
+            if isinstance(sine_data, dict):
+                return sine_data.get('value', '')
+            return sine_data
+    except Exception as e:
+        print(f"Error reading Sine variable: {e}")
+        return ''
+
+def get_seed_variable():
+    try:
+        with open('/data/configuration/user_interface/smartqueue/config.json', 'r', encoding='utf-8') as config_file:
+            config_data = json.load(config_file)
+            seed_data = config_data.get('Seed', {})
+            if isinstance(seed_data, dict):
+                return seed_data.get('value', '')
+            return seed_data
+    except Exception as e:
+        print(f"Error reading Seed variable: {e}")
+        return ''
+
+
 def get_current_track_info():
     current_track_artist = subprocess.run(["mpc", "--format", "%artist%", "current"], capture_output=True, text=True).stdout.strip()
     current_track_title = subprocess.run(["mpc", "--format", "%title%", "current"], capture_output=True, text=True).stdout.strip()
@@ -45,14 +70,39 @@ def get_current_track_info():
     
     return current_track_artist, current_track_title, current_track_genre
 
-def run_blissify_and_export_playlist(tracksn):
+def run_blissify_and_export_playlist(config,tracksn):
+
     try:
+        cosine = config['Cosine']['value']
+        seed = config['Seed']['value']
+        
+        print(f"Seed:: {seed}, Cosine: {cosine}")
         print("Running blissify to generate playlist...")
-        result = subprocess.run(
+        if cosine and seed:
+            result = subprocess.run(
+            ["/home/volumio/blissify/blissify", "playlist", "--distance", "cosine", "--seed-song", str(tracksn), "--dry-run"],
+            capture_output=True, text=True
+            ).stdout
+
+        elif cosine and not seed:
+            result = subprocess.run(
+            ["/home/volumio/blissify/blissify", "playlist", "--distance", "cosine", str(tracksn), "--dry-run"],
+            capture_output=True, text=True
+            ).stdout
+
+        elif not cosine and seed:
+            result = subprocess.run(
+            ["/home/volumio/blissify/blissify", "playlist" ,"--seed-song", str(tracksn), "--dry-run"],
+            capture_output=True, text=True
+            ).stdout
+
+        elif not cosine and not seed:
+            result = subprocess.run(
             ["/home/volumio/blissify/blissify", "playlist", str(tracksn), "--dry-run"],
             capture_output=True, text=True
-        ).stdout
-        
+            ).stdout
+
+
         # Decode the output and split it into lines
         output_lines = result.splitlines()
         
@@ -70,6 +120,7 @@ def run_blissify_and_export_playlist(tracksn):
     except subprocess.CalledProcessError as e:
         print("An error occurred while running blissify:")
         print(e.output)
+
 
 def add_tracks_from_playlist_to_volumio():
     global local_tracks_found
@@ -89,6 +140,7 @@ def add_tracks_from_playlist_to_volumio():
                 add_track_to_volumio(track)
                 local_tracks_found += 1
 
+
 def find_similar_local_tracks(genre, limit):
     print(f"Searching local MPD database for tracks of the same genre: {genre}")
     
@@ -106,6 +158,7 @@ def find_similar_local_tracks(genre, limit):
     print("Local similar tracks:")
     print(local_tracks)
     return local_tracks
+
 
 def add_track_to_volumio(track_path):
     track_info = {
@@ -139,6 +192,8 @@ def add_similar_tracks_to_playlist(local_tracks):
             add_track_to_volumio(track)
 
 def main():
+
+    config_file_path = '/data/configuration/user_interface/smartqueue/config.json'
     global local_tracks_found
 
     tracksn = int(get_tracksn_variable())
@@ -151,7 +206,15 @@ def main():
     drift = get_drift_variable()
     print(f"Drift variable: {drift} (type: {type(drift)})")
 
-    related_tracks = run_blissify_and_export_playlist(tracksn)
+    try:
+        with open(config_file_path, 'r', encoding='utf-8') as file:
+            config = json.load(file)
+            print(f"Configuration loaded: {config}")
+    except Exception as e:
+        print(f"Error loading configuration: {e}")
+        sys.exit(1)
+
+    related_tracks = run_blissify_and_export_playlist(config,tracksn)
     add_tracks_from_playlist_to_volumio()
 
     if not local_tracks_found:

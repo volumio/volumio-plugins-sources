@@ -14,5 +14,13 @@
     "Drift": {
         "type": "number",
         "value": "0"
+    },
+    "Cosine": {
+        "type": "boolean",
+        "value": false
+    },
+    "Seed": {
+        "type": "boolean",
+        "value": false
     }
 }

@@ -165,6 +165,8 @@ smartqueue.prototype.saveSettings = function (data) {
 	this.config.set('Blissmixer', data['Blissmixer']);
 	this.config.set('Tracksn', data['Tracksn']);
 	this.config.set('Drift', data['Drift']);
+	this.config.set('Cosine', data['Cosine']);
+	this.config.set('Seed', data['Seed']);
 
 
 	setTimeout(() => {
@@ -203,6 +205,10 @@ smartqueue.prototype.getUIConfig = function () {
 			self.logger.info("Blissmixer: " + self.config.get('Blissmixer'));
 			self.logger.info("Tracksn: " + self.config.get('Tracksn'));
 			self.logger.info("Drift: " + self.config.get('Drift'));
+			self.logger.info("Cosine: " + self.config.get('Cosine'));
+			self.logger.info("Seed: " + self.config.get('Seed'));
+
+
 
 			uiconf.sections[0].content.push(
 				{
@@ -229,6 +235,25 @@ smartqueue.prototype.getUIConfig = function () {
 					"label": "Number of tracks to push",
 					'value': self.config.get('Tracksn')
 				}),
+			
+			uiconf.sections[0].content.push(
+				{
+					'id': 'Cosine',
+					'element': 'switch',
+					'label': 'Toggle Cosine for blissify',
+					'doc': 'Another musical similarity approach',
+					'value': self.config.get('Cosine')
+				})
+			
+			uiconf.sections[0].content.push(
+				{
+					'id': 'Seed',
+						'element': 'switch',
+						'label': 'Toggle seed for blissify',
+						'doc': 'Queues the closest song to the next song',
+						'value': self.config.get('Seed')
+				})
+
 
 				uiconf.sections[0].content.push(
 					{
@@ -254,6 +279,8 @@ smartqueue.prototype.getUIConfig = function () {
 			uiconf.sections[0].saveButton.data.push('Blissmixer')
 			uiconf.sections[0].saveButton.data.push('Tracksn')
 			uiconf.sections[0].saveButton.data.push('Drift')
+			uiconf.sections[0].saveButton.data.push('Cosine')
+			uiconf.sections[0].saveButton.data.push('Seed')
 
 			uiconf.sections[1].content.push(
 				{
