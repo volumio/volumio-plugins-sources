@@ -1,6 +1,6 @@
 import Innertube, { Credentials, OAuthAuthPendingData, Utils as YTUtils } from 'volumio-youtubei.js';
-import ytmusic from '../YTMusicContext';
 import EventEmitter from 'events';
+import ytmusic from '../YTMusicContext';
 
 export enum AuthStatus {
   SignedIn = 'SignedIn',
@@ -46,7 +46,7 @@ export default class Auth extends EventEmitter {
       onSuccess: auth.#handleSuccess.bind(auth),
       onPending: auth.#handlePending.bind(auth),
       onError: auth.#handleError.bind(auth),
-      onCredentials: auth.#handleUpdateCredentials.bind(auth)
+      onCredentials: auth.#handleSuccess.bind(auth)
     };
     auth.#registerHandlers();
     return auth;
@@ -72,15 +72,20 @@ export default class Auth extends EventEmitter {
   }
 
   #handleSuccess(data: { credentials: Credentials }) {
+    const oldStatusInfo = ytmusic.get<AuthStatusInfo>('authStatusInfo');
     ytmusic.set<AuthStatusInfo>('authStatusInfo', {
       status: AuthStatus.SignedIn
     });
-
     ytmusic.setConfigValue('authCredentials', data.credentials);
-
-    ytmusic.toast('success', ytmusic.getI18n('YTMUSIC_SIGN_IN_SUCCESS'));
-    ytmusic.refreshUIConfig();
-    this.emit(AuthEvent.SignIn);
+    if (!oldStatusInfo || oldStatusInfo.status !== AuthStatus.SignedIn) {
+      ytmusic.getLogger().info('[ytmusic] Auth success');
+      ytmusic.toast('success', ytmusic.getI18n('YTMUSIC_SIGN_IN_SUCCESS'));
+      ytmusic.refreshUIConfig();
+      this.emit(AuthEvent.SignIn);
+    }
+    else {
+      ytmusic.getLogger().info('[ytmusic] Auth credentials updated');
+    }
   }
 
   #handleError(err: YTUtils.OAuthError) {
@@ -99,10 +104,6 @@ export default class Auth extends EventEmitter {
 
     ytmusic.refreshUIConfig();
     this.emit(AuthEvent.Error);
-  }
-
-  #handleUpdateCredentials(data: { credentials: Credentials }) {
-    ytmusic.setConfigValue('authCredentials', data.credentials);
   }
 
   #registerHandlers() {
