@@ -1,6 +1,6 @@
 {
 	"name": "youtube2",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"description": "YouTube plugin for Volumio",
 	"main": "./dist/index.js",
 	"scripts": {
@@ -54,6 +54,6 @@
 		"now-playing-common": "git+https://github.com/patrickkfkan/volumio-now-playing-common#v0.3.2",
 		"string-format": "^2.0.0",
 		"v-conf": "^1.4.2",
-		"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.3.8"
+		"volumio-youtubei.js": "git+https://github.com/patrickkfkan/Volumio-YouTube.js.git#v0.3.9"
 	}
 }
