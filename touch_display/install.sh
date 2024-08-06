@@ -75,8 +75,8 @@ else # on other hardware
   ln -fs /usr/bin/chromium /usr/bin/chromium-browser || { echo "Linking /usr/bin/chromium to /usr/bin/chromium-browser failed"; exit 1; }
 fi
 
-echo "Installing japanese, korean, chinese and taiwanese fonts"
-apt-get -y install fonts-arphic-ukai fonts-arphic-gbsn00lp fonts-unfonts-core || { echo "Installation of fonts failed"; exit 1; }
+echo "Installing fonts"
+apt-get -y install fonts-arphic-ukai fonts-arphic-gbsn00lp fonts-unfonts-core fonts-ipafont fonts-vlgothic fonts-thai-tlwg-ttf || { echo "Installation of fonts failed"; exit 1; }
 
 echo "Creating Kiosk data dir"
 mkdir -p /data/volumiokiosk || { echo "Creating /data/volumiokiosk failed"; exit 1; }
@@ -95,16 +95,18 @@ while true; do
   /usr/bin/chromium-browser \\
     --simulate-outdated-no-au='Tue, 31 Dec 2099 23:59:59 GMT' \\
     --force-device-scale-factor=1 \\
-    --disable-pinch \\
+    --load-extension= \\
     --kiosk \\
+    --touch-events \\
     --no-first-run \\
     --noerrdialogs \\
+    --disable-gpu-compositing \\
     --disable-3d-apis \\
     --disable-breakpad \\
     --disable-crash-reporter \\
-    --disable-infobars \\
-    --disable-session-crashed-bubble \\
-    --disable-translate \\
+    --disable-background-networking \\
+    --disable-remote-extensions \\
+    --disable-pinch \\
     --user-data-dir='/data/volumiokiosk' \
     http://localhost:3000
 done" > /opt/volumiokiosk.sh || { echo "Creating Volumio kiosk start script failed"; exit 1; }
@@ -127,6 +129,11 @@ systemctl daemon-reload
 
 echo "Disabling login prompt"
 systemctl disable getty@tty1.service
+
+echo "Installing Virtual Keyboard"
+mkdir -p /data/volumiokioskextensions/VirtualKeyboard || { echo "Creating /data/volumiokioskextensions/VirtualKeyboard failed"; exit 1; }
+git clone https://github.com/volumio/chrome-virtual-keyboard.git /data/volumiokioskextensions/VirtualKeyboard || { echo "Installing Virtual Keyboard extension failed"; exit 1; }
+chown -R volumio:volumio /data/volumiokioskextensions || { echo "Setting permissions to Kiosk data folder failed"; exit 1; }
 
 echo "Allowing volumio to start an xsession"
 sed -i "s/allowed_users=console/allowed_users=anybody\nneeds_root_rights=yes/" /etc/X11/Xwrapper.config || { echo "Allowing volumio to start an xsession failed"; exit 1; }

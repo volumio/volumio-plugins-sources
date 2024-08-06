@@ -4,6 +4,10 @@ echo "Removing dependencies"
 apt-get -y purge --auto-remove fonts-arphic-ukai
 apt-get -y purge --auto-remove fonts-arphic-gbsn00lp
 apt-get -y purge --auto-remove fonts-unfonts-core
+apt-get -y purge --auto-remove fonts-ipafont
+apt-get -y purge --auto-remove fonts-vlgothic
+apt-get -y purge --auto-remove fonts-thai-tlwg-ttf
+
 if grep -q Raspberry /proc/cpuinfo; then # on Raspberry Pi hardware
   apt-get -y purge --auto-remove chromium-browser
 else # on other hardware
@@ -18,6 +22,9 @@ rm /opt/volumiokiosk.sh
 
 echo "Deleting /data/volumiokiosk"
 rm -rf /data/volumiokiosk
+
+echo "Deleting /data/volumiokioskextensions"
+rm -rf /data/volumiokioskextensions
 
 echo "Deleting /lib/systemd/system/volumio-kiosk.service"
 rm /lib/systemd/system/volumio-kiosk.service

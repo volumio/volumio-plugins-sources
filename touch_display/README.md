@@ -37,3 +37,6 @@ The size of the GPU memory can be adjusted in steps of 1MB in a range from 32 to
 
 ## Show/hide mouse pointer
 Self explanatory. By default the mouse pointer is hidden.
+
+## Virtual keyboard
+A virtual keyboard can be displayed which is especially useful to control Volumio's UI from a touchscreen. By default the virtual keyboard is inactive.

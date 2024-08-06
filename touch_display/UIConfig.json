@@ -311,7 +311,7 @@
                            ]
                 },
                 {
-                "id": "scale",
+                "id": "scale_conf",
                 "element": "section",
                 "label": "TRANSLATE.TOUCH_DISPLAY.SCALE_CONF",
                 "description": "TRANSLATE.TOUCH_DISPLAY.SCALE_DESC",
@@ -338,6 +338,30 @@
                                              {"min": {}},
                                              {"max": {}}
                                            ]
+                             }
+                           ]
+                },
+                {
+                "id": "virtualkeyboard_conf",
+                "element": "section",
+                "label": "TRANSLATE.TOUCH_DISPLAY.VKEYBOARD_CONF",
+                "description": "TRANSLATE.TOUCH_DISPLAY.VKEYBOARD_DESC",
+                "icon": "fa-keyboard-o",
+                "hidden": "false",
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveVirtualKeyboardConf"},
+                "saveButton": {
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
+                              "data": [
+                                      "virtualKeyboard"
+                                      ]
+                              },
+                "content": [
+                             {
+                             "id": "virtualKeyboard",
+                             "element": "switch",
+                             "doc": "TRANSLATE.TOUCH_DISPLAY.VKEYBOARD_DOC",
+                             "label": "TRANSLATE.TOUCH_DISPLAY.VKEYBOARD",
+                             "value": false
                              }
                            ]
                 }
