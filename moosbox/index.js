@@ -9,11 +9,11 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var axios = require('axios');
 
-axios.defaults.baseURL = 'https://api.musicyourbrand.com/api'
+axios.defaults.baseURL = 'https://api.moosbox.com/api'
 
-module.exports = ControllerMyb;
+module.exports = ControllerMoosbox;
 
-function ControllerMyb(context) {
+function ControllerMoosbox(context) {
   var self = this;
 
   this.context = context;
@@ -23,7 +23,7 @@ function ControllerMyb(context) {
 }
 
 // //********************    SYNCHRONIZATION FUNCTION   ***************************//
-// ControllerMyb.prototype.syncSDCard = function () {
+// ControllerMoosbox.prototype.syncSDCard = function () {
 //   try {
 //     execSync('/bin/sync');
 //     console.log('Synchronization command /bin/sync executed successfully.');
@@ -32,7 +32,7 @@ function ControllerMyb(context) {
 //   }
 // };
 
-ControllerMyb.prototype.onVolumioStart = function () {
+ControllerMoosbox.prototype.onVolumioStart = function () {
   try {
 
 
@@ -46,9 +46,9 @@ ControllerMyb.prototype.onVolumioStart = function () {
   return libQ.resolve();
 }
 
-ControllerMyb.prototype.firstCallOnStart = function () {
+ControllerMoosbox.prototype.firstCallOnStart = function () {
 
-  axios.defaults.baseURL = 'https://api.musicyourbrand.com'
+  axios.defaults.baseURL = 'https://api.moosbox.com'
   setTimeout( () => { 
   
     axios.get('/')
@@ -63,10 +63,10 @@ ControllerMyb.prototype.firstCallOnStart = function () {
   }, 1000)
 }
 
-ControllerMyb.prototype.loginOnStart = function () {
+ControllerMoosbox.prototype.loginOnStart = function () {
   var defer = libQ.defer();
   
-  axios.defaults.baseURL = 'https://api.musicyourbrand.com/api'
+  axios.defaults.baseURL = 'https://api.moosbox.com/api'
   try {
     var token = this.getConfigData('token');
     if (token) {
@@ -90,14 +90,14 @@ ControllerMyb.prototype.loginOnStart = function () {
       this.regenerateToken();
     }
 
-    ('Failed to start myb plugin:', error);
+    ('Failed to start moosbox plugin:', error);
 
       defer.resolve();
       return defer.promise;
   }
 }
 
-ControllerMyb.prototype.onStart = function () {
+ControllerMoosbox.prototype.onStart = function () {
   var defer = libQ.defer();
   try {
     this.firstCallOnStart();
@@ -134,7 +134,7 @@ ControllerMyb.prototype.onStart = function () {
   // }
 };
 
-ControllerMyb.prototype.getI18n = function (key) {
+ControllerMoosbox.prototype.getI18n = function (key) {
 
   var languageCode = this.commandRouter.sharedVars.get('language_code');
  
@@ -157,7 +157,7 @@ ControllerMyb.prototype.getI18n = function (key) {
 
 //**************   LOGIN   ***********+*//
 
-ControllerMyb.prototype.login = function (req, res) {
+ControllerMoosbox.prototype.login = function (req, res) {
   var self = this;
   var defer = libQ.defer();
   try {
@@ -203,7 +203,7 @@ ControllerMyb.prototype.login = function (req, res) {
 
 //************* LOGINWITHTOKEN ***************//
 
-ControllerMyb.prototype.loginWithToken = function () {
+ControllerMoosbox.prototype.loginWithToken = function () {
   var defer = libQ.defer();
   
   axios.post("/loginWithToken").then(resp => {
@@ -235,7 +235,7 @@ ControllerMyb.prototype.loginWithToken = function () {
 
 //**************   LOGOUT   ***********+*//
 
-ControllerMyb.prototype.logout = function () {
+ControllerMoosbox.prototype.logout = function () {
   var self = this;
 
   self.saveConfigData('token', null);
@@ -255,13 +255,13 @@ ControllerMyb.prototype.logout = function () {
 };
 
 
-ControllerMyb.prototype.removeAllRadios = function () {
+ControllerMoosbox.prototype.removeAllRadios = function () {
   this.saveConfigData('radios', null);
 };
 
 
 //**************   REGENERATE TOKEN   ***********+*//
-ControllerMyb.prototype.regenerateToken = function () {
+ControllerMoosbox.prototype.regenerateToken = function () {
   var defer = libQ.defer();
   
   var regenerate = this.getConfigData('regenerate_token');
@@ -289,11 +289,11 @@ ControllerMyb.prototype.regenerateToken = function () {
 }
 
 
-ControllerMyb.prototype.removeToBrowseSources = function () {
-  this.commandRouter.volumioRemoveToBrowseSources('Music Your Brand');
+ControllerMoosbox.prototype.removeToBrowseSources = function () {
+  this.commandRouter.volumioRemoveToBrowseSources('Moosbox');
 };
 
-ControllerMyb.prototype.callToListRadio = function () {
+ControllerMoosbox.prototype.callToListRadio = function () {
   var defer = libQ.defer();
   try {
     var role = this.getConfigData('role');
@@ -316,7 +316,7 @@ ControllerMyb.prototype.callToListRadio = function () {
   }
 }
 
-ControllerMyb.prototype.onStop = function () {
+ControllerMoosbox.prototype.onStop = function () {
   var self = this;
   var defer = libQ.defer();
 
@@ -328,7 +328,7 @@ ControllerMyb.prototype.onStop = function () {
   return defer.promise;
 };
 
-ControllerMyb.prototype.onRestart = function () {
+ControllerMoosbox.prototype.onRestart = function () {
   var self = this;
 
   this.onStart();
@@ -338,7 +338,7 @@ ControllerMyb.prototype.onRestart = function () {
 // Configuration Methods -----------------------------------------------------------------------------
 
 
-ControllerMyb.prototype.pushUiConfig = function () {
+ControllerMoosbox.prototype.pushUiConfig = function () {
   var self=this;
 
   setTimeout(()=>{
@@ -350,7 +350,7 @@ ControllerMyb.prototype.pushUiConfig = function () {
 };
 
 
-ControllerMyb.prototype.getUIConfig = function () {
+ControllerMoosbox.prototype.getUIConfig = function () {
   var defer = libQ.defer();
   var self = this;
 
@@ -376,51 +376,51 @@ ControllerMyb.prototype.getUIConfig = function () {
   return defer.promise;
 };
 
-ControllerMyb.prototype.getConfigurationFiles = function () {
+ControllerMoosbox.prototype.getConfigurationFiles = function () {
     return ['config.json'];
 }
 
-ControllerMyb.prototype.setUIConfig = function (data) {
+ControllerMoosbox.prototype.setUIConfig = function (data) {
   var self = this;
 };
 
-ControllerMyb.prototype.getConf = function (varName) {
+ControllerMoosbox.prototype.getConf = function (varName) {
     var self = this;
     // Perform your installation tasks here
 };
 
-ControllerMyb.prototype.setConf = function (varName, varValue) {
+ControllerMoosbox.prototype.setConf = function (varName, varValue) {
     var self = this;
     // Perform your installation tasks here
 };
 
-ControllerMyb.prototype.saveConfigData = function (key, value) {
+ControllerMoosbox.prototype.saveConfigData = function (key, value) {
   var self = this;
   self.config.set(key, value);
   self.config.save();
 };
 
-ControllerMyb.prototype.getConfigData = function (key) {
+ControllerMoosbox.prototype.getConfigData = function (key) {
   var self = this;
   return self.config.get(key);
 };
 
 
 
-ControllerMyb.prototype.saveRadioPlayed = function (radio) {
+ControllerMoosbox.prototype.saveRadioPlayed = function (radio) {
   var self = this;
   self.saveConfigData('radio_played', radio);
 };
 
 
-ControllerMyb.prototype.getRadioPlayed = function () {
+ControllerMoosbox.prototype.getRadioPlayed = function () {
   var self = this;
   return self.config.get('radio_played') || [];
 };
 
 //*********** AGGIUNGO LE RADIO *************//
 
-ControllerMyb.prototype.addToBrowseSources = function () {
+ControllerMoosbox.prototype.addToBrowseSources = function () {
   var radios = Object.values(this.getConfigData('radios'));
 
   if (!radios) {
@@ -429,11 +429,11 @@ ControllerMyb.prototype.addToBrowseSources = function () {
   }
   
     var data = {
-      name: 'Music Your Brand',
-      uri: 'myb',
+      name: 'Moosbox',
+      uri: 'moosbox',
       plugin_type: 'music_service',
-      plugin_name: 'myb',
-      albumart: '/albumart?sourceicon=music_service/myb/logo-music-your-brand.png'
+      plugin_name: 'moosbox',
+      albumart: '/albumart?sourceicon=music_service/moosbox/icon.png'
     };
     this.commandRouter.volumioAddToBrowseSources(data);
 
@@ -442,17 +442,17 @@ ControllerMyb.prototype.addToBrowseSources = function () {
 
 
 
-ControllerMyb.prototype.handleBrowseUri = function(curUri) {
+ControllerMoosbox.prototype.handleBrowseUri = function(curUri) {
   var self = this;
   var defer = libQ.defer();
-  if (curUri.startsWith('myb')) {
-    if (curUri === 'myb') {
+  if (curUri.startsWith('moosbox')) {
+    if (curUri === 'moosbox') {
       self.listRadioRoot().then(function(response) {
         defer.resolve(response);
       }).fail(function(error) {
         defer.reject(error);
       });
-    } else if (curUri.startsWith('myb/radio/')) {
+    } else if (curUri.startsWith('moosbox/radio/')) {
       defer.reject(error);
     }
   } else {
@@ -464,7 +464,7 @@ ControllerMyb.prototype.handleBrowseUri = function(curUri) {
 };
 
 
-ControllerMyb.prototype.listRadioRoot = function() {
+ControllerMoosbox.prototype.listRadioRoot = function() {
   var self = this;
   var defer = libQ.defer();
   
@@ -475,7 +475,7 @@ ControllerMyb.prototype.listRadioRoot = function() {
       },
       lists: [
         {
-          title: 'Radio Myb',
+          title: 'Radio Moosbox',
           icon: 'fa fa-music',
           availableListViews: ['list', 'grid'],
           items: []
@@ -508,7 +508,7 @@ ControllerMyb.prototype.listRadioRoot = function() {
     });
   } else {
     response.navigation.lists[0].items.push({
-      service: 'myb',
+      service: 'moosbox',
       type: 'item-no-menu',
       title: 'Nessuna radio disponibile',
       icon: 'fa fa-exclamation-circle'
@@ -521,7 +521,7 @@ ControllerMyb.prototype.listRadioRoot = function() {
 
 
 
-ControllerMyb.prototype.search = function(query) {
+ControllerMoosbox.prototype.search = function(query) {
   var self = this;
   var defer = libQ.defer();
 
@@ -579,7 +579,7 @@ ControllerMyb.prototype.search = function(query) {
       title: 'Nessun risultato trovato',
       availableListViews: ["list", "grid"],
       items: [{
-        service: 'myb',
+        service: 'moosbox',
         type: 'item-no-menu',
         title: 'Nessuna radio disponibile',
         icon: 'fa fa-exclamation-circle'
@@ -615,7 +615,7 @@ ControllerMyb.prototype.search = function(query) {
 
 
 
-// ControllerMyb.prototype.playFunction = function () {
+// ControllerMoosbox.prototype.playFunction = function () {
 //   var self = this;
 //   var radios = self.getConfigData('radios');
 //   var radiosActive = Object.values(radios).find(radio => radio.stream);
@@ -645,7 +645,7 @@ ControllerMyb.prototype.search = function(query) {
 
 
 //un giorno per le tracce
-// ControllerMyb.prototype.playRadioById = function(radioId) {
+// ControllerMoosbox.prototype.playRadioById = function(radioId) {
 //   var self = this;
 //   var defer = libQ.defer();
 
@@ -656,7 +656,7 @@ ControllerMyb.prototype.search = function(query) {
 //       // Prepara il comando di riproduzione
 //       console.log('=============== dentro playRadioById', radio );
 //       var track = {
-//           service: 'myb',
+//           service: 'moosbox',
 //           type: 'webradio', // Tipo di servizio di streaming
 //           title: radio.name,
 //           uri: radio.stream, // URL del flusso della radio
@@ -677,19 +677,19 @@ ControllerMyb.prototype.search = function(query) {
 // };
 
 // //funziona
-// ControllerMyb.prototype.handleBrowseUri = function(curUri) {
+// ControllerMoosbox.prototype.handleBrowseUri = function(curUri) {
 //   var self = this;
 //   var defer = libQ.defer();
 //   console.log('------------- handleBrowseUri curUri ', curUri);
-//   if (curUri.startsWith('myb')) {
-//       if (curUri == 'myb') {
+//   if (curUri.startsWith('moosbox')) {
+//       if (curUri == 'moosbox') {
 //           console.log('-----------prima di listRadioRoot');
 //           self.listRadioRoot().then(function(response) {
 //               defer.resolve(response);
 //           }).fail(function(error) {
 //               defer.reject(error);
 //           });
-//       } else if (curUri.startsWith('myb/radio/')) {
+//       } else if (curUri.startsWith('moosbox/radio/')) {
 //         console.log('-----------prima di listRadio');
 //           self.listRadio(curUri).then(function(response) {
 //               defer.resolve(response);
