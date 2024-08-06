@@ -13,11 +13,11 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _Auth_instances, _Auth_innertube, _Auth_handlers, _Auth_handlePending, _Auth_handleSuccess, _Auth_handleError, _Auth_handleUpdateCredentials, _Auth_registerHandlers, _Auth_unregisterHandlers;
+var _Auth_instances, _Auth_innertube, _Auth_handlers, _Auth_handlePending, _Auth_handleSuccess, _Auth_handleError, _Auth_registerHandlers, _Auth_unregisterHandlers;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthEvent = exports.AuthStatus = void 0;
-const YTMusicContext_1 = __importDefault(require("../YTMusicContext"));
 const events_1 = __importDefault(require("events"));
+const YTMusicContext_1 = __importDefault(require("../YTMusicContext"));
 var AuthStatus;
 (function (AuthStatus) {
     AuthStatus["SignedIn"] = "SignedIn";
@@ -50,7 +50,7 @@ class Auth extends events_1.default {
             onSuccess: __classPrivateFieldGet(auth, _Auth_instances, "m", _Auth_handleSuccess).bind(auth),
             onPending: __classPrivateFieldGet(auth, _Auth_instances, "m", _Auth_handlePending).bind(auth),
             onError: __classPrivateFieldGet(auth, _Auth_instances, "m", _Auth_handleError).bind(auth),
-            onCredentials: __classPrivateFieldGet(auth, _Auth_instances, "m", _Auth_handleUpdateCredentials).bind(auth)
+            onCredentials: __classPrivateFieldGet(auth, _Auth_instances, "m", _Auth_handleSuccess).bind(auth)
         }, "f");
         __classPrivateFieldGet(auth, _Auth_instances, "m", _Auth_registerHandlers).call(auth);
         return auth;
@@ -101,13 +101,20 @@ _Auth_innertube = new WeakMap(), _Auth_handlers = new WeakMap(), _Auth_instances
     YTMusicContext_1.default.refreshUIConfig();
     this.emit(AuthEvent.Pending);
 }, _Auth_handleSuccess = function _Auth_handleSuccess(data) {
+    const oldStatusInfo = YTMusicContext_1.default.get('authStatusInfo');
     YTMusicContext_1.default.set('authStatusInfo', {
         status: AuthStatus.SignedIn
     });
     YTMusicContext_1.default.setConfigValue('authCredentials', data.credentials);
-    YTMusicContext_1.default.toast('success', YTMusicContext_1.default.getI18n('YTMUSIC_SIGN_IN_SUCCESS'));
-    YTMusicContext_1.default.refreshUIConfig();
-    this.emit(AuthEvent.SignIn);
+    if (!oldStatusInfo || oldStatusInfo.status !== AuthStatus.SignedIn) {
+        YTMusicContext_1.default.getLogger().info('[ytmusic] Auth success');
+        YTMusicContext_1.default.toast('success', YTMusicContext_1.default.getI18n('YTMUSIC_SIGN_IN_SUCCESS'));
+        YTMusicContext_1.default.refreshUIConfig();
+        this.emit(AuthEvent.SignIn);
+    }
+    else {
+        YTMusicContext_1.default.getLogger().info('[ytmusic] Auth credentials updated');
+    }
 }, _Auth_handleError = function _Auth_handleError(err) {
     if (err.info.status === 'DEVICE_CODE_EXPIRED') {
         YTMusicContext_1.default.set('authStatusInfo', INITIAL_SIGNED_OUT_STATUS);
@@ -121,8 +128,6 @@ _Auth_innertube = new WeakMap(), _Auth_handlers = new WeakMap(), _Auth_instances
     }
     YTMusicContext_1.default.refreshUIConfig();
     this.emit(AuthEvent.Error);
-}, _Auth_handleUpdateCredentials = function _Auth_handleUpdateCredentials(data) {
-    YTMusicContext_1.default.setConfigValue('authCredentials', data.credentials);
 }, _Auth_registerHandlers = function _Auth_registerHandlers() {
     if (__classPrivateFieldGet(this, _Auth_innertube, "f")?.session) {
         __classPrivateFieldGet(this, _Auth_innertube, "f").session.on('auth', __classPrivateFieldGet(this, _Auth_handlers, "f").onSuccess);
