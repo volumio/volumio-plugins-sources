@@ -11,24 +11,6 @@ echo "Installing peppyalsa plugin dependencies"
 #		rm /peppyspectrum.service.tar
 #
 #
-cat > /etc/systemd/system/peppyspectrum.service <<EOC
-[Unit]
-Description=peppyspectrum Daemon 
-After=syslog.target
-[Service]
-Type=simple
-WorkingDirectory=/data/plugins/user_interface/peppyspectrum
-ExecStart=/data/plugins/user_interface/peppyspectrum/startpeppyspectrum.sh
-Restart=no
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=volumio
-User=root
-Group=root
-TimeoutSec=1
-[Install]
-WantedBy=multi-user.target
-EOC
 
 sudo systemctl daemon-reload
 
@@ -63,9 +45,47 @@ fi
 case "$ARCH" in
     "armv6l" | "armv7l" | "aarch64")
         PEPPY_ALSA_PATH="${ALSA_BASE_PATH}/armhf"
+
+cat > /etc/systemd/system/peppyspectrum.service <<EOC
+[Unit]
+Description=peppyspectrum Daemon 
+After=syslog.target
+[Service]
+Type=simple
+WorkingDirectory=/data/plugins/user_interface/peppyspectrum
+ExecStart=/data/plugins/user_interface/peppyspectrum/startpeppyspectrum.sh
+Restart=no
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=volumio
+User=volumio
+Group=volumio
+TimeoutSec=1
+[Install]
+WantedBy=multi-user.target
+EOC
         ;;
     "x86_64")
         PEPPY_ALSA_PATH="${ALSA_BASE_PATH}/x86_64"
+
+cat > /etc/systemd/system/peppyspectrum.service <<EOC
+[Unit]
+Description=peppyspectrum Daemon 
+After=syslog.target
+[Service]
+Type=simple
+WorkingDirectory=/data/plugins/user_interface/peppyspectrum
+ExecStart=/data/plugins/user_interface/peppyspectrum/startpeppyspectrum.sh
+Restart=no
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=volumio
+User=root
+Group=root
+TimeoutSec=1
+[Install]
+WantedBy=multi-user.target
+EOC
         ;;
     *)
         echo "Unknown arch: ${ARCH}. Installation cannot proceed."

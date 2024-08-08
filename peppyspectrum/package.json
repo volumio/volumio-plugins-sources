@@ -1,6 +1,6 @@
 {
   "name": "peppyspectrum",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "Peppy-spectrum for Volumio",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "os": [
       "buster"
     ],
-    "changelog": "Fix installation on x86",
+    "changelog": "Fix remove, fix on arm",
     "details": "Easy install Peppy-spectrum",
     "architectures": [
       "armhf",
