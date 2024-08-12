@@ -1,4 +1,7 @@
 {
   "PLUGIN_CONFIGURATION":"Example Plugin Configuration",
-  "SAVE":"Save"
+  "SAVE":"Save",
+  "MAIN_ADVANCED_DESC":"Section to deploy Blissify, Musical Euclydian Distance calculator by Polochon-street",
+  "AUTOQUEUE_LABEL":"Enable lastfm Infinite mix",
+  "AUTOQUEUE_DOC":"This will add x similar local tracks based on lastfm recommandations, and complete up to x with similar genre tracks if needed"
 }

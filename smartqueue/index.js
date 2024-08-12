@@ -56,15 +56,15 @@ smartqueue.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
 
-	exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+	exec("/usr/bin/pkill /*shellinaboxd*", (err, stdout, stderr) => {
 		if (err) {
 			console.error(`Error killing shellinabox: ${err}`);
 		}
-		exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+		exec("/usr/bin/pkill /*blissify*", (err, stdout, stderr) => {
 			if (err) {
 				console.error(`Error killing blissify: ${err}`);
 			}
-			exec("/usr/bin/pgrep python3 | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+			exec("/usr/bin/pkill /*smartqueue*.*py", (err, stdout, stderr) => {
 				if (err) {
 					console.error(`Error killing python3: ${err}`);
 				}
@@ -83,10 +83,10 @@ smartqueue.prototype.onStart = function () {
 	// 	if (err) {
 	// 		console.error(`Error killing blissify: ${err}`);
 	// 	}
-		exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-			if (err) {
-				console.error(`Error killing shellinabox: ${err}`);
-			}
+	//	exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+	//		if (err) {
+	//			console.error(`Error killing shellinabox: ${err}`);
+	//		}
 
 			exec("/bin/sh /data/plugins/user_interface/smartqueue/unit/shellbox.sh", (err, stdout, stderr) => {
 				if (err) {
@@ -109,7 +109,7 @@ smartqueue.prototype.onStart = function () {
 					});
 				}, 5000); // 2000 milliseconds delay
 			});
-		});
+	//	});
 	// });
 
 	self.getIP();
@@ -127,10 +127,10 @@ smartqueue.prototype.onRestart = function () {
 	// 	if (err) {
 	// 		console.error(`Error killing blissify: ${err}`);
 	// 	}
-		exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-			if (err) {
-				console.error(`Error killing shellinabox: ${err}`);
-			}
+	//	exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
+	//		if (err) {
+	//			console.error(`Error killing shellinabox: ${err}`);
+	//		}
 
 			exec("/bin/sh /data/plugins/user_interface/smartqueue/unit/shellbox.sh", (err, stdout, stderr) => {
 				if (err) {
@@ -153,7 +153,7 @@ smartqueue.prototype.onRestart = function () {
 					});
 				}, 5000); // 2000 milliseconds delay
 			});
-		});
+	//	});
 	// });
 	defer.resolve();
 	return libQ.resolve();
@@ -183,7 +183,7 @@ smartqueue.prototype.saveSettings = function (data) {
 				console.error(`stderr: ${stderr}`);
 			}
 		});
-	}, 2000); // 2000 milliseconds delay
+	}, 5000); // 2000 milliseconds delay
 
 	this.commandRouter.pushToastMessage('success', "Success at applying " + data['Autoqueue'] + " " + data['Blissmixer'] + " " + data['Tracksn'] + " " + data['Drift']);
 };

@@ -16,22 +16,31 @@ def run_core_under_conditions(config):
     print(f"Autoqueue: {autoqueue}, Blissmixer: {blissmixer}")
 
     if autoqueue and not blissmixer:
-        command = "/usr/bin/pgrep python3 | xargs -r /bin/kill -15 && /usr/bin/python3 /data/plugins/user_interface/smartqueue/unit/core.py"
-        print(f"Running command for Autoqueue true and Blissmixer false: {command}")
-        subprocess.run(command, shell=True, check=True)
-        return "Applied settings: Autoqueue true, Blissmixer false"
+        try:
+            command = "/usr/bin/pkill /*unit/coreb.py ; /usr/bin/python3 /data/plugins/user_interface/smartqueue/unit/core.py"
+            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+            print(result.stdout)  # Print standard output
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with exit code {e.returncode}")
+            print(f"Error message: {e.stderr}")
     
     elif not autoqueue and not blissmixer:
-        command = "/usr/bin/pgrep python3 | xargs -r /bin/kill -15"
-        print(f"Running command for both Autoqueue and Blissmixer false: {command}")
-        subprocess.run(command, shell=True, check=True)
-        return "Applied settings: Both Autoqueue and Blissmixer false"
+        try:
+            command = "/usr/bin/pkill /*unit/coreb.py && /usr/bin/pkill -f /*unit/core.py"
+            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+            print(result.stdout)  # Print standard output
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with exit code {e.returncode}")
+            print(f"Error message: {e.stderr}")
     
     elif blissmixer:
-        command = "/usr/bin/pgrep python3 | xargs -r /bin/kill -15 && /usr/bin/python3 /data/plugins/user_interface/smartqueue/unit/coreb.py"
-        print(f"Running command for Blissmixer true: {command}")
-        subprocess.run(command, shell=True, check=True)
-        return "Applied settings: Blissmixer true"
+        try:
+            command = "/usr/bin/pkill /*unit/core.py ; /usr/bin/python3 /data/plugins/user_interface/smartqueue/unit/coreb.py"
+            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+            print(result.stdout)  # Print standard output
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with exit code {e.returncode}")
+            print(f"Error message: {e.stderr}")
 
 if __name__ == "__main__":
     config_file_path = '/data/configuration/user_interface/smartqueue/config.json'

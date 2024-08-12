@@ -80,7 +80,7 @@ def run_blissify_and_export_playlist(config,tracksn):
         print("Running blissify to generate playlist...")
         if cosine and seed:
             result = subprocess.run(
-            ["/home/volumio/blissify/blissify", "playlist", "--distance", "cosine", "--seed-song", str(tracksn), "--dry-run"],
+            ["/home/volumio/blissify/blissify", "playlist", "--distance", "cosine", "--seed-song 30", str(tracksn), "--dry-run"],
             capture_output=True, text=True
             ).stdout
 
@@ -92,7 +92,7 @@ def run_blissify_and_export_playlist(config,tracksn):
 
         elif not cosine and seed:
             result = subprocess.run(
-            ["/home/volumio/blissify/blissify", "playlist" ,"--seed-song", str(tracksn), "--dry-run"],
+            ["/home/volumio/blissify/blissify", "playlist" ,"--seed-song 30", str(tracksn), "--dry-run"],
             capture_output=True, text=True
             ).stdout
 

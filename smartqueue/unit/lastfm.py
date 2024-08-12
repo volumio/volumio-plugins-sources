@@ -197,11 +197,11 @@ def main():
         total_tracks_added += len(drift_tracks)
 
     # Compléter avec des pistes du même genre si le total n'atteint pas 5
-    if total_tracks_added < TOTAL_TRACKS_LIMIT:
-        remaining_tracks_needed = TOTAL_TRACKS_LIMIT - total_tracks_added + drift
-        print("Not enough similar tracks found on Last.fm. Searching local database for remaining tracks...")
-        local_tracks = find_similar_local_tracks(current_track_genre, limit=remaining_tracks_needed)
-        add_similar_tracks_to_playlist(local_tracks)
+   # if total_tracks_added < TOTAL_TRACKS_LIMIT:
+   #     remaining_tracks_needed = TOTAL_TRACKS_LIMIT - total_tracks_added + drift
+   #     print("Not enough similar tracks found on Last.fm. Searching local database for remaining tracks...")
+    #    local_tracks = find_similar_local_tracks(current_track_genre, limit=remaining_tracks_needed)
+     #   add_similar_tracks_to_playlist(local_tracks)
 
 if __name__ == "__main__":
     main()
