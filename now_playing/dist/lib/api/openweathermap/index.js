@@ -13,11 +13,12 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _OpenWeatherMapAPI_instances, _OpenWeatherMapAPI_apiKey, _OpenWeatherMapAPI_apiKeyPromise, _OpenWeatherMapAPI_coordinates, _OpenWeatherMapAPI_lang, _OpenWeatherMapAPI_units, _OpenWeatherMapAPI_getApiKey, _OpenWeatherMapAPI_createUrl, _OpenWeatherMapAPI_parseLocation, _OpenWeatherMapAPI_parseCurrent, _OpenWeatherMapAPI_parseDaily, _OpenWeatherMapAPI_parseHourly;
+var _OpenWeatherMapAPI_instances, _OpenWeatherMapAPI_apiKey, _OpenWeatherMapAPI_apiKeyPromise, _OpenWeatherMapAPI_coordinates, _OpenWeatherMapAPI_lang, _OpenWeatherMapAPI_units, _OpenWeatherMapAPI_getApiKey, _OpenWeatherMapAPI_createApiUrl, _OpenWeatherMapAPI_parseLocation, _OpenWeatherMapAPI_parseCurrent, _OpenWeatherMapAPI_parseDaily, _OpenWeatherMapAPI_parseHourly;
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const NowPlayingContext_1 = __importDefault(require("../../NowPlayingContext"));
 const BASE_URL = 'https://openweathermap.org';
+const API_URL = 'https://api.openweathermap.org';
 const ONECALL_PATH = '/data/2.5/onecall';
 const WEATHER_PATH = '/data/2.5/weather';
 async function fetchPage(url, json = false) {
@@ -75,8 +76,8 @@ class OpenWeatherMapAPI {
                 __classPrivateFieldSet(this, _OpenWeatherMapAPI_apiKey, null, "f");
             }
             const [oneCallUrl, weatherUrl] = await Promise.all([
-                __classPrivateFieldGet(this, _OpenWeatherMapAPI_instances, "m", _OpenWeatherMapAPI_createUrl).call(this, ONECALL_PATH),
-                __classPrivateFieldGet(this, _OpenWeatherMapAPI_instances, "m", _OpenWeatherMapAPI_createUrl).call(this, WEATHER_PATH)
+                __classPrivateFieldGet(this, _OpenWeatherMapAPI_instances, "m", _OpenWeatherMapAPI_createApiUrl).call(this, ONECALL_PATH),
+                __classPrivateFieldGet(this, _OpenWeatherMapAPI_instances, "m", _OpenWeatherMapAPI_createApiUrl).call(this, WEATHER_PATH)
             ]);
             // Note that location data is actually resolved from
             // WeatherUrl, whereas the rest is from onecall.
@@ -135,11 +136,11 @@ _OpenWeatherMapAPI_apiKey = new WeakMap(), _OpenWeatherMapAPI_apiKeyPromise = ne
         __classPrivateFieldSet(this, _OpenWeatherMapAPI_apiKeyPromise, null, "f");
     }), "f");
     return __classPrivateFieldGet(this, _OpenWeatherMapAPI_apiKeyPromise, "f");
-}, _OpenWeatherMapAPI_createUrl = async function _OpenWeatherMapAPI_createUrl(path = ONECALL_PATH) {
+}, _OpenWeatherMapAPI_createApiUrl = async function _OpenWeatherMapAPI_createApiUrl(path = ONECALL_PATH) {
     if (!__classPrivateFieldGet(this, _OpenWeatherMapAPI_coordinates, "f")) {
         throw Error('No coordinates specified');
     }
-    const url = new URL(path, BASE_URL);
+    const url = new URL(path, API_URL);
     url.searchParams.append('appid', await __classPrivateFieldGet(this, _OpenWeatherMapAPI_instances, "m", _OpenWeatherMapAPI_getApiKey).call(this));
     url.searchParams.append('lat', __classPrivateFieldGet(this, _OpenWeatherMapAPI_coordinates, "f").lat.toString());
     url.searchParams.append('lon', __classPrivateFieldGet(this, _OpenWeatherMapAPI_coordinates, "f").lon.toString());
