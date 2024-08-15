@@ -1,6 +1,6 @@
 {
 	"name": "smartqueue",
-	"version": "1.1.6",
+	"version": "1.2.0",
 	"description": "SmartQueue will use LastFM or Blissify to feed your music queue in the smartest way.",
 	"main": "index.js",
 	"scripts": {
@@ -21,7 +21,7 @@
 			"buster"
 		],
 		"details": "SmartQueue will use LastFM or Blissify to feed your music queue in the smartest way",
-		"changelog": "implement pkill to replace kill"
+		"changelog": "prepare to beta"
 	},
 	"engines": {
 		"volumio": ">=3.236",

@@ -41,7 +41,7 @@ smartqueue.prototype.onVolumioStart = function ()
 			}
 		});
 
-	}, 5000); // 2000 milliseconds delay
+	}, 3000); // 2000 milliseconds delay
  
 	return libQ.resolve();
  };
@@ -56,17 +56,17 @@ smartqueue.prototype.onStop = function () {
 	var self = this;
 	var defer = libQ.defer();
 
-	exec("/usr/bin/pkill /*shellinaboxd*", (err, stdout, stderr) => {
+	exec("/usr/bin/pkill -f /*shellinaboxd*", (err, stdout, stderr) => {
 		if (err) {
 			console.error(`Error killing shellinabox: ${err}`);
 		}
-		exec("/usr/bin/pkill /*blissify*", (err, stdout, stderr) => {
+		exec("/usr/bin/pkill -f /*blissify*", (err, stdout, stderr) => {
 			if (err) {
 				console.error(`Error killing blissify: ${err}`);
 			}
-			exec("/usr/bin/pkill /*smartqueue*.*py", (err, stdout, stderr) => {
+			exec("/usr/bin/pkill -f /*smartqueue*.*py", (err, stdout, stderr) => {
 				if (err) {
-					console.error(`Error killing python3: ${err}`);
+					console.error(`Error killing smartqueue scripts: ${err}`);
 				}
 				defer.resolve();
 			});
@@ -79,14 +79,7 @@ smartqueue.prototype.onStop = function () {
 smartqueue.prototype.onStart = function () {
 	var self = this;
 	var defer = libQ.defer();
-	// exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-	// 	if (err) {
-	// 		console.error(`Error killing blissify: ${err}`);
-	// 	}
-	//	exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-	//		if (err) {
-	//			console.error(`Error killing shellinabox: ${err}`);
-	//		}
+
 
 			exec("/bin/sh /data/plugins/user_interface/smartqueue/unit/shellbox.sh", (err, stdout, stderr) => {
 				if (err) {
@@ -107,10 +100,9 @@ smartqueue.prototype.onStart = function () {
 							console.error(`stderr: ${stderr}`);
 						}
 					});
-				}, 5000); // 2000 milliseconds delay
+				}, 3000); 
 			});
-	//	});
-	// });
+
 
 	self.getIP();
 	defer.resolve();
@@ -118,19 +110,12 @@ smartqueue.prototype.onStart = function () {
 }
 
 smartqueue.prototype.onRestart = function () {
-	// Do nothing
+
 	var self = this;
 
 	var defer = libQ.defer();
 
-	// exec("/usr/bin/pgrep blissify | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-	// 	if (err) {
-	// 		console.error(`Error killing blissify: ${err}`);
-	// 	}
-	//	exec("/usr/bin/pgrep shellinabox | xargs -r /bin/kill -15", (err, stdout, stderr) => {
-	//		if (err) {
-	//			console.error(`Error killing shellinabox: ${err}`);
-	//		}
+
 
 			exec("/bin/sh /data/plugins/user_interface/smartqueue/unit/shellbox.sh", (err, stdout, stderr) => {
 				if (err) {
@@ -151,10 +136,9 @@ smartqueue.prototype.onRestart = function () {
 							console.error(`stderr: ${stderr}`);
 						}
 					});
-				}, 5000); // 2000 milliseconds delay
+				}, 3000); // 2000 milliseconds delay
 			});
-	//	});
-	// });
+
 	defer.resolve();
 	return libQ.resolve();
 };
@@ -183,7 +167,7 @@ smartqueue.prototype.saveSettings = function (data) {
 				console.error(`stderr: ${stderr}`);
 			}
 		});
-	}, 5000); // 2000 milliseconds delay
+	}, 3000); 
 
 	this.commandRouter.pushToastMessage('success', "Success at applying " + data['Autoqueue'] + " " + data['Blissmixer'] + " " + data['Tracksn'] + " " + data['Drift']);
 };
