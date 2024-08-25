@@ -1,5 +1,5 @@
 /*--------------------
-// FusionDsp plugin for volumio 3. By balbuze January 2024
+// FusionDsp plugin for volumio 3. By balbuze August 2025
 contribution : Paolo Sabatino
 Multi Dsp features
 Based on CamillaDsp
@@ -4425,30 +4425,36 @@ FusionDsp.prototype.usethispreset = function (data) {
 
 FusionDsp.prototype.importeq = function (data) {
   const self = this;
-  let path = 'https://raw.githubusercontent.com/jaakkopasanen/AutoEq//master/results'
-  let defer = libQ.defer();
-  var nameh = data['importeq'].label
-  var name = nameh.split('  ').slice(1).toString();
-  self.logger.info(logPrefix + ' name ' + typeof (name));
-  var namepath = data['importeq'].value
+  const path = 'https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results';
+  const defer = libQ.defer();
+  const nameh = data['importeq'].label;
+  const name = nameh.split('  ').slice(1).toString();
+  const namepath = data['importeq'].value;
+  const suffix = "%20ParametricEQ.txt";
+  self.logger.info(logPrefix + ' namepath ' + namepath+' name '+name);
+
   self.config.set('addreplace', true);
   self.config.set('nbreq', 1);
-  var toDownload = (path + namepath + '/' + name.replace(' ', '%20') + '%20ParametricEQ.txt\'')
-  self.logger.info(logPrefix + ' wget \'' + toDownload)
+  const toDownload = `${path}${namepath}/${encodeURIComponent(name)}${suffix}`;
+    self.logger.info(logPrefix + ' wget \'' + toDownload);
+
   try {
-    execSync("/usr/bin/wget \'" + toDownload + " -O /tmp/EQfile.txt", {
+    execSync(`/usr/bin/wget '${toDownload}' -O /tmp/EQfile.txt`, {
       uid: 1000,
       gid: 1000
     });
     defer.resolve();
   } catch (err) {
     self.logger.error(logPrefix + ' failed to download Eq' + err);
+    self.commandRouter.pushToastMessage('error', 'Failed to download EQ: ' + err);
   }
+
   self.config.set('eqfrom', 'autoeq');
   self.config.set('importeq', nameh);
 
   self.convertimportedeq();
-  return defer.promise;
+  return defer.promise;  
+
 };
 
 FusionDsp.prototype.importlocal = function (data) {
