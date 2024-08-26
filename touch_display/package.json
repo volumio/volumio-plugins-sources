@@ -1,6 +1,6 @@
 {
 	"name": "touch_display",
-	"version": "3.4.0",
+	"version": "3.5.0",
 	"description": "The plugin enables displaying and operating Volumio's UI on a locally connected screen. NOTE: The plugin cannot be installed on systems that have a factory option to display the UI via HDMI video output.",
 	"main": "index.js",
 	"scripts": {
@@ -19,8 +19,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "The plugin enables the display of Volumio's UI on locally connected screens. If the screen offers touch control, apart from keyboard input the UI can be operated from the screen.<br><br>The plugin focuses on the Raspberry Pi Foundation's 7\" display (and compatible DSI displays), but can in principle also be used with displays connected via HDMI or GPIO. However, HDMI and GPIO displays usually require additional action by the user, depending on the type of display and any touch controller present, and <b>requiring advanced knowledge</b>.<br><br><b style=\"color:red;\">NOTE: The plugin cannot be installed on systems that have a factory option to display the UI via HDMI video output.</b>",
-		"changelog": "Added screen rotation for Raspberry Pis using the vc4 overlay; made screen brightness settings available on all systems where a backlight interface is found"
+		"details": "The plugin enables the display of Volumio's UI on locally connected screens. If the screen offers touch control, apart from keyboard input the UI can be operated from the screen.<br><br>The plugin focuses on the Raspberry Pi Foundation's 7\" display (and compatible DSI displays), but can in principle also be used with displays connected via HDMI or GPIO. However, HDMI and GPIO displays usually require additional action by the user, depending on the type of display and any touch controller present, and <b>requiring advanced knowledge</b>.<br><br><b>NOTE: The plugin cannot be installed on systems that have a factory option to display the UI via HDMI video output.</b>",
+		"changelog": "Added virtual keyboard"
 	},
 	"engines": {
 		"node": ">=8",
