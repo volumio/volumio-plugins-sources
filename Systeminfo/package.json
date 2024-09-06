@@ -1,6 +1,6 @@
 {
 	"name": "Systeminfo",
-	"version": "3.0.5",
+	"version": "3.0.6",
 	"description": "Information about your system",
 	"main": "index.js",
 	"scripts": {
@@ -22,7 +22,7 @@
 			"buster"
 		],
 		"details": "Gives information about your system",
-		"changelog": "systeminformation node update + more info"
+		"changelog": "better RPI 5 support"
 	},
 	"engines": {
 		"node": ">=8",

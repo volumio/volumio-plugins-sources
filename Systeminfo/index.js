@@ -208,7 +208,7 @@ Systeminfo.prototype.mpdversion = function () {
    });
 
 }
-
+/*
 //here we detect the firmware version for the rpi
 Systeminfo.prototype.firmwareversion = function () {
    var self = this;
@@ -220,7 +220,7 @@ Systeminfo.prototype.firmwareversion = function () {
             self.commandRouter.pushToastMessage('error', 'firmware detection failed');
             firmware = 'not applicable';
          } else {
-
+/*
             fs.readFile('/data/configuration/user_interface/Systeminfo/firmware.json', 'utf8', function (err, firmware) {
                if (err) {
                   self.logger.info('Error reading config', err);
@@ -238,6 +238,34 @@ Systeminfo.prototype.firmwareversion = function () {
                }
             });
          }
+         
+        const { exec } = require('child_process');
+
+// Execute the Bash script that generates the JSON output
+exec('sudo vcgencmd version | sed -e \'1s/^/{\\"firmware\\": \\"/\' -e \'2s/$/ /\' -e \'3s/$/\\"}/\'', (error, stdout, stderr) => {
+    if (error) {
+        console.error(`Error executing command: ${error.message}`);
+        return;
+    }
+    if (stderr) {
+        console.error(`Error: ${stderr}`);
+        return;
+    }
+  
+    // Output the JSON string
+    const jsonStr = stdout.trim();
+  
+    try {
+        // Parse the JSON string
+        const data = JSON.parse(jsonStr);
+        console.log(data);
+        self.config.set('firmware', data);
+
+    } catch (err) {
+        console.error('Failed to parse JSON:', err.message);
+    }
+});
+
       })
    } catch (e) {
       self.logger.info('Error reading firmware.json, detection failed', e);
@@ -245,6 +273,64 @@ Systeminfo.prototype.firmwareversion = function () {
 
 
 };
+*/
+
+
+//here we detect the board type
+Systeminfo.prototype.board = function () {
+   var self = this;
+   exec("/bin/cat /proc/device-tree/model" , function (error, stdout, stderr) {
+      if (error) {
+         self.logger.error('failed ' + error);
+         self.commandRouter.pushToastMessage('error', 'board detection failed');
+      } else {
+         self.logger.info('board is ' + stdout);
+         self.config.set('board', stdout);
+      }
+   })
+};
+
+
+
+Systeminfo.prototype.firmwareversion = function () {
+   var self = this;
+
+   // Execute vcgencmd version and capture the output
+   exec('sudo vcgencmd version', { uid: 1000, gid: 1000 }, (error, stdout, stderr) => {
+      if (error) {
+         self.logger.info('Firmware detection failed: ' + error);
+         self.commandRouter.pushToastMessage('error', 'Firmware detection failed');
+         return;
+      }
+
+      if (stderr) {
+         self.logger.info('stderr: ' + stderr);
+         return;
+      }
+
+      // The output from `vcgencmd version` (assumed structure)
+      // Example output:
+      // "Oct 17 2023 15:39:16 \nCopyright (c) 2012 Broadcom\nversion 30f0c5e4d076da3ab4f341d88e7d505760b93ad7 (clean) (release) (start)\n"
+
+      const lines = stdout.trim().split('\n');
+      if (lines.length < 3) {
+         self.logger.error('Unexpected firmware output');
+         return;
+      }
+
+      // Construct a JSON-like object manually
+      const firmwareData = {
+         firmware: `${lines[0]} ${lines[2]}` // Concatenate the date and version lines
+      };
+
+      self.logger.info('Firmware detected: ' + firmwareData.firmware);
+
+      // Set the firmware value in the config
+      self.config.set('firmware', firmwareData.firmware);
+
+   });
+};
+
 //here we detect the temperature for the cpu
 Systeminfo.prototype.temperature = function () {
    var self = this;
@@ -307,6 +393,7 @@ Systeminfo.prototype.getsysteminfo = function () {
    self.temperature();
    self.storages();
    self.mpdversion();
+   self.board();
 
    // Network
    si.networkInterfaces('default')
@@ -329,6 +416,10 @@ Systeminfo.prototype.getsysteminfo = function () {
    // Fetch system information using si.getAllData()
    si.getAllData()
       .then(data => {
+         // Board
+         const board = self.config.get('board');
+
+
          // Memory
          const memtotal = (data.mem.total / 1024).toFixed(0) + ' Ko';
          const memfree = (data.mem.free / 1024).toFixed(0) + ' Ko';
@@ -374,7 +465,7 @@ Systeminfo.prototype.getsysteminfo = function () {
                const messages4 = `<br><li>OS info</br></li><ul><li>Version of Volumio: ${result}</li><li>Hostname: ${data.os.hostname}</li><li>Kernel: ${data.os.kernel}</li><li>Governor: ${data.cpu.governor}</li><li>Uptime: ${uptime}</li></ul>`;
 
                // Board and CPU info
-               const messages1 = `<br><li>Board info</br></li><ul><li>Manufacturer: ${data.system.manufacturer}</li><li>Model: ${data.system.model} ${data.baseboard.model} / ${data.baseboard.version} / ${data.chassis.model}</li><li>Version: ${data.system.version} / ${data.baseboard.version}</li><li>Firmware Version: ${self.config.get('firmware') || 'Available only for RPI'}</li></ul>`;
+               const messages1 = `<br><li>Board info</br></li><ul><li>Manufacturer: ${data.system.manufacturer}</li><li>Model: ${board} ${data.baseboard.model} / ${data.baseboard.version} / ${data.chassis.model}</li><li>Version: ${data.system.version} / ${data.baseboard.version}</li><li>Firmware Version: ${self.config.get('firmware') || 'Available only for RPI'}</li></ul>`;
 
                const messages2 = `<br><li>CPU info</br></li><ul><li>Brand: ${data.cpu.brand}</li><li>Speed: ${data.cpu.speed} GHz</li><li>Family: ${data.cpu.family}</li><li>Model: ${data.cpu.model}</li><li>Number of cores: ${data.cpu.cores}</li><li>Physical cores: ${data.cpu.physicalCores}</li><li>Average load: ${(data.currentLoad.avgLoad * 100).toFixed(0)}%</li><li>Temperature: ${self.config.get('temperature')}°C</li></ul>`;
 
