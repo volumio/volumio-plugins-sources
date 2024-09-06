@@ -1,0 +1,39 @@
+{
+  "token": {
+	"type": "string",
+	"value": ""
+  },
+  "server": {
+	"type": "string",
+	"value": ""
+  },
+  "serverName": {
+	"type": "string",
+	"value": ""
+  },
+  "port": {
+	"type": "string",
+	"value": ""
+  },
+  "library": {
+	"type": "string",
+	"value": "Music"
+  },
+  "timeOut": {
+	"type": "number",
+	"value": 600
+  },
+  "local": {
+	"type": "boolean",
+	"value": true
+  },
+  "recentAddedLimit": {
+	"type": "number",
+	"value": 30
+  },
+  "recentPlayedLimit": {
+	"type": "number",
+	"value": 50
+  }
+
+}
