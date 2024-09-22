@@ -162,3 +162,7 @@
   * Ordering by date was refactored but gives identical results here.  Previously, it was based on the `stationToken` integer field and now is based on the `dateCreated` field.
   * `is_active()` function added to the `Timer` class.
   * New dependencies: `node-fetch@2.0` and `ping`.
+
+### Version 2.12.3
+  #### Fixes
+  * `clearAndPlayStation()` needed to refresh self.stationData from `self.pandoraHandler.getStationData()`.  Now this method should work from an API call as intended.

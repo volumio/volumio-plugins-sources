@@ -1303,18 +1303,25 @@ ControllerPandora.prototype.clearAndPlayStation = function (stationJSON) {
 
     self.pUtil.announceFn(fnName);
 
-    // stationName has ' Radio' stripped from end
-    const stationToken = Object.keys(self.stationData)
-        .find(key => self.stationData[key].name.startsWith(stationName));
+    return self.pandoraHandler.getStationData()
+        .then(result => {
+            self.stationData = result;
 
-    if (typeof(stationToken) === 'undefined') {
-        self.pUtil.logError(fnName, 'Station ' + stationName + ' not found!');
-        return libQ.resolve();
-    }
-    const uri = uriPrefix + stationToken;
+            // stationName has ' Radio' stripped from end
+            self.pUtil.logInfo(fnName, 'stationData: ' + JSON.stringify(self.stationData));
 
-    return self.flushPandora()
-        .then(() => self.handleBrowseUri(uri));
+            const stationToken = Object.keys(self.stationData)
+                .find(key => self.stationData[key].name.startsWith(stationName));
+
+            if (typeof(stationToken) === 'undefined') {
+                self.pUtil.logError(fnName, 'Station ' + stationName + ' not found!');
+                return libQ.resolve();
+            }
+            const uri = uriPrefix + stationToken;
+
+            return self.flushPandora()
+                .then(() => self.handleBrowseUri(uri));
+        });
 };
 
 ControllerPandora.prototype.parseState = function (state) {
