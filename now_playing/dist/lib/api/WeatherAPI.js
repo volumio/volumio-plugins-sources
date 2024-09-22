@@ -13,14 +13,13 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _WeatherAPI_instances, _WeatherAPI_api, _WeatherAPI_fetchPromises, _WeatherAPI_cache, _WeatherAPI_config, _WeatherAPI_ready, _WeatherAPI_getFetchPromise, _WeatherAPI_getWeatherIconPath, _WeatherAPI_getWeatherIconUrls, _WeatherAPI_getTemperatureText, _WeatherAPI_getWindSpeedText, _WeatherAPI_getHumidityText, _WeatherAPI_parseLocation, _WeatherAPI_parseCurrent, _WeatherAPI_parseForecast, _WeatherAPI_parseHourly, _WeatherAPI_doFetchInfo;
+var _WeatherAPI_instances, _WeatherAPI_api, _WeatherAPI_fetchPromises, _WeatherAPI_cache, _WeatherAPI_config, _WeatherAPI_getFetchPromise, _WeatherAPI_getWeatherIconPath, _WeatherAPI_getWeatherIconUrls, _WeatherAPI_getTemperatureText, _WeatherAPI_getWindSpeedText, _WeatherAPI_getHumidityText, _WeatherAPI_parseLocation, _WeatherAPI_parseCurrent, _WeatherAPI_parseForecast, _WeatherAPI_parseHourly, _WeatherAPI_doFetchInfo, _WeatherAPI_isConfigValid;
 Object.defineProperty(exports, "__esModule", { value: true });
 const openweathermap_1 = __importDefault(require("./openweathermap"));
 const md5_1 = __importDefault(require("md5"));
 const NowPlayingContext_1 = __importDefault(require("../NowPlayingContext"));
 const Cache_1 = __importDefault(require("../utils/Cache"));
 const ConfigHelper_1 = __importDefault(require("../config/ConfigHelper"));
-const now_playing_common_1 = require("now-playing-common");
 const System_1 = require("../utils/System");
 const WEATHER_ICONS_BASE_PATH = '/assets/weather-icons';
 const ICON_CODE_MAPPINGS = {
@@ -52,14 +51,10 @@ class WeatherAPI {
         _WeatherAPI_fetchPromises.set(this, void 0);
         _WeatherAPI_cache.set(this, void 0);
         _WeatherAPI_config.set(this, void 0);
-        _WeatherAPI_ready.set(this, void 0);
         __classPrivateFieldSet(this, _WeatherAPI_api, new openweathermap_1.default(), "f");
         __classPrivateFieldSet(this, _WeatherAPI_fetchPromises, {}, "f");
         __classPrivateFieldSet(this, _WeatherAPI_cache, new Cache_1.default({ weather: 600 }, { weather: 10 }), "f");
-        __classPrivateFieldSet(this, _WeatherAPI_config, {
-            units: now_playing_common_1.DefaultLocalizationSettings.unitSystem
-        }, "f");
-        __classPrivateFieldSet(this, _WeatherAPI_ready, false, "f");
+        __classPrivateFieldSet(this, _WeatherAPI_config, {}, "f");
     }
     clearCache() {
         __classPrivateFieldGet(this, _WeatherAPI_cache, "f").clear();
@@ -67,26 +62,19 @@ class WeatherAPI {
     setConfig(opts) {
         const { coordinates, units } = opts;
         const coord = ConfigHelper_1.default.parseCoordinates(coordinates);
-        __classPrivateFieldSet(this, _WeatherAPI_ready, !!coord, "f");
-        if (!coord) {
-            return;
-        }
         let configChanged = false;
         const { coordinates: currentCoordinates, units: currentUnits } = __classPrivateFieldGet(this, _WeatherAPI_config, "f");
-        if (coord.lat !== currentCoordinates?.lat || coord.lon !== currentCoordinates?.lon) {
+        if (coord && (coord.lat !== currentCoordinates?.lat || coord.lon !== currentCoordinates?.lon)) {
             __classPrivateFieldGet(this, _WeatherAPI_api, "f").setCoordinates(coord.lat, coord.lon);
+            __classPrivateFieldGet(this, _WeatherAPI_config, "f").coordinates = coord;
             configChanged = true;
         }
-        if (units !== undefined && currentUnits !== units) {
+        if (currentUnits !== units) {
             __classPrivateFieldGet(this, _WeatherAPI_api, "f").setUnits(units);
+            __classPrivateFieldGet(this, _WeatherAPI_config, "f").units = units;
             configChanged = true;
         }
         if (configChanged) {
-            __classPrivateFieldSet(this, _WeatherAPI_config, {
-                ...__classPrivateFieldGet(this, _WeatherAPI_config, "f"),
-                coordinates: coord,
-                units
-            }, "f");
             this.fetchInfo().then((refreshedInfo) => {
                 NowPlayingContext_1.default.broadcastMessage('npPushWeatherOnServiceChange', {
                     success: true,
@@ -102,12 +90,13 @@ class WeatherAPI {
         }
     }
     async fetchInfo() {
-        if (!__classPrivateFieldGet(this, _WeatherAPI_ready, "f")) {
+        const config = __classPrivateFieldGet(this, _WeatherAPI_config, "f");
+        if (!__classPrivateFieldGet(this, _WeatherAPI_instances, "m", _WeatherAPI_isConfigValid).call(this, config)) {
             throw Error(NowPlayingContext_1.default.getI18n('NOW_PLAYING_ERR_WEATHER_MISCONFIG'));
         }
         try {
             const cacheKey = (0, md5_1.default)(JSON.stringify(__classPrivateFieldGet(this, _WeatherAPI_config, "f")));
-            return await __classPrivateFieldGet(this, _WeatherAPI_cache, "f").getOrSet('weather', cacheKey, () => __classPrivateFieldGet(this, _WeatherAPI_instances, "m", _WeatherAPI_doFetchInfo).call(this));
+            return await __classPrivateFieldGet(this, _WeatherAPI_cache, "f").getOrSet('weather', cacheKey, () => __classPrivateFieldGet(this, _WeatherAPI_instances, "m", _WeatherAPI_doFetchInfo).call(this, config));
         }
         catch (e) {
             const msg = NowPlayingContext_1.default.getI18n('NOW_PLAYING_ERR_WEATHER_FETCH') + (e.message ? `: ${e.message}` : '');
@@ -115,7 +104,7 @@ class WeatherAPI {
         }
     }
 }
-_WeatherAPI_api = new WeakMap(), _WeatherAPI_fetchPromises = new WeakMap(), _WeatherAPI_cache = new WeakMap(), _WeatherAPI_config = new WeakMap(), _WeatherAPI_ready = new WeakMap(), _WeatherAPI_instances = new WeakSet(), _WeatherAPI_getFetchPromise = function _WeatherAPI_getFetchPromise(callback) {
+_WeatherAPI_api = new WeakMap(), _WeatherAPI_fetchPromises = new WeakMap(), _WeatherAPI_cache = new WeakMap(), _WeatherAPI_config = new WeakMap(), _WeatherAPI_instances = new WeakSet(), _WeatherAPI_getFetchPromise = function _WeatherAPI_getFetchPromise(callback) {
     const key = (0, md5_1.default)(JSON.stringify(__classPrivateFieldGet(this, _WeatherAPI_config, "f")));
     if (Object.keys(__classPrivateFieldGet(this, _WeatherAPI_fetchPromises, "f")).includes(key)) {
         return __classPrivateFieldGet(this, _WeatherAPI_fetchPromises, "f")[key];
@@ -292,7 +281,7 @@ _WeatherAPI_api = new WeakMap(), _WeatherAPI_fetchPromises = new WeakMap(), _Wea
         });
     }
     return hourly;
-}, _WeatherAPI_doFetchInfo = async function _WeatherAPI_doFetchInfo() {
+}, _WeatherAPI_doFetchInfo = async function _WeatherAPI_doFetchInfo(config) {
     return __classPrivateFieldGet(this, _WeatherAPI_instances, "m", _WeatherAPI_getFetchPromise).call(this, async () => {
         const weather = await __classPrivateFieldGet(this, _WeatherAPI_api, "f").getWeather();
         return {
@@ -300,9 +289,11 @@ _WeatherAPI_api = new WeakMap(), _WeatherAPI_fetchPromises = new WeakMap(), _Wea
             current: __classPrivateFieldGet(this, _WeatherAPI_instances, "m", _WeatherAPI_parseCurrent).call(this, weather),
             forecast: __classPrivateFieldGet(this, _WeatherAPI_instances, "m", _WeatherAPI_parseForecast).call(this, weather),
             hourly: __classPrivateFieldGet(this, _WeatherAPI_instances, "m", _WeatherAPI_parseHourly).call(this, weather),
-            units: __classPrivateFieldGet(this, _WeatherAPI_config, "f").units
+            units: config.units
         };
     });
+}, _WeatherAPI_isConfigValid = function _WeatherAPI_isConfigValid(config) {
+    return !!(config.coordinates && config.units);
 };
 const weatherAPI = new WeatherAPI();
 exports.default = weatherAPI;

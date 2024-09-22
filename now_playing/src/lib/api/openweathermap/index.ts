@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import np from '../../NowPlayingContext';
 
 const BASE_URL = 'https://openweathermap.org';
+const API_URL = 'https://api.openweathermap.org';
 const ONECALL_PATH = '/data/2.5/onecall';
 const WEATHER_PATH = '/data/2.5/weather';
 
@@ -149,8 +150,8 @@ export default class OpenWeatherMapAPI {
       }
 
       const [ oneCallUrl, weatherUrl ] = await Promise.all([
-        this.#createUrl(ONECALL_PATH),
-        this.#createUrl(WEATHER_PATH)
+        this.#createApiUrl(ONECALL_PATH),
+        this.#createApiUrl(WEATHER_PATH)
       ]);
 
       // Note that location data is actually resolved from
@@ -181,11 +182,11 @@ export default class OpenWeatherMapAPI {
     return result;
   }
 
-  async #createUrl(path = ONECALL_PATH) {
+  async #createApiUrl(path = ONECALL_PATH) {
     if (!this.#coordinates) {
       throw Error('No coordinates specified');
     }
-    const url = new URL(path, BASE_URL);
+    const url = new URL(path, API_URL);
     url.searchParams.append('appid', await this.#getApiKey());
     url.searchParams.append('lat', this.#coordinates.lat.toString());
     url.searchParams.append('lon', this.#coordinates.lon.toString());

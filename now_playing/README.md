@@ -91,6 +91,9 @@ Starting from v0.7.0, the Now Playing plugin can query the relevant music servic
 
 ## Changelog
 
+0.7.4
+- Fix broken Weather API due to openweathermap.org changes
+
 0.7.3
 - Fetch lyrics from [LRCLIB](https://lrclib.net/)
 - Update web client v0.7.3
