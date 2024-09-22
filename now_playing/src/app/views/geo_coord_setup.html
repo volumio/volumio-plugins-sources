@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        background-color: #121212;
+        color: #bebebe;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.6;
+      }
+      #contents {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1em 0;
+      }
+      h1 {
+        color: #d5d5d5;
+      }
+      ul {
+        list-style-type: square;
+      }
+      li {
+        margin: 0.8em 0;
+        margin-left: -1em;
+      }
+      li > ul > li {
+        margin-left: -0.5em;
+      }
+      a {
+        color: #2d8dfb;
+        text-decoration: none;
+      }
+    </style>    
+  </head>
+  <body>
+    <div id="contents">
+      <h1>Obtaining Geographic Coordinates with Google Map</h1>
+      <ol>
+        <li>Go to <a href="https://maps.google.com" target="gmap">Google Maps</a> and find your location.</li>
+        <li>Right-click on the map corresponding to your location. You will see a pop-up menu with the Geographic Coordinates displayed at the top. The coordinates are represented by two decimal numbers separated by a comma.</li>
+        <li>Click on the coordinates to copy them to the clipboard, then paste them into the &quot;Geographic Coordinates&quot; field of the plugin settings (under &quot;Localization&quot;). Click &quot;Save&quot;.</li>
+      </ol>
+      <p>That&#39;s it! You have provided information about your location to the Now Playing plugin. Next, you should set the &quot;Timezone&quot; value to &quot;Match Geographic Coordinates&quot;. The plugin will then be able to display the time and date, as well as the weather, relevant to your location.</p>
+    </div>
+  </body>
+</html>

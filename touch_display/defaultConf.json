@@ -1,0 +1,21 @@
+{
+  "timeout":120,
+  "afterPlay":false,
+  "autoMode":false,
+  "minBr":15,
+  "maxBr":255,
+  "brightnessCurve":false,
+  "midBr":255,
+  "manualBr":255,
+  "br1StartTime":"00:00",
+  "manualBr2":255,
+  "br2StartTime":"00:00",
+  "minAls":0,
+  "maxAls":0,
+  "angle":"0",
+  "controlGpuMem":false,
+  "gpuMem":32,
+  "showPointer":false,
+  "scale":100,
+  "virtualKeyboard":false
+}

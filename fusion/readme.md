@@ -1,4 +1,4 @@
-March 05th 2023
+January 22th 2024
 
 
 ##  For Volumio3 => v 3.236
@@ -141,6 +141,63 @@ everythings it seems ;-)
 
 ### 4. Last changes
 
+January 22th 2024 v1.0.53 Credits to [Paolo](https://github.com/paolosabatino)
+
+- fix for purecamilla gui
+
+January 18th 2024 v1.0.52
+
+- attempt to fix consumed seconds on track begin Credits to [Paolo](https://github.com/paolosabatino)
+
+November 14th 2023 v1.0.51
+
+- rework alsa pipeline, camilladsp process... Credits to [Paolo](https://github.com/paolosabatino)
+
+September 23th 2023 v1.0.49
+
+- clean install.sh
+- correct default values for eq3
+- better airplay handling
+
+May 10th 2023 v1.0.48
+
+- Q for each band EQ15 2xEQ15
+- Work on auto pre amp
+- Autoeq import update
+- Headphone name choosen is kept
+- Resample toast message
+- log message improvement
+- Experimental clipping warning disabled
+
+April 26th 2023 v1.0.47
+
+- Preset naming for each mode
+- log messages cleaning
+- internal tweaks
+
+
+April 17th 2023 v1.0.46
+
+- Preset naming for each mode
+- log messages cleaning
+
+April 14th 2023 v1.0.45
+
+- misc warning for DRC fir, local import
+- update - fix filter if freq < sr/2
+- tools update
+
+April 12th 2023 v1.0.44
+
+- fix filter if freq < sr/2
+
+March 12th 2023 v1.0.41
+
+- FIR switchable filter files fix
+
+March 12th 2023 v1.0.40
+
+- FIR clipping detection fix
 
 March 5th 2023 v1.0.39
 

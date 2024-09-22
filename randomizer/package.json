@@ -1,6 +1,6 @@
 {
 	"name": "randomizer",
-	"version": "3.0.0",
+	"version": "3.1.2",
 	"description": "Randomizer will browse your Music Library and; Load a number of Random Tracks, Load a Random Album or Load the Album of the currently playing Track.",
 	"main": "index.js",
 	"scripts": {
@@ -10,8 +10,8 @@
 	"license": "ISC",
 	"repository": "https://github.com/yourname/yourrepo",
 	"volumio_info": {
-		"prettyName": "randomizer",
-		"icon": "fa-lightbulb-o",
+		"prettyName": "Randomizer",
+		"icon": "fa-random",
 		"plugin_type": "user_interface",
 		"architectures": [
 			"amd64",
@@ -20,8 +20,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "Lorem ipsum",
-		"changelog": "Lorem ipsum"
+		"details": "Randomizer will browse your Music Library and; Load a number of Random Tracks, Load a Random Album or Load the Album of the currently playing Track.",
+		"changelog": ""
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",

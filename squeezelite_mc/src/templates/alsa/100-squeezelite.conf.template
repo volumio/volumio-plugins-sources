@@ -1,0 +1,6 @@
+pcm.squeezelite {
+    type empty
+    slave.pcm   default
+}
+
+${CTL}

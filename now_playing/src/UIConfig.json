@@ -1,0 +1,4522 @@
+{
+  "page": {
+    "label": "TRANSLATE.NOW_PLAYING_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "section_daemon",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DAEMON",
+      "icon": "fa-server",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDaemon"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "port"
+        ]
+      },
+      "content": [
+        {
+          "id": "port",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_PORT",
+          "doc": "TRANSLATE.NOW_PLAYING_PORT_DESC",
+          "value": "4004"
+        },
+        {
+          "id": "url",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_URL",
+          "doc": "TRANSLATE.NOW_PLAYING_URL_DESC"
+        },
+        {
+          "id": "previewUrl",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_PREVIEW_URL",
+          "doc": "TRANSLATE.NOW_PLAYING_PREVIEW_URL_DESC"
+        },
+        {
+          "id": "openPreview",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_OPEN_PREVIEW",
+          "onClick": {
+              "type": "openUrl"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_localization",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_LOCALIZATION",
+      "icon": "fa-globe",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveLocalizationSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "geoCoordinates",
+          "locale",
+          "timezone",
+          "unitSystem"
+        ]
+      },
+      "content": [
+        {
+          "id": "geoCoordinates",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_GEO_COORD",
+          "label": "TRANSLATE.NOW_PLAYING_GEO_COORD",
+          "value": ""
+        },
+        {
+          "id": "geoCoordinatesGuide",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_GEO_COORD_GUIDE",
+          "onClick": {
+            "type": "openUrl"
+          }
+        },
+        {
+          "id": "locale",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_LOCALE",
+          "label": "TRANSLATE.NOW_PLAYING_LOCALE",
+          "value": {
+          },
+          "options": [
+          ]
+        },
+        {
+          "id": "timezone",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TIMEZONE",
+          "label": "TRANSLATE.NOW_PLAYING_TIMEZONE",
+          "value": {
+          },
+          "options": [
+          ]
+        },
+        {
+          "id": "unitSystem",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_UNIT_SYSTEM",
+          "value": {
+            "value": "metric", 
+            "label": "TRANSLATE.NOW_PLAYING_UNITS_METRIC"
+          },
+          "options": [
+            {
+              "value": "metric", 
+              "label": "TRANSLATE.NOW_PLAYING_UNITS_METRIC"
+            },
+            {
+              "value": "imperial", 
+              "label": "TRANSLATE.NOW_PLAYING_UNITS_IMPERIAL"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_metadata_service",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_METADATA_SERVICE",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveMetadataServiceSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "geniusAccessToken",
+          "excludeParenthesized",
+          "parenthesisType",
+          "queryMusicServices",
+          "enableSyncedLyrics"
+        ]
+      },
+      "content": [
+        {
+          "id": "geniusAccessToken",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_GENIUS_ACCESS_TOKEN",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_GENIUS_ACCESS_TOKEN",
+          "value": ""
+        },
+        {
+          "id": "accessTokenGuide",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_ACCESS_TOKEN_GUIDE",
+          "onClick": {
+            "type": "openUrl"
+          }
+        },
+        {
+          "id": "excludeParenthesized",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_EXC_PARENTHESIZED",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_EXC_PARENTHESIZED"
+        },
+        {
+          "id": "parenthesisType",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PARENTHESIS_TYPE",
+          "visibleIf": {
+            "field": "excludeParenthesized",
+            "value": true
+          },
+          "value": {
+            "value": "round",
+            "label": "TRANSLATE.NOW_PLAYING_ROUND_BRACKETS"
+          },
+          "options": [
+            {
+              "value": "round",
+              "label": "TRANSLATE.NOW_PLAYING_ROUND_BRACKETS"
+            },
+            {
+              "value": "square",
+              "label": "TRANSLATE.NOW_PLAYING_SQUARE_BRACKETS"
+            },
+            {
+              "value": "round+square",
+              "label": "TRANSLATE.NOW_PLAYING_ROUND_SQUARE_BRACKETS"
+            }
+          ]
+        },
+        {
+          "id": "clearMetadataCache",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_CLEAR_CACHE",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+                "endpoint": "user_interface/now_playing",
+                "method": "clearMetadataCache"
+            }
+          }
+        },
+        {
+          "id": "queryMusicServices",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_QUERY_MUSIC_SERVICES",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_QUERY_MUSIC_SERVICES",
+          "value": false
+        },
+        {
+          "id": "enableSyncedLyrics",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLE_SYNCED_LYRICS",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_ENABLE_SYNCED_LYRICS",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "section_weather_service",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_WEATHER_SERVICE",
+      "description": "TRANSLATE.NOW_PLAYING_WEATHER_SERVICE_DESC",
+      "icon": "fa-sun-o",
+      "content": [
+        {
+          "id": "clearWeatherCache",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_CLEAR_CACHE",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+                "endpoint": "user_interface/now_playing",
+                "method": "clearWeatherCache"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_startup_options",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_STARTUP_OPTIONS",
+      "icon": "fa-desktop",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveStartupOptions"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "activeScreen",
+          "activateIdleScreen"
+        ]
+      },
+      "content": [
+        {
+          "id": "activeScreen",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ACTIVE_SCREEN",
+          "value": {
+            "value": "nowPlaying.basicView", 
+            "label": "TRANSLATE.NOW_PLAYING_NP_BASIC"
+          },
+          "options": [
+            {
+              "value": "nowPlaying.basicView",
+              "label": "TRANSLATE.NOW_PLAYING_NP_BASIC"
+            },
+            {
+              "value": "nowPlaying.infoView",
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO_SONG"
+            },
+            {
+              "value": "nowPlaying.infoView.artist",
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO_ARTIST"
+            },
+            {
+              "value": "nowPlaying.infoView.album",
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO_ALBUM"
+            },
+            {
+              "value": "nowPlaying.infoView.lyrics",
+              "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LYRICS"
+            },
+            {
+              "value": "browse",
+              "label": "TRANSLATE.NOW_PLAYING_BROWSE"
+            },
+            {
+              "value": "volumio",
+              "label": "TRANSLATE.NOW_PLAYING_VOLUMIO"
+            }
+          ]
+        },
+        {
+          "id": "activateIdleScreen",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_START_WITH_IDLE_SCREEN",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "section_content_region",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_CONTENT_REGION",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveContentRegionSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "padding",
+          "npBasicViewPadding",
+          "npBasicViewPaddingPortrait",
+          "npInfoViewPadding",
+          "npInfoViewPaddingPortrait"
+        ]
+      },
+      "content": [
+        {
+          "id": "padding",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PADDING",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "npBasicViewPadding",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_BASIC_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "npBasicViewPaddingPortrait",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_BASIC_LI_PORTRAIT",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "npInfoViewPadding",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "npInfoViewPaddingPortrait",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_PADDING",
+          "label": "TRANSLATE.NOW_PLAYING_NP_INFO_LI_PORTRAIT",
+          "value": "",
+          "visibleIf": {
+            "field": "padding",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_layouts",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_LAYOUTS",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveLayouts"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "npInfoViewLayoutType",
+          "npInfoViewLayout",
+          "npInfoViewLayoutPreferBiggerAlbumArt"
+        ]
+      },
+      "content": [
+        {
+          "id": "npInfoViewLayoutType",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_NP_INFO",
+          "value": {
+            "value": "auto", 
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "npInfoViewLayoutPreferBiggerAlbumArt",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_PREFER_BIG_ART",
+          "value": false,
+          "visibleIf": {
+            "field": "npInfoViewLayoutType",
+            "value": "auto"
+          }
+        },
+        {
+          "id": "npInfoViewLayout",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_LAYOUT_LI",
+          "value": {
+            "value": "standard", 
+            "label": "TRANSLATE.NOW_PLAYING_STANDARD_LAYOUT"
+          },
+          "options": [
+            {
+              "value": "standard",
+              "label": "TRANSLATE.NOW_PLAYING_STANDARD_LAYOUT"
+            },
+            {
+              "value": "big-art",
+              "label": "TRANSLATE.NOW_PLAYING_BIG_ART_LAYOUT"
+            },
+            {
+              "value": "ultra-wide",
+              "label": "TRANSLATE.NOW_PLAYING_ULTRA_WIDE_LAYOUT"
+            }
+          ],
+          "visibleIf": {
+            "field": "npInfoViewLayoutType",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_text_styles",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_TEXT_STYLES",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveTextStyles"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "trackInfoVisibility",
+          "titleVisibility",
+          "artistVisibility",
+          "albumVisibility",
+          "mediaInfoVisibility",
+          "fontStyles",
+          "titleFontStyle",
+          "artistFontStyle",
+          "albumFontStyle",
+          "mediaInfoFontStyle",
+          "seekTimeFontStyle",
+          "metadataFontStyle",
+          "fontSizes",
+          "titleFontSize",
+          "artistFontSize",
+          "albumFontSize",
+          "mediaInfoFontSize",
+          "seekTimeFontSize",
+          "metadataFontSize",
+          "syncedLyricsCurrentLineFontSize",
+          "fontColors",
+          "titleFontColor",
+          "artistFontColor",
+          "albumFontColor",
+          "mediaInfoFontColor",
+          "seekTimeFontColor",
+          "metadataFontColor",
+          "syncedLyricsColor",
+          "syncedLyricsCurrentLineColor",
+          "textMargins",
+          "titleMargin",
+          "artistMargin",
+          "albumMargin",
+          "mediaInfoMargin",
+          "textAlignmentH",
+          "textAlignmentV",
+          "textAlignmentLyrics",
+          "maxLines",
+          "maxTitleLines",
+          "maxArtistLines",
+          "maxAlbumLines",
+          "trackInfoOrder",
+          "trackInfoTitleOrder",
+          "trackInfoArtistOrder",
+          "trackInfoAlbumOrder",
+          "trackInfoMediaInfoOrder",
+          "trackInfoMarqueeTitle"
+        ]
+      },
+      "content": [
+        {
+          "id": "trackInfoVisibility",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_VISIBILITY",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "titleVisibility",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": true,
+          "visibleIf": {
+            "field": "trackInfoVisibility",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "artistVisibility",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": true,
+          "visibleIf": {
+            "field": "trackInfoVisibility",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumVisibility",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": true,
+          "visibleIf": {
+            "field": "trackInfoVisibility",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "mediaInfoVisibility",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": true,
+          "visibleIf": {
+            "field": "trackInfoVisibility",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontStyles",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_FONT",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_STYLES",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "titleFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "artistFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "mediaInfoFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekTimeFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontStyle",
+          "type": "text",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": {
+            "value": "",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            }
+          ],
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "fontStyles",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontSizes",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_SIZES",
+          "value": {
+            "value": "auto", 
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "titleFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "artistFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "mediaInfoFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekTimeFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsCurrentLineFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_CURRENT_LINE",
+          "value": "",
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontColors",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_COLORS",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "titleFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "artistFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "mediaInfoFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekTimeFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_TIME",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "metadataFontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_METADATA",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsCurrentLineColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_CURRENT_LINE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "textMargins",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_MARGINS",
+          "value": {
+            "value": "auto", 
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "titleMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": "",
+          "visibleIf": {
+            "field": "textMargins",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "artistMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": "",
+          "visibleIf": {
+            "field": "textMargins",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": "",
+          "visibleIf": {
+            "field": "textMargins",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "mediaInfoMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": "",
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "textMargins",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "textAlignmentH",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALIGNMENT_H",
+          "value": {
+            "value": "left", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+          },
+          "options": [
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            }
+          ]
+        },
+        {
+          "id": "textAlignmentV",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALIGNMENT_V",
+          "value": {
+            "value": "flex-start", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+          },
+          "options": [
+            {
+              "value": "flex-start", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "flex-end", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "space-between", 
+              "label": "TRANSLATE.NOW_PLAYING_SPREAD"
+            }
+          ]
+        },
+        {
+          "id": "textAlignmentLyrics",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALIGNMENT_LYRICS",
+          "value": {
+            "value": "left", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+          },
+          "options": [
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            }
+          ]
+        },
+        {
+          "id": "maxLines",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_MAX_LINES",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_MAX_LINES",
+          "value": {
+            "value": "auto",
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "maxTitleLines",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": "",
+          "visibleIf": {
+            "field": "maxLines",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "maxArtistLines",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": "",
+          "visibleIf": {
+            "field": "maxLines",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "maxAlbumLines",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": "",
+          "visibleIf": {
+            "field": "maxLines",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoOrder",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_TRACK_INFO_ORDER",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRACK_INFO_ORDER",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "trackInfoTitleOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_TITLE",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoArtistOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_ARTIST",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoAlbumOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoMediaInfoOrder",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_MEDIA_INFO",
+          "value": "",
+          "visibleIf": {
+            "field": "trackInfoOrder",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "trackInfoMarqueeTitle",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRACK_INFO_MARQUEE_TITLE",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRACK_INFO_MARQUEE_TITLE",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "section_widget_styles",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_WIDGET_STYLES",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveWidgetStyles"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "widgetColors",
+          "widgetPrimaryColor",
+          "widgetHighlightColor",
+          "widgetVisibility",
+          "playbackButtonsVisibility",
+          "seekbarVisibility",
+          "playbackButtonSizeType",
+          "playbackButtonSize",
+          "seekbarStyling",
+          "seekbarThickness",
+          "seekbarBorderRadius",
+          "seekbarShowThumb",
+          "seekbarThumbSize",
+          "widgetMargins",
+          "playbackButtonsMargin",
+          "seekbarMargin"
+        ]
+      },
+      "content": [
+        {
+          "id": "widgetColors",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_WIDGET_COLORS",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "widgetPrimaryColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_PRIMARY",
+          "value": "",
+          "visibleIf": {
+            "field": "widgetColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "widgetHighlightColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_HIGHLIGHT",
+          "value": "",
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "widgetColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "widgetVisibility",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_WIDGET_VISIBILITY",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "playbackButtonsVisibility",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_PLAYBACK_BUTTONS",
+          "value": true,
+          "visibleIf": {
+            "field": "widgetVisibility",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarVisibility",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR",
+          "value": true,
+          "visibleIf": {
+            "field": "widgetVisibility",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "playbackButtonSizeType",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PLAYBACK_BUTTON_SIZE",
+          "value": {
+            "value": "auto", 
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "playbackButtonSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "playbackButtonSizeType",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarStyling",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_STYLING",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "seekbarThickness",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_HEIGHT",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_THICKNESS",
+          "value": "",
+          "visibleIf": {
+            "field": "seekbarStyling",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarBorderRadius",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BORDER_RADIUS",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_BORDER_RADIUS",
+          "value": "",
+          "visibleIf": {
+            "field": "seekbarStyling",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarShowThumb",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_SHOW_THUMB",
+          "value": true,
+          "visibleIf": {
+            "field": "seekbarStyling",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarThumbSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR_THUMB_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "seekbarStyling",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "widgetMargins",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_MARGINS",
+          "value": {
+            "value": "auto", 
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "playbackButtonsMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_PLAYBACK_BUTTONS",
+          "value": "",
+          "visibleIf": {
+            "field": "widgetMargins",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "seekbarMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_SEEK_BAR",
+          "value": "",
+          "visibleIf": {
+            "field": "widgetMargins",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_album_art_style",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_ALBUM_ART_STYLES",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveAlbumartStyles"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "albumartVisibility",
+          "albumartSize",
+          "albumartWidth",
+          "albumartHeight",
+          "albumartFit",
+          "albumartBorder",
+          "albumartBorderRadius",
+          "albumartMargin"
+        ]
+      },
+      "content": [
+        {
+          "id": "albumartVisibility",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM_ART_VISIBILITY",
+          "value": true
+        },
+        {
+          "id": "albumartSize",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM_ART_SIZE",
+          "value": {
+            "value": "auto", 
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "albumartWidth",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_WIDTH",
+          "label": "TRANSLATE.NOW_PLAYING_WIDTH",
+          "value": "",
+          "visibleIf": {
+            "field": "albumartSize",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumartHeight",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_HEIGHT",
+          "label": "TRANSLATE.NOW_PLAYING_HEIGHT",
+          "value": "",
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "albumartSize",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "albumartFit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ALBUM_ART_FIT",
+          "value": {
+            "value": "cover", 
+            "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+          },
+          "options": [
+            {
+              "value": "cover", 
+              "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+            },
+            {
+              "value": "contain",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_CONTAIN"
+            },
+            {
+              "value": "fill",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_FILL"
+            }
+          ]
+        },
+        {
+          "id": "albumartBorder",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BORDER",
+          "label": "TRANSLATE.NOW_PLAYING_BORDER",
+          "value": ""
+        },
+        {
+          "id": "albumartBorderRadius",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_ALBUM_ART_BORDER_RADIUS",
+          "label": "TRANSLATE.NOW_PLAYING_BORDER_RADIUS",
+          "value": ""
+        },
+        {
+          "id": "albumartMargin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "section_background_style",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_STYLES",
+      "icon": "fa-css3",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveBackgroundStyles"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "backgroundType",
+          "backgroundColor",
+          "albumartBackgroundFit",
+          "albumartBackgroundPosition",
+          "albumartBackgroundBlur",
+          "albumartBackgroundScale",
+          "volumioBackgroundImage",
+          "volumioBackgroundFit",
+          "volumioBackgroundPosition",
+          "volumioBackgroundBlur",
+          "volumioBackgroundScale",
+          "myBackgroundImage",
+          "myBackgroundRandomRefreshInterval",
+          "myBackgroundRandomRefreshOnTrackChange",
+          "myBackgroundFit",
+          "myBackgroundPosition",
+          "myBackgroundBlur",
+          "myBackgroundScale",
+          "backgroundOverlay",
+          "backgroundOverlayColor",
+          "backgroundOverlayColorOpacity",
+          "backgroundOverlayGradient",
+          "backgroundOverlayGradientOpacity"
+        ]
+      },
+      "content": [
+        {
+          "id": "backgroundType",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_TYPE",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "albumart", 
+              "label": "TRANSLATE.NOW_PLAYING_ALBUM_ART"
+            },
+            {
+              "value": "color",
+              "label": "TRANSLATE.NOW_PLAYING_COLOR"
+            },
+            {
+              "value": "volumioBackground",
+              "label": "TRANSLATE.NOW_PLAYING_VOLUMIO_BACKGROUND"
+            },
+            {
+              "value": "myBackground",
+              "label": "TRANSLATE.NOW_PLAYING_MY_BACKGROUND"
+            }
+          ]
+        },
+        {
+          "id": "backgroundColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BG_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "color"
+          }
+        },
+        {
+          "id": "albumartBackgroundFit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_FIT",
+          "value": {
+            "value": "cover", 
+            "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+          },
+          "options": [
+            {
+              "value": "cover", 
+              "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+            },
+            {
+              "value": "contain",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_CONTAIN"
+            },
+            {
+              "value": "fill",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_FILL"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "albumart"
+          }
+        },
+        {
+          "id": "albumartBackgroundPosition",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_POSITION",
+          "value": {
+            "value": "center", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+          },
+          "options": [
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "bottom", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "albumart"
+          }
+        },
+        {
+          "id": "albumartBackgroundBlur",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BLUR",
+          "label": "TRANSLATE.NOW_PLAYING_BLUR_RADIUS",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "albumart"
+          }
+        },
+        {
+          "id": "albumartBackgroundScale",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SCALE",
+          "label": "TRANSLATE.NOW_PLAYING_SCALE",
+          "value": "",
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "albumart"
+          }
+        },
+        {
+          "id": "volumioBackgroundImage",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_IMAGE",
+          "value": {
+            "value": "", 
+            "label": ""
+          },
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "volumioBackgroundFit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_FIT",
+          "value": {
+            "value": "cover", 
+            "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+          },
+          "options": [
+            {
+              "value": "cover", 
+              "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+            },
+            {
+              "value": "contain",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_CONTAIN"
+            },
+            {
+              "value": "fill",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_FILL"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "volumioBackgroundPosition",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_POSITION",
+          "value": {
+            "value": "center", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+          },
+          "options": [
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "bottom", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "volumioBackgroundBlur",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BLUR",
+          "label": "TRANSLATE.NOW_PLAYING_BLUR_RADIUS",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "volumioBackgroundScale",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SCALE",
+          "label": "TRANSLATE.NOW_PLAYING_SCALE",
+          "value": "",
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "myBackgroundImage",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_IMAGE",
+          "value": {
+            "value": "/RANDOM/", 
+            "label": "TRANSLATE.NOW_PLAYING_RANDOM"
+          },
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          },
+          "options": [
+            {
+              "value": "/RANDOM/", 
+              "label": "TRANSLATE.NOW_PLAYING_RANDOM"
+            }
+          ]
+        },
+        {
+          "id": "myBackgroundRandomRefreshInterval",
+          "element": "input",
+          "type": "number",
+          "label": "TRANSLATE.NOW_PLAYING_MY_BG_RND_REFRESH_INTERVAL",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_MY_BG_RND_REFRESH_INTERVAL",
+          "value": 0,
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundRandomRefreshOnTrackChange",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_MY_BG_RND_REFRESH_ON_TRACK",
+          "value": true,
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundFit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_FIT",
+          "value": {
+            "value": "cover", 
+            "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+          },
+          "options": [
+            {
+              "value": "cover", 
+              "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+            },
+            {
+              "value": "contain",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_CONTAIN"
+            },
+            {
+              "value": "fill",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_FILL"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundPosition",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_POSITION",
+          "value": {
+            "value": "center", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+          },
+          "options": [
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "bottom", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundBlur",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BLUR",
+          "label": "TRANSLATE.NOW_PLAYING_BLUR_RADIUS",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundScale",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SCALE",
+          "label": "TRANSLATE.NOW_PLAYING_SCALE",
+          "value": "",
+          "attributes": [
+            { "style": "margin-bottom: 32px;" }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "backgroundOverlay",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_OVERLAY",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default", 
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "customColor", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_COLOR"
+            },
+            {
+              "value": "customGradient", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_GRADIENT"
+            },
+            {
+              "value": "none", 
+              "label": "TRANSLATE.NOW_PLAYING_NONE"
+            }
+          ]
+        },
+        {
+          "id": "backgroundOverlayColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BG_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customColor"
+          }
+        },
+        {
+          "id": "backgroundOverlayColorOpacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customColor"
+          }
+        },
+        {
+          "id": "backgroundOverlayGradient",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_GRADIENT",
+          "label": "TRANSLATE.NOW_PLAYING_GRADIENT",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customGradient"
+          }
+        },
+        {
+          "id": "backgroundOverlayGradientOpacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customGradient"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_action_panel",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_ACTION_PANEL",
+      "icon": "fa-chevron-circle-down",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveActionPanelSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "showVolumeSlider"
+        ]
+      },
+      "content": [
+        {
+          "id": "showVolumeSlider",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_VOLUME_SLIDER",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "section_docked_menu",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_MENU",
+      "icon": "fa-ellipsis-v",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedMenuSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled",
+          "iconSettings",
+          "iconStyle",
+          "iconSize",
+          "margin"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": true
+        },
+        {
+          "id": "iconSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "iconStyle",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_STYLE",
+          "value": {
+            "value": "ellipsis_v",
+            "label": "TRANSLATE.NOW_PLAYING_ELLIPSIS_V"
+          },
+          "options": [
+            {
+              "value": "ellipsis_h",
+              "label": "TRANSLATE.NOW_PLAYING_ELLIPSIS_H"
+            },
+            {
+              "value": "ellipsis_v",
+              "label": "TRANSLATE.NOW_PLAYING_ELLIPSIS_V"
+            },
+            {
+              "value": "hamburger", 
+              "label": "TRANSLATE.NOW_PLAYING_HAMBURGER"
+            }
+          ],
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "margin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "section_docked_action_panel_trigger",
+      "element": "section",
+      "description": "TRANSLATE.NOW_PLAYING_ACTION_PANEL_TRIGGER_DESC",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_ACTION_PANEL_TRIGGER",
+      "icon": "fa-chevron-circle-down",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedActionPanelTriggerSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled",
+          "iconSettings",
+          "iconStyle",
+          "iconSize",
+          "iconColor",
+          "opacity",
+          "margin"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": true
+        },
+        {
+          "id": "iconSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "iconStyle",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_STYLE",
+          "value": {
+            "value": "expand_more",
+            "label": "TRANSLATE.NOW_PLAYING_CHEVRON"
+          },
+          "options": [
+            {
+              "value": "expand_more", 
+              "label": "TRANSLATE.NOW_PLAYING_CHEVRON"
+            },
+            {
+              "value": "expand_circle_down", 
+              "label": "TRANSLATE.NOW_PLAYING_CHEVRON_CIRCLE"
+            },
+            {
+              "value": "arrow_drop_down", 
+              "label": "TRANSLATE.NOW_PLAYING_CARET"
+            },
+            {
+              "value": "arrow_drop_down_circle", 
+              "label": "TRANSLATE.NOW_PLAYING_CARET_CIRCLE"
+            },
+            {
+              "value": "arrow_downward", 
+              "label": "TRANSLATE.NOW_PLAYING_ARROW"
+            },
+            {
+              "value": "arrow_circle_down",
+              "label": "TRANSLATE.NOW_PLAYING_ARROW_CIRCLE"
+            }
+          ],
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_COLOR_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "opacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY",
+          "value": ""
+        },
+        {
+          "id": "margin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "section_docked_volume_indicator",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_VOLUME_INDICATOR",
+      "icon": "fa-volume-up",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedVolumeIndicatorSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled",
+          "placement",
+          "displayOrder",
+          "fontSettings",
+          "fontSize",
+          "fontSizePercentSymbol",
+          "fontColor",
+          "iconSettings",
+          "iconSize",
+          "iconColor",
+          "margin",
+          "showVolumeBarOnClick",
+          "volumeBarPosition",
+          "volumeBarOrientation"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": false
+        },
+        {
+          "id": "placement",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PLACEMENT",
+          "value": {
+            "value": "bottom-right", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+          },
+          "options": [
+            {
+              "value": "top-left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_LEFT"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "top-right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_RIGHT"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "bottom-left",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_LEFT"
+            },
+            {
+              "value": "bottom",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "bottom-right",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+            }
+          ]
+        },
+        {
+          "id": "displayOrder",
+          "type": "number",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DOCK_COMPONENT_ORDER",
+          "label": "TRANSLATE.NOW_PLAYING_DOCK_COMPONENT_ORDER",
+          "value": ""
+        },
+        {
+          "id": "fontSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "fontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontSizePercentSymbol",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE_PERCENT_SYMBOL",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_COLOR_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "iconSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_COLOR_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "margin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": ""
+        },
+        {
+          "id": "showVolumeBarOnClick",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_ON_CLICK",
+          "value": false
+        },
+        {
+          "id": "volumeBarPosition",
+          "element": "select",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_POSITION",
+          "value": {
+            "value": "center",
+            "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_CENTER"
+          },
+          "options": [
+            {
+              "value": "center",
+              "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_CENTER"
+            },
+            {
+              "value": "anchored",
+              "label": "TRANSLATE.NOW_PLAYING_VOL_BAR_ANCHORED"
+            }
+          ],
+          "visibleIf": {
+            "field": "showVolumeBarOnClick",
+            "value": true
+          }
+        },
+        {
+          "id": "volumeBarOrientation",
+          "element": "select",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ORIENTATION",
+          "value": {
+            "value": "horizontal",
+            "label": "TRANSLATE.NOW_PLAYING_HORIZONTAL"
+          },
+          "options": [
+            {
+              "value": "horizontal",
+              "label": "TRANSLATE.NOW_PLAYING_HORIZONTAL"
+            },
+            {
+              "value": "vertical",
+              "label": "TRANSLATE.NOW_PLAYING_VERTICAL"
+            }
+          ],
+          "visibleIf": {
+            "field": "showVolumeBarOnClick",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_docked_clock",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_CLOCK",
+      "icon": "fa-clock-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedClockSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled",
+          "placement",
+          "displayOrder",
+          "showInfo",
+          "fontSettings",
+          "fontSize",
+          "dateColor",
+          "timeColor",
+          "dateFormat",
+          "yearFormat",
+          "monthFormat",
+          "dayFormat",
+          "dayOfWeekFormat",
+          "timeFormat",
+          "hourFormat",
+          "hour24",
+          "showSeconds",
+          "margin"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": false
+        },
+        {
+          "id": "placement",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PLACEMENT",
+          "value": {
+            "value": "bottom-right", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+          },
+          "options": [
+            {
+              "value": "top-left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_LEFT"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "top-right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_RIGHT"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "bottom-left",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_LEFT"
+            },
+            {
+              "value": "bottom",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "bottom-right",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+            }
+          ]
+        },
+        {
+          "id": "displayOrder",
+          "type": "number",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DOCK_COMPONENT_ORDER",
+          "label": "TRANSLATE.NOW_PLAYING_DOCK_COMPONENT_ORDER",
+          "value": ""
+        },
+        {
+          "id": "showInfo",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW",
+          "value": {
+            "value": "dateTime", 
+            "label": "TRANSLATE.NOW_PLAYING_DATE_TIME"
+          },
+          "options": [
+            {
+              "value": "dateTime", 
+              "label": "TRANSLATE.NOW_PLAYING_DATE_TIME"
+            },
+            {
+              "value": "time", 
+              "label": "TRANSLATE.NOW_PLAYING_TIME_ONLY"
+            },
+            {
+              "value": "date", 
+              "label": "TRANSLATE.NOW_PLAYING_DATE_ONLY"
+            }
+          ]
+        },
+        {
+          "id": "fontSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "fontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "dateColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_DATE_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "timeColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_TIME_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "dateFormat",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_DATE_FORMAT",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "yearFormat",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DATE_TIME_FORMAT",
+          "label": "TRANSLATE.NOW_PLAYING_YEAR",
+          "value": {
+            "value": "none", 
+            "label": "TRANSLATE.NOW_PLAYING_NONE"
+          },
+          "options": [
+            {
+              "value": "none", 
+              "label": "TRANSLATE.NOW_PLAYING_NONE"
+            },
+            {
+              "value": "numeric", 
+              "label": "TRANSLATE.NOW_PLAYING_NUMERIC_YEAR"
+            },
+            {
+              "value": "2-digit",
+              "label": "TRANSLATE.NOW_PLAYING_2DIGIT_YEAR"
+            }
+          ],
+          "visibleIf": {
+            "field": "dateFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "monthFormat",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DATE_TIME_FORMAT",
+          "label": "TRANSLATE.NOW_PLAYING_MONTH",
+          "value": {
+            "value": "short", 
+            "label": "TRANSLATE.NOW_PLAYING_SHORT_MONTH"
+          },
+          "options": [
+            {
+              "value": "numeric", 
+              "label": "TRANSLATE.NOW_PLAYING_NUMERIC_MONTH"
+            },
+            {
+              "value": "2-digit",
+              "label": "TRANSLATE.NOW_PLAYING_2DIGIT_MONTH"
+            },
+            {
+              "value": "long",
+              "label": "TRANSLATE.NOW_PLAYING_LONG_MONTH"
+            },
+            {
+              "value": "short",
+              "label": "TRANSLATE.NOW_PLAYING_SHORT_MONTH"
+            }
+          ],
+          "visibleIf": {
+            "field": "dateFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "dayFormat",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DATE_TIME_FORMAT",
+          "label": "TRANSLATE.NOW_PLAYING_DAY",
+          "value": {
+            "value": "numeric", 
+            "label": "TRANSLATE.NOW_PLAYING_NUMERIC_DAY"
+          },
+          "options": [
+            {
+              "value": "numeric", 
+              "label": "TRANSLATE.NOW_PLAYING_NUMERIC_DAY"
+            },
+            {
+              "value": "2-digit",
+              "label": "TRANSLATE.NOW_PLAYING_2DIGIT_DAY"
+            }
+          ],
+          "visibleIf": {
+            "field": "dateFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "dayOfWeekFormat",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DATE_TIME_FORMAT",
+          "label": "TRANSLATE.NOW_PLAYING_DAY_OF_WEEK",
+          "value": {
+            "value": "none", 
+            "label": "TRANSLATE.NOW_PLAYING_NONE"
+          },
+          "options": [
+            {
+              "value": "none", 
+              "label": "TRANSLATE.NOW_PLAYING_NONE"
+            },
+            {
+              "value": "long",
+              "label": "TRANSLATE.NOW_PLAYING_LONG_DAY_OF_WEEK"
+            },
+            {
+              "value": "short",
+              "label": "TRANSLATE.NOW_PLAYING_SHORT_DAY_OF_WEEK"
+            }
+          ],
+          "visibleIf": {
+            "field": "dateFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "timeFormat",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_TIME_FORMAT",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "hourFormat",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DATE_TIME_FORMAT",
+          "label": "TRANSLATE.NOW_PLAYING_HOUR",
+          "value": {
+            "value": "numeric", 
+            "label": "TRANSLATE.NOW_PLAYING_NUMERIC_HOUR"
+          },
+          "options": [
+            {
+              "value": "numeric", 
+              "label": "TRANSLATE.NOW_PLAYING_NUMERIC_HOUR"
+            },
+            {
+              "value": "2-digit",
+              "label": "TRANSLATE.NOW_PLAYING_2DIGIT_HOUR"
+            }
+          ],
+          "visibleIf": {
+            "field": "timeFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "hour24",
+          "element": "switch",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DATE_TIME_FORMAT",
+          "label": "TRANSLATE.NOW_PLAYING_HOUR_24",
+          "value": false,
+          "visibleIf": {
+            "field": "timeFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "showSeconds",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_SECONDS",
+          "value": false,
+          "visibleIf": {
+            "field": "timeFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "margin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "section_docked_weather",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_WEATHER",
+      "icon": "fa-sun-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedWeatherSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled",
+          "placement",
+          "displayOrder",
+          "showHumidity",
+          "showWindSpeed",
+          "fontSettings",
+          "fontSize",
+          "fontColor",
+          "iconSettings",
+          "iconStyle",
+          "iconSize",
+          "iconMonoColor",
+          "iconAnimate",
+          "margin"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": false
+        },
+        {
+          "id": "placement",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PLACEMENT",
+          "value": {
+            "value": "bottom-right", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+          },
+          "options": [
+            {
+              "value": "top-left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_LEFT"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "top-right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_RIGHT"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "bottom-left",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_LEFT"
+            },
+            {
+              "value": "bottom",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "bottom-right",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+            }
+          ]
+        },
+        {
+          "id": "displayOrder",
+          "type": "number",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DOCK_COMPONENT_ORDER",
+          "label": "TRANSLATE.NOW_PLAYING_DOCK_COMPONENT_ORDER",
+          "value": ""
+        },
+        {
+          "id": "showHumidity",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_HUMIDITY",
+          "value": false
+        },
+        {
+          "id": "showWindSpeed",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_WIND_SPEED",
+          "value": false
+        },
+        {
+          "id": "fontSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "fontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_COLOR_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "iconStyle",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_STYLE",
+          "value": {
+            "value": "filled", 
+            "label": "TRANSLATE.NOW_PLAYING_FILLED"
+          },
+          "options": [
+            {
+              "value": "filled", 
+              "label": "TRANSLATE.NOW_PLAYING_FILLED"
+            },
+            {
+              "value": "outline", 
+              "label": "TRANSLATE.NOW_PLAYING_OUTLINE"
+            },
+            {
+              "value": "mono", 
+              "label": "TRANSLATE.NOW_PLAYING_MONOCHROME"
+            }
+          ],
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconSize",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconMonoColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_MONO_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "iconAnimate",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_ICON_ANIMATE",
+          "value": false,
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "margin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_docked_media_format",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_DOCKED_MEDIA_FORMAT",
+      "icon": "fa-music",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveDockedMediaFormatSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled",
+          "placement",
+          "displayOrder",
+          "fontSettings",
+          "fontSize",
+          "fontColor",
+          "margin"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "switch",
+          "doc": "",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": false
+        },
+        {
+          "id": "placement",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_PLACEMENT",
+          "value": {
+            "value": "bottom-right", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+          },
+          "options": [
+            {
+              "value": "top-left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_LEFT"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "top-right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP_RIGHT"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "bottom-left",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_LEFT"
+            },
+            {
+              "value": "bottom",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "bottom-right",
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM_RIGHT"
+            }
+          ]
+        },
+        {
+          "id": "displayOrder",
+          "type": "number",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DOCK_COMPONENT_ORDER",
+          "label": "TRANSLATE.NOW_PLAYING_DOCK_COMPONENT_ORDER",
+          "value": ""
+        },
+        {
+          "id": "fontSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "fontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_COLOR_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "margin",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_MARGIN",
+          "label": "TRANSLATE.NOW_PLAYING_MARGIN",
+          "value": "",
+          "visibleIf": {
+            "field": "iconSettings",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_idle_view",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_IDLE_SCREEN",
+      "icon": "fa-lightbulb-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveIdleScreenSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "enabled",
+          "waitTime",
+          "showLocation",
+          "showWeather",
+          "mainAlignment",
+          "mainAlignmentCycleInterval",
+          "timeFormat",
+          "hour24",
+          "showSeconds",
+          "fontSizes",
+          "timeFontSize",
+          "dateFontSize",
+          "locationFontSize",
+          "weatherCurrentBaseFontSize",
+          "weatherForecastBaseFontSize",
+          "fontColors",
+          "timeColor",
+          "dateColor",
+          "locationColor",
+          "weatherCurrentColor",
+          "weatherForecastColor",
+          "weatherIconSettings",
+          "weatherIconStyle",
+          "weatherCurrentIconSize",
+          "weatherForecastIconSize",
+          "weatherCurrentIconMonoColor",
+          "weatherForecastIconMonoColor",
+          "weatherCurrentIconAnimate",
+          "backgroundType",
+          "backgroundColor",
+          "volumioBackgroundImage",
+          "volumioBackgroundFit",
+          "volumioBackgroundPosition",
+          "volumioBackgroundBlur",
+          "volumioBackgroundScale",
+          "myBackgroundImage",
+          "myBackgroundRandomRefreshInterval",
+          "myBackgroundFit",
+          "myBackgroundPosition",
+          "myBackgroundBlur",
+          "myBackgroundScale",
+          "unsplashKeywords",
+          "unsplashKeywordsAppendDayPeriod",
+          "unsplashMatchScreenSize",
+          "unsplashRefreshInterval",
+          "unsplashBackgroundBlur",
+          "backgroundOverlay",
+          "backgroundOverlayColor",
+          "backgroundOverlayColorOpacity",
+          "backgroundOverlayGradient",
+          "backgroundOverlayGradientOpacity",
+          "weatherBackground",
+          "weatherBackgroundColor",
+          "weatherBackgroundColorOpacity",
+          "weatherBackgroundGradient",
+          "weatherBackgroundGradientOpacity",
+          "weatherAreaHeightType",
+          "weatherAreaHeight"
+        ]
+      },
+      "content": [
+        {
+          "id": "enabled",
+          "element": "select",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_IDLE_SCREEN",
+          "label": "TRANSLATE.NOW_PLAYING_ENABLED",
+          "value": {
+            "value": "kiosk",
+            "label": "TRANSLATE.NOW_PLAYING_KIOSK_ONLY"
+          },
+          "options": [
+            {
+              "value": "kiosk",
+              "label": "TRANSLATE.NOW_PLAYING_KIOSK_ONLY"
+            },
+            {
+              "value": "all",
+              "label": "TRANSLATE.NOW_PLAYING_ALL_CLIENTS"
+            },
+            {
+              "value": "disabled",
+              "label": "TRANSLATE.NOW_PLAYING_DISABLED"
+            }
+          ]
+        },
+        {
+          "id": "waitTime",
+          "type": "number",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_IDLE_SCREEN_WAIT_TIME",
+          "label": "TRANSLATE.NOW_PLAYING_WAIT_TIME",
+          "value": 30
+        },
+        {
+          "id": "showLocation",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_LOCATION",
+          "value": true
+        },
+        {
+          "id": "showWeather",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_WEATHER",
+          "value": true
+        },
+        {
+          "id": "mainAlignment",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_IDLE_SCREEN_MAIN_ALIGNMENT",
+          "value": {
+            "value": "flex-start", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+          },
+          "options": [
+            {
+              "value": "flex-start", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "flex-end", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            },
+            {
+              "value": "cycle", 
+              "label": "TRANSLATE.NOW_PLAYING_CYCLE"
+            }
+          ]
+        },
+        {
+          "id": "mainAlignmentCycleInterval",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_CYCLE_INTERVAL",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CYCLE_INTERVAL_ALIGNMENT",
+          "value": "",
+          "visibleIf": {
+            "field": "mainAlignment",
+            "value": "cycle"
+          }
+        },
+        {
+          "id": "timeFormat",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_TIME_FORMAT",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "hour24",
+          "element": "switch",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_DATE_TIME_FORMAT",
+          "label": "TRANSLATE.NOW_PLAYING_HOUR_24",
+          "value": false,
+          "visibleIf": {
+            "field": "timeFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "showSeconds",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_SHOW_SECONDS",
+          "value": false,
+          "visibleIf": {
+            "field": "timeFormat",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontSizes",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_SIZES",
+          "value": {
+            "value": "auto",
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "timeFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_TIME",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "dateFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_DATE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "locationFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_LOCATION",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherCurrentBaseFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_CURRENT",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherForecastBaseFontSize",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_FONT_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_FORECAST",
+          "value": "",
+          "visibleIf": {
+            "field": "fontSizes",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "fontColors",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_FONT_COLORS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "timeColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_TIME",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "dateColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_DATE",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "locationColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_LOCATION",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherCurrentColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_CURRENT",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherForecastColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_FORECAST",
+          "value": "",
+          "visibleIf": {
+            "field": "fontColors",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherIconSettings",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_ICON_SETTINGS",
+          "value": {
+            "value": "default",
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "weatherIconStyle",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_STYLE",
+          "value": {
+            "value": "filled", 
+            "label": "TRANSLATE.NOW_PLAYING_FILLED"
+          },
+          "options": [
+            {
+              "value": "filled", 
+              "label": "TRANSLATE.NOW_PLAYING_FILLED"
+            },
+            {
+              "value": "outline", 
+              "label": "TRANSLATE.NOW_PLAYING_OUTLINE"
+            },
+            {
+              "value": "mono", 
+              "label": "TRANSLATE.NOW_PLAYING_MONOCHROME"
+            }
+          ],
+          "visibleIf": {
+            "field": "weatherIconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherCurrentIconSize",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_CURRENT_ICON_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherIconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherForecastIconSize",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_FORECAST_ICON_SIZE",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherIconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherCurrentIconMonoColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_CURRENT_ICON_MONO_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherIconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherForecastIconMonoColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_FORECAST_ICON_MONO_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherIconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "weatherCurrentIconAnimate",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_CURRENT_ICON_ANIMATE",
+          "value": true,
+          "visibleIf": {
+            "field": "weatherIconSettings",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "backgroundType",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_TYPE",
+          "value": {
+            "value": "unsplash",
+            "label": "TRANSLATE.NOW_PLAYING_UNSPLASH"
+          },
+          "options": [
+            {
+              "value": "unsplash",
+              "label": "TRANSLATE.NOW_PLAYING_UNSPLASH"
+            },
+            {
+              "value": "color",
+              "label": "TRANSLATE.NOW_PLAYING_COLOR"
+            },
+            {
+              "value": "volumioBackground",
+              "label": "TRANSLATE.NOW_PLAYING_VOLUMIO_BACKGROUND"
+            },
+            {
+              "value": "myBackground",
+              "label": "TRANSLATE.NOW_PLAYING_MY_BACKGROUND"
+            }
+          ]
+        },
+        {
+          "id": "backgroundColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BG_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "color"
+          }
+        },
+        {
+          "id": "volumioBackgroundImage",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_IMAGE",
+          "value": {
+            "value": "", 
+            "label": ""
+          },
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "volumioBackgroundFit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_FIT",
+          "value": {
+            "value": "cover", 
+            "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+          },
+          "options": [
+            {
+              "value": "cover", 
+              "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+            },
+            {
+              "value": "contain",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_CONTAIN"
+            },
+            {
+              "value": "fill",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_FILL"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "volumioBackgroundPosition",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_POSITION",
+          "value": {
+            "value": "center", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+          },
+          "options": [
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "bottom", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "volumioBackgroundBlur",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BLUR",
+          "label": "TRANSLATE.NOW_PLAYING_BLUR_RADIUS",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "volumioBackgroundScale",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SCALE",
+          "label": "TRANSLATE.NOW_PLAYING_SCALE",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "volumioBackground"
+          }
+        },
+        {
+          "id": "myBackgroundImage",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_IMAGE",
+          "value": {
+            "value": "/RANDOM/", 
+            "label": "TRANSLATE.NOW_PLAYING_RANDOM"
+          },
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          },
+          "options": [
+            {
+              "value": "/RANDOM/", 
+              "label": "TRANSLATE.NOW_PLAYING_RANDOM"
+            }
+          ]
+        },
+        {
+          "id": "myBackgroundRandomRefreshInterval",
+          "element": "input",
+          "type": "number",
+          "label": "TRANSLATE.NOW_PLAYING_MY_BG_RND_REFRESH_INTERVAL",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_MY_BG_RND_REFRESH_INTERVAL",
+          "value": 10,
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundFit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_FIT",
+          "value": {
+            "value": "cover", 
+            "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+          },
+          "options": [
+            {
+              "value": "cover", 
+              "label": "TRANSLATE.NOW_PLAYING_FIT_COVER"
+            },
+            {
+              "value": "contain",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_CONTAIN"
+            },
+            {
+              "value": "fill",
+              "label": "TRANSLATE.NOW_PLAYING_FIT_FILL"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundPosition",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_POSITION",
+          "value": {
+            "value": "center", 
+            "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+          },
+          "options": [
+            {
+              "value": "center", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_CENTER"
+            },
+            {
+              "value": "top", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_TOP"
+            },
+            {
+              "value": "left", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_LEFT"
+            },
+            {
+              "value": "bottom", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_BOTTOM"
+            },
+            {
+              "value": "right", 
+              "label": "TRANSLATE.NOW_PLAYING_POSITION_RIGHT"
+            }
+          ],
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundBlur",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BLUR",
+          "label": "TRANSLATE.NOW_PLAYING_BLUR_RADIUS",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "myBackgroundScale",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_SCALE",
+          "label": "TRANSLATE.NOW_PLAYING_SCALE",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "myBackground"
+          }
+        },
+        {
+          "id": "unsplashKeywords",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_UNSPLASH_KEYWORDS",
+          "label": "TRANSLATE.NOW_PLAYING_UNSPLASH_KEYWORDS",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "unsplash"
+          }
+        },
+        {
+          "id": "unsplashKeywordsAppendDayPeriod",
+          "element": "switch",
+          "doc": "NOW_PLAYING_DOC_UNSPLASH_KEYWORDS_APPEND_DAY_PERIOD",
+          "label": "TRANSLATE.NOW_PLAYING_UNSPLASH_KEYWORDS_APPEND_DAY_PERIOD",
+          "value": false,
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "unsplash"
+          }
+        },
+        {
+          "id": "unsplashMatchScreenSize",
+          "element": "switch",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_UNSPLASH_MATCH_SCREEN_SIZE",
+          "label": "TRANSLATE.NOW_PLAYING_UNSPLASH_MATCH_SCREEN_SIZE",
+          "value": true,
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "unsplash"
+          }
+        },
+        {
+          "id": "unsplashRefreshInterval",
+          "type": "number",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_UNSPLASH_REFRESH_INTERVAL",
+          "label": "TRANSLATE.NOW_PLAYING_UNSPLASH_REFRESH_INTERVAL",
+          "value": 10,
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "unsplash"
+          }
+        },
+        {
+          "id": "unsplashBackgroundBlur",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BLUR",
+          "label": "TRANSLATE.NOW_PLAYING_BLUR_RADIUS",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundType",
+            "value": "unsplash"
+          }
+        },
+        {
+          "id": "backgroundOverlay",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_OVERLAY",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default", 
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "customColor", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_COLOR"
+            },
+            {
+              "value": "customGradient", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_GRADIENT"
+            },
+            {
+              "value": "none", 
+              "label": "TRANSLATE.NOW_PLAYING_NONE"
+            }
+          ]
+        },
+        {
+          "id": "backgroundOverlayColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BG_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customColor"
+          }
+        },
+        {
+          "id": "backgroundOverlayColorOpacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customColor"
+          }
+        },
+        {
+          "id": "backgroundOverlayGradient",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_GRADIENT",
+          "label": "TRANSLATE.NOW_PLAYING_GRADIENT",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customGradient"
+          }
+        },
+        {
+          "id": "backgroundOverlayGradientOpacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "backgroundOverlay",
+            "value": "customGradient"
+          }
+        },
+        {
+          "id": "weatherBackground",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_BACKGROUND",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default", 
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "customColor", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_COLOR"
+            },
+            {
+              "value": "customGradient", 
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM_GRADIENT"
+            },
+            {
+              "value": "none", 
+              "label": "TRANSLATE.NOW_PLAYING_NONE"
+            }
+          ]
+        },
+        {
+          "id": "weatherBackgroundColor",
+          "type": "color",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_BG_COLOR",
+          "label": "TRANSLATE.NOW_PLAYING_BACKGROUND_COLOR",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherBackground",
+            "value": "customColor"
+          }
+        },
+        {
+          "id": "weatherBackgroundColorOpacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherBackground",
+            "value": "customColor"
+          }
+        },
+        {
+          "id": "weatherBackgroundGradient",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_GRADIENT",
+          "label": "TRANSLATE.NOW_PLAYING_GRADIENT",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherBackground",
+            "value": "customGradient"
+          }
+        },
+        {
+          "id": "weatherBackgroundGradientOpacity",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_OPACITY",
+          "label": "TRANSLATE.NOW_PLAYING_OPACITY_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherBackground",
+            "value": "customGradient"
+          }
+        },
+        {
+          "id": "weatherAreaHeightType",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_WEATHER_AREA_HEIGHT",
+          "value": {
+            "value": "auto", 
+            "label": "TRANSLATE.NOW_PLAYING_AUTO"
+          },
+          "options": [
+            {
+              "value": "auto",
+              "label": "TRANSLATE.NOW_PLAYING_AUTO"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "weatherAreaHeight",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CSS_HEIGHT",
+          "label": "TRANSLATE.NOW_PLAYING_HEIGHT",
+          "value": "",
+          "visibleIf": {
+            "field": "weatherAreaHeightType",
+            "value": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_extra_screens",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_EXTRA_SCREENS",
+      "icon": "fa-television",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSaveExtraScreenSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "theme"
+        ]
+      },
+      "content": [
+        {
+          "id": "theme",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_THEME",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default", 
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "glass",
+              "label": "TRANSLATE.NOW_PLAYING_GLASS"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_kiosk",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_KIOSK",
+      "icon": "fa-television"
+    },
+    {
+      "id": "section_performance",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_PERFORMANCE",
+      "icon": "fa-bolt",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configSavePerformanceSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_SAVE",
+        "data": [
+          "transitionEffectsKiosk",
+          "transitionEffectsOtherDevices",
+          "unmountScreensOnExit",
+          "unmountNowPlayingScreenOnExit",
+          "unmountBrowseScreenOnExit",
+          "unmountQueueScreenOnExit",
+          "unmountVolumioScreenOnExit",
+          "syncedLyricsDelay"
+        ]
+      },
+      "content": [
+        {
+          "id": "transitionEffectsKiosk",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRANSITION_EFFECTS_KIOSK",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRANSITION_EFFECTS",
+          "value": false
+        },
+        {
+          "id": "transitionEffectsOtherDevices",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_TRANSITION_EFFECTS_OTHER",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_TRANSITION_EFFECTS",
+          "value": true
+        },
+        {
+          "id": "unmountScreensOnExit",
+          "element": "select",
+          "label": "TRANSLATE.NOW_PLAYING_UNMOUNT_SCREENS",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_UNMOUNT_SCREENS",
+          "value": {
+            "value": "default", 
+            "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+          },
+          "options": [
+            {
+              "value": "default",
+              "label": "TRANSLATE.NOW_PLAYING_DEFAULT"
+            },
+            {
+              "value": "custom",
+              "label": "TRANSLATE.NOW_PLAYING_CUSTOM"
+            }
+          ]
+        },
+        {
+          "id": "unmountNowPlayingScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_NP_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountBrowseScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_BROWSE_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountQueueScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_QUEUE_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "unmountVolumioScreenOnExit",
+          "element": "switch",
+          "label": "TRANSLATE.NOW_PLAYING_VOLUMIO_LI",
+          "value": "",
+          "visibleIf": {
+            "field": "unmountScreensOnExit",
+            "value": "custom"
+          }
+        },
+        {
+          "id": "syncedLyricsDelay",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.NOW_PLAYING_SYNCED_LYRICS_DELAY",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_SYNCED_LYRICS_DELAY",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "section_backup_config",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_BACKUP_CONFIG",
+      "icon": "fa-file-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/now_playing",
+        "method": "configBackupConfig"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.NOW_PLAYING_CREATE_BACKUP",
+        "data": [
+          "backupName"
+        ]
+      },
+      "content": [
+        {
+          "id": "backupName",
+          "element": "input",
+          "type": "text",
+          "label": "TRANSLATE.NOW_PLAYING_CREATE_NEW_BACKUP",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_CREATE_NEW_BACKUP",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "section_other",
+      "element": "section",
+      "label": "TRANSLATE.NOW_PLAYING_OTHER",
+      "icon": "fa-cog",
+      "content": [
+        {
+          "id": "broadcastRefresh",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_BROADCAST_REFRESH",
+          "doc": "TRANSLATE.NOW_PLAYING_DOC_BROADCAST_REFRESH",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+                "endpoint": "user_interface/now_playing",
+                "method": "broadcastRefresh"
+            }
+          }
+        },
+        {
+          "id": "viewReadme",
+          "element": "button",
+          "label": "TRANSLATE.NOW_PLAYING_VIEW_README",
+          "onClick": {
+              "type": "openUrl",
+              "url": "https://github.com/patrickkfkan/volumio-now-playing#readme"
+          }
+        }
+      ]
+    }
+  ]
+}

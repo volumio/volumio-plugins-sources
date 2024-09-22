@@ -1,0 +1,45 @@
+{
+    "NAME": "EVO SABRE PLUGIN",
+    "PLUGIN_CONFIGURATION": "EVO SABRE",
+    "SAVE": "Sauvegarder",
+    "UI": {
+        "OLED_CONTRAST_DOC": "Changer le contraste de l'écran OLED#2.<br>La valeur doit être comprise entre 0-255.",
+        "OLED_CONTRAST_LABEL": "Contraste",
+        "OLED_SCREENSAVER_DOC": "Combien de temps (en secondes) l'écran OLED#2 affiche l'heure et la date avant d'afficher l'économiseur d'écran si aucune piste n'est en cours de lecture.",
+        "OLED_SCREENSAVER_LABEL": "Économiseur d'écran.",
+        "OLED_DEEPSLEEP_DOC": "Combien de temps (en secondes) l'écran OLED#2 affiche l'économiseur d'écran avant d'entrer en mode veille.<br>Désactive l'économiseur d'écran si sa valeur est 0.",
+        "OLED_DEEPSLEEP_LABEL": "Veille",
+        "OLED_RESTART_LABEL": "Redémarrer l'écran OLED#2",
+        "OLED_RESTART_DOC": "Cliquer ici pour redémarrer le script d'écran OLED#2.", 
+		"OLED_ENABLE": "Activer OLED#2",
+		"OLED_ENABLE_DOC": "Active/désactive l'écran secondaire Volumio 3 (écran de droite).",
+		"CONFIG_UPDATE": "Mise à jour de la configuration effectuée.",
+		"CONFIG_NOCHANGE": "Aucun changement dans la nouvelle configuration.",
+		"REMOTE_ENABLE": "Activer télécommande",
+		"REMOTE_ENABLE_DOC": "Active/désactive la couche logicielle télécommande (controle de la lecture). Les fonctions du DAC (source, volume) sont gérés par le circuit et ne peuvent pas être désactivés.",
+		"REMOTE_DIAGNOSE": "Vérifier statut télécommande",
+		"REMOTE_DIAGNOSE_DOC": "Cliquer ici pour interroger le système et diagnostiquer le service de la télécommande.",
+		"REMOTE_DIAGNOSE_OK": "Configuration de la télécommande OK",
+		"REMOTE_DIAGNOSE_REMOTE_DETECTED": "LIRC communique avec le modèle correct de télécommande." ,
+		"OPEN_PLUGDOC" : "Aide pour configurer le Evo Sabre",
+		"OPEN_PLUGDOC_DOC" : "Cliquer ici pour ouvrir l'aide à la configuration de votre Evo Sabre."
+    },
+    "ERRORS": { 
+        "SYSTEMD_FAIL": "Echec lors du démarrage du service",
+		"REMOTE_DIAGNOSE_DISABLED" : "Vous devez activer le service de la télécommande avant de pouvoir le diagnostiquer. La première installation de ce plugin a également besoin d'un redémarrage système.",
+		"REMOTE_DIAGNOSE_ERROR" : "Erreur fatale dans le service télécommande. Tentez de redémarrer votre Evo Sabre et réinstallez ce plugin si le problème persiste.",
+		"REMOTE_DIAGNOSE_CONFLICT" : "La configuration de la télécommande est dégradée. Tentez de redémarrer votre Evo Sabre et voyez si le problème persiste. Le cas échéant réinstallez le plugin et vérifiez qu'aucun autre plugin ne sollicite le service de la télécommande (LIRC)."
+    },
+	"DOCUMENTATION": {
+		"title" : "Configurer votre Evo Sabre pour Volumio",
+		"intro" : "Merci d'utiliser ce plugin pour votre Evo Sabre.<br>En l'installant et en l'activant, l'écran de droite et la télécommande ont été automatiquement configurés et peuvent désormais être activés / désactivés depuis cette page de configuration. Notez que la télécommande ne sera entièrement fonctionnelle qu'après un premier redémarrage systeme.",
+		"conf" :  "Pour finaliser la configuration et obtenir le meilleur son, veuillez suivre les indications ci-dessous avant de commencer vos sessions d'écoute",
+		"dac" :  "Si cela n'a pas déjà été fait pendant la configuration initiale de Volumio, configurez le système pour utiliser le DAC ES9038 en sortie audio. Pour ce faire, allez dans Réglages -> Options de lecture -> Sortie Audio (<a href=\"plugin/audio_interface-alsa_controller\">ici</a>) et mettez l'option I2S DAC sur \"ON\". Puis sélectionnez \"Audiophonics I-Sabre ES9028Q2M\" dans le menu déroulant  \"DAC MODEL \"." ,
+		"dsd" :  "Dans Réglages -> Options de lecture -> Options de lecture générales ->Mode de lecture DSD, selectionnez DSD sur PCM (DOP)",
+		"vol" : "Dans Réglages -> Options de lecture -> Options de Volume -> Type de Mixeur, choisissez \"Matériel\". Puis indiquez \"Digital\" dans le champ \"Nom du Mixeur\".",
+		"mpd" :  "Nous recommandons d'activer le \"Contrôle du volume par les clients MPD\"(également dans Réglages -> Options de lecture -> Options de Volume)",
+		"off_note_title" : "Note à propos de la mise hors tension",
+		"off_note" :  "Les boutons ON/OFF situés sur la télécommande et en façade du Evo Sabre sont intégrées en dur dans le circuit (et sont donc indépendants de ce plugin et du système d'exploitation). Ils ne déclenchent pas une mise hors tension gracieuse du système et nous vous conseillons très vivement d'utiliser la fonction Arrêt -> Eteindre de l'interface Volumio <strong>avant</strong> de couper la tension depuis la télécommande ou la facade.",
+		"moar" : "Si vous rencontrez des problèmes, que vous avez des questions ou que vous souhaitez simplement donner votre avis, merci d'utiliser à cet effet le dépôt github dédié au developpement de ce plugin (<a target='_blank' href='https://github.com/audiophonics/volumio-plugins-sources/tree/master/audiophonics_evosabre'>https://github.com/audiophonics/volumio-plugins-sources/tree/master/audiophonics_evosabre</a>)."
+	}
+}

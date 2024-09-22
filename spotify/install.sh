@@ -1,109 +1,96 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# Force bash shell
-if [ -z "$BASH" ]; then
-  echo "Launching a bash shell"
-  exec bash "$0"
-fi
-set -eo pipefail
+echo "Installing Go-librespot"
 
-name="spop"
-use_local_ver=no
-libpath=/data/plugins/music_service/${name}
-configpath=/data/configuration/music_service/${name}
+ARCH=$(cat /etc/os-release | grep ^VOLUMIO_ARCH | tr -d 'VOLUMIO_ARCH="')
 
-exit_error() {
-  echo "Plugin <${name}> installation script failed!!"
-}
-trap exit_error INT ERR
-
-echo "Installing ${name} dependencies"
-
-## Removing previous config
-if [ -f "${configpath}/config.json" ]; then
-  echo "Cleaning old config flile"
-  sudo rm ${configpath}/config.json
+if [ $ARCH = "arm" ]; then
+	ARCH="armv6_rpi"
+elif [ $ARCH = "armv7" ]; then
+        ARCH="armv6"
+elif  [ $ARCH = "amd64" ] || [ $ARCH = "x86_64" ] || [ $ARCH = "x64" ]; then
+	ARCH="x86_64"
+elif  [ $ARCH = "i386" ] || [ $ARCH = "i686" ] || [ $ARCH = "x86" ]; then
+	echo "Platform not supported" 
+        exit 1
 fi
 
-## Get the Daemon binary
-declare -A VLS_BIN=(
-  [armv6l]="vollibrespot-armv6l.tar.xz"
-  [armv7l]="vollibrespot-armv7l.tar.xz"
-  [aarch64]="vollibrespot-armv7l.tar.xz"
-  [i686]="vollibrespot-i686.tar.xz"
-  [x86_64]="vollibrespot-x86_64.tar.xz"
-)
 
-# Find arch
-cpu=$(lscpu | awk 'FNR == 1 {print $2}')
-echo "Detected cpu architecture as $cpu"
+echo "Checking old vollibrespot installs"
 
-# Download and extract latest release
-cd $libpath
-if [ ${VLS_BIN[$cpu]+ok} ]; then
-  # Check for the latest release first
-  RELEASE_JSON=$(curl --silent "https://api.github.com/repos/ashthespy/vollibrespot/releases/latest")
-  # Get a fixed version from the repo
-  VLS_VER=v$(jq -r '.vollibrespot.version' package.json)
-  LATEST_VER=$(jq -r '.tag_name' <<<"${RELEASE_JSON}")
+killall vollibrespot
+systemctl stop volspotconnect.service
+systemctl disable volspotconnect.service
+systemctl daemon-reload
 
-  echo "Latest version: ${LATEST_VER} Requested version: ${VLS_VER}"
-  echo "Supported device (arch = $cpu), downloading required packages for vollibrespot $VLS_VER"
-  RELEASE_URL="https://api.github.com/repos/ashthespy/vollibrespot/releases/tags/${VLS_VER}"
-
-  DOWNLOAD_URL=$(curl --silent "${RELEASE_URL}" |
-    jq -r --arg VLS_BIN "${VLS_BIN[$cpu]}" '.assets[] | select(.name | contains($VLS_BIN)).browser_download_url')
-  echo "Downloading file <${DOWNLOAD_URL}>"
-
-  if [[ $use_local_ver == no ]]; then
-    curl -L --output "${VLS_BIN[$cpu]}" "${DOWNLOAD_URL}"
-  elif [[ -f ${VLS_BIN[$cpu]} ]]; then
-    echo "Using local version"
-  fi
-
-  if [ $? -eq 0 ]; then
-    echo "Extracting..."
-    ls -l "${VLS_BIN[$cpu]}"
-    sudo tar -xf "${VLS_BIN[$cpu]}" -C /usr/bin &&
-      ./usr/bin/vollibrespot -v &&
-      rm "${VLS_BIN[$cpu]}"
-  else
-    echo -e "Failed to download vollibrespot daemon. Check for internet connectivity/DNS issues. \nTerminating installation!"
-    exit 1
-  fi
-else
-  echo -e "Sorry, current device (arch = $cpu) is not supported! \nTerminating installation!"
-  exit 1
+## Spotify legacy
+VOLLIB_PATH=/usr/bin/vollibrespot
+VOLLIB_SYSTEMD=/lib/systemd/system/volspotconnect.service
+if [ -f $VOLLIB_PATH ]; then
+  echo "Clearing old vollibrespot"
+  rm $VOLLIB_PATH
+  [ -f $VOLLIB_SYSTEMD ] || rm $VOLLIB_SYSTEMD
+  echo "vollibrespot cleared"
 fi
 
-echo "Writing systemd unit"
+## volspotconnect2
+VOLSPOTCONNECT2_PATH=/data/plugins/music_service/volspotconnect2/
+if [ -d $VOLSPOTCONNECT2_PATH ]; then
+  echo "Clearing old volspotconnect2 plugin"
+  systemctl stop volspotconnect2.service
+  systemctl disable volspotconnect2.service
+  rm -rf $VOLSPOTCONNECT2_PATH
+  echo "volspotconnect2 plugin cleared"
+fi
+
+
+DAEMON_BASE_URL=https://github.com/devgianlu/go-librespot/releases/download/v
+VERSION=0.0.17.1
+DAEMON_ARCHIVE=go-librespot_linux_$ARCH.tar.gz
+DAEMON_DOWNLOAD_URL=$DAEMON_BASE_URL$VERSION/$DAEMON_ARCHIVE
+DAEMON_DOWNLOAD_PATH=/home/volumio/$DAEMON_ARCHIVE
+
+echo "Dowloading daemon"
+systemctl stop go-librespot-daemon.service
+wget $DAEMON_DOWNLOAD_URL -O $DAEMON_DOWNLOAD_PATH
+tar xf $DAEMON_DOWNLOAD_PATH -C /usr/bin/ go-librespot
+rm $DAEMON_DOWNLOAD_PATH
+chmod a+x /usr/bin/go-librespot
+
+echo "Creating Start Script"
+
+echo "#!/bin/sh
+
+# Traceback Setting
+export GOTRACEBACK=crash
+
+# Data dir
+DAEMON_DATA_PATH=/data/go-librespot/
+[ -d $DAEMON_DATA_PATH ] || mkdir $DAEMON_DATA_PATH
+
+echo 'Librespot-go daemon starting...'
+/usr/bin/go-librespot -config_path /tmp/go-librespot-config.yml -credentials_path /data/configuration/music_service/spop/spotifycredentials.json" > /bin/start-go-liberspot.sh
+
+chmod a+x /bin/start-go-liberspot.sh
+
 
 echo "[Unit]
-Description=Volspotconnect2 Daemon
-After=syslog.target
+Description = go-librespot Daemon
+After = volumio.service
 
 [Service]
-Type=simple
-ExecStart=/bin/bash /usr/lib/startconnect.sh
+ExecStart=/bin/start-go-liberspot.sh
 Restart=always
-RestartSec=2
+RestartSec=3
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=volumio
+SyslogIdentifier=go-librespot
 User=volumio
 Group=volumio
-
 [Install]
-WantedBy=multi-user.target" > /lib/systemd/system/volspotconnect.service
+WantedBy=multi-user.target" > /lib/systemd/system/go-librespot-daemon.service
 
-echo "Writing startconnect unit"
+systemctl daemon-reload
 
-echo "#!/usr/bin/env bash
-./usr/bin/vollibrespot \
-    -c /tmp/volspotify.toml" -> /usr/lib/startconnect.sh
-
-chmod a+x /usr/lib/startconnect.sh
-
-echo "${name} installed"
 #required to end the plugin install
 echo "plugininstallend"

@@ -1,43 +1,56 @@
 {
-	"name": "soundcloud",
-	"version": "0.1.4",
-	"description": "Browse and play SoundCloud tracks",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/patrickkfkan/volumio-soundcloud.git"
-	},
-	"author": "Patrick Kan",
-	"license": "GPL-3.0",
-	"volumio_info": {
-		"prettyName": "SoundCloud",
-		"plugin_type": "music_service",
-		"os": [
-			"buster"
-		],
-		"icon": "fa-music",
-		"boot_priority": 10,
-		"details": "Browse and play SoundCloud tracks",
-		"changelog": "",
-		"architectures": [
-			"amd64",
-			"armhf",
-			"i386"
-		]
-	},
-	"engines": {
-		"node": ">=8",
-		"volumio": ">=3"
-	},
-	"dependencies": {
-		"kew": "^0.7.0",
-		"md5": "^2.3.0",
-		"node-cache": "^5.1.2",
-		"soundcloud-fetch": "github:patrickkfkan/soundcloud-fetch",
-		"string-format": "^2.0.0",
-		"v-conf": "^1.4.2"
-	}
+  "name": "soundcloud",
+  "version": "1.0.3",
+  "description": "Browse and play SoundCloud tracks",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "rm -rf dist && npx tsc --build src && bash fixup.sh",
+    "lint": "npx eslint ./src",
+    "lint:fix": "npx eslint ./src --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patrickkfkan/volumio-soundcloud.git"
+  },
+  "author": "Patrick Kan",
+  "license": "MIT",
+  "volumio_info": {
+    "prettyName": "SoundCloud",
+    "plugin_type": "music_service",
+    "os": [
+      "buster"
+    ],
+    "icon": "fa-music",
+    "boot_priority": 10,
+    "details": "Browse and play SoundCloud tracks",
+    "changelog": "",
+    "architectures": [
+      "amd64",
+      "armhf",
+      "i386"
+    ]
+  },
+  "engines": {
+    "node": ">=14",
+    "volumio": ">=3"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^8.1.2",
+    "@types/md5": "^2.3.2",
+    "@types/node": "^14.18.38",
+    "@types/string-format": "^2.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "eslint": "^8.36.0",
+    "typescript": "^4.9.5",
+    "winston": "^3.8.2"
+  },
+  "dependencies": {
+    "kew": "^0.7.0",
+    "md5": "^2.3.0",
+    "node-cache": "^5.1.2",
+    "soundcloud-fetch": "^1.0.2",
+    "string-format": "^2.0.0",
+    "v-conf": "^1.4.2"
+  }
 }

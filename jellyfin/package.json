@@ -1,17 +1,20 @@
 {
 	"name": "jellyfin",
-	"version": "0.1.8",
+	"version": "1.1.1",
 	"description": "Jellyfin client plugin for Volumio",
-	"main": "index.js",
+	"main": "./dist/index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"build": "npm run prepare",
+		"prepare": "rm -rf dist && npx tsc --build src && bash fixup.sh",
+		"lint": "npx eslint ./src",
+		"lint:fix": "npx eslint ./src --fix"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/patrickkfkan/volumio-jellyfin"
 	},
 	"author": "Patrick Kan",
-	"license": "GPLv3",
+	"license": "MIT",
 	"volumio_info": {
 		"prettyName": "Jellyfin",
 		"plugin_type": "music_service",
@@ -29,14 +32,28 @@
 		]
 	},
 	"engines": {
-		"node": ">=8",
+		"node": ">=14",
 		"volumio": ">=3"
 	},
+	"devDependencies": {
+		"@types/fs-extra": "^8.1.2",
+		"@types/node": "^14.18.38",
+		"@types/string-format": "^2.0.0",
+		"@types/uuid": "^9.0.1",
+		"@typescript-eslint/eslint-plugin": "^5.56.0",
+		"@typescript-eslint/parser": "^5.56.0",
+		"eslint": "^8.36.0",
+		"ts-node": "^10.9.1",
+		"typescript": "^4.9.5",
+		"winston": "^3.8.2"
+	},
 	"dependencies": {
+		"@jellyfin/sdk": "file:dep/jellyfin-sdk-0.10.0-1.tgz",
+		"abort-controller": "^3.0.0",
 		"kew": "^0.7.0",
-		"node-fetch": "^2.6.1",
-		"node-localstorage": "^2.1.6",
+		"now-playing-common": "git+https://github.com/patrickkfkan/volumio-now-playing-common#v0.3.0",
 		"string-format": "^2.0.0",
+		"uuid": "^9.0.0",
 		"v-conf": "^1.4.2"
 	}
 }

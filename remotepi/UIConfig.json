@@ -9,19 +9,28 @@
                 "label": "TRANSLATE.REMOTEPI.REMOTEPI_CONF",
                 "description": "TRANSLATE.REMOTEPI.REMOTEPI_DESC",
                 "icon": "fa-cogs",
-                "onSave": {"type":"controller", "endpoint":"${plugin_type}/remotepi", "method":"saveConf"},
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveConf"},
                 "saveButton": {
                               "label": "TRANSLATE.REMOTEPI.SAVE",
                               "data": [
+                                      "gpio_configuration",
                                       "gpio17"
                                       ]
                               },
                 "content": [
                              {
+                             "id": "gpio_configuration",
+                             "element": "switch",
+                             "doc": "TRANSLATE.REMOTEPI.GPIO_CONFIGURATION_DOC",
+                             "label": "TRANSLATE.REMOTEPI.GPIO_CONFIGURATION",
+                             "value": true
+                             },
+                             {
                              "id": "gpio17",
                              "element": "switch",
                              "doc": "TRANSLATE.REMOTEPI.GPIO17_DOC",
                              "label": "TRANSLATE.REMOTEPI.GPIO17",
+                             "visibleIf": {"field": "gpio_configuration", "value": true},
                              "value": false
                              }
                            ]

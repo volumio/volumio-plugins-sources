@@ -1,6 +1,6 @@
 {
 	"name": "remotepi",
-	"version": "3.1.11",
+	"version": "3.2.1",
 	"description": "The plugin enables support for RemotePi boards.",
 	"main": "index.js",
 	"scripts": {
@@ -20,7 +20,7 @@
 			"buster"
 		],
 		"details": "The plugin enables support for RemotePi boards for Raspberry Pi 4, Pi 3 B+, Pi 3, Pi 2, B+ and B.<br><br>With the plugin the RemotePi board will manage cutting the power after Volumio has been shut down via the GUI or the RemotePi board's hardware knob has been pressed or a infrared power off signal (learned-in to the RemotePi board) has been received.",
-		"changelog": "Removed hard coding of plugin type dependent endpoint specifications"
+		"changelog": "Fixed incorrect line feed handling when modifying \"/boot/userconfig.txt\"; added Pi5 detection and warning"
 	},
 	"engines": {
 		"node": ">=8",

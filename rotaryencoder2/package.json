@@ -1,6 +1,6 @@
 {
 	"name": "rotaryencoder2",
-	"version": "1.0.15",
+	"version": "1.0.22",
 	"description": "Alternative implementation of Rotary Encoder controls using the Linux Kernel driver for Rotaries.",
 	"main": "index.js",
 	"scripts": {
@@ -21,7 +21,7 @@
 		],
 		"has_alsa_contribution": false,
 		"details": "Use up to 3 rotary encoders connected to the GPIOs of a Volumio system. Uses Linux kernel level drivers based on 'dtoverlay'.<br>Also provides a function to send commands via Websock.<br>Help and hardware tipps in the <a href=\"https://github.com/volumio/volumio-plugins-sources/blob/master/rotaryencoder2/readme.md\"><u>Documentation</u></a>",
-		"changelog": "Updated readme.md"
+		"changelog": "Improved handling of bad settings, to prevent bricking install."
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",
@@ -30,7 +30,7 @@
 	"dependencies": {
 		"fs-extra": "^5.0.0",
 		"kew": "^0.7.0",
-		"onoff": "^6.0.1",
+		"onoff": "^6.0.3",
 		"path": "^0.12.7",
 		"socket.io-client": "^2.3.1",
 		"v-conf": "^1.4.0"

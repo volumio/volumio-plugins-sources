@@ -20,37 +20,28 @@
     "id": "section_account",
     "element": "section",
     "label": "TRANSLATE.SPOTIFY_BROWSING",
-    "onSave": {
-      "type": "controller",
-      "endpoint": "music_service/spop",
-      "method": "saveVolspotconnectAccount"
-    },
+    "hidden": false,
     "content": [
       {
-        "id": "username",
-        "type": "text",
-        "element": "input",
-        "description": "TRANSLATE.LOGIN_TO_ENABLE_BROWSING",
-        "label": "TRANSLATE.USERNAME",
-        "value": "",
-        "options": []
-      },
-      {
-        "id": "password",
-        "type": "password",
-        "element": "input",
-        "doc": "TRANSLATE.TIPSPOTPASSWD",
-        "label": "TRANSLATE.PASSWORD",
-        "value": "",
-        "options": []
-      },
-      {
-        "id":"placeholder",
+        "id":"oauth",
         "element": "button",
-        "label": "TRANSLATE.LOGOUT",
-        "description": "TRANSLATE.LOGOUT",
-        "onClick": {"type":"emit", "message":"callMethod", "data":{"endpoint":"music_service/spop","method":"logout","data":""}},
-        "hidden": true
+        "label": "TRANSLATE.AUTHORIZE",
+        "description": "TRANSLATE.AUTHORIZE_PERSONAL_CONTENT",
+        "onClick": {"type":"oauth", "performerUrl":"https://oauth-performer.prod.vlmapi.io/spotify","plugin":"music_service/spop", "scopes":[
+          "user-modify-playback-state",
+          "user-read-playback-state",
+          "user-read-currently-playing",
+          "user-top-read",
+          "user-read-recently-played",
+          "user-read-private",
+          "user-read-email",
+          "user-library-read",
+          "playlist-read-private",
+          "playlist-read-collaborative",
+          "app-remote-control",
+          "streaming",
+          "user-follow-read"
+        ]}
       },
       {
         "id":"logout",
@@ -68,55 +59,18 @@
       "onSave": {
         "type": "controller",
         "endpoint": "music_service/spop",
-        "method": "saveVolspotconnectSettings"
+        "method": "saveGoLibrespotSettings"
       },
       "saveButton": {
         "label": "TRANSLATE.SAVE",
         "data": [
-          "shareddevice",
-          "initvol",
-          "normalvolume",
           "bitrate",
-          "volume_ctrl",
-          "gapless",
-          "autoplay",
           "debug",
+          "normalisation_pregain",
           "icon"
         ]
       },
       "content": [
-        {
-          "id": "shareddevice",
-          "element": "switch",
-          "doc": "If enabled, the device is useable by any user on the network. If disable, a unique user uses it",
-          "label": "TRANSLATE.SHAREDDEVICE",
-          "value": true
-        },
-        {
-          "id": "initvol",
-          "element": "equalizer",
-          "label": "TRANSLATE.INITVOL",
-          "doc": "TRANSLATE.DESCINITVOL",
-          "hidden": true,
-          "config": {
-            "orientation": "horizontal",
-            "bars": [{
-              "min": "0",
-              "max": "100",
-              "step": "5",
-              "value": "30",
-              "tooltip": "always"
-            }]
-          }
-        },
-        {
-          "id": "normalvolume",
-          "element": "switch",
-          "doc": "TRANSLATE.DESCVOLNORM",
-          "label": "TRANSLATE.VOLNORM",
-          "value": false,
-          "hidden": true
-        },
         {
           "id": "bitrate",
           "element": "select",
@@ -141,54 +95,60 @@
           ]
         },
         {
-          "id": "volume_ctrl",
-          "type": "text",
-          "element": "select",
-          "doc": "TRANSLATE.DESCPVOLUMECTRL",
-          "label": "TRANSLATE.VOLUMECTRL",
-          "hidden": true,
-          "value": {
-            "value": "fixed",
-            "label": "TRANSLATE.VOLUMECTRL_FIXED"
-          },
-
-          "options": [{
-            "value": "linear",
-            "label": "TRANSLATE.VOLUMECTRL_LINEAR"
-          },
-            {
-              "value": "log",
-              "label": "TRANSLATE.VOLUMECTRL_LOG"
-            },
-            {
-              "value": "fixed",
-              "label": "TRANSLATE.VOLUMECTRL_FIXED"
-            }
-          ]
-        },
-        {
-          "id": "gapless",
-          "element": "switch",
-          "doc": "TRANSLATE.DESCGAPLESS",
-          "label": "TRANSLATE.GAPLESS",
-          "value": true,
-          "hidden": true
-        },
-        {
-          "id": "autoplay",
-          "element": "switch",
-          "doc": "TRANSLATE.DESCAUTOPLAY",
-          "label": "TRANSLATE.AUTOPLAY",
-          "value": true,
-          "hidden": true
-        },
-        {
           "id": "debug",
           "element": "switch",
           "doc": "TRANSLATE.DESCDEBUG",
           "label": "TRANSLATE.DEBUG",
           "value": false,
           "hidden": true
+        },
+        {
+          "id": "normalisation_pregain",
+          "element": "select",
+          "doc": "Select the value in DB to apply as pre-gain",
+          "label": "Normalisation pre-gain",
+          "value": {
+            "value": "1.0",
+            "label": "1.0"
+          },
+          "options": [
+            {
+              "value": "1.0",
+              "label": "1.0"
+            },
+            {
+              "value": "2.0",
+              "label": "2.0"
+            },
+            {
+              "value": "3.0",
+              "label": "3.0"
+            },
+            {
+              "value": "4.0",
+              "label": "4.0"
+            },
+            {
+              "value": "5.0",
+              "label": "5.0"
+            },
+            {
+              "value": "6.0",
+              "label": "6.0"
+            },
+            {
+              "value": "7.0",
+              "label": "7.0"
+            },
+            {
+              "value": "8.0",
+              "label": "8.0"
+            },
+            {
+              "value": "9.0",
+              "label": "9.0"
+            }
+          ]
         },
         {
           "id": "icon",

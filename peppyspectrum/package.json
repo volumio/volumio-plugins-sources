@@ -1,0 +1,37 @@
+{
+  "name": "peppyspectrum",
+  "version": "0.0.35",
+  "description": "Peppy-spectrum for Volumio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Balbuze",
+  "license": "GPL-3.0",
+  "volumio_info": {
+    "prettyName": "Peppy-spectrum",
+    "plugin_type": "user_interface",
+    "icon": "fa-bar-chart",
+    "os": [
+      "buster"
+    ],
+    "changelog": "Fix remove, fix on arm",
+    "details": "Easy install Peppy-spectrum",
+    "architectures": [
+      "armhf",
+      "amd64"
+    ],
+    "has_alsa_contribution": true
+  },
+  "dependencies": {
+    "child_process": "",
+    "fs-extra": "^4.0.2",
+    "kew": "",
+    "socket.io-client": "2.4.0",
+    "v-conf": ""
+  },
+  "engines": {
+    "node": ">=8",
+    "volumio": ">=3.631"
+  }
+}

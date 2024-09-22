@@ -1,0 +1,11 @@
+{
+"meter":{"type":"string","value":"Random"},
+"screensize":{"type":"string","value":"320x240"},
+"screenwidth":{"type":"string","value":""},
+"screenheight":{"type":"string","value":""},
+"metersize":{"type":"number","value":30},
+"debuglog":{"type":"boolean","value":false},
+"showsize":{"type":"boolean","value":false},
+"autosize":{"type":"boolean","value":true},
+"zipfile":{"type":"string","value":"Choose a packet"}
+}

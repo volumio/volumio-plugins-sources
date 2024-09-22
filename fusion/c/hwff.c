@@ -27,6 +27,7 @@ static const snd_pcm_format_t formats[] = {
 };
 
 static const unsigned int rates[] = {
+	22050,
 	44100,
 	48000,
 	88200,

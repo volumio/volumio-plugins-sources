@@ -30,6 +30,7 @@
   "ARTISTS":"Artistes",
   "PLAYLISTS":"Playlists",
   "PODCASTS":"Podcasts",
+  "FAVORITES":"Favoris",
   "CON_SUCCESS":"La connexion a réussie",
   "CON_FAILED":"La connexion a échoué",
   "CON_OK":"Les identifiants sont correctes",

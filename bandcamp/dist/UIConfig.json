@@ -1,0 +1,176 @@
+{
+  "page": {
+    "label": "TRANSLATE.BANDCAMP_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "section_general",
+      "element": "section",
+      "label": "TRANSLATE.BANDCAMP_SECTION_GENERAL",
+      "icon": "fa-cog",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/bandcamp",
+        "method": "configSaveGeneralSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.BANDCAMP_SAVE",
+        "data": [
+          "itemsPerPage",
+          "combinedSearchResults",
+          "searchByItemType",
+          "prefetch"
+        ]
+      },
+      "content": [
+        {
+          "id": "itemsPerPage",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.BANDCAMP_ITEMS_PER_PAGE",
+          "value": 47
+        },
+        {
+          "id": "combinedSearchResults",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.BANDCAMP_COMBINED_SEARCH_RESULTS",
+          "value": 17
+        },
+        {
+          "id": "searchByItemType",
+          "element": "switch",
+          "label": "TRANSLATE.BANDCAMP_SEARCH_BY_ITEM_TYPE",
+          "value": true
+        },
+        {
+          "id": "prefetch",
+          "element": "switch",
+          "label": "TRANSLATE.BANDCAMP_PREFETCH_NEXT_TRACK",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "section_my_bandcamp",
+      "element": "section",
+      "label": "TRANSLATE.BANDCAMP_MY_BANDCAMP",
+      "description": "TRANSLATE.BANDCAMP_DESC_MY_BANDCAMP",
+      "icon": "fa-user",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/bandcamp",
+        "method": "configSaveMyBandcampSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.BANDCAMP_SAVE",
+        "data": [
+          "myBandcampType",
+          "myUsername",
+          "myCookie"
+        ]
+      },
+      "content": [
+        {
+          "id": "myBandcampType",
+          "element": "select",
+          "label": "TRANSLATE.BANDCAMP_TYPE",
+          "doc": "TRANSLATE.BANDCAMP_DOC_MY_BANDCAMP_TYPE",
+          "value": {
+            "value": "cookie",
+            "label": "TRANSLATE.BANDCAMP_COOKIE"
+          },
+          "options": [
+            {
+              "value": "cookie",
+              "label": "TRANSLATE.BANDCAMP_COOKIE"
+            },
+            {
+              "value": "username",
+              "label": "TRANSLATE.BANDCAMP_USERNAME"
+            }
+          ]
+        },
+        {
+          "id": "myCookie",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.BANDCAMP_COOKIE",
+          "value": "",
+          "visibleIf": {
+            "field": "myBandcampType",
+            "value": "cookie"
+          }
+        },
+        {
+          "id": "myUsername",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.BANDCAMP_USERNAME",
+          "value": "",
+          "visibleIf": {
+            "field": "myBandcampType",
+            "value": "username"
+          }
+        },
+        {
+          "id": "cookieGuide",
+          "element": "button",
+          "label": "TRANSLATE.BANDCAMP_COOKIE_GUIDE",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://github.com/patrickkfkan/bandcamp-fetch/wiki/How-to-obtain-Cookie"
+          },
+          "visibleIf": {
+            "field": "myBandcampType",
+            "value": "cookie"
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_cache",
+      "element": "section",
+      "label": "TRANSLATE.BANDCAMP_SECTION_CACHE",
+      "icon": "fa-hdd-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/bandcamp",
+        "method": "configSaveCacheSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.BANDCAMP_SAVE",
+        "data": ["cacheMaxEntries", "cacheTTL"]
+      },
+      "content": [
+        {
+          "id": "cacheMaxEntries",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.BANDCAMP_CACHE_MAX_ENTRIES",
+          "value": 5000
+        },
+        {
+          "id": "cacheTTL",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.BANDCAMP_CACHE_TTL",
+          "value": 1800
+        },
+        {
+          "id": "clearCache",
+          "element": "button",
+          "label": "TRANSLATE.BANDCAMP_CLEAR_CACHE",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "music_service/bandcamp",
+              "method": "configClearCache"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

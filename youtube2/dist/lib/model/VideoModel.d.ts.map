@@ -1,0 +1,1 @@
+{"version":3,"file":"VideoModel.d.ts","sourceRoot":"","sources":["../../../src/lib/model/VideoModel.ts"],"names":[],"mappings":"AAGA,OAAO,iBAAiB,MAAM,4BAA4B,CAAC;AAC3D,OAAO,EAAE,SAAS,EAAE,MAAM,aAAa,CAAC;AAyBxC,MAAM,CAAC,OAAO,OAAO,UAAW,SAAQ,SAAS;;IAEzC,eAAe,CAAC,OAAO,EAAE,MAAM,GAAG,OAAO,CAAC,iBAAiB,GAAG,IAAI,CAAC;CA2H1E"}

@@ -1,0 +1,17 @@
+{
+  "LOCALSETTINGS": "Local Display settings",
+  "SCREENSIZE": "METER folder",
+  "SCREENSIZE_DOC": "Folder for METER. Custom folder are in /data/INTERNAL/PeppyMeterBasic/Templates/ and must be named weightxheight-description. ex 800x480-collection.",
+  "CHOOSE_METER_DOC": "Select the METER in the list",
+  "CHOOSE_METER":"Select METER",
+  "NBARCHANGE": "Number of bars in METER changed! Now set to ",
+  "APPLY": "Apply",
+  "SAVE": "Close",
+  "DOWNLOAD":"Download",
+  "METER_FOLDER_NAME":"Can't determine screen size because the folder is not properly named!,Must be widthxheight-description ex : 800x600-metal. No 'x' allowed in description! please check!",
+  "METER_INSTALL_TITLE":"Installation progress",
+  "METER_INSTALL_WAIT":"Please wait...",
+  "CLICK_TO_UPDATE_LIST":"Update list",
+  "LIST_SUCCESS_UPDATED": "List updated",
+  "LIST_FAIL_UPDATE": "Failed to update list"
+}

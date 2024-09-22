@@ -26,6 +26,7 @@
     "SEEK":"Seek in title",
     "SCROLL":"Scroll",
     "EMIT":"Emit Websocket Message",
+    "TOGGLEFUSION":"Toggle Fusion DSP Enable/Disable",
     "SOCKCMDCCW":"Command CCW",
     "SOCKDATACCW":"Data CCW",
     "SOCKCMDCW":"Command CW",
@@ -82,6 +83,9 @@
     "TOAST_NEEDS_INTEGER":"GPIO Pins must be Integers.",
     "TOAST_PINS_DIFFERENT":"GPIO Pins for A/B/Button must be different.",
     "TOAST_PINS_BLOCKED":"Pins already used in another Encoder.",
-    "TOAST_NO_TYPE":"Please select 'Periods per tick'!"
+    "TOAST_NO_TYPE":"Please select 'Periods per tick'!",
+    "TOAST_KILL_HANDLE_FAIL":"Could not deactivate Rotary Resources. Correct GPIOs selected? Please correct and restart system!",
+    "TOAST_ERR_FROM_STREAM":"Error from Stream of Rotary, please check Hardware and GPIO Settings.",
+    "TOAST_ERR_ACT_ROTARY_FAILED":"Configuration of rotary encoder failed."
   }
 }

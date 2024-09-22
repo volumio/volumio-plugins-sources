@@ -1,0 +1,18 @@
+[Unit]
+Description=Jellyfin
+After=sound.target
+Requires=avahi-daemon.service network.target sound.target
+After=network.target avahi-daemon.service sound.target
+
+[Service]
+Type=exec
+ExecStart=${BIN_DIR}/jellyfin \
+ -d ${DATA_DIR} \
+ -C ${CACHE_DIR} \
+ -c ${CONFIG_DIR} \
+ -l ${LOG_DIR} \
+ --ffmpeg /usr/lib/jellyfin-ffmpeg/ffmpeg
+Restart=always
+
+[Install]
+WantedBy=multi-user.target 

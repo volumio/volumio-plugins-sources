@@ -1,0 +1,1 @@
+{"version":3,"file":"SelectionEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/SelectionEntity.ts"],"names":[],"mappings":"","sourcesContent":["import PlaylistEntity from './PlaylistEntity';\n\ninterface SelectionEntity {\n  type: 'selection';\n  id?: string | null;\n  title?: string | null;\n  items: PlaylistEntity[];\n}\n\nexport default SelectionEntity;\n"]}

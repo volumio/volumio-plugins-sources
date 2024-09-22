@@ -1,6 +1,6 @@
 {
 	"name": "volusonic",
-	"version": "2.2.1",
+	"version": "2.3.0",
 	"description": "Volumio client for subsonic's API servers (subsonic / navidrome / airsonic / ampache / owncloud / nextcloud / etc..)",
 	"main": "index.js",
 	"scripts": {

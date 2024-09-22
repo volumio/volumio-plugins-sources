@@ -22,6 +22,7 @@
   "RANDOMALBUM_LBL":"Random Album",
   "RANDOMTRACKS_DOC":"Load and play random tracks. To use with lircrc add config = node /data/plugins/user_interface/randomizer/randomTracks",
   "RANDOMTRACKS_LBL":"Random Tracks",
+  "RANDOMTRACKS_LBL_COUNT":" ()  Random Tracks",
   "TRACKS_DOC":"Select the number of random tracks to load - the  default is 25",
   "TRACKS_LBL":"Number of Random Tracks"
 }

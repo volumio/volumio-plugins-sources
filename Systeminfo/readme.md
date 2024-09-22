@@ -23,6 +23,9 @@ volumio plugin install
 cd ..
 rm -Rf Systeminfo*
 ```
+Febuary 23th 2024
+
+- v 3.0.4 mpd info
 
 October 12th 2021
 
