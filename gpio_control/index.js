@@ -11,6 +11,7 @@ const io = require('socket.io-client');
 const sleep = require('sleep');
 const socket = io.connect("http://localhost:3000");
 const execSync = require('child_process').execSync;
+const os = require('os');
 
 // Event string consts
 const SYSTEM_STARTUP = "systemStartup";
@@ -34,21 +35,24 @@ const STATE_PLAY = "play";
 const STATE_PAUSE = "pause";
 const STATE_STOP = "stop";
 
+// Utils
+var gpioPrefix = '';
+
 // Events that we can detect and do something
 const events = [
-	SYSTEM_STARTUP, 
-	SYSTEM_SHUTDOWN, 
-	MUSIC_PLAY, 
-	MUSIC_PAUSE, 
-	MUSIC_STOP, 
-	MUTE_ON, 
-	MUTE_OFF, 
-	RANDOM_ON, 
-	RANDOM_OFF, 
-	REPEAT_ON, 
-	REPEAT_ALL_ON, 
-	REPEAT_ALL_OFF, 
-	REPEAT_SINGLE_ON, 
+	SYSTEM_STARTUP,
+	SYSTEM_SHUTDOWN,
+	MUSIC_PLAY,
+	MUSIC_PAUSE,
+	MUSIC_STOP,
+	MUTE_ON,
+	MUTE_OFF,
+	RANDOM_ON,
+	RANDOM_OFF,
+	REPEAT_ON,
+	REPEAT_ALL_ON,
+	REPEAT_ALL_OFF,
+	REPEAT_SINGLE_ON,
 	REPEAT_SINGLE_OFF,
 	REPEAT_OFF
 ];
@@ -71,7 +75,7 @@ function GPIOControl(context) {
 GPIOControl.prototype.onVolumioStart = function(){
 	const self = this;
 	const configFile = self.commandRouter.pluginManager.getConfigurationFile(self.context, "config.json");
-	
+
 	config.loadFile(configFile);
 
 	return libQ.resolve();
@@ -95,6 +99,8 @@ GPIOControl.prototype.getConfigurationFiles = function() {
 GPIOControl.prototype.onStart = function() {
 	const self = this;
 	const defer = libQ.defer();
+
+	self.getGPIOPrefix();
 
 	// read and parse status once
 	socket.emit("getState", "");
@@ -267,12 +273,12 @@ GPIOControl.prototype.createGPIOs = function() {
 		const c2 = e.concat(".pin");
 		const c3 = e.concat(".state");
 		const c4 = e.concat(".delay");
-		const c5 = e.concat(".delayUnits");	
+		const c5 = e.concat(".delayUnits");
 		const c6 = e.concat(".duration");
-		const c7 = e.concat(".durationUnits");	
+		const c7 = e.concat(".durationUnits");
 
 		const enabled = config.get(c1);
-		const pin = config.get(c2);
+		const pin = self.getKernelAgnosticPinNumber(config.get(c2));
 		const state = config.get(c3);
 		const delay = self.getDurationMs(config.get(c4), config.get(c5));
 		const delayUnits = self.unitsToString(config.get(c5));
@@ -361,7 +367,7 @@ GPIOControl.prototype.statusChanged = function(state) {
 	if (!state.mute && self.previousState.mute){
 		self.handleEvent(MUTE_OFF);
 	}
-	
+
 	// randomize
 	if (state.random && !self.previousState.random){
 		self.handleEvent(RANDOM_ON);
@@ -369,7 +375,7 @@ GPIOControl.prototype.statusChanged = function(state) {
 	if (!state.random && self.previousState.random){
 		self.handleEvent(RANDOM_OFF);
 	}
-	
+
 	// Handle any repeat events
 	if (!self.previousState){
 		if (state.repeat){
@@ -385,7 +391,7 @@ GPIOControl.prototype.statusChanged = function(state) {
 			self.handleEvent(REPEAT_SINGLE_ON);
 		}
 		if (!state.repeat && state.repeatSingle){
-			self.handleEvent(REPEAT_SINGLE_OFF);        
+			self.handleEvent(REPEAT_SINGLE_OFF);
 		}
 		if (!state.repeat){
 			self.handleEvent(REPEAT_OFF);
@@ -395,12 +401,12 @@ GPIOControl.prototype.statusChanged = function(state) {
 		if (state.repeat && !self.previousState.repeat){
 			self.handleEvent(REPEAT_ON);
 		}
-		
+
 		// repeat all
 		if (state.repeat && !state.repeatSingle && (!self.previousState.repeat || self.previousState.repeatSingle)){
 			self.handleEvent(REPEAT_ALL_ON);
 		}
-		
+
 		// repeat single
 		if (state.repeat && state.repeatSingle && (!self.previousState.repeat || !self.previousState.repeatSingle)){
 			self.handleEvent(REPEAT_SINGLE_ON);
@@ -409,7 +415,7 @@ GPIOControl.prototype.statusChanged = function(state) {
 		if (!state.repeat && self.previousState.repeat){
 			self.handleEvent(REPEAT_OFF);
 			if (self.previousState.repeatSingle){
-				self.handleEvent(REPEAT_SINGLE_OFF); 
+				self.handleEvent(REPEAT_SINGLE_OFF);
 			}
 			else{
 				self.handleEvent(REPEAT_ALL_OFF);
@@ -521,9 +527,9 @@ GPIOControl.prototype.unitsToString = function(value){
 GPIOControl.prototype.load18nStrings = function() {
 	const self = this;
 	const language_code = this.commandRouter.sharedVars.get('language_code');
-	
+
 	try {
-		
+
 		self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + ".json");
 	}
 	catch (e) {
@@ -555,7 +561,7 @@ GPIOControl.prototype.getUIElement = function(obj, field){
 GPIOControl.prototype.setSwitchElement = function(obj, field, value){
 	const self = this;
 	const result = self.getUIElement(obj, field);
-	
+
 	if (result){
 		result.value = value;
 	}
@@ -568,7 +574,7 @@ GPIOControl.prototype.setSwitchElement = function(obj, field, value){
 GPIOControl.prototype.setSelectElement = function(obj, field, value, label){
 	const self = this;
 	const result = self.getUIElement(obj, field);
-	
+
 	if (result){
 		result.value.value = value;
 		result.value.label = label;
@@ -582,4 +588,22 @@ GPIOControl.prototype.setSelectElement = function(obj, field, value, label){
 GPIOControl.prototype.setSelectElementStr = function(obj, field, value){
 	const self = this;
 	self.setSelectElement(obj, field, value, value.toString());
+}
+
+GPIOControl.prototype.getKernelAgnosticPinNumber = function(gpioPin){
+	const self = this;
+
+	var kVer = os.release();
+	var gpioNumber = parseInt(kVer.split('.')[0]) >= 6 ? parseInt(gpioPin)  + parseInt(gpioPrefix) : parseInt(gpioPin);
+	return gpioNumber.toString();
+}
+
+GPIOControl.prototype.getGPIOPrefix = function(){
+	const self = this;
+
+	try {
+		gpioPrefix = execSync("ls /sys/class/gpio/ | sed 's/[^0-9 ]//g' | sed '/^$/d' | head -n 1", { uid: 1000, gid: 1000, encoding: 'utf8'});
+	} catch(e) {
+		self.logger.error('Error getting GPIO prefix: ' + e.toString());
+	}
 }
