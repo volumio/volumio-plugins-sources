@@ -6,6 +6,11 @@ var Gpio = require('onoff').Gpio;
 var io = require('socket.io-client');
 var socket = io.connect('http://localhost:3000');
 var actions = ["playPause", "volumeUp", "volumeDown", "previous", "next", "shutdown"];
+var execSync = require('child_process').execSync;
+var os = require('os');
+
+// Utils
+var gpioPrefix = '';
 
 module.exports = GPIOButtons;
 
@@ -26,8 +31,8 @@ GPIOButtons.prototype.onVolumioStart = function () {
 	this.config.loadFile(configFile);
 
 	self.logger.info("GPIO-Buttons initialized");
-	
-	return libQ.resolve();	
+
+	return libQ.resolve();
 };
 
 
@@ -41,12 +46,14 @@ GPIOButtons.prototype.onStart = function () {
 	var self = this;
 	var defer=libQ.defer();
 
+	self.getGPIOPrefix();
+
 	self.createTriggers()
 		.then (function (result) {
 			self.logger.info("GPIO-Buttons started");
 			defer.resolve();
 		});
-	
+
     return defer.promise;
 };
 
@@ -60,7 +67,7 @@ GPIOButtons.prototype.onStop = function () {
 			self.logger.info("GPIO-Buttons stopped");
 			defer.resolve();
 		});
-	
+
     return defer.promise;
 };
 
@@ -117,13 +124,13 @@ GPIOButtons.prototype.getUIConfig = function () {
 
 			var i = 0;
 			actions.forEach(function(action, index, array) {
- 				
+
  				// Strings for config
 				var c1 = action.concat('.enabled');
 				var c2 = action.concat('.pin');
-				
+
 				// accessor supposes actions and uiconfig items are in SAME order
-				// this is potentially dangerous: rewrite with a JSON search of "id" value ?				
+				// this is potentially dangerous: rewrite with a JSON search of "id" value ?
 				uiconf.sections[0].content[2*i].value = self.config.get(c1);
 				uiconf.sections[0].content[2*i+1].value.value = self.config.get(c2);
 				uiconf.sections[0].content[2*i+1].value.label = self.config.get(c2).toString();
@@ -178,7 +185,7 @@ GPIOButtons.prototype.createTriggers = function() {
 		var c2 = action.concat('.pin');
 
 		var enabled = self.config.get(c1);
-		var pin = self.config.get(c2);
+		var pin = self.getKernelAgnosticPinNumber(self.config.get(c2));
 
 		if(enabled === true){
 			self.logger.info('GPIO-Buttons: '+ action + ' on pin ' + pin);
@@ -187,24 +194,24 @@ GPIOButtons.prototype.createTriggers = function() {
 			self.triggers.push(j);
 		}
 	});
-		
+
 	return libQ.resolve();
 };
 
 
 GPIOButtons.prototype.clearTriggers = function () {
 	var self = this;
-	
+
 	self.triggers.forEach(function(trigger, index, array) {
   		self.logger.info("GPIO-Buttons: Destroying trigger " + index);
 
 		trigger.unwatchAll();
-		trigger.unexport();		
+		trigger.unexport();
 	});
-	
+
 	self.triggers = [];
 
-	return libQ.resolve();	
+	return libQ.resolve();
 };
 
 
@@ -271,3 +278,21 @@ GPIOButtons.prototype.shutdown = function() {
   // this.logger.info('GPIO-Buttons: shutdown button pressed\n');
   this.commandRouter.shutdown();
 };
+
+GPIOButtons.prototype.getKernelAgnosticPinNumber = function(gpioPin){
+	const self = this;
+
+	var kVer = os.release();
+	var gpioNumber = parseInt(kVer.split('.')[0]) >= 6 ? parseInt(gpioPin)  + parseInt(gpioPrefix) : parseInt(gpioPin);
+	return gpioNumber.toString();
+}
+
+GPIOButtons.prototype.getGPIOPrefix = function(){
+	const self = this;
+
+	try {
+		gpioPrefix = execSync("ls /sys/class/gpio/ | sed 's/[^0-9 ]//g' | sed '/^$/d' | head -n 1", { uid: 1000, gid: 1000, encoding: 'utf8'});
+	} catch(e) {
+		self.logger.error('Error getting GPIO prefix: ' + e.toString());
+	}
+}
