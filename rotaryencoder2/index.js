@@ -5,6 +5,8 @@ var fs=require('fs-extra');
 const path=require('path');
 var exec = require('child_process').exec;
 var spawn = require('child_process').spawn
+var execSync = require('child_process').execSync;
+var os = require('os');
 
 const Gpio = require('onoff').Gpio;
 const io = require('socket.io-client');
@@ -16,6 +18,8 @@ const maxDoublePushInterval=1000; //min delay between button presses in ms, 1s s
 const minLongPushTime = 500;
 const maxDebounceTime = 1000; //max allowed debounce time 1s, 1s is already pretty long and will make poor user experience
 
+// Utils
+var gpioPrefix = '';
 
 const rotaryTypes = new Array(
 	"...",
@@ -490,7 +494,7 @@ rotaryencoder2.prototype.activateButtons = function (rotaryIndexArray) {
 			self.activateButtons(rotaryIndexArray.slice(0,rotaryIndexArray.length - 1))
 			.then(_=> {
 				if (self.config.get('enabled'+rotaryIndex)) {
-					var gpio = self.config.get('pinPush'+rotaryIndex);
+					var gpio = self.getKernelAgnosticPinNumber(self.config.get('pinPush'+rotaryIndex));
 					//configure pushButton if not disabled
 					if (Number.isInteger(gpio) && (gpio > 0)) {
 						gpio = parseInt(gpio);
@@ -1002,3 +1006,21 @@ rotaryencoder2.prototype.loadI18nStrings = function() {
 
     self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
 };
+
+rotaryencoder2.prototype.getKernelAgnosticPinNumber = function(gpioPin){
+	const self = this;
+
+	var kVer = os.release();
+	var gpioNumber = parseInt(kVer.split('.')[0]) >= 6 ? parseInt(gpioPin)  + parseInt(gpioPrefix) : parseInt(gpioPin);
+	return gpioNumber.toString();
+}
+
+rotaryencoder2.prototype.getGPIOPrefix = function(){
+	const self = this;
+
+	try {
+		gpioPrefix = execSync("ls /sys/class/gpio/ | sed 's/[^0-9 ]//g' | sed '/^$/d' | head -n 1", { uid: 1000, gid: 1000, encoding: 'utf8'});
+	} catch(e) {
+		self.logger.error('Error getting GPIO prefix: ' + e.toString());
+	}
+}
