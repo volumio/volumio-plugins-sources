@@ -1288,6 +1288,10 @@ TouchDisplay.prototype.setOrientation = function (angle) {
                 }
               }
             });
+          } else if (device === 'pi') {
+            self.modBootConfig(configTxtRotationBanner + '.*lcd_rotate=.*' + os.EOL + 'display_hdmi_rotate=.*', newEntry)
+              .then(() => defer.resolve())
+              .fail(() => defer.reject(new Error()));
           }
         }
       });
