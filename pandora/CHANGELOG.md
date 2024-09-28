@@ -166,3 +166,7 @@
 ### Version 2.12.3
   #### Fixes
   * `clearAndPlayStation()` needed to refresh self.stationData from `self.pandoraHandler.getStationData()`.  Now this method should work from an API call as intended.
+
+### Version 2.12.4
+  #### Changes
+  * Added `PandoraHandler::publishStationNames()`.  This new function publishes the Pandora stations to the MQTT broker if one is configured.  `PandoraHandler::publishStationData()` had a lot more information but was too much for Home Assistant to handle.

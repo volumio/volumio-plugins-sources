@@ -222,7 +222,9 @@ class StationDataPublisher extends Timer {
         self.pUtil.announceFn('fn');
 
         return self.context.pandoraHandler.publishStationData()
-            .fail(err => self.pUtil.generalReject('publishStationData', err));
+            .fail(err => self.pUtil.generalReject('publishStationData', err))
+            .then(() => self.context.pandoraHandler.publishStationNames())
+            .fail(err => self.pUtil.generalReject('publishStationNames', err));
     }
 }
 
