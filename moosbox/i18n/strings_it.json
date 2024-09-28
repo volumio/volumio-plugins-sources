@@ -1,0 +1,20 @@
+{
+  "UI": {
+    "MOOSBOX": "Moosbox",
+    "LOGIN_TO_YOUR_ACCOUNT": "Accedi al tuo account moosbox",
+    "LOGOUT_TO_YOUR_ACCOUNT": "Esci dal tuo account moosbox",
+    "SAVE": "Salva",
+    "LEAVE": "Disconnettiti",
+    "LOGOUT": "Disconnesso/a",
+    "LOGOUT_SUCCESSFUL": "Disconnessione avvenuta con successo",
+    "EMAIL_PLACEHOLDER": "Inserisci una mail, es: mariorossi@gmail.com",
+    "PASSWORD_PLACEHOLDER": "Inserisci la tua password",
+    "OPEN_MOOSBOX": "Vai al sito Moosbox",
+    "LOGIN": "Accesso",
+    "LOGIN_SUCCESSFUL": "Accesso effettuato correttamente",
+    "ERROR": "Errore",
+    "GENERIC_ERROR": "Errore generico, riprova l'accesso",
+    "LOGIN_FAILED": "Mail o Password errata, ritenta l'accesso",
+    "USEFULL_LINKS": "Collegamenti Utili"
+  }
+}
