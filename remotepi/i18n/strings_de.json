@@ -1,11 +1,11 @@
 {
   "REMOTEPI":{
     "PLUGIN_NAME":"RemotePi",
-    "ERR_RECONF14":"Rekonfiguration von GPIO 14 fehlgeschlagen: ",
-    "ERR_CONF14":"Konfiguration von GPIO 14 fehlgeschlagen: ",
-    "ERR_CONF15":"Konfiguration von GPIO 15 fehlgeschlagen: ",
+    "ERR_RECONF_GPIO":"Fehler bei der Rekonfiguration von GPIO ",
+    "ERR_CONF_GPIO":"Fehler bei der Konfiguration von GPIO ",
     "ERR_WRITE":"Fehler beim Schreiben von ",
     "ERR_READ":"Fehler beim Lesen von ",
+    "PI5_WARN_MSG":"<b>WARNUNG!</b><br><br>WARNUNG! RemotePi-Boards wurden nicht für den Raspberry Pi 5 entwickelt. Der Strombedarf von Pi 5-basierten Systemen kann die Leistungsfähigkeit des RemotePi-Boards übersteigen und es möglicherweise beschädigen.",
     "REBOOT_MSG":"Ein Neustart ist erforderlich, damit die Änderung wirksam wird.",
     "NO_CHANGES":"Keine zu speichernde Änderung.",
     "PLUGIN_CONFIGURATION":"RemotePi Konfiguration",

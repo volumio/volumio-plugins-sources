@@ -2,6 +2,7 @@
 
 const libQ = require('kew');
 const fs = require('fs-extra');
+const { exec } = require('child_process');
 const path = require('path');
 const os = require('os');
 const { Gpio } = require('onoff');
@@ -37,7 +38,7 @@ remotepi.prototype.onVolumioShutdown = function () {
   try {
     if (!hwShutdown) {
       self.logger.info(self.pluginName + ': Shutdown initiated by UI');
-      // Execute shutdown signal sequence on GPIO15 respectively GPIO473 on Pi 5
+      // Execute shutdown signal sequence on GPIO15
       initShutdown.writeSync(1);
       msleep(125);
       initShutdown.writeSync(0);
@@ -49,7 +50,7 @@ remotepi.prototype.onVolumioShutdown = function () {
       self.logger.info(self.pluginName + ': Shutdown initiated by hardware knob or IR remote control');
     }
     try {
-      // Reconfigure GPIO14 respectively GPIO472 on Pi 5 as output with initial "high" level allowing the RemotePi
+      // Reconfigure GPIO14 as output with initial "high" level allowing the RemotePi
       // to recognize when the shutdown process on the RasPi has been finished
       shutdownCtrl.unwatchAll();
       shutdownCtrl.setEdge('none');
@@ -99,35 +100,38 @@ remotepi.prototype.onStart = function () {
         self.commandRouter.broadcastMessage('openModal', responseData);
         self.config.set('pi5WarnACK', true);
       }
-      shutdownCtrlGPIO = pi5 ? 472 : 14;
-      initShutdownGPIO = pi5 ? 473 : 15;
-      try {
-        // As the RemotePi signals a shutdown event (hardware knob or IR receiver) to the RasPi by setting the level
-        // on the pin of GPIO14 respectively GPIO472 on Pi 5 to "high" configure GPIO14 (GPIO472) as input and watch it
-        shutdownCtrl = new Gpio(shutdownCtrlGPIO, 'in', 'rising');
-        shutdownCtrl.watch((err, value) => {
-          if (err) {
-            self.logger.error(self.pluginName + ': Error watching GPIO ' + shutdownCtrlGPIO + ': ' + err);
-          } else if (value === 1) {
-            hwShutdown = true;
-            return self.commandRouter.shutdown();
+      self.getGpioOffset()
+        .then(gpioOffset => {
+          shutdownCtrlGPIO = gpioOffset + 14;
+          initShutdownGPIO = gpioOffset + 15;
+          try {
+            // As the RemotePi signals a shutdown event (hardware knob or IR receiver) to the RasPi by setting the level
+            // on the pin of GPIO14 to "high" configure GPIO14 as input and watch it
+            shutdownCtrl = new Gpio(shutdownCtrlGPIO, 'in', 'rising');
+            shutdownCtrl.watch((err, value) => {
+              if (err) {
+                self.logger.error(self.pluginName + ': Error watching GPIO ' + shutdownCtrlGPIO + ': ' + err);
+              } else if (value === 1) {
+                hwShutdown = true;
+                return self.commandRouter.shutdown();
+              }
+            });
+          } catch (e) {
+            self.logger.error(self.pluginName + ': Error configuring GPIO ' + shutdownCtrlGPIO + ': ' + e);
+            self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_CONF_GPIO') + shutdownCtrlGPIO + ': ' + e);
+            throw new Error();
           }
+          try {
+            initShutdown = new Gpio(initShutdownGPIO, 'out');
+          } catch (e) {
+            shutdownCtrl.unexport();
+            self.logger.error(self.pluginName + ': Error configuring GPIO ' + initShutdownGPIO + ': ' + e);
+            self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_CONF_GPIO') + initShutdownGPIO + ': ' + e);
+            throw new Error();
+          }
+          self.modBootConfig(self.config.get('gpio_configuration') ? self.config.get('enable_gpio17') : '');
+          defer.resolve();
         });
-      } catch (e) {
-        self.logger.error(self.pluginName + ': Error configuring GPIO ' + shutdownCtrlGPIO + ': ' + e);
-        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_CONF_GPIO') + shutdownCtrlGPIO + ': ' + e);
-        throw new Error();
-      }
-      try {
-        initShutdown = new Gpio(initShutdownGPIO, 'out');
-      } catch (e) {
-        shutdownCtrl.unexport();
-        self.logger.error(self.pluginName + ': Error configuring GPIO ' + initShutdownGPIO + ': ' + e);
-        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('REMOTEPI.PLUGIN_NAME'), self.commandRouter.getI18nString('REMOTEPI.ERR_CONF_GPIO') + initShutdownGPIO + ': ' + e);
-        throw new Error();
-      }
-      self.modBootConfig(self.config.get('gpio_configuration') ? self.config.get('enable_gpio17') : '');
-      defer.resolve();
     })
     .fail(() => defer.reject());
   return defer.promise;
@@ -235,6 +239,29 @@ remotepi.prototype.detectPi5 = function () {
     } else {
       data = data.match(/^Revision\s*:\s.*$/m)[0].split(': ')[1];
       defer.resolve(parseInt(data, 16).toString(2).charAt(1) === '1' && data.substr(-3, 2) === '17');
+    }
+  });
+  return defer.promise;
+};
+
+remotepi.prototype.getGpioOffset = function () {
+  const self = this;
+  const defer = libQ.defer();
+
+  exec('/usr/bin/sudo /bin/chmod o+rx /sys/kernel/debug', { uid: 1000, gid: 1000 }, (error, stdout, stderr) => {
+    if (error !== null) {
+      self.logger.error(self.pluginName + ': Error setting file permissions for /sys/kernel/debug: ' + error);
+      defer.reject(error);
+    } else {
+      fs.readFile('/sys/kernel/debug/gpio', 'utf8', (err, data) => {
+        if (err !== null) {
+          self.logger.info(self.pluginName + ': GPIO offset cannot be determined: ' + err);
+          defer.reject(err);
+        } else {
+          data = parseInt(data.match(/^\sgpio-\d+\s+\(ID_SD/m)[0].split(/gpio-/)[1].split(/\s+\(ID_SD/)[0]);
+          defer.resolve(data);
+        }
+      });
     }
   });
   return defer.promise;
