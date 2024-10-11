@@ -8,7 +8,7 @@ export interface WeatherAPIParsedConfig {
         lon: number;
         lat: number;
     };
-    units: 'imperial' | 'metric' | 'standard';
+    units?: 'imperial' | 'metric' | 'standard';
 }
 declare class WeatherAPI {
     #private;
