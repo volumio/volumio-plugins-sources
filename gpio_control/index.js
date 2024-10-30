@@ -1,7 +1,7 @@
 'use strict';
 
 // Logging: sudo journalctl -f
-const logging = false;
+const logging = true;
 
 // I used tomatpasser's gpio-buttons plugin as a basis for this project
 const libQ = require("kew");
