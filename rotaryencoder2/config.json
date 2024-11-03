@@ -45,7 +45,7 @@
     },
     "pushState0": {
       "type": "boolean",
-      "value": false
+      "value": true
     },
     "pushAction0": {
       "type": "number",
@@ -137,7 +137,7 @@
     },
     "pushState1": {
       "type": "boolean",
-      "value": false
+      "value": true
     },
     "pushAction1": {
       "type": "number",
@@ -229,7 +229,7 @@
     },
     "pushState2": {
       "type": "boolean",
-      "value": false
+      "value": true
     },
     "pushAction2": {
       "type": "number",

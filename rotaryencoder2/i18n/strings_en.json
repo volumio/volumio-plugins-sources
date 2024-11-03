@@ -86,6 +86,8 @@
     "TOAST_NO_TYPE":"Please select 'Periods per tick'!",
     "TOAST_KILL_HANDLE_FAIL":"Could not deactivate Rotary Resources. Correct GPIOs selected? Please correct and restart system!",
     "TOAST_ERR_FROM_STREAM":"Error from Stream of Rotary, please check Hardware and GPIO Settings.",
-    "TOAST_ERR_ACT_ROTARY_FAILED":"Configuration of rotary encoder failed."
+    "TOAST_ERR_ACT_ROTARY_FAILED":"Configuration of rotary encoder failed.",
+    "TOAST_ERR_ADD_OVERLAY_FAILED":"Failed to add Overlay: ",
+    "TOAST_ERR_ATTACH_LISTENER_FAILED": "Failed to attach Listener for DTO"
   }
 }
