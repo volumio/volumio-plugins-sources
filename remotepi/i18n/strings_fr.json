@@ -1,11 +1,11 @@
 {
   "REMOTEPI":{
     "PLUGIN_NAME":"RemotePi",
-    "ERR_RECONF14":"La reconfiguration du GPIO 14 a échoué: ",
-    "ERR_CONF14":"La configuration de GPIO 14 a échoué: ",
-    "ERR_CONF15":"La configuration de GPIO 15 a échoué: ",
+    "ERR_RECONF_GPIO":"Erreur de reconfiguration de GPIO ",
+    "ERR_CONF_GPIO":"Erreur de configuration de GPIO ",
     "ERR_WRITE":"Erreur d'écriture ",
     "ERR_READ":"Erreur de lecture ",
+    "PI5_WARN_MSG":"<b>ATTENTION!</b><br><br>Les cartes RemotePi n'ont pas été développées pour le Raspberry Pi 5. Les besoins en énergie des systèmes basés sur le Pi 5 peuvent dépasser ce que la carte RemotePi peut supporter et éventuellement l'endommager.",
     "REBOOT_MSG":"Un redémarrage est nécéssaire pour prendre en charge les nouveaux réglages",
     "NO_CHANGES":"Aucune modification à enregistrer.",
     "PLUGIN_CONFIGURATION":"Configuration de RemotePi",
