@@ -278,6 +278,10 @@
     "logging": {
       "type": "boolean",
       "value": false
+    },
+    "loggingJSON": {
+      "type": "boolean",
+      "value": false
     }
 }
   
