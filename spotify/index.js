@@ -15,8 +15,8 @@ var NodeCache = require('node-cache');
 var os = require('os');
 var { fetchPagedData, rateLimitedCall } = require('./utils/extendedSpotifyApi');
 
-var configFileDestinationPath = '/tmp/go-librespot-config.yml';
-var credentialsPath = '/data/configuration/music_service/spop/spotifycredentials.json';
+var configFileDestinationPath = '/data/go-librespot/config.yml';
+var credentialsPath = '/data/go-librespot/state.json';
 var spotifyDaemonPort = '9879';
 var spotifyLocalApiEndpointBase = 'http://127.0.0.1:' + spotifyDaemonPort;
 var stateSocket = undefined;
