@@ -70,7 +70,7 @@
     "LOGGING":"Logging",
     "LOGGINGJSON":"Log JSON Objects",
     "D_LOGGING":"Switch the output of log messages on or off. Error messages are always logged.",
-    "D_LOGGINGJSON":"Activate logging of JSON objects. Mokes logs significantly longer.",
+    "D_LOGGINGJSON":"Activate logging of JSON objects. Makes logs significantly longer.",
     "TOAST_START_SUCCESS":"Plugin successfully started.",
     "TOAST_STOP_SUCCESS":"Plugin successfully stopped.",
     "TOAST_START_FAIL":"Plugin failed to start.",

@@ -94,7 +94,7 @@ rotaryencoder2.prototype.onStart = function() {
 	self.loadI18nStrings();
 
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] onStart: Config loaded: ');
-	if (self.JSONLogging) self.logger.info(JSON.stringify(self.config));
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.config));
 
 	self.socket = io.connect('http://localhost:3000');
 	self.socket.emit('getState');
@@ -179,9 +179,9 @@ rotaryencoder2.prototype.getUIConfig = function() {
 
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] getUIConfig: starting: ');
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] getUIConfig: i18nStrings:')
-	if (self.JSONLogging) self.logger.info(JSON.stringify(self.i18nStrings));
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.i18nStrings));
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] getUIConfig: i18nStringsDefaults:')
-	if (self.JSONLogging) self.logger.info(JSON.stringify(self.i18nStringsDefaults));
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.i18nStringsDefaults));
 
     var lang_code = this.commandRouter.sharedVars.get('language_code');
 
@@ -249,7 +249,7 @@ rotaryencoder2.prototype.updateEncoder = function(data){
 
 	var rotaryIndex = parseInt(dataString.match(/rotaryType([0-9])/)[1]);
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] updateEncoder: Rotary'+(rotaryIndex + 1)+' with:')
-	if (self.JSONLogging) self.logger.info(JSON.stringify(data));
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(data));
 
 	self.sanityCheckSettings(rotaryIndex, data)
 	.then(_ => {
@@ -319,7 +319,7 @@ rotaryencoder2.prototype.sanityCheckSettings = function(rotaryIndex, data){
 	var allPins = [];
 
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] sanityCheckSettings: Rotary'+(rotaryIndex + 1)+' for:')
-	if (self.JSONLogging) self.logger.info(JSON.stringify(data));
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(data));
 
 	//Disabling rotaries is always allowed
 	if (data['enabled'+rotaryIndex] == false) {
@@ -397,7 +397,7 @@ rotaryencoder2.prototype.updateDebugSettings = function (data) {
 	var self = this;
 	var defer = libQ.defer();
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] updateDebugSettings: Saving Debug Settings:')
-	if (self.JSONLogging) self.logger.info(JSON.stringify(data));
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(data));
 	self.config.set('logging', (data['logging']))
 	self.config.set('loggingJSON', (data['loggingJSON']))
 	self.debugLogging = data['logging'];
@@ -540,7 +540,6 @@ rotaryencoder2.prototype.uninstallAllOverlays = function (rotaryIndexArray) {
 	var self = this;
 	var defer = libQ.defer();
 	var rotaryIndex;
-	var overlays = [];
 
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: ' + rotaryIndexArray.map(i =>  {return i + 1}));
 
@@ -552,18 +551,17 @@ rotaryencoder2.prototype.uninstallAllOverlays = function (rotaryIndexArray) {
 				if (self.config.get('enabled'+rotaryIndex)) {
 					return self.checkOverlayExists(rotaryIndex, 'rotary')
 					.then(idx => {
-						if (idx > -1) {
-							overlays.push(idx);
-						}
-						return self.checkOverlayExists(rotaryIndex,'button') 
-					})
-					.then(idx => {if (idx > -1) {
-							overlays.push(idx);
-						}
+						return this.removeOverlay(idx);
 					})
 					.then(_ => {
-						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: overlays to remove: ' + overlays);
-						return defer.resolve(overlays);
+						return self.checkOverlayExists(rotaryIndex,'button') 
+					})
+					.then(idx => {
+						return this.removeOverlay(idx);
+					})
+					.then(_ => {
+						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: overlays removed');
+						return defer.resolve();
 					})
 					.fail(msg => {
 						if (self.debugLogging) self.logger.error('[ROTARYENCODER2] uninstallAllOverlays: failed to lookup overlays for ' + (rotaryIndex + 1));
@@ -720,9 +718,9 @@ rotaryencoder2.prototype.attachAllListeners = function (rotaryIndexArray) {
 					})
 				} else {
 					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachAllListeners rotaries: ');
-					if (self.JSONLogging) self.logger.info(JSON.stringify(self.handles));
+					if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.handles));
 					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachAllListeners buttons: ');
-					if (self.JSONLogging) self.logger.info(JSON.stringify(self.buttons));
+					if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.buttons));
 					defer.resolve();
 				}
 			})
@@ -761,13 +759,13 @@ rotaryencoder2.prototype.detachListener = function (handle){
 		handle.stderr.removeAllListeners('data');
 		handle.removeAllListeners('close');
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachListener: ');
-		if (self.JSONLogging) self.logger.info(JSON.stringify(handle));
+		if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(handle));
 	    if (handle.kill()) {
         	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachListener: successfully killed handler process');
         	defer.resolve();
         } else {
             self.logger.error('[ROTARYENCODER2] detachListener: could not kill handler process ');
-			if (self.JSONLogging) self.logger.info(JSON.stringify(handle));
+			if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(handle));
 			self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
             defer.resolve();
         }
@@ -864,7 +862,7 @@ rotaryencoder2.prototype.addEventHandle = function (handle, rotaryIndex, handleT
 		});		
 	} else if (handleType == "button") {
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle: adding handle :');
-		if (self.JSONLogging) self.logger.info(JSON.stringify(handle));
+		if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(handle));
 		handle.stdout.on("data", function (chunk) {
 			var i=0;
 			while (chunk.length - i >= 16) {
@@ -1161,7 +1159,7 @@ rotaryencoder2.prototype.loadI18nStrings = function() {
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: '+__dirname + '/i18n/strings_' + language_code + ".json");
         self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + ".json");
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: loaded: ');
-		if (self.JSONLogging) self.logger.info(JSON.stringify(self.i18nStrings));
+		if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.i18nStrings));
     }
     catch (e) {
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: ' + language_code + ' not found. Fallback to en');
