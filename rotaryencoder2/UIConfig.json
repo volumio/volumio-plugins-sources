@@ -1418,7 +1418,7 @@
 		"saveButton": {
 			"label": "TRANSLATE.ROTARYENCODER2.SAVE",
 			"data": [
-        "logging"
+        "logging","loggingJSON"
 			]
 		},
 		"content": [
@@ -1427,6 +1427,13 @@
 			  "element":"switch",
 			  "label": "TRANSLATE.ROTARYENCODER2.LOGGING",
 			  "doc": "TRANSLATE.ROTARYENCODER2.D_LOGGING",
+			  "value": false
+			},
+			{
+			  "id":"loggingJSON",
+			  "element":"switch",
+			  "label": "TRANSLATE.ROTARYENCODER2.LOGGINGJSON",
+			  "doc": "TRANSLATE.ROTARYENCODER2.D_LOGGINGJSON",
 			  "value": false
 			}
     ]
