@@ -1,0 +1,154 @@
+{
+  "page": {
+    "label": "Sleep Wake Schedule Configuration",
+    "icon": "fa-clock-o"
+  },
+  "sections": [
+    {
+      "id": "sleep_settings",
+      "element": "section",
+      "label": "Night Mode",
+      "icon": "fa-moon-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_controller/SleepWakePlugin",
+        "method": "saveOptions"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "Mon_Fri_sleepTime",
+          "Sat_sleepTime",
+          "Sun_sleepTime",
+          "volumeDecrease",
+          "minutesFade"
+        ]
+      },
+      "content": [
+        {
+          "id": "Mon_Fri_sleepTime",
+          "element": "input",
+          "type": "text",
+          "label": "Mon-Fri Sleep Time  (HH:MM)",
+          "value": "22:00",
+          "placeholder": "HH:MM (e.g., 22:00)"
+        },
+        {
+          "id": "Sat_sleepTime",
+          "element": "input",
+          "type": "text",
+          "label": "Saturday Sleep Time  (HH:MM)",
+          "value": "22:00",
+          "placeholder": "HH:MM (e.g., 22:00)"
+        },
+        {
+          "id": "Sun_sleepTime",
+          "element": "input",
+          "type": "text",
+          "label": "Sunday Sleep Time  (HH:MM)",
+          "value": "22:00",
+          "placeholder": "HH:MM (e.g., 22:00)"
+        },
+        {
+          "id": "volumeDecrease",
+          "element": "input",
+          "type": "number",
+          "label": "How Much Volume to Decrease",
+          "value": 10,
+          "placeholder": "volume decrese"
+        },
+        {
+          "id": "minutesFade",
+          "element": "input",
+          "type": "number",
+          "label": "Minutes to Fade Volume",
+          "value": 10,
+          "placeholder": "minutes"
+        }
+      ]
+    },
+    {
+      "id": "wake_settings",
+      "element": "section",
+      "label": "Morning Mode",
+      "icon": "fa-sun-o",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_controller/SleepWakePlugin",
+        "method": "saveOptions"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "Mon_Fri_wakeTime",
+          "Sat_wakeTime",
+          "Sun_wakeTime",
+          "startVolume",
+          "playlist",
+          "volumeIncrease",
+          "minutesRamp"
+        ]
+      },
+      "content": [
+        {
+          "id": "Mon_Fri_wakeTime",
+          "element": "input",
+          "type": "text",
+          "label": "Mon-Fri Wake Time    (HH:MM)",
+          "value": "07:00",
+          "placeholder": "HH:MM (e.g., 07:00)"
+        },
+        {
+          "id": "Sat_wakeTime",
+          "element": "input",
+          "type": "text",
+          "label": "Saturday Wake Time    (HH:MM)",
+          "value": "07:00",
+          "placeholder": "HH:MM (e.g., 07:00)"
+        },
+        {
+          "id": "Sun_wakeTime",
+          "element": "input",
+          "type": "text",
+          "label": "Sunday Wake Time    (HH:MM)",
+          "value": "07:00",
+          "placeholder": "HH:MM (e.g., 07:00)"
+        },
+        {
+          "id": "startVolume",
+          "element": "input",
+          "type": "text",
+          "label": "Start Volume",
+          "value": "35",
+          "placeholder": "volume"
+        },
+        {
+          "id": "playlist",
+          "element": "select",
+          "label": "Playlist Name",
+          "value": {
+		"value": "Radio",
+		"label": "Radio"
+          },
+	"options": []
+        }, 
+        {
+          "id": "volumeIncrease",
+          "element": "input",
+          "type": "number",
+          "label": "How Much Volume to Increase",
+          "value": 10,
+          "placeholder": "volume increase"
+        },
+        {
+          "id": "minutesRamp",
+          "element": "input",
+          "type": "number",
+          "label": "Minutes to Ramp Volume",
+          "value": 10,
+          "placeholder": "minutes"
+        }
+      ]
+    }
+  ]
+}

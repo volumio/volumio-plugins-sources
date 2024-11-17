@@ -1,0 +1,50 @@
+{
+  "Mon_Fri_sleepTime": {
+    "type": "string",
+    "value": "00:01"
+  },
+  "Sat_sleepTime": {
+    "type": "string",
+    "value": "01:00"
+  },
+  "Sun_sleepTime": {
+    "type": "string",
+    "value": "01:00"
+  },
+  "Mon_Fri_wakeTime": {
+    "type": "string",
+    "value": "06:00"
+  },
+  "Sat_wakeTime": {
+    "type": "string",
+    "value": "07:00"
+  },
+  "Sun_wakeTime": {
+    "type": "string",
+    "value": "07:00"
+  },
+  "startVolume": {
+    "type": "string",
+    "value": "20"
+  },
+  "playlist": {
+    "type": "string",
+    "value": "wakeup"
+  },
+  "volumeDecrease": {
+    "type": "number",
+    "value": 10
+  },
+  "minutesFade": {
+    "type": "number",
+    "value": 60
+  },
+  "volumeIncrease": {
+    "type": "number",
+    "value": 10
+  },
+  "minutesRamp": {
+    "type": "number",
+    "value": 30
+  }
+}
