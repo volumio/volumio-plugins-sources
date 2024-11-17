@@ -1,0 +1,34 @@
+{
+	"name": "crossfader_switch",
+	"version": "1.0.2",
+	"description": "Allow crossfade for mpd and adjust crossfading time.",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "chourmovs",
+	"license": "ISC",
+	"repository": "https://github.com/chourmovs/volumio-plugins-sources/tree/master/crossfader_switch",
+	"volumio_info": {
+		"prettyName": "crossfaderswitch",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "system_controller",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Crossfader plugin for better mix between tracks using MPD/MPC",
+		"node": ">=14.15.4",
+		"volumio": ">=3",
+		"changelog": "code cleaning"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"v-conf": "^1.4.2"
+}
+}
