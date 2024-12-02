@@ -1,0 +1,37 @@
+{
+  "name": "peppymeterbasic",
+  "version": "0.0.1",
+  "description": "Basic Peppy-meter for Volumio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Balbuze",
+  "license": "GPL-3.0",
+  "volumio_info": {
+    "prettyName": "Peppy-meter-Basic",
+    "plugin_type": "user_interface",
+    "icon": "fa-bar-chart",
+    "os": [
+      "buster"
+    ],
+    "changelog": "",
+    "details": "Easy install Basic-Peppy-meter",
+    "architectures": [
+      "armhf",
+      "amd64"
+    ],
+    "has_alsa_contribution": true
+  },
+  "dependencies": {
+    "child_process": "",
+    "fs-extra": "^4.0.2",
+    "kew": "",
+    "socket.io-client": "2.4.0",
+    "v-conf": ""
+  },
+  "engines": {
+    "node": ">=8",
+    "volumio": ">=3.703"
+  }
+}

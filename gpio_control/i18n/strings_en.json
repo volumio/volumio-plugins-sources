@@ -52,5 +52,14 @@
 	"UNITS_HOURS": "Hours",
 	"UNITS_MINUTES": "Minutes",
 	"UNITS_SECONDS": "Seconds",
-	"UNITS_MILLISECONDS": "Milliseconds"
+	"UNITS_MILLISECONDS": "Milliseconds",
+	"PLUGIN_LINKS": "Useful Links",
+	"FORUM_LINK": {
+		"LABEL": "Plugin Feedback",
+		"DESC": "Visit this plugin's page in the Volumio community forum."
+	},
+	"DONATE_LINK": {
+		"LABEL": "Donate",
+		"DESC": "If you value this plugin consider making a donation."
+	}
 }

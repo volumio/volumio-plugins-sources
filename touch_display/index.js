@@ -63,6 +63,7 @@ TouchDisplay.prototype.onStart = function (quiet) {
   const defer = libQ.defer();
 
   self.commandRouter.loadI18nStrings();
+  self.checkConfigJson();
   self.commandRouter.executeOnPlugin('system_controller', 'system', 'getSystemVersion', '')
     .then(infos => {
       device = infos.hardware;
@@ -254,6 +255,8 @@ TouchDisplay.prototype.getUIConfig = function () {
           max: 200
         }
       ];
+      uiconf.sections[6].hidden = false;
+      uiconf.sections[6].content[0].value = self.config.get('virtualKeyboard');
       defer.resolve(uiconf);
     })
     .fail(e => {
@@ -291,6 +294,25 @@ TouchDisplay.prototype.getI18nFile = function (langCode) {
     self.logger.error(self.pluginName + ': Fetching language file: ' + e);
     // return default i18n file
     return path.join(__dirname, 'i18n', 'strings_en.json');
+  }
+};
+
+TouchDisplay.prototype.checkConfigJson = function () {
+  const self = this;
+
+  try {
+    if (self.config.get('pluginVersion') !== self.commandRouter.pluginManager.getPackageJson(__dirname).version) {
+      const defaultConf = fs.readJsonSync(path.join(__dirname, 'defaultConf.json'));
+      for (const key in defaultConf) {
+        if (!self.config.has(key)) {
+          self.config.set(key, defaultConf[key]);
+        }
+      }
+      self.config.set('pluginVersion', self.commandRouter.pluginManager.getPackageJson(__dirname).version);
+      self.config.save();
+    }
+  } catch (e) {
+    self.logger.error(self.pluginName + ': Error checking the user configuration for completeness: ' + e);
   }
 };
 
@@ -669,13 +691,14 @@ TouchDisplay.prototype.savePointerConf = function (confData) {
         self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_SET_POINTER') + err);
         defer.reject(err);
       } else {
-        self.config.set('showPointer', confData.showPointer);
         exec("/bin/echo volumio | /usr/bin/sudo -S /bin/sed -i -e '/" + execStartLine + '/c\\' + execStartLine + pointerOpt + ' /lib/systemd/system/volumio-kiosk.service', { uid: 1000, gid: 1000 }, (error, stdout, stderr) => {
           if (error !== null) {
+            self.updateUIConfig();
             self.logger.error(self.pluginName + ': Error modifying /lib/systemd/system/volumio-kiosk.service: ' + error);
             self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_MOD') + '/lib/systemd/system/volumio-kiosk.service: ' + error);
             defer.reject(error);
           } else {
+            self.config.set('showPointer', confData.showPointer);
             self.systemctl('daemon-reload')
               .then(self.restart.bind(self))
               .then(() => {
@@ -712,7 +735,6 @@ TouchDisplay.prototype.saveScaleConf = function (confData) {
           self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_SET_SCALE') + err);
           defer.reject(err);
         } else {
-          self.config.set('scale', confData.scale);
           exec('/usr/bin/chromium-browser -version', { uid: 1000, gid: 1000 }, (error, stdout, stderr) => {
             if (error !== null) {
               self.logger.error(self.pluginName + ': Error requesting browser version.');
@@ -722,10 +744,12 @@ TouchDisplay.prototype.saveScaleConf = function (confData) {
               }
               exec("/bin/echo volumio | /usr/bin/sudo -S /bin/sed -i -e 's/factor=.* /factor=" + confData.scale / 100 + " /' /opt/volumiokiosk.sh", { uid: 1000, gid: 1000 }, (error, stdout, stderr) => {
                 if (error !== null) {
+                  self.updateUIConfig();
                   self.logger.error(self.pluginName + ': Error modifying /opt/volumiokiosk.sh: ' + error);
                   self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_MOD') + '/opt/volumiokiosk.sh: ' + error);
                   defer.reject(error);
                 } else {
+                  self.config.set('scale', confData.scale);
                   self.restart()
                     .then(() => {
                       self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('COMMON.SETTINGS_SAVED_SUCCESSFULLY'));
@@ -742,6 +766,47 @@ TouchDisplay.prototype.saveScaleConf = function (confData) {
       self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.NO_CHANGES'));
       defer.resolve();
     }
+  }
+  if (uiNeedsUpdate) {
+    self.updateUIConfig();
+  }
+  return defer.promise;
+};
+
+TouchDisplay.prototype.saveVirtualKeyboardConf = function (confData) {
+  const self = this;
+  const defer = libQ.defer();
+  const extensionPath = confData.virtualKeyboard ? "'\\/data\\/volumiokioskextensions\\/VirtualKeyboard\\/'" : '';
+
+  if (self.config.get('virtualKeyboard') !== confData.virtualKeyboard) {
+    fs.stat('/tmp/.X11-unix/X' + displayNumber, (err, stats) => {
+      if (err !== null || !stats.isSocket()) {
+        self.updateUIConfig();
+        self.logger.error(self.pluginName + ': Virtual keyboard setting cannot be applied: ' + err); // this can happen if the user changes the virtual keyboard setting which leads to a restart of the Xserver and then fastly (before the Xserver has completed its start) tries to change the virtual keyboard setting
+        self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_SET_VKEYBOARD') + err);
+        defer.reject(err);
+      } else {
+        exec('/bin/echo volumio | /usr/bin/sudo -S /bin/sed -i -e "s/load-extension=.* /load-extension=' + extensionPath + ' /" /opt/volumiokiosk.sh', { uid: 1000, gid: 1000 }, (error, stdout, stderr) => {
+          if (error !== null) {
+            self.updateUIConfig();
+            self.logger.error(self.pluginName + ': Error modifying /opt/volumiokiosk.sh: ' + error);
+            self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.ERR_MOD') + '/opt/volumiokiosk.sh: ' + error);
+            defer.reject(error);
+          } else {
+            self.config.set('virtualKeyboard', confData.virtualKeyboard);
+            self.restart()
+              .then(() => {
+                self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('COMMON.SETTINGS_SAVED_SUCCESSFULLY'));
+                defer.resolve();
+              })
+              .fail(() => defer.reject(new Error()));
+          }
+        });
+      }
+    });
+  } else {
+    self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('TOUCH_DISPLAY.PLUGIN_NAME'), self.commandRouter.getI18nString('TOUCH_DISPLAY.NO_CHANGES'));
+    defer.resolve();
   }
   if (uiNeedsUpdate) {
     self.updateUIConfig();
@@ -1223,6 +1288,10 @@ TouchDisplay.prototype.setOrientation = function (angle) {
                 }
               }
             });
+          } else if (device === 'pi') {
+            self.modBootConfig(configTxtRotationBanner + '.*lcd_rotate=.*' + os.EOL + 'display_hdmi_rotate=.*', newEntry)
+              .then(() => defer.resolve())
+              .fail(() => defer.reject(new Error()));
           }
         }
       });

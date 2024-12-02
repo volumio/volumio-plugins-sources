@@ -16074,6 +16074,34 @@
 					}
 				}
 			]
+		},
+		{
+			"id": "gpioControlLinks",
+			"element": "section",
+			"label": "TRANSLATE.PLUGIN_LINKS",
+			"icon": "fa-link",
+			"content": [
+				{
+					"id": "gpioControlForum",
+					"element": "button",
+					"label": "TRANSLATE.FORUM_LINK.LABEL",
+					"description": "TRANSLATE.FORUM_LINK.DESC",
+					"onClick": { 
+						"type" : "openUrl", 
+						"url" : "https://community.volumio.com/t/plugin-gpio-control-control-gpio-with-volumio-3-events-now-rpi5-compatible" 
+					}   
+				},
+				{
+					"id": "gpioControlDonate",
+					"element": "button",
+					"label": "TRANSLATE.DONATE_LINK.LABEL",
+					"description": "TRANSLATE.DONATE_LINK.DESC",
+					"onClick": { 
+						"type" : "openUrl", 
+						"url" : "https://www.paypal.com/donate/?hosted_button_id=N7SN63XL9RTVS" 
+					}   
+				}
+			]
 		}
 	]
 }

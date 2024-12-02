@@ -33,4 +33,4 @@ apt-get update || { echo "Running apt-get update failed"; exit 3; }
 apt-get -y install build-essential || { echo "Installing build-essential failed"; exit 3; }
 
 echo "Installing module \"onoff\""
-npm install --prefix "$PLUGIN_DIR" onoff@^6.0.0 || { echo "Installing module \"onoff\" failed"; exit 3; }
+sudo -u volumio npm install --prefix "$PLUGIN_DIR" onoff@^6.0.0 || { echo "Installing module \"onoff\" failed"; exit 3; }
