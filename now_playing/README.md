@@ -91,6 +91,9 @@ Starting from v0.7.0, the Now Playing plugin can query the relevant music servic
 
 ## Changelog
 
+0.7.5
+- Fix [#15](https://github.com/patrickkfkan/volumio-now-playing/issues/dependency)
+
 0.7.4
 - Fix broken Weather API due to openweathermap.org changes
 

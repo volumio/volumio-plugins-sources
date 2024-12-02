@@ -10,6 +10,7 @@ cd /data/plugins/user_interface/now_playing
 # Remove geo-tz from devDependencies
 sed -i '/"geo-tz"/d' package.json
 npm i --production --save geo-tz@"^8.0.2"
+npm i --production point-in-polygon-hao@1.1.0
 
 echo "Creating user directories (if not exist)"
 mkdir -p "${CONFIG_BAK_DIR}"
