@@ -1,8 +1,8 @@
-import { PageElement } from '../../../../types';
+import { type PageElement } from '../../../../types';
 import { EndpointType } from '../../../../types/Endpoint';
-import View from '../View';
+import type View from '../View';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 
 const ENDPOINT_TYPES = [ EndpointType.Browse,
   EndpointType.Search,

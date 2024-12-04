@@ -1,6 +1,6 @@
-import { PageContent, WatchContent } from '../../../types/Content';
-import Endpoint from '../../../types/Endpoint';
-import FeedViewHandler, { FeedView } from './FeedViewHandler';
+import { type PageContent, type WatchContent } from '../../../types/Content';
+import type Endpoint from '../../../types/Endpoint';
+import FeedViewHandler, { type FeedView } from './FeedViewHandler';
 export interface GenericView extends FeedView {
     name: 'generic';
 }

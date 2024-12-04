@@ -65,7 +65,6 @@ class SearchViewHandler extends GenericViewHandler_1.default {
         return contents;
     }
 }
-exports.default = SearchViewHandler;
 _SearchViewHandler_instances = new WeakSet(), _SearchViewHandler_spliceShowingResultsFor = function _SearchViewHandler_spliceShowingResultsFor(section) {
     if (!section.items?.length) {
         return null;
@@ -82,4 +81,5 @@ _SearchViewHandler_instances = new WeakSet(), _SearchViewHandler_spliceShowingRe
     });
     return spliced;
 };
+exports.default = SearchViewHandler;
 //# sourceMappingURL=SearchViewHandler.js.map

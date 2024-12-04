@@ -5,9 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const YouTube2Context_1 = __importDefault(require("../../../YouTube2Context"));
 const model_1 = require("../../../model");
-const InnertubeLoader_1 = __importDefault(require("../../../model/InnertubeLoader"));
 const Endpoint_1 = require("../../../types/Endpoint");
-const Auth_1 = require("../../../util/Auth");
 const EndpointHelper_1 = __importDefault(require("../../../util/EndpointHelper"));
 const ExplodeHelper_1 = __importDefault(require("../../../util/ExplodeHelper"));
 const FeedViewHandler_1 = __importDefault(require("./FeedViewHandler"));
@@ -30,10 +28,10 @@ const REQUIRES_SIGNIN_BROWSE_IDS = [
 class GenericViewHandler extends FeedViewHandler_1.default {
     async browse() {
         const endpoint = this.getEndpoint();
-        const { auth } = await InnertubeLoader_1.default.getInstance();
+        const account = await this.getModel(model_1.ModelType.Account).getInfo();
         if (EndpointHelper_1.default.isType(endpoint, Endpoint_1.EndpointType.Browse) &&
             REQUIRES_SIGNIN_BROWSE_IDS.includes(endpoint.payload.browseId) &&
-            auth.getStatus().status !== Auth_1.AuthStatus.SignedIn) {
+            !account.isSignedIn) {
             YouTube2Context_1.default.toast('error', YouTube2Context_1.default.getI18n('YOUTUBE2_ERR_REQUIRE_SIGN_IN'));
             throw Error(YouTube2Context_1.default.getI18n('YOUTUBE2_ERR_REQUIRE_SIGN_IN'));
         }
@@ -99,7 +97,6 @@ class GenericViewHandler extends FeedViewHandler_1.default {
             .map((item) => ExplodeHelper_1.default.getExplodedTrackInfoFromVideo(item)) || [];
         return result;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getEndpoint(explode = false) {
         const view = this.currentView;
         if (view.continuation) {

@@ -1,13 +1,16 @@
 import yt2 from '../../../YouTube2Context';
-import Model, { ModelOf, ModelType } from '../../../model';
-import { BaseModel } from '../../../model/BaseModel';
-import { PageElement } from '../../../types';
-import { QueueItem } from './ExplodableViewHandler';
-import View, { ContinuationBundle } from './View';
-import ViewHandler, { RenderedPage } from './ViewHandler';
+import Model, { type ModelOf, ModelType } from '../../../model';
+import { type BaseModel } from '../../../model/BaseModel';
+import { type PageElement } from '../../../types';
+import { type QueueItem } from './ExplodableViewHandler';
+import {type ContinuationBundle} from './View';
+import type View from './View';
+import {type RenderedPage} from './ViewHandler';
+import type ViewHandler from './ViewHandler';
 import ViewHelper from './ViewHelper';
-import Renderer, { RendererOf, RendererType } from './renderers';
-import BaseRenderer, { RenderedListItem } from './renderers/BaseRenderer';
+import Renderer, { type RendererOf, RendererType } from './renderers';
+import {type RenderedListItem} from './renderers/BaseRenderer';
+import type BaseRenderer from './renderers/BaseRenderer';
 
 export interface ContinuationData {
   continuation: PageElement.Continuation<any>;
@@ -31,8 +34,8 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     this.#renderers = {};
   }
 
-  async browse(): Promise<RenderedPage> {
-    return {};
+  browse(): Promise<RenderedPage> {
+    return Promise.resolve({});
   }
 
   explode(): Promise<QueueItem[]> {

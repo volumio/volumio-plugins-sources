@@ -1,4 +1,4 @@
-import View from '../View';
+import type View from '../View';
 import ChannelRenderer from './ChannelRenderer';
 import EndpointLinkRenderer from './EndpointLinkRenderer';
 import OptionRenderer from './OptionRenderer';

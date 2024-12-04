@@ -1,4 +1,4 @@
-import View from '../View';
+import type View from '../View';
 export interface RenderedListItem {
     service: 'youtube2';
     type: 'folder' | 'song' | 'album' | 'item-no-menu';

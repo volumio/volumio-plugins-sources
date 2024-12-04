@@ -59,7 +59,6 @@ class PlaylistModel extends EndpointModel_1.default {
         return currentItems;
     }
 }
-exports.default = PlaylistModel;
 _PlaylistModel_instances = new WeakSet(), _PlaylistModel_findSectionWithContinuation = function _PlaylistModel_findSectionWithContinuation(sections) {
     if (!sections) {
         return null;
@@ -78,4 +77,5 @@ _PlaylistModel_instances = new WeakSet(), _PlaylistModel_findSectionWithContinua
     }
     return null;
 };
+exports.default = PlaylistModel;
 //# sourceMappingURL=PlaylistModel.js.map

@@ -5,8 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const YouTube2Context_1 = __importDefault(require("../../../YouTube2Context"));
 const model_1 = require("../../../model");
-const InnertubeLoader_1 = __importDefault(require("../../../model/InnertubeLoader"));
-const Auth_1 = require("../../../util/Auth");
 const FeedViewHandler_1 = __importDefault(require("./FeedViewHandler"));
 class RootViewHandler extends FeedViewHandler_1.default {
     getTracksOnExplode() {
@@ -32,23 +30,20 @@ class RootViewHandler extends FeedViewHandler_1.default {
         else if (!contents.sections || contents.sections.length === 0) {
             contents.sections = [];
         }
-        const { auth } = await InnertubeLoader_1.default.getInstance();
-        if (auth.getStatus().status === Auth_1.AuthStatus.SignedIn) {
-            const accountModel = this.getModel(model_1.ModelType.Account);
-            const account = await accountModel.getInfo();
-            if (account?.channel) {
-                contents.sections.unshift({
-                    type: 'section',
-                    items: [
-                        {
-                            type: 'endpointLink',
-                            title: account.channel.title,
-                            thumbnail: account.photo,
-                            endpoint: account.channel.endpoint
-                        }
-                    ]
-                });
-            }
+        const accountModel = this.getModel(model_1.ModelType.Account);
+        const account = await accountModel.getInfo();
+        if (account.active?.channel) {
+            contents.sections.unshift({
+                type: 'section',
+                items: [
+                    {
+                        type: 'endpointLink',
+                        title: account.active.channel.title,
+                        thumbnail: account.active.photo,
+                        endpoint: account.active.channel.endpoint
+                    }
+                ]
+            });
         }
         if (contentType === 'simple' && contents.sections.length > 1) {
             // Place all items into one section

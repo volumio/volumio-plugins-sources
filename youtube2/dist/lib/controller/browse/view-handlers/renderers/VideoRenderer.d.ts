@@ -1,5 +1,5 @@
-import { ContentItem } from '../../../../types';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import { type ContentItem } from '../../../../types';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 export default class VideoRenderer extends BaseRenderer<ContentItem.Video> {
     renderToListItem(data: ContentItem.Video): RenderedListItem | null;
 }

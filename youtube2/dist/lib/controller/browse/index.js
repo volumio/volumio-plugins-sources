@@ -75,8 +75,8 @@ class BrowseController {
         }
     }
 }
-exports.default = BrowseController;
 _BrowseController_instances = new WeakSet(), _BrowseController_getHandler = function _BrowseController_getHandler(uri) {
     return ViewHandlerFactory_1.default.getHandler(uri);
 };
+exports.default = BrowseController;
 //# sourceMappingURL=index.js.map

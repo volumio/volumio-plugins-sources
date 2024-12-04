@@ -67,7 +67,6 @@ class OptionValueRenderer extends BaseRenderer_1.default {
         };
     }
 }
-exports.default = OptionValueRenderer;
 _OptionValueRenderer_baseUri = new WeakMap(), _OptionValueRenderer_prevUri = new WeakMap(), _OptionValueRenderer_instances = new WeakSet(), _OptionValueRenderer_getBaseUri = function _OptionValueRenderer_getBaseUri() {
     if (!__classPrivateFieldGet(this, _OptionValueRenderer_baseUri, "f")) {
         const baseUriViews = [...this.previousViews];
@@ -81,4 +80,5 @@ _OptionValueRenderer_baseUri = new WeakMap(), _OptionValueRenderer_prevUri = new
     }
     return __classPrivateFieldGet(this, _OptionValueRenderer_prevUri, "f");
 };
+exports.default = OptionValueRenderer;
 //# sourceMappingURL=OptionValueRenderer.js.map

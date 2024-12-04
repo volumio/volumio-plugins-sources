@@ -33,10 +33,10 @@ class EndpointModel extends BaseModel_1.BaseModel {
         return null;
     }
 }
-exports.default = EndpointModel;
 _EndpointModel_instances = new WeakSet(), _EndpointModel_doGetContents = async function _EndpointModel_doGetContents(innertube, url, endpoint) {
     const response = await innertube.actions.execute(url, endpoint.payload);
     const parsed = volumio_youtubei_js_1.Parser.parseResponse(response.data); // First parse by InnerTube
     return InnertubeResultParser_1.default.parseResult(parsed, endpoint); // Second parse
 };
+exports.default = EndpointModel;
 //# sourceMappingURL=EndpointModel.js.map

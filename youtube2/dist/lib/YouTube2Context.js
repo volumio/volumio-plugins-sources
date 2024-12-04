@@ -34,6 +34,7 @@ class YouTube2Context {
         __classPrivateFieldSet(this, _YouTube2Context_i18nDefaults, {}, "f");
         __classPrivateFieldSet(this, _YouTube2Context_i18CallbackRegistered, false, "f");
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
     set(key, value) {
         __classPrivateFieldGet(this, _YouTube2Context_data, "f")[key] = value;
     }

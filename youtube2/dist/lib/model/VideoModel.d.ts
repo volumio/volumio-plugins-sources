@@ -1,4 +1,4 @@
-import VideoPlaybackInfo from '../types/VideoPlaybackInfo';
+import type VideoPlaybackInfo from '../types/VideoPlaybackInfo';
 import { BaseModel } from './BaseModel';
 export default class VideoModel extends BaseModel {
     #private;

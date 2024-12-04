@@ -9,5 +9,5 @@ var EndpointType;
     EndpointType["BrowseContinuation"] = "browseContinuation";
     EndpointType["WatchContinuation"] = "watchContinuation";
     EndpointType["SearchContinuation"] = "searchContinuation";
-})(EndpointType = exports.EndpointType || (exports.EndpointType = {}));
+})(EndpointType || (exports.EndpointType = EndpointType = {}));
 //# sourceMappingURL=Endpoint.js.map

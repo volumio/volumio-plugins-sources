@@ -1,7 +1,8 @@
-import Innertube, { YT, FormatOptions } from 'volumio-youtubei.js';
 import fetch from 'node-fetch';
+import {type YT, type Types} from 'volumio-youtubei.js';
+import type Innertube from 'volumio-youtubei.js';
 import yt2 from '../YouTube2Context';
-import VideoPlaybackInfo from '../types/VideoPlaybackInfo';
+import type VideoPlaybackInfo from '../types/VideoPlaybackInfo';
 import { BaseModel } from './BaseModel';
 import InnertubeResultParser from './InnertubeResultParser';
 
@@ -16,7 +17,7 @@ const ITAG_TO_BITRATE: Record<string, string> = {
   '251': '160'
 };
 
-const BEST_AUDIO_FORMAT: FormatOptions = {
+const BEST_AUDIO_FORMAT: Types.FormatOptions = {
   type: 'audio',
   format: 'any',
   quality: 'best'
@@ -52,7 +53,7 @@ export default class VideoModel extends BaseModel {
         }
       };
 
-      if (info.playability_status.status === 'UNPLAYABLE') {
+      if (info.playability_status?.status === 'UNPLAYABLE') {
         // Check if this video has a trailer (non-purchased movies / films)
         if (info.has_trailer) {
           const trailerInfo = info.getTrailerInfo();
