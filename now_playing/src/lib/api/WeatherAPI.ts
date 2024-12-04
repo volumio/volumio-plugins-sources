@@ -3,7 +3,7 @@ import md5 from 'md5';
 import np from '../NowPlayingContext';
 import Cache from '../utils/Cache';
 import ConfigHelper from '../config/ConfigHelper';
-import { DefaultLocalizationSettings } from 'now-playing-common';
+import { DeepRequired } from 'now-playing-common';
 import { getPluginInfo } from '../utils/System';
 import { WeatherData, WeatherDataCurrent, WeatherDataForecastDay, WeatherDataHourly, WeatherDataLocation } from 'now-playing-common';
 
@@ -41,7 +41,7 @@ export interface WeatherAPIParsedConfig {
     lon: number;
     lat: number;
   };
-  units: 'imperial' | 'metric' | 'standard';
+  units?: 'imperial' | 'metric' | 'standard';
 }
 
 class WeatherAPI {
@@ -52,16 +52,12 @@ class WeatherAPI {
   };
   #cache: Cache;
   #config: WeatherAPIParsedConfig;
-  #ready: boolean;
 
   constructor() {
     this.#api = new OpenWeatherMapAPI();
     this.#fetchPromises = {};
     this.#cache = new Cache({ weather: 600 }, { weather: 10 });
-    this.#config = {
-      units: DefaultLocalizationSettings.unitSystem
-    };
-    this.#ready = false;
+    this.#config = {};
   }
 
   clearCache() {
@@ -71,27 +67,19 @@ class WeatherAPI {
   setConfig(opts: WeatherAPIConfig) {
     const { coordinates, units } = opts;
     const coord = ConfigHelper.parseCoordinates(coordinates);
-    this.#ready = !!coord;
-    if (!coord) {
-      return;
-    }
     let configChanged = false;
     const {coordinates: currentCoordinates, units: currentUnits} = this.#config;
-    if (coord.lat !== currentCoordinates?.lat || coord.lon !== currentCoordinates?.lon) {
+    if (coord && (coord.lat !== currentCoordinates?.lat || coord.lon !== currentCoordinates?.lon)) {
       this.#api.setCoordinates(coord.lat, coord.lon);
+      this.#config.coordinates = coord;
       configChanged = true;
     }
-    if (units !== undefined && currentUnits !== units) {
+    if (currentUnits !== units) {
       this.#api.setUnits(units);
+      this.#config.units = units;
       configChanged = true;
     }
     if (configChanged) {
-      this.#config = {
-        ...this.#config,
-        coordinates: coord,
-        units
-      };
-
       this.fetchInfo().then((refreshedInfo) => {
         np.broadcastMessage('npPushWeatherOnServiceChange', {
           success: true,
@@ -308,7 +296,7 @@ class WeatherAPI {
     return hourly;
   }
 
-  async #doFetchInfo(): Promise<WeatherData> {
+  async #doFetchInfo(config: DeepRequired<WeatherAPIParsedConfig>): Promise<WeatherData> {
     return this.#getFetchPromise(async() => {
       const weather = await this.#api.getWeather();
 
@@ -317,23 +305,28 @@ class WeatherAPI {
         current: this.#parseCurrent(weather),
         forecast: this.#parseForecast(weather),
         hourly: this.#parseHourly(weather),
-        units: this.#config.units
+        units: config.units
       };
     });
   }
 
   async fetchInfo() {
-    if (!this.#ready) {
+    const config = this.#config;
+    if (!this.#isConfigValid(config)) {
       throw Error(np.getI18n('NOW_PLAYING_ERR_WEATHER_MISCONFIG'));
     }
     try {
       const cacheKey = md5(JSON.stringify(this.#config));
-      return await this.#cache.getOrSet('weather', cacheKey, () => this.#doFetchInfo());
+      return await this.#cache.getOrSet('weather', cacheKey, () => this.#doFetchInfo(config));
     }
     catch (e: any) {
       const msg = np.getI18n('NOW_PLAYING_ERR_WEATHER_FETCH') + (e.message ? `: ${e.message}` : '');
       throw Error(msg);
     }
+  }
+
+  #isConfigValid(config: WeatherAPIParsedConfig): config is DeepRequired<WeatherAPIParsedConfig> {
+    return !!(config.coordinates && config.units);
   }
 }
 
