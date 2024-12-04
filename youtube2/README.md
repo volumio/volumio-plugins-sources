@@ -6,6 +6,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ### Changelog
 
+1.3.1 (Buster backport)
+- Fix `node:crypto` module not found fatal error on rPi
+
 1.3.0 (Buster backport)
 - Backport from v2.2.0
 

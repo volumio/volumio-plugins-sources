@@ -62,6 +62,7 @@ const model_1 = __importStar(require("./lib/model"));
 const ViewHelper_1 = __importDefault(require("./lib/controller/browse/view-handlers/ViewHelper"));
 const InnertubeLoader_1 = __importDefault(require("./lib/model/InnertubeLoader"));
 const YouTube2NowPlayingMetadataProvider_1 = __importDefault(require("./lib/util/YouTube2NowPlayingMetadataProvider"));
+const volumio_youtubei_js_1 = require("volumio-youtubei.js");
 class ControllerYouTube2 {
     constructor(context) {
         _ControllerYouTube2_instances.add(this);
@@ -177,6 +178,7 @@ class ControllerYouTube2 {
         __classPrivateFieldSet(this, _ControllerYouTube2_searchController, new SearchController_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_playController, new PlayController_1.default(), "f");
         __classPrivateFieldSet(this, _ControllerYouTube2_nowPlayingMetadataProvider, new YouTube2NowPlayingMetadataProvider_1.default(), "f");
+        volumio_youtubei_js_1.Parser.setParserErrorHandler(() => null); // Disable Innertube parser error reporting
         __classPrivateFieldGet(this, _ControllerYouTube2_instances, "m", _ControllerYouTube2_addToBrowseSources).call(this);
         return kew_1.default.resolve();
     }
