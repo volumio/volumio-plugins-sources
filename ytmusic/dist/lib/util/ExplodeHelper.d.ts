@@ -1,5 +1,5 @@
-import { ExplodedTrackInfo, QueueItem } from '../controller/browse/view-handlers/ExplodableViewHandler';
-import { ContentItem } from '../types';
+import { type ExplodedTrackInfo, type QueueItem } from '../controller/browse/view-handlers/ExplodableViewHandler';
+import { type ContentItem } from '../types';
 export default class ExplodeHelper {
     #private;
     static getExplodedTrackInfoFromMusicItem(data: ContentItem.MusicItem): ExplodedTrackInfo;
@@ -17,7 +17,7 @@ export default class ExplodeHelper {
      * @param {*} uri
      * @returns Converted URI or `null` on failure
      */
-    static convertLegacyExplodeUri(uri: string): Promise<string | null>;
+    static convertLegacyExplodeUri(uri: string): string | null;
     static createQueueItemFromExplodedTrackInfo(info: ExplodedTrackInfo): QueueItem;
 }
 //# sourceMappingURL=ExplodeHelper.d.ts.map

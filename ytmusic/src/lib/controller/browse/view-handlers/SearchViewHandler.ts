@@ -1,10 +1,12 @@
 import ytmusic from '../../../YTMusicContext';
-import { PageElement } from '../../../types';
-import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, EndpointType, SearchContinuationEndpoint, SearchEndpoint, WatchContinuationEndpoint, WatchEndpoint } from '../../../types/Endpoint';
-import { PageContent } from '../../../types/Content';
-import { SectionItem } from '../../../types/PageElement';
+import { type PageElement } from '../../../types';
+import {type BrowseContinuationEndpoint, type BrowseEndpoint, type SearchContinuationEndpoint, type SearchEndpoint, type WatchContinuationEndpoint, type WatchEndpoint} from '../../../types/Endpoint';
+import type Endpoint from '../../../types/Endpoint';
+import { EndpointType } from '../../../types/Endpoint';
+import { type PageContent } from '../../../types/Content';
+import { type SectionItem } from '../../../types/PageElement';
 import EndpointHelper from '../../../util/EndpointHelper';
-import GenericViewHandler, { GenericViewBase } from './GenericViewHandler';
+import GenericViewHandler, { type GenericViewBase } from './GenericViewHandler';
 
 export interface SearchView extends GenericViewBase {
   name: 'search';
@@ -14,9 +16,9 @@ export interface SearchView extends GenericViewBase {
 export default class SearchViewHandler extends GenericViewHandler<SearchView> {
 
   protected getEndpoint(explode: true): WatchEndpoint | BrowseEndpoint | WatchContinuationEndpoint | null;
-  protected getEndpoint(explode?: false | undefined): BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | null;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected getEndpoint(explode?: boolean | undefined): Endpoint | null {
+  protected getEndpoint(explode?: false  ): BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | null;
+   
+  protected getEndpoint(explode?: boolean  ): Endpoint | null {
     const view = this.currentView;
     if (!view.continuation && !view.endpoint) {
       const query = view.query ? view.query.trim() : '';

@@ -81,6 +81,8 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
                 return this.getRenderer(renderers_1.RendererType.Channel).renderToHeader(data);
             case 'playlist':
                 return this.getRenderer(renderers_1.RendererType.Playlist).renderToHeader(data);
+            case 'podcast':
+                return this.getRenderer(renderers_1.RendererType.Podcast).renderToHeader(data);
             case 'album':
                 return this.getRenderer(renderers_1.RendererType.Album).renderToHeader(data);
             default:
@@ -158,7 +160,6 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
         }
         return true;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     renderToListItem(data, contents) {
         switch (data.type) {
             case 'channel':
@@ -167,6 +168,8 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
                 return this.getRenderer(renderers_1.RendererType.EndpointLink).renderToListItem(data);
             case 'playlist':
                 return this.getRenderer(renderers_1.RendererType.Playlist).renderToListItem(data);
+            case 'podcast':
+                return this.getRenderer(renderers_1.RendererType.Podcast).renderToListItem(data);
             case 'album':
                 return this.getRenderer(renderers_1.RendererType.Album).renderToListItem(data);
             case 'video':
@@ -193,7 +196,7 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
             item.icon && !item.icon.startsWith('YTMUSIC_') &&
             !EndpointHelper_1.default.isType(item.endpoint, Endpoint_1.EndpointType.Watch);
         if (items.length === 0 ||
-            !items.some((item) => item.type !== 'section' && isBrowseEndpointLinkWithIcon(item)) ||
+            !items.some((item) => isBrowseEndpointLinkWithIcon(item)) ||
             items.every((item) => item.type === 'song')) {
             return ['list'];
         }
@@ -252,7 +255,6 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
         return result;
     }
 }
-exports.default = FeedViewHandler;
 _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = function _FeedViewHandler_sectionToLists(contents, section, header, parentContinuationBundle) {
     const listsForSection = [];
     const continuationBundle = this.createContinuationBundle(contents, section);
@@ -446,4 +448,5 @@ _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = fu
         optionValues: tabs
     };
 };
+exports.default = FeedViewHandler;
 //# sourceMappingURL=FeedViewHandler.js.map

@@ -1,11 +1,11 @@
 import ytmusic from '../../../YTMusicContext';
-import { BrowseEndpoint, EndpointType } from '../../../types/Endpoint';
+import { type BrowseEndpoint, EndpointType } from '../../../types/Endpoint';
 import BaseViewHandler from './BaseViewHandler';
-import { GenericView } from './GenericViewHandler';
-import View from './View';
-import { RenderedPage } from './ViewHandler';
+import { type GenericView } from './GenericViewHandler';
+import type View from './View';
+import { type RenderedPage } from './ViewHandler';
 import ViewHelper from './ViewHelper';
-import { RenderedListItem } from './renderers/BaseRenderer';
+import { type RenderedListItem } from './renderers/BaseRenderer';
 
 const ROOT_ENDPOINTS = {
   HOME: 'FEmusic_home',
@@ -20,7 +20,7 @@ export interface RootView extends View {
 
 export default class RootViewHandler extends BaseViewHandler<RootView> {
 
-  async browse(): Promise<RenderedPage> {
+  browse(): Promise<RenderedPage> {
     const items: RenderedListItem[] = [
       {
         service: 'ytmusic',
@@ -52,7 +52,7 @@ export default class RootViewHandler extends BaseViewHandler<RootView> {
       }
     ];
 
-    return {
+    return Promise.resolve({
       navigation: {
         prev: { uri: '/' },
         lists: [
@@ -63,7 +63,7 @@ export default class RootViewHandler extends BaseViewHandler<RootView> {
           }
         ]
       }
-    };
+    });
   }
 
   #constructUri(browseId: string): string {

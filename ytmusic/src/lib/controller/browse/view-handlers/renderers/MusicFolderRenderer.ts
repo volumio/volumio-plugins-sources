@@ -1,8 +1,8 @@
-import { ContentItem, PageElement } from '../../../../types';
-import { MusicFolderView } from '../MusicFolderViewHandler';
-import View from '../View';
+import { type ContentItem, type PageElement } from '../../../../types';
+import { type MusicFolderView } from '../MusicFolderViewHandler';
+import type View from '../View';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
 
 export default abstract class MusicFolderRenderer<T extends ContentItem.MusicFolder, K extends PageElement.MusicFolderHeader> extends BaseRenderer<T, K> {
 

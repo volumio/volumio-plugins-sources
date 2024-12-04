@@ -1,6 +1,6 @@
-import { PageElement } from '../../../types';
-import { PageContent } from '../../../types/Content';
-import { BrowseContinuationEndpoint, SearchContinuationEndpoint } from '../../../types/Endpoint';
+import { type PageElement } from '../../../types';
+import { type PageContent } from '../../../types/Content';
+import { type BrowseContinuationEndpoint, type SearchContinuationEndpoint } from '../../../types/Endpoint';
 interface View extends Record<string, any> {
     name: string;
     continuation?: Continuation;

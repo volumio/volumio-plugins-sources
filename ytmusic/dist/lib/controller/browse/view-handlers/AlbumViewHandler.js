@@ -94,6 +94,6 @@ class AlbumViewHandler extends MusicFolderViewHandler_1.default {
         return super.renderToListItem(data, contents);
     }
 }
-exports.default = AlbumViewHandler;
 _AlbumViewHandler_albumArtist = new WeakMap();
+exports.default = AlbumViewHandler;
 //# sourceMappingURL=AlbumViewHandler.js.map

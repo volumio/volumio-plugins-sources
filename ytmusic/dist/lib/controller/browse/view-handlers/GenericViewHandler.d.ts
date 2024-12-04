@@ -1,6 +1,7 @@
-import { PageContent, WatchContent, WatchContinuationContent } from '../../../types/Content';
-import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, SearchContinuationEndpoint, SearchEndpoint, WatchContinuationEndpoint, WatchEndpoint } from '../../../types/Endpoint';
-import FeedViewHandler, { FeedView } from './FeedViewHandler';
+import { type PageContent, type WatchContent, type WatchContinuationContent } from '../../../types/Content';
+import { type BrowseContinuationEndpoint, type BrowseEndpoint, type SearchContinuationEndpoint, type SearchEndpoint, type WatchContinuationEndpoint, type WatchEndpoint } from '../../../types/Endpoint';
+import type Endpoint from '../../../types/Endpoint';
+import FeedViewHandler, { type FeedView } from './FeedViewHandler';
 export type GenericViewBase = FeedView;
 export interface GenericView extends GenericViewBase {
     name: 'generic';

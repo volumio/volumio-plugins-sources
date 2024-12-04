@@ -1,19 +1,21 @@
-import { ContentItem, PageElement } from '../../../types';
-import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, SearchContinuationEndpoint, SearchEndpoint, WatchEndpoint } from '../../../types/Endpoint';
+import { type ContentItem, type PageElement } from '../../../types';
+import { type BrowseContinuationEndpoint, type BrowseEndpoint, type SearchContinuationEndpoint, type SearchEndpoint, type WatchEndpoint } from '../../../types/Endpoint';
+import type Endpoint from '../../../types/Endpoint';
 import ExplodableViewHandler from './ExplodableViewHandler';
-import View, { ContinuationBundle } from './View';
-import { RenderedList, RenderedPage } from './ViewHandler';
-import { RenderedHeader, RenderedListItem } from './renderers/BaseRenderer';
-import { ContinuationBundleOption } from './renderers/OptionRenderer';
-import { SectionItem } from '../../../types/PageElement';
-import { PageContent } from '../../../types/Content';
+import { type ContinuationBundle } from './View';
+import type View from './View';
+import { type RenderedList, type RenderedPage } from './ViewHandler';
+import { type RenderedHeader, type RenderedListItem } from './renderers/BaseRenderer';
+import { type ContinuationBundleOption } from './renderers/OptionRenderer';
+import { type SectionItem } from '../../../types/PageElement';
+import { type PageContent } from '../../../types/Content';
 /**
  * View handler for feed contents consisting of sections and optional header.
  */
 export interface FeedView extends View {
     endpoint?: BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | WatchEndpoint;
 }
-type RenderableItem = ContentItem.Channel | ContentItem.EndpointLink | ContentItem.Album | ContentItem.Playlist | ContentItem.MusicItem | PageElement.Option | ContinuationBundleOption;
+type RenderableItem = ContentItem.Channel | ContentItem.EndpointLink | ContentItem.Album | ContentItem.Playlist | ContentItem.Podcast | ContentItem.MusicItem | PageElement.Option | ContinuationBundleOption;
 export default abstract class FeedViewHandler<V extends FeedView = FeedView> extends ExplodableViewHandler<V> {
     #private;
     browse(): Promise<RenderedPage>;

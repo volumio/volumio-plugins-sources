@@ -1,8 +1,8 @@
-import { PageElement } from '../../../../types';
-import { OptionSelectionView } from '../OptionSelectionViewHandler';
-import { ContinuationBundle } from '../View';
+import { type PageElement } from '../../../../types';
+import { type OptionSelectionView } from '../OptionSelectionViewHandler';
+import { type ContinuationBundle } from '../View';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 
 const EXCLUDE_VIEW_PARAMS = [ 'name', 'continuation', 'endpoint', 'continuationBundle' ];
 
@@ -20,7 +20,7 @@ export default class OptionRenderer extends BaseRenderer<PageElement.Option | Co
 
   renderToListItem(data: PageElement.Option | ContinuationBundleOption): RenderedListItem | null {
     if (data.type === 'continuationBundleOption') {
-      return this.#renderContinuationBundleOptionToListItem(data as ContinuationBundleOption);
+      return this.#renderContinuationBundleOptionToListItem(data);
     }
 
     const targetView: OptionSelectionView = {

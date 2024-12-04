@@ -1,9 +1,9 @@
 import ytmusic from '../../YTMusicContext';
 import ExplodeHelper from '../../util/ExplodeHelper';
-import BaseViewHandler from './view-handlers/BaseViewHandler';
-import { QueueItem } from './view-handlers/ExplodableViewHandler';
-import View from './view-handlers/View';
-import { RenderedPage } from './view-handlers/ViewHandler';
+import type BaseViewHandler from './view-handlers/BaseViewHandler';
+import { type QueueItem } from './view-handlers/ExplodableViewHandler';
+import type View from './view-handlers/View';
+import { type RenderedPage } from './view-handlers/ViewHandler';
 import ViewHandlerFactory from './view-handlers/ViewHandlerFactory';
 
 export default class BrowseController {
@@ -33,6 +33,7 @@ export default class BrowseController {
    * - video[@explodeTrackData=...]
    * - song[@explodeTrackData=...]
    * - playlist[@endpoints=...]
+   * - podcast[@endpoints=...]
    * - generic[@endpoint=...]
    *
    * Legacy (pre v1.0) uris:
@@ -50,7 +51,7 @@ export default class BrowseController {
 
     if (!ExplodeHelper.validateExplodeUri(uri)) {
       // Try convert from legacy
-      const convertedUri = await ExplodeHelper.convertLegacyExplodeUri(uri);
+      const convertedUri = ExplodeHelper.convertLegacyExplodeUri(uri);
       if (!convertedUri) {
         ytmusic.getLogger().error(`[ytmusic-browse] Could not explode URI: ${uri}`);
         ytmusic.toast('error', ytmusic.getI18n('YTMUSIC_ERR_INVALID_URI'));

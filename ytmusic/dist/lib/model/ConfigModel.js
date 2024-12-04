@@ -7,7 +7,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _ConfigModel_instances, _ConfigModel_fetchSettingsPage, _ConfigModel_getCategoryFromSettingsPageResponse, _ConfigModel_getDefaultI18nOptions;
+var _ConfigModel_instances, _ConfigModel_fetchSettingsPage, _ConfigModel_getCategoryFromSettingsPageResponse;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PLUGIN_CONFIG_SCHEMA = void 0;
 const volumio_youtubei_js_1 = require("volumio-youtubei.js");
@@ -29,7 +29,8 @@ exports.PLUGIN_CONFIG_SCHEMA = {
     addToHistory: { defaultValue: true, json: false },
     prefetch: { defaultValue: true, json: false },
     preferOpus: { defaultValue: false, json: false },
-    authCredentials: { defaultValue: undefined, json: true }
+    cookie: { defaultValue: '', json: false },
+    activeChannelHandle: { defaultValue: '', json: false }
 };
 class ConfigModel extends BaseModel_1.BaseModel {
     constructor() {
@@ -76,7 +77,7 @@ class ConfigModel extends BaseModel_1.BaseModel {
                 }
                 return result;
             }, {});
-            const defaultI18nOptions = __classPrivateFieldGet(this, _ConfigModel_instances, "m", _ConfigModel_getDefaultI18nOptions).call(this);
+            const defaultI18nOptions = this.getDefaultI18nOptions();
             const result = {
                 region: tmpResult.region || defaultI18nOptions.region,
                 language: tmpResult.language || defaultI18nOptions.language
@@ -86,13 +87,28 @@ class ConfigModel extends BaseModel_1.BaseModel {
             }
             return result;
         }
-        return { ...__classPrivateFieldGet(this, _ConfigModel_instances, "m", _ConfigModel_getDefaultI18nOptions).call(this) };
+        return { ...this.getDefaultI18nOptions() };
     }
     clearCache() {
         YTMusicContext_1.default.set('configI18nOptions', null);
     }
+    getDefaultI18nOptions() {
+        return {
+            region: {
+                label: YTMusicContext_1.default.getI18n('YTMUSIC_REGION'),
+                optionValues: [
+                    { label: 'United States', value: 'US' }
+                ]
+            },
+            language: {
+                label: YTMusicContext_1.default.getI18n('YTMUSIC_LANGUAGE'),
+                optionValues: [
+                    { label: 'English (US)', value: 'en' }
+                ]
+            }
+        };
+    }
 }
-exports.default = ConfigModel;
 _ConfigModel_instances = new WeakSet(), _ConfigModel_fetchSettingsPage = async function _ConfigModel_fetchSettingsPage() {
     const { innertube } = await this.getInnertube();
     const requestData = {
@@ -118,20 +134,6 @@ _ConfigModel_instances = new WeakSet(), _ConfigModel_fetchSettingsPage = async f
         return response?.items?.find((item) => item.settingCategoryCollectionRenderer?.categoryId === categoryId).settingCategoryCollectionRenderer || null;
     }
     return null;
-}, _ConfigModel_getDefaultI18nOptions = function _ConfigModel_getDefaultI18nOptions() {
-    return {
-        region: {
-            label: YTMusicContext_1.default.getI18n('YTMUSIC_REGION'),
-            optionValues: [
-                { label: 'United States', value: 'US' }
-            ]
-        },
-        language: {
-            label: YTMusicContext_1.default.getI18n('YTMUSIC_LANGUAGE'),
-            optionValues: [
-                { label: 'English (US)', value: 'en' }
-            ]
-        }
-    };
 };
+exports.default = ConfigModel;
 //# sourceMappingURL=ConfigModel.js.map

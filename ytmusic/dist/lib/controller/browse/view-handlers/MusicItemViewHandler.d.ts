@@ -1,5 +1,5 @@
-import ExplodableViewHandler, { ExplodedTrackInfo } from './ExplodableViewHandler';
-import View from './View';
+import ExplodableViewHandler, { type ExplodedTrackInfo } from './ExplodableViewHandler';
+import type View from './View';
 export interface MusicItemView extends View {
     name: 'video' | 'song';
     explodeTrackData: ExplodedTrackInfo;

@@ -34,6 +34,7 @@ class YTMusicContext {
         __classPrivateFieldSet(this, _YTMusicContext_i18nDefaults, {}, "f");
         __classPrivateFieldSet(this, _YTMusicContext_i18CallbackRegistered, false, "f");
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
     set(key, value) {
         __classPrivateFieldGet(this, _YTMusicContext_data, "f")[key] = value;
     }

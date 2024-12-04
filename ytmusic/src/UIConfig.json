@@ -42,7 +42,36 @@
       "element": "section",
       "label": "TRANSLATE.YTMUSIC_SECTION_ACCOUNT",
       "icon": "fa-user",
-      "content": []
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/ytmusic",
+        "method": "configSaveAccount"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YTMUSIC_SAVE",
+        "data": [
+          "cookie"
+        ]
+      },
+      "content": [
+        {
+          "id": "cookie",
+          "element": "input",
+          "type": "text",
+          "label": "TRANSLATE.YTMUSIC_COOKIE",
+          "doc": "TRANSLATE.YTMUSIC_DOC_COOKIE",
+          "value": ""
+        },
+        {
+          "id": "cookieGuide",
+          "element": "button",
+          "label": "TRANSLATE.YTMUSIC_COOKIE_GUIDE",
+          "onClick": {
+            "type": "openUrl",
+            "url": "https://github.com/patrickkfkan/Volumio-YouTube.js/wiki/How-to-obtain-Cookie"
+          }
+        }
+      ]
     },
     {
       "id": "section_browse",

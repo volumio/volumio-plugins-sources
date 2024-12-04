@@ -1,8 +1,10 @@
 import ytmusic from '../../../YTMusicContext';
-import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, EndpointType, SearchContinuationEndpoint, SearchEndpoint, WatchContinuationEndpoint, WatchEndpoint } from '../../../types/Endpoint';
-import { PageContent, WatchContent, WatchContinuationContent } from '../../../types/Content';
+import {type BrowseContinuationEndpoint, type BrowseEndpoint, type SearchContinuationEndpoint, type SearchEndpoint, type WatchContinuationEndpoint, type WatchEndpoint} from '../../../types/Endpoint';
+import type Endpoint from '../../../types/Endpoint';
+import { EndpointType } from '../../../types/Endpoint';
+import { type PageContent, type WatchContent, type WatchContinuationContent } from '../../../types/Content';
 import EndpointHelper from '../../../util/EndpointHelper';
-import GenericViewHandler, { GenericViewBase } from './GenericViewHandler';
+import GenericViewHandler, { type GenericViewBase } from './GenericViewHandler';
 
 export interface MusicFolderView extends GenericViewBase {
   name: string,
@@ -26,8 +28,8 @@ export default abstract class MusicFolderViewHandler<T extends MusicFolderView> 
 
   protected getEndpoint(explode: true): WatchEndpoint | BrowseEndpoint | WatchContinuationEndpoint | null;
   protected getEndpoint(explode: false | undefined): BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | null;
-  protected getEndpoint(explode?: boolean | undefined): WatchEndpoint | BrowseEndpoint | WatchContinuationEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | null;
-  protected getEndpoint(explode?: boolean | undefined): Endpoint | null {
+  protected getEndpoint(explode?: boolean  ): WatchEndpoint | BrowseEndpoint | WatchContinuationEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | null;
+  protected getEndpoint(explode?: boolean  ): Endpoint | null {
     const view = this.currentView;
     if (!view.continuation) {
       const endpoints = view.endpoints;

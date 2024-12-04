@@ -1,4 +1,4 @@
-import { WatchEndpoint } from './Endpoint';
+import { type WatchEndpoint } from './Endpoint';
 
 interface MusicItemPlaybackInfo {
   title?: string;

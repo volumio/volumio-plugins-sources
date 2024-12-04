@@ -1,4 +1,6 @@
-import Endpoint, { BrowseEndpoint, EndpointOf, EndpointType } from '../types/Endpoint';
+import {type BrowseEndpoint, type EndpointOf} from '../types/Endpoint';
+import type Endpoint from '../types/Endpoint';
+import { EndpointType } from '../types/Endpoint';
 
 const EXCLUDE_ENDPOINT_BROWSE_IDS = [
   'SPreport_history',
@@ -55,5 +57,13 @@ export default class EndpointHelper {
 
     return endpoint.payload.browseId.startsWith('MPR') ||
       endpoint.payload.browseId.startsWith('FEmusic_library_privately_owned_release');
+  }
+
+  static isPodcastEndpoint(endpoint?: Endpoint | null): endpoint is BrowseEndpoint {
+    if (!this.isType(endpoint, EndpointType.Browse)) {
+      return false;
+    }
+
+    return endpoint.payload.browseId.startsWith('MPSPPL');
   }
 }

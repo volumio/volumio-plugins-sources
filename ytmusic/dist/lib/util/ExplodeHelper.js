@@ -62,6 +62,8 @@ class ExplodeHelper {
             case 'album':
                 // Endpoints object must exist (pre-v1.0 is just albumId / playlistId)
                 return view.endpoints && typeof view.endpoints === 'object';
+            case 'podcast':
+                return true;
             case 'generic':
                 // Endpoint must be an object (pre-v1.0 is stringified)
                 return view.endpoint && typeof view.endpoint === 'object';
@@ -81,7 +83,7 @@ class ExplodeHelper {
      * @param {*} uri
      * @returns Converted URI or `null` on failure
      */
-    static async convertLegacyExplodeUri(uri) {
+    static convertLegacyExplodeUri(uri) {
         // Current view
         const view = ViewHelper_1.default.getViewsFromUri(uri).pop();
         if (!view) {
@@ -237,7 +239,6 @@ class ExplodeHelper {
         };
     }
 }
-exports.default = ExplodeHelper;
 _a = ExplodeHelper, _ExplodeHelper_getUriFromExplodedTrackInfo = function _ExplodeHelper_getUriFromExplodedTrackInfo(info) {
     /**
      * `explodeTrackData` - necessary because Volumio adds track uri in
@@ -250,4 +251,5 @@ _a = ExplodeHelper, _ExplodeHelper_getUriFromExplodedTrackInfo = function _Explo
     };
     return `ytmusic/${ViewHelper_1.default.constructUriSegmentFromView(targetView)}`;
 };
+exports.default = ExplodeHelper;
 //# sourceMappingURL=ExplodeHelper.js.map

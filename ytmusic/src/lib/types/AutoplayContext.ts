@@ -1,4 +1,4 @@
-import { WatchContinuationEndpoint, WatchEndpoint } from './Endpoint';
+import { type WatchContinuationEndpoint, type WatchEndpoint } from './Endpoint';
 
 interface AutoplayContext {
   fetchEndpoint: WatchEndpoint | WatchContinuationEndpoint;

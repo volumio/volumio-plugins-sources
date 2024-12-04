@@ -1,5 +1,5 @@
-import { PageElement } from '../../../../types';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import { type PageElement } from '../../../../types';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 interface OptionValueRendererListItemOptions {
     extraUriParams: Record<string, any>;
 }

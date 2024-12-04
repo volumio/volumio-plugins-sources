@@ -1,8 +1,8 @@
-import I18nSchema from '../i18n/strings_en.json';
+import type I18nSchema from '../i18n/strings_en.json';
 import format from 'string-format';
 import fs from 'fs-extra';
-import winston from 'winston';
-import { PluginConfigKey, PluginConfigValue } from './types/PluginConfig';
+import type winston from 'winston';
+import { type PluginConfigKey, type PluginConfigValue } from './types/PluginConfig';
 import { PLUGIN_CONFIG_SCHEMA } from './model/ConfigModel';
 
 export type I18nKey = keyof typeof I18nSchema;
@@ -26,10 +26,12 @@ class YTMusicContext {
     this.#i18CallbackRegistered = false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   set<T>(key: string, value: T) {
     this.#data[key] = value;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   get<T>(key: string): T | null;
   get<T>(key: string, defaultValue: T): T;
   get<T>(key: string, defaultValue?: T): T | null {
@@ -81,7 +83,7 @@ class YTMusicContext {
     return result.trim();
   }
 
-  hasConfigKey<T extends PluginConfigKey>(key: T): boolean {
+  hasConfigKey(key: PluginConfigKey): boolean {
     return this.#pluginConfig.has(key);
   }
 

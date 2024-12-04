@@ -44,7 +44,13 @@ class OptionValueRenderer extends BaseRenderer_1.default {
                     name: 'generic'
                 };
             }
-            targetView.endpoint = data.endpoint;
+            // MusicFolderView types store browse endpoint in `endpoints` obj
+            if (Reflect.has(targetView, 'endpoints') && Reflect.has(targetView.endpoints, 'browse')) {
+                targetView.endpoints.browse = data.endpoint;
+            }
+            else {
+                targetView.endpoint = data.endpoint;
+            }
             if (opts?.extraUriParams) {
                 for (const [key, value] of Object.entries(opts.extraUriParams)) {
                     targetView[key] = value;
@@ -67,7 +73,6 @@ class OptionValueRenderer extends BaseRenderer_1.default {
         };
     }
 }
-exports.default = OptionValueRenderer;
 _OptionValueRenderer_baseUri = new WeakMap(), _OptionValueRenderer_prevUri = new WeakMap(), _OptionValueRenderer_instances = new WeakSet(), _OptionValueRenderer_getBaseUri = function _OptionValueRenderer_getBaseUri() {
     if (!__classPrivateFieldGet(this, _OptionValueRenderer_baseUri, "f")) {
         const baseUriViews = [...this.previousViews];
@@ -81,4 +86,5 @@ _OptionValueRenderer_baseUri = new WeakMap(), _OptionValueRenderer_prevUri = new
     }
     return __classPrivateFieldGet(this, _OptionValueRenderer_prevUri, "f");
 };
+exports.default = OptionValueRenderer;
 //# sourceMappingURL=OptionValueRenderer.js.map

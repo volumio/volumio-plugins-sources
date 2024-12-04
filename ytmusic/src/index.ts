@@ -7,17 +7,17 @@ import vconf from 'v-conf';
 
 import ytmusic from './lib/YTMusicContext';
 import BrowseController from './lib/controller/browse/BrowseController';
-import SearchController, { SearchQuery } from './lib/controller/search/SearchController';
+import SearchController, { type SearchQuery } from './lib/controller/search/SearchController';
 import PlayController from './lib/controller/play/PlayController';
-import { jsPromiseToKew } from './lib/util';
-import { AuthStatus } from './lib/util/Auth';
+import { jsPromiseToKew, kewToJSPromise } from './lib/util';
 import Model, { ModelType } from './lib/model';
-import { Account, I18nOptionValue, I18nOptions } from './lib/types/PluginConfig';
-import { QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
+import { type I18nOptionValue, type I18nOptions } from './lib/types/PluginConfig';
+import { type QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
 import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
 import InnertubeLoader from './lib/model/InnertubeLoader';
 import YTMusicNowPlayingMetadataProvider from './lib/util/YTMusicNowPlayingMetadataProvider';
-import { NowPlayingPluginSupport } from 'now-playing-common';
+import { type NowPlayingPluginSupport } from 'now-playing-common';
+import { Parser } from 'volumio-youtubei.js';
 
 interface GotoParams extends QueueItem {
   type: 'album' | 'artist';
@@ -44,16 +44,15 @@ class ControllerYTMusic implements NowPlayingPluginSupport {
 
     const langCode = this.#commandRouter.sharedVars.get('language_code');
     const loadConfigPromises = [
-      this.#commandRouter.i18nJson(`${__dirname}/i18n/strings_${langCode}.json`,
+      kewToJSPromise(this.#commandRouter.i18nJson(`${__dirname}/i18n/strings_${langCode}.json`,
         `${__dirname}/i18n/strings_en.json`,
-        `${__dirname}/UIConfig.json`),
+        `${__dirname}/UIConfig.json`)),
       this.#getConfigI18nOptions(),
-      this.#getConfigAccountInfo(),
-      this.#getAuthStatus()
-    ];
+      this.#getConfigAccountInfo()
+    ] as const;
 
-    libQ.all(loadConfigPromises)
-      .then(([ uiconf, i18nOptions, account, authStatus ]: any) => {
+    Promise.all(loadConfigPromises)
+      .then(([ uiconf, i18nOptions, account ]) => {
         const i18nUIConf = uiconf.sections[0];
         const accountUIConf = uiconf.sections[1];
         const browseUIConf = uiconf.sections[2];
@@ -69,80 +68,37 @@ class ControllerYTMusic implements NowPlayingPluginSupport {
         i18nUIConf.content[1].value = i18nOptions.selected.language;
 
         // Account
+        const cookie = ytmusic.getConfigValue('cookie');
         let authStatusDescription;
-        switch (authStatus.status) {
-          case AuthStatus.SignedIn:
-            if (account) {
-              authStatusDescription = ytmusic.getI18n('YTMUSIC_AUTH_STATUS_SIGNED_IN_AS', (account as Account).name);
-            }
-            else {
-              authStatusDescription = ytmusic.getI18n('YTMUSIC_AUTH_STATUS_SIGNED_IN');
-            }
-            break;
-          case AuthStatus.SigningIn:
-            authStatusDescription = ytmusic.getI18n('YTMUSIC_AUTH_STATUS_SIGNING_IN');
-            break;
-          case AuthStatus.Error:
-            authStatusDescription = ytmusic.getI18n('YTMUSIC_AUTH_STATUS_ERROR',
-              ytmusic.getErrorMessage('', authStatus.error, false));
-            break;
-          default: // AuthStatus.SignedOut
-            authStatusDescription = ytmusic.getI18n('YTMUSIC_AUTH_STATUS_SIGNED_OUT');
-        }
-
-        if (authStatus.status === AuthStatus.SignedOut) {
-          if (authStatus.verificationInfo) {
-            authStatusDescription += ` ${ytmusic.getI18n('YTMUSIC_AUTH_STATUS_CODE_READY')}`;
-
+        if (account?.isSignedIn && account.active) {
+          authStatusDescription = ytmusic.getI18n('YTMUSIC_AUTH_STATUS_SIGNED_IN_AS', account.active.name);
+          if (account.list.length > 1) {
+            const accountSelect = {
+              id: 'activeChannelHandle',
+              element: 'select',
+              label: ytmusic.getI18n('YTMUSIC_ACTIVE_CHANNEL'),
+              value: {
+                label: account.active.name,
+                value: account.active.handle
+              },
+              options: account.list.map((ac) => ({
+                label: ac.name,
+                value: ac.handle
+              }))
+            };
             accountUIConf.content = [
-              {
-                id: 'verificationUrl',
-                type: 'text',
-                element: 'input',
-                label: ytmusic.getI18n('YTMUSIC_VERIFICATION_URL'),
-                value: authStatus.verificationInfo.verificationUrl
-              },
-              {
-                id: 'openVerificationUrl',
-                element: 'button',
-                label: ytmusic.getI18n('YTMUSIC_GO_TO_VERIFICATION_URL'),
-                onClick: {
-                  type: 'openUrl',
-                  url: authStatus.verificationInfo.verificationUrl
-                }
-              },
-              {
-                id: 'code',
-                type: 'text',
-                element: 'input',
-                label: ytmusic.getI18n('YTMUSIC_DEVICE_CODE'),
-                value: authStatus.verificationInfo.userCode
-              }
+              accountUIConf.content[0],
+              accountSelect,
+              ...accountUIConf.content.slice(1)
             ];
-          }
-          else {
-            authStatusDescription += ` ${ytmusic.getI18n('YTMUSIC_AUTH_STATUS_CODE_PENDING')}`;
+            accountUIConf.saveButton.data.push('activeChannelHandle');
           }
         }
-        else if (authStatus.status === AuthStatus.SignedIn) {
-          accountUIConf.content = [
-            {
-              id: 'signOut',
-              element: 'button',
-              label: ytmusic.getI18n('YTMUSIC_SIGN_OUT'),
-              onClick: {
-                type: 'emit',
-                message: 'callMethod',
-                data: {
-                  endpoint: 'music_service/ytmusic',
-                  method: 'configSignOut'
-                }
-              }
-            }
-          ];
+        else if (cookie) {
+          authStatusDescription = ytmusic.getI18n('YTMUSIC_AUTH_STATUS_SIGNED_OUT');
         }
-
         accountUIConf.description = authStatusDescription;
+        accountUIConf.content[0].value = cookie;
 
         // Browse
         const loadFullPlaylists = ytmusic.getConfigValue('loadFullPlaylists');
@@ -162,8 +118,8 @@ class ControllerYTMusic implements NowPlayingPluginSupport {
 
         defer.resolve(uiconf);
       })
-      .fail((error: any) => {
-        ytmusic.getLogger().error(`[ytmusic] getUIConfig(): Cannot populate YouTube Music configuration - ${error}`);
+      .catch((error: unknown) => {
+        ytmusic.getLogger().error(ytmusic.getErrorMessage('[ytmusic] getUIConfig(): Cannot populate YouTube Music configuration:', error));
         defer.reject(Error());
       }
       );
@@ -186,7 +142,8 @@ class ControllerYTMusic implements NowPlayingPluginSupport {
     this.#playController = new PlayController();
 
     this.#nowPlayingMetadataProvider = new YTMusicNowPlayingMetadataProvider();
-
+    Parser.setParserErrorHandler(() => null); // Disable Innertube parser error reporting
+    
     this.#addToBrowseSources();
 
     return libQ.resolve();
@@ -213,59 +170,47 @@ class ControllerYTMusic implements NowPlayingPluginSupport {
     return [ 'config.json' ];
   }
 
-  #getConfigI18nOptions() {
-    const defer = libQ.defer();
-
+  async #getConfigI18nOptions() {
     const model = Model.getInstance(ModelType.Config);
-    model.getI18nOptions().then((options) => {
+    const selected: Record<keyof I18nOptions, I18nOptionValue> = {
+      region: { label: '', value: '' },
+      language: { label: '', value: '' }
+    };
+    try {
+      const options = await model.getI18nOptions();
       const selectedValues = {
         region: ytmusic.getConfigValue('region'),
         language: ytmusic.getConfigValue('language')
       };
-      const selected: Record<keyof I18nOptions, I18nOptionValue> = {
-        region: { label: '', value: '' },
-        language: { label: '', value: '' }
-      };
+      
       (Object.keys(selected) as (keyof I18nOptions)[]).forEach((key) => {
         selected[key] = options[key]?.optionValues.find((ov) => ov.value === selectedValues[key]) || { label: '', value: selectedValues[key] };
       });
 
-      defer.resolve({
+      return {
         options,
         selected
-      });
-    });
-
-    return defer.promise;
+      };
+    }
+    catch (error: unknown) {
+      ytmusic.getLogger().error(ytmusic.getErrorMessage('[ytmusic] Error getting i18n options:', error));
+      ytmusic.toast('warning', 'Could not obtain i18n options');
+      return {
+        options: model.getDefaultI18nOptions(),
+        selected
+      };
+    }
   }
 
   #getConfigAccountInfo() {
-    const defer = libQ.defer();
-
     const model = Model.getInstance(ModelType.Account);
-    model.getInfo().then((account) => {
-      defer.resolve(account);
-    })
-      .catch((error) => {
-        ytmusic.getLogger().warn(`Failed to get account config: ${error}`);
-        defer.resolve(null);
-      });
-
-    return defer.promise;
-  }
-
-  #getAuthStatus() {
-    const defer = libQ.defer();
-
-    InnertubeLoader.getInstance().then(({ auth }) => {
-      defer.resolve(auth.getStatus());
-    })
-      .catch((error) => {
-        ytmusic.getLogger().warn(`Failed to get auth status: ${error}`);
-        defer.resolve(null);
-      });
-
-    return defer.promise;
+    try {
+      return model.getInfo();
+    }
+    catch (error: unknown) {
+      ytmusic.getLogger().warn(ytmusic.getErrorMessage('[ytmusic] Failed to get account config:', error));
+      return null;
+    }
   }
 
   configSaveI18n(data: any) {
@@ -286,10 +231,25 @@ class ControllerYTMusic implements NowPlayingPluginSupport {
     ytmusic.toast('success', ytmusic.getI18n('YTMUSIC_SETTINGS_SAVED'));
   }
 
-  async configSignOut() {
-    if (InnertubeLoader.hasInstance()) {
-      const { auth } = await InnertubeLoader.getInstance();
-      auth.signOut();
+  configSaveAccount(data: any) {
+    const oldCookie = ytmusic.hasConfigKey('cookie') ? ytmusic.getConfigValue('cookie') : null;
+    const cookie = data.cookie?.trim();
+    const oldActiveChannelHandle = ytmusic.getConfigValue('activeChannelHandle');
+    const activeChannelHandle = data.activeChannelHandle?.value || '';
+    let resetInnertube = false;
+    if (oldCookie !== cookie) {
+      ytmusic.setConfigValue('cookie', cookie);
+      ytmusic.deleteConfigValue('activeChannelHandle');
+      resetInnertube = true;
+    }
+    else if (oldActiveChannelHandle !== activeChannelHandle) {
+      ytmusic.setConfigValue('activeChannelHandle', activeChannelHandle);
+      resetInnertube =  true;
+    }
+    ytmusic.toast('success', ytmusic.getI18n('YTMUSIC_SETTINGS_SAVED'));
+    if (resetInnertube) {
+      InnertubeLoader.reset();
+      ytmusic.refreshUIConfig();
     }
   }
 
@@ -431,6 +391,9 @@ class ControllerYTMusic implements NowPlayingPluginSupport {
         ytmusic.toast('error', errMsg);
         defer.reject(Error(errMsg));
       }
+    })
+    .catch((error: unknown) => {
+      ytmusic.getLogger().error(ytmusic.getErrorMessage('[ytmusic] Error obtaining goto URL:', error));
     });
 
     return defer.promise;

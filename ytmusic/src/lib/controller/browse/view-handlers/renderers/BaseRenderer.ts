@@ -1,4 +1,4 @@
-import View from '../View';
+import type View from '../View';
 
 export interface RenderedListItem {
   service: 'ytmusic';
@@ -41,7 +41,7 @@ export default abstract class BaseRenderer<I, H = I> {
 
   abstract renderToListItem(data: I, ...args: any[]): RenderedListItem | null;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   renderToHeader(data: H): RenderedHeader | null {
     return null;
   }

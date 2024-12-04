@@ -1,4 +1,4 @@
-import { EndpointType, SearchEndpoint } from '../types/Endpoint';
+import { EndpointType, type SearchEndpoint } from '../types/Endpoint';
 import EndpointModel from './EndpointModel';
 
 export default class SearchModel extends EndpointModel {

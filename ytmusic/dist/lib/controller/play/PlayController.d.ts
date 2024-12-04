@@ -1,5 +1,5 @@
-import { QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
-import MusicItemPlaybackInfo from '../../types/MusicItemPlaybackInfo';
+import { type QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
+import type MusicItemPlaybackInfo from '../../types/MusicItemPlaybackInfo';
 export default class PlayController {
     #private;
     constructor();
