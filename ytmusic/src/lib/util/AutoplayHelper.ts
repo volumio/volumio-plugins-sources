@@ -1,6 +1,6 @@
-import { ContentItem, PageElement } from '../types';
-import AutoplayContext from '../types/AutoplayContext';
-import { WatchContent, WatchContinuationContent } from '../types/Content';
+import { type ContentItem, type PageElement } from '../types';
+import type AutoplayContext from '../types/AutoplayContext';
+import { type WatchContent, type WatchContinuationContent } from '../types/Content';
 import { EndpointType } from '../types/Endpoint';
 
 export default class AutoplayHelper {

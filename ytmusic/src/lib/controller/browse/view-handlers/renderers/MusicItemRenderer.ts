@@ -1,8 +1,8 @@
-import { ContentItem } from '../../../../types';
+import { type ContentItem } from '../../../../types';
 import ExplodeHelper from '../../../../util/ExplodeHelper';
-import { MusicItemView } from '../MusicItemViewHandler';
+import { type MusicItemView } from '../MusicItemViewHandler';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 
 export default class MusicItemRenderer extends BaseRenderer<ContentItem.MusicItem> {
 

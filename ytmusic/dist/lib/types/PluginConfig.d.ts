@@ -1,4 +1,3 @@
-import { Credentials } from 'volumio-youtubei.js';
 export type PluginConfigKey = keyof PluginConfigSchema;
 export type PluginConfigValue<T extends PluginConfigKey> = PluginConfigSchema[T]['defaultValue'];
 export interface PluginConfigSchemaEntry<T, U = false> {
@@ -14,7 +13,8 @@ export interface PluginConfigSchema {
     addToHistory: PluginConfigSchemaEntry<boolean>;
     prefetch: PluginConfigSchemaEntry<boolean>;
     preferOpus: PluginConfigSchemaEntry<boolean>;
-    authCredentials: PluginConfigSchemaEntry<Credentials | undefined, true>;
+    cookie: PluginConfigSchemaEntry<string>;
+    activeChannelHandle: PluginConfigSchemaEntry<string>;
 }
 export interface I18nOptions {
     language: {
@@ -33,5 +33,9 @@ export interface I18nOptionValue {
 export interface Account {
     name: string;
     photo: string | null;
+    active: boolean;
+    handle: string;
+    pageId?: string;
+    datasyncIdToken: string;
 }
 //# sourceMappingURL=PluginConfig.d.ts.map

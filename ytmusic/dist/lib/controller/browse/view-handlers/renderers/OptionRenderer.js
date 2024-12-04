@@ -38,7 +38,6 @@ class OptionRenderer extends BaseRenderer_1.default {
         };
     }
 }
-exports.default = OptionRenderer;
 _OptionRenderer_instances = new WeakSet(), _OptionRenderer_renderContinuationBundleOptionToListItem = function _OptionRenderer_renderContinuationBundleOptionToListItem(data) {
     const bundle = data.continuationBundle;
     const keyParts = data.targetKey.split('.');
@@ -89,4 +88,5 @@ _OptionRenderer_instances = new WeakSet(), _OptionRenderer_renderContinuationBun
     }, '');
     return displayText;
 };
+exports.default = OptionRenderer;
 //# sourceMappingURL=OptionRenderer.js.map

@@ -1,11 +1,11 @@
-import { MetadataAlbumInfo, MetadataArtistInfo, MetadataSongInfo, NowPlayingMetadataProvider } from 'now-playing-common';
+import { type MetadataAlbumInfo, type MetadataArtistInfo, type MetadataSongInfo, type NowPlayingMetadataProvider } from 'now-playing-common';
 import Model, { ModelType } from '../model';
 import ViewHelper from '../controller/browse/view-handlers/ViewHelper';
 import ytmusic from '../YTMusicContext';
 import PlayController from '../controller/play/PlayController';
-import { BrowseEndpoint, EndpointType } from '../types/Endpoint';
-import { AlbumView } from '../controller/browse/view-handlers/AlbumViewHandler';
-import { PageElement } from '../types';
+import { type BrowseEndpoint, EndpointType } from '../types/Endpoint';
+import { type AlbumView } from '../controller/browse/view-handlers/AlbumViewHandler';
+import { type PageElement } from '../types';
 
 export default class YTMusicNowPlayingMetadataProvider implements NowPlayingMetadataProvider {
 

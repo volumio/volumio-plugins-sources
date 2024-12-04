@@ -20,7 +20,7 @@ const ICON_BY_BROWSE_ID = {
     'FEmusic_moods_and_genres': 'fa fa-smile-o'
 };
 const ICON_BY_NAME = {
-    'YTMUSIC_DID_YOU_MEAN': 'fa fa-question-circle-o',
+    'YTMUSIC_DID_YOU_MEAN': 'fa fa-question-circle-o', // Our own icon type
     'YTMUSIC_SHOWING_RESULTS_FOR': 'fa fa-info-circle' // Our own icon type
 };
 const VIEW_NAME_BY_BROWSE_ID = {
@@ -72,7 +72,6 @@ class EndpointLinkRenderer extends BaseRenderer_1.default {
         return result;
     }
 }
-exports.default = EndpointLinkRenderer;
 _EndpointLinkRenderer_instances = new WeakSet(), _EndpointLinkRenderer_getIcon = function _EndpointLinkRenderer_getIcon(data) {
     const iconByName = data.icon ? ICON_BY_NAME[data.icon] : null;
     if (iconByName) {
@@ -87,4 +86,5 @@ _EndpointLinkRenderer_instances = new WeakSet(), _EndpointLinkRenderer_getIcon =
     }
     return null;
 };
+exports.default = EndpointLinkRenderer;
 //# sourceMappingURL=EndpointLinkRenderer.js.map

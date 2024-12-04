@@ -1,4 +1,4 @@
-import View from '../View';
+import type View from '../View';
 import ChannelRenderer from './ChannelRenderer';
 import EndpointLinkRenderer from './EndpointLinkRenderer';
 import OptionRenderer from './OptionRenderer';
@@ -6,6 +6,7 @@ import OptionValueRenderer from './OptionValueRenderer';
 import PlaylistRenderer from './PlaylistRenderer';
 import MusicItemRenderer from './MusicItemRenderer';
 import AlbumRenderer from './AlbumRenderer';
+import PodcastRenderer from './PodcastRenderer';
 export declare enum RendererType {
     Channel = "Channel",
     EndpointLink = "EndpointLink",
@@ -13,9 +14,10 @@ export declare enum RendererType {
     OptionValue = "OptionValue",
     Album = "Album",
     Playlist = "Playlist",
+    Podcast = "Podcast",
     MusicItem = "MusicItem"
 }
-export type RendererOf<T extends RendererType> = T extends RendererType.Channel ? ChannelRenderer : T extends RendererType.EndpointLink ? EndpointLinkRenderer : T extends RendererType.Option ? OptionRenderer : T extends RendererType.OptionValue ? OptionValueRenderer : T extends RendererType.Album ? AlbumRenderer : T extends RendererType.Playlist ? PlaylistRenderer : T extends RendererType.MusicItem ? MusicItemRenderer : never;
+export type RendererOf<T extends RendererType> = T extends RendererType.Channel ? ChannelRenderer : T extends RendererType.EndpointLink ? EndpointLinkRenderer : T extends RendererType.Option ? OptionRenderer : T extends RendererType.OptionValue ? OptionValueRenderer : T extends RendererType.Album ? AlbumRenderer : T extends RendererType.Playlist ? PlaylistRenderer : T extends RendererType.Podcast ? PodcastRenderer : T extends RendererType.MusicItem ? MusicItemRenderer : never;
 export default class Renderer {
     static getInstance<T extends RendererType>(type: T, uri: string, currentView: View, previousViews: View[]): RendererOf<T>;
 }

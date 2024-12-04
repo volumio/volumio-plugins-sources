@@ -1,8 +1,27 @@
+<a href='https://ko-fi.com/C0C5RGOOP' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
 # YouTube Music plugin for Volumio
 
 Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. This plugin uses a [modified version](https://github.com/patrickkfkan/Volumio-YouTube.js) of that library for content fetching and ytmusic login.
 
 ## Changelog
+
+1.2.0 (Buster backport)
+- Backport from v2.2.0
+
+2.2.0
+- Add 'Active Profile' setting for accounts with multiple profiles
+- Fix album info missing from playback info
+
+2.1.0
+- Replace OAuth login with cookie
+
+2.0.1
+- Fix display of podcast elements
+
+2.0.0
+- Release for Bookworm-based Volumio
+- Fix 403 playback error by using PO tokens (experimental)
 
 1.1.3
 - Fix hanging "InnertubeLoader: creating Auth instance..."

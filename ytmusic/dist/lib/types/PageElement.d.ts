@@ -1,7 +1,7 @@
-import { ContentItem } from '.';
-import { BrowseContinuationEndpoint, BrowseEndpoint, SearchContinuationEndpoint, SearchEndpoint, WatchContinuationEndpoint, WatchEndpoint } from './Endpoint';
+import { type ContentItem } from '.';
+import { type BrowseContinuationEndpoint, type BrowseEndpoint, type SearchContinuationEndpoint, type SearchEndpoint, type WatchContinuationEndpoint, type WatchEndpoint } from './Endpoint';
 export interface Header {
-    type: 'album' | 'playlist' | 'channel' | 'search' | 'generic';
+    type: 'album' | 'playlist' | 'podcast' | 'channel' | 'search' | 'generic';
     title: string;
     subtitles?: string[];
     description?: string;
@@ -20,7 +20,10 @@ export interface PlaylistHeader extends MusicFolderHeader {
         endpoint: WatchEndpoint;
     };
 }
-export type SectionItem = ContentItem.Album | ContentItem.Channel | ContentItem.EndpointLink | ContentItem.MusicItem | ContentItem.Playlist | Section;
+export interface PodcastHeader extends MusicFolderHeader {
+    type: 'podcast';
+}
+export type SectionItem = ContentItem.Album | ContentItem.Channel | ContentItem.EndpointLink | ContentItem.MusicItem | ContentItem.Playlist | ContentItem.Podcast | Section;
 export interface Section {
     type: 'section';
     title?: string;

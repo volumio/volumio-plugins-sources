@@ -1,8 +1,8 @@
-import { PageElement } from '../../../../types';
+import { type PageElement } from '../../../../types';
 import { EndpointType } from '../../../../types/Endpoint';
-import View from '../View';
+import type View from '../View';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 
 const ENDPOINT_TYPES = [ EndpointType.Browse,
   EndpointType.Search,
@@ -34,7 +34,14 @@ export default class OptionValueRenderer extends BaseRenderer<PageElement.Option
           name: 'generic'
         };
       }
-      targetView.endpoint = data.endpoint;
+
+      // MusicFolderView types store browse endpoint in `endpoints` obj
+      if (Reflect.has(targetView, 'endpoints') && Reflect.has(targetView.endpoints, 'browse')) {
+        targetView.endpoints.browse = data.endpoint;
+      }
+      else {
+        targetView.endpoint = data.endpoint;
+      }
 
       if (opts?.extraUriParams) {
         for (const [ key, value ] of Object.entries(opts.extraUriParams)) {

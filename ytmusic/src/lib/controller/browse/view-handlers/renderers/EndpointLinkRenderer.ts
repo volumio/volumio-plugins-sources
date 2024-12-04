@@ -1,8 +1,8 @@
-import { ContentItem } from '../../../../types';
+import { type ContentItem } from '../../../../types';
 import { EndpointType } from '../../../../types/Endpoint';
 import EndpointHelper from '../../../../util/EndpointHelper';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 
 const ICON_BY_BROWSE_ID: Record<string, string> = {
   'FEmusic_moods_and_genres_category': 'fa fa-music',

@@ -33,7 +33,6 @@ class EndpointModel extends BaseModel_1.BaseModel {
         return null;
     }
 }
-exports.default = EndpointModel;
 _EndpointModel_instances = new WeakSet(), _EndpointModel_doGetContents = async function _EndpointModel_doGetContents(innertube, url, endpoint) {
     const payload = {
         ...endpoint.payload,
@@ -46,4 +45,5 @@ _EndpointModel_instances = new WeakSet(), _EndpointModel_doGetContents = async f
     }
     return InnertubeResultParser_1.default.parseResult(parsed, endpoint); // Second parse
 };
+exports.default = EndpointModel;
 //# sourceMappingURL=EndpointModel.js.map

@@ -1,7 +1,7 @@
-import { SearchQuery } from './lib/controller/search/SearchController';
-import { QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
+import { type SearchQuery } from './lib/controller/search/SearchController';
+import { type QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
 import YTMusicNowPlayingMetadataProvider from './lib/util/YTMusicNowPlayingMetadataProvider';
-import { NowPlayingPluginSupport } from 'now-playing-common';
+import { type NowPlayingPluginSupport } from 'now-playing-common';
 interface GotoParams extends QueueItem {
     type: 'album' | 'artist';
 }
@@ -14,7 +14,7 @@ declare class ControllerYTMusic implements NowPlayingPluginSupport {
     onStop(): any;
     getConfigurationFiles(): string[];
     configSaveI18n(data: any): void;
-    configSignOut(): Promise<void>;
+    configSaveAccount(data: any): void;
     configSaveBrowse(data: any): void;
     configSavePlayback(data: any): void;
     handleBrowseUri(uri: string): any;
