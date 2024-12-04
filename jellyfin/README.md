@@ -24,6 +24,9 @@ The [Jellyfin SDK]((https://github.com/patrickkfkan/jellyfin-sdk-typescript/)) u
   
 #### Changelog
 
+1.1.2
+- Backport [1a429bf](https://github.com/patrickkfkan/volumio-jellyfin/commit/1a429bf2fd40a7bd0d8f4d3852a9370810c9f46f): Fix broken streams when server has base URL ([#8](https://github.com/patrickkfkan/volumio-jellyfin/issues/8))
+
 1.1.1
 - [Fixed] Missing dependency
 
