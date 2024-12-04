@@ -1,5 +1,5 @@
-import ExplodableViewHandler, { ExplodedTrackInfo } from './ExplodableViewHandler';
-import View from './View';
+import ExplodableViewHandler, { type ExplodedTrackInfo } from './ExplodableViewHandler';
+import type View from './View';
 
 export interface VideoView extends View {
   name: 'video';
@@ -8,13 +8,13 @@ export interface VideoView extends View {
 
 export default class VideoViewHandler extends ExplodableViewHandler<VideoView> {
 
-  protected async getTracksOnExplode(): Promise<ExplodedTrackInfo | ExplodedTrackInfo[]> {
+  protected getTracksOnExplode(): Promise<ExplodedTrackInfo | ExplodedTrackInfo[]> {
     const explodeTrackData = this.currentView.explodeTrackData;
 
     if (!explodeTrackData) {
       throw Error('Operation not supported');
     }
 
-    return explodeTrackData;
+    return Promise.resolve(explodeTrackData);
   }
 }

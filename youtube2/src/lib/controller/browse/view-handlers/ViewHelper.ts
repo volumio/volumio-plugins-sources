@@ -1,4 +1,4 @@
-import View from './View';
+import type View from './View';
 
 export default class ViewHelper {
 
@@ -26,7 +26,7 @@ export default class ViewHelper {
     return result;
   }
 
-  static constructUriSegmentFromView<V extends View>(view: V) {
+  static constructUriSegmentFromView(view: View) {
     let segment: string;
     if (view.name === 'root') {
       segment = 'youtube2';

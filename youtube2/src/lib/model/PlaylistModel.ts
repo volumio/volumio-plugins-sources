@@ -1,8 +1,9 @@
 import yt2 from '../YouTube2Context';
-import { PageElement } from '../types';
-import { ContentOf } from '../types/Content';
-import Endpoint, { EndpointType } from '../types/Endpoint';
-import { SectionItem } from '../types/PageElement';
+import { type PageElement } from '../types';
+import { type ContentOf } from '../types/Content';
+import type Endpoint from '../types/Endpoint';
+import { EndpointType } from '../types/Endpoint';
+import { type SectionItem } from '../types/PageElement';
 import { rnd, sleep } from '../util';
 import EndpointHelper from '../util/EndpointHelper';
 import EndpointModel from './EndpointModel';
@@ -70,7 +71,7 @@ export default class PlaylistModel extends EndpointModel {
 
       const nestedSections = section.items?.filter((item) => item.type === 'section');
       if (nestedSections?.length > 0) {
-        const result = this.#findSectionWithContinuation(nestedSections as PageElement.Section[]);
+        const result = this.#findSectionWithContinuation(nestedSections);
         if (result) {
           return result;
         }

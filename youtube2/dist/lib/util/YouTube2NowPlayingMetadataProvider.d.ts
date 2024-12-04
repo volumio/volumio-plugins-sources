@@ -1,4 +1,4 @@
-import { MetadataAlbumInfo, MetadataArtistInfo, MetadataSongInfo, NowPlayingMetadataProvider } from 'now-playing-common';
+import { type MetadataAlbumInfo, type MetadataArtistInfo, type MetadataSongInfo, type NowPlayingMetadataProvider } from 'now-playing-common';
 export default class YouTube2NowPlayingMetadataProvider implements NowPlayingMetadataProvider {
     version: '1.0.0';
     constructor();

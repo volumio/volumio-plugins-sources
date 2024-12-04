@@ -21,7 +21,7 @@ class RootModel extends BaseModel_1.BaseModel {
     async getContents(opts) {
         const { innertube } = await this.getInnertube();
         const guide = await innertube.getGuide();
-        const sections = guide.contents.map((section) => __classPrivateFieldGet(this, _RootModel_instances, "m", _RootModel_expandGuideSection).call(this, section));
+        const sections = guide.contents?.map((section) => __classPrivateFieldGet(this, _RootModel_instances, "m", _RootModel_expandGuideSection).call(this, section));
         const parsed = InnertubeResultParser_1.default.parseResult({ contents: sections });
         const primaryOnly = opts?.contentType === 'simple';
         if (parsed) {
@@ -36,7 +36,6 @@ class RootModel extends BaseModel_1.BaseModel {
         return parsed;
     }
 }
-exports.default = RootModel;
 _RootModel_instances = new WeakSet(), _RootModel_expandGuideSection = function _RootModel_expandGuideSection(section) {
     const sectionItems = section.items.reduce((result, entry) => {
         result.push(...__classPrivateFieldGet(this, _RootModel_instances, "m", _RootModel_expandGuideEntry).call(this, entry));
@@ -49,14 +48,14 @@ _RootModel_instances = new WeakSet(), _RootModel_expandGuideSection = function _
     };
     return result;
 }, _RootModel_expandGuideEntry = function _RootModel_expandGuideEntry(entry) {
-    if (entry instanceof volumio_youtubei_js_1.YTNodes.GuideCollapsibleEntry) {
+    if (entry.is(volumio_youtubei_js_1.YTNodes.GuideCollapsibleEntry)) {
         const collapsibleEntry = entry;
         return collapsibleEntry.expandable_items.reduce((expanded, item) => {
             expanded.push(...__classPrivateFieldGet(this, _RootModel_instances, "m", _RootModel_expandGuideEntry).call(this, item));
             return expanded;
         }, []);
     }
-    if (entry instanceof volumio_youtubei_js_1.YTNodes.GuideCollapsibleSectionEntry) {
+    if (entry.is(volumio_youtubei_js_1.YTNodes.GuideCollapsibleSectionEntry)) {
         const sectionEntry = entry;
         const initialExpanded = sectionEntry.header_entry ? __classPrivateFieldGet(this, _RootModel_instances, "m", _RootModel_expandGuideEntry).call(this, sectionEntry.header_entry) : [];
         return sectionEntry.section_items.reduce((expanded, item) => {
@@ -87,4 +86,5 @@ _RootModel_instances = new WeakSet(), _RootModel_expandGuideSection = function _
     }
     return null;
 };
+exports.default = RootModel;
 //# sourceMappingURL=RootModel.js.map

@@ -1,6 +1,6 @@
-import Endpoint from '../../../types/Endpoint';
+import type Endpoint from '../../../types/Endpoint';
 import BaseViewHandler from './BaseViewHandler';
-import View from './View';
+import type View from './View';
 export interface QueueItem {
     service: 'youtube2';
     uri: string;

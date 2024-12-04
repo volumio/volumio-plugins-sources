@@ -1,7 +1,7 @@
-import { PageElement } from '../types';
-import { ContentOf } from '../types/Content';
-import Endpoint from '../types/Endpoint';
-import { SectionItem } from '../types/PageElement';
+import { type PageElement } from '../types';
+import { type ContentOf } from '../types/Content';
+import type Endpoint from '../types/Endpoint';
+import { type SectionItem } from '../types/PageElement';
 import EndpointModel from './EndpointModel';
 export default class PlaylistModel extends EndpointModel {
     #private;

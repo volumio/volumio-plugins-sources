@@ -1,7 +1,7 @@
-import { ContentItem, PageElement } from '../../../../types';
-import { GenericView } from '../GenericViewHandler';
+import { type ContentItem, type PageElement } from '../../../../types';
+import { type GenericView } from '../GenericViewHandler';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
 
 export default class ChannelRenderer extends BaseRenderer<ContentItem.Channel, PageElement.Header> {
 

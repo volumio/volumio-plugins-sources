@@ -1,8 +1,8 @@
-import { ContentItem } from '../../../../types';
+import { type ContentItem } from '../../../../types';
 import ExplodeHelper from '../../../../util/ExplodeHelper';
-import { VideoView } from '../VideoViewHandler';
+import { type VideoView } from '../VideoViewHandler';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 
 export default class VideoRenderer extends BaseRenderer<ContentItem.Video> {
 

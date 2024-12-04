@@ -1,8 +1,8 @@
-import { ContentItem, PageElement } from '../../../../types';
-import { GenericView } from '../GenericViewHandler';
-import { PlaylistView } from '../PlaylistViewHandler';
+import { type ContentItem, type PageElement } from '../../../../types';
+import { type GenericView } from '../GenericViewHandler';
+import { type PlaylistView } from '../PlaylistViewHandler';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
 
 export default class PlaylistRenderer extends BaseRenderer<ContentItem.Playlist, PageElement.PlaylistHeader> {
 

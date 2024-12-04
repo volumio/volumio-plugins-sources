@@ -1,7 +1,7 @@
-import { PageContent } from '../../../types/Content';
-import { ExplodedTrackInfo } from './ExplodableViewHandler';
-import FeedViewHandler, { FeedView } from './FeedViewHandler';
-import { RenderedPage } from './ViewHandler';
+import { type PageContent } from '../../../types/Content';
+import { type ExplodedTrackInfo } from './ExplodableViewHandler';
+import FeedViewHandler, { type FeedView } from './FeedViewHandler';
+import { type RenderedPage } from './ViewHandler';
 export interface RootView extends FeedView {
     name: 'root';
 }

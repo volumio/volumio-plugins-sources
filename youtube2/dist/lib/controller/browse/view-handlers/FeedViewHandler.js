@@ -188,7 +188,6 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
         return result;
     }
 }
-exports.default = FeedViewHandler;
 _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = function _FeedViewHandler_sectionToLists(contents, section, header) {
     const listsForSection = [];
     const isPlaylistContents = contents.header?.type === 'playlist';
@@ -199,12 +198,20 @@ _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = fu
     // Disregard nested section when determining if every item is video, because
     // The nested section will be converted to separate list(s).
     const isAllVideos = section.items.every((item) => item.type === 'section' || item.type === 'video');
-    section.items?.forEach((item) => {
+    let fallbackTitle = undefined;
+    section.items?.forEach((item, index) => {
         if (item.type === 'section') {
             const nestedSectionToLists = __classPrivateFieldGet(this, _FeedViewHandler_instances, "m", _FeedViewHandler_sectionToLists).call(this, contents, item, header);
             if (nestedSectionToLists.length > 0) {
-                listsForSection.push(...__classPrivateFieldGet(this, _FeedViewHandler_instances, "m", _FeedViewHandler_sectionToLists).call(this, contents, item, header));
-                hasNestedSections = true;
+                const lists = __classPrivateFieldGet(this, _FeedViewHandler_instances, "m", _FeedViewHandler_sectionToLists).call(this, contents, item, header);
+                // Special case: if empty nested section at beginning of list, use its title for fallback
+                if (index === 0 && lists.length === 1 && lists[0].items.length === 0 && lists[0].title) {
+                    fallbackTitle = lists[0].title;
+                }
+                else {
+                    listsForSection.push(...lists);
+                    hasNestedSections = true;
+                }
             }
         }
         else {
@@ -232,10 +239,10 @@ _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = fu
     const currentItemCount = prevItemCount + mainItems.length;
     const showingResultsText = mainItems.length > 0 && (section.continuation || (contents.type === 'page' && contents.isContinuation)) && isPlaylistContents ?
         YouTube2Context_1.default.getI18n('YOUTUBE2_SHOWING_RESULTS', prevItemCount + 1, currentItemCount) : null;
-    let sectionTitle = section.title;
+    let sectionTitle = section.title || fallbackTitle;
     if (showingResultsText) {
-        if (section.title) {
-            sectionTitle = `${section.title} (${showingResultsText.charAt(0).toLocaleLowerCase()}${showingResultsText.substring(1)})`;
+        if (sectionTitle) {
+            sectionTitle = `${sectionTitle} (${showingResultsText.charAt(0).toLocaleLowerCase()}${showingResultsText.substring(1)})`;
         }
         else {
             sectionTitle = showingResultsText;
@@ -367,4 +374,5 @@ _FeedViewHandler_instances = new WeakSet(), _FeedViewHandler_sectionToLists = fu
         optionValues: tabs
     };
 };
+exports.default = FeedViewHandler;
 //# sourceMappingURL=FeedViewHandler.js.map

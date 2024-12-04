@@ -1,15 +1,18 @@
 import yt2 from '../../../YouTube2Context';
-import { ContentItem, PageElement } from '../../../types';
-import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, EndpointType, SearchContinuationEndpoint, SearchEndpoint, WatchEndpoint } from '../../../types/Endpoint';
+import { type ContentItem, type PageElement } from '../../../types';
+import {type BrowseContinuationEndpoint, type BrowseEndpoint, type SearchContinuationEndpoint, type SearchEndpoint, type WatchEndpoint} from '../../../types/Endpoint';
+import type Endpoint from '../../../types/Endpoint';
+import { EndpointType } from '../../../types/Endpoint';
 import ExplodableViewHandler from './ExplodableViewHandler';
-import View, { ContinuationBundle } from './View';
-import { RenderedList, RenderedPage } from './ViewHandler';
+import {type ContinuationBundle} from './View';
+import type View from './View';
+import { type RenderedList, type RenderedPage } from './ViewHandler';
 import { RendererType } from './renderers';
-import { RenderedHeader, RenderedListItem } from './renderers/BaseRenderer';
-import { ContinuationBundleOption } from './renderers/OptionRenderer';
-import { SectionItem } from '../../../types/PageElement';
+import { type RenderedHeader, type RenderedListItem } from './renderers/BaseRenderer';
+import { type ContinuationBundleOption } from './renderers/OptionRenderer';
+import { type SectionItem } from '../../../types/PageElement';
 import EndpointHelper from '../../../util/EndpointHelper';
-import { PageContent } from '../../../types/Content';
+import { type PageContent } from '../../../types/Content';
 
 /**
  * View handler for feed contents consisting of sections and optional header.
@@ -88,12 +91,20 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
     // Disregard nested section when determining if every item is video, because
     // The nested section will be converted to separate list(s).
     const isAllVideos = section.items.every((item) => item.type === 'section' || item.type === 'video');
-    section.items?.forEach((item) => {
+    let fallbackTitle: string | undefined = undefined;
+    section.items?.forEach((item, index) => {
       if (item.type === 'section') {
         const nestedSectionToLists = this.#sectionToLists(contents, item, header);
         if (nestedSectionToLists.length > 0) {
-          listsForSection.push(...this.#sectionToLists(contents, item, header));
-          hasNestedSections = true;
+          const lists = this.#sectionToLists(contents, item, header);
+          // Special case: if empty nested section at beginning of list, use its title for fallback
+          if (index === 0 && lists.length === 1 && lists[0].items.length === 0 && lists[0].title) {
+            fallbackTitle = lists[0].title;
+          }
+          else {
+            listsForSection.push(...lists);
+            hasNestedSections = true;
+          }
         }
       }
       else {
@@ -123,10 +134,10 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
     const currentItemCount = prevItemCount + mainItems.length;
     const showingResultsText = mainItems.length > 0 && (section.continuation || (contents.type === 'page' && contents.isContinuation)) && isPlaylistContents ?
       yt2.getI18n('YOUTUBE2_SHOWING_RESULTS', prevItemCount + 1, currentItemCount) : null;
-    let sectionTitle = section.title;
+    let sectionTitle = section.title || fallbackTitle;
     if (showingResultsText) {
-      if (section.title) {
-        sectionTitle = `${section.title} (${showingResultsText.charAt(0).toLocaleLowerCase()}${showingResultsText.substring(1)})`;
+      if (sectionTitle) {
+        sectionTitle = `${sectionTitle} (${showingResultsText.charAt(0).toLocaleLowerCase()}${showingResultsText.substring(1)})`;
       }
       else {
         sectionTitle = showingResultsText;

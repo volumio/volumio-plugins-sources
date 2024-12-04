@@ -1,5 +1,5 @@
 import { BaseModel } from './BaseModel';
-import { PageContent } from '../types/Content';
+import { type PageContent } from '../types/Content';
 export default class RootModel extends BaseModel {
     #private;
     getContents(opts?: {

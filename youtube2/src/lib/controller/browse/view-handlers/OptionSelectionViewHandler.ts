@@ -1,11 +1,12 @@
-import { PageElement } from '../../../types';
+import { type PageElement } from '../../../types';
 import { EndpointType } from '../../../types/Endpoint';
 import EndpointHelper from '../../../util/EndpointHelper';
 import BaseViewHandler from './BaseViewHandler';
-import View, { ContinuationBundle } from './View';
-import { RenderedList, RenderedPage } from './ViewHandler';
+import {type ContinuationBundle} from './View';
+import type View from './View';
+import { type RenderedList, type RenderedPage } from './ViewHandler';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
+import { type RenderedListItem } from './renderers/BaseRenderer';
 
 export interface OptionSelectionView extends View {
   name: 'optionSelection',
@@ -18,7 +19,7 @@ export interface OptionSelectionView extends View {
 
 export default class OptionSelectionViewHandler extends BaseViewHandler<OptionSelectionView> {
 
-  async browse(): Promise<RenderedPage> {
+  browse(): Promise<RenderedPage> {
     const listData = this.#getListData();
     const lists: RenderedList[] = [
       {
@@ -28,11 +29,11 @@ export default class OptionSelectionViewHandler extends BaseViewHandler<OptionSe
       }
     ];
 
-    return {
+    return Promise.resolve({
       navigation: {
         prev: { uri: this.constructPrevUri() },
         lists
-      }};
+      }});
   }
 
   #getListData() {

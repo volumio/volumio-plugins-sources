@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
     if (kind === "m") throw new TypeError("Private method is not writable");
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
@@ -107,7 +117,7 @@ class PlayController {
         }
         if (YouTube2Context_1.default.getConfigValue('addToHistory')) {
             try {
-                playbackInfo.addToHistory();
+                void playbackInfo.addToHistory();
             }
             catch (error) {
                 YouTube2Context_1.default.getLogger().error(YouTube2Context_1.default.getErrorMessage(`[youtube2-play] Error: could not add to history (videoId: ${videoId}): `, error));
@@ -166,7 +176,7 @@ class PlayController {
                     endpoint: {
                         type: Endpoint_1.EndpointType.Browse,
                         payload: {
-                            browseId: (!playlistId.startsWith('VL') ? 'VL' : '') + playlistId
+                            browseId: `${(!playlistId.startsWith('VL') ? 'VL' : '')}${playlistId}`
                         }
                     }
                 };
@@ -236,13 +246,12 @@ class PlayController {
         return res;
     }
 }
-exports.default = PlayController;
 _PlayController_mpdPlugin = new WeakMap(), _PlayController_autoplayListener = new WeakMap(), _PlayController_lastPlaybackInfo = new WeakMap(), _PlayController_prefetchPlaybackStateFixer = new WeakMap(), _PlayController_instances = new WeakSet(), _PlayController_addAutoplayListener = function _PlayController_addAutoplayListener() {
     if (!__classPrivateFieldGet(this, _PlayController_autoplayListener, "f")) {
         __classPrivateFieldSet(this, _PlayController_autoplayListener, () => {
             __classPrivateFieldGet(this, _PlayController_mpdPlugin, "f").getState().then((state) => {
                 if (state.status === 'stop') {
-                    __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_handleAutoplay).call(this);
+                    void __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_handleAutoplay).call(this);
                     __classPrivateFieldGet(this, _PlayController_instances, "m", _PlayController_removeAutoplayListener).call(this);
                 }
             });
@@ -437,6 +446,7 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_autoplayListener = ne
     }
     return [];
 };
+exports.default = PlayController;
 /**
  * (Taken from YouTube Music plugin)
  * https://github.com/patrickkfkan/volumio-ytmusic/blob/master/src/lib/controller/play/PlayController.ts

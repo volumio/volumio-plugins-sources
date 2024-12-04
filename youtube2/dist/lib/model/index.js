@@ -20,7 +20,7 @@ var ModelType;
     ModelType["Search"] = "Search";
     ModelType["Video"] = "Video";
     ModelType["Root"] = "Root";
-})(ModelType = exports.ModelType || (exports.ModelType = {}));
+})(ModelType || (exports.ModelType = ModelType = {}));
 const MODEL_TYPE_TO_CLASS = {
     [ModelType.Account]: AccountModel_1.default,
     [ModelType.Config]: ConfigModel_1.default,
@@ -35,7 +35,7 @@ class Model {
         if (MODEL_TYPE_TO_CLASS[type]) {
             return new MODEL_TYPE_TO_CLASS[type]();
         }
-        throw Error(`Model not found for type ${ModelType}`);
+        throw Error(`Model not found for type ${String(ModelType)}`);
     }
 }
 exports.default = Model;

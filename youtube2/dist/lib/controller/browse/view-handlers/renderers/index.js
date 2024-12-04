@@ -18,7 +18,7 @@ var RendererType;
     RendererType["OptionValue"] = "OptionValue";
     RendererType["Playlist"] = "Playlist";
     RendererType["Video"] = "Video";
-})(RendererType = exports.RendererType || (exports.RendererType = {}));
+})(RendererType || (exports.RendererType = RendererType = {}));
 const RENDERER_TYPE_TO_CLASS = {
     [RendererType.Channel]: ChannelRenderer_1.default,
     [RendererType.EndpointLink]: EndpointLinkRenderer_1.default,
@@ -32,7 +32,7 @@ class Renderer {
         if (RENDERER_TYPE_TO_CLASS[type]) {
             return new RENDERER_TYPE_TO_CLASS[type](uri, currentView, previousViews);
         }
-        throw Error(`Renderer not found for type ${RendererType}`);
+        throw Error(`Renderer not found for type ${String(RendererType)}`);
     }
 }
 exports.default = Renderer;

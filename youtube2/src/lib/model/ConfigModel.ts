@@ -1,10 +1,10 @@
-import { Parser, RawNode, YTNodes, Misc as YTMisc } from 'volumio-youtubei.js';
+import { Parser, type RawNode, YTNodes, Misc as YTMisc } from 'volumio-youtubei.js';
 import yt2 from '../YouTube2Context';
 import { findInObject } from '../util';
 import { BaseModel } from './BaseModel';
 import InnertubeResultParser from './InnertubeResultParser';
-import { PluginConfig } from '../types';
-import { I18nOptions, PluginConfigSchema } from '../types/PluginConfig';
+import { type PluginConfig } from '../types';
+import { type I18nOptions, type PluginConfigSchema } from '../types/PluginConfig';
 
 export const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema = {
   region: { defaultValue: 'US', json: false },
@@ -21,7 +21,8 @@ export const PLUGIN_CONFIG_SCHEMA: PluginConfigSchema = {
     feedVideos: true,
     playlistVideos: false
   }, json: true},
-  authCredentials: { defaultValue: undefined, json: true }
+  cookie: { defaultValue: '', json: false },
+  activeChannelHandle: { defaultValue: '', json: false }
 };
 
 export default class ConfigModel extends BaseModel {
@@ -78,11 +79,11 @@ export default class ConfigModel extends BaseModel {
     };
 
     let noCache = false;
-    const contents = await this.#fetchAccountMenu();
+    const contents = await this.fetchAccountMenu();
     const languageMenu = findInObject(contents, __createPredicate('selectLanguageCommand', 'hl'))?.[0];
     const regionMenu = findInObject(contents, __createPredicate('selectCountryCommand', 'gl'))?.[0];
 
-    const defualtI18nOptions = this.#getDefaultI18nOptions();
+    const defualtI18nOptions = this.getDefaultI18nOptions();
     const results: PluginConfig.I18nOptions = {};
 
     if (languageMenu) {
@@ -127,30 +128,7 @@ export default class ConfigModel extends BaseModel {
     yt2.set('configI18nOptions', null);
   }
 
-  async #fetchAccountMenu() {
-    const { innertube } = await this.getInnertube();
-
-    const requestData = {
-      client: 'WEB'
-    };
-
-    try {
-      const response = await innertube.session.http.fetch('/account/account_menu', {
-        method: 'POST',
-        body: JSON.stringify(requestData),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      return JSON.parse(await response.text());
-    }
-    catch (error) {
-      yt2.getLogger().error(yt2.getErrorMessage('[youtube2] Error in ConfigModel.#fetchAccountMenu(): ', error));
-      return null;
-    }
-  }
-
+  
   getRootContentTypeOptions() {
     return [
       {
@@ -197,7 +175,7 @@ export default class ConfigModel extends BaseModel {
     ];
   }
 
-  #getDefaultI18nOptions() {
+  getDefaultI18nOptions() {
     return {
       region: {
         label: yt2.getI18n('YOUTUBE2_REGION'),
