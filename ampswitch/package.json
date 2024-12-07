@@ -1,6 +1,6 @@
 {
 	"name": "ampswitch",
-	"version": "0.2.1",
+	"version": "0.2.1.1",
 	"description": "Status based power management of external amplifier",
 	"main": "index.js",
 	"scripts": {
@@ -26,7 +26,6 @@
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
 		"v-conf": "^0.10.0",
-		"onoff": "^6.0.3",
 		"socket.io-client": "^2.0.0"
 	},
 	"engines": {
