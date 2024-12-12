@@ -27,7 +27,7 @@ export default abstract class BaseRenderer<I, H = I> {
     #private;
     constructor(uri: string, currentView: View, previousViews: View[]);
     abstract renderToListItem(data: I, ...args: any[]): RenderedListItem | null;
-    renderToHeader(data: H): RenderedHeader | null;
+    renderToHeader(_data: H): RenderedHeader | null;
     get uri(): string;
     get currentView(): View;
     get previousViews(): View[];

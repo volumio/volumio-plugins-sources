@@ -11,7 +11,7 @@ import SearchController, { type SearchQuery } from './lib/controller/search/Sear
 import PlayController from './lib/controller/play/PlayController';
 import { jsPromiseToKew, kewToJSPromise } from './lib/util';
 import Model, { ModelType } from './lib/model';
-import { type Account, type I18nOptionValue, type I18nOptions } from './lib/types/PluginConfig';
+import { type I18nOptionValue, type I18nOptions } from './lib/types/PluginConfig';
 import { type QueueItem } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
 import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
 import InnertubeLoader from './lib/model/InnertubeLoader';

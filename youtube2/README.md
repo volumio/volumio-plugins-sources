@@ -6,6 +6,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ### Changelog
 
+1.3.3 (Buster backport)
+- Backport from main v2.2.2
+
 1.3.2 (Buster backport)
 - Backport from main v2.2.1
 
