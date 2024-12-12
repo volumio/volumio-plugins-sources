@@ -391,7 +391,7 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
   }
 
    
-  protected renderToListItem(data: RenderableItem, contents: PageContent): RenderedListItem | null {
+  protected renderToListItem(data: RenderableItem, _contents: PageContent): RenderedListItem | null {
     switch (data.type) {
       case 'channel':
         return this.getRenderer(RendererType.Channel).renderToListItem(data);

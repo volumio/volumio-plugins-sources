@@ -21,7 +21,7 @@ class BaseRenderer {
         __classPrivateFieldSet(this, _BaseRenderer_currentView, currentView, "f");
         __classPrivateFieldSet(this, _BaseRenderer_previousViews, previousViews, "f");
     }
-    renderToHeader(data) {
+    renderToHeader(_data) {
         return null;
     }
     get uri() {

@@ -160,7 +160,7 @@ class FeedViewHandler extends ExplodableViewHandler_1.default {
         }
         return true;
     }
-    renderToListItem(data, contents) {
+    renderToListItem(data, _contents) {
         switch (data.type) {
             case 'channel':
                 return this.getRenderer(renderers_1.RendererType.Channel).renderToListItem(data);

@@ -23,7 +23,7 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
     getHeader(data?: PageElement.Header): RenderedHeader | null;
     createContinuationBundle(contents: PageContent, section: PageElement.Section): ContinuationBundle;
     applyContinuationBundle(contents: PageContent): boolean;
-    protected renderToListItem(data: RenderableItem, contents: PageContent): RenderedListItem | null;
+    protected renderToListItem(data: RenderableItem, _contents: PageContent): RenderedListItem | null;
     protected getAvailableListViews(section: PageElement.Section): RenderedList['availableListViews'];
     protected findAllItemsInSection(target: PageElement.Section | PageElement.Section[], predicate?: (item: SectionItem) => boolean): SectionItem[];
     protected findAllEndpointsInSection<T extends Endpoint>(target?: PageElement.Section | PageElement.Section[], predicate?: (endpoint: Endpoint) => boolean): T[];

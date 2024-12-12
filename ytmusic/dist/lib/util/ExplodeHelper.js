@@ -97,7 +97,7 @@ class ExplodeHelper {
             try {
                 explodeTrackData = JSON.parse(decodeURIComponent(view.explodeTrackData));
             }
-            catch (error) {
+            catch (_error) {
                 explodeTrackData = view.explodeTrackData;
             }
             if (typeof explodeTrackData !== 'object') {

@@ -90,7 +90,7 @@ class YTMusicContext {
                 try {
                     return JSON.parse(val);
                 }
-                catch (e) {
+                catch (_error) {
                     return schema.defaultValue;
                 }
             }
@@ -156,14 +156,14 @@ _YTMusicContext_singletons = new WeakMap(), _YTMusicContext_data = new WeakMap()
         try {
             __classPrivateFieldSet(this, _YTMusicContext_i18nDefaults, fs_extra_1.default.readJsonSync(`${i18nPath}/strings_en.json`), "f");
         }
-        catch (e) {
+        catch (_error) {
             __classPrivateFieldSet(this, _YTMusicContext_i18nDefaults, {}, "f");
         }
         try {
             const language_code = __classPrivateFieldGet(this, _YTMusicContext_pluginContext, "f").coreCommand.sharedVars.get('language_code');
             __classPrivateFieldSet(this, _YTMusicContext_i18n, fs_extra_1.default.readJsonSync(`${i18nPath}/strings_${language_code}.json`), "f");
         }
-        catch (e) {
+        catch (_error) {
             __classPrivateFieldSet(this, _YTMusicContext_i18n, __classPrivateFieldGet(this, _YTMusicContext_i18nDefaults, "f"), "f");
         }
     }
