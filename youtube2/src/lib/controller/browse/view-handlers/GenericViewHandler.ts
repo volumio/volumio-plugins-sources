@@ -1,6 +1,5 @@
 import yt2 from '../../../YouTube2Context';
 import { ModelType } from '../../../model';
-import InnertubeLoader from '../../../model/InnertubeLoader';
 import { type PageContent, type WatchContent } from '../../../types/Content';
 import {type WatchEndpoint} from '../../../types/Endpoint';
 import type Endpoint from '../../../types/Endpoint';
@@ -118,7 +117,7 @@ export default class GenericViewHandler<V extends Omit<GenericView, 'name'> & { 
   }
 
    
-  protected getEndpoint(explode = false): Endpoint | null {
+  protected getEndpoint(_explode = false): Endpoint | null {
     const view = this.currentView;
     if (view.continuation) {
       return view.continuation.endpoint;

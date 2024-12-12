@@ -97,7 +97,7 @@ class GenericViewHandler extends FeedViewHandler_1.default {
             .map((item) => ExplodeHelper_1.default.getExplodedTrackInfoFromVideo(item)) || [];
         return result;
     }
-    getEndpoint(explode = false) {
+    getEndpoint(_explode = false) {
         const view = this.currentView;
         if (view.continuation) {
             return view.continuation.endpoint;
