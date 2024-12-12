@@ -101,7 +101,7 @@ class GenericViewHandler extends FeedViewHandler_1.default {
             .map((item) => ExplodeHelper_1.default.getExplodedTrackInfoFromMusicItem(item)) || [];
         return result;
     }
-    getEndpoint(explode) {
+    getEndpoint(_explode) {
         const view = this.currentView;
         if (view.continuation) {
             return view.continuation.endpoint;

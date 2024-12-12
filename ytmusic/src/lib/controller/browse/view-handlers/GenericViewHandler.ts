@@ -127,7 +127,7 @@ export default class GenericViewHandler<V extends GenericViewBase = GenericView>
   protected getEndpoint(explode?: boolean): BrowseEndpoint | BrowseContinuationEndpoint |
     SearchEndpoint | SearchContinuationEndpoint | WatchEndpoint | WatchContinuationEndpoint | null;
    
-  protected getEndpoint(explode?: boolean): Endpoint | null {
+  protected getEndpoint(_explode?: boolean): Endpoint | null {
     const view = this.currentView;
     if (view.continuation) {
       return view.continuation.endpoint;

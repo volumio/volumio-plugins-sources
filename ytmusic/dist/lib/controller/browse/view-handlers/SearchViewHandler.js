@@ -18,7 +18,7 @@ class SearchViewHandler extends GenericViewHandler_1.default {
         super(...arguments);
         _SearchViewHandler_instances.add(this);
     }
-    getEndpoint(explode) {
+    getEndpoint(_explode) {
         const view = this.currentView;
         if (!view.continuation && !view.endpoint) {
             const query = view.query ? view.query.trim() : '';

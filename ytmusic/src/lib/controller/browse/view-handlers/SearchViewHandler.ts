@@ -18,7 +18,7 @@ export default class SearchViewHandler extends GenericViewHandler<SearchView> {
   protected getEndpoint(explode: true): WatchEndpoint | BrowseEndpoint | WatchContinuationEndpoint | null;
   protected getEndpoint(explode?: false  ): BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint | null;
    
-  protected getEndpoint(explode?: boolean  ): Endpoint | null {
+  protected getEndpoint(_explode?: boolean  ): Endpoint | null {
     const view = this.currentView;
     if (!view.continuation && !view.endpoint) {
       const query = view.query ? view.query.trim() : '';
