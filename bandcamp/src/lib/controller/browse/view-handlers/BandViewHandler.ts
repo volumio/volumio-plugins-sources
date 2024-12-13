@@ -1,14 +1,14 @@
 import bandcamp from '../../../BandcampContext';
-import TrackEntity from '../../../entities/TrackEntity';
+import type TrackEntity from '../../../entities/TrackEntity';
 import { ModelType } from '../../../model';
-import { BandModelGetDiscographyParams, BandModelGetLabelArtistsParams } from '../../../model/BandModel';
-import UIHelper, { UILink } from '../../../util/UIHelper';
+import { type BandModelGetDiscographyParams, type BandModelGetLabelArtistsParams } from '../../../model/BandModel';
+import UIHelper, { type UILink } from '../../../util/UIHelper';
 import ExplodableViewHandler from './ExplodableViewHandler';
-import View from './View';
-import { RenderedList, RenderedPage } from './ViewHandler';
+import type View from './View';
+import { type RenderedList, type RenderedPage } from './ViewHandler';
 import ViewHelper from './ViewHelper';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
+import { type RenderedListItem } from './renderers/BaseRenderer';
 
 export interface BandView extends View {
   name: 'band';

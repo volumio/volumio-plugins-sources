@@ -56,7 +56,6 @@ class RootViewHandler extends BaseViewHandler_1.default {
         };
     }
 }
-exports.default = RootViewHandler;
 _RootViewHandler_instances = new WeakSet(), _RootViewHandler_getFanSummary = function _RootViewHandler_getFanSummary(username) {
     return __classPrivateFieldGet(this, _RootViewHandler_instances, "m", _RootViewHandler_getSectionLists).call(this, `${this.uri}/fan@username=${username}`);
 }, _RootViewHandler_getArticles = function _RootViewHandler_getArticles() {
@@ -70,4 +69,5 @@ _RootViewHandler_instances = new WeakSet(), _RootViewHandler_getFanSummary = fun
     const page = await handler.browse();
     return page.navigation?.lists || [];
 };
+exports.default = RootViewHandler;
 //# sourceMappingURL=RootViewHandler.js.map

@@ -54,7 +54,6 @@ class ViewHelper {
         return segments.join('/');
     }
 }
-exports.default = ViewHelper;
 _a = ViewHelper, _ViewHelper_getViewFromUriSegment = function _ViewHelper_getViewFromUriSegment(segment) {
     const result = {
         name: '',
@@ -78,4 +77,5 @@ _a = ViewHelper, _ViewHelper_getViewFromUriSegment = function _ViewHelper_getVie
     });
     return result;
 };
+exports.default = ViewHelper;
 //# sourceMappingURL=ViewHelper.js.map

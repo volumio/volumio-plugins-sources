@@ -1,39 +1,36 @@
 import bandcamp from '../../../../BandcampContext';
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
-import UIHelper, { UI_STYLES } from '../../../../util/UIHelper';
-import TagEntity from '../../../../entities/TagEntity';
-import { TagView } from '../TagViewHandler';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
+import type TagEntity from '../../../../entities/TagEntity';
 import ViewHelper from '../ViewHelper';
-
-export interface TagListSelectionRenderParams {
-  selected: boolean;
-  uri: string;
-}
+import { type DiscoverView } from '../DiscoverViewHandler';
 
 export default class TagRenderer extends BaseRenderer<TagEntity> {
 
-  renderToListItem(data: TagEntity, listSelectionParams: TagListSelectionRenderParams): RenderedListItem | null {
-    const title = listSelectionParams.selected ? UIHelper.styleText(data.name, UI_STYLES.LIST_ITEM_SELECTED) : data.name;
+  renderToListItem(data: TagEntity): RenderedListItem | null {
+    const discoverView: DiscoverView = {
+      name: 'discover',
+      customTags: data.value
+    };
     return {
       service: 'bandcamp',
       type: 'item-no-menu',
-      title,
-      icon: listSelectionParams.selected ? 'fa fa-check' : 'fa',
-      uri: listSelectionParams.uri
+      title: data.name,
+      icon: 'fa',
+      uri: `${this.uri}/${ViewHelper.constructUriSegmentFromView(discoverView)}`
     };
   }
 
   renderGenreListItem(data: TagEntity): RenderedListItem | null {
-    const tagView: TagView = {
-      name: 'tag',
-      tagUrl: data.url
+    const discoverView: DiscoverView = {
+      name: 'discover',
+      customTags: data.value
     };
     return {
       service: 'bandcamp',
       type: 'folder',
       title: data.name,
       albumart: data.thumbnail,
-      uri: `${this.uri}/${ViewHelper.constructUriSegmentFromView(tagView)}`
+      uri: `${this.uri}/${ViewHelper.constructUriSegmentFromView(discoverView)}`
     };
   }
 

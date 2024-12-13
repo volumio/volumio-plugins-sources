@@ -38,7 +38,6 @@ class ShowModel extends BaseModel_1.default {
         return __classPrivateFieldGet(this, _ShowModel_instances, "m", _ShowModel_convertFetchedShowToEntity).call(this, show);
     }
 }
-exports.default = ShowModel;
 _ShowModel_instances = new WeakSet(), _ShowModel_getShowsFetchPromise = function _ShowModel_getShowsFetchPromise() {
     const queryParams = {
         imageFormat: this.getAlbumImageFormat()
@@ -49,4 +48,5 @@ _ShowModel_instances = new WeakSet(), _ShowModel_getShowsFetchPromise = function
 }, _ShowModel_convertFetchedShowToEntity = function _ShowModel_convertFetchedShowToEntity(item) {
     return EntityConverter_1.default.convertShow(item);
 };
+exports.default = ShowModel;
 //# sourceMappingURL=ShowModel.js.map

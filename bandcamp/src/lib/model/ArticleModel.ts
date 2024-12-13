@@ -1,7 +1,7 @@
-import bcfetch, { Article, ArticleAPIListParams, ArticleList, ArticleListItem } from 'bandcamp-fetch';
+import bcfetch, { type Article, type ArticleAPIListParams, type ArticleList, type ArticleListItem } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
-import BaseModel, { LoopFetchCallbackParams } from './BaseModel';
-import ArticleEntity from '../entities/ArticleEntity';
+import BaseModel, { type LoopFetchCallbackParams } from './BaseModel';
+import type ArticleEntity from '../entities/ArticleEntity';
 import EntityConverter from '../util/EntityConverter';
 
 export interface ArticleModelGetArticlesParams {

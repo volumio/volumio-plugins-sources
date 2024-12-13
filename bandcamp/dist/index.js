@@ -245,7 +245,7 @@ class ControllerBandcamp {
         return (0, util_1.jsPromiseToKew)(__classPrivateFieldGet(this, _ControllerBandcamp_searchController, "f").search(query));
     }
     goto(data) {
-        return (0, util_1.jsPromiseToKew)((async () => {
+        return (0, util_1.jsPromiseToKew)((() => {
             if (!__classPrivateFieldGet(this, _ControllerBandcamp_browseController, "f")) {
                 throw Error('Bandcamp Discover plugin is not started');
             }

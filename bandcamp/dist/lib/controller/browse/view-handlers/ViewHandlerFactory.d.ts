@@ -1,5 +1,5 @@
-import BaseViewHandler from './BaseViewHandler';
-import View from './View';
+import type BaseViewHandler from './BaseViewHandler';
+import type View from './View';
 export default class ViewHandlerFactory {
     static getHandler<V extends View>(uri: string): BaseViewHandler<V>;
 }

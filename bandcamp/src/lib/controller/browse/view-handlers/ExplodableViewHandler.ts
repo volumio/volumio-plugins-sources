@@ -1,8 +1,8 @@
 import BaseViewHandler from './BaseViewHandler';
-import View from './View';
+import type View from './View';
 import UIHelper from '../../../util/UIHelper';
-import TrackEntity from '../../../entities/TrackEntity';
-import { TrackView } from './TrackViewHandler';
+import type TrackEntity from '../../../entities/TrackEntity';
+import { type TrackView } from './TrackViewHandler';
 import ViewHelper from './ViewHelper';
 
 export interface ExplodedTrackInfo {
@@ -35,13 +35,13 @@ export default abstract class ExplodableViewHandler<V extends View, E extends Tr
     return (await Promise.all(trackInfoPromises)).filter((song) => song) as ExplodedTrackInfo[];
   }
 
-  protected async parseTrackForExplode(track: E): Promise<ExplodedTrackInfo | null> {
+  protected parseTrackForExplode(track: E): Promise<ExplodedTrackInfo | null> {
     const trackUri = this.getTrackUri(track);
     if (!trackUri) {
-      return null;
+      return Promise.resolve(null);
     }
     const trackName = track.streamUrl ? track.name : UIHelper.addNonPlayableText(track.name);
-    return {
+    return Promise.resolve({
       service: 'bandcamp',
       uri: trackUri,
       albumart: track.thumbnail,
@@ -50,7 +50,7 @@ export default abstract class ExplodableViewHandler<V extends View, E extends Tr
       name: trackName,
       title: trackName,
       duration: track.duration
-    };
+    });
   }
 
   protected abstract getTracksOnExplode(): Promise<E | E[]>;
