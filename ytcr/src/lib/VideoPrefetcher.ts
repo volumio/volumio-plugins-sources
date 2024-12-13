@@ -1,7 +1,7 @@
 import AbortController from 'abort-controller';
 import EventEmitter from 'events';
-import { Logger, Video } from 'yt-cast-receiver';
-import VideoLoader from './VideoLoader';
+import { type Logger, type Video } from 'yt-cast-receiver';
+import type VideoLoader from './VideoLoader';
 
 export default class VideoPrefetcher extends EventEmitter {
 
@@ -22,7 +22,9 @@ export default class VideoPrefetcher extends EventEmitter {
 
   startPrefetchOnTimeout(video: Video, seconds: number) {
     this.abortPrefetch();
-    this.#startPrefetchTimer = setTimeout(this.#prefetch.bind(this, video), seconds * 1000);
+    this.#startPrefetchTimer = setTimeout(() => {
+      this.#prefetch(video).catch((error: unknown) => this.#logger.error('[ytcr] Caught error while prefetching video:', error));
+    }, seconds * 1000);
     this.#target = video;
     this.#logger.debug(`[ytcr] Going to prefetch ${video.id} in ${seconds}s`);
   }

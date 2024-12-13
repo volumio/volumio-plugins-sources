@@ -1,7 +1,8 @@
-import { MetadataAlbumInfo, MetadataArtistInfo, MetadataSongInfo, NowPlayingMetadataProvider, NowPlayingPluginSupport } from 'now-playing-common';
-import ytcr, { PluginInfo } from './YTCRContext';
-import MPDPlayer, { MPDPlayerVideoInfo } from './MPDPlayer';
-import { Logger } from 'yt-cast-receiver';
+import { type MetadataAlbumInfo, type MetadataArtistInfo, type MetadataSongInfo, type NowPlayingMetadataProvider, type NowPlayingPluginSupport } from 'now-playing-common';
+import ytcr, { type PluginInfo } from './YTCRContext';
+import {type MPDPlayerVideoInfo} from './MPDPlayer';
+import type MPDPlayer from './MPDPlayer';
+import { type Logger } from 'yt-cast-receiver';
 import semver from 'semver';
 
 // From YouTube Music plugin; includes only the necessary fields
@@ -60,12 +61,12 @@ export default class YTCRNowPlayingMetadataProvider implements NowPlayingMetadat
     }
   }
 
-  async getAlbumInfo(): Promise<MetadataAlbumInfo | null> {
-    return null;
+  getAlbumInfo(): Promise<MetadataAlbumInfo | null> {
+    return Promise.resolve(null);
   }
 
-  async getArtistInfo(): Promise<MetadataArtistInfo | null> {
-    return null;
+  getArtistInfo(): Promise<MetadataArtistInfo | null> {
+    return Promise.resolve(null);
   }
 
   async #getMusicServicePlugin(pluginName: string, pluginPrettyName: string, requiredVersion: string) {

@@ -62,7 +62,7 @@ class YTCRContext {
                 try {
                     return JSON.parse(val);
                 }
-                catch (e) {
+                catch (_error) {
                     return defaultValue;
                 }
             }
@@ -132,14 +132,14 @@ _YTCRContext_singletons = new WeakMap(), _YTCRContext_data = new WeakMap(), _YTC
         try {
             __classPrivateFieldSet(this, _YTCRContext_i18nDefaults, fs_extra_1.default.readJsonSync(`${i18nPath}/strings_en.json`), "f");
         }
-        catch (e) {
+        catch (_error) {
             __classPrivateFieldSet(this, _YTCRContext_i18nDefaults, {}, "f");
         }
         try {
             const language_code = __classPrivateFieldGet(this, _YTCRContext_pluginContext, "f").coreCommand.sharedVars.get('language_code');
             __classPrivateFieldSet(this, _YTCRContext_i18n, fs_extra_1.default.readJsonSync(`${i18nPath}/strings_${language_code}.json`), "f");
         }
-        catch (e) {
+        catch (_error) {
             __classPrivateFieldSet(this, _YTCRContext_i18n, __classPrivateFieldGet(this, _YTCRContext_i18nDefaults, "f"), "f");
         }
     }

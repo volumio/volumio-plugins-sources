@@ -1,5 +1,5 @@
-import { MPDApi } from 'mpd-api';
-import { Logger } from 'yt-cast-receiver';
+import { type MPDApi } from 'mpd-api';
+import { type Logger } from 'yt-cast-receiver';
 
 export type SubsystemName = 'database' |
                             'update' |
@@ -52,7 +52,7 @@ export default class MPDSubsystemEventEmitter {
   #status: 'running' | 'stopped' | 'destroyed';
   #mpdClient: MPDApi.ClientAPI | null;
   #logger: Logger;
-  #systemEventListener: (subsystem: SubsystemName) => Promise<void>;
+  #systemEventListener: (subsystem: SubsystemName) => void;
   #subsystemEventListeners: {[subsystem: string]: __SubsystemEventListener[]};
 
   constructor(logger: Logger) {
@@ -148,34 +148,36 @@ export default class MPDSubsystemEventEmitter {
     this.#logger.debug('[ytcr] MPDSubsystemEventEmitter destroyed.');
   }
 
-  async #handleSystemEvent(subsystem: SubsystemName) {
-    if (this.#status === 'running') {
-      const listeners = this.#subsystemEventListeners[subsystem];
-      if (!listeners) {
-        return;
-      }
-
-      this.#logger.debug(`[ytcr] MPDSubsystemEventEmitter invoking ${listeners.length} SubsystemEventListener callbacks for: ${subsystem}`);
-
-      for (let i = 0; i < listeners.length; i++) {
-        const l = listeners[i];
-        const event = new SubsystemEvent(subsystem);
-        try {
-          const callbackResult = l.callback(event);
-          if (callbackResult.then !== undefined) {
-            await callbackResult;
+  #handleSystemEvent(subsystem: SubsystemName) {
+    void (async () => {
+      if (this.#status === 'running') {
+        const listeners = this.#subsystemEventListeners[subsystem];
+        if (!listeners) {
+          return;
+        }
+  
+        this.#logger.debug(`[ytcr] MPDSubsystemEventEmitter invoking ${listeners.length} SubsystemEventListener callbacks for: ${subsystem}`);
+  
+        for (let i = 0; i < listeners.length; i++) {
+          const l = listeners[i];
+          const event = new SubsystemEvent(subsystem);
+          try {
+            const callbackResult = l.callback(event);
+            if (callbackResult.then !== undefined) {
+              await callbackResult;
+            }
+          }
+          catch (error) {
+            this.#logger.debug('[ytcr] MPDSubsystemEventEmitter handleSystemEvent error:', error);
+          }
+          if (!event.propagate) {
+            this.#logger.debug('[ytcr] SubsystemEvent.propagate: false. Event propagation stopped.');
+            break;
           }
         }
-        catch (error) {
-          this.#logger.debug('[ytcr] MPDSubsystemEventEmitter handleSystemEvent error:', error);
-        }
-        if (!event.propagate) {
-          this.#logger.debug('[ytcr] SubsystemEvent.propagate: false. Event propagation stopped.');
-          break;
-        }
+  
+        this.#subsystemEventListeners[subsystem] = listeners.filter((l) => !l.once);
       }
-
-      this.#subsystemEventListeners[subsystem] = listeners.filter((l) => !l.once);
-    }
+    })();
   }
 }

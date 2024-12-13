@@ -1,4 +1,4 @@
-import { Logger, Volume } from 'yt-cast-receiver';
+import { type Logger, type Volume } from 'yt-cast-receiver';
 import { kewToJSPromise } from './Utils.js';
 
 export interface VolumioVolume {
@@ -29,7 +29,7 @@ export default class VolumeControl {
     this.#logger.debug('[ytcr] VolumeControl initialized with current volume:', this.#currentVolume);
   }
 
-  async setVolume(volume: Volume, setInternalOnly = false) {
+  setVolume(volume: Volume, setInternalOnly = false) {
     const oldVolume = this.#currentVolume;
     this.#currentVolume = volume;
     if (!setInternalOnly) {

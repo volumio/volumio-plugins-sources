@@ -1,7 +1,7 @@
 import { writeFileSync } from 'fs';
 import { EOL } from 'os';
 import path from 'path';
-import { DEFAULT_I18N_OPTIONS, I18nOptions, I18nOptionValue } from './i18n/common';
+import { DEFAULT_I18N_OPTIONS, type I18nOptions } from './i18n/common';
 import { getI18nOptions as ytGetI18nOptions } from './i18n/yt';
 import { getI18nOptions as ytmusicGetI18nOptions } from './i18n/ytmusic';
 
@@ -48,7 +48,7 @@ async function start() {
 
     for (const key of [ 'region', 'language' ] as Array<keyof I18nOptions>) {
       if (ytI18nOptions[key]?.length && ytmusicI18nOptions[key]?.length) {
-        for (const o of ytI18nOptions[key] as I18nOptionValue[]) {
+        for (const o of ytI18nOptions[key]) {
           if (ytmusicI18nOptions[key]?.find((o2) => o.value === o2.value)) {
             result[key]?.push(o);
           }
@@ -103,4 +103,4 @@ async function start() {
   console.log(`[${scriptName}] Done`);
 }
 
-start();
+start().catch((error: unknown) => console.error('Caught error:', error));

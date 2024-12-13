@@ -7,14 +7,16 @@ const yt_cast_receiver_1 = require("yt-cast-receiver");
 const YTCRContext_js_1 = __importDefault(require("./YTCRContext.js"));
 const BUNDLE_KEY = 'yt-cast-receiver';
 class ReceiverDataStore extends yt_cast_receiver_1.DataStore {
-    async set(key, value) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+    set(key, value) {
         const bundle = YTCRContext_js_1.default.getConfigValue(BUNDLE_KEY, {}, true);
         bundle[key] = value;
         YTCRContext_js_1.default.setConfigValue(BUNDLE_KEY, bundle, true);
+        return Promise.resolve();
     }
-    async get(key) {
+    get(key) {
         const bundle = YTCRContext_js_1.default.getConfigValue(BUNDLE_KEY, {}, true);
-        return bundle[key] || null;
+        return Promise.resolve(bundle[key] || null);
     }
     clear() {
         YTCRContext_js_1.default.deleteConfigValue(BUNDLE_KEY);

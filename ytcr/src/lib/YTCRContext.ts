@@ -73,7 +73,7 @@ class YTCRContext {
         try {
           return JSON.parse(val);
         }
-        catch (e) {
+        catch (_error: unknown) {
           return defaultValue;
         }
       }
@@ -157,7 +157,7 @@ class YTCRContext {
       try {
         this.#i18nDefaults = fs.readJsonSync(`${i18nPath}/strings_en.json`);
       }
-      catch (e) {
+      catch (_error: unknown) {
         this.#i18nDefaults = {};
       }
 
@@ -165,7 +165,7 @@ class YTCRContext {
         const language_code = this.#pluginContext.coreCommand.sharedVars.get('language_code');
         this.#i18n = fs.readJsonSync(`${i18nPath}/strings_${language_code}.json`);
       }
-      catch (e) {
+      catch (_error: unknown) {
         this.#i18n = this.#i18nDefaults;
       }
     }
