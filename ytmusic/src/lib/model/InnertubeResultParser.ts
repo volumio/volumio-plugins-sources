@@ -1373,7 +1373,7 @@ export default class InnertubeResultParser {
       };
     }
     else if (data.hasKey('author')) {
-      if (typeof data.author === 'object' && data.author.name) {
+      if (data.author && typeof data.author === 'object' && data.author.name) {
         const author: ContentItem.Channel = {
           type: 'channel',
           name: data.author.name
@@ -1854,7 +1854,7 @@ export default class InnertubeResultParser {
   }
 
   static #isYTNode(el: any): el is YTHelpers.YTNode {
-    if (typeof el !== 'object') {
+    if (!el || typeof el !== 'object') {
       return false;
     }
     return ['is', 'as', 'hasKey', 'key'].every((fn) => Reflect.has(el, fn) && typeof el[fn] === 'function');
@@ -1867,7 +1867,7 @@ export default class InnertubeResultParser {
     if (syncedLyricsRawData) {
       if (syncedLyricsRawData.hasKey('lyrics_data') && Reflect.has(syncedLyricsRawData.lyrics_data, 'timedLyricsData')) {
         const timedLyricsData = syncedLyricsRawData.lyrics_data.timedLyricsData;
-        if (typeof timedLyricsData === 'object') {
+        if (timedLyricsData && typeof timedLyricsData === 'object') {
           const isValid = Object.values(timedLyricsData).every((line: any) =>
             typeof line === 'object' &&
             Reflect.has(line, 'lyricLine') &&
