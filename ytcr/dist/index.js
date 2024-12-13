@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
     if (kind === "m") throw new TypeError("Private method is not writable");
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
@@ -234,33 +244,35 @@ class ControllerYTCR {
             YTCRContext_js_1.default.toast('warning', YTCRContext_js_1.default.getI18n('YTCR_DISCONNECTED', sender.name));
             this.refreshUIConfig();
         });
-        __classPrivateFieldGet(this, _ControllerYTCR_player, "f").on('action', async (action) => {
-            if (action.name === 'play' && !this.isCurrentService()) {
-                __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] \'play\' command received while not being the current service.');
-                // Stop any playback by the currently active service
-                __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Stopping playback by current service...');
-                try {
-                    await utils.kewToJSPromise(__classPrivateFieldGet(this, _ControllerYTCR_commandRouter, "f").volumioStop());
+        __classPrivateFieldGet(this, _ControllerYTCR_player, "f").on('action', (action) => {
+            void (async () => {
+                if (action.name === 'play' && !this.isCurrentService()) {
+                    __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] \'play\' command received while not being the current service.');
+                    // Stop any playback by the currently active service
+                    __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Stopping playback by current service...');
+                    try {
+                        await utils.kewToJSPromise(__classPrivateFieldGet(this, _ControllerYTCR_commandRouter, "f").volumioStop());
+                    }
+                    catch (error) {
+                        __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] An error occurred while stopping playback by current service: ', error);
+                        __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Continuing anyway...');
+                    }
+                    // Unset any volatile state of currently active service
+                    const sm = YTCRContext_js_1.default.getStateMachine();
+                    if (sm.isVolatile) {
+                        sm.unSetVolatile(); // Why isn't this async?!
+                    }
+                    __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Setting ourselves as the current service...');
+                    this.setVolatile();
+                    this.pushIdleState();
+                    // Update volume on sender apps
+                    await __classPrivateFieldGet(this, _ControllerYTCR_player, "f").notifyExternalStateChange();
                 }
-                catch (error) {
-                    __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] An error occurred while stopping playback by current service: ', error);
-                    __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Continuing anyway...');
+                else if (action.name === 'setVolume' && !this.isCurrentService()) {
+                    __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] setVolume command received, but we are not the current service. Putting player to sleep...');
+                    __classPrivateFieldGet(this, _ControllerYTCR_player, "f").sleep();
                 }
-                // Unset any volatile state of currently active service
-                const sm = YTCRContext_js_1.default.getStateMachine();
-                if (sm.isVolatile) {
-                    sm.unSetVolatile(); // Why isn't this async?!
-                }
-                __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Setting ourselves as the current service...');
-                this.setVolatile();
-                this.pushIdleState();
-                // Update volume on sender apps
-                await __classPrivateFieldGet(this, _ControllerYTCR_player, "f").notifyExternalStateChange();
-            }
-            else if (action.name === 'setVolume' && !this.isCurrentService()) {
-                __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] setVolume command received, but we are not the current service. Putting player to sleep...');
-                __classPrivateFieldGet(this, _ControllerYTCR_player, "f").sleep();
-            }
+            })();
         });
         // Listen for changes in volume on Volumio's end
         __classPrivateFieldGet(this, _ControllerYTCR_volumeControl, "f").registerVolumioVolumeChangeListener(async (volumioVol) => {
@@ -274,36 +286,38 @@ class ControllerYTCR {
                 // So we push the latest state here to refresh the old volatile state.
                 __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Captured change in Volumio\'s volume:', volumioVol);
                 await this.pushState();
-                await __classPrivateFieldGet(this, _ControllerYTCR_volumeControl, "f").setVolume(volume, true);
+                __classPrivateFieldGet(this, _ControllerYTCR_volumeControl, "f").setVolume(volume, true);
                 await this.pushState(); // Do it once more
                 await __classPrivateFieldGet(this, _ControllerYTCR_player, "f").notifyExternalStateChange();
             }
             else {
                 // Even if not current service, we keep track of the updated volume
-                await __classPrivateFieldGet(this, _ControllerYTCR_volumeControl, "f").setVolume(volume, true);
+                __classPrivateFieldGet(this, _ControllerYTCR_volumeControl, "f").setVolume(volume, true);
             }
         });
-        __classPrivateFieldGet(this, _ControllerYTCR_player, "f").on('state', async (states) => {
-            if (this.isCurrentService()) {
-                const state = states.current;
-                __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Received state change event from MPDPlayer:', state);
-                if (state.status === yt_cast_receiver_1.Constants.PLAYER_STATUSES.STOPPED || state.status === yt_cast_receiver_1.Constants.PLAYER_STATUSES.IDLE) {
-                    __classPrivateFieldGet(this, _ControllerYTCR_player, "f").sleep();
-                    if (state.status === yt_cast_receiver_1.Constants.PLAYER_STATUSES.STOPPED && __classPrivateFieldGet(this, _ControllerYTCR_player, "f").queue.videoIds.length > 0) {
-                        // If queue is not empty, it is possible that we are just moving to another song. In this case, we don't push
-                        // Idle state to avoid ugly flickering of the screen caused by the temporary Idle state.
-                        const currentVolumioState = YTCRContext_js_1.default.getStateMachine().getState();
-                        currentVolumioState.status = 'pause'; // Don't use 'stop' - will display Volumio logo leading to flicker!
-                        await this.pushState(currentVolumioState);
+        __classPrivateFieldGet(this, _ControllerYTCR_player, "f").on('state', (states) => {
+            void (async () => {
+                if (this.isCurrentService()) {
+                    const state = states.current;
+                    __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").debug('[ytcr] Received state change event from MPDPlayer:', state);
+                    if (state.status === yt_cast_receiver_1.Constants.PLAYER_STATUSES.STOPPED || state.status === yt_cast_receiver_1.Constants.PLAYER_STATUSES.IDLE) {
+                        __classPrivateFieldGet(this, _ControllerYTCR_player, "f").sleep();
+                        if (state.status === yt_cast_receiver_1.Constants.PLAYER_STATUSES.STOPPED && __classPrivateFieldGet(this, _ControllerYTCR_player, "f").queue.videoIds.length > 0) {
+                            // If queue is not empty, it is possible that we are just moving to another song. In this case, we don't push
+                            // Idle state to avoid ugly flickering of the screen caused by the temporary Idle state.
+                            const currentVolumioState = YTCRContext_js_1.default.getStateMachine().getState();
+                            currentVolumioState.status = 'pause'; // Don't use 'stop' - will display Volumio logo leading to flicker!
+                            await this.pushState(currentVolumioState);
+                        }
+                        else {
+                            this.pushIdleState();
+                        }
                     }
                     else {
-                        this.pushIdleState();
+                        await this.pushState();
                     }
                 }
-                else {
-                    await this.pushState();
-                }
-            }
+            })();
         });
         __classPrivateFieldGet(this, _ControllerYTCR_player, "f").on('error', (error) => {
             YTCRContext_js_1.default.toast('error', error.message);
@@ -318,10 +332,10 @@ class ControllerYTCR {
             .catch((error) => {
             __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").error('[ytcr] Failed to start plugin:', error);
             if (receiver.status === yt_cast_receiver_1.Constants.STATUSES.RUNNING) {
-                receiver.stop();
+                receiver.stop().catch((error) => __classPrivateFieldGet(this, _ControllerYTCR_logger, "f").error('[ytcr] Caught error while stopping receiver:', error));
             }
             else {
-                YTCRContext_js_1.default.toast('error', YTCRContext_js_1.default.getI18n('YTCR_RECEIVER_START_ERR', error.message || error));
+                YTCRContext_js_1.default.toast('error', YTCRContext_js_1.default.getI18n('YTCR_RECEIVER_START_ERR', error instanceof Error ? error.message : String(error)));
             }
             // Still resolve, in case error is caused by wrong setting (e.g. conflicting port).
             defer.resolve();
