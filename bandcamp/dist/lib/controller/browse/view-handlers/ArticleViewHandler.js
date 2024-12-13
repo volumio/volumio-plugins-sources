@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
@@ -139,7 +149,6 @@ class ArticleViewHandler extends ExplodableViewHandler_1.default {
         return uri;
     }
 }
-exports.default = ArticleViewHandler;
 _ArticleViewHandler_instances = new WeakSet(), _ArticleViewHandler_browseList = async function _ArticleViewHandler_browseList() {
     const category = await __classPrivateFieldGet(this, _ArticleViewHandler_instances, "m", _ArticleViewHandler_getCategoryFromUriOrDefault).call(this);
     if (!category.url) {
@@ -475,4 +484,5 @@ _ArticleViewHandler_instances = new WeakSet(), _ArticleViewHandler_browseList = 
         }
     };
 };
+exports.default = ArticleViewHandler;
 //# sourceMappingURL=ArticleViewHandler.js.map

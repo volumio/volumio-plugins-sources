@@ -1,6 +1,6 @@
-import TrackEntity from '../../../entities/TrackEntity';
-import View from './View';
-import { RenderedPage } from './ViewHandler';
+import type TrackEntity from '../../../entities/TrackEntity';
+import type View from './View';
+import { type RenderedPage } from './ViewHandler';
 import ExplodableViewHandler from './ExplodableViewHandler';
 export interface ArticleView extends View {
     name: 'article';

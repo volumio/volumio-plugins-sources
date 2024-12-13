@@ -1,4 +1,4 @@
-import BandEntity from './BandEntity';
+import type BandEntity from './BandEntity';
 
 interface LabelEntity extends BandEntity {
   type: 'label';

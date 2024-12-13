@@ -1,12 +1,12 @@
 import bandcamp from '../../../BandcampContext';
 import { ModelType } from '../../../model';
-import { SearchItemType, SearchModelGetSearchResultsParams } from '../../../model/SearchModel';
+import { SearchItemType, type SearchModelGetSearchResultsParams } from '../../../model/SearchModel';
 import UIHelper from '../../../util/UIHelper';
 import BaseViewHandler from './BaseViewHandler';
-import View from './View';
-import { RenderedPage } from './ViewHandler';
+import type View from './View';
+import { type RenderedPage } from './ViewHandler';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
+import { type RenderedListItem } from './renderers/BaseRenderer';
 
 export interface SearchView extends View {
   name: 'search';

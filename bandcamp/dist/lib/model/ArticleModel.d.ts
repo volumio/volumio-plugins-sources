@@ -1,5 +1,5 @@
 import BaseModel from './BaseModel';
-import ArticleEntity from '../entities/ArticleEntity';
+import type ArticleEntity from '../entities/ArticleEntity';
 export interface ArticleModelGetArticlesParams {
     categoryUrl?: string;
     pageToken?: string;

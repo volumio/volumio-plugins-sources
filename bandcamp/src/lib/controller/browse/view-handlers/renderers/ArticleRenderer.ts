@@ -1,10 +1,11 @@
 import bandcamp from '../../../../BandcampContext';
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
 import UIHelper from '../../../../util/UIHelper';
-import ArticleEntity, { ArticleEntityMediaItem } from '../../../../entities/ArticleEntity';
-import TrackEntity from '../../../../entities/TrackEntity';
-import AlbumEntity from '../../../../entities/AlbumEntity';
-import { ArticleView } from '../ArticleViewHandler';
+import {type ArticleEntityMediaItem} from '../../../../entities/ArticleEntity';
+import type ArticleEntity from '../../../../entities/ArticleEntity';
+import type TrackEntity from '../../../../entities/TrackEntity';
+import type AlbumEntity from '../../../../entities/AlbumEntity';
+import { type ArticleView } from '../ArticleViewHandler';
 import ViewHelper from '../ViewHelper';
 
 export default class ArticleRenderer extends BaseRenderer<ArticleEntity> {

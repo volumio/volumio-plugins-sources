@@ -1,5 +1,5 @@
 import BaseModel from './BaseModel';
-import TrackEntity from '../entities/TrackEntity';
+import type TrackEntity from '../entities/TrackEntity';
 export default class TrackModel extends BaseModel {
     #private;
     getTrack(trackUrl: string): Promise<TrackEntity>;

@@ -43,7 +43,6 @@ class ArticleModel extends BaseModel_1.default {
         return BandcampContext_1.default.getCache().getOrSet(this.getCacheKeyForFetch('articleCategories'), () => bandcamp_fetch_1.default.limiter.article.getCategories());
     }
 }
-exports.default = ArticleModel;
 _ArticleModel_instances = new WeakSet(), _ArticleModel_getArticlesFetchPromise = function _ArticleModel_getArticlesFetchPromise(params) {
     let page = 1;
     if (params.pageToken) {
@@ -80,4 +79,5 @@ _ArticleModel_instances = new WeakSet(), _ArticleModel_getArticlesFetchPromise =
 }, _ArticleModel_convertFetchedArticleToEntity = function _ArticleModel_convertFetchedArticleToEntity(item) {
     return EntityConverter_1.default.convertArticle(item);
 };
+exports.default = ArticleModel;
 //# sourceMappingURL=ArticleModel.js.map

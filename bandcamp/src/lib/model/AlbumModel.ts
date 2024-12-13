@@ -1,7 +1,7 @@
-import bcfetch, { Album } from 'bandcamp-fetch';
+import bcfetch, { type Album } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
 import BaseModel from './BaseModel';
-import AlbumEntity from '../entities/AlbumEntity';
+import type AlbumEntity from '../entities/AlbumEntity';
 import EntityConverter from '../util/EntityConverter';
 
 export default class AlbumModel extends BaseModel {

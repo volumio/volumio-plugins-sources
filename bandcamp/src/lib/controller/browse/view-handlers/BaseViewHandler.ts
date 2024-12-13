@@ -1,28 +1,31 @@
 import Model, { ModelType } from '../../../model';
-import AlbumModel from '../../../model/AlbumModel';
-import ArticleModel from '../../../model/ArticleModel';
-import BandModel from '../../../model/BandModel';
-import BaseModel from '../../../model/BaseModel';
-import DiscoverModel from '../../../model/DiscoverModel';
-import FanModel from '../../../model/FanModel';
-import SearchModel from '../../../model/SearchModel';
-import ShowModel from '../../../model/ShowModel';
-import TagModel from '../../../model/TagModel';
-import TrackModel from '../../../model/TrackModel';
+import type AlbumModel from '../../../model/AlbumModel';
+import type ArticleModel from '../../../model/ArticleModel';
+import type BandModel from '../../../model/BandModel';
+import type BaseModel from '../../../model/BaseModel';
+import type DiscoverModel from '../../../model/DiscoverModel';
+import type FanModel from '../../../model/FanModel';
+import type SearchModel from '../../../model/SearchModel';
+import type ShowModel from '../../../model/ShowModel';
+import type TagModel from '../../../model/TagModel';
+import type TrackModel from '../../../model/TrackModel';
 import UIHelper from '../../../util/UIHelper';
-import { ExplodedTrackInfo } from './ExplodableViewHandler';
-import View, { PageRef } from './View';
-import ViewHandler, { RenderedPage } from './ViewHandler';
+import { type ExplodedTrackInfo } from './ExplodableViewHandler';
+import {type PageRef} from './View';
+import type View from './View';
+import {type RenderedPage} from './ViewHandler';
+import type ViewHandler from './ViewHandler';
 import ViewHelper from './ViewHelper';
 import Renderer, { RendererType } from './renderers';
-import AlbumRenderer from './renderers/AlbumRenderer';
-import ArticleRenderer from './renderers/ArticleRenderer';
-import BandRenderer from './renderers/BandRenderer';
-import BaseRenderer, { RenderedListItem } from './renderers/BaseRenderer';
-import SearchResultRenderer from './renderers/SearchResultParser';
-import ShowRenderer from './renderers/ShowRenderer';
-import TagRenderer from './renderers/TagRenderer';
-import TrackRenderer from './renderers/TrackRenderer';
+import type AlbumRenderer from './renderers/AlbumRenderer';
+import type ArticleRenderer from './renderers/ArticleRenderer';
+import type BandRenderer from './renderers/BandRenderer';
+import {type RenderedListItem} from './renderers/BaseRenderer';
+import type BaseRenderer from './renderers/BaseRenderer';
+import type SearchResultRenderer from './renderers/SearchResultParser';
+import type ShowRenderer from './renderers/ShowRenderer';
+import type TagRenderer from './renderers/TagRenderer';
+import type TrackRenderer from './renderers/TrackRenderer';
 
 export default class BaseViewHandler<V extends View> implements ViewHandler {
 
@@ -40,8 +43,8 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     this.#renderers = {};
   }
 
-  async browse(): Promise<RenderedPage> {
-    return {};
+  browse(): Promise<RenderedPage> {
+    return Promise.resolve({});
   }
 
   explode(): Promise<ExplodedTrackInfo[]> {
@@ -101,7 +104,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
           model = Model.getInstance(ModelType.Track);
           break;
         default:
-          throw Error(`Unknown model type: ${type}`);
+          throw Error(`Unknown model type: ${String(type)}`);
       }
       this.#models[type] = model;
     }
@@ -149,7 +152,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
             this.#currentView, this.#previousViews);
           break;
         default:
-          throw Error(`Unknown renderer type: ${type}`);
+          throw Error(`Unknown renderer type: ${String(type)}`);
       }
       this.#renderers[type] = renderer;
     }

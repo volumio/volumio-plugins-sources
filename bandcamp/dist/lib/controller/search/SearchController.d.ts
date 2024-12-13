@@ -1,4 +1,4 @@
-import { RenderedList } from '../browse/view-handlers/ViewHandler';
+import { type RenderedList } from '../browse/view-handlers/ViewHandler';
 export interface SearchQuery {
     value: string;
 }

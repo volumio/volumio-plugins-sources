@@ -1,13 +1,13 @@
-import AlbumEntity from '../../../../entities/AlbumEntity';
-import ArtistEntity from '../../../../entities/ArtistEntity';
-import LabelEntity from '../../../../entities/LabelEntity';
-import TrackEntity from '../../../../entities/TrackEntity';
-import { AlbumView } from '../AlbumViewHandler';
-import { BandView } from '../BandViewHandler';
-import { TrackView } from '../TrackViewHandler';
-import View from '../View';
+import type AlbumEntity from '../../../../entities/AlbumEntity';
+import type ArtistEntity from '../../../../entities/ArtistEntity';
+import type LabelEntity from '../../../../entities/LabelEntity';
+import type TrackEntity from '../../../../entities/TrackEntity';
+import { type AlbumView } from '../AlbumViewHandler';
+import { type BandView } from '../BandViewHandler';
+import { type TrackView } from '../TrackViewHandler';
+import type View from '../View';
 import ViewHelper from '../ViewHelper';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 
 type SearchResultEntity = ArtistEntity | LabelEntity | AlbumEntity | TrackEntity;
 

@@ -1,39 +1,40 @@
-import { DiscoverOptions, DiscoverParams } from 'bandcamp-fetch';
+import { type DiscoverOptions, type DiscoverParams } from 'bandcamp-fetch';
 import bandcamp from '../../../BandcampContext';
-import BaseViewHandler from './BaseViewHandler';
-import View from './View';
-import { RenderedList, RenderedPage } from './ViewHandler';
+import type View from './View';
+import { type RenderedList, type RenderedPage } from './ViewHandler';
 import { ModelType } from '../../../model';
 import ViewHelper from './ViewHelper';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
-import { DiscoverLoopFetchResult, DiscoveryModelGetDiscoverResultParams } from '../../../model/DiscoverModel';
-import UIHelper, { UILink, UI_STYLES } from '../../../util/UIHelper';
+import { type RenderedListItem } from './renderers/BaseRenderer';
+import { type DiscoverLoopFetchResult, type DiscoveryModelGetDiscoverResultParams } from '../../../model/DiscoverModel';
+import UIHelper, { type UILink, UI_STYLES } from '../../../util/UIHelper';
+import ExplodableViewHandler from './ExplodableViewHandler';
+import type TrackEntity from '../../../entities/TrackEntity';
+import { type AlbumView } from './AlbumViewHandler';
 
 export interface DiscoverView extends View {
   name: 'discover';
-  select?: 'genre' | 'subgenre' | 'sortBy' | 'artistRecommendationType' |
-  'location' | 'format' | 'time';
+  select?: 'genre' | 'subgenre' | 'sortBy' | 'location' | 'category' | 'time' | 'relatedTag';
   genre?: string;
   subgenre?: string;
   sortBy?: string;
-  artistRecommendationType?: string;
   location?: string;
-  format?: string;
+  category?: string;
   time?: string;
+  customTags?: string;
 }
 
 const DISCOVER_OPTION_ICONS: Record<string, string> = {
   genre: 'fa fa-music',
   subgenre: 'fa fa-filter',
   sortBy: 'fa fa-sort',
-  artistRecommendationType: 'fa fa-thumbs-o-up',
   location: 'fa fa-map-marker',
-  format: 'fa fa-archive',
-  time: 'fa fa-clock-o'
+  category: 'fa fa-archive',
+  time: 'fa fa-clock-o',
+  relatedTag: 'fa fa-tag'
 };
 
-export default class DiscoverViewHandler extends BaseViewHandler<DiscoverView> {
+export default class DiscoverViewHandler extends ExplodableViewHandler<DiscoverView> {
 
   browse(): Promise<RenderedPage> {
     if (this.currentView.select) {
@@ -84,19 +85,18 @@ export default class DiscoverViewHandler extends BaseViewHandler<DiscoverView> {
     }
     if (view.sortBy) {
       params.sortBy = view.sortBy;
-
-      if (view.artistRecommendationType) {
-        params.artistRecommendationType = view.artistRecommendationType;
-      }
     }
     if (view.location) {
-      params.location = view.location;
+      params.location = Number(view.location);
     }
-    if (view.format) {
-      params.format = view.format;
+    if (view.category) {
+      params.category = Number(view.category);
     }
     if (view.time) {
       params.time = parseInt(view.time, 10);
+    }
+    if (view.customTags) {
+      params.customTags = view.customTags.split(',');
     }
 
     if (Object.keys(params).length) {
@@ -107,20 +107,41 @@ export default class DiscoverViewHandler extends BaseViewHandler<DiscoverView> {
     return defaultParams || {};
   }
 
-  #getParamsListFromDiscoverResult(params: DiscoverParams, discoverOptions: DiscoverOptions): RenderedList {
+  #getParamsListFromDiscoverResult(_params: DiscoverParams, discoverOptions: DiscoverOptions): RenderedList {
+    const params = {..._params};
+    const defaultAllGenres = !params.genre && (!params.customTags || params.customTags.length === 0);
+    const defaultAllSubgenres = params.genre && !params.subgenre;
     const baseUri = this.#constructUriWithParams(params);
     const listItems: RenderedListItem[] = [];
-    [ 'genre', 'subgenre', 'sortBy', 'artistRecommendationType', 'location', 'format', 'time' ].forEach((o) => {
+    [ 'genre', 'subgenre', 'sortBy', 'location', 'category', 'time' ].forEach((o) => {
       const paramValue = params[o as keyof DiscoverParams];
-      if (paramValue !== undefined) {
-        let optArr = discoverOptions[`${o}s` as keyof DiscoverOptions] || [];
+      if (paramValue !== undefined || (o === 'genre' && defaultAllGenres) || (o === 'subgenre' && defaultAllSubgenres)) {
+        let optKey;
+        switch (o) {
+          case 'category':
+            optKey = 'categories';
+            break;
+          default:
+            optKey = `${o}s`;
+        }
+        let optArr = discoverOptions[optKey as keyof DiscoverOptions] || [];
         if (o === 'subgenre') {
           optArr = params.genre ? (optArr as DiscoverOptions['subgenres'])[params.genre] || [] : [];
         }
         if (optArr.length) {
           const opts = optArr as Array<any>;
           const opt = opts.find((o: any) => o.value == paramValue);
-          const title = opt ? opt.name : opts[0].name;
+          let title;
+          if (o === 'genre' && defaultAllGenres) {
+            title = bandcamp.getI18n('BANDCAMP_ALL_GENRES');
+          }
+          else if (o === 'subgenre' && defaultAllSubgenres) {
+            const genre = discoverOptions.genres.find((g) => g.value === params.genre);
+            title = bandcamp.getI18n('BANDCAMP_ALL_SUBGENRES', genre ? genre.name : params.genre);
+          }
+          else {
+            title = opt ? opt.name : opts[0].name;
+          }
           listItems.push({
             service: 'bandcamp',
             type: 'item-no-menu',
@@ -131,6 +152,15 @@ export default class DiscoverViewHandler extends BaseViewHandler<DiscoverView> {
         }
       }
     });
+    if (params.customTags && params.customTags.length > 0) {
+      listItems.unshift({
+        service: 'bandcamp',
+        type: 'item-no-menu',
+        title: bandcamp.getI18n('BANDCAMP_SELECT_RELATEDTAG'),
+        icon: DISCOVER_OPTION_ICONS['relatedTag'],
+        uri: `${baseUri}@select=relatedTag`
+      });
+    }
     const setDefaultJS = `
                 const params = ${JSON.stringify(params)};
                 const payload = {
@@ -151,7 +181,13 @@ export default class DiscoverViewHandler extends BaseViewHandler<DiscoverView> {
       this.#getBrowseByTagsLink()
     ];
 
-    const title = UIHelper.constructListTitleWithLink(UIHelper.addBandcampIconToListTitle(bandcamp.getI18n(this.currentView.inSection ? 'BANDCAMP_DISCOVER_SHORT' : 'BANDCAMP_DISCOVER')), links, true);
+    let title;
+    if (params.customTags && params.customTags.length > 0) {
+      title = params.customTags.join(', ');
+    }
+    else {
+      title = UIHelper.constructListTitleWithLink(UIHelper.addBandcampIconToListTitle(bandcamp.getI18n(this.currentView.inSection ? 'BANDCAMP_DISCOVER_SHORT' : 'BANDCAMP_DISCOVER')), links, true);
+    }
 
     if (!UIHelper.supportsEnhancedTitles()) {
       // Compensate for loss of 'browse by tags' link
@@ -224,27 +260,7 @@ export default class DiscoverViewHandler extends BaseViewHandler<DiscoverView> {
       throw Error('Target option missing');
     }
 
-    const discoverOptions = await this.getModel(ModelType.Discover).getDiscoverOptions();
-    let optArr = discoverOptions[`${view.select}s` as keyof DiscoverOptions] || [];
-    if (view.select === 'subgenre' && optArr) {
-      optArr = view.genre ? (optArr as DiscoverOptions['subgenres'])[view.genre] || [] : [];
-    }
-    const listItems = (optArr as Array<any>).map<RenderedListItem>((opt) => {
-      const isSelected = opt.value == view[view.select as keyof DiscoverView];
-      let title = opt.name;
-      if (isSelected) {
-        title = UIHelper.styleText(title, UI_STYLES.LIST_ITEM_SELECTED);
-      }
-
-      return {
-        service: 'bandcamp',
-        type: 'item-no-menu',
-        title,
-        icon: isSelected ? 'fa fa-check' : 'fa',
-        uri: this.#constructDiscoverOptionUri(targetOption, opt.value)
-      };
-    });
-
+    const listItems = await (targetOption === 'relatedTag' ? this.#getRelatedTagListItems() : this.#getDiscoverOptionListItems(targetOption));
     let title = bandcamp.getI18n(`BANDCAMP_SELECT_${targetOption.toUpperCase()}`);
     title = UIHelper.addIconToListTitle(DISCOVER_OPTION_ICONS[targetOption], title);
     const lists: RenderedList[] = [ {
@@ -261,14 +277,106 @@ export default class DiscoverViewHandler extends BaseViewHandler<DiscoverView> {
     };
   }
 
-  #constructDiscoverOptionUri(option: string, value: string) {
+  async #getDiscoverOptionListItems(targetOption: Required<Exclude<DiscoverView['select'], 'relatedTag'>>) {
+    const discoverOptions = await this.getModel(ModelType.Discover).getDiscoverOptions();
+    let optKey;
+    switch (targetOption) {
+      case 'category':
+        optKey = 'categories';
+        break;
+      default:
+        optKey = `${targetOption}s`;
+    }
+    let optArr = discoverOptions[optKey as keyof DiscoverOptions] || [];
+    const view = this.currentView;
+    if (targetOption === 'subgenre' && optArr) {
+      optArr = view.genre ? (optArr as DiscoverOptions['subgenres'])[view.genre] || [] : [];
+    }
+    const listItems = (optArr as Array<any>).map<RenderedListItem>((opt) => {
+      const isSelected = opt.value == view[view.select as keyof DiscoverView];
+      let title = opt.name;
+      if (isSelected) {
+        title = UIHelper.styleText(title, UI_STYLES.LIST_ITEM_SELECTED);
+      }
+
+      return {
+        service: 'bandcamp',
+        type: 'item-no-menu',
+        title,
+        icon: isSelected ? 'fa fa-check' : 'fa',
+        uri: this.#constructDiscoverOptionUri(targetOption as string, opt.value)
+      };
+    });
+
+    if (targetOption === 'genre') {
+      const isSelected = !view.genre;
+      let title = bandcamp.getI18n('BANDCAMP_ALL_GENRES');
+      if (isSelected) {
+        title = UIHelper.styleText(title, UI_STYLES.LIST_ITEM_SELECTED);
+      }
+      listItems.unshift({
+        service: 'bandcamp',
+        type: 'item-no-menu',
+        title,
+        icon: isSelected ? 'fa fa-check' : 'fa',
+        uri: this.#constructDiscoverOptionUri(targetOption as string, undefined)
+      });
+    }
+
+    if (targetOption === 'subgenre' && view.genre) {
+      const isSelected = !view.subgenre;
+      const genre = discoverOptions.genres.find((g) => g.value === view.genre);
+      let title = bandcamp.getI18n('BANDCAMP_ALL_SUBGENRES', genre ? genre.name : view.genre);
+      if (isSelected) {
+        title = UIHelper.styleText(title, UI_STYLES.LIST_ITEM_SELECTED);
+      }
+      listItems.unshift({
+        service: 'bandcamp',
+        type: 'item-no-menu',
+        title,
+        icon: isSelected ? 'fa fa-check' : 'fa',
+        uri: this.#constructDiscoverOptionUri(targetOption as string, undefined)
+      });
+    }
+
+    return listItems;
+  }
+
+  async #getRelatedTagListItems() {
+    const view = this.currentView;
+    const customTags = view.customTags?.split(',') || [];
+    if (customTags.length === 0) {
+      throw Error('No target tags specified');
+    }
+    const model = this.getModel(ModelType.Tag);
+    const relatedTags = model.getRelatedTags(customTags);
+    const listItems = (await relatedTags).map<RenderedListItem>((tag) => {
+      const added = [ ...customTags, tag.value ];
+      return {
+        service: 'bandcamp',
+        type: 'item-no-menu',
+        title: tag.name,
+        icon: 'fa',
+        uri: this.#constructDiscoverOptionUri('customTags', added.join(','))
+      };
+    });
+
+    return listItems;
+  }
+
+  #constructDiscoverOptionUri(option: string, value?: string) {
     const targetView = {
       ...this.currentView
     };
     if (this.currentView[option] !== value) {
       delete targetView.pageRef;
       delete targetView.prevPageRefs;
-      targetView[option] = value;
+      if (value !== undefined) {
+        targetView[option] = value;
+      }
+      else {
+        delete targetView[option];
+      }
     }
     delete targetView.select;
 
@@ -287,5 +395,65 @@ export default class DiscoverViewHandler extends BaseViewHandler<DiscoverView> {
       ...this.previousViews,
       targetView
     ]);
+  }
+
+  protected async getTracksOnExplode() {
+    const view = this.currentView;
+    const modelParams: DiscoveryModelGetDiscoverResultParams = {
+      discoverParams: this.#getDiscoverParamsFromUriOrDefault(),
+      limit: bandcamp.getConfigValue('itemsPerPage', 47)
+    };
+    const model = this.getModel(ModelType.Discover);
+    const discoverResults = await model.getDiscoverResult(modelParams);
+    const tracks = discoverResults.items.reduce<TrackEntity[]>((result, album) => {
+      const featured = album.featuredTrack;
+      if (featured?.streamUrl && featured.id) {
+        result.push({
+          type: 'track',
+          id: featured.id,
+          name: featured.name,
+          url: album.url,
+          thumbnail: album.thumbnail,
+          artist: album.artist,
+          album: {
+            type: 'album',
+            name: album.name,
+            url: album.url
+          },
+          streamUrl: featured.streamUrl
+        });
+      }
+      return result;
+    }, []);
+
+    return tracks;
+  }
+
+  /**
+   * Override
+   *
+   * Add track uri:
+   * - bandcamp/album@albumUrl={...}@trackId={...}@artistUrl={...}
+   */
+  getTrackUri(track: TrackEntity) {
+    const artistUrl = track.artist?.url || null;
+    const albumUrl = track.album?.url || artistUrl;
+
+    if (track.album && albumUrl) {
+      const albumView: AlbumView = {
+        name: 'album',
+        albumUrl
+      };
+      if (track.id) {
+        albumView.trackId = String(track.id);
+      }
+      if (artistUrl) {
+        albumView.artistUrl = artistUrl;
+      }
+
+      return `bandcamp/${ViewHelper.constructUriSegmentFromView(albumView)}`;
+    }
+
+    return super.getTrackUri(track);
   }
 }

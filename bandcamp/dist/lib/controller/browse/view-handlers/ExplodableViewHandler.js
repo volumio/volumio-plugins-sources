@@ -20,13 +20,13 @@ class ExplodableViewHandler extends BaseViewHandler_1.default {
         const trackInfoPromises = tracks.map((track) => this.parseTrackForExplode(track));
         return (await Promise.all(trackInfoPromises)).filter((song) => song);
     }
-    async parseTrackForExplode(track) {
+    parseTrackForExplode(track) {
         const trackUri = this.getTrackUri(track);
         if (!trackUri) {
-            return null;
+            return Promise.resolve(null);
         }
         const trackName = track.streamUrl ? track.name : UIHelper_1.default.addNonPlayableText(track.name);
-        return {
+        return Promise.resolve({
             service: 'bandcamp',
             uri: trackUri,
             albumart: track.thumbnail,
@@ -35,7 +35,7 @@ class ExplodableViewHandler extends BaseViewHandler_1.default {
             name: trackName,
             title: trackName,
             duration: track.duration
-        };
+        });
     }
     /**
      * Track uri:

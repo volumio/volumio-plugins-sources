@@ -63,7 +63,6 @@ class ShowViewHandler extends ExplodableViewHandler_1.default {
         return `bandcamp/${ViewHelper_1.default.constructUriSegmentFromView(showView)}`;
     }
 }
-exports.default = ShowViewHandler;
 _ShowViewHandler_instances = new WeakSet(), _ShowViewHandler_browseAllShows = async function _ShowViewHandler_browseAllShows() {
     const view = this.currentView;
     const modelParams = {
@@ -257,4 +256,5 @@ _ShowViewHandler_instances = new WeakSet(), _ShowViewHandler_browseAllShows = as
     }
     return allLists;
 };
+exports.default = ShowViewHandler;
 //# sourceMappingURL=ShowViewHandler.js.map

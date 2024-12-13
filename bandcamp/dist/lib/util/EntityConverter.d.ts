@@ -1,12 +1,12 @@
-import { Album, Article, ArticleListItem, Artist, Label, LabelArtist, SearchResultAlbum, SearchResultArtist, SearchResultLabel, SearchResultTrack, Show, Tag, Track, UserKind } from 'bandcamp-fetch';
-import AlbumEntity from '../entities/AlbumEntity';
-import ArtistEntity from '../entities/ArtistEntity';
-import BandEntity from '../entities/BandEntity';
-import LabelEntity from '../entities/LabelEntity';
-import TrackEntity from '../entities/TrackEntity';
-import TagEntity from '../entities/TagEntity';
-import ShowEntity from '../entities/ShowEntity';
-import ArticleEntity from '../entities/ArticleEntity';
+import { type Album, type Article, type ArticleListItem, type Artist, type Label, type LabelArtist, type SearchResultAlbum, type SearchResultArtist, type SearchResultLabel, type SearchResultTrack, type Show, type Tag, type Track, type UserKind } from 'bandcamp-fetch';
+import type AlbumEntity from '../entities/AlbumEntity';
+import type ArtistEntity from '../entities/ArtistEntity';
+import type BandEntity from '../entities/BandEntity';
+import type LabelEntity from '../entities/LabelEntity';
+import type TrackEntity from '../entities/TrackEntity';
+import type TagEntity from '../entities/TagEntity';
+import type ShowEntity from '../entities/ShowEntity';
+import type ArticleEntity from '../entities/ArticleEntity';
 export default class EntityConverter {
     static convertAlbum(data: Album): AlbumEntity;
     static convertArtist(data: Artist | LabelArtist): ArtistEntity;

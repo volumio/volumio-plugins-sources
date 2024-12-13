@@ -25,7 +25,7 @@ var ModelType;
     ModelType["Show"] = "Show";
     ModelType["Tag"] = "Tag";
     ModelType["Track"] = "Track";
-})(ModelType = exports.ModelType || (exports.ModelType = {}));
+})(ModelType || (exports.ModelType = ModelType = {}));
 const MODEL_TYPE_TO_CLASS = {
     [ModelType.Album]: AlbumModel_1.default,
     [ModelType.Article]: ArticleModel_1.default,
@@ -42,7 +42,7 @@ class Model {
         if (MODEL_TYPE_TO_CLASS[type]) {
             return new MODEL_TYPE_TO_CLASS[type]();
         }
-        throw Error(`Model not found for type ${ModelType}`);
+        throw Error(`Model not found for type ${String(type)}`);
     }
     static setCookie(value) {
         bandcamp_fetch_1.default.setCookie(value);

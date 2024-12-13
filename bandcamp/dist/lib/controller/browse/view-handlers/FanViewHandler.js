@@ -35,7 +35,6 @@ class FanViewHandler extends BaseViewHandler_1.default {
         }
     }
 }
-exports.default = FanViewHandler;
 _FanViewHandler_instances = new WeakSet(), _FanViewHandler_browseList = async function _FanViewHandler_browseList() {
     const view = this.currentView;
     const modelParams = {
@@ -202,4 +201,5 @@ _FanViewHandler_instances = new WeakSet(), _FanViewHandler_browseList = async fu
         link: viewProfileLink
     });
 };
+exports.default = FanViewHandler;
 //# sourceMappingURL=FanViewHandler.js.map

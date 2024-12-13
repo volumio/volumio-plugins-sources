@@ -7,17 +7,17 @@ import vconf from 'v-conf';
 
 import bandcamp from './lib/BandcampContext';
 import BrowseController from './lib/controller/browse';
-import SearchController, { SearchQuery } from './lib/controller/search/SearchController';
+import SearchController, { type SearchQuery } from './lib/controller/search/SearchController';
 import PlayController from './lib/controller/play/PlayController';
-import { ExplodedTrackInfo } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
+import { type ExplodedTrackInfo } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
 import { jsPromiseToKew } from './lib/util';
-import { RenderedPage } from './lib/controller/browse/view-handlers/ViewHandler';
+import { type RenderedPage } from './lib/controller/browse/view-handlers/ViewHandler';
 import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
-import { AlbumView } from './lib/controller/browse/view-handlers/AlbumViewHandler';
-import View from './lib/controller/browse/view-handlers/View';
-import { BandView } from './lib/controller/browse/view-handlers/BandViewHandler';
-import { ShowView } from './lib/controller/browse/view-handlers/ShowViewHandler';
-import { ArticleView } from './lib/controller/browse/view-handlers/ArticleViewHandler';
+import { type AlbumView } from './lib/controller/browse/view-handlers/AlbumViewHandler';
+import type View from './lib/controller/browse/view-handlers/View';
+import { type BandView } from './lib/controller/browse/view-handlers/BandViewHandler';
+import { type ShowView } from './lib/controller/browse/view-handlers/ShowViewHandler';
+import { type ArticleView } from './lib/controller/browse/view-handlers/ArticleViewHandler';
 import Model from './lib/model';
 
 interface GotoParams extends ExplodedTrackInfo {
@@ -302,7 +302,7 @@ class ControllerBandcamp {
   }
 
   goto(data: GotoParams) {
-    return jsPromiseToKew((async (): Promise<RenderedPage> => {
+    return jsPromiseToKew(((): Promise<RenderedPage> => {
       if (!this.#browseController) {
         throw Error('Bandcamp Discover plugin is not started');
       }

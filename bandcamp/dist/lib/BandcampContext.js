@@ -13,7 +13,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _BandcampContext_instances, _BandcampContext_singletons, _BandcampContext_data, _BandcampContext_pluginContext, _BandcampContext_pluginConfig, _BandcampContext_i18n, _BandcampContext_i18nDefaults, _BandcampContext_i18CallbackRegistered, _BandcampContext_cache, _BandcampContext_getSingleton, _BandcampContext_loadI18n, _BandcampContext_onSystemLanguageChanged, _BandcampContext_onPlayerNameChanged;
+var _BandcampContext_instances, _BandcampContext_singletons, _BandcampContext_data, _BandcampContext_pluginContext, _BandcampContext_pluginConfig, _BandcampContext_i18n, _BandcampContext_i18nDefaults, _BandcampContext_i18CallbackRegistered, _BandcampContext_cache, _BandcampContext_getSingleton, _BandcampContext_loadI18n, _BandcampContext_onSystemLanguageChanged;
 Object.defineProperty(exports, "__esModule", { value: true });
 const string_format_1 = __importDefault(require("string-format"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
@@ -152,9 +152,6 @@ _BandcampContext_singletons = new WeakMap(), _BandcampContext_data = new WeakMap
     }
 }, _BandcampContext_onSystemLanguageChanged = function _BandcampContext_onSystemLanguageChanged() {
     __classPrivateFieldGet(this, _BandcampContext_instances, "m", _BandcampContext_loadI18n).call(this);
-}, _BandcampContext_onPlayerNameChanged = function _BandcampContext_onPlayerNameChanged() {
-    this.delete('deviceInfo');
-    this.toast('warning', 'Detected change in system settings. Please restart plugin for changes to take effect.');
 };
 exports.default = new BandcampContext();
 //# sourceMappingURL=BandcampContext.js.map
