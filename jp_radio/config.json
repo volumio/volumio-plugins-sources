@@ -1,0 +1,10 @@
+{
+  "radikoUser": {
+    "type": "string",
+    "value": ""
+  },
+  "radikoPass": {
+    "type": "string",
+    "value": ""
+  }
+}

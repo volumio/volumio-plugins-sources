@@ -1,0 +1,44 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION",
+    "description": "TRANSLATE.PAGE_DESCRIPTION"
+  },
+  "sections": [
+    {
+      "id": "radiko_account",
+      "element": "section",
+      "label": "TRANSLATE.RADIKO_ACCOUNT_LABEL",
+      "icon": "fa-user",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/jp_radio",
+        "method": "saveRadikoAccount"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "radikoUser",
+          "radikoPass"
+        ]
+      },
+      "content": [
+        {
+          "id": "radikoUser",
+          "type": "text",
+          "element": "input",
+          "doc": "TRANSLATE.RADIKO_ACCOUNT_USER_DOC",
+          "label": "TRANSLATE.RADIKO_ACCOUNT_USER_LABEL",
+          "value": ""
+        },
+        {
+          "id": "radikoPass",
+          "type": "password",
+          "element": "input",
+          "doc": "TRANSLATE.RADIKO_ACCOUNT_PASS_DOC",
+          "label": "TRANSLATE.RADIKO_ACCOUNT_PASS_LABEL",
+          "value": ""
+        }
+      ]
+    }
+  ]
+}
