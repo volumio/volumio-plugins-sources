@@ -102,6 +102,9 @@ If you are thinking of configuring port forwarding on your router to direct exte
 
 ## Changelog
 
+1.0.3:
+- Bump Jellyfin version 10.9.11
+
 1.0.2:
 - Install [jellyfin-ffmpeg](https://github.com/jellyfin/jellyfin-ffmpeg) - required since FFmpeg version provided by Volumio is too old (metadata missing due to `ffprobe` failures)
 
