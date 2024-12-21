@@ -57,29 +57,39 @@ tar xf "$DAEMON_DOWNLOAD_PATH" -C /usr/bin/ go-librespot
 rm "$DAEMON_DOWNLOAD_PATH"
 chmod a+x /usr/bin/go-librespot
 
-echo "Creating Start Script"
+echo "Creating directories"
 
-echo "#!/bin/sh
-
-# Traceback Setting
-export GOTRACEBACK=crash
-
-# Data dir
 DAEMON_DATA_PATH=/data/go-librespot/
-mkdir -p \$DAEMON_DATA_PATH
+
+if [ ! -d $DAEMON_DATA_PATH ]; then
+  echo "Creating data directory"
+  mkdir -p $DAEMON_DATA_PATH
+  chown -R volumio:volumio $DAEMON_DATA_PATH
+fi
 
 if [ -f /tmp/go-librespot-config.yml ] ; then
   cp /tmp/go-librespot-config.yml \$DAEMON_DATA_PATH/config.yml
+  chown volumio:volumio \$DAEMON_DATA_PATH/config.yml
   rm /tmp/go-librespot-config.yml
 fi
 
 if [ -f /data/configuration/music_service/spop/spotifycredentials.json ] ; then
   cp /data/configuration/music_service/spop/spotifycredentials.json \$DAEMON_DATA_PATH/credentials.json
+  chown volumio:volumio \$DAEMON_DATA_PATH/credentials.json
   rm /data/configuration/music_service/spop/spotifycredentials.json
 fi
 
+
+echo "Creating Start Script"
+cat > /bin/start-go-librespot.sh << EOF
+#!/bin/sh
+
+# Traceback Setting
+export GOTRACEBACK=crash
+
 echo 'go-librespot daemon starting...'
-/usr/bin/go-librespot --config_dir \$DAEMON_DATA_PATH" > /bin/start-go-librespot.sh
+/usr/bin/go-librespot --config_dir ${DAEMON_DATA_PATH}
+EOF
 
 chmod a+x /bin/start-go-librespot.sh
 
