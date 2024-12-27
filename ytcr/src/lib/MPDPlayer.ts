@@ -1,10 +1,11 @@
-import { Constants, PLAYLIST_EVENT_TYPES, Player, PlayerState, Video, Volume } from 'yt-cast-receiver';
-import mpdApi, { MPDApi } from 'mpd-api';
-import { MPD } from 'mpd2';
 import AbortController from 'abort-controller';
-import MPDSubsystemEventEmitter, { SubsystemEvent, SubsystemName } from './MPDSubsystemEventEmitter.js';
-import VolumeControl from './VolumeControl.js';
-import VideoLoader, { VideoInfo } from './VideoLoader.js';
+import { Constants, PLAYLIST_EVENT_TYPES, Player, type PlayerState, type Video, type Volume } from 'yt-cast-receiver';
+import mpdApi, { type MPDApi } from 'mpd-api';
+import { type MPD } from 'mpd2';
+import MPDSubsystemEventEmitter, { type SubsystemEvent, type SubsystemName } from './MPDSubsystemEventEmitter.js';
+import type VolumeControl from './VolumeControl.js';
+import {type VideoInfo} from './VideoLoader.js';
+import type VideoLoader from './VideoLoader.js';
 import ytcr from './YTCRContext.js';
 import VideoPrefetcher from './VideoPrefetcher.js';
 
@@ -105,7 +106,7 @@ export default class MPDPlayer extends Player {
     this.#videoPrefetcher = this.#config.prefetch ? new VideoPrefetcher(this.#videoLoader, this.logger) : null;
     this.#volumeControl = this.#config.volumeControl;
 
-    this.#initMPDClient();
+    await this.#initMPDClient();
 
     this.#playlistEventListener = this.#handlePlaylistEvent.bind(this);
     Object.values(PLAYLIST_EVENT_TYPES).forEach((event: any) => {
@@ -131,11 +132,11 @@ export default class MPDPlayer extends Player {
     try {
       this.#mpdClient = await mpdApi.connect(this.#config.mpd);
     }
-    catch (error) {
+    catch (error: unknown) {
       this.logger.error('[ytcr] Error connecting MPD:', error, ' Retrying in 5 seconds...');
       this.#mpdClientInitTimer = setTimeout(() => {
         if (!this.#destroyed) {
-          this.#initMPDClient();
+          this.#initMPDClient().catch((error: unknown) => this.logger.error('[ytcr] Caught error while initializing MPD client:', error));
         }
       }, 5000);
       return;
@@ -143,18 +144,20 @@ export default class MPDPlayer extends Player {
 
     this.logger.debug('[ytcr] MPD connected');
 
-    this.#mpdClient.once('close', async () => {
-      this.#mpdClient = null;
-      this.#subsystemEventEmitter?.destroy();
-      if (this.#destroyed) {
-        return;
-      }
-      await this.#clearPrefetch();
-      this.#currentVideoInfo = null;
-      await this.notifyExternalStateChange(Constants.PLAYER_STATUSES.STOPPED);
-      this.sleep();
-      this.logger.debug('[ytcr] MPD disconnected. Reconnecting...');
-      this.#initMPDClient();
+    this.#mpdClient.once('close', () => {
+      void (async () => {
+        this.#mpdClient = null;
+        this.#subsystemEventEmitter?.destroy();
+        if (this.#destroyed) {
+          return;
+        }
+        await this.#clearPrefetch();
+        this.#currentVideoInfo = null;
+        await this.notifyExternalStateChange(Constants.PLAYER_STATUSES.STOPPED);
+        this.sleep();
+        this.logger.debug('[ytcr] MPD disconnected. Reconnecting...');
+        this.#initMPDClient().catch((error: unknown) => this.logger.error('[ytcr] Caught error while initializing MPD client:', error));
+      })();
     });
 
     const externalMPDEventListener = this.#handleExternalMPDEvent.bind(this);
@@ -242,7 +245,8 @@ export default class MPDPlayer extends Player {
       return null;
     }
     if (videoInfo.streamUrl) {
-      const songId = (await this.#mpdClient.api.queue.addid(videoInfo.streamUrl)).toString();
+      // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+      const songId = (await this.#mpdClient.api.queue.addid<String>(videoInfo.streamUrl)).toString();
       if (videoInfo.title) {
         await this.#mpdClient.api.queue.addtagid(songId, 'title', videoInfo.title);
       }
@@ -260,7 +264,7 @@ export default class MPDPlayer extends Player {
   }
 
   // Overrides
-  async next(AID?: number | null | undefined): Promise<boolean> {
+  async next(AID?: number | null  ): Promise<boolean> {
     // If prefetched video already added to MPD queue, tell MPD to play it instead of going through the original next() workflow.
     // This will trigger an external MPD event which will be dealt with in #handleExternalMPDEvent().
     const queueState = this.queue.getState();
@@ -373,24 +377,30 @@ export default class MPDPlayer extends Player {
     return resolve.result;
   }
 
-  protected async doSetVolume(volume: Volume): Promise<boolean> {
+  protected doSetVolume(volume: Volume): Promise<boolean> {
     if (this.#asleep || this.#destroyed) {
-      return false;
+      return Promise.resolve(false);
     }
 
     this.emit('action', { name: 'setVolume', data: { volume } });
 
     if (this.#asleep || this.#destroyed) {
-      return false;
+      return Promise.resolve(false);
     }
 
     this.logger.debug('[ytcr] MPDPlayer: set volume to:', volume);
     this.#volumeControl.setVolume(volume);
 
-    return true;
+    return Promise.resolve(true);
   }
 
   protected doGetVolume(): Promise<Volume> {
+    if (!this.#volumeControl) {
+      return Promise.resolve({
+        level: 0,
+        muted: false
+      });
+    }
     return this.#volumeControl.getVolume();
   }
 
@@ -440,7 +450,7 @@ export default class MPDPlayer extends Player {
     this.#config.prefetch = value;
   }
 
-  async #handlePlaylistEvent() {
+  #handlePlaylistEvent() {
     const queueState = this.queue.getState();
     if (!queueState.current?.id || this.#currentVideoInfo?.id !== queueState.current.id) {
       // Skip handling if:
@@ -448,13 +458,17 @@ export default class MPDPlayer extends Player {
       // 2. Current video has changed, meaning doPlay() will be called. We will handle prefetching there.
       return;
     }
-    // Same video so doPlay() / doStop() will not be called.
-    // But playlist could have been updated so that the next / autoplay video is different. Need to refresh prefetch as ncessary.
-    await this.#refreshPrefetch();
+    void (async () => {
+      // Same video so doPlay() / doStop() will not be called.
+      // But playlist could have been updated so that the next / autoplay video is different. Need to refresh prefetch as ncessary.
+      await this.#refreshPrefetch();
+    })();
   }
 
-  async #handleAutoplayModeChange() {
-    await this.#refreshPrefetch();
+  #handleAutoplayModeChange() {
+    void (async () => {
+      await this.#refreshPrefetch();
+    })();
   }
 
   async #refreshPrefetch() {
@@ -532,52 +546,56 @@ export default class MPDPlayer extends Player {
     }
   }
 
-  async #handlePrefetchedVideo(videoInfo: VideoInfo) {
-    if (this.#destroyed || !this.#mpdClient) {
-      return;
-    }
-    const queueState = this.queue.getState();
-    const nextVideo = queueState.next || queueState.autoplay;
-    if (nextVideo?.id === videoInfo.id) {
-      if (videoInfo) {
-        const songId = await this.#addToMPDQueue(videoInfo);
-        if (songId) {
-          this.#prefetchedAndQueuedVideoInfo = {
-            ...videoInfo,
-            mpdSongId: songId
-          };
-          this.logger.debug(`[ytcr] Prefetched video ${videoInfo.id} added to MPD queue with song Id: ${songId}`);
-
-          if (videoInfo.streamExpires) {
-            const expiryMS = videoInfo.streamExpires.getTime() - Date.now();
-            if (expiryMS > 0) {
-              this.logger.debug(`[ytcr] Stream URL of prefetched video ${videoInfo.id} is going to expire in ${expiryMS / 1000}s`);
-              this.#prefetchedVideoExpiryTimer = setTimeout(async () => {
-                this.logger.debug(`[ytcr] Stream URL of prefetched video ${videoInfo.id} is about to expire.`);
-                if (this.#mpdClient) {
-                  this.logger.debug(`[ytcr] Removing it from MPD queue (song Id: ${songId})...`);
-                  try {
-                    await this.#mpdClient.api.queue.deleteid(songId);
-                  }
-                  catch (error: any) {
-                    this.logger.error(`[ytcr] Failed to remove expired prefetched song from MPD queue (song Id ${songId}):`, error);
-                  }
-                  finally {
-                    this.#prefetchedVideoExpiryTimer = null;
-                  }
-                }
-              }, expiryMS - 60000);
+  #handlePrefetchedVideo(videoInfo: VideoInfo) {
+    void (async () => {
+      if (this.#destroyed || !this.#mpdClient) {
+        return;
+      }
+      const queueState = this.queue.getState();
+      const nextVideo = queueState.next || queueState.autoplay;
+      if (nextVideo?.id === videoInfo.id) {
+        if (videoInfo) {
+          const songId = await this.#addToMPDQueue(videoInfo);
+          if (songId) {
+            this.#prefetchedAndQueuedVideoInfo = {
+              ...videoInfo,
+              mpdSongId: songId
+            };
+            this.logger.debug(`[ytcr] Prefetched video ${videoInfo.id} added to MPD queue with song Id: ${songId}`);
+  
+            if (videoInfo.streamExpires) {
+              const expiryMS = videoInfo.streamExpires.getTime() - Date.now();
+              if (expiryMS > 0) {
+                this.logger.debug(`[ytcr] Stream URL of prefetched video ${videoInfo.id} is going to expire in ${expiryMS / 1000}s`);
+                this.#prefetchedVideoExpiryTimer = setTimeout(() => {
+                  void (async () => {
+                    this.logger.debug(`[ytcr] Stream URL of prefetched video ${videoInfo.id} is about to expire.`);
+                    if (this.#mpdClient) {
+                      this.logger.debug(`[ytcr] Removing it from MPD queue (song Id: ${songId})...`);
+                      try {
+                        await this.#mpdClient.api.queue.deleteid(songId);
+                      }
+                      catch (error: any) {
+                        this.logger.error(`[ytcr] Failed to remove expired prefetched song from MPD queue (song Id ${songId}):`, error);
+                      }
+                      finally {
+                        this.#prefetchedVideoExpiryTimer = null;
+                      }
+                    }
+                  })();
+                }, expiryMS - 60000);
+              }
             }
           }
-        }
-        else {
-          this.logger.debug(`[ytcr] Failed to add prefetched video ${videoInfo.id} to MPD queue: MPD did not return a song Id.`);
+          else {
+            this.logger.debug(`[ytcr] Failed to add prefetched video ${videoInfo.id} to MPD queue: MPD did not return a song Id.`);
+          }
         }
       }
-    }
-    else {
-      this.logger.debug(`[ytcr] Prefetched video Id ${videoInfo.id} does not match next in queue (${nextVideo?.id})`);
-    }
+      else {
+        this.logger.debug(`[ytcr] Prefetched video Id ${videoInfo.id} does not match next in queue (${nextVideo?.id})`);
+      }
+    })();
   }
 
   async destroy() {
@@ -630,7 +648,13 @@ export default class MPDPlayer extends Player {
       this.#currentVideoInfo = this.#prefetchedAndQueuedVideoInfo;
       this.#clearPrefetchedVideoExpiryTimer();
       this.#prefetchedAndQueuedVideoInfo = null;
-      await this.queue.next();
+      const nextInQueue = await this.queue.next();
+      if (!nextInQueue) { // Already at end of queue - check if prefetched video is autoplay
+        const autoplay = this.queue.getState().autoplay;
+        if (autoplay?.id === this.#currentVideoInfo.id) {
+          this.queue.setAsCurrent(autoplay);
+        }
+      }
       await this.notifyExternalStateChange(Constants.PLAYER_STATUSES.PLAYING);
       this.#checkAndStartPrefetch(mpdStatus);
       return;
@@ -677,7 +701,7 @@ export default class MPDPlayer extends Player {
             songIdInfo = await this.#mpdClient.api.queue.id(this.#currentVideoInfo.mpdSongId);
           }
         }
-        catch (error) {
+        catch (_error: unknown) {
           songIdInfo = null;
         }
         this.#currentVideoInfo = null;
@@ -715,7 +739,7 @@ export default class MPDPlayer extends Player {
         }
       );
 
-      action();
+      action().catch((error: unknown) => this.logger.error('[ytcr] MPD error:', error));
     });
   }
 
