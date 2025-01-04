@@ -7,7 +7,7 @@
       "id": "section_schedule",
       "element": "section",
       "label": "TRANSLATE.SECTION.LABEL",
-      "icon": "fa-clock",
+      "icon": "fa-clock-o",
       "onSave": {
         "type": "controller",
         "endpoint": "system_controller/scheduledrestart",
