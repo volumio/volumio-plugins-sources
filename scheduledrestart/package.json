@@ -1,0 +1,36 @@
+{
+	"name": "scheduledrestart",
+	"version": "0.7.0",
+	"description": "Schedule a restart of Volumio",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Simania",
+	"license": "ISC",
+	"repository": "https://github.com/yourname/yourrepo",
+	"volumio_info": {
+		"prettyName": "ScheduledRestart",
+		"icon": "fa-clock-o",
+		"plugin_type": "system_controller",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "This plugin lets you schedule your Volumio reboot, by selecting the time and day(s)",
+		"changelog": "Initial test release"
+	},
+	"engines": {
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.785.0 <4.0.0"
+	},
+	"dependencies": {
+		"kew": "^0.7.0",
+		"node-cron": "^3.0.3",
+		"v-conf": "^1.4.3"
+	}
+}

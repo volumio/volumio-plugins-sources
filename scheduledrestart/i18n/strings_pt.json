@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Configuração de Reinício"
+  },
+  "SECTION": {
+    "LABEL": "Agenda"
+  },
+  "BUTTON": {
+    "SAVE": "Salvar"
+  },
+  "HOURS": {
+    "DOC": "Selecione o horário e o(s) dia(s) para reiniciar o Volumio",
+    "LABEL": "Hora"
+  },
+  "MINUTES": {
+    "LABEL": "Minutos"
+  },
+  "MONDAY": {
+    "LABEL": "Segunda-feira"
+  },
+  "TUESDAY": {
+    "LABEL": "Terça-feira"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Quarta-feira"
+  },
+  "THURSDAY": {
+    "LABEL": "Quinta-feira"
+  },
+  "FRIDAY": {
+    "LABEL": "Sexta-feira"
+  },
+  "SATURDAY": {
+    "LABEL": "Sábado"
+  },
+  "SUNDAY": {
+    "LABEL": "Domingo"
+  }
+}
+
