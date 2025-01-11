@@ -1,0 +1,38 @@
+{
+  "hours": {
+    "type": "number",
+    "value": ""
+  },
+  "minutes": {
+    "type": "number",
+    "value": ""
+  },
+  "monday": {
+    "type": "boolean",
+    "value": false
+  },
+  "tuesday": {
+    "type": "boolean",
+    "value": false
+  },
+  "wednesday": {
+    "type": "boolean",
+    "value": false
+  },
+  "thursday": {
+    "type": "boolean",
+    "value": false
+  },
+  "friday": {
+    "type": "boolean",
+    "value": false
+  },
+  "saturday": {
+    "type": "boolean",
+    "value": false
+  },
+  "sunday": {
+    "type": "boolean",
+    "value": false
+  }
+}

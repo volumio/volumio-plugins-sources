@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Konfiguracja Restartu"
+  },
+  "SECTION": {
+    "LABEL": "Harmonogram"
+  },
+  "BUTTON": {
+    "SAVE": "Zapisz"
+  },
+  "HOURS": {
+    "DOC": "Wybierz godzinę i dzień/dni do ponownego uruchomienia Volumio",
+    "LABEL": "Godzina"
+  },
+  "MINUTES": {
+    "LABEL": "Minuty"
+  },
+  "MONDAY": {
+    "LABEL": "Poniedziałek"
+  },
+  "TUESDAY": {
+    "LABEL": "Wtorek"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Środa"
+  },
+  "THURSDAY": {
+    "LABEL": "Czwartek"
+  },
+  "FRIDAY": {
+    "LABEL": "Piątek"
+  },
+  "SATURDAY": {
+    "LABEL": "Sobota"
+  },
+  "SUNDAY": {
+    "LABEL": "Niedziela"
+  }
+}
+
