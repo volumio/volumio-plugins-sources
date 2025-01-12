@@ -4,6 +4,8 @@
 const libQ = require('kew');
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
+const readline = require('readline');
 const mpdPath = '/etc/mpd.conf';
 const logPrefix = 'mpdhttpout ---';
 module.exports = mpdhttpoutput;
@@ -20,13 +22,13 @@ function mpdhttpoutput(context) {
 };
 
 mpdhttpoutput.prototype.onVolumioStart = function () {
-   var self = this;
+    var self = this;
     var defer = libQ.defer();
     self.configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
     self.getConf(self.configFile);
     defer.resolve();
     return libQ.resolve();
-  
+
 };
 
 mpdhttpoutput.prototype.getConfigurationFiles = function () {
@@ -36,16 +38,14 @@ mpdhttpoutput.prototype.getConfigurationFiles = function () {
 mpdhttpoutput.prototype.onStart = function () {
     var self = this;
     var defer = libQ.defer();
-   // self.mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service', 'mpd');
-   setTimeout(function () {
 
-    self.patchmpd()
+    setTimeout(function () {
+        //   self.patchmpd()
+        self.monitorVolumio();
+    }, 1100);
 
-    defer.resolve();
-}, 1100);
-
-    // Once the Plugin has successfull started resolve the promise
-    return libQ.resolve();
+    defer.resolve('OK')
+    return defer.promise;
 };
 
 mpdhttpoutput.prototype.onStop = function () {
@@ -53,20 +53,17 @@ mpdhttpoutput.prototype.onStop = function () {
     var defer = libQ.defer();
     self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
 
-  //  self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
-    defer.resolve();
-    return libQ.resolve();
+    defer.resolve('OK')
+    return defer.promise;
 };
-
 
 mpdhttpoutput.prototype.onRestart = function () {
     var self = this;
-   // var defer = libQ.defer();
-
-    // Optional, use if you need it
+    var defer = libQ.defer();
     self.patchmpd()
-    defer.resolve();
-    return libQ.resolve();
+
+    defer.resolve('OK')
+    return defer.promise;
 };
 
 mpdhttpoutput.prototype.getI18nFile = function (langCode) {
@@ -266,29 +263,62 @@ mpdhttpoutput.prototype.getUIConfig = function () {
     return defer.promise;
 };
 
-mpdhttpoutput.prototype.ehttpstream = function () {
+mpdhttpoutput.prototype.monitorVolumio = function () {
+    const self = this;
+
+    // Define the log entry to monitor
+    const LOG_ENTRY = 'info: BOOT COMPLETED';
+
+    // Spawn the journalctl process
+    const journalctl = spawn('journalctl', ['-f']);
+
+    // Create an interface to read the output line by line
+    const rl = readline.createInterface({
+        input: journalctl.stdout,
+        terminal: false
+    });
+
+    // Listen for each line of output
+    rl.on('line', (line) => {
+        if (line.includes(LOG_ENTRY)) {
+            self.logger.info(logPrefix + 'Boot completed detected! Patching mpd now!');
+            // Replace the following line with the action you want to trigger
+            this.patchmpd();
+            // Close the readline interface and kill the journalctl process
+            rl.close();
+            journalctl.kill();
+        }
+    });
+};
+
+mpdhttpoutput.prototype.getVolumioState = function () {
     const self = this;
     var defer = libQ.defer();
+    let state = self.commandRouter.volumioGetState();
+    if (state.status != "pause") {
+        self.commandRouter.volumioPause();
+    }
+    self.logger.info(logPrefix + ' Volumio set on pause')
+    defer.resolve();
+    return defer.promise;
+};
+
+mpdhttpoutput.prototype.ehttpstream = function () {
+    const self = this;
     self.config.set('httpstream', true)
     self.logger.info(logPrefix + "TRUE");
     self.patchmpd();
     self.refreshUI();
 
-    defer.resolve();
-    return defer.promise;
-
 };
 
 mpdhttpoutput.prototype.dhttpstream = function () {
     const self = this;
-    var defer = libQ.defer();
     self.config.set('httpstream', false)
     self.logger.info(logPrefix + "FALSE");
     self.refreshUI();
     self.patchmpd();
 
-    defer.resolve();
-    return defer.promise;
 };
 
 mpdhttpoutput.prototype.eicestream = function () {
@@ -410,12 +440,12 @@ mpdhttpoutput.prototype.updateConfigIce = function (data) {
 };
 
 mpdhttpoutput.prototype.patchmpd = function () {
-    //
     var self = this;
     var defer = libQ.defer();
     let Config;
     let configRegex;
-    //http config
+
+    // http config
     var shttpstream = self.config.get("httpstream");
     var sname = self.config.get("servername");
     var sencoder = self.config.get("encoder");
@@ -427,7 +457,8 @@ mpdhttpoutput.prototype.patchmpd = function () {
     var sbuffer_time = self.config.get("buffer_time");
     var soutburst_time = self.config.get("outburst_time");
     var salways_on = self.config.get("always_on");
-    //icecast config
+
+    // icecast config
     var sicestream = self.config.get("icestream");
     var siceservername = self.config.get("iceservername");
     var siceprotocol = self.config.get("iceprotocol");
@@ -444,17 +475,14 @@ mpdhttpoutput.prototype.patchmpd = function () {
     var sicedescription = self.config.get("icedescription");
     var sicegenre = self.config.get("icegenre");
     var sicepublic = self.config.get("icepublic");
-    //
-    const prefix = `######Begin conf
+
+    const prefix = `######Begin Mpdoutput conf
 `;
-    const suffix = `######End conf
+    const suffix = `######End Mpdoutput conf
 `;
-    //
 
     if (shttpstream) {
-
         if (shttpadd) {
-
             if (smax_clients !== '') {
                 smax_clients = "max_clients     \"" + smax_clients + "\"";
             }
@@ -467,7 +495,6 @@ mpdhttpoutput.prototype.patchmpd = function () {
             if (salways_on) {
                 salways_on = "always_on    \"yes\"";
             }
-
         }
         if (!shttpadd) {
             var smax_clients = '';
@@ -495,9 +522,7 @@ audio_output {
         Config = Config1;
     }
     if (sicestream) {
-
         if (siceadd) {
-
             if (sicegenre !== '') {
                 sicegenre = "genre     \"" + sicegenre + "\"";
             }
@@ -507,14 +532,12 @@ audio_output {
             if (siceurl !== '') {
                 siceurl = "url   \"" + siceurl + "\"";
             }
-
         }
         if (!siceadd) {
             var sicegenre = '';
             var sicedescription = '';
             var siceurl = '';
         }
-
 
         var Config2 = `
 # Config audio Icecast output
@@ -549,15 +572,16 @@ audio_output {
     if (!shttpstream && !sicestream) {
         self.commandRouter.pushToastMessage('error', 'Nothing to do! Enable at least one stream!');
         Config = '';
-        // return;
+
     }
 
-    const rConfig = `${prefix} ${Config}${suffix}`;
+    const rConfig = `${prefix}${Config}${suffix}`;
 
     // Read the mpd.conf file
     fs.readFile(mpdPath, 'utf8', (err, fileData) => {
         if (err) {
             self.logger.error(logPrefix + 'Error reading mpd.conf file:', err);
+            defer.resolve();
             return;
         }
 
@@ -577,9 +601,16 @@ audio_output {
             fs.writeFile(mpdPath, newData, 'utf8', (err) => {
                 if (err) {
                     self.logger.error('Error writing to mpd.conf file:', err);
+                    defer.reject(err);
                     return;
                 }
                 self.logger.info(logPrefix + 'Configuration successfully replaced in mpd.conf.');
+                self.getVolumioState();
+                setTimeout(function () {
+                    self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
+                    self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('PATCHMPD_OK'));
+                    defer.resolve(); // Resolve the promise after the timeout
+                }, 2100);
             });
         } else {
             // Add the configuration to the file
@@ -589,16 +620,19 @@ audio_output {
             fs.writeFile(mpdPath, newData, 'utf8', (err) => {
                 if (err) {
                     self.logger.error(logPrefix + 'Error writing to mpd.conf file:', err);
+                    defer.reject(err);
                     return;
                 }
+                self.getVolumioState();
                 self.logger.info(logPrefix + 'Configuration successfully added to mpd.conf.');
+                setTimeout(function () {
+                    self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
+                    self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('PATCHMPD_OK'));
+                    defer.resolve(); // Resolve the promise after the timeout
+                }, 2100);
             });
         }
     });
-
-    self.logger.info(logPrefix + 'Config successfully added ' + sname + ' to mpd.conf.');
-    self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
-    self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('PATCHMPD_OK'));
 
     return defer.promise;
 };

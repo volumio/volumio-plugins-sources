@@ -1,6 +1,6 @@
 {
   "name": "mpdoutput",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mpd http and Icecast server output plugin for Volumio",
   "main": "index.js",
   "scripts": {
@@ -12,12 +12,11 @@
     "prettyName": "Mpd http & Icecast output",
     "icon": "fa-music",
     "plugin_type": "audio_interface",
-    "boot_priority": 100,
     "os": [
       "buster"
     ],
     "details": "Http and Icecast server output for mpd in Volumio",
-    "changelog": "",
+    "changelog": "misc fixes",
     "architectures": [
       "amd64",
       "armhf"
