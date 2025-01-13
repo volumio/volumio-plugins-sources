@@ -1,6 +1,6 @@
 {
 	"name": "scheduledrestart",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"description": "Schedule a restart of Volumio",
 	"main": "index.js",
 	"scripts": {
