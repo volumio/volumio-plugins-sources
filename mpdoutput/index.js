@@ -1,5 +1,5 @@
 'use strict';
-//B@lbuze 2024 December
+//B@lbuze 2025 January
 
 const libQ = require('kew');
 const fs = require('fs');
@@ -15,10 +15,6 @@ function mpdhttpoutput(context) {
     self.context = context;
     self.commandRouter = self.context.coreCommand;
     self.logger = self.commandRouter.logger;
-    this.context = context;
-    this.commandRouter = this.context.coreCommand;
-    this.logger = this.context.logger;
-    this.configManager = this.context.configManager;
 };
 
 mpdhttpoutput.prototype.onVolumioStart = function () {
@@ -43,6 +39,11 @@ mpdhttpoutput.prototype.onStart = function () {
         //   self.patchmpd()
         self.monitorVolumio();
     }, 1100);
+
+    this.commandRouter.sharedVars.registerCallback('alsa.outputdevice', this.patchmpd.bind(this));
+    this.commandRouter.sharedVars.registerCallback('alsa.outputdevicemixer', this.patchmpd.bind(this));
+    this.commandRouter.sharedVars.registerCallback('alsa.device', this.patchmpd.bind(this));
+
 
     defer.resolve('OK')
     return defer.promise;
@@ -284,6 +285,7 @@ mpdhttpoutput.prototype.monitorVolumio = function () {
             self.logger.info(logPrefix + 'Boot completed detected! Patching mpd now!');
             // Replace the following line with the action you want to trigger
             this.patchmpd();
+
             // Close the readline interface and kill the journalctl process
             rl.close();
             journalctl.kill();
@@ -480,6 +482,19 @@ mpdhttpoutput.prototype.patchmpd = function () {
 `;
     const suffix = `######End Mpdoutput conf
 `;
+
+    if (sportn === sicepublicport) {
+        self.commandRouter.pushToastMessage('error', "Port for Httpd and Icecast must be different!");
+        defer.reject(new Error("Port for Httpd and Icecast must be different!"));
+        return defer.promise;
+    };
+
+    if (sname === sicestreamname) {
+        self.commandRouter.pushToastMessage('error', "Httpd stream name and Icecast stream name must be different!");
+        defer.reject(new Error("Name for Httpd stream and Icecast stream name must be different!"));
+        return defer.promise;
+    };
+
 
     if (shttpstream) {
         if (shttpadd) {
