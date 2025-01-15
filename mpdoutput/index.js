@@ -185,6 +185,9 @@ mpdhttpoutput.prototype.getUIConfig = function () {
 
             }
 
+            uiconf.sections[1].content[2].hidden = true;
+
+
             if (icestream === true) {
                 uiconf.sections[1].content.unshift(
                     {
@@ -381,7 +384,17 @@ mpdhttpoutput.prototype.setConf = function (conf) {
 mpdhttpoutput.prototype.updateConfig = function (data) {
     var self = this;
     var defer = libQ.defer();
+    if (data['servername'] === self.config.get("icestreamname")) {
+        self.commandRouter.pushToastMessage('error', "Port for Httpd and Icecast must be different!");
+        defer.reject(new Error("Port for Httpd and Icecast must be different!"));
+        return defer.promise;
+    };
 
+    if (data['portn'] === self.config.get("icepublishport")) {
+        self.commandRouter.pushToastMessage('error', "Httpd stream name and Icecast stream name must be different!");
+        defer.reject(new Error("Name for Httpd stream and Icecast stream name must be different!"));
+        return defer.promise;
+    };
     // Set the configuration values
     self.config.set('servername', data['servername']);
     self.config.set('encoder', data['encoder'].value);
@@ -410,7 +423,17 @@ mpdhttpoutput.prototype.updateConfig = function (data) {
 mpdhttpoutput.prototype.updateConfigIce = function (data) {
     var self = this;
     var defer = libQ.defer();
+    if (data['icestreamname'] === self.config.get("servername")) {
+        self.commandRouter.pushToastMessage('error', "Port for Httpd and Icecast must be different!");
+        defer.reject(new Error("Port for Httpd and Icecast must be different!"));
+        return defer.promise;
+    };
 
+    if (data['icepublishport'] === self.config.get("portn")) {
+        self.commandRouter.pushToastMessage('error', "Httpd stream name and Icecast stream name must be different!");
+        defer.reject(new Error("Name for Httpd stream and Icecast stream name must be different!"));
+        return defer.promise;
+    };
     // Set the configuration values
 
     self.config.set('iceservername', data['iceservername']);
@@ -482,18 +505,6 @@ mpdhttpoutput.prototype.patchmpd = function () {
 `;
     const suffix = `######End Mpdoutput conf
 `;
-
-    if (sportn === sicepublicport) {
-        self.commandRouter.pushToastMessage('error', "Port for Httpd and Icecast must be different!");
-        defer.reject(new Error("Port for Httpd and Icecast must be different!"));
-        return defer.promise;
-    };
-
-    if (sname === sicestreamname) {
-        self.commandRouter.pushToastMessage('error', "Httpd stream name and Icecast stream name must be different!");
-        defer.reject(new Error("Name for Httpd stream and Icecast stream name must be different!"));
-        return defer.promise;
-    };
 
 
     if (shttpstream) {
@@ -572,8 +583,7 @@ audio_output {
     ${sicedescription}                        # Stream description
     ${sicegenre}                        # Stream genre
     ${siceurl}
-
-    metadata_charset "UTF-8"          # Charset for stream metadata
+    #metadata_charset "UTF-8"          # Charset for stream metadata
 }
 
 `;
