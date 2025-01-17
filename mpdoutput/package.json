@@ -1,6 +1,6 @@
 {
   "name": "mpdoutput",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Mpd http and Icecast server output plugin for Volumio",
   "main": "index.js",
   "scripts": {

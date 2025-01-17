@@ -185,7 +185,7 @@ mpdhttpoutput.prototype.getUIConfig = function () {
 
             }
 
-            uiconf.sections[1].content[2].hidden = true;
+            //   uiconf.sections[1].content[2].hidden = true;
 
 
             if (icestream === true) {
@@ -430,8 +430,8 @@ mpdhttpoutput.prototype.updateConfigIce = function (data) {
     };
 
     if (data['icepublishport'] === self.config.get("portn")) {
-        self.commandRouter.pushToastMessage('error', "Httpd stream name and Icecast stream name must be different!");
-        defer.reject(new Error("Name for Httpd stream and Icecast stream name must be different!"));
+        self.commandRouter.pushToastMessage('error', "Httpd stream port and Icecast port must be different!");
+        defer.reject(new Error("Httpd port and Icecast port must be different!"));
         return defer.promise;
     };
     // Set the configuration values
@@ -474,7 +474,11 @@ mpdhttpoutput.prototype.patchmpd = function () {
     var shttpstream = self.config.get("httpstream");
     var sname = self.config.get("servername");
     var sencoder = self.config.get("encoder");
-    var sbitrate = self.config.get("bitrate") * 1000;
+    if (sencoder === "opus") {
+        var sbitrate = self.config.get("bitrate")* 1000;
+    } else {
+        var sbitrate = self.config.get("bitrate");
+    }
     var sformat = self.config.get("format");
     var sportn = self.config.get("portn");
     var shttpadd = self.config.get("httpadd");
@@ -488,7 +492,11 @@ mpdhttpoutput.prototype.patchmpd = function () {
     var siceservername = self.config.get("iceservername");
     var siceprotocol = self.config.get("iceprotocol");
     var siceencoder = self.config.get("iceencoder");
-    var sicebitrate = self.config.get("icebitrate") * 1000;
+    if (siceencoder === "opus") {
+        var sicebitrate = self.config.get("icebitrate") * 1000;
+    } else {
+        var sicebitrate = self.config.get("icebitrate");
+    }
     var siceformat = self.config.get("iceformat");
     var sicemountp = self.config.get("icemountp");
     var siceuser = self.config.get("iceuser");
@@ -571,7 +579,7 @@ audio_output {
     type            "shout"
     host            "${siceservername}"
     protocol        "${siceprotocol}"
-    encoder         "${siceencoder}"                # "lame " or "vorbis" or "opus"
+    encoder         "${siceencoder}"                # "lame " or "vorbis"
     port            "${sicepublicport}"
     mount           "${sicemountp}"
     bitrate         "${sicebitrate}"                   # do not define if quality is d$
