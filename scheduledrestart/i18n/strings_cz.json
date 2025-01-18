@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Konfigurace Restartování"
+  },
+  "SECTION": {
+    "LABEL": "Plán"
+  },
+  "BUTTON": {
+    "SAVE": "Uložit"
+  },
+  "HOURS": {
+    "DOC": "Vyberte čas a den(y) pro restartování Volumia",
+    "LABEL": "Hodina"
+  },
+  "MINUTES": {
+    "LABEL": "Minuty"
+  },
+  "MONDAY": {
+    "LABEL": "Pondělí"
+  },
+  "TUESDAY": {
+    "LABEL": "Úterý"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Středa"
+  },
+  "THURSDAY": {
+    "LABEL": "Čtvrtek"
+  },
+  "FRIDAY": {
+    "LABEL": "Pátek"
+  },
+  "SATURDAY": {
+    "LABEL": "Sobota"
+  },
+  "SUNDAY": {
+    "LABEL": "Neděle"
+  }
+}
+
