@@ -1,9 +1,11 @@
 'use strict';
-//B@lbuze 2024 December
+//B@lbuze 2025 January
 
 const libQ = require('kew');
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
+const readline = require('readline');
 const mpdPath = '/etc/mpd.conf';
 const logPrefix = 'mpdhttpout ---';
 module.exports = mpdhttpoutput;
@@ -13,20 +15,16 @@ function mpdhttpoutput(context) {
     self.context = context;
     self.commandRouter = self.context.coreCommand;
     self.logger = self.commandRouter.logger;
-    this.context = context;
-    this.commandRouter = this.context.coreCommand;
-    this.logger = this.context.logger;
-    this.configManager = this.context.configManager;
 };
 
 mpdhttpoutput.prototype.onVolumioStart = function () {
-   var self = this;
+    var self = this;
     var defer = libQ.defer();
     self.configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
     self.getConf(self.configFile);
     defer.resolve();
     return libQ.resolve();
-  
+
 };
 
 mpdhttpoutput.prototype.getConfigurationFiles = function () {
@@ -36,16 +34,19 @@ mpdhttpoutput.prototype.getConfigurationFiles = function () {
 mpdhttpoutput.prototype.onStart = function () {
     var self = this;
     var defer = libQ.defer();
-   // self.mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service', 'mpd');
-   setTimeout(function () {
 
-    self.patchmpd()
+    setTimeout(function () {
+        //   self.patchmpd()
+        self.monitorVolumio();
+    }, 1100);
 
-    defer.resolve();
-}, 1100);
+    this.commandRouter.sharedVars.registerCallback('alsa.outputdevice', this.patchmpd.bind(this));
+    this.commandRouter.sharedVars.registerCallback('alsa.outputdevicemixer', this.patchmpd.bind(this));
+    this.commandRouter.sharedVars.registerCallback('alsa.device', this.patchmpd.bind(this));
 
-    // Once the Plugin has successfull started resolve the promise
-    return libQ.resolve();
+
+    defer.resolve('OK')
+    return defer.promise;
 };
 
 mpdhttpoutput.prototype.onStop = function () {
@@ -53,20 +54,17 @@ mpdhttpoutput.prototype.onStop = function () {
     var defer = libQ.defer();
     self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
 
-  //  self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'updateALSAConfigFile');
-    defer.resolve();
-    return libQ.resolve();
+    defer.resolve('OK')
+    return defer.promise;
 };
-
 
 mpdhttpoutput.prototype.onRestart = function () {
     var self = this;
-   // var defer = libQ.defer();
-
-    // Optional, use if you need it
+    var defer = libQ.defer();
     self.patchmpd()
-    defer.resolve();
-    return libQ.resolve();
+
+    defer.resolve('OK')
+    return defer.promise;
 };
 
 mpdhttpoutput.prototype.getI18nFile = function (langCode) {
@@ -187,6 +185,9 @@ mpdhttpoutput.prototype.getUIConfig = function () {
 
             }
 
+            //   uiconf.sections[1].content[2].hidden = true;
+
+
             if (icestream === true) {
                 uiconf.sections[1].content.unshift(
                     {
@@ -266,29 +267,63 @@ mpdhttpoutput.prototype.getUIConfig = function () {
     return defer.promise;
 };
 
-mpdhttpoutput.prototype.ehttpstream = function () {
+mpdhttpoutput.prototype.monitorVolumio = function () {
+    const self = this;
+
+    // Define the log entry to monitor
+    const LOG_ENTRY = 'info: BOOT COMPLETED';
+
+    // Spawn the journalctl process
+    const journalctl = spawn('journalctl', ['-f']);
+
+    // Create an interface to read the output line by line
+    const rl = readline.createInterface({
+        input: journalctl.stdout,
+        terminal: false
+    });
+
+    // Listen for each line of output
+    rl.on('line', (line) => {
+        if (line.includes(LOG_ENTRY)) {
+            self.logger.info(logPrefix + 'Boot completed detected! Patching mpd now!');
+            // Replace the following line with the action you want to trigger
+            this.patchmpd();
+
+            // Close the readline interface and kill the journalctl process
+            rl.close();
+            journalctl.kill();
+        }
+    });
+};
+
+mpdhttpoutput.prototype.getVolumioState = function () {
     const self = this;
     var defer = libQ.defer();
+    let state = self.commandRouter.volumioGetState();
+    if (state.status != "pause") {
+        self.commandRouter.volumioPause();
+    }
+    self.logger.info(logPrefix + ' Volumio set on pause')
+    defer.resolve();
+    return defer.promise;
+};
+
+mpdhttpoutput.prototype.ehttpstream = function () {
+    const self = this;
     self.config.set('httpstream', true)
     self.logger.info(logPrefix + "TRUE");
     self.patchmpd();
     self.refreshUI();
 
-    defer.resolve();
-    return defer.promise;
-
 };
 
 mpdhttpoutput.prototype.dhttpstream = function () {
     const self = this;
-    var defer = libQ.defer();
     self.config.set('httpstream', false)
     self.logger.info(logPrefix + "FALSE");
     self.refreshUI();
     self.patchmpd();
 
-    defer.resolve();
-    return defer.promise;
 };
 
 mpdhttpoutput.prototype.eicestream = function () {
@@ -349,7 +384,18 @@ mpdhttpoutput.prototype.setConf = function (conf) {
 mpdhttpoutput.prototype.updateConfig = function (data) {
     var self = this;
     var defer = libQ.defer();
-
+    if (self.config.get('icestream')) {
+        if (data['servername'] === self.config.get("icestreamname")) {
+            self.commandRouter.pushToastMessage('error', "Name for Httpd stream and Icecast stream must be different!");
+            defer.reject(new Error("Name for Httpd and Icecast must be different!"));
+            return defer.promise;
+        };
+        if (data['portn'] === self.config.get("icepublishport")) {
+            self.commandRouter.pushToastMessage('error', "Port for http stream and Icecast port must be different!");
+            defer.reject(new Error("Port for http stream and Icecast port must be different!"));
+            return defer.promise;
+        };
+    }
     // Set the configuration values
     self.config.set('servername', data['servername']);
     self.config.set('encoder', data['encoder'].value);
@@ -374,11 +420,21 @@ mpdhttpoutput.prototype.updateConfig = function (data) {
     return defer.promise;
 };
 
-
 mpdhttpoutput.prototype.updateConfigIce = function (data) {
     var self = this;
     var defer = libQ.defer();
-
+    if (self.config.get('httpstream')) {
+        if (data['icestreamname'] === self.config.get("servername")) {
+            self.commandRouter.pushToastMessage('error', "Name for Httpd stream and Icecast stream must be different!");
+            defer.reject(new Error("Name for Httpd and Icecast must be different!"));
+            return defer.promise;
+        };
+        if (data['icepublishport'] === self.config.get("portn")) {
+            self.commandRouter.pushToastMessage('error', "Httpd stream port and Icecast port must be different!");
+            defer.reject(new Error("Httpd port and Icecast port must be different!"));
+            return defer.promise;
+        };
+    }
     // Set the configuration values
 
     self.config.set('iceservername', data['iceservername']);
@@ -410,16 +466,20 @@ mpdhttpoutput.prototype.updateConfigIce = function (data) {
 };
 
 mpdhttpoutput.prototype.patchmpd = function () {
-    //
     var self = this;
     var defer = libQ.defer();
     let Config;
     let configRegex;
-    //http config
+
+    // http config
     var shttpstream = self.config.get("httpstream");
     var sname = self.config.get("servername");
     var sencoder = self.config.get("encoder");
-    var sbitrate = self.config.get("bitrate") * 1000;
+    if (sencoder === "opus") {
+        var sbitrate = self.config.get("bitrate") * 1000;
+    } else {
+        var sbitrate = self.config.get("bitrate");
+    }
     var sformat = self.config.get("format");
     var sportn = self.config.get("portn");
     var shttpadd = self.config.get("httpadd");
@@ -427,12 +487,17 @@ mpdhttpoutput.prototype.patchmpd = function () {
     var sbuffer_time = self.config.get("buffer_time");
     var soutburst_time = self.config.get("outburst_time");
     var salways_on = self.config.get("always_on");
-    //icecast config
+
+    // icecast config
     var sicestream = self.config.get("icestream");
     var siceservername = self.config.get("iceservername");
     var siceprotocol = self.config.get("iceprotocol");
     var siceencoder = self.config.get("iceencoder");
-    var sicebitrate = self.config.get("icebitrate") * 1000;
+    if (siceencoder === "opus") {
+        var sicebitrate = self.config.get("icebitrate") * 1000;
+    } else {
+        var sicebitrate = self.config.get("icebitrate");
+    }
     var siceformat = self.config.get("iceformat");
     var sicemountp = self.config.get("icemountp");
     var siceuser = self.config.get("iceuser");
@@ -444,17 +509,15 @@ mpdhttpoutput.prototype.patchmpd = function () {
     var sicedescription = self.config.get("icedescription");
     var sicegenre = self.config.get("icegenre");
     var sicepublic = self.config.get("icepublic");
-    //
-    const prefix = `######Begin conf
+
+    const prefix = `######Begin Mpdoutput conf
 `;
-    const suffix = `######End conf
+    const suffix = `######End Mpdoutput conf
 `;
-    //
+
 
     if (shttpstream) {
-
         if (shttpadd) {
-
             if (smax_clients !== '') {
                 smax_clients = "max_clients     \"" + smax_clients + "\"";
             }
@@ -467,7 +530,6 @@ mpdhttpoutput.prototype.patchmpd = function () {
             if (salways_on) {
                 salways_on = "always_on    \"yes\"";
             }
-
         }
         if (!shttpadd) {
             var smax_clients = '';
@@ -495,9 +557,7 @@ audio_output {
         Config = Config1;
     }
     if (sicestream) {
-
         if (siceadd) {
-
             if (sicegenre !== '') {
                 sicegenre = "genre     \"" + sicegenre + "\"";
             }
@@ -507,7 +567,6 @@ audio_output {
             if (siceurl !== '') {
                 siceurl = "url   \"" + siceurl + "\"";
             }
-
         }
         if (!siceadd) {
             var sicegenre = '';
@@ -515,14 +574,13 @@ audio_output {
             var siceurl = '';
         }
 
-
         var Config2 = `
 # Config audio Icecast output
 audio_output {
     type            "shout"
     host            "${siceservername}"
     protocol        "${siceprotocol}"
-    encoder         "${siceencoder}"                # "lame " or "vorbis" or "opus"
+    encoder         "${siceencoder}"                # "lame " or "vorbis"
     port            "${sicepublicport}"
     mount           "${sicemountp}"
     bitrate         "${sicebitrate}"                   # do not define if quality is d$
@@ -534,8 +592,7 @@ audio_output {
     ${sicedescription}                        # Stream description
     ${sicegenre}                        # Stream genre
     ${siceurl}
-
-    metadata_charset "UTF-8"          # Charset for stream metadata
+    #metadata_charset "UTF-8"          # Charset for stream metadata
 }
 
 `;
@@ -549,15 +606,16 @@ audio_output {
     if (!shttpstream && !sicestream) {
         self.commandRouter.pushToastMessage('error', 'Nothing to do! Enable at least one stream!');
         Config = '';
-        // return;
+
     }
 
-    const rConfig = `${prefix} ${Config}${suffix}`;
+    const rConfig = `${prefix}${Config}${suffix}`;
 
     // Read the mpd.conf file
     fs.readFile(mpdPath, 'utf8', (err, fileData) => {
         if (err) {
             self.logger.error(logPrefix + 'Error reading mpd.conf file:', err);
+            defer.resolve();
             return;
         }
 
@@ -577,9 +635,16 @@ audio_output {
             fs.writeFile(mpdPath, newData, 'utf8', (err) => {
                 if (err) {
                     self.logger.error('Error writing to mpd.conf file:', err);
+                    defer.reject(err);
                     return;
                 }
                 self.logger.info(logPrefix + 'Configuration successfully replaced in mpd.conf.');
+                self.getVolumioState();
+                setTimeout(function () {
+                    self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
+                    self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('PATCHMPD_OK'));
+                    defer.resolve(); // Resolve the promise after the timeout
+                }, 2100);
             });
         } else {
             // Add the configuration to the file
@@ -589,16 +654,19 @@ audio_output {
             fs.writeFile(mpdPath, newData, 'utf8', (err) => {
                 if (err) {
                     self.logger.error(logPrefix + 'Error writing to mpd.conf file:', err);
+                    defer.reject(err);
                     return;
                 }
+                self.getVolumioState();
                 self.logger.info(logPrefix + 'Configuration successfully added to mpd.conf.');
+                setTimeout(function () {
+                    self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
+                    self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('PATCHMPD_OK'));
+                    defer.resolve(); // Resolve the promise after the timeout
+                }, 2100);
             });
         }
     });
-
-    self.logger.info(logPrefix + 'Config successfully added ' + sname + ' to mpd.conf.');
-    self.commandRouter.executeOnPlugin('music_service', 'mpd', 'restartMpd', '');
-    self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('PATCHMPD_OK'));
 
     return defer.promise;
 };

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-echo "Unistalling"
-
+echo "Uninstalling"
 echo "Done"
 echo "pluginuninstallend"
