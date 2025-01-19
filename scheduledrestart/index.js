@@ -50,11 +50,6 @@ ScheduledRestart.prototype.onStop = function() {
     return libQ.resolve();
 };
 
-ScheduledRestart.prototype.onRestart = function() {
-    var self = this;
-    // Optional, use if you need it
-};
-
 // Schedule reboot tasks based on configuration
 ScheduledRestart.prototype.scheduleReboots = function() {
     var self = this;
@@ -225,20 +220,5 @@ ScheduledRestart.prototype.saveSchedule = function(data) {
 
 ScheduledRestart.prototype.getConfigurationFiles = function() {
     return ['config.json'];
-}
-
-ScheduledRestart.prototype.setUIConfig = function(data) {
-    var self = this;
-    // Perform your configuration tasks here
-};
-
-ScheduledRestart.prototype.getConf = function(varName) {
-    var self = this;
-    // Perform your configuration tasks here
-};
-
-ScheduledRestart.prototype.setConf = function(varName, varValue) {
-    var self = this;
-    // Perform your configuration tasks here
 };
 
