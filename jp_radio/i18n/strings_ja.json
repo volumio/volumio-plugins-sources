@@ -1,0 +1,12 @@
+{
+  "PLUGIN_CONFIGURATION": "JP Radio Plugin設定",
+  "SAVE": "保存",
+  "PAGE_DESCRIPTION":"Volumio3用日本製無線中継サーバー",
+  "RADIKO_ACCOUNT_LABEL": "ラジコ プレミアム アカウント",
+  "RADIKO_ACCOUNT_USER_LABEL": "ユーザ名",
+  "RADIKO_ACCOUNT_USER_DESC": "Radikoアカウントのユーザー名",
+  "RADIKO_ACCOUNT_PASS_LABEL": "パスワード",
+  "RADIKO_ACCOUNT_PASS_DESC": "Radikoアカウントのパスワード",
+  "SERVICE_PORT_LABEL": "サービスポート",
+  "SERVICE_PORT_DESC": "サービスポート番号(1024～65535)を入力します。デフォルト値は:9000"
+}
