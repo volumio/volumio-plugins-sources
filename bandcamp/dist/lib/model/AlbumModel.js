@@ -31,7 +31,6 @@ class AlbumModel extends BaseModel_1.default {
         return albumEntity;
     }
 }
-exports.default = AlbumModel;
 _AlbumModel_instances = new WeakSet(), _AlbumModel_cacheTracks = function _AlbumModel_cacheTracks(tracks) {
     if (!tracks) {
         return;
@@ -44,4 +43,5 @@ _AlbumModel_instances = new WeakSet(), _AlbumModel_cacheTracks = function _Album
 }, _AlbumModel_converFetchedAlbumToEntity = function _AlbumModel_converFetchedAlbumToEntity(item) {
     return EntityConverter_1.default.convertAlbum(item);
 };
+exports.default = AlbumModel;
 //# sourceMappingURL=AlbumModel.js.map

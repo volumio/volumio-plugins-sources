@@ -66,6 +66,9 @@ class EntityConverter {
             type: 'track',
             name: data.name
         };
+        if (data.id) {
+            result.id = data.id;
+        }
         if (data.url) {
             result.url = data.url;
         }
@@ -106,10 +109,11 @@ class EntityConverter {
                 return this.convertArtist(item);
             case 'label':
                 return this.convertLabel(item);
-            case 'album':
+            case 'album': {
                 const albumArtist = item.artist ? { name: item.artist } : undefined;
                 return this.convertAlbum({ ...item, artist: albumArtist });
-            case 'track':
+            }
+            case 'track': {
                 const trackArtist = item.artist ? { name: item.artist } : undefined;
                 const trackAlbum = item.album ? { name: item.album } : undefined;
                 return this.convertTrack({
@@ -117,6 +121,7 @@ class EntityConverter {
                     artist: trackArtist,
                     album: trackAlbum
                 });
+            }
         }
     }
     static convertShow(data) {
@@ -172,7 +177,7 @@ class EntityConverter {
         const result = {
             type: 'tag',
             name: data.name,
-            url: data.url
+            value: data.value
         };
         if (data.imageUrls?.[0]) {
             result.thumbnail = data.imageUrls[0];

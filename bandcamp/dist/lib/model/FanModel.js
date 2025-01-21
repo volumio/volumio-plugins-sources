@@ -51,7 +51,6 @@ class FanModel extends BaseModel_1.default {
         return __classPrivateFieldGet(this, _FanModel_instances, "m", _FanModel_getFanItems).call(this, params, FanItemType.FollowingGenres);
     }
 }
-exports.default = FanModel;
 _FanModel_instances = new WeakSet(), _FanModel_getFanItems = function _FanModel_getFanItems(params, itemType) {
     return this.loopFetch({
         callbackParams: { ...params, itemType },
@@ -111,4 +110,5 @@ _FanModel_instances = new WeakSet(), _FanModel_getFanItems = function _FanModel_
             return EntityConverter_1.default.convertBand(item);
     }
 };
+exports.default = FanModel;
 //# sourceMappingURL=FanModel.js.map

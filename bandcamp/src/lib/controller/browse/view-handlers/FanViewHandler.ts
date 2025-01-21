@@ -1,13 +1,13 @@
-import { Fan } from 'bandcamp-fetch';
+import { type Fan } from 'bandcamp-fetch';
 import bandcamp from '../../../BandcampContext';
 import { ModelType } from '../../../model';
 import BaseViewHandler from './BaseViewHandler';
-import View from './View';
-import { RenderedList, RenderedPage } from './ViewHandler';
+import type View from './View';
+import { type RenderedList, type RenderedPage } from './ViewHandler';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
-import UIHelper, { UILink } from '../../../util/UIHelper';
-import { FanModelGetFanItemsParams } from '../../../model/FanModel';
+import { type RenderedListItem } from './renderers/BaseRenderer';
+import UIHelper, { type UILink } from '../../../util/UIHelper';
+import { type FanModelGetFanItemsParams } from '../../../model/FanModel';
 import ViewHelper from './ViewHelper';
 
 export interface FanView extends View {

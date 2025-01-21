@@ -25,7 +25,6 @@ class TrackModel extends BaseModel_1.default {
         return BandcampContext_1.default.getCache().getOrSet(this.getCacheKeyForFetch('track', { trackUrl }), () => __classPrivateFieldGet(this, _TrackModel_instances, "m", _TrackModel_doGetTrack).call(this, trackUrl));
     }
 }
-exports.default = TrackModel;
 _TrackModel_instances = new WeakSet(), _TrackModel_doGetTrack = async function _TrackModel_doGetTrack(trackUrl) {
     const queryParams = {
         trackUrl,
@@ -38,4 +37,5 @@ _TrackModel_instances = new WeakSet(), _TrackModel_doGetTrack = async function _
 }, _TrackModel_convertFetchedTrackToEntity = function _TrackModel_convertFetchedTrackToEntity(item) {
     return EntityConverter_1.default.convertTrack(item);
 };
+exports.default = TrackModel;
 //# sourceMappingURL=TrackModel.js.map

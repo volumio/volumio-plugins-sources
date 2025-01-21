@@ -1,4 +1,4 @@
-import winston from 'winston';
+import type winston from 'winston';
 import Cache from './util/Cache';
 declare class BandcampContext {
     #private;

@@ -1,11 +1,11 @@
-import bcfetch, { Album, LabelArtist, Track } from 'bandcamp-fetch';
+import bcfetch, { type Album, type LabelArtist, type Track } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
-import BaseModel, { LoopFetchCallbackParams } from './BaseModel';
-import ArtistEntity from '../entities/ArtistEntity';
+import BaseModel, { type LoopFetchCallbackParams } from './BaseModel';
+import type ArtistEntity from '../entities/ArtistEntity';
 import EntityConverter from '../util/EntityConverter';
-import AlbumEntity from '../entities/AlbumEntity';
-import TrackEntity from '../entities/TrackEntity';
-import LabelEntity from '../entities/LabelEntity';
+import type AlbumEntity from '../entities/AlbumEntity';
+import type TrackEntity from '../entities/TrackEntity';
+import type LabelEntity from '../entities/LabelEntity';
 
 export interface BandModelGetLabelArtistsParams {
   labelUrl: string;

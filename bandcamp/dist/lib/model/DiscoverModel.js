@@ -32,35 +32,40 @@ class DiscoverModel extends BaseModel_1.default {
         });
     }
     getDiscoverOptions() {
-        return BandcampContext_1.default.getCache().getOrSet(this.getCacheKeyForFetch('discoverOptions'), () => bandcamp_fetch_1.default.limiter.discovery.getAvailableOptions());
+        return BandcampContext_1.default.getCache().getOrSet(this.getCacheKeyForFetch('discoverOptions'), async () => {
+            const opts = await bandcamp_fetch_1.default.limiter.discovery.getAvailableOptions();
+            opts.categories = opts.categories.filter((cat) => cat.slug !== 'tshirt');
+            return opts;
+        });
     }
 }
-exports.default = DiscoverModel;
 _DiscoverModel_instances = new WeakSet(), _DiscoverModel_getDiscoverResultFetchPromise = function _DiscoverModel_getDiscoverResultFetchPromise(params) {
-    let page = 0;
-    if (params.pageToken) {
-        const parsedPageToken = JSON.parse(params.pageToken);
-        page = parsedPageToken?.page || 0;
-    }
-    const queryParams = {
-        ...params.discoverParams,
-        page,
-        albumImageFormat: this.getAlbumImageFormat(),
-        artistImageFormat: this.getArtistImageFormat()
-    };
+    const queryParams = (() => {
+        if (params.pageToken) {
+            const parsedPageToken = JSON.parse(params.pageToken);
+            const continuation = parsedPageToken?.continuation;
+            if (continuation) {
+                return continuation;
+            }
+        }
+        return {
+            ...params.discoverParams,
+            albumImageFormat: this.getAlbumImageFormat(),
+            artistImageFormat: this.getArtistImageFormat()
+        };
+    })();
     return BandcampContext_1.default.getCache().getOrSet(this.getCacheKeyForFetch('discover', queryParams), () => bandcamp_fetch_1.default.limiter.discovery.discover(queryParams));
 }, _DiscoverModel_getDiscoverItemsFromFetchResult = function _DiscoverModel_getDiscoverItemsFromFetchResult(result) {
-    return result.items.slice(0);
+    return result.items.filter((value) => value.type === 'album');
 }, _DiscoverModel_getNextPageTokenFromDiscoverFetchResult = function _DiscoverModel_getNextPageTokenFromDiscoverFetchResult(result, params) {
-    let page = 0, indexRef = 0;
+    let indexRef = 0;
     if (params.pageToken) {
         const parsedPageToken = JSON.parse(params.pageToken);
-        page = parsedPageToken?.page || 0;
         indexRef = parsedPageToken?.indexRef || 0;
     }
-    if (result.items.length > 0 && result.total > indexRef + result.items.length) {
+    if (result.continuation && result.items.length > 0 && result.total > indexRef + result.items.length) {
         const nextPageToken = {
-            page: page + 1,
+            continuation: result.continuation,
             indexRef: indexRef + result.items.length
         };
         return JSON.stringify(nextPageToken);
@@ -73,7 +78,7 @@ _DiscoverModel_instances = new WeakSet(), _DiscoverModel_getDiscoverResultFetchP
         ...result,
         params: lastFetchResult.params
     };
-    delete r.params.page;
     return r;
 };
+exports.default = DiscoverModel;
 //# sourceMappingURL=DiscoverModel.js.map
