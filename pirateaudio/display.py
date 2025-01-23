@@ -675,22 +675,30 @@ def button_y(mode, status):  # optimieren, VOLUMIO_DICT['MODE'] durch mode (loka
                 sleep(0.1)  # v.0.0.7
 
 
-def setup_channel(channel):
-    """initalise gpio channels"""
-    # start_time = time()  # debug, time of code execution
+# Initialize each button pin as input with pull-up
+for pin in BUTTONS:
     try:
-        print('register %d' % channel)  # v0.0.6
-        GPIO.setup(channel, GPIO.IN, GPIO.PUD_UP)
-        GPIO.add_event_detect(channel, GPIO.FALLING, handle_button, bouncetime=250)
+        print(f'register {pin}')
+        GPIO.setup(pin, GPIO.IN, GPIO.PUD_UP)
         print('success')
-        sleep(0.1)  # v.0.0.7
+        sleep(0.1)
     except (ValueError, RuntimeError) as e:
         print('ERROR at setup channel:', e)
-    # print("setup_channel--- %s seconds ---" % (time() - start_time))  # debug, time of code execution
 
+# Now we track previous states and poll for falling edges
+prev_pin_state = {pin: GPIO.input(pin) for pin in BUTTONS}
+POLL_INTERVAL = 0.05  # 50ms
 
-for xb in BUTTONS:
-    setup_channel(xb)
+def button_poll_thread():
+    """Check button states in a loop for falling edges."""
+    while True:
+        for pin in BUTTONS:
+            cur_state = GPIO.input(pin)
+            # If we see 1->0 transition, it's a press
+            if prev_pin_state[pin] == 1 and cur_state == 0:
+                handle_button(pin)
+            prev_pin_state[pin] = cur_state
+        sleep(POLL_INTERVAL)
 
 
 def main():
@@ -716,9 +724,13 @@ def display_helper():  # v0.0.7
 THREAD1 = Thread(target=display_helper)  # v0.0.7
 THREAD1.daemon = True  # v0.0.7
 
+# Second thread for button polling
+THREAD2 = Thread(target=button_poll_thread)
+THREAD2.daemon = True
 
 try:
     THREAD1.start()  # v0.0.7
+    THREAD2.start()
     main()
 except KeyboardInterrupt:
     clean()
