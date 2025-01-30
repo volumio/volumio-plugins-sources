@@ -1,9 +1,9 @@
 import bandcamp from '../../../../BandcampContext';
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
-import LabelEntity from '../../../../entities/LabelEntity';
-import ArtistEntity from '../../../../entities/ArtistEntity';
-import BandEntity from '../../../../entities/BandEntity';
-import { BandView } from '../BandViewHandler';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
+import type LabelEntity from '../../../../entities/LabelEntity';
+import type ArtistEntity from '../../../../entities/ArtistEntity';
+import type BandEntity from '../../../../entities/BandEntity';
+import { type BandView } from '../BandViewHandler';
 import ViewHelper from '../ViewHelper';
 
 export default class BandRenderer extends BaseRenderer<ArtistEntity | LabelEntity> {

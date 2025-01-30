@@ -1,7 +1,7 @@
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
 import UIHelper from '../../../../util/UIHelper';
-import TrackEntity from '../../../../entities/TrackEntity';
-import { TrackView } from '../TrackViewHandler';
+import type TrackEntity from '../../../../entities/TrackEntity';
+import { type TrackView } from '../TrackViewHandler';
 import ViewHelper from '../ViewHelper';
 
 export default class TrackRenderer extends BaseRenderer<TrackEntity> {

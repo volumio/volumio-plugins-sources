@@ -1,11 +1,12 @@
 import ExplodableViewHandler from './ExplodableViewHandler';
-import View from './View';
-import { RenderedPage } from './ViewHandler';
+import type View from './View';
+import { type RenderedPage } from './ViewHandler';
 export interface AlbumView extends View {
     name: 'album';
     albumUrl: string;
     track?: string;
     artistUrl?: string;
+    trackId?: string;
 }
 export default class AlbumViewHandler extends ExplodableViewHandler<AlbumView> {
     #private;

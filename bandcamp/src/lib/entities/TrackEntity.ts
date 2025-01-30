@@ -1,8 +1,9 @@
-import AlbumEntity from './AlbumEntity';
-import ArtistEntity from './ArtistEntity';
+import type AlbumEntity from './AlbumEntity';
+import type ArtistEntity from './ArtistEntity';
 
 interface TrackEntity {
   type: 'track';
+  id?: number;
   name: string;
   url?: string;
   duration?: number;

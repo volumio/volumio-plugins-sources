@@ -1,8 +1,8 @@
-import AlbumEntity from '../../../../entities/AlbumEntity';
-import ArtistEntity from '../../../../entities/ArtistEntity';
-import LabelEntity from '../../../../entities/LabelEntity';
-import TrackEntity from '../../../../entities/TrackEntity';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import type AlbumEntity from '../../../../entities/AlbumEntity';
+import type ArtistEntity from '../../../../entities/ArtistEntity';
+import type LabelEntity from '../../../../entities/LabelEntity';
+import type TrackEntity from '../../../../entities/TrackEntity';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 type SearchResultEntity = ArtistEntity | LabelEntity | AlbumEntity | TrackEntity;
 export default class SearchResultRenderer extends BaseRenderer<SearchResultEntity> {
     renderToListItem(data: SearchResultEntity): RenderedListItem | null;

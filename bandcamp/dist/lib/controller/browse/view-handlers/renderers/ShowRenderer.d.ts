@@ -1,5 +1,5 @@
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
-import ShowEntity from '../../../../entities/ShowEntity';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
+import type ShowEntity from '../../../../entities/ShowEntity';
 export default class ShowRenderer extends BaseRenderer<ShowEntity> {
     renderToListItem(data: ShowEntity, playOnClick?: boolean): RenderedListItem | null;
     renderToHeader(data: ShowEntity): RenderedHeader | null;
