@@ -32,5 +32,11 @@
   "MAP_TO_100": "Lautstärke umrechnen auf 0-100.",
   "D_MAP_TO_100": "Rechnet die Lautstärke-Werte am Verstärker auf 0-100 in Volumio um.",
   "START_AT_POWERUP":"Wiedergabe beim Einschalten des Verstärkers",
-  "D_START_AT_POWERUP":"Schaltet den beim Einschalten des Verstärkers den Eingang auf Volumio und beginnt die Wiedergabe."
+  "D_START_AT_POWERUP":"Schaltet den beim Einschalten des Verstärkers den Eingang auf Volumio und beginnt die Wiedergabe.",
+  "IP":"IP-Adresse",
+  "D_IP":"IP-Adresse des Verstärkers im lokalen Netzwerk",
+  "TCPIP":"TCP/IP",
+  "D_TCPIP":"TCP/IP Protokoll statt serieller Schnittstelle nutzen.",
+  "TOAST_ERROR":"Fehler",
+  "TOAST_INVALID_IP":"Ungültige IP-Adresse"
 }

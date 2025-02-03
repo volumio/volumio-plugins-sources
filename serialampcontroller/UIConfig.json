@@ -15,12 +15,20 @@
       },
       "saveButton": {
         "label": "TRANSLATE.SAVE",
-        "data": ["serial_interface_dev"]
+        "data": ["tcp_ip","serial_interface_dev","ip_address"]
       },
       "content":[
         {
+          "id": "tcp_ip",
+          "element": "switch",
+          "label": "TRANSLATE.TCPIP",
+          "description": "TRANSLATE.D_TCPIP",
+          "value": false              
+        },
+        {
           "id": "serial_interface_dev",
           "element": "select",
+          "visibleIf":{"field":"tcp_ip", "value": false},
           "label": "TRANSLATE.SERIAL_INTERFACE_DEVICE",
           "value": {"value": 0 ,"label": "..."},
           "options": [
@@ -29,6 +37,15 @@
               "label": "..."
             }
           ]          
+        },
+        {
+          "id":"ip_address",
+          "type":"text",
+          "element": "input",
+          "visibleIf":{"field":"tcp_ip", "value": true},
+          "label": "TRANSLATE.IP",
+          "doc": "TRANSLATE.D_IP",
+          "value": "0.0.0.0"
         }
       ]
     },

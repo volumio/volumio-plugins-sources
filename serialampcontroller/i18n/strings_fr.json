@@ -32,5 +32,11 @@
     "MAP_TO_100": "Imposer le volume de 0 à 100",
     "D_MAP_TO_100": "Réglez le min et le max du volume dans une plage de 0 à 100",
     "START_AT_POWERUP":"Démarrer à la mise sous tension",
-    "D_START_AT_POWERUP":"Règle la source de l'amplificateur sur Volumio et démarre la lecture lorsque l'amplificateur est allumé."
+    "D_START_AT_POWERUP":"Règle la source de l'amplificateur sur Volumio et démarre la lecture lorsque l'amplificateur est allumé.",
+    "IP":"Adresse IP",
+    "D_IP":"Adresse IP de l'amplificateur dans le réseau local",
+    "TCPIP":"TCP/IP",
+    "D_TCPIP":"Utilisez le protocole TCP/IP au lieu de l'interface série.",
+    "TOAST_ERROR":"Erreur",
+    "TOAST_INVALID_IP":"Adresse-IP invalide"
 }

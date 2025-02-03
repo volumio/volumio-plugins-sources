@@ -32,5 +32,11 @@
   "MAP_TO_100": "Map volume to 0-100",
   "D_MAP_TO_100": "Map min and max Volume to range from 0 to 100",
   "START_AT_POWERUP":"Start on Powerup",
-  "D_START_AT_POWERUP":"Switches Amplifier Input to Volumio and starts playback when Amplifier is powered up."
+  "D_START_AT_POWERUP":"Switches Amplifier Input to Volumio and starts playback when Amplifier is powered up.",
+  "IP":"IP-Address",
+  "D_IP":"IP-Address of the Amplifier in the local network",
+  "TCPIP":"TCP/IP",
+  "D_TCPIP":"Use TCP/IP protocol instead of serial interface.",
+  "TOAST_ERROR":"Error",
+  "TOAST_INVALID_IP":"Invalid IP-Address"
 }

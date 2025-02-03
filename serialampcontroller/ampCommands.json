@@ -165,6 +165,49 @@
                 }
         },
         {
+            "vendor": "Rotel",
+            "model":"RC-1582 SW V5.xx",
+            "interfaces": ["RS232", "TCP/IP"],
+            "tcpport": 9596,
+            "baudRate": 115200,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+            "sources": ["CD","Video 1","Video 2","Video 3","Video 4","Video 5","Video 6","Video 7","Video 8","Tuner","Phono","USB","PC-USB","XLR"],
+            "sourceCmd": ["cd!","video1!","video2!","video3!","video4!","video5!","video6!","video7!","video8!","tuner!","phono!","usb!","pc_usb!","bal_xlr!"],
+            "sourceRespPostfix": ["cd","video1","video2","video3","video4","video5","video6","video7","video8","tuner","phono","usb","pc_usb","bal_xlr"],
+            "delimiter": "!",
+            "commands": {
+                    "powerOn": "power_on!",
+                    "powerToggle": "power_toggle!",
+                    "volUp": "volume_up!",
+                    "volDown": "volume_down!",
+                    "volValue": "volume_#!",
+                    "mute": "mute!",
+                    "muteOn": "mute_on!",
+                    "muteOff": "mute_off!"
+                },
+            "responses": [
+                {"rx": "power=on", "cmd": ["respPowerOn"]},
+                {"rx": "power=standby", "cmd": ["respPowerOff"]},
+                {"rx": "volume=([0-9]{1,2})", "cmd": ["respVolume"]},
+                {"rx": "mute=on", "cmd": ["respMuteOn"]},
+                {"rx": "mute=off", "cmd": ["respMuteOff"]},
+                {"rx": "source=([a-z_12]*)", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                    "reqPower":"get_current_power!",
+                    "reqSource":"get_current_source!",
+                    "reqVolume":"get_volume!",
+                    "reqMute":"get_mute_status!",
+                    "reqModel":""
+                }
+        },
+        {
             "vendor": "Meridian",
             "model":"DSP420",
             "baudRate": 9600,

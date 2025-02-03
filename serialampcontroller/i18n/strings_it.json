@@ -32,5 +32,11 @@
     "MAP_TO_100": "Imposta il volume a 0-100",
     "D_MAP_TO_100": "Imposta il min e il max del Volume ad una gamma che va da 0 a 100",
     "START_AT_POWERUP":"Avvia all’accensione",
-    "D_START_AT_POWERUP":"Imposta la sorgente dell’amplificatore a quella di Volumio e avvia la riproduzione quando viene acceso l’amplificatore."
+    "D_START_AT_POWERUP":"Imposta la sorgente dell’amplificatore a quella di Volumio e avvia la riproduzione quando viene acceso l’amplificatore.",
+    "IP":"Indirizzo IP",
+    "D_IP":"Indirizzo IP dell'amplificatore nella rete locale",
+    "TCPIP":"TCP/IP",
+    "D_TCPIP":"Utilizzare il protocollo TCP/IP anziché l'interfaccia seriale.",
+    "TOAST_ERROR":"Errore",
+    "TOAST_INVALID_IP":"Indirizzo IP non valido"
 }
