@@ -26,7 +26,7 @@ function serialampcontroller(context) {
 
 serialampcontroller.prototype.onVolumioStart = function() {
 	var self = this;
-	var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'real_config.json');
+	var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
 	this.config = new (require('v-conf'))();
 	this.config.loadFile(configFile);
     this.messageReceived = new EventEmitter();
@@ -296,7 +296,7 @@ serialampcontroller.prototype.getUIConfig = function() {
             } else {
                 usableModels = self.ampVendorModelList.RS232
             }
-            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] getUIConfig: interface: ' + (tcpIp?'TCP/IP':serialFromConfig) + '; amps: ' + JSON.stringify(usableModels));
+            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] getUIConfig: interface: ' + (tcpIp?'TCP/IP':'RS232') + '; amps: ' + JSON.stringify(usableModels));
             for (var n = 0; n < usableModels.length; n++)
             {
                 self.configManager.pushUIConfigParam(uiconf, 'sections[1].content[0].options', {
@@ -712,8 +712,10 @@ serialampcontroller.prototype.sendCommand  = function(...cmd) {
             case  "source": 
                 // cmdString = cmdString + self.selectedAmp.commands.source;
                 // var count = (cmdString.match(/#/g) || []).length;
-                self.logger.info('[SERIALAMPCONTROLLER] sendCommand: switch to source: ' + cmd[1]);
-                cmdString =  self.selectedAmp.sourceCmd[self.selectedAmp.sources.indexOf(cmd[1])];
+                if (cmd[1]!=='...') {
+                    self.logger.info('[SERIALAMPCONTROLLER] sendCommand: switch to source: ' + cmd[1]);
+                    cmdString =  self.selectedAmp.sourceCmd[self.selectedAmp.sources.indexOf(cmd[1])];
+                }
                 break;
             default:
                 break;
@@ -809,7 +811,6 @@ serialampcontroller.prototype.initVolumeSettings = function() {
 	var self = this;
     var defer = libQ.defer();
 
-    self.logger.error('[SERIALAMPCONTROLLER] CHECK: ' + self.selectedAmp + ';' + self.portType + ';' + self.serialInterfaceDev + ';' + self.selectedAmp + ';' + self.parser + ';');
     //Prepare the data for updating the Volume Settings
     //first read the audio-device information, since we won't configure this 
     if (self.selectedAmp !==undefined && self.selectedAmp !=={} &&
@@ -1119,18 +1120,6 @@ serialampcontroller.prototype.updateSerialSettings = function (data) {
         self.commandRouter.getUIConfigOnPlugin('system_hardware', 'serialampcontroller', {})
         .then(config => {self.commandRouter.broadcastMessage('pushUiConfig', config)})
         .then(_ => self.closePort())
-        // .then(_ => {self.setActiveAmp()})
-        // //configure the serial interface and open it
-        // .then(_ => {
-        //     if (self.portType = 'TCPIP') {
-        //         return self.openTcpIp()
-        //     } else {
-        //         return self.openSerialPort()
-        //     }
-        // })
-        //update Volume Settings and announce the updated settings to Volumio
-        // .then(_ => self.alsavolume(this.config.get('startupVolume')))
-        // .then(_ => self.initVolumeSettings())
         .then(_=> {
             defer.resolve();
             self.commandRouter.pushToastMessage('success', self.getI18nString('TOAST_SAVE_SUCCESS'), self.getI18nString('TOAST_SERIAL_SAVE'));
