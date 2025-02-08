@@ -48,6 +48,7 @@ serialampcontroller.prototype.onStart = function() {
     self.ampStatus.Powering = "";
     self.serialDevices = {};
     self.portOpen = false;
+    self.waitingForReconnect = false;
     self.portType = (self.config.get('tcpip'))?"TCPIP":"SERIAL";
     //activate websocket
     self.socket = io.connect('http://localhost:3000');
@@ -79,7 +80,7 @@ serialampcontroller.prototype.onStart = function() {
     //configure the serial interface and open it
     .then(_ => {
         if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onStart: next call ' + (self.portType=='TCP/IP')?'openTcpIp':'openSerialPort');
-        if (self.portType == 'TCPIP') {
+        if (self.portType == 'TCPIP' && self.selectedAmp!==undefined && self.selectedAmp!=={}) {
             return self.openTcpIp()
         } else {
             return self.openSerialPort()
@@ -190,9 +191,9 @@ serialampcontroller.prototype.closePort = function(){
     var self = this;
     var defer = libQ.defer();
 
-    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] closePort: closing port now:' + self.portType + '-' + JSON.stringify(self.port));        
     if (self.port!==undefined){
-        if (self.portType!=="TCPIP" && self.port.isOpen) {
+        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] closePort: closing port now:' + self.portType + '-' + JSON.stringify(self.port));        
+        if (!(self.port instanceof net.Socket) && self.port.isOpen) {
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] closePort: closing RS232');        
             self.port.close(error => {
                 if (error) {
@@ -203,8 +204,10 @@ serialampcontroller.prototype.closePort = function(){
                     defer.resolve();
                 }
             });
-        } else if (self.portType == "TCPIP"){
-            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] closePort: closing TCP/IP');        
+        } else if (self.port instanceof net.Socket){
+            if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] closePort: closing TCP/IP');
+            self.port.removeAllListeners();
+            self.waitingForReconnect = false;
             self.port.end(() => {
                 if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] closePort: closed TCP/IP socket');     
                 self.port = undefined;   
@@ -309,7 +312,7 @@ serialampcontroller.prototype.getUIConfig = function() {
                 uiconf.sections[1].content[0].value.label = ampFromConfig;                
             }
             //populate input selector drop-down
-            if (ampFromConfig != "..." && self.selectedAmp !== undefined && self.selectedAmp.sources !== undefined) {
+            if (ampFromConfig !== "..." && self.selectedAmp !== undefined && self.selectedAmp.sources !== undefined) {
                 selected = 0;
                 for (var n = 0; n < self.selectedAmp.sources.length; n++)
                 {
@@ -375,13 +378,25 @@ serialampcontroller.prototype.openSerialPort = function (){
         (self.config.get('serialInterfaceDev')!=='...') &&
         (Object.keys(self.selectedAmp).length > 0))  {
             //if port is open, close it first
-            if (self.port !== undefined && self.port.isOpen) {
-                self.port.close(error => {
-                    if (error) {
-                        self.logger.error('[SERIALAMPCONTROLLER] openSerialPort: problem during close of serial Port: ' + error);
+            if (self.port !== undefined) { 
+                if (self.port instanceof net.Socket) {
+                    self.port.removeAllListeners();
+                    self.port.end(error => {
+                        if (error) {
+                            self.logger.error('[SERIALAMPCONTROLLER] openSerialPort: problem during close of TCP Port: ' + error);
+                        }
+                    })
+                    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: closed TCP Port');        
+                } else {
+                    if (self.port.isOpen) {
+                        self.port.close(error => {
+                            if (error) {
+                                self.logger.error('[SERIALAMPCONTROLLER] openSerialPort: problem during close of serial Port: ' + error);
+                            }
+                        })
+                        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: closed serial Port');        
                     }
-                    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: closed serial Port');        
-                });
+                }
             }
             //SerialPort and Amp selected, now check if all settings are defined
             if (self.selectedAmp.baudRate!==undefined &&
@@ -413,10 +428,6 @@ serialampcontroller.prototype.openSerialPort = function (){
                 self.port = new SerialPort(self.serialInterfaceDev[0].path, self.serialOptions);
                 if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: Connection established.');
                 self.port.on('close', ()=>{
-                    self.portOpen = false;
-                    self.port.removeAllListeners('open');
-                    self.port.removeAllListeners('close');
-                    self.port.removeAllListeners('error');
                     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openSerialPort: Port is now closed.');
                 });
                 self.port.on('error', err => {
@@ -480,25 +491,30 @@ serialampcontroller.prototype.openSerialPort = function (){
 //Callback for closing TCP-IP Socket
 serialampcontroller.prototype.onTcpClose = function(){
     var self = this;
-    self.portOpen = false;
     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onTcpClose: Port has closed, removing listeners.');
-    self.port.removeAllListeners('data');
-    self.port.removeAllListeners('close');
-    self.port.removeAllListeners('error');
-    self.port.removeAllListeners('ready');
     self.logger.error('[SERIALAMPCONTROLLER] onTcpClose: Connection refused, trying to reconnect in 5 seconds.');
     //do recconect
-    if (self.port !== undefined) {
-        setTimeout(()=>{
-            self.port = net.createConnection({port: self.netOptions.port, host: self.netOptions.ip},() => {
-                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onTcpClose: Connected to: ' + self.netOptions.ip + ':' + self.netOptions.port);
-            });
-            self.port.setKeepAlive(true, 1000);
-            self.port.on('close', self.onTcpClose.bind(self));
-            self.port.on('error', self.onTcpError.bind(self));
-            self.port.on('ready', self.connectTcpIp.bind(self));
-        }, 5000)
-    }
+    self.reconnectTCP();
+}
+
+serialampcontroller.prototype.reconnectTCP = function (params) {
+ var self = this;
+    if ((self.port==undefined || self.port.readyState == undefined) || (self.port.readyState == '') || (self.port.readyState == 'closed'))
+        if (!self.waitingForReconnect) {
+            self.waitingForReconnect = true;
+            setTimeout(()=>{
+                if (self.waitingForReconnect) {
+                    self.waitingForReconnect = false;
+                    self.port = net.createConnection({port: self.netOptions.port, host: self.netOptions.ip},() => {
+                        if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openTcpIp: Connected to: ' + self.netOptions.ip + ':' + self.netOptions.port);
+                    });
+                    self.port.setKeepAlive(true, 1000);
+                    if (self.port.listenerCount('close') == 0) self.port.on('close', self.onTcpClose.bind(self));
+                    if (self.port.listenerCount('error') == 0) self.port.on('error', self.onTcpError.bind(self));
+                    if (self.port.listenerCount('ready') == 0) self.port.on('ready', self.connectTcpIp.bind(self));
+                }
+            }, 5000)
+        }    
 }
 
 //Callback for error on TCP-IP Socket
@@ -507,15 +523,7 @@ serialampcontroller.prototype.onTcpError = function(err){
     if(err.message.indexOf('ECONNREFUSED') > -1) {
         self.logger.error('[SERIALAMPCONTROLLER] onTcpError: Connection refursed, trying to reconnect in 5 seconds.');
         //do recconect
-        setTimeout(()=>{
-            self.port = net.createConnection({port: self.netOptions.port, host: self.netOptions.ip},() => {
-                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openTcpIp: Connected to: ' + self.netOptions.ip + ':' + self.netOptions.port);
-            });
-            self.port.setKeepAlive(true, 1000);
-            self.port.on('close', self.onTcpClose.bind(self));
-            self.port.on('error', self.onTcpError.bind(self));
-            self.port.on('ready', self.connectTcpIp.bind(self));
-        }, 5000)
+        self.reconnectTCP();
     } else {
         self.logger.error('[SERIALAMPCONTROLLER] onTcpError: Port generated an error: ' + err);
     }
@@ -526,12 +534,12 @@ serialampcontroller.prototype.connectTcpIp = function() {
     self.portOpen = true;
     const parserOptions = {};
     parserOptions.delimiter = self.selectedAmp.delimiter;
-    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openTcpIp: Port is now open. Connecting Parser with delimiter: ' + parserOptions.delimiter);
+    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] connectTcpIp: Port is now open. Connecting Parser with delimiter: ' + parserOptions.delimiter);
     //pipe the port to a parser
     self.parser = self.port.pipe(new Readline(parserOptions));
     //attach a listener to the parser output
     self.parser.on('data', data => {
-        if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] openTcpIp: Listener received: " + data);
+        if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] connectTcpIp: Listener received: " + data);
         if (typeof(data) == 'string' && self.selectedAmp !== undefined && self.selectedAmp.responses !== undefined && self.selectedAmp.responses.length > 0) {
             var cmdFound = false;
             self.selectedAmp.responses.forEach(response => {
@@ -539,19 +547,19 @@ serialampcontroller.prototype.connectTcpIp = function() {
                 if (match !==null) {
                     cmdFound = true;
                     if (match.length==1){
-                        if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] openTcpIp: call processResponse with: " + response.cmd[0]);
+                        if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] connectTcpIp: call processResponse with: " + response.cmd[0]);
                         self.processResponse(response.cmd[0])
                     } else {
                         for (let i = 1; i < match.length; i++){
-                            if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] openTcpIp: call processResponse with: " + response.cmd[i-1],match[i]);
+                            if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] connectTcpIp: call processResponse with: " + response.cmd[i-1],match[i]);
                             self.processResponse(response.cmd[i-1],match[i])
                         }
                     }
                 } 
             })
-            if (self.debugLogging && !cmdFound) self.logger.info('[SERIALAMPCONTROLLER] openTcpIp: no matching regex for: ' + data);
+            if (self.debugLogging && !cmdFound) self.logger.info('[SERIALAMPCONTROLLER] connectTcpIp: no matching regex for: ' + data);
         } else {
-            self.logger.error("[SERIALAMPCONTROLLER] openTcpIp: do not have any information, what to do with message: " + data + "is the 'ampCommands.json' complete?");
+            self.logger.error("[SERIALAMPCONTROLLER] connectTcpIp: do not have any information, what to do with message: " + data + "is the 'ampCommands.json' complete?");
         }
     })
     //determine the current settings of the amp
@@ -600,9 +608,9 @@ serialampcontroller.prototype.openTcpIp = function (){
                     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openTcpIp: Connected to: ' + self.netOptions.ip + ':' + self.netOptions.port);
                 });
                 self.port.setKeepAlive(true, 1000);
-                self.port.on('close', self.onTcpClose.bind(self));
-                self.port.on('error', self.onTcpError.bind(self));
-                self.port.on('ready', self.connectTcpIp.bind(self));
+                if (self.port.listenerCount('close') == 0) self.port.on('close', self.onTcpClose.bind(self));
+                if (self.port.listenerCount('error') == 0) self.port.on('error', self.onTcpError.bind(self));
+                if (self.port.listenerCount('ready') == 0) self.port.on('ready', self.connectTcpIp.bind(self));
                 defer.resolve();
             } else {
                 self.logger.error('[SERIALAMPCONTROLLER] openTcpIp: AmpCommands.js has no TCP/IP parameters for ' + self.selectedAmp.vendor + " - " + self.selectedAmp.model);
@@ -801,10 +809,11 @@ serialampcontroller.prototype.initVolumeSettings = function() {
 	var self = this;
     var defer = libQ.defer();
 
+    self.logger.error('[SERIALAMPCONTROLLER] CHECK: ' + self.selectedAmp + ';' + self.portType + ';' + self.serialInterfaceDev + ';' + self.selectedAmp + ';' + self.parser + ';');
     //Prepare the data for updating the Volume Settings
     //first read the audio-device information, since we won't configure this 
-    if (self.selectedAmp !=undefined && 
-        ((self.portType=='RS232' && self.serialInterfaceDev != undefined) || (self.portType=="TCPIP")) && 
+    if (self.selectedAmp !==undefined && self.selectedAmp !=={} &&
+        ((self.portType=='SERIAL' && self.serialInterfaceDev != undefined) || (self.portType=="TCPIP")) && 
         self.parser != undefined) {
         var volSettingsData = {
             'pluginType': 'system_hardware',
@@ -1107,7 +1116,6 @@ serialampcontroller.prototype.updateSerialSettings = function (data) {
         self.config.set('serialInterfaceDev', (data['serial_interface_dev'].label));
         self.config.set('ampType','...')
         
-        //set the active amp
         self.commandRouter.getUIConfigOnPlugin('system_hardware', 'serialampcontroller', {})
         .then(config => {self.commandRouter.broadcastMessage('pushUiConfig', config)})
         .then(_ => self.closePort())
@@ -1152,7 +1160,7 @@ serialampcontroller.prototype.updateAmpSettings = function (data) {
     self.config.set('switchInputAtPlay', (data['switch_input_at_play']));
     self.config.set('startAtPowerup', (data['start_at_powerup']));
     self.setActiveAmp()
-    .then(_=> self.commandRouter.getUIConfigOnPlugin('system_hardware', 'serialampcontroller', {}))
+    .then(_ => {return self.commandRouter.getUIConfigOnPlugin('system_hardware', 'serialampcontroller', {})})
     .then(config => {self.commandRouter.broadcastMessage('pushUiConfig', config)})
     //configure the serial interface and open it
     .then(_ => {

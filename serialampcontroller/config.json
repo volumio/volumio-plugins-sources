@@ -1,11 +1,19 @@
 {
     "logging": {
         "type": "boolean",
-        "value": true
+        "value": false
     },
     "serialInterfaceDev": {
         "type": "string",
         "value": "..."
+    },
+    "tcpip": {
+        "type": "boolean",
+        "value": false
+    },
+    "ipaddress": {
+        "type": "string",
+        "value": "127.0.0.1"
     },
     "ampType": {
         "type": "string",
