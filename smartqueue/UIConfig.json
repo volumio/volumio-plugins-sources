@@ -1,0 +1,29 @@
+{
+	"page": {
+		"label": "SmartQueue"},
+		
+	"sections": [{
+			"id": "main",
+			"element": "section",
+			"label": "",
+			"description": "",
+			"icon": "fa-windows-maximize",
+			"onSave": {"type":"controller", "endpoint":"user_interface/smartqueue", "method":"saveSettings"},
+      		"saveButton": { "label": "Save","data": ["Autocue","Blissmixer","Tracksn","Drift"]},
+			"content":[]
+			},
+			
+			{"id": "advanced",
+		     "element": "section",
+		     "label": "Bliss Tools",
+		     "description": "Section to deploy Blissify, Musical Euclydian Distance calculator by Polochon-street",
+		     "icon": "fa-wrench",
+		     "onSave": {
+		     "type": "plugin",
+		     "endpoint": "user_interface/smartqueue",
+		     "method": "playToolsFile",
+		     "data": []},
+      		"content":[		           
+           			 ] 
+           	}]      
+}
