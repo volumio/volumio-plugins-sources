@@ -263,6 +263,26 @@
         "type": "string",
         "value": "None"
     },
+    "EQ3preset": {
+        "type": "string",
+        "value": ""
+    }, 
+    "EQ15preset": {
+        "type": "string",
+        "value": "Choose a preset"
+    }, 
+    "2XEQ15preset": {
+        "type": "string",
+        "value": "Choose a preset"
+    },
+    "convfirpreset": {
+        "type": "string",
+        "value": "Choose a preset"
+    }, 
+     "PEQpreset": {
+        "type": "string",
+        "value": "Choose a preset"
+    },
     "mypreset1": {
         "type": "string",
         "value": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
