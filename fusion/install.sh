@@ -26,8 +26,10 @@ cp $LIB/readme.txt $opath/readme.txt
 cp $LIB/filters/* $opath/filters/
 cp $LIB/target-curves/* $opath/target-curves/
 cp $LIB/filter-sources/* $opath/filter-sources/
-cp -r $LIB/presets $opath/
-
+cp $LIB/presets.tar $opath/
+cd $opath
+tar -xvf presets.tar
+cd $LIB
 rm -Rf $LIB/filters
 rm -Rf $LIB/target-curves
 rm -Rf $LIB/filters-sources

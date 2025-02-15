@@ -1,6 +1,6 @@
 {
   "name": "fusiondsp",
-  "version": "1.0.55",
+  "version": "1.0.56",
   "description": "A complete Dsp centre for Volumio3",
   "main": "index.js",
   "repository": "https://github.com/balbuze/volumio-plugins/tree/alsa_modular/plugins/audio_interface/FusionDsp",
@@ -22,7 +22,8 @@
       "armhf",
       "amd64"
     ],
-    "has_alsa_contribution": true
+    "has_alsa_contribution": true,
+    "manually_installed": true
   },
   "dependencies": {
     "child_process": "",
