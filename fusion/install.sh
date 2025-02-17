@@ -29,6 +29,7 @@ cp $LIB/filter-sources/* $opath/filter-sources/
 cp $LIB/presets.tar $opath/
 cd $opath
 tar -xvf presets.tar
+chmod -R 777 presets
 cd $LIB
 rm -Rf $LIB/filters
 rm -Rf $LIB/target-curves
