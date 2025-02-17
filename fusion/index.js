@@ -180,7 +180,7 @@ FusionDsp.prototype.createCamillaWebsocket = function () {
       };
 
       self.connection.onerror = function (error) {
-        console.error('WebSocket error:', error);
+        self.logger.error(logPrefix+'WebSocket error:', error);
       };
 
       self.connection.onclose = function () {
@@ -192,7 +192,7 @@ FusionDsp.prototype.createCamillaWebsocket = function () {
     if (self.connection && self.connection.readyState === WebSocket.OPEN) {
       self.connection.send(data);
     } else {
-      console.error('WebSocket is not connected');
+      self.logger.error(logPrefix+'WebSocket is not connected');
     }
   };
 
@@ -1444,33 +1444,23 @@ FusionDsp.prototype.getUIConfig = function (address) {
         uiconf.sections[1].saveButton.data.push('showeq');
       }
 
-      // self.logger.info(logPrefix + '  Dsp mode set is ' + selectedsp)
-
-
       //--------section 2-------------------
 
       var value = self.config.get('usethispreset');
       const pFolder = presetFolder + "/" + selectedsp;
-      // var plabel = self.config.get(selectedsp + "preset").replace(/^\./, "").replace(/\.json$/, "")//preset);
       var plabel = (self.config.get(selectedsp + "preset") || "")
         .replace(/^\./, "")
         .replace(/\.json$/, "");
       self.logger.info(logPrefix + plabel)
-      // var plabel =(selectedsp.replace(/\.json$/, ""))
       self.configManager.setUIConfigParam(uiconf, 'sections[2].content[0].value.value', value);
       self.configManager.setUIConfigParam(uiconf, 'sections[2].content[0].value.label', plabel);
 
       try {
 
         fs.readdir(pFolder, function (err, item) {
-
           let allpreset = '' + item;
-          // const filename = items;
           let items = allpreset.split(',');
-
           let itemsf = items.map(item => item.replace(/^\./, "").replace(/\.json$/, ""));
-          // let itemsf = items.map(item => item.replace(/\.json$/, ""));
-
           self.logger.info(logPrefix + items)
 
           for (let i in items) {
@@ -1480,57 +1470,13 @@ FusionDsp.prototype.getUIConfig = function (address) {
               label: itemsf[i]
             });
           }
-
         });
       } catch (err) {
         self.logger.error(logPrefix + ' failed to read local file' + err);
       }
 
       //-------------section 3-----------savepreset
-      /*
-      let savepresetlist = ('mypreset1,mypreset2,mypreset3,mypreset4,mypreset5').split(',')
-      self.configManager.setUIConfigParam(uiconf, 'sections[3].content[0].value.label', self.commandRouter.getI18nString('CHOOSE_PRESET'));
-      for (let y in savepresetlist) {
-        switch (savepresetlist[y]) {
-          case ("mypreset1"):
-            var plabel = self.config.get(selectedsp + 'renpreset1')
-            if (!plabel) {
-              plabel = ('mypreset1')
-            }
-            break;
-          case ("mypreset2"):
-            var plabel = self.config.get(selectedsp + 'renpreset2')
-            if (!plabel) {
-              plabel = ('mypreset2')
-            }
-            break;
-          case ("mypreset3"):
-            var plabel = self.config.get(selectedsp + 'renpreset3')
-            if (!plabel) {
-              plabel = ('mypreset3')
-            }
-            break;
-          case ("mypreset4"):
-            var plabel = self.config.get(selectedsp + 'renpreset4')
-            if (!plabel) {
-              plabel = ('mypreset4')
-            }
-            break;
-          case ("mypreset5"):
-            var plabel = self.config.get(selectedsp + 'renpreset5')
-            if (!plabel) {
-              plabel = ('mypreset5')
-            }
-            break;
-          default: plabel = self.commandRouter.getI18nString('NO_PRESET_USED')
-        }
-        self.configManager.pushUIConfigParam(uiconf, 'sections[3].content[0].options', {
-          value: savepresetlist[y],
-          label: plabel
-        });
-      }
-      */
-      //   self.configManager.setUIConfigParam(uiconf, 'sections[3].content[2].value.label', self.commandRouter.getI18nString('CHOOSE_PRESET'));
+    
 
       uiconf.sections[3].content[0].value = self.config.get('renpreset');
 
@@ -1578,7 +1524,6 @@ FusionDsp.prototype.getUIConfig = function (address) {
 
           let allfilter = '' + item;
           let items = allfilter.split(',');
-          // items.pop();
           for (let i in items) {
 
             self.configManager.pushUIConfigParam(uiconf, 'sections[5].content[0].options', {
@@ -4053,12 +3998,12 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
   // Check if the file already exists
   if (fs.existsSync(filePath)) {
     var responseData = {
-      title: "File exists",//self.commandRouter.getI18nString('SAMPLE_WARNING_TITLE'),
-      message: "overwrite file?",//self.commandRouter.getI18nString('SAMPLE_WARNING_MESS'),
+      title:  `A file ${dynamicKey} already exists!`,//self.commandRouter.getI18nString('SAMPLE_WARNING_TITLE'),
+      message: "Overwrite this file?",//self.commandRouter.getI18nString('SAMPLE_WARNING_MESS'),
       size: 'lg',
       buttons: [
         {
-          name: "Yes",//self.commandRouter.getI18nString('GET_IT'),
+          name: "Ok",//self.commandRouter.getI18nString('GET_IT'),
           class: 'btn btn-cancel',
           emit: 'callMethod',
           payload: { 'endpoint': 'audio_interface/fusiondsp', 'method': 'saveequalizerpresetv' }
@@ -4075,10 +4020,8 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.logger.warn(logPrefix + `File "${filePath}" already exists. Overwriting...`);
     self.config.set("renpreset", dynamicKey)
 
-    //  self.saveequalizerpresetv();
   } else {
     self.config.set("renpreset", dynamicKey)
-
     self.saveequalizerpresetv();
   }
 };
@@ -4185,48 +4128,38 @@ FusionDsp.prototype.usethispreset = function (data) {
       } catch (parseError) {
         return callback(parseError);
       }
-      // Return the value for the specified key (undefined if not found)
       callback(null, jsonData[key]);
     });
   }
-  console.log("Value for usedpreset: ", usedpreset);
-  //let presetforkey = preset.replace(/^\./, "").replace(/\.json$/, "");
+  self.logger.info(logPrefix+"Value for usedpreset: ", usedpreset);
 
-  let presetforkey = "parameters"//preset.replace(/\.json$/, "");
-  console.log("Value for preset: ", presetforkey);
+  let presetforkey = "parameters";
 
   readValueFromJsonFile(usedpreset, presetforkey, (err, value) => {
     if (err) {
-      console.error("Error reading JSON file:", err);
+      self.logger.error(logPrefix+"Error reading JSON file:", err);
     }// else {
     try {
-      console.error("Value reading JSON file:", value);
+      self.logger.error(logPrefix+"Value reading JSON file:", value);
 
       const eqrx = value.geq15;
       const x2eqrx = value.x2geq15;
       const state4presetx = value.state4preset;
 
-      //console.log("Value for 'someKey':", state4presetx);
-      //   }
-      //});
       if (selectedsp == 'EQ15') {
-
 
         geq15 = eqrx.split(',')
         self.logger.info(logPrefix + ' geq15 ' + geq15)
 
         let o = 1
-        var eqr = geq15//.split(',')
-        //self.logger.info(logPrefix+' setting EQ15 values ' + typeof (eqr))
+        var eqr = geq15
         for (o in eqr) {
           let eqval = geq15[o]
           test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
         }
-        // self.logger.info(logPrefix + ' test ' + test)
         self.config.set('mergedeq', test);
         self.config.set("nbreq", 15);
-        //}
-        //});
+       
       } else if (selectedsp == '2XEQ15') {
         geq15 = eqrx.split(',')
         x2geq15 = x2eqrx.split(',')
@@ -4245,25 +4178,19 @@ FusionDsp.prototype.usethispreset = function (data) {
         }
         test = ltest + rtest
 
-        //  self.logger.info(logPrefix + ' test ' + test)
         self.config.set('mergedeq', test);
         self.config.set("nbreq", 30);
 
       }
-      //   }
-
-      //  });
+      
       if ((selectedsp == 'EQ15') || (selectedsp == '2XEQ15')) {
-        self.config.set('geq15', eqrx)//self.config.get(eqspreset))
-        self.config.set('x2geq15', x2eqrx)//self.config.get(reqspreset))
-        //  self.config.set("preset", usedpreset)//preset);
-
+        self.config.set('geq15', eqrx)
+        self.config.set('x2geq15', x2eqrx);
 
       } else if (selectedsp == 'PEQ') {
         var nbreqc = value.spreset;
         self.config.set("nbreq", nbreqc);
         self.config.set('mergedeq', value.mergedeq);
-        // self.config.set("peqpreset", preset);
 
       } else if (selectedsp == 'convfir') {
         self.config.set("usethispreset", preset);
@@ -4275,8 +4202,7 @@ FusionDsp.prototype.usethispreset = function (data) {
         self.config.set("attenuationl", value.attenuationl);
         self.config.set("attenuationr", value.attenuationr);
       }
-      // if (preset == "mypreset1" || preset == "mypreset2" || preset == "mypreset3" || preset == "mypreset4" || preset == "mypreset5") {
-      // let state4preset = self.config.get(selectedsp + 'state4preset' + spreset)
+     
       let state4preset = state4presetx;
 
       self.logger.info(logPrefix + ' value state4preset ' + state4preset)
@@ -4303,13 +4229,7 @@ FusionDsp.prototype.usethispreset = function (data) {
         self.config.set('rdistance', state4preset[12]);
       }
       self.config.set('permutchannel', state4preset[13]);
-      self.config.set(selectedsp + "preset", preset)//preset);
-
-      //  self.commandRouter.pushToastMessage('info', spresetm + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
-      // } else {
-      // self.commandRouter.pushToastMessage('info', spreset + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
-      // }
-
+      self.config.set(selectedsp + "preset", preset);
       self.commandRouter.pushToastMessage('info', presetforkey.replace(/^\./, "") + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
 
     } catch (e) {

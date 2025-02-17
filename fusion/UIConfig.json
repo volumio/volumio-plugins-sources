@@ -189,7 +189,7 @@
           "label": "TRANSLATE.RENPRESET",
           "doc": "TRANSLATE.RENPRESET_DOC",
           "attributes": [
-            { "placeholder": "Enter a name for preset" }
+            { "placeholder": "TRANSLATE.RENPRESET_DOC" }
           ],
           "value": {
             "value": "",
