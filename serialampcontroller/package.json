@@ -1,14 +1,14 @@
 {
 	"name": "serialampcontroller",
-	"version": "2.0.12",
-	"description": "Control connected Amplifiers with serial interface from Volumio. Currently supports ROTEL A-11/12/14, ROTEL RC1570, other brands can be supported via ampCommands.json.",
+	"version": "2.5.0",
+	"description": "Control connected Amplifiers with serial interface from Volumio. Currently supports Rotel - A12/A14/A11/RC-1570/RC-1592 >=V1.53/RC-1582 SW V5.xx, Anthem - IDMSTR IA, Meridian - DSP420, Cambridge - CXA61. Other brands can be supported via ampCommands.json.",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "7h0mas-R",
 	"license": "ISC",
-	"repository": "https://github.com/7h0mas-R/volumio-plugins.git",
+	"repository": "https://github.com/7h0mas-R/volumio-plugins-sources",
 	"volumio_info": {
 		"prettyName": "SerialAmpControl",
 		"icon": "fa-volume-up",
@@ -20,8 +20,8 @@
 			"buster"
 		],
 		"has_alsa_contribution": false,
-		"details": "Supports control of Amplifiers with Serial Interface from Volumio. Currently supports ROTEL A12, A11 and A14. Support for other Amplifier Brands and Models can easily be added by modifying the 'ampCommands.json' file. Tested with a cheap USB-2-serial converter connected to ROTEL A12 on RaspberryPi 3 with HifiBerry Digi HAT connected via SP/DIF. Details here: <u>https://community.volumio.org/t/plugin-serialampcontroller-control-amplifiers-with-serial-interface-from-volumio-e-g-rotel-a12-a11-a14/50928</u>",
-		"changelog": "Added support for Rotel Amps connected via TCP/IP"
+		"details": "Supports control of Amplifiers with Serial Interface from Volumio Interface. Details here: <u>https://community.volumio.org/t/plugin-serialampcontroller-control-amplifiers-with-serial-interface-from-volumio-e-g-rotel-a12-a11-a14/50928</u>",
+		"changelog": "fixed several bugs and inconsistencies"
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",
@@ -31,7 +31,7 @@
 		"fs-extra": "^5.0.0",
 		"kew": "^0.7.0",
 		"keypress": "^0.2.1",
-		"serialport": "^9.2.8",
+		"serialport": "^12.0.0",
 		"socket.io-client": "^2.3.1",
 		"v-conf": "^1.4.0"
 	}

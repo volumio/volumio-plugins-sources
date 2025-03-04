@@ -50,29 +50,19 @@
       ]
     },
     {
-      "id": "amp_settings",
+      "id": "amp_type",
       "element": "section",
-      "label": "TRANSLATE.AMP_SETTINGS",
+      "label": "TRANSLATE.AMP_TYPE_SECTION",
       "icon": "fa-volume-up",
       "onSave": {
         "type": "controller",
         "endpoint": "system_hardware/serialampcontroller",
-        "method": "updateAmpSettings"
+        "method": "updateAmpType"
       },
       "saveButton": {
         "label": "TRANSLATE.SAVE",
         "data": [
-          "amp_type",
-          "volumio_input",
-          "min_volume",
-          "max_volume",
-          "startup_volume",
-          "volume_steps",
-          "map_to_100",
-          "pause_when_muted",
-          "pause_when_input_changed",
-          "switch_input_at_play",
-          "start_at_powerup"
+          "amp_type"
         ]
       },
       "content":[
@@ -88,7 +78,35 @@
               "label": "..."
             }
           ]          
-        },
+        }
+      ]
+    },
+    {
+      "id": "amp_settings",
+      "element": "section",
+      "label": "TRANSLATE.AMP_SETTINGS",
+      "icon": "fa-volume-up",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/serialampcontroller",
+        "method": "updateAmpSettings"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "volumio_input",
+          "min_volume",
+          "max_volume",
+          "startup_volume",
+          "volume_steps",
+          "map_to_100",
+          "pause_when_muted",
+          "pause_when_input_changed",
+          "switch_input_at_play",
+          "start_at_powerup"
+        ]
+      },
+      "content":[
         {
           "id": "volumio_input",
           "element": "select",
