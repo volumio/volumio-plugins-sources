@@ -83,6 +83,7 @@
           "bitrate",
           "debug",
           "normalisation_pregain",
+          "enable_autoplay",
           "icon"
         ]
       },
@@ -190,6 +191,13 @@
               "label": "Set Top Box"
             }
           ]
+        },
+        {
+          "id": "enable_autoplay",
+          "element": "switch",
+          "doc": "Whether autoplay should be enabled after the current playback session ends",
+          "label": "Enable autoplay",
+          "value": true
         }
       ]
     }
