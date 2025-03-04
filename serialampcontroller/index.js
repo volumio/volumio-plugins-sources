@@ -5,7 +5,7 @@ var fs=require('fs-extra');
 var config = new (require('v-conf'))();
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
-const net = require('node:net');
+const net = require('net');
 
 const EventEmitter = require('events').EventEmitter;
 const io = require('socket.io-client');
