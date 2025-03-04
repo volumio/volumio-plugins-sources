@@ -3,3 +3,5 @@
 *node_modules*
 .gitignore
 .vscode/launch.json
+serialampcontroller/test.js
+.gitignore
