@@ -23,7 +23,7 @@
   "PAUSE_WHEN_INPUT_CHANGED":"Pause when Input changed",
   "D_PAUSE_WHEN_INPUT_CHANGED":"Pauses Volumio Playback when Audio-Input of Amplifier is changed. Resumes Playback when Input is switched to the selected Volumio-Input.",
   "SWITCH_INPUT_AT_PLAY":"Switch Input at Play",
-  "D_SWITCH_INPUT_AT_PLAY":"Activate the ampliefier input connected to Volumio when play is pressed.",
+  "D_SWITCH_INPUT_AT_PLAY":"Activate the amplifier input connected to Volumio when play is pressed.",
   "STARTUP_VOLUME":"Startup Volume",
   "D_STARTUP_VOLUME":"Volume setting at start of volumio or when Amplifier returns from Standby.",
   "TOAST_SAVE_SUCCESS":"Successfully saved",
@@ -40,5 +40,9 @@
   "TCPIP":"TCP/IP",
   "D_TCPIP":"Use TCP/IP protocol instead of serial interface.",
   "TOAST_ERROR":"Error",
-  "TOAST_INVALID_IP":"Invalid IP-Address"
+  "TOAST_INVALID_IP":"Invalid IP-Address",
+  "POWERUP_ON_PLAY": "Powerup on playback",
+  "D_POWERUP_ON_PLAY": "Power up the amplifier when playback is started.",
+  "POWERUP_ON_BOOT": "Powerup on Volumio-start",
+  "D_POWERUP_ON_BOOT": "Power up the amplifier when Volumio starts up."
 }

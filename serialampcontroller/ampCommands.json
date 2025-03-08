@@ -313,7 +313,7 @@
                     "powerToggle": "power_toggle!",
                     "volUp": "vol_up!",
                     "volDown": "vol_dwn!",
-                    "volValue": "volume_#!",
+                    "volValue": "vol_#!",
                     "mute": "mute!",
                     "muteOn": "mute_on!",
                     "muteOff": "mute_off!"

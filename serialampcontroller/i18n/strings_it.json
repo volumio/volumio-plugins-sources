@@ -40,5 +40,12 @@
     "TCPIP":"TCP/IP",
     "D_TCPIP":"Utilizzare il protocollo TCP/IP anziché l'interfaccia seriale.",
     "TOAST_ERROR":"Errore",
-    "TOAST_INVALID_IP":"Indirizzo IP non valido"
+    "TOAST_INVALID_IP":"Indirizzo IP non valido",
+  "POWERUP_ON_PLAY": "Accendi durante la riproduzione",
+  "D_POWERUP_ON_PLAY": "Accendi l'amplificatore quando inizia la riproduzione.",
+  "POWERUP_ON_BOOT": "Accendi all'avvio di Volumio",
+  "D_POWERUP_ON_BOOT": "Accendi l'amplificatore quando viene avviato Volumio."
 }
+
+
+

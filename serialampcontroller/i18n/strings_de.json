@@ -40,5 +40,9 @@
   "TCPIP":"TCP/IP",
   "D_TCPIP":"TCP/IP Protokoll statt serieller Schnittstelle nutzen.",
   "TOAST_ERROR":"Fehler",
-  "TOAST_INVALID_IP":"Ungültige IP-Adresse"
+  "TOAST_INVALID_IP":"Ungültige IP-Adresse",
+  "POWERUP_ON_PLAY": "Einschalten bei Wiedergabe",
+  "D_POWERUP_ON_PLAY": "Verstärker einschalten, wenn die Wiedergabe gestartet wird.",
+  "POWERUP_ON_BOOT": "Einschalten bei Volumio-Start",
+  "D_POWERUP_ON_BOOT": "Verstärker einschalten, wenn die Volumio gestartet wird."
 }

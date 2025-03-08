@@ -51,6 +51,7 @@ serialampcontroller.prototype.onStart = function() {
     self.portOpen = false;
     self.status = 'stop'
     self.ampStatus.power='off';
+    self.powerupAtVolumioStart = self.config.get('powerupOnBoot');
 
     self.loadAmpDefinitions() //load amp definitions from file
     .then(_=> self.listSerialDevices()) //initialize list of serial devices available to the system
@@ -231,6 +232,8 @@ serialampcontroller.prototype.updateAmpSettings = function (data) {
     self.config.set('pauseWhenInputChanged', (data['pause_when_input_changed']));
     self.config.set('switchInputAtPlay', (data['switch_input_at_play']));
     self.config.set('startAtPowerup', (data['start_at_powerup']));
+    self.config.set('powerupOnBoot', (data['powerup_on_boot']))
+    self.config.set('powerupOnPlay', (data['powerup_on_play']))
     self.commandRouter.getUIConfigOnPlugin('system_hardware', 'serialampcontroller', {})
     .then(config => {self.commandRouter.broadcastMessage('pushUiConfig', config)})
     // //configure the serial interface and open it
@@ -272,8 +275,12 @@ serialampcontroller.prototype.activateSocketIO = function () {
         if ((self.volumioStatus == undefined || self.volumioStatus.status == 'stop' || self.volumioStatus.status == 'pause' ) && data.status=='play') {
             //status changed to play
             if (self.ampStatus.power == 'standby') {
-                self.sendCommand('powerOn')
-                .then(_ => self.sendCommand('source',self.config.get('volumioInput')))
+                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] on:pushState: amp in standby');
+                if (self.config.get('powerupOnPlay')) {
+                    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] on:pushState: amp in standby - send powerup after play pressed');
+                    self.sendCommand('powerOn')
+                    .then(_ => self.sendCommand('source',self.config.get('volumioInput')))
+                }
             } else if (self.config.get('switchInputAtPlay')) {
                 self.sendCommand('source',self.config.get('volumioInput'));
             }
@@ -466,10 +473,10 @@ serialampcontroller.prototype.getUIConfig = function() {
 			uiconf.sections[2].content[7].value = (self.config.get('pauseWhenInputChanged')==true);
 			uiconf.sections[2].content[8].value = (self.config.get('switchInputAtPlay')==true);
 			uiconf.sections[2].content[9].value = (self.config.get('startAtPowerup')==true);
-
-             // uiconf.sections[1].content[2].
-			uiconf.sections[3].content[0].value = (self.config.get('logging')==true)
+			uiconf.sections[2].content[10].value = (self.config.get('powerupOnPlay')==true);
+			uiconf.sections[2].content[11].value = (self.config.get('powerupOnBoot')==true);
             // debug_settings section
+			uiconf.sections[3].content[0].value = (self.config.get('logging')==true)
             defer.resolve(uiconf);
         })
         .fail(function(err)
@@ -847,7 +854,8 @@ serialampcontroller.prototype.processResponse = function(response, ...args) {
     switch (response) {
         case "respPowerOn":
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] processResponse: Amp signaled PowerOn. Previous state is: ' + self.ampStatus.power);
-            if (self.ampStatus.Powering == 'up') self.ampStatus.Powering = ''
+            if (self.ampStatus.Powering == 'up') self.ampStatus.Powering = '';
+            if (self.powerupAtVolumioStart) {self.powerupAtVolumioStart = false};   
             setTimeout(() => {
                 self.initVolumeSettings()
                 .then(_ => {
@@ -862,10 +870,15 @@ serialampcontroller.prototype.processResponse = function(response, ...args) {
             break;
         case "respPowerOff":
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] processResponse: Amp signaled PowerOff');            
-            if (self.ampStatus.Powering == 'down') self.ampStatus.Powering = ''
+            if (self.ampStatus.Powering == 'down') self.ampStatus.Powering = '';
             self.socket.emit('pause'); //stops volumio if amp is powered down
             self.messageReceived.emit('power', 'standby');
             self.ampStatus.power='standby';
+            if (self.powerupAtVolumioStart) {
+                if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] processResponse: Sending PowerUp command to Amp after Volumio start');            
+                self.powerupAtVolumioStart = false;   
+                self.sendCommand('powerOn');
+            }
             break;
         case "respMuteOff":
             if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] processResponse: Amp signaled MuteOff');            

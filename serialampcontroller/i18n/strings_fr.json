@@ -40,5 +40,9 @@
     "TCPIP":"TCP/IP",
     "D_TCPIP":"Utilisez le protocole TCP/IP au lieu de l'interface série.",
     "TOAST_ERROR":"Erreur",
-    "TOAST_INVALID_IP":"Adresse-IP invalide"
+    "TOAST_INVALID_IP":"Adresse-IP invalide",
+  "POWERUP_ON_PLAY": "Allumer pendant la lecture",
+  "D_POWERUP_ON_PLAY": "Allumez l'amplificateur lorsque la lecture commence.",
+  "POWERUP_ON_BOOT": "Allumez quand Volumio démarre",
+  "D_POWERUP_ON_BOOT": "Allumez l'amplificateur lorsque le Volumio est démarré."
 }
