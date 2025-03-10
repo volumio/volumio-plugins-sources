@@ -177,10 +177,12 @@ export default class InnertubeResultParser {
   }
 
   static #parseBrowseEndpointResult(data: Partial<IBrowseResponse & ISearchResponse>, originatingEndpoint: Endpoint): PageContent | null {
-    const continuationContents = data.continuation_contents?.filterType(MusicShelfContinuation, MusicPlaylistShelfContinuation, GridContinuation, SectionListContinuation);
+    const continuationContents =
+      data.continuation_contents?.filterType(MusicShelfContinuation, MusicPlaylistShelfContinuation, GridContinuation, SectionListContinuation) ||
+      (data.on_response_received_actions?.[0]?.is(YTNodes.AppendContinuationItemsAction) ? [data.on_response_received_actions[0]] : null);
     if (continuationContents && continuationContents.length > 0) {
       const ccSections = continuationContents.reduce<PageElement.Section[]>((result, cc) => {
-        const continuation = !cc.is(SectionListContinuation) ? cc.continuation : undefined;
+        const continuation = !cc.is(SectionListContinuation, YTNodes.AppendContinuationItemsAction) ? cc.continuation : undefined;
         const parseData: SectionContent = {
           contents: cc.contents,
           continuation
@@ -732,6 +734,13 @@ export default class InnertubeResultParser {
     }
 
     // Continuation
+    if (!data.continuation && dataContents && Array.isArray(dataContents)) {
+      // Sometimes (e.g. in playlist), continuation data is encapsulated in contents
+      const continuationItem = dataContents.find((item) => this.#isYTNode(item) && item.is(YTNodes.ContinuationItem));
+      if (continuationItem && continuationItem.endpoint?.payload?.token) {
+        data.continuation = continuationItem.endpoint.payload.token;
+      }
+    }
     if (data.continuation) {
       let endpointType;
       switch (originatingEndpointType) {
