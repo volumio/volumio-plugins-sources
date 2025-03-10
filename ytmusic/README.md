@@ -6,6 +6,9 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 ## Changelog
 
+1.3.0 (Buster backport)
+- Backport from main v2.3.0
+
 1.2.3 (Buster backport)
 - Backport from main v2.2.3
 
@@ -17,6 +20,20 @@ Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. T
 
 1.2.0 (Buster backport)
 - Backport from main v2.2.0
+
+2.3.0
+- Update YT dependencies
+- Fix continuation sometimes missing from parsed data due to YT changes (e.g. playlist)
+
+2.2.3
+- Fix search sometimes unresponsive
+- Fix synced lyrics not fetched
+
+2.2.2
+- Fix broken playback due to YT changes, again (credit: [#837](https://github.com/LuanRT/YouTube.js/pull/837))
+
+2.2.1
+- Fix broken playback due to YT changes (credit: [#832](https://github.com/LuanRT/YouTube.js/pull/832))
 
 2.2.0
 - Add 'Active Profile' setting for accounts with multiple profiles
