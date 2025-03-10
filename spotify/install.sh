@@ -2,17 +2,17 @@
 
 echo "Installing Go-librespot"
 
-ARCH=$(cat /etc/os-release | grep ^VOLUMIO_ARCH | tr -d 'VOLUMIO_ARCH="')
+ARCH=$(grep ^VOLUMIO_ARCH /etc/os-release | tr -d 'VOLUMIO_ARCH="')
 
-if [ $ARCH = "arm" ]; then
+if [ "$ARCH" = "arm" ]; then
 	ARCH="armv6_rpi"
-elif [ $ARCH = "armv7" ]; then
-        ARCH="armv6"
-elif  [ $ARCH = "amd64" ] || [ $ARCH = "x86_64" ] || [ $ARCH = "x64" ]; then
+elif [ "$ARCH" = "armv7" ]; then
+  ARCH="armv6"
+elif  [ "$ARCH" = "amd64" ] || [ "$ARCH" = "x86_64" ] || [ "$ARCH" = "x64" ]; then
 	ARCH="x86_64"
-elif  [ $ARCH = "i386" ] || [ $ARCH = "i686" ] || [ $ARCH = "x86" ]; then
+elif  [ "$ARCH" = "i386" ] || [ "$ARCH" = "i686" ] || [ "$ARCH" = "x86" ]; then
 	echo "Platform not supported" 
-        exit 1
+  exit 1
 fi
 
 
@@ -43,35 +43,58 @@ if [ -d $VOLSPOTCONNECT2_PATH ]; then
   echo "volspotconnect2 plugin cleared"
 fi
 
-
+## go-librespot
 DAEMON_BASE_URL=https://github.com/devgianlu/go-librespot/releases/download/v
-VERSION=0.0.17.1
+VERSION=0.2.0
 DAEMON_ARCHIVE=go-librespot_linux_$ARCH.tar.gz
 DAEMON_DOWNLOAD_URL=$DAEMON_BASE_URL$VERSION/$DAEMON_ARCHIVE
 DAEMON_DOWNLOAD_PATH=/home/volumio/$DAEMON_ARCHIVE
 
-echo "Dowloading daemon"
+echo "Downloading daemon"
 systemctl stop go-librespot-daemon.service
-wget $DAEMON_DOWNLOAD_URL -O $DAEMON_DOWNLOAD_PATH
-tar xf $DAEMON_DOWNLOAD_PATH -C /usr/bin/ go-librespot
-rm $DAEMON_DOWNLOAD_PATH
+wget "$DAEMON_DOWNLOAD_URL" -O "$DAEMON_DOWNLOAD_PATH"
+tar xf "$DAEMON_DOWNLOAD_PATH" -C /usr/bin/ go-librespot
+rm "$DAEMON_DOWNLOAD_PATH"
 chmod a+x /usr/bin/go-librespot
 
-echo "Creating Start Script"
+echo "Creating directories"
 
-echo "#!/bin/sh
+DAEMON_DATA_PATH=/data/go-librespot/
+
+if [ ! -d $DAEMON_DATA_PATH ]; then
+  echo "Creating data directory"
+  mkdir -p $DAEMON_DATA_PATH
+  chown -R volumio:volumio $DAEMON_DATA_PATH
+fi
+
+if [ -f /tmp/go-librespot-config.yml ] ; then
+  cp /tmp/go-librespot-config.yml \$DAEMON_DATA_PATH/config.yml
+  chown volumio:volumio \$DAEMON_DATA_PATH/config.yml
+  rm /tmp/go-librespot-config.yml
+fi
+
+if [ -f /data/configuration/music_service/spop/spotifycredentials.json ] ; then
+  cp /data/configuration/music_service/spop/spotifycredentials.json \$DAEMON_DATA_PATH/credentials.json
+  chown volumio:volumio \$DAEMON_DATA_PATH/credentials.json
+  rm /data/configuration/music_service/spop/spotifycredentials.json
+fi
+
+
+echo "Creating Start Script"
+cat > /bin/start-go-librespot.sh << EOF
+#!/bin/sh
 
 # Traceback Setting
 export GOTRACEBACK=crash
 
-# Data dir
-DAEMON_DATA_PATH=/data/go-librespot/
-[ -d $DAEMON_DATA_PATH ] || mkdir $DAEMON_DATA_PATH
+echo 'go-librespot daemon starting...'
+/usr/bin/go-librespot --config_dir ${DAEMON_DATA_PATH}
+EOF
 
-echo 'Librespot-go daemon starting...'
-/usr/bin/go-librespot -config_path /tmp/go-librespot-config.yml -credentials_path /data/configuration/music_service/spop/spotifycredentials.json" > /bin/start-go-liberspot.sh
+chmod a+x /bin/start-go-librespot.sh
 
-chmod a+x /bin/start-go-liberspot.sh
+# Delete old misspelled script
+rm -f /bin/start-go-liberspot.sh
 
 
 echo "[Unit]
@@ -79,7 +102,7 @@ Description = go-librespot Daemon
 After = volumio.service
 
 [Service]
-ExecStart=/bin/start-go-liberspot.sh
+ExecStart=/bin/start-go-librespot.sh
 Restart=always
 RestartSec=3
 StandardOutput=syslog

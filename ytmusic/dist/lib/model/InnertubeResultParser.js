@@ -533,7 +533,7 @@ class InnertubeResultParser {
         if (syncedLyricsRawData) {
             if (syncedLyricsRawData.hasKey('lyrics_data') && Reflect.has(syncedLyricsRawData.lyrics_data, 'timedLyricsData')) {
                 const timedLyricsData = syncedLyricsRawData.lyrics_data.timedLyricsData;
-                if (typeof timedLyricsData === 'object') {
+                if (timedLyricsData && typeof timedLyricsData === 'object') {
                     const isValid = Object.values(timedLyricsData).every((line) => typeof line === 'object' &&
                         Reflect.has(line, 'lyricLine') &&
                         Reflect.has(line, 'cueRange') &&
@@ -1383,7 +1383,7 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
         };
     }
     else if (data.hasKey('author')) {
-        if (typeof data.author === 'object' && data.author.name) {
+        if (data.author && typeof data.author === 'object' && data.author.name) {
             const author = {
                 type: 'channel',
                 name: data.author.name
@@ -1639,7 +1639,7 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
     }
     return null;
 }, _InnertubeResultParser_isYTNode = function _InnertubeResultParser_isYTNode(el) {
-    if (typeof el !== 'object') {
+    if (!el || typeof el !== 'object') {
         return false;
     }
     return ['is', 'as', 'hasKey', 'key'].every((fn) => Reflect.has(el, fn) && typeof el[fn] === 'function');

@@ -1,6 +1,6 @@
 {
   "name": "fusiondsp",
-  "version": "1.0.54",
+  "version": "1.0.58",
   "description": "A complete Dsp centre for Volumio3",
   "main": "index.js",
   "repository": "https://github.com/balbuze/volumio-plugins/tree/alsa_modular/plugins/audio_interface/FusionDsp",
@@ -16,13 +16,14 @@
     "os": [
       "buster"
     ],
-    "changelog": "fix AutoEq download",
+    "changelog": "infinite presets",
     "details": "Multimode Dsp, with graphic equalizer, parametric equalizer, FIR filters, Loudness, AutoEq profile for headphone and more",
     "architectures": [
       "armhf",
       "amd64"
     ],
-    "has_alsa_contribution": true
+    "has_alsa_contribution": true,
+    "manually_installed": true
   },
   "dependencies": {
     "child_process": "",

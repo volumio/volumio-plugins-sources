@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Herstart Configuratie"
+  },
+  "SECTION": {
+    "LABEL": "Schema"
+  },
+  "BUTTON": {
+    "SAVE": "Opslaan"
+  },
+  "HOURS": {
+    "DOC": "Selecteer de tijd en dag(en) om Volumio te herstarten",
+    "LABEL": "Uur"
+  },
+  "MINUTES": {
+    "LABEL": "Minuten"
+  },
+  "MONDAY": {
+    "LABEL": "Maandag"
+  },
+  "TUESDAY": {
+    "LABEL": "Dinsdag"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Woensdag"
+  },
+  "THURSDAY": {
+    "LABEL": "Donderdag"
+  },
+  "FRIDAY": {
+    "LABEL": "Vrijdag"
+  },
+  "SATURDAY": {
+    "LABEL": "Zaterdag"
+  },
+  "SUNDAY": {
+    "LABEL": "Zondag"
+  }
+}
+

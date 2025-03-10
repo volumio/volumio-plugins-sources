@@ -1,0 +1,35 @@
+{
+  "name": "mpdoutput",
+  "version": "1.0.5",
+  "description": "Mpd http and Icecast server output plugin for Volumio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Balbuze",
+  "license": "ISC",
+  "volumio_info": {
+    "prettyName": "Mpd http & Icecast output",
+    "icon": "fa-music",
+    "plugin_type": "audio_interface",
+    "os": [
+      "buster"
+    ],
+    "details": "Http and Icecast server output for mpd in Volumio",
+    "changelog": "misc fixes",
+    "architectures": [
+      "amd64",
+      "armhf"
+    ]
+  },
+  "dependencies": {
+    "fs-extra": "^0.28.0",
+    "kew": "^0.7.0",
+    "v-conf": "^1.4.2"
+  },
+  "engines": {
+    "volumio": ">=3",
+    "node": ">=14.15.4"
+  },
+  "repository": "https://github.com/volumio/volumio-plugins-sources"
+}
