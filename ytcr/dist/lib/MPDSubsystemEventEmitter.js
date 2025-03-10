@@ -96,7 +96,6 @@ class MPDSubsystemEventEmitter {
         __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_logger, "f").debug('[ytcr] MPDSubsystemEventEmitter destroyed.');
     }
 }
-exports.default = MPDSubsystemEventEmitter;
 _MPDSubsystemEventEmitter_status = new WeakMap(), _MPDSubsystemEventEmitter_mpdClient = new WeakMap(), _MPDSubsystemEventEmitter_logger = new WeakMap(), _MPDSubsystemEventEmitter_systemEventListener = new WeakMap(), _MPDSubsystemEventEmitter_subsystemEventListeners = new WeakMap(), _MPDSubsystemEventEmitter_instances = new WeakSet(), _MPDSubsystemEventEmitter_assertOK = function _MPDSubsystemEventEmitter_assertOK(c) {
     if (__classPrivateFieldGet(this, _MPDSubsystemEventEmitter_status, "f") === 'destroyed') {
         throw Error('Instance destroyed');
@@ -119,31 +118,34 @@ _MPDSubsystemEventEmitter_status = new WeakMap(), _MPDSubsystemEventEmitter_mpdC
     else {
         __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_subsystemEventListeners, "f")[event].push(wrapped);
     }
-}, _MPDSubsystemEventEmitter_handleSystemEvent = async function _MPDSubsystemEventEmitter_handleSystemEvent(subsystem) {
-    if (__classPrivateFieldGet(this, _MPDSubsystemEventEmitter_status, "f") === 'running') {
-        const listeners = __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_subsystemEventListeners, "f")[subsystem];
-        if (!listeners) {
-            return;
-        }
-        __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_logger, "f").debug(`[ytcr] MPDSubsystemEventEmitter invoking ${listeners.length} SubsystemEventListener callbacks for: ${subsystem}`);
-        for (let i = 0; i < listeners.length; i++) {
-            const l = listeners[i];
-            const event = new SubsystemEvent(subsystem);
-            try {
-                const callbackResult = l.callback(event);
-                if (callbackResult.then !== undefined) {
-                    await callbackResult;
+}, _MPDSubsystemEventEmitter_handleSystemEvent = function _MPDSubsystemEventEmitter_handleSystemEvent(subsystem) {
+    void (async () => {
+        if (__classPrivateFieldGet(this, _MPDSubsystemEventEmitter_status, "f") === 'running') {
+            const listeners = __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_subsystemEventListeners, "f")[subsystem];
+            if (!listeners) {
+                return;
+            }
+            __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_logger, "f").debug(`[ytcr] MPDSubsystemEventEmitter invoking ${listeners.length} SubsystemEventListener callbacks for: ${subsystem}`);
+            for (let i = 0; i < listeners.length; i++) {
+                const l = listeners[i];
+                const event = new SubsystemEvent(subsystem);
+                try {
+                    const callbackResult = l.callback(event);
+                    if (callbackResult.then !== undefined) {
+                        await callbackResult;
+                    }
+                }
+                catch (error) {
+                    __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_logger, "f").debug('[ytcr] MPDSubsystemEventEmitter handleSystemEvent error:', error);
+                }
+                if (!event.propagate) {
+                    __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_logger, "f").debug('[ytcr] SubsystemEvent.propagate: false. Event propagation stopped.');
+                    break;
                 }
             }
-            catch (error) {
-                __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_logger, "f").debug('[ytcr] MPDSubsystemEventEmitter handleSystemEvent error:', error);
-            }
-            if (!event.propagate) {
-                __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_logger, "f").debug('[ytcr] SubsystemEvent.propagate: false. Event propagation stopped.');
-                break;
-            }
+            __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_subsystemEventListeners, "f")[subsystem] = listeners.filter((l) => !l.once);
         }
-        __classPrivateFieldGet(this, _MPDSubsystemEventEmitter_subsystemEventListeners, "f")[subsystem] = listeners.filter((l) => !l.once);
-    }
+    })();
 };
+exports.default = MPDSubsystemEventEmitter;
 //# sourceMappingURL=MPDSubsystemEventEmitter.js.map
