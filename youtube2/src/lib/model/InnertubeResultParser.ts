@@ -1,4 +1,4 @@
-import { type IBrowseResponse, type INextResponse, type ISearchResponse, YTNodes, Misc as YTMisc, Utils as YTUtils, type Helpers as YTHelpers, type IParsedResponse } from 'volumio-youtubei.js';
+import { type IBrowseResponse, type INextResponse, type ISearchResponse, YTNodes, Misc as YTMisc, Utils as YTUtils, Helpers as YTHelpers, type IParsedResponse, ReloadContinuationItemsCommand } from 'volumio-youtubei.js';
 import {type BrowseContinuationEndpoint, type BrowseEndpoint, type EndpointOf, type SearchContinuationEndpoint, type SearchEndpoint, type WatchContinuationEndpoint, type WatchEndpoint} from '../types/Endpoint';
 import type Endpoint from '../types/Endpoint';
 import { EndpointType } from '../types/Endpoint';
@@ -66,7 +66,7 @@ export default class InnertubeResultParser {
 
     if (itemContinuations && itemContinuations.length > 0) {
       const actions = itemContinuations.filter((c) =>
-        c.type === 'appendContinuationItemsAction');
+        c.is(YTNodes.AppendContinuationItemsAction));
       if (actions) {
         const acItems = actions.reduce<YTHelpers.YTNode[]>((result, ac) => {
           if (ac.contents) {
@@ -166,8 +166,8 @@ export default class InnertubeResultParser {
       return null;
     }
 
-    if (!Array.isArray(dataContents) && dataContents.is(YTNodes.TwoColumnSearchResults)) {
-      return this.#parseBrowseEndpointResult({ contents: dataContents.primary_contents });
+    if (!Array.isArray(dataContents) && dataContents.is(YTNodes.TwoColumnSearchResults) && dataContents.primary_contents) {
+      return this.#parseBrowseEndpointResult({ contents: new YTHelpers.SuperParsedResult(dataContents.primary_contents) });
     }
 
     return null;
@@ -181,8 +181,8 @@ export default class InnertubeResultParser {
 
     if (itemContinuations && itemContinuations.length > 0) {
       const actionOrCommands = itemContinuations.filter((c) =>
-        c.type.toLowerCase() === 'AppendContinuationItemsAction'.toLowerCase() ||
-        c.type.toLowerCase() === 'ReloadContinuationItemsCommand'.toLowerCase());
+        c.is(YTNodes.AppendContinuationItemsAction) ||
+        c.is(ReloadContinuationItemsCommand));
       if (actionOrCommands) {
         const sections = actionOrCommands.reduce<PageElement.Section[]>((sections, ac) => {
           const parsedSection = this.#parseContentToSection({ content: this.unwrap(ac.contents) } as SectionContent);
@@ -312,7 +312,7 @@ export default class InnertubeResultParser {
       }
       description = this.unwrap(data.description);
     }
-    // Playlist
+    // Playlist --> Seems to have been replaced with PageHeader, but leave it here for the time being.
     else if (data.is(YTNodes.PlaylistHeader)) {
       type = 'playlist';
       title = this.unwrap(data.title);
@@ -364,12 +364,26 @@ export default class InnertubeResultParser {
         }
       }
     }
-    // Generic PageHeader - need to check if 'channel' type
-    else if (data.is(YTNodes.PageHeader) && metadata?.is(YTNodes.ChannelMetadata)) {
-      type = 'channel';
+    // Generic PageHeader - need to check if 'channel' / 'playlist' type
+    else if (data.is(YTNodes.PageHeader) && metadata?.is(YTNodes.ChannelMetadata, YTNodes.PlaylistMetadata)) {
       title = this.unwrap(data.content?.title?.text);
       description = metadata.description;
-      thumbnail = this.parseThumbnail(metadata.avatar);
+      if (metadata.is(YTNodes.ChannelMetadata)) {
+        type = 'channel';
+        thumbnail = this.parseThumbnail(metadata.avatar);
+        if (metadata.external_id) {
+          endpoint = {
+            type: EndpointType.Browse,
+            payload: {
+              browseId: metadata.external_id
+            }
+          };
+        }
+      }
+      else {
+        type = 'playlist';
+        thumbnail = this.parseThumbnail(data.content?.hero_image?.image);
+      }
       if (data.content?.metadata?.metadata_rows) {
         for (const row of data.content?.metadata?.metadata_rows || []) {
           const parts = row.metadata_parts?.reduce<string[]>((result, { text }) => {
@@ -383,14 +397,6 @@ export default class InnertubeResultParser {
             subtitles.push(...parts);
           }
         }
-      }
-      if (metadata.external_id) {
-        endpoint = {
-          type: EndpointType.Browse,
-          payload: {
-            browseId: metadata.external_id
-          }
-        };
       }
     }
 
@@ -726,6 +732,7 @@ export default class InnertubeResultParser {
         if (vDataTitle && vDataEndpoint) {
           const vidResult: ContentItem.Video = {
             type: 'video',
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             videoId: vData.id || vData.video_id,
             title: vDataTitle,
             author: this.#parseAuthor(vData.author) || undefined,
@@ -809,13 +816,17 @@ export default class InnertubeResultParser {
       case 'LockupView': {
         const lvData = data as YTNodes.LockupView;
         const lvDataTitle = this.unwrap(lvData.metadata?.title);
-        const lvDataEndpoint = this.parseEndpoint(lvData.on_tap_endpoint, EndpointType.Watch);
+        const lvDataEndpoint = this.parseEndpoint(lvData.renderer_context.command_context?.on_tap, EndpointType.Watch);
+        const thumbnailView =
+          lvData.content_image?.is(YTNodes.CollectionThumbnailView) ? lvData.content_image.primary_thumbnail :
+          lvData.content_image?.is(YTNodes.ThumbnailView) ? lvData.content_image :
+          null;
         if (lvDataTitle && lvDataEndpoint) {
           const playlistItem: ContentItem.Playlist = {
             type: 'playlist',
             playlistId: lvData.content_id,
             title: lvDataTitle,
-            thumbnail: this.parseThumbnail(lvData.content_image?.primary_thumbnail?.image) || undefined,
+            thumbnail: this.parseThumbnail(thumbnailView?.image) || undefined,
             endpoint: lvDataEndpoint,
             isMix: true
           }
@@ -824,7 +835,7 @@ export default class InnertubeResultParser {
               for (const row of lvData.metadata.metadata.metadata_rows) {
                 if (row.metadata_parts) {
                   for (const part of row.metadata_parts) {
-                    if (part.text.endpoint && part.text.endpoint.metadata?.page_type === 'WEB_PAGE_TYPE_PLAYLIST') {
+                    if (part.text?.endpoint && part.text.endpoint.metadata?.page_type === 'WEB_PAGE_TYPE_PLAYLIST') {
                       const tryParse = this.parseEndpoint(part.text.endpoint, EndpointType.Browse);
                       if (tryParse) {
                         return tryParse;

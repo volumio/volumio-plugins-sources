@@ -1,4 +1,4 @@
-import { type IBrowseResponse, type INextResponse, type ISearchResponse, YTNodes, Misc as YTMisc, type Helpers as YTHelpers } from 'volumio-youtubei.js';
+import { type IBrowseResponse, type INextResponse, type ISearchResponse, YTNodes, Misc as YTMisc, Helpers as YTHelpers } from 'volumio-youtubei.js';
 import { type BrowseContinuationEndpoint, type BrowseEndpoint, type EndpointOf, type SearchContinuationEndpoint, type SearchEndpoint, type WatchContinuationEndpoint, type WatchEndpoint } from '../types/Endpoint';
 import type Endpoint from '../types/Endpoint';
 import { EndpointType } from '../types/Endpoint';
