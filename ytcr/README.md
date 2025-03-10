@@ -6,8 +6,14 @@ Plugin that enables Volumio to act a YouTube Cast receiver device. Supports cast
 
 # Changelog
 
+1.2.1 (Buster backport)
+- Backport from main branch v2.0.2
+
 1.2.0 (Buster backport)
 - Backport from main branch v2.0.1
+
+2.0.2
+- Update YT dependencies
 
 2.0.1
 - Fix broken playback due to YT changes (credit: [#837](https://github.com/LuanRT/YouTube.js/pull/837))

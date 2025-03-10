@@ -1,6 +1,6 @@
 {
 	"name": "ytcr",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "YouTube Cast Receiver for Volumio.  Supports casting from YouTube and YouTube Music.",
 	"main": "./dist/index.js",
 	"scripts": {
@@ -47,7 +47,7 @@
 	},
 	"dependencies": {
 		"abort-controller": "^3.0.0",
-		"bgutils-js": "^3.0.0",
+		"bgutils-js": "^3.2.0",
 		"jsdom": "^21.1.2",
 		"kew": "^0.7.0",
 		"mpd-api": "^1.1.2",
@@ -57,7 +57,7 @@
 		"semver": "^7.6.2",
 		"string-format": "^2.0.0",
 		"v-conf": "^1.4.2",
-		"volumio-youtubei.js": "file:dep/dep/volumio-youtubei.js-1.3.2-buster.tgz",
+		"volumio-youtubei.js": "file:dep/dep/volumio-youtubei.js-1.4.1-buster.tgz",
 		"yt-cast-receiver": "file:dep/yt-cast-receiver-1.2.4-node14-compat.tgz"
 	}
 }
