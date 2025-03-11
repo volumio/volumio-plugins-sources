@@ -4,6 +4,16 @@ import BG, { type BgConfig } from 'bgutils-js';
 import { JSDOM } from 'jsdom';
 import { type Logger } from 'yt-cast-receiver';
 import ytcr from './YTCRContext';
+import atob from 'atob';
+import btoa from 'btoa';
+
+// Polyfill for BGUtils
+if (globalThis && !globalThis.atob) {
+  globalThis.atob = atob;
+}
+if (globalThis && !globalThis.btoa) {
+  globalThis.btoa = btoa;
+}
 
 export interface InnertubeLoaderGetInstanceResult {
   innertube: Innertube;

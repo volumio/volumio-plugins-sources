@@ -6,6 +6,10 @@ Plugin that enables Volumio to act a YouTube Cast receiver device. Supports cast
 
 # Changelog
 
+1.2.2 (Buster backport)
+- Update `yt-cast-receiver` lib
+- Polyfill `atob` / `btoa`
+
 1.2.1 (Buster backport)
 - Backport from main branch v2.0.2
 

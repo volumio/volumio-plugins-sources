@@ -20,6 +20,15 @@ const volumio_youtubei_js_1 = __importDefault(require("volumio-youtubei.js"));
 const bgutils_js_1 = __importDefault(require("bgutils-js"));
 const jsdom_1 = require("jsdom");
 const YTCRContext_1 = __importDefault(require("./YTCRContext"));
+const atob_1 = __importDefault(require("atob"));
+const btoa_1 = __importDefault(require("btoa"));
+// Polyfill for BGUtils
+if (globalThis && !globalThis.atob) {
+    globalThis.atob = atob_1.default;
+}
+if (globalThis && !globalThis.btoa) {
+    globalThis.btoa = btoa_1.default;
+}
 var Stage;
 (function (Stage) {
     Stage["Init"] = "1 - Init";
