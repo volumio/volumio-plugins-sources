@@ -674,10 +674,11 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
     }
     return null;
 }, _InnertubeResultParser_parseBrowseEndpointResult = function _InnertubeResultParser_parseBrowseEndpointResult(data, originatingEndpoint) {
-    const continuationContents = data.continuation_contents?.filterType(volumio_youtubei_js_1.MusicShelfContinuation, volumio_youtubei_js_1.MusicPlaylistShelfContinuation, volumio_youtubei_js_1.GridContinuation, volumio_youtubei_js_1.SectionListContinuation);
+    const continuationContents = data.continuation_contents?.filterType(volumio_youtubei_js_1.MusicShelfContinuation, volumio_youtubei_js_1.MusicPlaylistShelfContinuation, volumio_youtubei_js_1.GridContinuation, volumio_youtubei_js_1.SectionListContinuation) ||
+        (data.on_response_received_actions?.[0]?.is(volumio_youtubei_js_1.YTNodes.AppendContinuationItemsAction) ? [data.on_response_received_actions[0]] : null);
     if (continuationContents && continuationContents.length > 0) {
         const ccSections = continuationContents.reduce((result, cc) => {
-            const continuation = !cc.is(volumio_youtubei_js_1.SectionListContinuation) ? cc.continuation : undefined;
+            const continuation = !cc.is(volumio_youtubei_js_1.SectionListContinuation, volumio_youtubei_js_1.YTNodes.AppendContinuationItemsAction) ? cc.continuation : undefined;
             const parseData = {
                 contents: cc.contents,
                 continuation
@@ -1174,6 +1175,13 @@ _a = InnertubeResultParser, _InnertubeResultParser_parseWatchContinuationEndpoin
         section.items = filteredItems;
     }
     // Continuation
+    if (!data.continuation && dataContents && Array.isArray(dataContents)) {
+        // Sometimes (e.g. in playlist), continuation data is encapsulated in contents
+        const continuationItem = dataContents.find((item) => __classPrivateFieldGet(this, _a, "m", _InnertubeResultParser_isYTNode).call(this, item) && item.is(volumio_youtubei_js_1.YTNodes.ContinuationItem));
+        if (continuationItem && continuationItem.endpoint?.payload?.token) {
+            data.continuation = continuationItem.endpoint.payload.token;
+        }
+    }
     if (data.continuation) {
         let endpointType;
         switch (originatingEndpointType) {
