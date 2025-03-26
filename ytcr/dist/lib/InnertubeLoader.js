@@ -76,8 +76,8 @@ class InnertubeLoader {
         if (!__classPrivateFieldGet(this, _InnertubeLoader_innertube, "f")) {
             return;
         }
-        const region = YTCRContext_1.default.getConfigValue('region', 'US');
-        const language = YTCRContext_1.default.getConfigValue('language', 'en');
+        const region = YTCRContext_1.default.getConfigValue('region');
+        const language = YTCRContext_1.default.getConfigValue('language');
         __classPrivateFieldGet(this, _InnertubeLoader_innertube, "f").session.context.client.gl = region;
         __classPrivateFieldGet(this, _InnertubeLoader_innertube, "f").session.context.client.hl = language;
     }

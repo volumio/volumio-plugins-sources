@@ -210,7 +210,7 @@ class VideoLoader {
                 streamInfo = await __classPrivateFieldGet(this, _VideoLoader_instances, "m", _VideoLoader_chooseFormat).call(this, innertubeVideoInfo);
             }
             else if (innertubeVideoInfo.streaming_data?.hls_manifest_url) {
-                const targetQuality = YTCRContext_js_1.default.getConfigValue('liveStreamQuality', 'auto');
+                const targetQuality = YTCRContext_js_1.default.getConfigValue('liveStreamQuality');
                 streamInfo = {
                     url: await __classPrivateFieldGet(this, _VideoLoader_instances, "m", _VideoLoader_getStreamUrlFromHLS).call(this, innertubeVideoInfo.streaming_data.hls_manifest_url, targetQuality)
                 };
@@ -268,8 +268,8 @@ _VideoLoader_logger = new WeakMap(), _VideoLoader_defaultInnertubeLoader = new W
     const preferredFormat = {
         ...BEST_AUDIO_FORMAT
     };
-    const prefetch = YTCRContext_js_1.default.getConfigValue('prefetch', true);
-    const preferOpus = prefetch && YTCRContext_js_1.default.getConfigValue('preferOpus', false);
+    const prefetch = YTCRContext_js_1.default.getConfigValue('prefetch');
+    const preferOpus = prefetch && YTCRContext_js_1.default.getConfigValue('preferOpus');
     if (preferOpus) {
         __classPrivateFieldGet(this, _VideoLoader_logger, "f").debug('[ytcr] Preferred format is Opus');
         preferredFormat.format = 'opus';

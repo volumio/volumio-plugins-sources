@@ -82,18 +82,18 @@ class ControllerYTCR implements NowPlayingPluginSupport {
           otherUIConf ] = uiconf.sections;
         const receiverRunning = this.#receiver.status === Constants.STATUSES.RUNNING;
 
-        const port = ytcr.getConfigValue('port', 8098);
-        const enableAutoplayOnConnect = ytcr.getConfigValue('enableAutoplayOnConnect', true);
-        const resetPlayerOnDisconnect = ytcr.getConfigValue('resetPlayerOnDisconnect', Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED);
-        const debug = ytcr.getConfigValue('debug', false);
-        const bindToIf = ytcr.getConfigValue('bindToIf', '');
+        const port = ytcr.getConfigValue('port');
+        const enableAutoplayOnConnect = ytcr.getConfigValue('enableAutoplayOnConnect');
+        const resetPlayerOnDisconnect = ytcr.getConfigValue('resetPlayerOnDisconnect');
+        const debug = ytcr.getConfigValue('debug');
+        const bindToIf = ytcr.getConfigValue('bindToIf');
         const i18n = {
-          region: ytcr.getConfigValue('region', 'US'),
-          language: ytcr.getConfigValue('language', 'en')
+          region: ytcr.getConfigValue('region'),
+          language: ytcr.getConfigValue('language')
         };
-        const prefetch = ytcr.getConfigValue('prefetch', true);
-        const preferOpus = ytcr.getConfigValue('preferOpus', false);
-        const liveStreamQuality = ytcr.getConfigValue('liveStreamQuality', 'auto');
+        const prefetch = ytcr.getConfigValue('prefetch');
+        const preferOpus = ytcr.getConfigValue('preferOpus');
+        const liveStreamQuality = ytcr.getConfigValue('liveStreamQuality');
         const liveStreamQualityOptions = otherUIConf.content[2].options;
 
         const availableIf = utils.getNetworkInterfaces();
@@ -185,29 +185,34 @@ class ControllerYTCR implements NowPlayingPluginSupport {
 
     ytcr.init(this.#context, this.#config);
 
+    if (this.#dataStore.isExpired()) {
+      this.#logger.info('[ytcr] Data store TTL expired - clearing it...');
+      this.#dataStore.clear();
+    }
+
     this.#volumeControl = new VolumeControl(this.#commandRouter, this.#logger);
 
     const playerConfig = {
       mpd: this.#getMpdConfig(),
       volumeControl: this.#volumeControl,
       videoLoader: new VideoLoader(this.#logger),
-      prefetch: ytcr.getConfigValue('prefetch', true)
+      prefetch: ytcr.getConfigValue('prefetch')
     };
     this.#player = new MPDPlayer(playerConfig);
 
-    const bindToIf = ytcr.getConfigValue('bindToIf', '');
+    const bindToIf = ytcr.getConfigValue('bindToIf');
     const receiverOptions: YouTubeCastReceiverOptions = {
       dial: {
-        port: ytcr.getConfigValue('port', 8098),
+        port: ytcr.getConfigValue('port'),
         bindToInterfaces: utils.hasNetworkInterface(bindToIf) ? [ bindToIf ] : undefined
       },
       app: {
-        enableAutoplayOnConnect: ytcr.getConfigValue('enableAutoplayOnConnect', true),
-        resetPlayerOnDisconnectPolicy: ytcr.getConfigValue('resetPlayerOnDisconnect', Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED)
+        enableAutoplayOnConnect: ytcr.getConfigValue('enableAutoplayOnConnect'),
+        resetPlayerOnDisconnectPolicy: ytcr.getConfigValue('resetPlayerOnDisconnect')
       },
       dataStore: this.#dataStore,
       logger: this.#logger,
-      logLevel: ytcr.getConfigValue('debug', false) ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO
+      logLevel: ytcr.getConfigValue('debug') ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO
     };
     const deviceInfo = ytcr.getDeviceInfo();
     if (deviceInfo.name) {
@@ -345,13 +350,13 @@ class ControllerYTCR implements NowPlayingPluginSupport {
   }
 
   configSaveConnection(data: any) {
-    const oldPort = ytcr.getConfigValue('port', 8098);
+    const oldPort = ytcr.getConfigValue('port');
     const port = parseInt(data['port'], 10);
     if (port < 1024 || port > 65353) {
       ytcr.toast('error', ytcr.getI18n('YTCR_INVALID_PORT'));
       return;
     }
-    const oldBindToIf = ytcr.getConfigValue('bindToIf', '');
+    const oldBindToIf = ytcr.getConfigValue('bindToIf');
     const bindToIf = data['bindToIf'].value;
 
     if (oldPort !== port || oldBindToIf !== bindToIf) {
@@ -370,8 +375,8 @@ class ControllerYTCR implements NowPlayingPluginSupport {
   }
 
   configConfirmSaveConnection(data: any) {
-    this.#config.set('port', data['port']);
-    this.#config.set('bindToIf', data['bindToIf']);
+    ytcr.setConfigValue('port', data['port']);
+    ytcr.setConfigValue('bindToIf', data['bindToIf']);
     this.restart().then(() => {
       this.refreshUIConfig();
       ytcr.toast('success', ytcr.getI18n('YTCR_RESTARTED'));
@@ -397,12 +402,12 @@ class ControllerYTCR implements NowPlayingPluginSupport {
   }
 
   async configSaveOther(data: any) {
-    this.#config.set('prefetch', data['prefetch']);
-    this.#config.set('preferOpus', data['preferOpus']);
-    this.#config.set('liveStreamQuality', data['liveStreamQuality'].value);
-    this.#config.set('enableAutoplayOnConnect', data['enableAutoplayOnConnect']);
-    this.#config.set('resetPlayerOnDisconnect', data['resetPlayerOnDisconnect'].value);
-    this.#config.set('debug', data['debug']);
+    ytcr.setConfigValue('prefetch', data['prefetch']);
+    ytcr.setConfigValue('preferOpus', data['preferOpus']);
+    ytcr.setConfigValue('liveStreamQuality', data['liveStreamQuality'].value);
+    ytcr.setConfigValue('enableAutoplayOnConnect', data['enableAutoplayOnConnect']);
+    ytcr.setConfigValue('resetPlayerOnDisconnect', data['resetPlayerOnDisconnect'].value);
+    ytcr.setConfigValue('debug', data['debug']);
 
     if (this.#receiver) {
       this.#receiver.setLogLevel(data['debug'] ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO);

@@ -18,6 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const string_format_1 = __importDefault(require("string-format"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const Utils_1 = require("./Utils");
+const PluginConfig_1 = require("./PluginConfig");
 class YTCRContext {
     constructor() {
         _YTCRContext_instances.add(this);
@@ -55,15 +56,16 @@ class YTCRContext {
     getDeviceInfo() {
         return __classPrivateFieldGet(this, _YTCRContext_pluginContext, "f").coreCommand.getId();
     }
-    getConfigValue(key, defaultValue = undefined, json = false) {
+    getConfigValue(key) {
+        const schema = PluginConfig_1.PLUGIN_CONFIG_SCHEMA[key];
         if (__classPrivateFieldGet(this, _YTCRContext_pluginConfig, "f").has(key)) {
             const val = __classPrivateFieldGet(this, _YTCRContext_pluginConfig, "f").get(key);
-            if (json) {
+            if (schema.json) {
                 try {
                     return JSON.parse(val);
                 }
                 catch (_error) {
-                    return defaultValue;
+                    return schema.defaultValue;
                 }
             }
             else {
@@ -71,14 +73,15 @@ class YTCRContext {
             }
         }
         else {
-            return defaultValue;
+            return schema.defaultValue;
         }
     }
     deleteConfigValue(key) {
         __classPrivateFieldGet(this, _YTCRContext_pluginConfig, "f").delete(key);
     }
-    setConfigValue(key, value, json = false) {
-        __classPrivateFieldGet(this, _YTCRContext_pluginConfig, "f").set(key, json ? JSON.stringify(value) : value);
+    setConfigValue(key, value) {
+        const schema = PluginConfig_1.PLUGIN_CONFIG_SCHEMA[key];
+        __classPrivateFieldGet(this, _YTCRContext_pluginConfig, "f").set(key, schema.json ? JSON.stringify(value) : value);
     }
     getMpdPlugin() {
         return __classPrivateFieldGet(this, _YTCRContext_instances, "m", _YTCRContext_getSingleton).call(this, 'mpdPlugin', () => this.getMusicServicePlugin('mpd'));

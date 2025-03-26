@@ -1,3 +1,4 @@
+import { type PluginConfigKey, type PluginConfigValue } from './PluginConfig';
 interface DeviceInfo {
     name: string;
     uuid: string;
@@ -21,9 +22,9 @@ declare class YTCRContext {
     init(pluginContext: any, pluginConfig: any): void;
     toast(type: string, message: string, title?: string): void;
     getDeviceInfo(): DeviceInfo;
-    getConfigValue(key: string, defaultValue?: any, json?: boolean): any;
-    deleteConfigValue(key: string): void;
-    setConfigValue(key: string, value: any, json?: boolean): void;
+    getConfigValue<T extends PluginConfigKey>(key: T): PluginConfigValue<T>;
+    deleteConfigValue(key: PluginConfigKey): void;
+    setConfigValue<T extends PluginConfigKey>(key: T, value: PluginConfigValue<T>): void;
     getMpdPlugin(): any;
     getMusicServicePlugin(name: string): any;
     getPluginInfo(name: string, category?: string): Promise<PluginInfo | null>;

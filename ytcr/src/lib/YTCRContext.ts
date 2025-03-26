@@ -1,6 +1,7 @@
 import format from 'string-format';
 import fs from 'fs-extra';
 import { kewToJSPromise } from './Utils';
+import { PLUGIN_CONFIG_SCHEMA, type PluginConfigKey, type PluginConfigValue } from './PluginConfig';
 
 interface DeviceInfo {
   name: string;
@@ -66,15 +67,16 @@ class YTCRContext {
     return this.#pluginContext.coreCommand.getId();
   }
 
-  getConfigValue(key: string, defaultValue: any = undefined, json = false): any {
+  getConfigValue<T extends PluginConfigKey>(key: T): PluginConfigValue<T> {
+    const schema = PLUGIN_CONFIG_SCHEMA[key];
     if (this.#pluginConfig.has(key)) {
       const val = this.#pluginConfig.get(key);
-      if (json) {
+      if (schema.json) {
         try {
           return JSON.parse(val);
         }
         catch (_error: unknown) {
-          return defaultValue;
+          return schema.defaultValue;
         }
       }
       else {
@@ -82,16 +84,17 @@ class YTCRContext {
       }
     }
     else {
-      return defaultValue;
+      return schema.defaultValue;
     }
   }
 
-  deleteConfigValue(key: string) {
+  deleteConfigValue(key: PluginConfigKey) {
     this.#pluginConfig.delete(key);
   }
 
-  setConfigValue(key: string, value: any, json = false) {
-    this.#pluginConfig.set(key, json ? JSON.stringify(value) : value);
+  setConfigValue<T extends PluginConfigKey>(key: T, value: PluginConfigValue<T>) {
+    const schema = PLUGIN_CONFIG_SCHEMA[key];
+    this.#pluginConfig.set(key, schema.json ? JSON.stringify(value) : value);
   }
 
   getMpdPlugin(): any {
