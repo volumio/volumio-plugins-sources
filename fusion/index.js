@@ -180,7 +180,7 @@ FusionDsp.prototype.createCamillaWebsocket = function () {
       };
 
       self.connection.onerror = function (error) {
-        self.logger.error(logPrefix+'WebSocket error:', error);
+        self.logger.error(logPrefix + 'WebSocket error:', error);
       };
 
       self.connection.onclose = function () {
@@ -192,7 +192,7 @@ FusionDsp.prototype.createCamillaWebsocket = function () {
     if (self.connection && self.connection.readyState === WebSocket.OPEN) {
       self.connection.send(data);
     } else {
-      self.logger.error(logPrefix+'WebSocket is not connected');
+      self.logger.error(logPrefix + 'WebSocket is not connected');
     }
   };
 
@@ -1476,7 +1476,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
       }
 
       //-------------section 3-----------savepreset
-    
+
 
       uiconf.sections[3].content[0].value = self.config.get('renpreset');
 
@@ -3998,7 +3998,7 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
   // Check if the file already exists
   if (fs.existsSync(filePath)) {
     var responseData = {
-      title:  `A file ${dynamicKey} already exists!`,//self.commandRouter.getI18nString('SAMPLE_WARNING_TITLE'),
+      title: `A file ${dynamicKey} already exists!`,//self.commandRouter.getI18nString('SAMPLE_WARNING_TITLE'),
       message: "Overwrite this file?",//self.commandRouter.getI18nString('SAMPLE_WARNING_MESS'),
       size: 'lg',
       buttons: [
@@ -4131,16 +4131,16 @@ FusionDsp.prototype.usethispreset = function (data) {
       callback(null, jsonData[key]);
     });
   }
-  self.logger.info(logPrefix+"Value for usedpreset: ", usedpreset);
+  self.logger.info(logPrefix + "Value for usedpreset: ", usedpreset);
 
   let presetforkey = "parameters";
 
   readValueFromJsonFile(usedpreset, presetforkey, (err, value) => {
     if (err) {
-      self.logger.error(logPrefix+"Error reading JSON file:", err);
+      self.logger.error(logPrefix + "Error reading JSON file:", err);
     }// else {
     try {
-      self.logger.error(logPrefix+"Value reading JSON file:", value);
+      self.logger.error(logPrefix + "Value reading JSON file:", value);
 
       const eqrx = value.geq15;
       const x2eqrx = value.x2geq15;
@@ -4159,7 +4159,7 @@ FusionDsp.prototype.usethispreset = function (data) {
         }
         self.config.set('mergedeq', test);
         self.config.set("nbreq", 15);
-       
+
       } else if (selectedsp == '2XEQ15') {
         geq15 = eqrx.split(',')
         x2geq15 = x2eqrx.split(',')
@@ -4182,7 +4182,7 @@ FusionDsp.prototype.usethispreset = function (data) {
         self.config.set("nbreq", 30);
 
       }
-      
+
       if ((selectedsp == 'EQ15') || (selectedsp == '2XEQ15')) {
         self.config.set('geq15', eqrx)
         self.config.set('x2geq15', x2eqrx);
@@ -4202,7 +4202,7 @@ FusionDsp.prototype.usethispreset = function (data) {
         self.config.set("attenuationl", value.attenuationl);
         self.config.set("attenuationr", value.attenuationr);
       }
-     
+
       let state4preset = state4presetx;
 
       self.logger.info(logPrefix + ' value state4preset ' + state4preset)
@@ -4804,28 +4804,28 @@ FusionDsp.prototype.playToolsFile = function (data) {
 
 FusionDsp.prototype.sendvolumelevel = function () {
   const self = this;
-  let data = self.commandRouter.volumioGetState();
+  // let data = self.commandRouter.volumioGetState();
 
-  // self.socket.on('pushState', function (data) {
-  let loudnessVolumeThreshold = self.config.get('loudnessthreshold')
-  let loudnessMaxGain = 23 //15
-  let loudnessLowThreshold = 5 //10
-  let loudnessRange = loudnessVolumeThreshold - loudnessLowThreshold
-  let ratio = loudnessMaxGain / loudnessRange
-  let loudnessGain
+  self.socket.on('pushState', function (data) {
+    let loudnessVolumeThreshold = self.config.get('loudnessthreshold')
+    let loudnessMaxGain = 23 //15
+    let loudnessLowThreshold = 5 //10
+    let loudnessRange = loudnessVolumeThreshold - loudnessLowThreshold
+    let ratio = loudnessMaxGain / loudnessRange
+    let loudnessGain
 
-  if (data.volume > loudnessLowThreshold && data.volume < loudnessVolumeThreshold) {
-    loudnessGain = ratio * (loudnessVolumeThreshold - data.volume)
-  } else if (data.volume <= loudnessLowThreshold) {
-    loudnessGain = loudnessMaxGain
-  } else if (data.volume >= loudnessVolumeThreshold) {
-    loudnessGain = 0
-  }
+    if (data.volume > loudnessLowThreshold && data.volume < loudnessVolumeThreshold) {
+      loudnessGain = ratio * (loudnessVolumeThreshold - data.volume)
+    } else if (data.volume <= loudnessLowThreshold) {
+      loudnessGain = loudnessMaxGain
+    } else if (data.volume >= loudnessVolumeThreshold) {
+      loudnessGain = 0
+    }
 
-  self.logger.info(logPrefix + ' volume level for loudness ' + data.volume + ' gain applied ' + Number.parseFloat(loudnessGain).toFixed(2))
-  self.config.set('loudnessGain', Number.parseFloat(loudnessGain).toFixed(2))
-  self.createCamilladspfile()
-  //})
+    self.logger.info(logPrefix + ' volume level for loudness ' + data.volume + ' gain applied ' + Number.parseFloat(loudnessGain).toFixed(2))
+    self.config.set('loudnessGain', Number.parseFloat(loudnessGain).toFixed(2))
+    self.createCamilladspfile()
+  })
 }
 
 FusionDsp.prototype.reportFusionEnabled = function () {
