@@ -70,7 +70,7 @@ if [ $cpu = "armv7l" ] || [ $cpu = "aarch64" ]
 then
 cd /tmp
 wget https://github.com/HEnquist/camilladsp/releases/download/v1.0.2/camilladsp-linux-armv7.tar.gz
-tar -xvf camilladsp-linux-armv7.tar.gz -C /tmp
+tar -xf camilladsp-linux-armv7.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp
@@ -86,7 +86,7 @@ elif [ $cpu = "x86_64" ]
 then
 cd /tmp
 wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/bin/camilladsp-linux-amd64-1.0.2.tar.gz
-tar -xvf camilladsp-linux-amd64-1.0.2.tar.gz -C /tmp
+tar -xf camilladsp-linux-amd64-1.0.2.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp
@@ -102,7 +102,7 @@ elif [ $cpu = "armv6l" ]
 then
 cd /tmp
 wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/bin/camilladsp-linux-armv6l.tar.gz
-tar -xvf camilladsp-linux-armv6l.tar.gz -C /tmp
+tar -xf camilladsp-linux-armv6l.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp
