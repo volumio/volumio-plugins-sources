@@ -72,6 +72,11 @@
         "title": "Radio Paradise Rock Mix (MP3 192k)",
         "uri": "webrp/11",
         "url": "http://stream.radioparadise.com/rock-192"
+      },
+      {
+        "title": "Radio Paradise Serenity (AAC 64k)",
+        "uri": "webrp/12",
+        "url": "http://stream.radioparadise.com/serenity"
       }
     ]
   }
