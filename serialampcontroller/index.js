@@ -817,7 +817,7 @@ serialampcontroller.prototype.sendCommand  = function(...cmd) {
                     var re = new RegExp("#".repeat(count));
                     cmdString = cmdString.replace(re,parseInt(cmd[1]).toString().padStart(count,"0"));
                 } else {
-                    self.logger.info('[SERIALAMPCONTROLLER] sendCommand: volValue command string has no ## characters. Do not know how to send volume value.')
+                    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] sendCommand: volValue command string has no ## characters. Do not know how to send volume value.')
                     cmdString = '';
                 }
                 break;
@@ -832,7 +832,7 @@ serialampcontroller.prototype.sendCommand  = function(...cmd) {
                 break;
             case  "source": 
                 if (cmd[1]!=='...') {
-                    self.logger.info('[SERIALAMPCONTROLLER] sendCommand: switch to source: ' + cmd[1]);
+                    if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] sendCommand: switch to source: ' + cmd[1]);
                     cmdString =  self.selectedAmp.sourceCmd[self.selectedAmp.sources.indexOf(cmd[1])];
                 }
                 break;

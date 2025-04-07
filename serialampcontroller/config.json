@@ -1,7 +1,7 @@
 {
     "logging": {
         "type": "boolean",
-        "value": true
+        "value": false
     },
     "serialInterfaceDev": {
         "type": "string",
@@ -37,15 +37,15 @@
     },
     "pauseWhenMuted": {
         "type": "boolean",
-        "value": true
+        "value": false
     },
     "pauseWhenInputChanged": {
         "type": "boolean",
-        "value": true
+        "value": false
     },
     "switchInputAtPlay": {
         "type": "boolean",
-        "value": true
+        "value": false
     },
     "startAtPowerup": {
         "type": "boolean",
@@ -61,7 +61,7 @@
     },
     "powerupOnBoot": {
         "type": "boolean",
-        "value": true
+        "value": false
     },
     "powerupOnPlay": {
         "type": "boolean",
