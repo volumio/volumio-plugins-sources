@@ -49,7 +49,8 @@ serialampcontroller.prototype.onStart = function() {
     self.ampStatus.mute = false;
     self.serialDevices = {};
     self.portOpen = false;
-    self.status = 'stop'
+    self.status = 'stop';
+    self.autoReconnect = false;
     self.ampStatus.power='off';
     self.powerupAtVolumioStart = self.config.get('powerupOnBoot');
 
@@ -647,7 +648,9 @@ serialampcontroller.prototype.onTcpClose = function(){
     var self = this;
     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] onTcpClose: Port has closed, removing listeners.');
     //try to reconnect
-    self.reconnectTCP();
+    if (self.autoReconnect) {
+        self.reconnectTCP();
+    };
 }
 
 serialampcontroller.prototype.closePort = function () {
@@ -660,6 +663,7 @@ serialampcontroller.prototype.closePort = function () {
             self.port.unpipe();
             self.port.resume();
             self.port.removeAllListeners();
+            self.autoReconnect = false;
             self.waitingForReconnect = false;
             self.port.end(() => {
                 if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] closePorts: closed TCP/IP socket');     
@@ -721,7 +725,9 @@ serialampcontroller.prototype.onTcpError = function(err){
     if(err.message.indexOf('ECONNREFUSED') > -1) {
         self.logger.error('[SERIALAMPCONTROLLER] onTcpError: Connection refused, trying to reconnect in 5 seconds.');
         //do recconect
-        self.reconnectTCP();
+        if (self.autoReconnect) {
+          self.reconnectTCP();
+        }
     } else {
         self.logger.error('[SERIALAMPCONTROLLER] onTcpError: Port generated an error: ' + err);
     }
@@ -746,7 +752,7 @@ serialampcontroller.prototype.openTcpIp = function (){
     if ((self.config.get('tcpip')!==undefined) && 
         (self.config.get('tcpip')==true) &&
         (Object.keys(self.selectedAmp).length > 0))  {
-            //SerialPort and Amp selected, now check if all settings are defined
+            //port and Amp selected, now check if all settings are defined
             if (self.selectedAmp.interfaces!==undefined &&
                     self.selectedAmp.interfaces.includes('TCP/IP') &&
                     self.selectedAmp.tcpport!==undefined) {
@@ -760,6 +766,7 @@ serialampcontroller.prototype.openTcpIp = function (){
                     if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] openTcpIp: Connected to: ' + self.netOptions.ip + ':' + self.netOptions.port);
                 });
                 self.port.setKeepAlive(true, 1000);
+                self.autoReconnect = true;
                 if (self.port.listenerCount('close') == 0) self.port.on('close', self.onTcpClose.bind(self));
                 if (self.port.listenerCount('error') == 0) self.port.on('error', self.onTcpError.bind(self));
                 if (self.port.listenerCount('ready') == 0) self.port.on('ready', self.connectTcpIp.bind(self));

@@ -1,2 +1,70 @@
-
-{"logging":{"type":"boolean","value":true},"serialInterfaceDev":{"type":"string","value":"undefined"},"ampType":{"type":"string","value":"Rotel - RA-1592 SW >=V1.52"},"volumioInput":{"type":"string","value":"..."},"minVolume":{"type":"number","value":0},"maxVolume":{"type":"number","value":35},"startupVolume":{"type":"number","value":10},"volumeSteps":{"type":"number","value":1},"mapTo100":{"type":"boolean","value":false},"pauseWhenMuted":{"type":"boolean","value":true},"pauseWhenInputChanged":{"type":"boolean","value":true},"switchInputAtPlay":{"type":"boolean","value":true},"startAtPowerup":{"type":"boolean","value":false},"tcpip":{"type":"boolean","value":true},"ipaddress":{"type":"string","value":"127.0.0.1"},"powerupOnBoot":{"type":"boolean","value":true},"powerupOnPlay":{"type":"boolean","value":false}}
+{
+    "logging": {
+        "type": "boolean",
+        "value": true
+    },
+    "serialInterfaceDev": {
+        "type": "string",
+        "value": "..."
+    },
+    "ampType": {
+        "type": "string",
+        "value": "..."
+    },
+    "volumioInput": {
+        "type": "string",
+        "value": "..."
+    },
+    "minVolume": {
+        "type": "number",
+        "value": 0
+    },
+    "maxVolume": {
+        "type": "number",
+        "value": 35
+    },
+    "startupVolume": {
+        "type": "number",
+        "value": 10
+    },
+    "volumeSteps": {
+        "type": "number",
+        "value": 1
+    },
+    "mapTo100": {
+        "type": "boolean",
+        "value": false
+    },
+    "pauseWhenMuted": {
+        "type": "boolean",
+        "value": true
+    },
+    "pauseWhenInputChanged": {
+        "type": "boolean",
+        "value": true
+    },
+    "switchInputAtPlay": {
+        "type": "boolean",
+        "value": true
+    },
+    "startAtPowerup": {
+        "type": "boolean",
+        "value": false
+    },
+    "tcpip": {
+        "type": "boolean",
+        "value": false
+    },
+    "ipaddress": {
+        "type": "string",
+        "value": "127.0.0.1"
+    },
+    "powerupOnBoot": {
+        "type": "boolean",
+        "value": true
+    },
+    "powerupOnPlay": {
+        "type": "boolean",
+        "value": false
+    }
+}

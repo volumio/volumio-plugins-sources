@@ -103,7 +103,9 @@
           "pause_when_muted",
           "pause_when_input_changed",
           "switch_input_at_play",
-          "start_at_powerup"
+          "start_at_powerup",
+          "powerup_on_play",
+          "powerup_on_boot"
         ]
       },
       "content":[
@@ -184,6 +186,20 @@
           "element":"switch",
           "label": "TRANSLATE.START_AT_POWERUP",
           "doc": "TRANSLATE.D_START_AT_POWERUP",
+          "value": false
+        },
+        {
+          "id":"powerup_on_play",
+          "element":"switch",
+          "label": "TRANSLATE.POWERUP_ON_PLAY",
+          "doc": "TRANSLATE.D_POWERUP_ON_PLAY",
+          "value": false
+        },
+        {
+          "id":"powerup_on_boot",
+          "element":"switch",
+          "label": "TRANSLATE.POWERUP_ON_BOOT",
+          "doc": "TRANSLATE.D_POWERUP_ON_BOOT",
           "value": false
         }
       ]
