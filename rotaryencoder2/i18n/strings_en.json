@@ -26,6 +26,7 @@
     "SEEK":"Seek in title",
     "SCROLL":"Scroll",
     "EMIT":"Emit Websocket Message",
+    "TOGGLEFUSION":"Toggle Fusion DSP Enable/Disable",
     "SOCKCMDCCW":"Command CCW",
     "SOCKDATACCW":"Data CCW",
     "SOCKCMDCW":"Command CW",
@@ -67,7 +68,9 @@
     "RESTARTAPP":"Restart Application",
     "DUMPLOG":"Dump logfile",
     "LOGGING":"Logging",
+    "LOGGINGJSON":"Log JSON Objects",
     "D_LOGGING":"Switch the output of log messages on or off. Error messages are always logged.",
+    "D_LOGGINGJSON":"Activate logging of JSON objects. Makes logs significantly longer.",
     "TOAST_START_SUCCESS":"Plugin successfully started.",
     "TOAST_STOP_SUCCESS":"Plugin successfully stopped.",
     "TOAST_START_FAIL":"Plugin failed to start.",
@@ -82,6 +85,11 @@
     "TOAST_NEEDS_INTEGER":"GPIO Pins must be Integers.",
     "TOAST_PINS_DIFFERENT":"GPIO Pins for A/B/Button must be different.",
     "TOAST_PINS_BLOCKED":"Pins already used in another Encoder.",
-    "TOAST_NO_TYPE":"Please select 'Periods per tick'!"
+    "TOAST_NO_TYPE":"Please select 'Periods per tick'!",
+    "TOAST_KILL_HANDLE_FAIL":"Could not deactivate Rotary Resources. Correct GPIOs selected? Please correct and restart system!",
+    "TOAST_ERR_FROM_STREAM":"Error from Stream of Rotary, please check Hardware and GPIO Settings.",
+    "TOAST_ERR_ACT_ROTARY_FAILED":"Configuration of rotary encoder failed.",
+    "TOAST_ERR_ADD_OVERLAY_FAILED":"Failed to add Overlay: ",
+    "TOAST_ERR_ATTACH_LISTENER_FAILED": "Failed to attach Listener for DTO"
   }
 }

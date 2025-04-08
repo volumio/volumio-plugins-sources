@@ -1,0 +1,217 @@
+{
+  "page": {
+    "label": "TRANSLATE.YTCR_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "section_connection",
+      "element": "section",
+      "label": "TRANSLATE.YTCR_CONNECTION",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/ytcr",
+        "method": "configSaveConnection"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YTCR_SAVE",
+        "data": [
+          "port",
+          "bindToIf"
+        ]
+      },
+      "content": [
+        {
+          "id": "port",
+          "type": "number",
+          "element": "input",
+          "label": "TRANSLATE.YTCR_PORT",
+          "doc": "TRANSLATE.YTCR_PORT_DESC",
+          "value": "8098"
+        },
+        {
+          "id": "bindToIf",
+          "element": "select",
+          "doc": "",
+          "value": {
+              "value": "",
+              "label": "TRANSLATE.YTCR_BIND_TO_ALL_IF"
+          },
+          "label": "TRANSLATE.YTCR_BIND_TO_IF",
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "section_manual_pairing",
+      "element": "section",
+      "label": "TRANSLATE.YTCR_MANUAL_PAIRING",
+      "description": "TRANSLATE.YTCR_MANUAL_PAIRING_DESC",
+      "icon": "fa-plug",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/ytcr",
+        "method": "refreshUIConfig"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YTCR_REFRESH",
+        "data": []
+      },
+      "content": [
+        {
+          "id": "tvCode",
+          "type": "text",
+          "element": "input",
+          "label": "TRANSLATE.YTCR_TV_CODE",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "section_i18n",
+      "element": "section",
+      "label": "TRANSLATE.YTCR_SECTION_I18N",
+      "icon": "fa-globe",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/ytcr",
+        "method": "configSaveI18n"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YTCR_SAVE",
+        "data": [
+          "region",
+          "language"
+        ]
+      },
+      "content": [
+        {
+          "id": "region",
+          "element": "select",
+          "label": "TRANSLATE.YTCR_REGION",
+          "value": {},
+          "options": []
+        },
+        {
+          "id": "language",
+          "element": "select",
+          "label": "TRANSLATE.YTCR_LANGUAGE",
+          "value": {},
+          "options": []
+        }
+      ]
+    },
+		{
+      "id": "section_other",
+      "element": "section",
+      "label": "TRANSLATE.YTCR_OTHER_CONFIG",
+      "icon": "fa-cog",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/ytcr",
+        "method": "configSaveOther"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.YTCR_SAVE",
+        "data": [
+          "prefetch",
+          "preferOpus",
+          "liveStreamQuality",
+          "enableAutoplayOnConnect",
+          "resetPlayerOnDisconnect",
+          "debug"
+        ]
+      },
+      "content": [
+        {
+          "id": "prefetch",
+          "element": "switch",
+          "label": "TRANSLATE.YTCR_PREFETCH",
+          "doc": "TRANSLATE.YTCR_PREFETCH_DESC",
+          "value": true
+        },
+        {
+          "id": "preferOpus",
+          "element": "switch",
+          "label": "TRANSLATE.YTCR_PREFER_OPUS",
+          "doc": "TRANSLATE.YTCR_PREFER_OPUS_DESC",
+          "value": false,
+          "visibleIf": {
+            "field": "prefetch",
+            "value": true
+          }
+        },
+        {
+          "id": "liveStreamQuality",
+          "element": "select",
+          "label": "TRANSLATE.YTCR_LIVE_STREAM_QUALITY",
+          "doc": "TRANSLATE.YTCR_LIVE_STREAM_QUALITY_DESC",
+          "value": {},
+          "options": [
+            {
+              "label": "TRANSLATE.YTCR_AUTO",
+              "value": "auto"
+            },
+            {
+              "label": "144p",
+              "value": "144p"
+            },
+            {
+              "label": "240p",
+              "value": "240p"
+            },
+            {
+              "label": "360p",
+              "value": "360p"
+            },
+            {
+              "label": "480p",
+              "value": "480p"
+            },
+            {
+              "label": "720p",
+              "value": "720p"
+            },
+            {
+              "label": "1080p",
+              "value": "1080p"
+            }
+          ]
+        },
+        {
+          "id": "enableAutoplayOnConnect",
+          "element": "switch",
+          "label": "TRANSLATE.YTCR_AUTOPLAY_CONNECT",
+          "doc": "TRANSLATE.YTCR_AUTOPLAY_DESC",
+          "value": true
+        },
+        {
+          "id": "resetPlayerOnDisconnect",
+          "element": "select",
+          "label": "TRANSLATE.YTCR_RESET_PLAYER_ON_DISCONNECT"
+        },
+        {
+          "id": "debug",
+          "element": "switch",
+          "label": "TRANSLATE.YTCR_DEBUG",
+          "doc": "TRANSLATE.YTCR_DEBUG_DESC",
+          "value": false
+        },
+        {
+          "id": "clearDataStore",
+          "element": "button",
+          "label": "TRANSLATE.YTCR_CLEAR_DATA_STORE",
+          "doc": "TRANSLATE.YTCR_CLEAR_DATA_STORE_DESC",
+          "onClick": {
+              "type": "emit",
+              "message": "callMethod",
+              "data": {
+                  "endpoint": "music_service/ytcr",
+                  "method": "configClearDataStore"
+              }
+          }
+        }
+      ]
+    }
+  ]
+}

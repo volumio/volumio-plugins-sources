@@ -1,0 +1,1 @@
+{"version":3,"file":"AutoplayContext.d.ts","sourceRoot":"","sources":["../../../src/lib/types/AutoplayContext.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,yBAAyB,EAAE,KAAK,aAAa,EAAE,MAAM,YAAY,CAAC;AAEhF,UAAU,eAAe;IACvB,aAAa,EAAE,aAAa,GAAG,yBAAyB,CAAC;CAC1D;AAED,eAAe,eAAe,CAAC"}

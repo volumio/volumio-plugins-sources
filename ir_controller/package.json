@@ -1,6 +1,6 @@
 {
 	"name": "ir_controller",
-	"version": "3.4.7",
+	"version": "3.4.13",
 	"description": "Volumio IR Remote plugin",
 	"main": "index.js",
 	"scripts": {
@@ -19,8 +19,8 @@
 		"os": [
 			"buster"
 		],
-		"details": "This Plugin has been sponsored by <a href=\"https://www.justboom.co/?utm_source=JustBoom+Player&utm_medium=Software&utm_campaign=JustBoom+Player+Software&utm_content=IR+Remote+Plugin+Main+Site+Link\" target=\"blank\">JustBoom</a> and it works out of the box with <a href=\"https://www.justboom.co/product/justboom-ir-remote/?utm_source=JustBoom+Player&utm_medium=Software&utm_campaign=JustBoom+Player+Software&utm_content=IR+Remote+Plugin+Link\" target=\"blank\">JustBoom IR Remote</a><br><br>FEATURES: <br><br><ul><li>3 profiles available (JustBoom IR Remote, Odroid Remote, Apple remote)</li><li>Controls: Play, pause, mute, volume, next, previous, seek, repeat and random</li></ul>",
-		"changelog": "Added configuration files for \"Atrix Remote\", \"Marantz RC003PMCD\", \"XBox 360 Remote\" and \"Copland RC-102A\"; added failure handling during installation"
+		"details": "This Plugin has been sponsored by <a href=\"https://www.justboom.co/?utm_source=JustBoom+Player&utm_medium=Software&utm_campaign=JustBoom+Player+Software&utm_content=IR+Remote+Plugin+Main+Site+Link\" target=\"blank\">JustBoom</a> and it works out of the box with <a href=\"https://www.justboom.co/product/justboom-ir-remote/?utm_source=JustBoom+Player&utm_medium=Software&utm_campaign=JustBoom+Player+Software&utm_content=IR+Remote+Plugin+Link\" target=\"blank\">JustBoom IR Remote</a><br><br>FEATURES: <br><br><ul><li>Profiles available: JustBoom IR Remote, Odroid Remote, Apple remote and more</li><li>Controls: Play, pause, mute, volume, next, previous, seek, repeat and random</li></ul>",
+		"changelog": "Added switch to show/hide advanced parameters for GPIO configuration; added configuration files for \"Aiyima T9 Pro\"; corrected typo in \"lircrc\" for \"Technics RAK-SL948WK\""
 	},
 	"engines": {
 		"node": ">=8",

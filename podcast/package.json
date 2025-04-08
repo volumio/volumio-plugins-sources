@@ -1,6 +1,6 @@
 {
 	"name": "podcast",
-	"version": "2.1.0",
+	"version": "2.2.1",
 	"description": "Podcast for Volumio",
 	"main": "index.js",
 	"scripts": {
@@ -41,7 +41,7 @@
 	},
 	"homepage": "https://github.com/ChrisPanda/volumio-podcast-plugin#readme",
 	"engines": {
-		"volumio": ">=2",
+		"volumio": ">=3",
 		"node": ">=14.15.4"
 	}
 }

@@ -1,0 +1,17 @@
+{
+  "LOCALSETTINGS": "Local Display settings",
+  "SCREENSIZE": "Spectrum folder",
+  "SCREENSIZE_DOC": "Folder for Spectrum. Custom folder are in /data/INTERNAL/PeppySppectrum/Templates/ and must be named weightxheight+numberofbar-description. ex 800x480+30-30-collection. If number of bars omitted, defaut value 30 is used",
+  "CHOOSE_SPECTRUM_DOC": "Select the Spectrum in the list",
+  "CHOOSE_SPECTRUM":"Select Spectrum",
+  "NBARCHANGE": "Number of bars in Spectrum changed! Now set to ",
+  "APPLY": "Apply",
+  "SAVE": "Close",
+  "DOWNLOAD":"Download",
+  "SPECTRUM_FOLDER_NAME":"Can't determine screen size because the folder is not properly named!,Must be widthxheight+bars-description ex : 800x600+30-metal. No 'x' allowed in description! please check!",
+  "SPECTRUM_INSTALL_TITLE":"Installation progress",
+  "SPECTRUM_INSTALL_WAIT":"Please wait...",
+  "CLICK_TO_UPDATE_LIST":"Update list",
+  "LIST_SUCCESS_UPDATED": "List updated",
+  "LIST_FAIL_UPDATE": "Failed to update list"
+}

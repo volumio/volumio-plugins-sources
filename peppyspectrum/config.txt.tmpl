@@ -1,0 +1,26 @@
+[current]
+spectrum = ${spectrum}
+base.folder = ${basefolder}
+spectrum.folder = ${screensize}
+screen.width = ${screenwidth}
+screen.height = ${screenheight}
+update.period = 10
+max.value = 100
+pipe.name = /tmp/peppy_spectrum_fifo
+size = ${spectrumsize}
+update.ui.interval = 0.04
+frame.rate = 30
+depth = 32
+exit.on.touch = True
+use.logging = ${debuglog}
+use.test.data =
+
+[sdl.env]
+framebuffer.device = /dev/fb0
+mouse.device = /dev/input/event0
+mouse.driver = TSLIB
+mouse.enabled = False
+video.driver = dummy
+video.display = :0
+double.buffer = True
+no.frame = True

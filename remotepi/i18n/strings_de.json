@@ -1,13 +1,18 @@
 {
   "REMOTEPI":{
     "PLUGIN_NAME":"RemotePi",
+    "ERR_RECONF_GPIO":"Fehler bei der Rekonfiguration von GPIO ",
+    "ERR_CONF_GPIO":"Fehler bei der Konfiguration von GPIO ",
     "ERR_WRITE":"Fehler beim Schreiben von ",
     "ERR_READ":"Fehler beim Lesen von ",
+    "PI5_WARN_MSG":"<b>WARNUNG!</b><br><br>WARNUNG! RemotePi-Boards wurden nicht für den Raspberry Pi 5 entwickelt. Der Strombedarf von Pi 5-basierten Systemen kann die Leistungsfähigkeit des RemotePi-Boards übersteigen und es möglicherweise beschädigen.",
     "REBOOT_MSG":"Ein Neustart ist erforderlich, damit die Änderung wirksam wird.",
     "NO_CHANGES":"Keine zu speichernde Änderung.",
     "PLUGIN_CONFIGURATION":"RemotePi Konfiguration",
     "REMOTEPI_CONF":"IR-Empfänger-Einstellungen",
     "REMOTEPI_DESC":"Um den IR-Empänger des RemotePi über die Ein-/Ausschaltfunktion hinaus nutzen zu können, muss zusätzlich LIRC eingerichtet werden. Das Plugin \"IR Remote Controller\" leistet dies und enthält auch Konfigurationen für verschiedene Fernbedienungen. Da das Ein- und Ausschalten vom RemotePi-Board selbst gesteuert wird, muss aus den vom \"IR Remote Controller\"-Plugin zur Verfügung gestellten lircd.conf-Dateien ein etwaig vorhandener Schlüssel für die Taste, die zum Ausschalten genutzt werden soll, oder aus den lircrc-Dateien ein auf diese Taste bezogener Abschnitt entfernt werden.",
+    "GPIO_CONFIGURATION":"GPIO Konfiguration",
+    "GPIO_CONFIGURATION_DOC":"Wenn der Schalter aktiviert ist, wird beim Systemstart automatisch das für den IR-Empänger notwendige IR-Overlay geladen.",
     "GPIO17":"GPIO-Port 17 für den IR-Empfänger nutzen",
     "GPIO17_DOC":"Diese Option ist zu aktivieren, falls die RemotePi-Platine so modifiziert wurde, dass der IR-Empfäger den GPIO-Port 17 statt GPIO-Port 18 nutzt.",
     "SAVE":"Speichern"

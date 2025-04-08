@@ -1,0 +1,1 @@
+{"version":3,"file":"ArtistEntity.d.ts","sourceRoot":"","sources":["../../../src/lib/entities/ArtistEntity.ts"],"names":[],"mappings":"AAAA,OAAO,UAAU,MAAM,cAAc,CAAC;AACtC,OAAO,WAAW,MAAM,eAAe,CAAC;AAExC,UAAU,YAAa,SAAQ,UAAU;IACvC,IAAI,EAAE,QAAQ,CAAC;IACf,KAAK,CAAC,EAAE,WAAW,CAAC;CACrB;AAED,eAAe,YAAY,CAAC"}

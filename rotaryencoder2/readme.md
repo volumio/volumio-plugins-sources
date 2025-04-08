@@ -5,12 +5,16 @@ This is an alternative implementation of a rotary encoder driver for integration
 
 ### Content
 * [Configuring the plugin](#configuring-the-plugin)
+* [Simple Test-Setups on a Breadboard](#test-setups)
 * [Debouncing (tips for hardware debouncing)](#tips-for-debouncing-your-encoder)
-* [Electronic schematic (some basics)](#some-basics-about-hardware-design)
-* [Device Tree Overlays (how the plugin works)](02_Device_Tree_Overlays.md)
-* [Compatible Encoders](03_Compatible_Encoders.md)
-* [Appendix](04_Appendix.md)
+* [Some basics about Hardware Design (Pull-Up, Pull-Down, Rotary Encoders, RC-filter)](#some-basics-about-hardware-design)
+* [Debugging Instructions](#debugging-instructions)
+* [Linux Device Tree Overlay - Rotary Encoder (How the plugin works)](#linux-device-tree-overlay-rotary-encoder)
+* [Compatible Encoders](#list-of-compatible-rotary-encoders)
+* [Potential future extensions](#potential-future-extensions)
 * [Differences compared to _Rotary Encoder Plugin_ ](#differences-compared-to-rotary-encoder-plugin)
+* [Known issues and limitations](#known-issues-and-limitations)
+* [References](#references)
 
 
 
@@ -53,19 +57,26 @@ Pick the functionality you would like for your encoder:
 - Seek backwards/forward
 - Emit websocket message<br>
 
-The Emit function opens four additional text boxes for providing the websocket commands and data for clockwise (CW) and counter-clockwise (CCW) turns. It allows, to provide commands to a websock emitter and can be used to trigger other functions inside other plugins. For example, if you have a Plugin controlling a Dimmer with a function `dim` taking an argument `'up'` or `'down'` you would need to put 'dim' into both command fields and 'up' or 'down' into the respective data field.
+The Emit function opens four additional text boxes for providing the websocket commands and data for clockwise (CW) and counter-clockwise (CCW) turns. It allows, to provide commands to a websock emitter and can be used to trigger other functions inside other plugins. For example, if you have a Plugin named "MyDimmer" in the plugin category "System Hardware" controlling a Dimmer with a function `dim` taking an argument `'up'` or `'down'` you would need to put the following:
+
+**Call Function on Plugin**:
+- Command CW: `callMethod`
+- Command CCW:  `callMethod`
+- Data CW: `{"endpoint":"system_hardware/dimmer","method":"dim","data":"up"}`
+- Data CCW: `{"endpoint":"system_hardware/dimmer","method":"dim","data":"down"}`
+
 You could also send Volumio Volume or Skip functions via this option (just to give you an idea):   
 **Volume**: 
-- Command CW: 'volume'
-- Command CCW: 'volume'
-- Data CW: '+' 
-- Data CCW: '-'
+- Command CW: `volume`
+- Command CCW: `volume`
+- Data CW: `+` 
+- Data CCW: `-`
 
 **Skip**:
-- Command CW: 'prev'
-- Command CCW: 'next'
-- Data CW: '' (empty, _prev_ takes no argument) 
-- Data CCW: '' (empty, _next_ takes no argument)
+- Command CW: `prev`
+- Command CCW: `next`
+- Data CW: `{}` (empty, _prev_ takes no argument) 
+- Data CCW: `{}` (empty, _next_ takes no argument)
 
 **WARNING:**    
 If you use the _Emit_ function, remember that a fast turn of the knob can send a lot of messages in short time, so the called function better be fast or prepared for 'flooding'.    
@@ -98,6 +109,16 @@ Available Commands:
 - System Reboot
 - Emit websocket message
 
+## Test Setups
+Below are some simple test-setups which you can try out on a Breadboard. They do not use the most sophisticated hardware debouncing, but already work very smoothly. If you want to improve debouncing, refer to the next chapter with tips.    
+![Simple Test-setup with a normal rotary-encoder with push-button and external pull-ups.](./img/RotaryTestSetup_Steckplatine.jpg)    
+**Img 3:** _Rotary Encoder on a Breadboard with three 10kΩ Pull-ups and a 100nF capacitor for debouncing of the switch. GPIO 5 & 6 are used for the rotation and GPIO 13 get's connected to the switch._
+
+![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_Steckplatine.jpg)   
+**Img 4:** _KY-040 on a Breadboard with a 10kΩ Pull-up. Also here, GPIOs 5,6 and 13 are used._
+
+![Simple Test-setup with a KY-040 rotary board and external pull-up for the switch](./img/KY040-RotaryTestSetup_intPU_Steckplatine.jpg)   
+**Img 5:** _KY-040 on a Breadboard without Pull-up. In this setup, you have to make sure, that the internal pull-up is enabled. If it is not, you may get unreliable behavior. And guess what, we use GPIOs 5, 6 and 13 again._
 
 ## Tips for debouncing your Encoder
 [back to TOC](#content)
@@ -140,11 +161,13 @@ If you want more crisp transitions with full amplitude again, you can add an add
 
 
 ## Some Basics about Hardware Design
-This page is for those users, who do not have experience with electronics but are still enthusiastic to play with their Raspi and Volumio to realize their own project.
+[back to TOC](#content)   
+This section is for those users, who do not have experience with electronics but are still enthusiastic to play with their Raspi and Volumio to realize their own project.
 
 I do not claim, that this is the ultimate guide, but many of the problems reported by people on the forums seem to come from basic mistakes in the hardware setup. So here come some tipps for a robust design.
 
 ### Raspberry Pi Do's and Dont's
+[back to TOC](#content)
 * GPIO pins are specified for 3.3V (3V3), do not connect them to higher voltages even if a YouTuber or a DIY web-page tells you that it can withstand it. You are operating outside the specification and misuse the ESD protection. Overvoltage should stay a rare 'event', not become a continuous state. 
 * Even if you only connect 3.3V, higher spikes are possible, due to electro-static discharge (ESD), capacitive and inductive components (like long cables). Take care of ESD, use a limiting resistor and a capacitor to control the slew (how fast the voltage on the pad changes). Do not use unneccessarily long cables, connect GND before connecting any signal...
 * Never short a power output directly to ground, your Pi *may* survive, but it may also die. You are operating beyond the AMR values (absolute max ratings), where Powers beyond the engineers influence are at work - the danger zone.
@@ -155,6 +178,7 @@ The image below shows quite a safe external wiring schematic for an RPi GPIO, th
 *The left schematic shows a GPIO with a Pull-up resistor R_PU, a limiting resistor R_lim and a decoupling capacitor C. The right hand side has the same schematic but with a Pull-Down resistor instead.*
 
 ### What is a Pull-Up or Pull-Down Resistor and why do I need it?
+[back to TOC](#content)   
 A digital input pin that is not connected to any defined reference potential is isolated from its surroundings. It can have any electric potential, meaning that its voltage compared to GND can have all kinds of values, depending on the charge it carries and potentially changing with electromagnetic fields in its vicinity. 
 
 It is called a 'floating' pin. And since it is something like a tiny capacitor or even worse, a tiny antenna, depending on its charge, it may be in the logical HIGH state (>1.6V for a RPi input), but also in the logical LOW state (<0.9V) - or anywhere in between.
@@ -166,6 +190,7 @@ This is overcome, by connecting it to either HIGH (3.3V) or LOW (0V) potential v
 The Raspberry Pi has integrated Pull-up and Pull-down resistors inside its microprocessor chip, which can be activated by the system at boot time. But it is also possible to connect external resistors to the pin (and there are reasons to do so). [See below](#why-does-it-matter-for-playing-with-my-raspberry-pi).
 
 ### What is a limiting resistor?
+[back to TOC](#content)   
 A limiting resistor is connected to the GPIO pin in such a way, that all current into or out of the pin has to pass the resistor. The limiting resistor will determine the maximum current out of the pin.
 When configured as output, the pin has minimum current values that it can safely drive, to give a well-defined HIGH and LOW state, called I_OH and I_OL. Anything larger than that is not guaranteed and you should design to stay below it.
 
@@ -177,14 +202,17 @@ The same thing happens, if the pad is connected to 3.3V and you configure it as 
 See the [Raspberry Pi Documentation for details](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#voltage-specifications).
 
 ### What is the capacitor good for?
+[back to TOC](#content)    
 The capacitor between the GPIO and ground will smooth things out - it will attenuate mechanically induced bounce and ringing from the line and will reduce high frequency noise. Thus it will help protect your input and make the signal more stable. It will also generate less interrupts at the GPIO, because the smoothing out of high-frequency noise will reduce the edges, that the microprocessor needs to react on.
 Together with the resistors is forms an RC-filter. You can either use *C=100nF* as a rule of thumb or calculate the proper value based on your button bounce specification as shown in the [Debouncing section](./01_Debouncing.md).
 
 ### Do I need all those three elements?
+[back to TOC](#content)   
 Well, yes and no. It depends on your use of the system. As explained, using all three of them adds some safety and protection to your GPIO. It makes damaging it more unlikely. 
 However, you can leave out the pull-resistor and use the internal ones and you can leave out the limiting resistor, if you make sure the input is never accidentally reconfigured the wrong way. You can also leave away the capacitor - but without the three cheap components, the system has a less robust design and leaves more responsibility with the user and the programmer.
 
 ### How does it work with a Rotary Encoder and the RPi?
+[back to TOC](#content)   
 A modern GPIO (General Purpose Input/Output) in a microprocessor typically has plenty of configurable properties. It can be an input or an output or in a High-Impedance (high-Z) state. The input can be floating, have a pull up or a pull down. The output sometimes has configurable drive strength etc.
 
 To connect buttons and rotary encoders (which are actually kind of buttons) we typically use the GPIOs as inputs. Many GPIOs are already configured as inputs for Volumio and may have either have the built-in pull-up (PU) or pull-down (PD) resistors enabled. The internal pull-resistors of the RPi [are around 50-65kOhms](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#voltage-specifications).
@@ -197,6 +225,7 @@ With the right external components, it does not matter too much, how the inputs 
 It is also possible, to deactivate both - the GPIO will have high impedance and may float if not externally pulled.*
 
 ### Is it a problem if I use internal and external Pull-resistors at the same time?
+[back to TOC](#content)    
 Even if the interal PU or PD is set, you can still connect an external PU or PD. Just be aware, that the values need to match each other.
 
 ![GPIO with internal PU and external PD](./img/extPD_intPU.jpg)
@@ -220,6 +249,7 @@ If the internal PU is configured and you connect an external PU on top, there wi
 The voltage at the Schmitt-Trigger input will be determined by the voltage devider formed by internal PU and R_lim.
 
 ### How to determine the default configuration of your GPIOs?
+[back to TOC](#content)
 * By default, GPIO BCM2...8 should be pulled high at boot and GPIO BCM9...27  pulled-low.
 * On Raspberry Pi 4, you can issue `raspi-gpio get` to read the current setting of the GPIO pins
 * On older versions of the Pi, this is not available and there is no simple method to determine the state
@@ -278,7 +308,8 @@ As you can see from the table, my GPIOs with BCM2...8 are '1' as expected, but B
 
 If you connect a DAC like e.g. HifiBerry to the Pin-Header, it will reserve some pins for various functions. Those pins cannot be used for any other purpose. Check in the documentation of the HAT or try to figure out by running `gpio readall` with the HAT connected and the driver loaded.
 
-### How to wire a rotary encoder
+### How to wire a rotary encoder and especially the KY-040
+[back to TOC](#content)   
 Since many people report problems with wiring their rotary encoder, I'll show an example for clean wiring to your Raspberry Pi. This is not the minimal solution and you can do it with less components, but if you play with your Raspberry, it will add some safety to your schematic.
 
 ![Rotary encoder with push button wired to RPi.](./img/rotary%20with%20r%20and%20c.jpg)
@@ -288,14 +319,178 @@ The KY-040 used by some people on their Volumio system, is a rotary encoder sold
 
 
 
+## Debugging instructions
+[back to TOC](#content)   
+I have written and tested the plugin as good as I could with the hardware available to me. However, there are many different RPi's, Rotary Encoders, Schematics etc. and it may not be working with your hardware. If you ask for support in the Plugin-Thread on the Community forum, I may ask you to help me figuring out if there is a bug.
+Below are instructions I may ask you to follow, to analyze the situation on your system.
+
+### General info to be included in Bug-reports:
+In case you want to file a bugreport or ask for help, please include:
+* Hardware you are using
+* Volumio version
+* Plugin Version
+* Peripheral hardware info (Rotary used, debouncing, GPIOs used)
+* Logfile showing complete use example with the bug (see step-by-step instructions below)
+  * Start of the plugin
+  * The sequence of use that produces the problem
+  * Stop of the plugin
+
+<details>
+<summary><b>How to generate a log (expand to read)</b></summary>
+<ol>
+<li>Acitvate logging in the <a href="http://volumio.local/plugin/system_hardware-rotaryencoder2">Plugin's settings</a> by going to the 'Debug settings' section and setting 'Logging' to 'On'. Don't forget to save
+<li>Create a log-file by either of these methods:
+<ol type="a">
+<li>via Browser
+<ol type="i">
+<li>Go to the <a href="http://volumio.local/dev">Volumio developer settings</A> and 'enable' the 'Live Log'
+<li>Go to the 'Installed Plugins' page in Volumio
+<li>Switch the Plugin 'off' - wait a few seconds - switch it 'on' again
+<li>Now do whatever you normally do to produce the error
+<li>After the error happened, switch the plugin 'off' again
+<li>Go back to the developer settings, disable the Live Log and copy the log out of the window. 
+<li>Put the log into a text file and send it to me via PN or, if you really think you need to post it here, make sure to use a <a href="https://docs.gitlab.com/ee/user/markdown.html#collapsible-section">collapsible section</a>.
+</ol>
+<li>via <code>SSH</code>:
+<ol type="i">
+<li>Log into your Volumio system using <code>SSH</code>, if you do not know how, Google is your friend
+<li>At the prompt <code>volumio@volumio:$</code> enter <code>journalctl -f</code>. This will start the logging to the terminal you are using.
+<li>Follow steps ii. - v. under a. (plugin on - produce error - plugin off)
+<li>In your Terminal, hit <code>Ctrl-C</code> to stop the logging
+<li>Copy the log out of the terminal and send it like describe in step vii. under a.
+</ol>
+</ol>
+</ol>
+</details>
+<p>
+
+### Check if the overlays are properly installed
+Step-by-step:
+* ssh into volumio
+* issue `dtoverlay -l`
+* the response in your case should look similar to this (depending on your settings for GPIOs and encoder type): 
+```
+0:  rotary-encoder  pin_a=5 pin_b=6 relative_axis=true steps-per-period=1
+1:  rotary-encoder  pin_a=8 pin_b=9 relative_axis=true steps-per-period=1
+```
+### Check if the dtoverlays are working independent of the plugin
+Step by step:
+1) disable the plugin
+2) `ssh` into volumio
+3) Install the problematic overlay by issuing:
+`sudo /usr/bin/dtoverlay rotary-encoder pin_a=5 pin_b=6 relative_axis=true steps-per-period=1`  
+(replace the `pin_a` and `pin_b` numbers by your GPIO numbers and the `steps-per-period` by 1, 2 or 4, depending on your rotary type (1/1, 1/2, 1/4))
+
+4) Open a terminal window and `ssh` into Volumio
+5) Issue the `od` command into one terminal window:
+`od -x -w32 /dev/input/by-path/platform-rotary\@5-event`    
+(attention, the number is the pin_a number in hex, so 10 would become `A`, 18 becomes `12` and so on. You can check for the available values with `ls /dev/input/by-path` or use the terminals auto-completion feature) 
+6) Now, turn the dial of the rotaries, there should be some output on the terminal, similar to this: 
+    ```
+    0000000 192b 62f0 010d 000f 0002 0000 0001 0000 192b 62f0 010d 000f 0000 0000 0000 0000
+    0000040 192d 62f0 178b 000a 0002 0000 0001 0000 192d 62f0 178b 000a 0000 0000 0000 0000
+    0000100 192e 62f0 075b 0005 0002 0000 0001 0000 192e 62f0 075b 0005 0000 0000 0000 0000
+    0000140 192f 62f0 9924 000d 0002 0000 ffff ffff 192f 62f0 9924 000d 0000 0000 0000 0000
+    0000200 1930 62f0 65ed 0005 0002 0000 ffff ffff 1930 62f0 65ed 0005 0000 0000 0000 0000
+    0000240 1931 62f0 92d4 0000 0002 0000 ffff ffff 1931 62f0 92d4 0000 0000 0000 0000 0000
+    ```
+7) after the test, remove the overlay with `sudo dtoverlay -r` 
+
+If everything works fine up to 6), then the `dtoverlay` configuration works and there is probably an issue with the plugin.
+The output of `od` is structured like this:
+- Column 1: Pseudo-address of the first byte printed
+- Column 8/9: Direction in `signed Char` format (i.e. `ffff ffff`=-1 and `0001 0000`=1)
+
+
+## Linux Device Tree Overlay: Rotary Encoder
+[back to TOC](#content)   
+Even with a perfect signal from RC-filter and  Schmitt-trigger, there were still missed ticks sometimes. I could solve that by moving to the DT overlay driver for rotary encoders.     
+
+Raspbian (and Volumio) support it out of the box. If you load the device-tree overlay for a rotary, you no longer need to take care of the Gray-Code and just hook up to a device that will nicely send you information about turns of the rotary encoder (relative or absolute, the plugin only supports relative so far).
+
+The advantages of the dtoverlay solution:
+- Very fast response, due to Kernel level implementation
+- Versatile driver for use with all kinds of encoder types
+- The dtoverlays can dynamically be loaded and unloaded, so integration was quite straightforward.
+
+The plugin basically executes calls to dtoverlay for adding and removing overlays:   
+To add a rotary:
+```
+sudo dtoverlay rotary-encoder pin_a=17 pin_b=27 relative_axis=1 steps-per-period=2 
+```
+To remove a rotary:
+```
+sudo dtoverlay -r 
+```
+
+The plugin is doing this when you change and save settings. You do not need to go to the command line.  
+Source-code of the driver [can be found here](https://github.com/raspberrypi/linux/blob/rpi-5.15.y/drivers/input/misc/rotary_encoder.c).
+
+## List of compatible Rotary Encoders
+[back to TOC](#content)   
+The list currently lists only the ALPS Encoder I used for my project. I am convinced, that it works with others as well. I found some other projects using dtoverlay that use KY040 for example or other ALPS types.   
+**_Please add yours to the list to help others. If you do not know how to edit this file in Github, create an issue with the information and I will integrate it someday._**
+
+|Manufacturer|Model       |Periods/Position|HW-Debounce used     |Tested by          |
+|------------|------------|----------------|---------------------|-------------------|
+|ALPS        |STEC11B03   | 1/2            |RC + Schmitt-Trigger |[7h0mas-R](https://github.com/7h0mas-R)           |
+|ALPS        |STEC11B03   | 1/2            |none (PU only) |[7h0mas-R](https://github.com/7h0mas-R)           |
+|Bourns      |PEC12R-4217F-S0024| 1/2      |RC                   |[Darmur](https://github.com/Darmur)
+|*several*     |KY-040 | 1/2 (?)|none (PU only) |[Mr100000Volt](https://community.volumio.org/t/plugin-rotaryencoder-ii/48538/107?u=t0mr0)
+
+## Potential future extensions
+[back to TOC](#content)
+- add the other parameters offered by the dtoverlay (e.g. absolute positioning, binary instead of Gray-code etc.)
+- Add support for more than 3 encoders
+- Add support for dtoverlays loaded at boot (similar to overlays for I2S DACs)
+
 ## Differences compared to _Rotary Encoder Plugin_ 
-The initial rotary encoder plugin by _Saiyato_ is built based on npm OnOff library and a derived onoff-rotary to read the GPIO pins of the Linux system (e.g. Raspberry Pi) and the implementation of the Gray-Code is tailored to the use of the KY040 encoder.  
+[back to TOC](#content)    
+The initial rotary encoder plugin by _Saiyato_ is built based on npm OnOff library and a derived onoff-rotary to read the GPIO pins of the Linux system (e.g. Raspberry Pi).  
 With my custom made hardware using three _ALPS STEC11B03_ encoders, it worked but the response was not really satisfactory because the plugin would only respond on every second 'tick' of the encoder and would sometimes misinterpret the direction.  
 I tried to improve it with hardware debouncing (see [here](./01_Debouncing.md#tips-for-debouncing-your-encoder) for tips) and by optimizing the implementation but the result was not satisfactory.      
-I finally wrote my own implementation based on DT overlay driven rotary encoders giving me perfect results. Since the hardware debouncing is in my hardware anyway now, I did not bother to try the plugin without the Schmitt-Trigger - I guess that it would work without it, too. Feel free to leave a note, if you can confirm this.    
+I finally wrote my own implementation based on DT overlay driven rotary encoders giving me perfect results. 
 I first thought about implementing my solution into the existing plugin, but finally decided against it due to lack of time and because is rather an alternative than an extension.   
 If your system does not support DT overlays or you run into other issues, the other plugin may still be your first choice. 
 Feel free to try both Plugins and pick the one, that suits your application best.     
-If this Plugin works for you and you use a new type of encoder, it would be nice if you add your model to the list of supported devices below, so others can pick one that is working.   
-If you should observe problems, you may create an issue, but I have very limited time to look into that. I rely on enthusiasts to dig into the limitations of the plugin - the debug function in the settings is very chatty, so it should help to get to the issue fast.
+If this Plugin works for you and you use a new type of encoder, it would be nice if you drop me a note, so I can add it to the list of supported encoders.   
+If you should observe problems, you can try to post on the [community forum](https://community.volumio.org/t/plugin-rotaryencoder-ii/48538). I rely on enthusiasts to dig into the limitations of the plugin - the debug function in the settings is very chatty, so it should help to get to the issue fast.
+
+Overview of differences between plugins:     
+- Rotary Encoder original
+    - Uses npm [`onoff_rotary`](https://github.com/pichfl/onoff-rotary) under the hood, which itself basically uses two inputs configured via [`onoff`](https://github.com/fivdi/onoff) to read out the rotary. Source [can be found here](https://github.com/pichfl/onoff-rotary/blob/master/index.js)
+    - `onoff` itself uses `/sys/class/gpio` and `epoll` to monitor the inputs
+- Rotary Encoder II 
+    - Uses the Linux Kernel's `dtoverlay` to load a built-in driver for monitoring of a rotary encoder connected to two GPIO's
+   - Information [can be found here](#linux-device-tree-overlay-rotary-encoder)
+
+
+## Known issues and limitations
+[back to TOC](#content)
+### Kernel warning when last overlay is removed
+When the plugin is disabled, a kernel warning message about a potential memory leak is displayed when the last overlay is removed. I tried several things to prevent it and posted to several forums looking for help, but could not get rid of it. 
+I consider it as not nice, but I could also not observe any issue after multiple disable/enable loops - so I decided to keep it as is for the time being.
+During normal use, the plugin will be configured once only and then loaded at boot and unloaded at shutdown - so you should never experience an issue. I use it for several months already without issues.    
+  
+
+## References
+[back to TOC](#content)
+### Device Tree Documentation
+- [Kernel Documentation: rotary-encoder](https://www.kernel.org/doc/Documentation/input/rotary-encoder.txt)   
+Explains more about how a rotary works and how the DTOverlay is implemented
+- [Documentation of the `dtoverlay` command](https://github.com/raspberrypi/firmware/blob/master/boot/overlays/README)   
+Search for 'rotary-encoder'. Alternatively, you can call 
+  ```
+  dtoverlay -h rotary-encoder
+  ```
+  from the command line.
+- [Documentation of the Raspberry Device Tree](https://www.raspberrypi.org/documentation/configuration/device-tree.md)   
+If you would like to learn more about the details of the dtoverlay function.
+
+### NPM modules used
+- [onoff](https://www.npmjs.com/search?q=onoff)   
+Since it was easier to implement and does not have any issues, I still use _onoff_ for the push button. This could also be done with _dtoverlay_, but seems too much effort since it does not provide additional performance.
+
+### Hardware Resources
+- [RPi GPIOs](https://www.raspberrypi.org/documentation/hardware/raspberrypi/gpio/README.md)
 

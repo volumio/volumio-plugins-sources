@@ -1,0 +1,17 @@
+{
+  "LOCALSETTINGS": "Paramètres d’affichage local",
+  "SCREENSIZE": "Dossier Meter",
+  "SCREENSIZE_DOC": "Dossier pour Meter. Les dossiers personnalisés sont dans /data/INTERNAL/PeppyMeterBasic/Templates/ et doivent être nommés weightxheight-description. ex 800x480-collection.e",
+  "CHOOSE_SPECTRUM_DOC": "Sélectionner le spectre dans la liste",
+  "CHOOSE_SPECTRUM": "Sélectionner le spectre",
+  "NBARCHANGE": "Le nombre de barres dans Meter a changé! Maintenant réglé sur ",
+  "APPLY": "Appliquer",
+  "SAVE": "Fermer",
+  "DOWNLOAD": "Télécharger",
+  "SPECTRUM_FOLDER_NAME": "Impossible de déterminer la taille de l’écran car le dossier n’est pas correctement nommé ! Doit être widthxheightdescription ex : 800x600-metal. Non 'x' autorisé dans la description! veuillez vérifier!",
+  "SPECTRUM_INSTALL_TITLE": "Progression de l’installation",
+  "SPECTRUM_INSTALL_WAIT": "Veuillez patienter...",
+  "CLICK_TO_UPDATE_LIST": "Mise à jour de liste",
+  "LIST_SUCCESS_UPDATED": "Liste mise à jour",
+  "LIST_FAIL_UPDATE": "Echec de mise à jour de la liste"
+}

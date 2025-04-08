@@ -1,0 +1,1 @@
+{"version":3,"file":"SlugEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/SlugEntity.ts"],"names":[],"mappings":"","sourcesContent":["export interface SlugEntity {\n  type: 'slug';\n  name: string;\n  slug: string;\n}\n"]}

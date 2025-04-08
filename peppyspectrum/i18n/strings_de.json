@@ -1,0 +1,17 @@
+{
+  "LOCALSETTINGS": "Lokale Anzeigeeinstellungen",
+  "SCREENSIZE": "Spectrum Ordner",
+  "SCREENSIZE_DOC": "Ordner für Spectrum. Benutzerdefinierte Ordner befinden sich in /data/INTERNAL/PeppySppectrum/Templates/ und müssen weightxheight+numberofbar-description. ex 800x480+30-30-collection heißen. Wenn die Anzahl der Balken weggelassen wird, wird der Standardwert 30 verwendet",
+  "CHOOSE_SPECTRUM_DOC": "Wählen Sie das Spektrum in der Liste",
+  "CHOOSE_SPECTRUM":"Select Spectrum",
+  "NBARCHANGE": "Anzahl der Balken in Spectrum geändert! Jetzt eingestellt auf ",
+  "ANWENDEN": "Anwenden",
+  "SPEICHERN": "Schließen",
+  "HERUNTERLADEN":"Herunterladen",
+  "SPECTRUM_FOLDER_NAME":"Kann die Bildschirmgröße nicht bestimmen, da der Ordner nicht richtig benannt ist! ,Muss widthxheight+bars-description ex : 800x600+30-metal sein. Kein 'x' in der Beschreibung erlaubt! bitte überprüfen!" ,
+  "SPECTRUM_INSTALL_TITLE":"Installationsfortschritt",
+  "SPECTRUM_INSTALL_WAIT":"Bitte warten...",
+  "CLICK_TO_UPDATE_LIST":"Updateliste",
+  "LIST_SUCCESS_UPDATED": "Liste aktualisiert",
+  "LIST_FAIL_UPDATE": "Liste konnte nicht aktualisiert werden"
+  }

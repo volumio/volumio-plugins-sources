@@ -1,12 +1,12 @@
 {
 	"name": "lms",
-	"version": "1.1.5",
+	"version": "1.2.6",
 	"description": "Installs the Logitech Media Server application and web client",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"author": "Saiyato",
+	"author": "Saiyato & Lars Grootkarzijn",
 	"license": "GPL-3.0",
 	"volumio_info": {
 		"prettyName": "Logitech Media Server",
@@ -21,7 +21,7 @@
 			"armhf"
 		],
 		"details": "Server plugin for the LMS ecosystem",
-		"changelog": "Refactored installation script, now tries to fetch the latest version."
+		"changelog": "Installation script now first fetches 'latest.xml' file, and extracts download url from there."
 	},
 	"engines": {
 		"node": ">=8.11.1",
@@ -33,7 +33,7 @@
 		"ip": "^1.1.5",
 		"kew": "^0.7.0",
 		"wireless-tools": "^0.19.0"
-	},	
+	},
 	"repository": "https://github.com/Saiyato/volumio-lms-plugin",
 	"keywords": [
 		"lms",

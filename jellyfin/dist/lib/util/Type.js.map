@@ -1,0 +1,1 @@
+{"version":3,"file":"Type.js","sourceRoot":"","sources":["../../../src/lib/util/Type.ts"],"names":[],"mappings":"","sourcesContent":["// Used for converting Object values to string literal types:\n// https://dev.to/multimo/how-to-build-typescript-string-literal-types-from-objects-values-361l\nexport type ValueOf<T> = T[keyof T];\n"]}

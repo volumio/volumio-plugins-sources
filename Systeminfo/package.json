@@ -1,6 +1,6 @@
 {
 	"name": "Systeminfo",
-	"version": "3.0.0",
+	"version": "3.0.6",
 	"description": "Information about your system",
 	"main": "index.js",
 	"scripts": {
@@ -22,16 +22,16 @@
 			"buster"
 		],
 		"details": "Gives information about your system",
-		"changelog": "Buster version"
+		"changelog": "better RPI 5 support"
 	},
 	"engines": {
 		"node": ">=8",
 		"volumio": ">=3"
 	},
 	"dependencies": {
-		"kew": "^0.7.0",
-		"v-conf": "^0.10.0",
 		"fs-extra": "^4.0.2",
-		"systeminformation": ""
+		"kew": "^0.7.0",
+		"systeminformation": "",
+		"v-conf": "^0.10.0"
 	}
 }

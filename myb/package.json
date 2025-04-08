@@ -1,0 +1,37 @@
+{
+	"name": "myb",
+	"version": "1.0.3",
+	"description": "myb",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Music Your Brand",
+	"license": "ISC",
+	"repository": "https://github.com/bitroadie/volumio-plugins-sources.git",
+	"volumio_info": {
+		"prettyName": "Music Your Brand",
+		"icon": "fa-solid fa-music",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Music Your Brand plugin for Volumio: unique music for commercial and professional spaces",
+		"changelog": ""
+	},
+	"engines": {
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.661.0 <4.0.0"
+	},
+	"dependencies": {
+		"axios": "^1.7.2",
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"pinia-plugin-persistedstate": "^3.2.1",
+		"v-conf": "^1.4.0"
+	}
+}

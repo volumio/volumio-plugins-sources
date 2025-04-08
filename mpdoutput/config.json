@@ -1,0 +1,110 @@
+{
+  "servername": {
+    "type": "string",
+    "value": "localhost"
+  },
+  "encoder": {
+    "type": "string",
+    "value": "lame"
+  },
+  "bitrate": {
+    "type": "string",
+    "value": "320"
+  },
+  "format": {
+    "type": "string",
+    "value": "44100:16:2"
+  },
+  "portn": {
+    "type": "string",
+    "value": "8000"
+  },
+  "httpadd": {
+    "type": "boolean",
+    "value": false
+  },
+  "max_clients": {
+    "type": "string",
+    "value": "5"
+  },
+  "buffer_time": {
+    "type": "string",
+    "value": "5000"
+  },
+  "outburst_time": {
+    "type": "string",
+    "value": "2000"
+  },
+  "always_on": {
+    "type": "string",
+    "value": "yes"
+  },
+  "iceservername": {
+    "type": "string",
+    "value": "ice.example.com"
+  },
+  "icepublishport": {
+    "type": "string",
+    "value": "8015"
+  },
+  "iceprotocol": {
+    "type": "string",
+    "value": "icecast2"
+  },
+  "icemountp": {
+    "type": "string",
+    "value": "/volumio.ogg"
+  },
+  "iceencoder": {
+    "type": "string",
+    "value": "vorbis"
+  },
+  "icebitrate": {
+    "type": "string",
+    "value": "320"
+  },
+  "iceformat": {
+    "type": "string",
+    "value": "44100:16:2"
+  },
+  "iceuser": {
+    "type": "string",
+    "value": "source"
+  },
+  "icepassword": {
+    "type": "string",
+    "value": "hackme"
+  },
+  "icestreamname": {
+    "type": "string",
+    "value": "My Ice stream"
+  },
+  "icepublic": {
+    "type": "string",
+    "value": "no"
+  },
+   "iceadd": {
+    "type": "boolean",
+    "value": false
+  },
+  "icedescription": {
+    "type": "string",
+    "value": "My music stream"
+  },
+  "icegenre": {
+    "type": "string",
+    "value": "various"
+  },
+  "iceurl": {
+    "type": "string",
+    "value": ""
+  },
+   "icestream": {
+    "type": "boolean",
+    "value": false
+  },
+  "httpstream": {
+    "type": "boolean",
+    "value": false
+  }
+}

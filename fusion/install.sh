@@ -1,6 +1,5 @@
 #!/bin/bash
 LIB=/data/plugins/audio_interface/fusiondsp
-TARGET = $libasound_module_pcm_cdsp
 opath=/data/INTERNAL/FusionDsp
 
 
@@ -14,7 +13,8 @@ mkdir -m 777 $opath/filter-sources
 mkdir -m 777 $opath/target-curves
 mkdir -m 777 $opath/peq
 mkdir -m 777 $opath/tools
-mkdir -m 777 $opath/hrtf-filters
+mkdir -m 777 $opath/presets
+
 
 chmod -R 777 $opath
 chown -R volumio $opath
@@ -26,41 +26,31 @@ cp $LIB/readme.txt $opath/readme.txt
 cp $LIB/filters/* $opath/filters/
 cp $LIB/target-curves/* $opath/target-curves/
 cp $LIB/filter-sources/* $opath/filter-sources/
-#cp -R $LIB/hrtf-filters/* $opath/hrtf-filters/
+cp $LIB/presets.tar $opath/
+cd $opath
+tar -xvf presets.tar
+chmod -R 777 presets
+cd $LIB
 rm -Rf $LIB/filters
 rm -Rf $LIB/target-curves
 rm -Rf $LIB/filters-sources
-#rm -Rf $LIB/hrtf-filters
-		
+rm /tmp/camilladsp.log
+
 echo "Installing/fusiondsp dependencies"
 sudo apt update
 sudo apt -y install python3-aiohttp python3-pip
 cd $LIB
 sudo tar -xvf fusiondsp.service.tar -C /
 
-wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/cgui.zip
-miniunzip cgui.zip
+wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/cgui-1.0.0.zip
+miniunzip cgui-1.0.0.zip
 sudo chown -R volumio cgui
 sudo chgrp -R volumio cgui
+sudo rm cgui-1.0.0.zip
 
 cd $LIB
-git clone https://github.com/HEnquist/pycamilladsp
-sudo chown -R volumio pycamilladsp
-sudo chgrp -R volumio pycamilladsp
-
-cd $LIB/pycamilladsp
-echo "pycamilladsp pip3 install"
-pip3 install .
-cd $LIB
-git clone https://github.com/HEnquist/pycamilladsp-plot
-sudo chown -R volumio pycamilladsp-plot
-sudo chgrp -R volumio pycamilladsp-plot
-
-cd $LIB/pycamilladsp-plot
-echo "pycamilladsp-plot pip3 install"
-
-pip3 install .
-cd $LIB
+pip3 install git+https://github.com/HEnquist/pycamilladsp.git@v1.0.0
+pip3 install git+https://github.com/HEnquist/pycamilladsp-plot.git@v1.0.2
 
 #echo "remove previous configuration"
 #if [ ! -f "/data/configuration/audio_interface/fusiondsp/config.json" ];
@@ -79,8 +69,8 @@ echo "Detected cpu architecture as $cpu"
 if [ $cpu = "armv7l" ] || [ $cpu = "aarch64" ] 
 then
 cd /tmp
-wget https://github.com/HEnquist/camilladsp/releases/download/v0.6.3/camilladsp-linux-armv7.tar.gz
-tar -xvf camilladsp-linux-armv7.tar.gz -C /tmp
+wget https://github.com/HEnquist/camilladsp/releases/download/v1.0.2/camilladsp-linux-armv7.tar.gz
+tar -xf camilladsp-linux-armv7.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp
@@ -95,8 +85,8 @@ sudo apt-get -y install drc
 elif [ $cpu = "x86_64" ]
 then
 cd /tmp
-wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/bin/camilladsp-linux-amd64.tar.gz
-tar -xvf camilladsp-linux-amd64.tar.gz -C /tmp
+wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/bin/camilladsp-linux-amd64-1.0.2.tar.gz
+tar -xf camilladsp-linux-amd64-1.0.2.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp
@@ -112,7 +102,7 @@ elif [ $cpu = "armv6l" ]
 then
 cd /tmp
 wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/bin/camilladsp-linux-armv6l.tar.gz
-tar -xvf camilladsp-linux-armv6l.tar.gz -C /tmp
+tar -xf camilladsp-linux-armv6l.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp

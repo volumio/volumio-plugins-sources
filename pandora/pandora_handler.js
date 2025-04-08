@@ -89,6 +89,11 @@ PandoraHandler.prototype.setAccountOptions = function (email, password, isPandor
     return libQ.resolve();
 };
 
+PandoraHandler.prototype.getLoginStatus = function () {
+    const self = this;
+    return libQ.resolve(self.loggedIn);
+};
+
 PandoraHandler.prototype.getNewTracks = function () {
     const self = this;
     return libQ.resolve(self.newTracks);
@@ -139,7 +144,7 @@ PandoraHandler.prototype.getSongMaxDiff = function () {
         });
 };
 
-PandoraHandler.prototype.reportAPIError = function (fnName, pandoraErr) {
+PandoraHandler.prototype.reportAPIError = function (errFnName, pandoraErr) {
     const self = this;
     const errMsg = pandoraErr.message;
     const errMatch = errMsg.match(/\[(\d+)\]/);
@@ -150,13 +155,16 @@ PandoraHandler.prototype.reportAPIError = function (fnName, pandoraErr) {
     const retry_codes = ['0', '1003'];
     const msg_retry = 'Try again in a few hours. ' +
         'Check status at https://pandora.com';
+    const fnName = 'reportAPIError';
 
-    self.pUtil.logError(fnName, ' Error: ' + decoded);
+    self.pUtil.announceFn(fnName);
+
+    self.pUtil.logError(errFnName, 'Pandora API Error', decoded);
     self.commandRouter.pushToastMessage(
         'error', phName, decoded);
 
     if (retry_codes.includes(code)) {
-        self.pUtil.timeOutToast('reportAPIError', 'info',
+        self.pUtil.timeOutToast(fnName, 'info',
             phName, msg_retry, 5000);
     }
 
@@ -178,23 +186,20 @@ PandoraHandler.prototype.getStationList = function () {
 PandoraHandler.prototype.pandoraLoginAndGetStations = function () {
     const self = this;
     const fnName = 'pandoraLoginAndGetStations';
+    var defer = libQ.defer();
+
     self.pUtil.announceFn(fnName);
 
     // Login with pandora anesidora object
-    function pandoraLogin() {
-        let defer = libQ.defer();
+    self.pandora.login(defer.makeNodeResolver());
 
-        self.pandora.login(defer.makeNodeResolver());
-
-        return defer.promise;
-    }
-
-    return pandoraLogin()
+    defer.promise
         .fail(err => {
             const subFnName = fnName + '::pandoraLogin';
             self.reportAPIError(subFnName, err);
+            self.loggedIn = false;
 
-            return self.pUtil.generalReject(subFnName, err);
+            defer.resolve();
         })
         .then(() => {
             let bookendMsg = '[<=- * -=>]';
@@ -211,8 +216,10 @@ PandoraHandler.prototype.pandoraLoginAndGetStations = function () {
             self.pUtil.logInfo(fnName + '::pandoraLogin', bookendMsg.replace('*', logMsg));
             self.commandRouter.pushToastMessage('success', 'Pandora Login', msg);
 
-            return libQ.resolve();
+            defer.resolve();
         });
+
+    return defer.promise;
 };
 
 PandoraHandler.prototype.fillStationData = function () {
@@ -224,8 +231,9 @@ PandoraHandler.prototype.fillStationData = function () {
         .fail(err => {
             const subFnName = fnName + '::getStationlist';
             self.reportAPIError(subFnName, err);
+            self.stationData = {};
 
-            return self.pUtil.generalReject(subFnName, err);
+            return libQ.resolve();
         })
         .then(result => {
             self.stationList = result;
@@ -405,28 +413,47 @@ PandoraHandler.prototype.fetchTracks = function () {
         });
 };
 
-PandoraHandler.prototype.thumbsDownTrack = function (track) {
-    const self = this;
-    const fnName = 'thumbsDownTrack';
+PandoraHandler.prototype.addFeedback = function (track, feedback) {
+    var self = this;
+    const fnName = 'addFeedback';
     var defer = libQ.defer();
 
     self.pUtil.announceFn(fnName);
 
+    self.pandora.request('station.addFeedback', {
+        'stationToken': track.stationToken,
+        'trackToken': track.trackToken,
+        'isPositive': feedback
+        }, defer.makeNodeResolver());
+
+    return defer.promise;
+};
+
+// send thumbs up / down to Pandora servers for track
+PandoraHandler.prototype.thumbTrack = function (track, isUp) {
+    var self = this;
+    const fnName = 'thumbTrack(isUp=' + isUp + ')';
+    const thumb = isUp ? ['Up', 'Olé'] : ['Down', 'Adiós'];
+
+    self.pUtil.announceFn(fnName);
+
     if (track.service === serviceName) {
-        self.pandora.request('station.addFeedback', {
-            'stationToken': track.stationToken,
-            'trackId': track.trackId,
-            'isPositive': false
-            }, defer.makeNodeResolver());
+        return self.addFeedback(track, isUp)
+            .fail(err => {
+                self.reportAPIError(fnName, err);
+                return self.pUtil.generalReject(fnName, err);
+            })
+            .then(() => {
+                self.pUtil.logInfo(fnName,
+                    'Thumbs ' + thumb[0] + ' delivered.  Station: ' +
+                    self.context.currStation.name + ' Track: ' + track.name);
 
-        self.pUtil.logInfo(fnName, 'Thumbs down delivered.  Station: ' +
-            self.context.currStation.name + ' Track: ' + track.name);
+                self.pUtil.timeOutToast(fnName, 'success', 'Pandora',
+                    'Thumbs ' + thumb[0] + ' delivered.\n' +
+                    '¡' + thumb[1] + ', ' + track.name + '!', 5000);
 
-        self.pUtil.timeOutToast(fnName, 'success', 'Pandora',
-            'Thumbs Down delivered.\n' +
-            '¡Adiós, ' + track.name + '!', 5000);
-
-        return defer.promise;
+                return libQ.resolve();
+            });
     }
     self.pUtil.logInfo(fnName, 'Not a Pandora track.  Ignored.');
 
