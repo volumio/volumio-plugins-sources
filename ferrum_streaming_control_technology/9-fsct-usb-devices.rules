@@ -1,0 +1,1 @@
+SUBSYSTEMS=="usb", GROUP="plugdev", MODE="0666"
