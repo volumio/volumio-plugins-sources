@@ -1,14 +1,14 @@
 {
 	"name": "ferrum_streaming_control_technology",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"description": "Plugin provides support for Ferrum Streaming Control Technology allowing DACs (e.g. Ferrum Wandla) to show current state of playback like title, artist and progress bar.",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "HEM-RnD",
-	"license": "ISC",
-	"repository": "https://github.com/yourname/yourrepo",
+	"license": "UNLICENSED",
+	"repository": "https://github.com/HEM-RnD/volumio-plugins-sources",
 	"volumio_info": {
 		"prettyName": "Ferrum Streaming Control Technology",
 		"icon": "fa-lightbulb-o",
@@ -16,13 +16,13 @@
 		"architectures": [
 			"amd64",
 			"armhf",
-			"i386"
+			"arm64"
 		],
 		"os": [
 			"buster"
 		],
-		"details": "Lorem ipsum",
-		"changelog": "Lorem ipsum"
+		"details": "Plugin provides support for Ferrum Streaming Control Technology allowing DACs (e.g. Ferrum Wandla) to show current state of playback like title, artist and progress bar.",
+		"changelog": " * 0.1.0 - development version"
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",
