@@ -68,7 +68,7 @@ ferrumStreamingControlTechnology.prototype.onVolumioStart = function () {
         initLogger(LogLevel.Info);
     }
     catch (e) {
-        console.log(e);
+        console.error(e);
     }
 
     return libQ.resolve();
@@ -82,9 +82,10 @@ ferrumStreamingControlTechnology.prototype.onStart = function () {
         .then(function () {
                 var state = self.commandRouter.volumioGetState();
                 self.updateStateOnPlayer(state);
-                defer.done();
+                defer.resolve();
             },
             function (err) {
+                console.error(err);
                 defer.reject(err);
             });
     return defer.promise;
@@ -94,7 +95,12 @@ ferrumStreamingControlTechnology.prototype.onStop = function () {
     var self = this;
     var defer = libQ.defer();
 
-    fsctService.stopFsct();
+    try {
+        fsctService.stopFsct();
+    }
+    catch (e) {
+        console.error(e);
+    }
 
     // Once the Plugin has successfull stopped resolve the promise
     defer.resolve();
@@ -152,8 +158,8 @@ ferrumStreamingControlTechnology.prototype.setConf = function (varName, varValue
 
 ferrumStreamingControlTechnology.prototype.pushState = function (state) {
     var self = this;
-    self.logger.debug('API:pushState');
+    self.logger.debug('FSCT API:pushState');
 
-    var latestState = self.commandRouter.volumioGetState();
-    self.updateStateOnPlayer(latestState);
+    // var latestState = self.commandRouter.volumioGetState();
+    self.updateStateOnPlayer(state);
 };
