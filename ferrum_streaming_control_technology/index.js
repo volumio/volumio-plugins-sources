@@ -84,13 +84,13 @@ FerrumStreamingControlTechnology.prototype.onStart = function () {
                 self.updateStateOnPlayer(state);
                 self.logger.info('FSCT Started');
                 defer.resolve();
-                self.commandRouter.pushToastMessage('success', 'Started Ferrum Streaming Control Technology plugin');
+                self.commandRouter.pushToastMessage('success', 'Started FSCT plugin',  'Started Ferrum Streaming Control Technology plugin');
         })
         .catch((err) => {
             self.logger.error(err);
             defer.reject(err);
         });
-    self.commandRouter.pushToastMessage('success', 'Starting FSCT plugin');
+    self.commandRouter.pushToastMessage('info', 'Starting FSCT plugin', 'Starting Ferrum Streaming Control Technology plugin');
 
     return defer.promise;
 };
