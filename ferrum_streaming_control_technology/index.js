@@ -83,7 +83,7 @@ FerrumStreamingControlTechnology.prototype.onStart = function () {
                 var state = self.commandRouter.volumioGetState();
                 self.updateStateOnPlayer(state);
                 defer.resolve();
-                self.logger.info('FSCT Started');
+                console.info('FSCT Started');
             },
             function (err) {
                 console.error(err);
@@ -105,7 +105,7 @@ FerrumStreamingControlTechnology.prototype.onStop = function () {
 
     // Once the Plugin has successfull stopped resolve the promise
     defer.resolve();
-    self.logger.info('FSCT Stopped');
+    console.info('FSCT Stopped');
 
     return libQ.resolve();
 };
