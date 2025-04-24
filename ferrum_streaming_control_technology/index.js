@@ -76,20 +76,20 @@ FerrumStreamingControlTechnology.prototype.onVolumioStart = function () {
 
 FerrumStreamingControlTechnology.prototype.onStart = function () {
     var self = this;
-    var defer = libQ.defer();
+    // var defer = libQ.defer();
 
-    fsctService.runFsct(player)
+    return fsctService.runFsct(player)
         .then(function () {
-                defer.resolve();
+                // defer.resolve();
                 var state = self.commandRouter.volumioGetState();
                 self.updateStateOnPlayer(state);
                 self.logger.info('FSCT Started');
             },
             function (err) {
                 self.logger.error(err);
-                defer.reject(err);
+                // defer.reject(err);
             });
-    return defer.promise;
+    // return defer.promise;
 };
 
 FerrumStreamingControlTechnology.prototype.onStop = function () {
