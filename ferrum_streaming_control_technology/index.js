@@ -5,8 +5,7 @@ var fs = require('fs-extra');
 var config = new (require('v-conf'))();
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
-var fsct = require('./fsct-node-lib/index.js')
-const {PlayerStatus, CurrentTextMetadata} = require("./fsct-node-lib");
+const {LogLevel, initLogger, FsctService, NodePlayer, PlayerStatus, CurrentTextMetadata} = require("@hemspzoo/fsct-lib");
 
 
 module.exports = ferrumStreamingControlTechnology;
@@ -21,7 +20,8 @@ function ferrumStreamingControlTechnology(context) {
 
 }
 
-var player = new fsct.NodePlayer()
+var player = new NodePlayer()
+var fsctService = new FsctService();
 
 function getStatus (state) {
     switch (state["status"]) {
@@ -50,7 +50,6 @@ function getTimelineInfo(state) {
     };
 }
 
-
 ferrumStreamingControlTechnology.prototype.updateStateOnPlayer = function (state) {
     player.setStatus(getStatus(state));
     player.setTimeline(getTimelineInfo(state));
@@ -65,6 +64,8 @@ ferrumStreamingControlTechnology.prototype.onVolumioStart = function () {
     this.config = new (require('v-conf'))();
     this.config.loadFile(configFile);
 
+    initLogger(LogLevel.Info);
+
     return libQ.resolve();
 }
 
@@ -72,9 +73,10 @@ ferrumStreamingControlTechnology.prototype.onStart = function () {
     var self = this;
     var defer = libQ.defer();
 
-    fsct.runFsct(player)
     var state = self.commandRouter.volumioGetState();
     self.updateStateOnPlayer(state);
+
+    fsctService.runFsct(player);
 
     // Once the Plugin has successfull started resolve the promise
     defer.resolve();
@@ -85,6 +87,8 @@ ferrumStreamingControlTechnology.prototype.onStart = function () {
 ferrumStreamingControlTechnology.prototype.onStop = function () {
     var self = this;
     var defer = libQ.defer();
+
+    fsctService.stopFsct();
 
     // Once the Plugin has successfull stopped resolve the promise
     defer.resolve();
@@ -144,5 +148,6 @@ ferrumStreamingControlTechnology.prototype.pushState = function (state) {
     var self = this;
     self.logger.debug('API:pushState');
 
-    self.updateStateOnPlayer(state);
+    var latestState = self.commandRouter.volumioGetState();
+    self.updateStateOnPlayer(latestState);
 };
