@@ -84,11 +84,12 @@ FerrumStreamingControlTechnology.prototype.onStart = function () {
                 self.updateStateOnPlayer(state);
                 self.logger.info('FSCT Started');
                 defer.resolve();
-            },
-            function (err) {
-                self.logger.error(err);
-                defer.reject(err);
-            });
+                self.context.coreCommand.broadcastMessage("nowPlayingRefresh");
+        })
+        .catch((err) => {
+            self.logger.error(err);
+            defer.reject(err);
+        });
     return defer.promise;
 };
 
