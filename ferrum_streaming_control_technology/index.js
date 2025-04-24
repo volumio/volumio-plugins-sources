@@ -64,7 +64,12 @@ ferrumStreamingControlTechnology.prototype.onVolumioStart = function () {
     this.config = new (require('v-conf'))();
     this.config.loadFile(configFile);
 
-    initLogger(LogLevel.Info);
+    try {
+        initLogger(LogLevel.Info);
+    }
+    catch (e) {
+        console.log(e);
+    }
 
     return libQ.resolve();
 }
