@@ -8,9 +8,9 @@ var execSync = require('child_process').execSync;
 const {LogLevel, initLogger, FsctService, NodePlayer, PlayerStatus, CurrentTextMetadata} = require("@hemspzoo/fsct-lib");
 
 
-module.exports = ferrumStreamingControlTechnology;
+module.exports = FerrumStreamingControlTechnology;
 
-function ferrumStreamingControlTechnology(context) {
+function FerrumStreamingControlTechnology(context) {
     var self = this;
 
     this.context = context;
@@ -50,7 +50,7 @@ function getTimelineInfo(state) {
     };
 }
 
-ferrumStreamingControlTechnology.prototype.updateStateOnPlayer = function (state) {
+FerrumStreamingControlTechnology.prototype.updateStateOnPlayer = function (state) {
     player.setStatus(getStatus(state));
     player.setTimeline(getTimelineInfo(state));
     player.setText(CurrentTextMetadata.Title, state["title"]);
@@ -58,7 +58,7 @@ ferrumStreamingControlTechnology.prototype.updateStateOnPlayer = function (state
     player.setText(CurrentTextMetadata.Album, state["album"]);
 }
 
-ferrumStreamingControlTechnology.prototype.onVolumioStart = function () {
+FerrumStreamingControlTechnology.prototype.onVolumioStart = function () {
     var self = this;
     var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context, 'config.json');
     this.config = new (require('v-conf'))();
@@ -74,7 +74,7 @@ ferrumStreamingControlTechnology.prototype.onVolumioStart = function () {
     return libQ.resolve();
 }
 
-ferrumStreamingControlTechnology.prototype.onStart = function () {
+FerrumStreamingControlTechnology.prototype.onStart = function () {
     var self = this;
     var defer = libQ.defer();
 
@@ -91,7 +91,7 @@ ferrumStreamingControlTechnology.prototype.onStart = function () {
     return defer.promise;
 };
 
-ferrumStreamingControlTechnology.prototype.onStop = function () {
+FerrumStreamingControlTechnology.prototype.onStop = function () {
     var self = this;
     var defer = libQ.defer();
 
@@ -108,7 +108,7 @@ ferrumStreamingControlTechnology.prototype.onStop = function () {
     return libQ.resolve();
 };
 
-ferrumStreamingControlTechnology.prototype.onRestart = function () {
+FerrumStreamingControlTechnology.prototype.onRestart = function () {
     var self = this;
     // Optional, use if you need it
 };
@@ -116,7 +116,7 @@ ferrumStreamingControlTechnology.prototype.onRestart = function () {
 
 // Configuration Methods -----------------------------------------------------------------------------
 
-ferrumStreamingControlTechnology.prototype.getUIConfig = function () {
+FerrumStreamingControlTechnology.prototype.getUIConfig = function () {
     var defer = libQ.defer();
     var self = this;
 
@@ -137,26 +137,26 @@ ferrumStreamingControlTechnology.prototype.getUIConfig = function () {
     return defer.promise;
 };
 
-ferrumStreamingControlTechnology.prototype.getConfigurationFiles = function () {
+FerrumStreamingControlTechnology.prototype.getConfigurationFiles = function () {
     return ['config.json'];
 }
 
-ferrumStreamingControlTechnology.prototype.setUIConfig = function (data) {
+FerrumStreamingControlTechnology.prototype.setUIConfig = function (data) {
     var self = this;
     //Perform your installation tasks here
 };
 
-ferrumStreamingControlTechnology.prototype.getConf = function (varName) {
+FerrumStreamingControlTechnology.prototype.getConf = function (varName) {
     var self = this;
     //Perform your installation tasks here
 };
 
-ferrumStreamingControlTechnology.prototype.setConf = function (varName, varValue) {
+FerrumStreamingControlTechnology.prototype.setConf = function (varName, varValue) {
     var self = this;
     //Perform your installation tasks here
 };
 
-ferrumStreamingControlTechnology.prototype.pushState = function (state) {
+FerrumStreamingControlTechnology.prototype.pushState = function (state) {
     var self = this;
     self.logger.debug('FSCT API:pushState');
 
