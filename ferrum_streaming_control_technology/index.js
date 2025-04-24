@@ -82,7 +82,7 @@ ferrumStreamingControlTechnology.prototype.onStart = function () {
         .then(function () {
             var state = self.commandRouter.volumioGetState();
             self.updateStateOnPlayer(state);
-            defer.resolve();
+            defer.done();
         }).fail(function(e)
         {
             defer.reject(new Error());
