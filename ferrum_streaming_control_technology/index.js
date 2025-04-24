@@ -73,13 +73,15 @@ ferrumStreamingControlTechnology.prototype.onStart = function () {
     var self = this;
     var defer = libQ.defer();
 
-    fsctService.runFsct(player).then(function () {
-        var state = self.commandRouter.volumioGetState();
-        self.updateStateOnPlayer(state);
-    });
-
-    // Once the Plugin has successfull started resolve the promise
-    defer.resolve();
+    fsctService.runFsct(player)
+        .then(function () {
+            var state = self.commandRouter.volumioGetState();
+            self.updateStateOnPlayer(state);
+            defer.resolve();
+        }).fail(function(e)
+        {
+            defer.reject(new Error());
+        });
 
     return defer.promise;
 };
