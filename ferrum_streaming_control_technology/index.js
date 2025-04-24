@@ -80,9 +80,9 @@ FerrumStreamingControlTechnology.prototype.onStart = function () {
 
     fsctService.runFsct(player)
         .then(function () {
+                defer.resolve();
                 var state = self.commandRouter.volumioGetState();
                 self.updateStateOnPlayer(state);
-                defer.resolve();
                 self.logger.info('FSCT Started');
             },
             function (err) {
