@@ -80,14 +80,13 @@ ferrumStreamingControlTechnology.prototype.onStart = function () {
 
     fsctService.runFsct(player)
         .then(function () {
-            var state = self.commandRouter.volumioGetState();
-            self.updateStateOnPlayer(state);
-            defer.done();
-        }).fail(function(e)
-        {
-            defer.reject(new Error());
-        });
-
+                var state = self.commandRouter.volumioGetState();
+                self.updateStateOnPlayer(state);
+                defer.done();
+            },
+            function (err) {
+                defer.reject(err);
+            });
     return defer.promise;
 };
 
