@@ -1,0 +1,6 @@
+Package: usb-plugdev-udev-rule
+Version: 0.2.0
+Maintainer: HEM Sp. z o.o.
+Architecture: all
+Description: Adds udev rule which is responsible of adding every connected usb device to plugdev group
+

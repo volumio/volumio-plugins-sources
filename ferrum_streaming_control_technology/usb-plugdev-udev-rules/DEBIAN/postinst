@@ -1,0 +1,5 @@
+#!/bin/bash
+
+udevadm control -R 
+udevadm trigger
+
