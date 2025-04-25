@@ -9,7 +9,8 @@ echo "Installing ferrum streaming control technology Dependencies"
 # sudo udevadm control -R 
 # sudo udevadm trigger
 
-sudo dpkg -i usb-plugdev-udev-rules.deb
+dpkg-deb --build fsct-usb-plugdev-udev-rules
+sudo dpkg -i fsct-usb-plugdev-udev-rules.deb
 
 # If you need to differentiate install for armhf and i386 you can get the variable like this
 #DPKG_ARCH=`dpkg --print-architecture`
