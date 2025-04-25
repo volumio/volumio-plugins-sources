@@ -1,12 +1,11 @@
 #!/bin/bash
 
 echo "Installing ferrum streaming control technology Dependencies"
-sudo apt-get update
+# sudo apt-get update
 # Install the required packages via apt-get
-sudo apt-get -y install
+# sudo apt-get -y install
 
-# probably needs to install libssl-dev, but I'm not sure
-sudo cp 9-fsct-usb-devices.rules /etc/udev/rules.d/
+sudo cp 09-usb-devices-plugdev.rules /lib/udev/rules.d/
 sudo udevadm control -R 
 sudo udevadm trigger
 
