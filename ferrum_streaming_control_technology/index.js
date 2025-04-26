@@ -5,7 +5,7 @@ var fs = require('fs-extra');
 var config = new (require('v-conf'))();
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
-const {LogLevel, initLogger, FsctService, NodePlayer, PlayerStatus, CurrentTextMetadata} = require("@hemspzoo/fsct-lib");
+const {LogLevelFilter, setLogLevel, initSystemdLogger, FsctService, NodePlayer, PlayerStatus, CurrentTextMetadata} = require("@hemspzoo/fsct-lib");
 
 
 module.exports = FerrumStreamingControlTechnology;
@@ -65,7 +65,8 @@ FerrumStreamingControlTechnology.prototype.onVolumioStart = function () {
     this.config.loadFile(configFile);
 
     try {
-        initLogger(LogLevel.Info);
+        initSystemdLogger("FSCT Plugin");
+        setLogLevel(LogLevelFilter.Info);
     }
     catch (e) {
         self.logger.error(e);
