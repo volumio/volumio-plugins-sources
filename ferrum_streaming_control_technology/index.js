@@ -65,7 +65,7 @@ FerrumStreamingControlTechnology.prototype.onVolumioStart = function () {
     this.config.loadFile(configFile);
 
     try {
-        initSystemdLogger("FSCT Plugin");
+        initSystemdLogger("fsct-plugin");
         setLogLevel(LogLevelFilter.Info);
     }
     catch (e) {
