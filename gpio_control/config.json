@@ -5,11 +5,11 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 2,
+      "value": 0,
       "type": "number"
     },
     "state": {
-      "value": true,
+      "value": false,
       "type": "boolean"
     },
     "delay": {
@@ -35,7 +35,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 2,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -65,11 +65,11 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
-      "value": true,
+      "value": false,
       "type": "boolean"
     },
     "delay": {
@@ -95,7 +95,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -125,7 +125,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -155,7 +155,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -185,7 +185,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -215,7 +215,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -245,7 +245,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -275,7 +275,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -305,7 +305,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -335,7 +335,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -365,7 +365,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -395,7 +395,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -425,7 +425,7 @@
       "type": "boolean"
     },
     "pin": {
-      "value": 3,
+      "value": 0,
       "type": "number"
     },
     "state": {
@@ -446,6 +446,295 @@
     },
     "durationUnits": {
       "value": 0,
+      "type": "number"
+    }
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  "wifiConnected": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 0,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "wifiDisconnected": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 0,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "ethernetConnected": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 0,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "ethernetDisconnected": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 0,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    }
+  },
+  "host1Online": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 0,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "host": {
+      "value": "google.com",
+      "type": "string"
+    }
+  },
+  "host1Offline": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 0,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "host": {
+      "value": "google.com",
+      "type": "string"
+    }
+  },
+  "host2Online": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 0,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "host": {
+      "value": "",
+      "type": "string"
+    }
+  },
+  "host2Offline": {
+    "enabled": {
+      "value": false,
+      "type": "boolean"
+    },
+    "pin": {
+      "value": 0,
+      "type": "number"
+    },
+    "state": {
+      "value": false,
+      "type": "boolean"
+    },
+    "delay": {
+      "value": 0,
+      "type": "number"
+    },
+    "delayUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "duration": {
+      "value": 0,
+      "type": "number"
+    },
+    "durationUnits": {
+      "value": 0,
+      "type": "number"
+    },
+    "host": {
+      "value": "",
+      "type": "string"
+    }
+  },
+  "networkCheck": {
+    "interval": {
+      "value": 5,
       "type": "number"
     }
   }
