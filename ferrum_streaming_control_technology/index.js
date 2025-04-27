@@ -66,7 +66,7 @@ FerrumStreamingControlTechnology.prototype.onVolumioStart = function () {
 
     try {
         initSystemdLogger("fsct-plugin");
-        setLogLevel(LogLevelFilter.Info);
+        setLogLevel(LogLevelFilter.Debug);
     }
     catch (e) {
         self.logger.error(e);
@@ -162,8 +162,6 @@ FerrumStreamingControlTechnology.prototype.setConf = function (varName, varValue
 
 FerrumStreamingControlTechnology.prototype.pushState = function (state) {
     var self = this;
-    self.logger.debug('FSCT API:pushState');
 
-    // var latestState = self.commandRouter.volumioGetState();
     self.updateStateOnPlayer(state);
 };
