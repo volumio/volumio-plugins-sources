@@ -1,6 +1,6 @@
 {
 	"name": "ferrum_streaming_control_technology",
-	"version": "0.2.2",
+	"version": "1.0.0",
 	"description": "Plugin provides support for Ferrum Streaming Control Technology allowing DACs (e.g. Ferrum Wandla) to show current state of playback like title, artist and progress bar.",
 	"main": "index.js",
 	"scripts": {
@@ -21,7 +21,7 @@
 			"buster"
 		],
 		"details": "Plugin provides support for Ferrum Streaming Control Technology allowing DACs (e.g. Ferrum Wandla) to show current state of playback like title, artist and progress bar.",
-		"changelog": " * 0.2.2 - development version"
+		"changelog": " * 1.0.0 - first published version"
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",
