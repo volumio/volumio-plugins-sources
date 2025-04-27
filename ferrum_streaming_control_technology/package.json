@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"author": "HEM-RnD",
+	"author": "HEM Sp. z o.o.",
 	"license": "UNLICENSED",
 	"repository": "https://github.com/HEM-RnD/volumio-plugins-sources",
 	"volumio_info": {
