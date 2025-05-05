@@ -1,7 +1,7 @@
 import AlbumViewHandler from './AlbumViewHandler';
 import ArticleViewHandler from './ArticleViewHandler';
 import BandViewHandler from './BandViewHandler';
-import BaseViewHandler from './BaseViewHandler';
+import type BaseViewHandler from './BaseViewHandler';
 import DiscoverViewHandler from './DiscoverViewHandler';
 import FanViewHandler from './FanViewHandler';
 import RootViewHandler from './RootViewHandler';
@@ -9,7 +9,7 @@ import SearchViewHandler from './SearchViewHandler';
 import ShowViewHandler from './ShowViewHandler';
 import TagViewHandler from './TagViewHandler';
 import TrackViewHandler from './TrackViewHandler';
-import View from './View';
+import type View from './View';
 import ViewHelper from './ViewHelper';
 
 type HandlerClass<V extends View, T extends BaseViewHandler<V>> =

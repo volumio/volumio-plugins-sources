@@ -1,5 +1,5 @@
-import AlbumEntity from './AlbumEntity';
-import TrackEntity from './TrackEntity';
+import type AlbumEntity from './AlbumEntity';
+import type TrackEntity from './TrackEntity';
 
 interface ArticleEntity {
   type: 'article',

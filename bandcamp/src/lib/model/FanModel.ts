@@ -1,10 +1,10 @@
-import bcfetch, { Album, FanAPIGetInfoParams, FanContinuationItemsResult, FanPageItemsResult, Tag, Track, UserKind } from 'bandcamp-fetch';
+import bcfetch, { type Album, type FanAPIGetInfoParams, type FanContinuationItemsResult, type FanPageItemsResult, type Tag, type Track, type UserKind } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
-import BaseModel, { LoopFetchCallbackParams, LoopFetchResult } from './BaseModel';
-import BandEntity from '../entities/BandEntity';
-import AlbumEntity from '../entities/AlbumEntity';
-import TrackEntity from '../entities/TrackEntity';
-import TagEntity from '../entities/TagEntity';
+import BaseModel, { type LoopFetchCallbackParams, type LoopFetchResult } from './BaseModel';
+import type BandEntity from '../entities/BandEntity';
+import type AlbumEntity from '../entities/AlbumEntity';
+import type TrackEntity from '../entities/TrackEntity';
+import type TagEntity from '../entities/TagEntity';
 import EntityConverter from '../util/EntityConverter';
 import Model from '.';
 
