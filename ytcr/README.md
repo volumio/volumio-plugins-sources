@@ -1,8 +1,41 @@
+<a href='https://ko-fi.com/C0C5RGOOP' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
 # YouTube Cast Receiver for Volumio
 
 Plugin that enables Volumio to act a YouTube Cast receiver device. Supports casting from YouTube and YouTube Music.
 
 # Changelog
+
+1.2.3 (Buster backport)
+- Backport from main branch v2.0.4
+
+1.2.2 (Buster backport)
+- Update `yt-cast-receiver` lib
+- Polyfill `atob` / `btoa`
+
+1.2.1 (Buster backport)
+- Backport from main branch v2.0.2
+
+1.2.0 (Buster backport)
+- Backport from main branch v2.0.1
+
+2.0.4
+- Update YT dependencies
+- Set a TTL for persisted receiver session data
+
+2.0.3
+- Update YT dependencies
+
+2.0.2
+- Update YT dependencies
+
+2.0.1
+- Fix broken playback due to YT changes (credit: [#837](https://github.com/LuanRT/YouTube.js/pull/837))
+- Fix prefetch causing stuck queue on YT app
+
+2.0.0
+- Release for Bookworm-based Volumio
+- Fix fetching of stream URL through po_tokens and passing appropriate client type (otherwise streams will give 403 error)
 
 1.1.2
 - Fix broken playback due to YT changes (credit: [#713] (https://github.com/LuanRT/YouTube.js/pull/713))

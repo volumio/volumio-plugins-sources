@@ -1,6 +1,7 @@
 import format from 'string-format';
 import fs from 'fs-extra';
 import { kewToJSPromise } from './Utils';
+import { PLUGIN_CONFIG_SCHEMA, type PluginConfigKey, type PluginConfigValue } from './PluginConfig';
 
 interface DeviceInfo {
   name: string;
@@ -66,15 +67,16 @@ class YTCRContext {
     return this.#pluginContext.coreCommand.getId();
   }
 
-  getConfigValue(key: string, defaultValue: any = undefined, json = false): any {
+  getConfigValue<T extends PluginConfigKey>(key: T): PluginConfigValue<T> {
+    const schema = PLUGIN_CONFIG_SCHEMA[key];
     if (this.#pluginConfig.has(key)) {
       const val = this.#pluginConfig.get(key);
-      if (json) {
+      if (schema.json) {
         try {
           return JSON.parse(val);
         }
-        catch (e) {
-          return defaultValue;
+        catch (_error: unknown) {
+          return schema.defaultValue;
         }
       }
       else {
@@ -82,16 +84,17 @@ class YTCRContext {
       }
     }
     else {
-      return defaultValue;
+      return schema.defaultValue;
     }
   }
 
-  deleteConfigValue(key: string) {
+  deleteConfigValue(key: PluginConfigKey) {
     this.#pluginConfig.delete(key);
   }
 
-  setConfigValue(key: string, value: any, json = false) {
-    this.#pluginConfig.set(key, json ? JSON.stringify(value) : value);
+  setConfigValue<T extends PluginConfigKey>(key: T, value: PluginConfigValue<T>) {
+    const schema = PLUGIN_CONFIG_SCHEMA[key];
+    this.#pluginConfig.set(key, schema.json ? JSON.stringify(value) : value);
   }
 
   getMpdPlugin(): any {
@@ -157,7 +160,7 @@ class YTCRContext {
       try {
         this.#i18nDefaults = fs.readJsonSync(`${i18nPath}/strings_en.json`);
       }
-      catch (e) {
+      catch (_error: unknown) {
         this.#i18nDefaults = {};
       }
 
@@ -165,7 +168,7 @@ class YTCRContext {
         const language_code = this.#pluginContext.coreCommand.sharedVars.get('language_code');
         this.#i18n = fs.readJsonSync(`${i18nPath}/strings_${language_code}.json`);
       }
-      catch (e) {
+      catch (_error: unknown) {
         this.#i18n = this.#i18nDefaults;
       }
     }
