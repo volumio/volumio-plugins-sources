@@ -25,21 +25,22 @@
 		"OPEN_PLUGDOC_DOC" : "Cliquer ici pour ouvrir l'aide à la configuration de votre Evo Sabre."
     },
     "ERRORS": { 
-        "SYSTEMD_FAIL": "Echec lors du démarrage du service",
+		"SYSTEMD_FAIL": "Echec lors du démarrage du service",
 		"REMOTE_DIAGNOSE_DISABLED" : "Vous devez activer le service de la télécommande avant de pouvoir le diagnostiquer. La première installation de ce plugin a également besoin d'un redémarrage système.",
 		"REMOTE_DIAGNOSE_ERROR" : "Erreur fatale dans le service télécommande. Tentez de redémarrer votre Evo Sabre et réinstallez ce plugin si le problème persiste.",
 		"REMOTE_DIAGNOSE_CONFLICT" : "La configuration de la télécommande est dégradée. Tentez de redémarrer votre Evo Sabre et voyez si le problème persiste. Le cas échéant réinstallez le plugin et vérifiez qu'aucun autre plugin ne sollicite le service de la télécommande (LIRC)."
     },
 	"DOCUMENTATION": {
 		"title" : "Configurer votre Evo Sabre pour Volumio",
-		"intro" : "Merci d'utiliser ce plugin pour votre Evo Sabre.<br>En l'installant et en l'activant, l'écran de droite et la télécommande ont été automatiquement configurés et peuvent désormais être activés / désactivés depuis cette page de configuration. Notez que la télécommande ne sera entièrement fonctionnelle qu'après un premier redémarrage systeme.",
+		"intro" : "Merci d'utiliser ce plugin pour votre Evo Sabre.<br>En l'installant et en l'activant, l'écran de droite et la télécommande ont été automatiquement configurés et peuvent désormais être activés / désactivés depuis cette page de configuration.<br><strong> Notez que la télécommande et l'écran #2 (droite) ne seront entièrement fonctionnels qu'après un premier redémarrage systeme.</strong>",
 		"conf" :  "Pour finaliser la configuration et obtenir le meilleur son, veuillez suivre les indications ci-dessous avant de commencer vos sessions d'écoute",
 		"dac" :  "Si cela n'a pas déjà été fait pendant la configuration initiale de Volumio, configurez le système pour utiliser le DAC ES9038 en sortie audio. Pour ce faire, allez dans Réglages -> Options de lecture -> Sortie Audio (<a href=\"plugin/audio_interface-alsa_controller\">ici</a>) et mettez l'option I2S DAC sur \"ON\". Puis sélectionnez \"Audiophonics I-Sabre ES9028Q2M\" dans le menu déroulant  \"DAC MODEL \"." ,
-		"dsd" :  "Dans Réglages -> Options de lecture -> Options de lecture générales ->Mode de lecture DSD, selectionnez DSD sur PCM (DOP)",
-		"vol" : "Dans Réglages -> Options de lecture -> Options de Volume -> Type de Mixeur, choisissez \"Matériel\". Puis indiquez \"Digital\" dans le champ \"Nom du Mixeur\".",
-		"mpd" :  "Nous recommandons d'activer le \"Contrôle du volume par les clients MPD\"(également dans Réglages -> Options de lecture -> Options de Volume)",
+		"dsd" :  "Dans Réglages -> Options De lecture -> Options De lecture générales -> Mode de lecture DSD, selectionnez DSD sur PCM (DOP)",
+		"vol" : "Dans Réglages -> Options De lecture -> Options De Volume -> Type de Mixeur, choisissez \"Matériel\". Puis indiquez \"Digital\" dans le champ \"Nom du Mixeur\".",
+		"vol_curve" : "Dans Réglages -> Options de lecture -> Options De Volume -> Type de courbe de volume, selectionnez Linéaire",
+		"mpd" : "Nous recommandons d'activer le \"Contrôle du volume par les clients MPD\"(également dans Réglages -> Options de lecture -> Options de Volume)",
 		"off_note_title" : "Note à propos de la mise hors tension",
-		"off_note" :  "Les boutons ON/OFF situés sur la télécommande et en façade du Evo Sabre sont intégrées en dur dans le circuit (et sont donc indépendants de ce plugin et du système d'exploitation). Ils ne déclenchent pas une mise hors tension gracieuse du système et nous vous conseillons très vivement d'utiliser la fonction Arrêt -> Eteindre de l'interface Volumio <strong>avant</strong> de couper la tension depuis la télécommande ou la facade.",
+		"off_note" : "Les boutons ON/OFF situés sur la télécommande et en façade du Evo Sabre sont intégrées en dur dans le circuit (et sont donc indépendants de ce plugin et du système d'exploitation). Ils ne déclenchent pas une mise hors tension gracieuse du système et nous vous conseillons très vivement d'utiliser la fonction Arrêt -> Eteindre de l'interface Volumio <strong>avant</strong> de couper la tension depuis la télécommande ou la facade.",
 		"moar" : "Si vous rencontrez des problèmes, que vous avez des questions ou que vous souhaitez simplement donner votre avis, merci d'utiliser à cet effet le dépôt github dédié au developpement de ce plugin (<a target='_blank' href='https://github.com/audiophonics/volumio-plugins-sources/tree/master/audiophonics_evosabre'>https://github.com/audiophonics/volumio-plugins-sources/tree/master/audiophonics_evosabre</a>)."
 	}
 }

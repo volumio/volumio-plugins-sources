@@ -1,3 +1,5 @@
+# Todo : this readme is not up to date
+
 ## Evo Sabre as a Volumio 3 Plugin.
 
 This plugin has two main purposes : 
