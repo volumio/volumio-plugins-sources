@@ -1,0 +1,76 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+  "sections": [
+    {
+      "id": "section_howto",
+      "element": "section",
+      "label": "TRANSLATE.HOWTO_SECTION",
+      "icon": "fa-info-circle",
+      "description": "TRANSLATE.HOWTO_DESC",
+      "content": []
+    },
+    {
+      "id": "section_volroon",
+      "element": "section",
+      "label": "TRANSLATE.ROON_VITALS_SECTION",
+      "icon": "fa-music",
+      "description": "TRANSLATE.ROON_DETAILS",
+      "content": [
+        {
+          "id": "core_name",
+          "element": "input",
+          "type": "text",
+          "description": "TRANSLATE.CORE_NAME_DESC",
+          "label": "TRANSLATE.CORE_NAME",
+          "value": "",
+          "attributes": [
+            {
+              "readonly": true
+            }
+          ]
+        },
+        {
+          "id": "core_host",
+          "element": "input",
+          "type": "text",
+          "description": "TRANSLATE.CORE_HOST_DESC",
+          "label": "TRANSLATE.CORE_HOST",
+          "value": "",
+          "attributes": [
+            {
+              "readonly": true
+            }
+          ]
+        },
+        {
+          "id": "zone",
+          "element": "input",
+          "type": "text",
+          "description": "TRANSLATE.CORE_ZONE_DESC",
+          "label": "TRANSLATE.CORE_ZONE",
+          "value": "",
+          "attributes": [
+            {
+              "readonly": true
+            }
+          ]
+        },
+        {
+          "id": "outputdevice",
+          "element": "input",
+          "type": "text",
+          "description": "TRANSLATE.OUTPUTDEVICE_DESC",
+          "label": "TRANSLATE.CORE_OUTPUTDEVICE",
+          "value": "",
+          "attributes": [
+            {
+              "readonly": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
