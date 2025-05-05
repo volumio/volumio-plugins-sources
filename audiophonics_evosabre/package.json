@@ -7,29 +7,29 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Olivier Audiophonics",
-  "license": "ISC", 
+  "license": "ISC",
   "repository": "https://github.com/audiophonics/volumio-plugins-sources-bookworm",
   "volumio_info": {
-    "prettyName": "Audiophonics Evo Sabre", 
-    "icon": "fa-hdd-o", 
-    "plugin_type": "system_hardware", 
+    "prettyName": "Audiophonics Evo Sabre",
+    "icon": "fa-hdd-o",
+    "plugin_type": "system_hardware",
     "architectures": [
       "armhf"
-		],
-		"os": [ 
-			"buster"
-		],
-		"details": "Hardware configuration & display drivers for Evo Sabre",  
-		"changelog": "Replaced rpio nodejs dependency with spi-device & implemented kernel agnostic GPIO handling" 
+    ],
+    "os": [
+      "buster"
+    ],
+    "details": "Hardware configuration & display drivers for Evo Sabre",
+    "changelog": "Replaced rpio nodejs dependency with spi-device & implemented kernel agnostic GPIO handling"
   },
   "engines": {
-		"node": ">=14.15.4",
-		"volumio": ">=3"
-	},
+    "node": ">=14.15.4",
+    "volumio": ">=3"
+  },
   "dependencies": {
-		"fs-extra": "*",
-		"kew": "*",                  
-		"systeminformation": "*",
-		"v-conf": "*"
+    "fs-extra": "*",
+    "kew": "*",
+    "systeminformation": "*",
+    "v-conf": "*"
   }
 }
