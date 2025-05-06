@@ -15,7 +15,8 @@
 		"plugin_type": "user_interface",
 		"architectures": [
 			"amd64",
-			"armhf"
+			"armhf",
+			"arm64"
 		],
 		"os": [
 			"buster"
