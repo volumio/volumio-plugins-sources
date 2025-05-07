@@ -1,6 +1,6 @@
 {
 	"name": "serialampcontroller",
-	"version": "2.6.2",
+	"version": "2.7.0",
 	"description": "Control connected Amplifiers with serial interface from Volumio. Currently supports Rotel - A12/A14/A11/RC-1570/RC-1592 >=V1.53/RC-1582 SW V5.xx, Anthem - IDMSTR IA, Meridian - DSP420, Cambridge - CXA61. Other brands can be supported via ampCommands.json.",
 	"main": "index.js",
 	"scripts": {
@@ -21,7 +21,7 @@
 		],
 		"has_alsa_contribution": false,
 		"details": "Supports control of Amplifiers with Serial Interface from Volumio Interface. Details here: <u>https://community.volumio.org/t/plugin-serialampcontroller-control-amplifiers-with-serial-interface-from-volumio-e-g-rotel-a12-a11-a14/50928</u>",
-		"changelog": "Fixed persistent logging. Set values in Config to false"
+		"changelog": "Synchronized changes in Buster and Bookworm version."
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",

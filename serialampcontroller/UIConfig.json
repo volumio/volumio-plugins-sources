@@ -104,8 +104,8 @@
           "pause_when_input_changed",
           "switch_input_at_play",
           "start_at_powerup",
-          "powerup_on_play",
-          "powerup_on_boot"
+          "powerup_on_boot",
+          "powerup_on_play"
         ]
       },
       "content":[
