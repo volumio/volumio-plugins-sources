@@ -9,8 +9,10 @@
 	"files": [
 		"LICENSE",
 		"LICENSE-FSCT.md",
-		"NOTICE"
+		"NOTICE",
+		"README.md"
 	],
+	"readme": "README.md",
 	"author": "HEM Sp. z o.o.",
 	"license": "Apache-2.0",
 	"repository": "https://github.com/HEM-RnD/volumio-plugins-sources",
