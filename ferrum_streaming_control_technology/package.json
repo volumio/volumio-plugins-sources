@@ -22,17 +22,17 @@
 		"plugin_type": "user_interface",
 		"architectures": [
 			"amd64",
-			"armhf",
-			"arm64"
+			"armhf"
 		],
 		"os": [
-			"buster"
+			"buster",
+			"bookworm"
 		],
 		"details": "Plugin provides support for Ferrum Streaming Control Technology™ allowing DACs (e.g. Ferrum Wandla) to show current state of playback like title, artist and progress bar.",
 		"changelog": " * 1.0.0 - first published ™version"
 	},
 	"engines": {
-		"node": ">=14.15.4 <15.0.0",
+		"node": ">=14.15.4 <19.0.0",
 		"volumio": ">=3.799.0 <4.0.0"
 	},
 	"dependencies": {
