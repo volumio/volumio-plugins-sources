@@ -1,4 +1,13 @@
-## Evo Sabre as a Volumio 3 Plugin.
+You are currently on the **Volumio BUSTER** version of this plugin. 
+<br>
+If you need to use this repository after mid-2025, you may be looking for the [Volumio BOOKWORM](https://github.com/audiophonics/volumio-plugins-sources-bookworm) version instead.
+<br>
+To clafiry the version you are currently using, run ```lsb_release -a``` into a SSH session and confirm whether your Pi is running Buster or Bookworm. 
+
+<hr>
+
+
+## Evo Sabre as a Volumio 3 Plugin VERSION 2.
 
 This plugin has two main purposes : 
 * Installing the EVO-Sabre secondary OLED display (rightmost display) to work with Volumio playback system.
@@ -16,9 +25,8 @@ It uses websocket to address the [Volumio Websocket API](https://volumio.github.
   
 It also uses a micro http server to listen to many events as a way to detect activity (mainly to automatically exit sleep mode when the remote is used).  
   
-The SPI driver is handled thanks to [RPIO](https://www.npmjs.com/package/rpio) package instead of the GPIO / ONOFF packages that are often used for this type of application. RPIO is provided along the plugin as precompiled binaries so the end-user needs does not need to have build-essential nor node-gyp installed. 
-  
-  
+The SPI driver is no longer handled with [RPIO](https://www.npmjs.com/package/rpio), but now uses [spi-device](https://github.com/fivdi/spi-device) to align with Volumio need to support newer versions of Raspberry Pi 5 and kernel-agnostic GPIO addressing. 
+This change means the installer has to write in ```/boot/userconfig.txt``` to enable hardware spi device. Because of this, the display now also needs a reboot after the first install.
     
 ### Remote Layer :
 
@@ -32,7 +40,7 @@ During plugin installation, the installer writes in ```/boot/userconfig.txt``` t
    
    
  ## Credits 
-Many thanks to Gé & Balbuze for pointing me to the right documentation and providing me with precious advice while I was writing this plugin.
+Many thanks to Nerd, Gé & Balbuze for pointing me to the right documentation and providing me with precious advice while I was writing and updating this plugin.
 Also a special thank you to Jens Neugebauer for thoroughly testing the plugin and helping me gaining enough confidence to port this whole set of software as a plugin.
 Thanks to the many Evo Sabre user that were patient enough to provide feedback for the first beta version.
  

@@ -9,7 +9,7 @@
     },
     "contrast": {
         "type": "number",
-        "value": 254
+        "value": 100
     },
     "remote_active": {
         "type": "boolean",

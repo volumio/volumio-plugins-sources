@@ -1,16 +1,16 @@
-const io = require('socket.io-client' );
+const io = require('/volumio/node_modules/socket.io-client' );
 const EventEmitter = require('events').EventEmitter;
 const inherits = require('util').inherits;
 const cp = require('child_process');
 
 function volumio_listener(host,refreshrate_ms){
-    this.host = host || 'http://localhost:3000';
-    this.refreshrate_ms = refreshrate_ms || 1000;
-    this.ready = false;
-    this.waiting = false;
-    this.state = "stop";
-    this.formatedMainString = "";
-    this.data = {};
+  this.host = host || 'http://localhost:3000';
+  this.refreshrate_ms = refreshrate_ms || 1000;
+  this.ready = false;
+  this.waiting = false;
+  this.state = "stop";
+  this.formatedMainString = "";
+  this.data = {};
 	this.watchingIdle = false;
 	this.firstRequestConsumed = false;
 	this.listen();
@@ -32,11 +32,11 @@ volumio_listener.prototype.compareData = function(data){
 	for(d in data){
 		let previous_data = this.data[d];
 		if(this.data[d] === data[d]  ) continue; 			// ne rien faire si aucun changement 
-		this.data[d] = data[d];  				 			// sinon actualiser l'état connu du streamer
-		changes.push([d , this.data[d]]);	// marquer que ce changement doit être propagé 
+		this.data[d] = data[d];  				 		        	// sinon actualiser l'état connu du streamer
+		changes.push([d , this.data[d]]);	            // marquer que ce changement doit être propagé 
 	}
 	for(change of changes){
-		this.processChanges(...change);			 			// propager chaque changement
+		this.processChanges(...change);			 			     // propager chaque changement
 	}
 }
 
@@ -129,7 +129,9 @@ volumio_listener.prototype.processChanges = function(key,data){
 
 volumio_listener.prototype.listen = function(){
 	this._socket = io.connect(this.host);
+  
 	this.api_caller = setInterval( ()=>{
+    
 		if(this.waiting || this.state !== "play") return;
 		this.waiting = true;
 		this._socket.emit("getState");
@@ -139,6 +141,7 @@ volumio_listener.prototype.listen = function(){
 	this._socket.emit("getState");
 	
 	this._socket.on("pushState", (data)=>{ // changements d'état du streamer
+  
 		if(!this.firstRequestConsumed){
 			this.firstRequestConsumed = true;
 			this._socket.emit("getState");
