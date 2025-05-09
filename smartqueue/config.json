@@ -1,0 +1,26 @@
+{
+    "Autoqueue": {
+        "type": "boolean",
+        "value": true
+    },
+    "Blissmixer": {
+        "type": "boolean",
+        "value": false
+    },
+    "Tracksn": {
+        "type": "number",
+        "value": "5"
+    },
+    "Drift": {
+        "type": "number",
+        "value": "0"
+    },
+    "Cosine": {
+        "type": "boolean",
+        "value": false
+    },
+    "Seed": {
+        "type": "boolean",
+        "value": false
+    }
+}

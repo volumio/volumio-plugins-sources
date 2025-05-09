@@ -1,0 +1,18 @@
+{
+	"LMS":{
+	"LMSCONF":"Logitech Media Server Configuration",
+	"NAVIGATE_TO_SERVER":"Webconsole",
+	"D_NAVIGATE_TO_SERVER":"Click the button to open the Logitech Media Server web page.",
+	"SAVE": "Save",
+	"TOOLS_STOP_PLAY":"Stop to play",
+ 	"DOC_TOOLS_STOP_PLAY":"Stop to play tools files",
+ 	"REMOVE_TOOLS":"Remove tools",
+ 	"DESC_REMOVE_TOOLS":"Remove tools files from your system",
+  	"INSTALL_TOOLS":"Install tools",
+  	"TOOLS_INSTALL_TITLE":"Install in progress",
+  	"TOOLS_INSTALL_WAIT":"Your are going to download about 5Mo. Please WAIT until a message of completion appear then press ESC",
+  	"TOOLS_REMOVE":"Deleting files",
+  	"PLAY_SELECTED_FILE":"Play selected file",
+  	"TOOLS_NO_FILE":"No file found"
+	}
+}
