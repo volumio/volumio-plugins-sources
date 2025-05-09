@@ -38,6 +38,6 @@
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
 		"v-conf": "^1.4.0",
-		"@hemspzoo/fsct-lib": "^0.2.8"
+		"@hemspzoo/fsct-lib": "^0.2.9"
 	}
 }
