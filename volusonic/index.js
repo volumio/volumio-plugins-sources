@@ -8,6 +8,7 @@ var backend = require('./backend');
 var fs = require('fs');
 var myUri = "";
 var semver = require('semver');
+const { url } = require('inspector');
 
 libQ.longStackSupport = true;
 
@@ -1428,7 +1429,27 @@ ControllerVolusonic.prototype.explodeUri = function(uri) {
   var items = [];
   var song;
 
-  if (uri.startsWith('volusonic/track')) {
+  if (uri.startsWith('http')) {
+    command = 'getSong';
+
+    let paramsString = uri.split('?')[1]
+    let searchParams = new URLSearchParams(paramsString);
+    if (searchParams.has('id')) {
+      id = searchParams.get('id');
+      params = 'id=' + id;
+    }
+    self.backend.get(command, id, params)
+      .then(function(result) {
+        song = result['subsonic-response']['song'];
+        let playable = self._getPlayable(song[0] || song);
+        items.push(playable)
+        defer.resolve(items);
+      })
+      .fail(function(error) {
+        defer.reject(new Error('explodeUri volusonic/track'));
+      });
+
+  } else if (uri.startsWith('volusonic/track')) {
     command = 'getSong';
     //get the podcast ChannelId if needed
     if (id.includes("C")) {
@@ -1438,7 +1459,7 @@ ControllerVolusonic.prototype.explodeUri = function(uri) {
     } else {
       params = 'id=' + id;
     }
-    var result = self.backend.get(command, id, params)
+    self.backend.get(command, id, params)
       .then(function(result) {
         if (result['subsonic-response']['song']['0'] !== undefined) { //ampache hack
           song = result['subsonic-response']['song']['0'];
@@ -1449,9 +1470,10 @@ ControllerVolusonic.prototype.explodeUri = function(uri) {
         if (channelId !== undefined) {
           playable.channelId = channelId;
         }
-        defer.resolve(playable);
+        items.push(playable)
+        defer.resolve(items);
       })
-      .fail(function(result) {
+      .fail(function(error) {
         defer.reject(new Error('explodeUri volusonic/track'));
       });
   } else if (uri.startsWith('volusonic/playlists')) {
@@ -1631,20 +1653,38 @@ ControllerVolusonic.prototype._getPlayable = function(song) {
   return track;
 }
 
+function track_id(uri) {
+  if (uri.startsWith('volusonic/track')) {
+    return url.split('/')[2];
+  }
+  if (uri.startsWith('http')) {
+    var paramsString = param.uri.split('?')[1]
+    var searchParams = new URLSearchParams(paramsString);
+    if (searchParams.has('id')) {
+      return searchParams.get('id');  
+    }
+  }
+  throw 'invalid uri : ' + uri;
+}
+
 ControllerVolusonic.prototype.getTrackInfo = function(uri) {
   var self = this;
-  var deferred = libQ.defer();
-  var uriParts = uri.split('/');
+  var defer = libQ.defer();
+  try {
+    var id = track_id(uri);
 
-  if (uri.startsWith('volusonic/track')) {
-    var result = self.backend.get('getSong', uriParts[2], 'id=' + uriParts[2])
-      .then(function(result) {
-        var song = result['subsonic-response']['song'];
-        defer.resolve(self._getPlayable(song));
-      })
-      .fail(function(result) {
-        defer.reject(new Error('getTrackInfo'));
-      });
+    if (uri.startsWith('volusonic/track')) {
+      var result = self.backend.get('getSong', id, 'id=' + id)
+        .then(function(result) {
+          var song = result['subsonic-response']['song'];
+          defer.resolve(self._getPlayable(song));
+        })
+        .fail(function(result) {
+          defer.reject(new Error('getTrackInfo'));
+        });
+    }
+  } catch(error) {
+    defer.reject(new Error(error));
   }
   return defer.promise;
 }
@@ -1899,11 +1939,6 @@ ControllerVolusonic.prototype.pushState = function(state) {
   self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'ControllerVolusonic::pushState');
 
   return self.commandRouter.servicePushState(state, 'volusonic');
-};
-
-ControllerVolusonic.prototype.addToFavourites = function(param) {
-  var self = this;
-  //self.commandRouter.pushConsoleMessage("volusonic.addToFavourites: " + JSON.stringify(param));
 };
 
 ControllerVolusonic.prototype.goto = function(data) {
