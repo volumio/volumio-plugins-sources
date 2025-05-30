@@ -25,7 +25,7 @@
     },
     "startupVolume": {
         "type": "number",
-        "value": 5
+        "value": 10
     },
     "volumeSteps": {
         "type": "number",
@@ -48,6 +48,22 @@
         "value": false
     },
     "startAtPowerup": {
+        "type": "boolean",
+        "value": false
+    },
+    "tcpip": {
+        "type": "boolean",
+        "value": false
+    },
+    "ipaddress": {
+        "type": "string",
+        "value": "127.0.0.1"
+    },
+    "powerupOnBoot": {
+        "type": "boolean",
+        "value": false
+    },
+    "powerupOnPlay": {
         "type": "boolean",
         "value": false
     }

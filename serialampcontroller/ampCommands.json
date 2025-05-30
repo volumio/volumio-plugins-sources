@@ -1,5 +1,46 @@
 {
     "amps": [
+{
+            "vendor": "Anthem",
+            "model":"IDMSTR IA",
+            "baudRate": 115200,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+             "sources": ["Coax1","Coax2","Opt1","Opt2","AES","USB","RCA1","RCA2","RCA3","RCA4","PhonoMM","PhonoMC","XLR","XLRARC","Rasp1"],
+            "sourceCmd": ["Z1INP01;","Z1INP02;","Z1INP03;","Z1INP04;","Z1INP05;","Z1INP06;","Z1INP07;","Z1INP08;","Z1INP09;","Z1INP10;","Z1INP11;","Z1INP12;","Z1INP13;","Z1INP14;","Z1INP15;"],
+            "sourceRespPostfix": ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15"],
+            "delimiter": ";",
+            "commands": {
+                    "powerOn": "Z1POW1;",
+                    "powerToggle": "Z1POW0;",
+                    "volUp": "Z1VUP00.5;",
+                    "volDown": "Z1VDN00.5;",
+                    "volValue": "Z1VOL##.0;",
+                    "mute": "Z1MUTt;",
+                    "muteOn": "Z1MUT1;",
+                    "muteOff": "Z1MUT0;"
+                },
+            "responses": [
+                {"rx": "Z1POW1", "cmd": ["respPowerOn"]},
+                {"rx": "Z1POW0", "cmd": ["respPowerOff"]},
+                {"rx": "Z1VOL(-[0-9]{2}).([0-5]{1})", "cmd": ["respVolume"]},
+                {"rx": "Z1MUT1", "cmd": ["respMuteOn"]},
+                {"rx": "Z1MUT0", "cmd": ["respMuteOff"]},
+                {"rx": "Z1INP([0-9]{1,2})", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                    "reqPower":"Z1POW?;",
+                    "reqSource":"Z1INP?;",
+                    "reqVolume":"Z1VOL?;",
+                    "reqMute":"Z1MUT?;",
+                    "reqModel":"IDM?;"
+                }
+        },
         {
             "vendor": "Rotel",
             "model":"A12",
@@ -124,6 +165,176 @@
             }
         },
         {
+            "vendor": "Rotel",
+            "model":"RC-1570",
+            "baudRate": 115200,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+            "sources": ["CD","Coax1","Coax2","Opt1","Opt2","Aux1","Aux2","Tuner","Phono","USB","PC-USB","XLR"],
+            "sourceCmd": ["cd!","coax1!","coax2!","opt1!","opt2!","aux1!","aux2!","tuner!","phono!","usb!","pc_usb!","bal_xlr!"],
+            "sourceRespPostfix": ["cd","coax1","coax2","opt1","opt2","aux1","aux2","tuner","phono","usb","pc_usb","bal_xlr"],
+            "delimiter": "!",
+            "commands": {
+                    "powerOn": "power_on!",
+                    "powerToggle": "power_toggle!",
+                    "volUp": "volume_up!",
+                    "volDown": "volume_down!",
+                    "volValue": "volume_#!",
+                    "mute": "mute!",
+                    "muteOn": "mute_on!",
+                    "muteOff": "mute_off!"
+                },
+            "responses": [
+                {"rx": "power=on", "cmd": ["respPowerOn"]},
+                {"rx": "power=standby", "cmd": ["respPowerOff"]},
+                {"rx": "volume=([0-9]{1,2})", "cmd": ["respVolume"]},
+                {"rx": "mute=on", "cmd": ["respMuteOn"]},
+                {"rx": "mute=off", "cmd": ["respMuteOff"]},
+                {"rx": "source=([a-z_12]*)", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                    "reqPower":"get_current_power!",
+                    "reqSource":"get_current_source!",
+                    "reqVolume":"get_volume!",
+                    "reqMute":"get_mute_status!",
+                    "reqModel":""
+                }
+        },
+        {
+            "vendor": "Rotel",
+            "model":"RC-1592 >=V1.53",
+            "interfaces": ["RS232", "TCP/IP"],
+            "tcpport": 9590,
+            "baudRate": 115200,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+            "sources": ["CD","Coax1","Coax2","Coax3","Opt1","Opt2","Opt3","Aux","Tuner","Phono","USB","Bluetooth","Bal XLR", "PC-USB"],
+            "sourceCmd": ["cd!","coax1!","coax2!","coax3!","opt1!","opt2!","opt3!","aux!","tuner!","phono!","usb!","bluetooth!","bal_xlr!","pcusb!"],
+            "sourceRespPostfix": ["cd","coax1","coax2","coax3","opt1","opt2","opt3","aux","tuner","phono","usb","bluetooth","bal_xlr","pc_usb"],
+            "delimiter": "$",
+            "commands": {
+                    "powerOn": "power_on!",
+                    "powerToggle": "power_toggle!",
+                    "volUp": "vol_up!",
+                    "volDown": "vol_dwn!",
+                    "volValue": "vol_##!",
+                    "mute": "mute!",
+                    "muteOn": "mute_on!",
+                    "muteOff": "mute_off!"
+                },
+            "responses": [
+                {"rx": "power=on", "cmd": ["respPowerOn"]},
+                {"rx": "power=standby", "cmd": ["respPowerOff"]},
+                {"rx": "volume=([0-9]{2})", "cmd": ["respVolume"]},
+                {"rx": "mute=on", "cmd": ["respMuteOn"]},
+                {"rx": "mute=off", "cmd": ["respMuteOff"]},
+                {"rx": "source=([a-z_123]*)", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                    "reqPower":"get_current_power!",
+                    "reqSource":"get_current_source!",
+                    "reqVolume":"get_volume!",
+                    "reqMute":"get_mute_status!",
+                    "reqModel":""
+                }
+        },
+        {
+            "vendor": "Rotel",
+            "model":"RSP-1582 SW V5.xx",
+            "interfaces": ["RS232", "TCP/IP"],
+            "tcpport": 9596,
+            "baudRate": 115200,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+            "sources": ["CD","Video 1","Video 2","Video 3","Video 4","Video 5","Video 6","Video 7","Video 8","Tuner","Phono","USB","PC-USB","XLR"],
+            "sourceCmd": ["cd!","video1!","video2!","video3!","video4!","video5!","video6!","video7!","video8!","tuner!","phono!","usb!","pc_usb!","bal_xlr!"],
+            "sourceRespPostfix": ["cd","video1","video2","video3","video4","video5","video6","video7","video8","tuner","phono","usb","pc_usb","bal_xlr"],
+            "delimiter": "!",
+            "commands": {
+                    "powerOn": "power_on!",
+                    "powerToggle": "power_toggle!",
+                    "volUp": "volume_up!",
+                    "volDown": "volume_down!",
+                    "volValue": "volume_#!",
+                    "mute": "mute!",
+                    "muteOn": "mute_on!",
+                    "muteOff": "mute_off!"
+                },
+            "responses": [
+                {"rx": "power=on", "cmd": ["respPowerOn"]},
+                {"rx": "power=standby", "cmd": ["respPowerOff"]},
+                {"rx": "volume=([0-9]{1,2})", "cmd": ["respVolume"]},
+                {"rx": "mute=on", "cmd": ["respMuteOn"]},
+                {"rx": "mute=off", "cmd": ["respMuteOff"]},
+                {"rx": "source=([a-z_12]*)", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                    "reqPower":"get_current_power!",
+                    "reqSource":"get_current_source!",
+                    "reqVolume":"get_volume!",
+                    "reqMute":"get_mute_status!",
+                    "reqModel":""
+                }
+        },
+        {
+            "vendor": "Rotel",
+            "model":"RA-1592 SW >=V1.52",
+            "interfaces": ["RS232", "TCP/IP"],
+            "tcpport": 9590,
+            "baudRate": 115200,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+            "sources": ["CD","Coax1","Coax2","Coax3","Opt1","Opt2","Opt3","Aux","Tuner","Phono","USB","Bluetooth","Bal XLR", "PC-USB"],
+            "sourceCmd": ["cd!","coax1!","coax2!","coax3!","opt1!","opt2!","opt3!","aux!","tuner!","phono!","usb!","bluetooth!","bal_xlr!","pcusb!"],
+            "sourceRespPostfix": ["cd","coax1","coax2","coax3","opt1","opt2","opt3","aux","tuner","phono","usb","bluetooth","bal_xlr","pc_usb"],
+            "delimiter": "$",
+            "commands": {
+                    "powerOn": "power_on!",
+                    "powerToggle": "power_toggle!",
+                    "volUp": "vol_up!",
+                    "volDown": "vol_dwn!",
+                    "volValue": "vol_#!",
+                    "mute": "mute!",
+                    "muteOn": "mute_on!",
+                    "muteOff": "mute_off!"
+                },
+            "responses": [
+                {"rx": "power=on", "cmd": ["respPowerOn"]},
+                {"rx": "power=standby", "cmd": ["respPowerOff"]},
+                {"rx": "volume=([0-9]{1,2})", "cmd": ["respVolume"]},
+                {"rx": "mute=on", "cmd": ["respMuteOn"]},
+                {"rx": "mute=off", "cmd": ["respMuteOff"]},
+                {"rx": "source=([a-z_12]*)", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                    "reqPower":"power?",
+                    "reqSource":"source?",
+                    "reqVolume":"volume?",
+                    "reqMute":"mute?",
+                    "reqModel":"model?"
+                }
+        },
+        {
             "vendor": "Meridian",
             "model":"DSP420",
             "baudRate": 9600,
@@ -152,7 +363,41 @@
             ],
             "statusRequests": {
             }
+        },
+        {
+            "vendor": "Cambridge",
+            "model":"CXA61",
+            "baudRate": 9600,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+            "sources": ["A1","A2","A3","A4","D1","D2","D3","MP3","Bluetooth","USB"],
+            "sourceCmd": ["#03,04,00\r","#03,04,01\r","#03,04,02\r","#03,04,03\r","#03,04,04\r","#03,04,05\r","#03,04,06\r","#03,04,10\r","#03,04,14\r","#03,04,16\r"],
+            "sourceRespPostfix": ["00","01","02","03","04","05","06","10","14","16"],
+            "delimiter": "\r",
+            "commands": {
+                "powerOn": "#1,02,1\r",
+                "muteOn": "#1,04,1\r",
+                "muteOff": "#1,04,0\r"
+            },
+            "responses": [
+                {"rx": "#02,01,1", "cmd": ["respPowerOn"]},
+                {"rx": "#02,01,0", "cmd": ["respPowerOff"]},
+                {"rx": "#02,03,1", "cmd": ["respMuteOn"]},
+                {"rx": "#02,03,0", "cmd": ["respMuteOff"]},
+                {"rx": "#04,01,([0-9]*)", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                "reqPower":"#01,01\r",
+                "reqSource":"#03,01\r",
+                "reqVolume":"",
+                "reqMute":"#01,03\r",
+                "reqModel":"#13,02\r"
+            }
         }
-
       ]
 }
