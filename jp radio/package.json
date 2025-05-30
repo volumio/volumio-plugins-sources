@@ -1,0 +1,61 @@
+{
+  "name": "jp_radio",
+  "version": "0.1.3",
+  "description": "Japanese radio relay server for Volumio3",
+  "main": "/dist/index.js",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npx tsc && npm run copy-assets",
+    "copy-assets": "cp -r src/*.json dist/ && cp -r src/i18n dist/ && cp -r src/assets dist/",
+    "prepare": "npm install --production",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "mOqOm",
+  "license": "MIT",
+  "repository": "https://github.com/mOqOm/JP_Radio",
+  "volumio_info": {
+    "prettyName": "JP Radio",
+    "icon": "fa-volume-up",
+    "plugin_type": "music_service",
+    "architectures": [
+      "amd64",
+      "armhf",
+      "i386"
+    ],
+    "os": [
+      "buster"
+    ],
+    "details": "Japanese radio relay server for Volumio3",
+    "changelog": ""
+  },
+  "devDependencies": {
+    "@types/capitalize": "^2.0.2",
+    "@types/express": "^5.0.2",
+    "@types/lodash": "^4.17.17",
+    "@types/node": "^22.15.19",
+    "@types/tough-cookie": "^4.0.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=14.15.4 <15.0.0",
+    "volumio": ">=3.546.0 <4.0.0"
+  },
+  "dependencies": {
+    "capitalize": "^2.0.4",
+    "date-fns": "^4.1.0",
+    "date-utils": "^1.2.21",
+    "express": "^4.17.1",
+    "fast-xml-parser": "^5.2.3",
+    "got": "^11.8.6",
+    "icy-metadata": "^0.1.2",
+    "kew": "^0.7.0",
+    "lodash": "^4.17.21",
+    "nedb-promises": "^6.2.3",
+    "node-cron": "^2.0.3",
+    "p-limit": "^2.3.0",
+    "tough-cookie": "^5.1.2",
+    "v-conf": "^1.4.3"
+  }
+}
