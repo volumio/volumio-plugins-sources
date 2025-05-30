@@ -1,0 +1,1 @@
+{"version":3,"file":"AuthModel.js","sourceRoot":"","sources":["../../../src/lib/models/AuthModel.ts"],"names":[],"mappings":"","sourcesContent":["export interface LoginAccount {\n  mail: string;\n  pass: string;\n}\n\nexport interface LoginState {\n  member_type: {\n    type: string;\n  };\n  [key: string]: any; // 他のプロパティがある場合の保険\n}"]}

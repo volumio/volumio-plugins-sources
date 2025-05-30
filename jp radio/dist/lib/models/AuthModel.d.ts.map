@@ -1,0 +1,1 @@
+{"version":3,"file":"AuthModel.d.ts","sourceRoot":"","sources":["../../../src/lib/models/AuthModel.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,YAAY;IAC3B,IAAI,EAAE,MAAM,CAAC;IACb,IAAI,EAAE,MAAM,CAAC;CACd;AAED,MAAM,WAAW,UAAU;IACzB,WAAW,EAAE;QACX,IAAI,EAAE,MAAM,CAAC;KACd,CAAC;IACF,CAAC,GAAG,EAAE,MAAM,GAAG,GAAG,CAAC;CACpB"}

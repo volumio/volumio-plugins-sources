@@ -1,0 +1,13 @@
+export declare const LOGIN_URL = "https://radiko.jp/ap/member/webapi/member/login";
+export declare const CHECK_URL = "https://radiko.jp/ap/member/webapi/v2/member/login/check";
+export declare const LOGOUT_URL = "https://radiko.jp/ap/member/webapi/member/logout";
+export declare const AUTH_KEY = "bcd151073c03b352e1ef2fd66c32209da9ca0afa";
+export declare const AUTH1_URL = "https://radiko.jp/v2/api/auth1";
+export declare const AUTH2_URL = "https://radiko.jp/v2/api/auth2";
+export declare const CHANNEL_AREA_URL = "http://radiko.jp/v3/station/list/%s.xml";
+export declare const CHANNEL_FULL_URL = "http://radiko.jp/v3/station/region/full.xml";
+export declare const PLAY_URL = "https://f-radiko.smartstream.ne.jp/%s/_definst_/simul-stream.stream/playlist.m3u8";
+export declare const MAX_RETRY_COUNT = 2;
+export declare const PROG_DAILY_URL = "https://radiko.jp/v3/program/station/date/%s/%s.xml";
+export declare const PROG_URL = "http://radiko.jp/v3/program/date/%s/%s.xml";
+//# sourceMappingURL=radikoUrls.d.ts.map
