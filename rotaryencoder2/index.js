@@ -116,19 +116,14 @@ rotaryencoder2.prototype.onStart = function() {
 		self.lastTime = data.seek - Date.now();
 	})
 
-	self.dtoverlayL()
-	.then(_=> {return self.installAllOverlays([...Array(maxRotaries).keys()])})
-	// .then(_ => {return self.attachAllListeners([...Array(maxRotaries).keys()])})
-	// .then(_ => {
-	// 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] onStart: Attach Event-handles now.');
-	// 	self.addAllEventHandles();
-	// })
-	// self.activateRotaries([...Array(maxRotaries).keys()])
-	// .then(_ =>{
-	// 	return self.activateButtons([...Array(maxRotaries).keys()])
-	// })
+	self.dtoverlayL() // list all overlays once, so we can see in the logging if there are any alread existing at start
+	.then(existingOverlays => {
+		self.configuredDtos = self.getDtoFromConfig();
+		return self.installAllOverlays(self.configuredDtos)
+	})
+	.then(_ => {return self.dtoverlayL()})
 	.then(_=> {
-		self.commandRouter.pushToastMessage('success',"Rotary Encoder II - successfully loaded")
+		self.commandRouter.pushToastMessage('success',"Rotary Encoder II - successfully loaded");
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] onStart: Plugin successfully started.');
 		defer.resolve();
 	})
@@ -149,27 +144,10 @@ rotaryencoder2.prototype.onStop = function() {
 	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] onStop: Stopping Plugin.');
 
 	
-	// self.detachAllListeners([...Array(maxRotaries).keys()])
-	// .then(_ => {
-	// 	return self.uninstallAllOverlays([...Array(maxRotaries).keys()])
-	// })
-	// self.deactivateRotaries([...Array(maxRotaries).keys()])
-	// .then(_=>{
-	// 	return self.deactivateButtons([...Array(maxRotaries).keys()])
-	// })
-	// .then(_=> {
-	// 	return self.removeAllOverlays();
-	// })
-	// .then(_=> {
-	// 	self.socket.off('pushState');
-	// 	self.socket.disconnect();
-	// })
-	
-	this.uninstallAllOverlays(this.getDtoFromConfig())
-	.then(_=>{
-		self.commandRouter.pushToastMessage('success',"Rotary Encoder II", self.getI18nString('ROTARYENCODER2.TOAST_STOP_SUCCESS'))
-		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] onStop: Plugin successfully stopped.');
-		defer.resolve();
+	self.uninstallAllOverlays(self.configuredDtos)
+	.then(_=> {
+		self.socket.off('pushState');
+		self.socket.disconnect();
 	})
 	.fail(err=>{
 		self.commandRouter.pushToastMessage('success',"Rotary Encoder II", self.getI18nString('ROTARYENCODER2.TOAST_STOP_FAIL'))
@@ -276,7 +254,7 @@ rotaryencoder2.prototype.updateEncoder = function(data){
 		return self.detachAllListeners([...Array(maxRotaries).keys()])
 	})
 	.then(_ => {
-		return self.uninstallAllOverlays([...Array(maxRotaries).keys()])
+		return self.uninstallAllOverlays(self.configuredDtos)
 	})
 	.then(_ => {
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] updateEncoder: Changing Encoder '+(rotaryIndex + 1)+' Settings to new values');
@@ -307,12 +285,9 @@ rotaryencoder2.prototype.updateEncoder = function(data){
 		} else {
 			self.config.set('enabled'+rotaryIndex, false);
 		}
-		return self.installAllOverlays([...Array(maxRotaries).keys()])
-		.then(_ => {return self.attachAllListeners([...Array(maxRotaries).keys()])})
-		.then(_ => {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] onStart: Attach Event-handles now.');
-			self.addAllEventHandles();
-		})
+		self.configuredDtos = self.getDtoFromConfig();
+		return self.installAllOverlays(self.configuredDtos)
+		.then(_ => {return self.dtoverlayL()})
 	})
 	.then(_ => {
 		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] updateEncoder: SUCCESS with Toast: '+self.getI18nString('ROTARYENCODER2.TOAST_SAVE_SUCCESS')+' ' +self.getI18nString('ROTARYENCODER2.TOAST_MSG_SAVE')+ (rotaryIndex + 1));
@@ -439,301 +414,163 @@ rotaryencoder2.prototype.setConf = function(varName, varValue) {
 	//Perform your installation tasks here
 };
 
-//Function to recursively install all device tree overlays 
-//######################################## hier noch statt zu loopen GetDtoFromConfig aufrufen
-rotaryencoder2.prototype.installAllOverlays = function (rotaryIndexArray) {
+// Retrieve a string
+rotaryencoder2.prototype.getI18nString = function (key) {
 	var self = this;
-	var defer = libQ.defer();
-	var rotaryIndex;
 
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] installAllOverlays: ' + rotaryIndexArray.map(i =>  {return i + 1}));
-
-	if (Array.isArray(rotaryIndexArray)){
-		if (rotaryIndexArray.length > 0) {
-			rotaryIndex = rotaryIndexArray[rotaryIndexArray.length - 1];
-			return self.installAllOverlays(rotaryIndexArray.slice(0,rotaryIndexArray.length - 1))
-			.then(_ => {
-				if (self.config.get('enabled'+rotaryIndex)) {
-					// return self.addOverlay(self.config.get('pinA'+rotaryIndex),self.config.get('pinB'+rotaryIndex),self.config.get('rotaryType'+rotaryIndex))
-					return self.dtoverlayAdd({
-						"pinA": self.config.get('pinA'+rotaryIndex),
-						"pinB": self.config.get('pinB'+rotaryIndex),
-						"stepsPerPeriod": self.config.get('rotaryType'+rotaryIndex),
-						"type": "rotary-encoder"
-					})
-					.then (_ => {
-						var btnGPIO = self.config.get('pinPush'+rotaryIndex);
-						if (Number.isInteger(btnGPIO) && btnGPIO > 0) {
-							return self.dtoverlayAdd({
-								"pinA": btnGPIO, 
-								"activeLow": self.config.get('pushState'+rotaryIndex),
-								"gpioPull": 'up'});
+	key = key.replace(/^ROTARYENCODER2\./,'');
+    if (self.i18nStrings['ROTARYENCODER2'][key] !== undefined) {
+		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] getI18nString("'+key+'"):'+ self.i18nStrings['ROTARYENCODER2'][key]);
+        return self.i18nStrings['ROTARYENCODER2'][key];
 						} else {
-							return defer.resolve();
-						}
-					})
-					.fail(err => {
-						if (self.debugLogging) self.logger.error('[ROTARYENCODER2] installAllOverlays failed for rotary: ' + rotaryIndex + ' - ' + err);
-						self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('TOAST_ERR_ADD_OVERLAY_FAILED'));
-						return defer.reject(err)
-					})
-				} else {
-					return defer.resolve();
-				}
-			})
-		} else {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] installAllOverlays: end of recursion.');
-			defer.resolve();
+		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] getI18nString("'+key+'")'+ self.i18nStringsDefaults['ROTARYENCODER2'][key]);
+        return self.i18nStringsDefaults['ROTARYENCODER2'][key];
+	};
 		}
-	} else {
-		self.logger.error('[ROTARYENCODER2] installAllOverlays: rotaryIndexArray must be an Array');
-		defer.reject('rotaryIndexArray must be an Array of integers')
-	}
-	return defer.promise;
-}
-
-//Function to recursively uninstall all device tree overlays
-rotaryencoder2.prototype.uninstallAllOverlays = function (overlays) {
+// A method to get some language strings used by the plugin
+rotaryencoder2.prototype.loadI18nStrings = function() {
 	var self = this;	
-	var defer = libQ.defer();
-	var overlayIdx;
 
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: ');
-	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2] '+JSON.stringify(overlays));
+    try {
+        var language_code = this.commandRouter.sharedVars.get('language_code');
+		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: '+__dirname + '/i18n/strings_' + language_code + ".json");
+        self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + ".json");
+		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: loaded: ');
+		if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.i18nStrings));
+    }
+    catch (e) {
+		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: ' + language_code + ' not found. Fallback to en');
+        self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+    }
 
-	if (Array.isArray(overlays)){
-		if (overlays.length > 0) {
-			overlayIdx = overlays[0];
-			self.uninstallAllOverlays(overlays.slice(1,overlays.length))
-			.then(_ => {
-				return self.dtoverlayL()
-				.then(existingOverlays => {
-					if ((existingOverlays.find(element => element.pinA == overlayIdx.pinA))!=undefined) {
-						return this.dtoverlayRemove(overlayIdx);					
-			} else {
-						return libQ.resolve();
-					}
-					})
-					.then(_ => {
-						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: overlays removed');
-						return defer.resolve();
-					})
-					.fail(msg => {
-					if (self.debugLogging) self.logger.error('[ROTARYENCODER2] uninstallAllOverlays: failed for ' + JSON.stringify(overlayIdx) + ' with: '+msg);
-						self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
-						return defer.resolve();
-					})
-			})
-		} else {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: end of recursion.');
-			defer.resolve();
-		}
-	} else {
-		self.logger.error('[ROTARYENCODER2] uninstallAllOverlays: rotaryIndexArray must be an Array: ' + overlays);
-		defer.reject('overlays must be an Array of integers')
-	}
-	return defer.promise;
-}
+    self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+};
 
-//Function to recursively attach Listeners to all device tree overlays
-rotaryencoder2.prototype.attachAllListeners = function (rotaryIndexArray) {
+//Function to recursively install all device tree overlays 
+rotaryencoder2.prototype.installAllOverlays = function (configuredDtos) {
 	var self = this;
 	var defer = libQ.defer();
-	var rotaryIndex;
+	var currentDto;
 
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachAllListeners: ' + rotaryIndexArray.map(i =>  {return i + 1}));
-
-	if (Array.isArray(rotaryIndexArray)){
-		if (rotaryIndexArray.length > 0) {
-			rotaryIndex = rotaryIndexArray[rotaryIndexArray.length - 1];
-			return self.attachAllListeners(rotaryIndexArray.slice(0,rotaryIndexArray.length - 1))
+	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] installAllOverlays: ' + (configuredDtos.length));
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2] ' + JSON.stringify(configuredDtos))
+	if (Array.isArray(configuredDtos)){
+		if (configuredDtos.length > 0) {
+			currentDto = configuredDtos[configuredDtos.length - 1];
+			return self.installAllOverlays(configuredDtos.slice(0,configuredDtos.length - 1))
 			.then(_ => {
-				if (self.config.get('enabled'+rotaryIndex)) {
-					return self.checkOverlayExists(rotaryIndex, 'rotary')
-					.then(idx => {
-						if (idx > -1) {
-							if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachAllListeners: attach rotary ' + (rotaryIndex + 1));
-							return self.attachListener(self.config.get('pinA' + rotaryIndex),'rotary')
-						} else {
-							return libQ.resolve(undefined);
-						}
-					})
-					.then(handle => {
-						if (handle != undefined) {
-							self.handles[rotaryIndex] = handle;
-						}
-						return libQ.resolve();
-					})
-					.then(_ => {
-						return self.checkOverlayExists(rotaryIndex,'button') 
-					})
-					.then(idx => {
-						if (idx > -1) {
-							if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachAllListeners: attach button '  + (rotaryIndex + 1));
-							return self.attachListener(self.config.get('pinPush' + rotaryIndex),'button')
-						} else {
-							return libQ.resolve(undefined);
-						}
-					})
-					.then(handle => {
-						if (handle != undefined) {
-							self.buttons[rotaryIndex] = handle;
-						}
-						defer.resolve()
+				// return self.addOverlay(self.config.get('pinA'+currentDto),self.config.get('pinB'+currentDto),self.config.get('rotaryType'+currentDto))
+				return self.dtoverlayAdd(currentDto)
+				.then(_=> self.attachEventEmitter(currentDto))
 					})
 					.fail(err => {
-						if (self.debugLogging) self.logger.error('[ROTARYENCODER2] attachAllListeners: failed: ' + err);
-						self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_ERR_ATTACH_LISTENER_FAILED'));
-						defer.resolve();
+				if (self.debugLogging) self.logger.error('[ROTARYENCODER2] installAllOverlays failed for rotary: ' + JSON.stringify(currentDto,['pinA','type']) + ' - ' + err);
+				self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('TOAST_ERR_ADD_OVERLAY_FAILED')+ JSON.stringify(currentDto));
+				return defer.reject(err)
 					})
 				} else {
-					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachAllListeners rotaries: ');
-					if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.handles));
-					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachAllListeners buttons: ');
-					if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.buttons));
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] installAllOverlays: end of recursion.');
 					defer.resolve();
 				}
-			})
 		} else {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachAllListeners: end of recursion.');
-			defer.resolve();
-		}
-	} else {
-		self.logger.error('[ROTARYENCODER2] attachAllListeners: rotaryIndexArray must be an Array');
-		defer.reject('rotaryIndexArray must be an Array of integers')
+		self.logger.error('[ROTARYENCODER2] installAllOverlays: configuredDtos must be an Array');
+		defer.reject('configuredDtos must be an Array of integers')
 	}
 	return defer.promise;
 }
 
-rotaryencoder2.prototype.attachListener = function (pinA,type="rotary"){
+/**
+ * Wrapper for dtoverlay rotary-encoder and dtoverlay gpio-key. Depending on properties existing in the object, the function
+ * either installes an overlay for a rotary or a button
+ * @param {dtoObject} dto an Object describing the overlay to add
+*/
+rotaryencoder2.prototype.dtoverlayAdd = function (dto) {
 	var self = this;
-	var pinHex = Number(pinA).toString(16);
-
-	if (type=="rotary") {
-		var path = "/dev/input/by-path/platform-rotary\@"+pinHex+"-event";
-	} else if (type=="button") {
-		var path = "/dev/input/by-path/platform-button\@"+pinHex+"-event";
-	}
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachListener: path: ' + path + ', type: ' + type);
-	var handle = spawn("/bin/cat", [path],{uid: 1000, gid: 1000});
-
-	return libQ.resolve(handle);
-}
-
-rotaryencoder2.prototype.detachListener = function (handle){
-	var self = this;
+	var resolver = libQ.defer();
 	var defer = libQ.defer();
-    if (handle!=undefined) {
-		handle.stdout.removeAllListeners('end');
-		handle.stdout.removeAllListeners('data');
-		handle.stderr.removeAllListeners('data');
-		handle.removeAllListeners('close');
-		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachListener: ');
-		if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(handle));
-	    if (handle.kill()) {
-        	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachListener: successfully killed handler process');
-        	defer.resolve();
-        } else {
-            self.logger.error('[ROTARYENCODER2] detachListener: could not kill handler process ');
-			if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(handle));
-			self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
-            defer.resolve();
-        }
-
+	var cmdString = '';
+	
+	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayAdd');
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2] ' + JSON.stringify(dto))
+	if (dto !== undefined) {
+		if (dto.type=='rotary-encoder' && dto.pinA !== undefined && dto.pinB !== undefined && dto.stepsPerPeriod !== undefined) {
+			cmdString = '/usr/bin/sudo /usr/bin/dtoverlay ' + 'rotary-encoder pin_a=' + dto.pinA + ' pin_b=' +dto.pinB+ ' relative_axis=true steps-per-period='+dto.stepsPerPeriod;			
+		} else if (dto.type=='gpio-key' && dto.pinA !== undefined && dto.gpioPull !== undefined && dto.activeLow !== undefined) {
+			cmdString = '/usr/bin/sudo /usr/bin/dtoverlay ' + 'gpio-key gpio=' + dto.pinA + ' active_low=' + dto.activeLow + ' gpio_pull=' + dto.gpioPull + ' keycode=20'
     } else {
-        if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachListener: no handler process to kill');
-        defer.resolve();
-    }
-	return defer.promise;
-}
-
-//Function to recursively detach Listeners from all device tree overlays
-rotaryencoder2.prototype.detachAllListeners = function (rotaryIndexArray) {
-	var self = this;
-	var defer = libQ.defer();
-	var rotaryIndex;
-
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachAllListeners: ' + rotaryIndexArray.map(i =>  {return i + 1}));
-
-	if (Array.isArray(rotaryIndexArray)){
-		if (rotaryIndexArray.length > 0) {
-			rotaryIndex = rotaryIndexArray[rotaryIndexArray.length - 1];
-			return self.detachAllListeners(rotaryIndexArray.slice(0,rotaryIndexArray.length - 1))
-			.then(_ => {
-				return self.detachListener(self.handles[rotaryIndex])
-				.then(_ => {
-					if (self.buttons[rotaryIndex] != undefined) {
-						return self.detachListener(self.buttons[rotaryIndex])
-					} else {
-						return defer.resolve()
-					}
-				})
-				.fail(err => {
-					if (self.debugLogging) self.logger.error('[ROTARYENCODER2] detachAllListeners: failed: ' + err);
-					self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_ERR_ATTACH_LISTENER_FAILED'));
-					return defer.resolve();
-				})
+			return defer.reject('dtoverlayAdd: dto is not fully defined')
+		}
+		exec(cmdString, {uid: 1000, gid: 1000}, resolver.makeNodeResolver());
+		resolver.promise
+		.then(_ =>  {
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayAdd executed: ' + cmdString);
+			//it takes a short time, before the overlay is available in the file system, wait a moment before we resolve
+			if (dto.type=="rotary-encoder") {
+				var devPath = '/dev/input/by-path/platform-rotary\@'+ Number(dto.pinA).toString(16) + '-event';
+			} else if (dto.type=="gpio-key") {
+				var devPath  = '/dev/input/by-path/platform-button\@'+ Number(dto.pinA).toString(16) + '-event';
+			}
+			return self.waitForOverlay(5000, devPath)
+		})
+		.then(_=>{defer.resolve()})
+		.fail(stderr => {
+			if (self.debugLogging) self.logger.error('[ROTARYENCODER2] dtoverlayAdd failed: ' + stderr);
+			defer.reject(stderr)
 			})
-		} else {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] detachAllListeners: end of recursion.');
-			defer.resolve();
-		}
-	} else {
-		self.logger.error('[ROTARYENCODER2] detachAllListeners: rotaryIndexArray must be an Array');
-		defer.reject('rotaryIndexArray must be an Array of integers')
-	}
-	return defer.promise;
+	} else return defer.reject('dtoverlayAdd: dto is undefined')
+
+	return defer.promise
 }
 
-//recursively attach Event handles to all listeners
-rotaryencoder2.prototype.addAllEventHandles = function(){
+rotaryencoder2.prototype.attachEventEmitter = function (dtoConfig){
 	var self = this;
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Now addAllEventHandles for rotaries. ');
+	var pinHex = Number(dtoConfig.pinA).toString(16);
+	var path = ''
 
-	for (let i = 0; i < maxRotaries; i++) {
-		if (self.handles[i] != undefined) {
-			self.addEventHandle(self.handles[i],i,'rotary');		
-		}
+	if (dtoConfig.type=="rotary-encoder") {
+		path = '/dev/input/by-path/platform-rotary\@'+pinHex + '-event';
+	} else if (dtoConfig.type=="gpio-key") {
+		path = '/dev/input/by-path/platform-button\@'+pinHex + '-event';
 	}
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Now addAllEventHandles for buttons. ');
-	for (let j = 0; j < maxRotaries; j++) {
-		if (self.buttons[j] != undefined) {
-			self.addEventHandle(self.buttons[j],j,'button')
-		}
-	}
+	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] attachEventEmitter: path: ' + path + ', type: ' + dtoConfig.type);
+	// dtoConfig.handle = spawn("/bin/cat", [path],{uid: 1000, gid: 1000});
+	dtoConfig.handle = spawn('/bin/cat', [path],{uid: 1000, gid: 1000});
+	self.addEventListeners(dtoConfig);
+	return libQ.resolve();
 }
 
-rotaryencoder2.prototype.addEventHandle = function (handle, rotaryIndex, handleType = "rotary") {
+rotaryencoder2.prototype.addEventListeners = function (dtoConfig) {
 	var self = this;
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle for rotary: ' + (rotaryIndex + 1) + ' type: ' + handleType);
-	if (handleType == "rotary") {
-		handle.stdout.on("data", function (chunk) {
+
+	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventListeners for rotary: ' + JSON.stringify(dtoConfig,['pinA','type']));
+	if (dtoConfig.type == "rotary-encoder") {
+		dtoConfig.handle.stdout.on('data', (chunk) => {
 			var i=0;
 			while (chunk.length - i >= 16) {
 				var type = chunk.readUInt16LE(i+8);
-				//var code = chunk.readUInt16LE(i+10) //would additionally read the key-code assigned to a button, but we do not need this for the plugin
 				var value = chunk.readInt32LE(i+12);
 				i += 16;
 				if (type == 2) {
-					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle received from rotary: '+(rotaryIndex +1) + ' -> Dir: '+value)
-					self.emitDialCommand(value,rotaryIndex)
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] stdout.data received from rotary: '+JSON.stringify(dtoConfig,['pinA','type']) + ' -> Dir: '+value)
+					self.emitDialCommand(value,dtoConfig.rotaryIdx)
 				}
 			}
 		});
-		handle.stdout.on('end', function(){
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle: Stream from rotary encoder ended.');
+		dtoConfig.handle.stdout.on('end', function(){
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] stdout-end: ' + JSON.stringify(dtoConfig,['pinA','type']));
 		});
-		handle.stderr.on('data', (data) => {
-			self.logger.error('[ROTARYENCODER2] addEventHandle: ' + `stderr: ${data}`);
+		dtoConfig.handle.stdout.on('close', function(){
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] stdout.close: ' + JSON.stringify(dtoConfig,['pinA','type']));
+		});
+		dtoConfig.handle.stderr.on('data', (data) => {
+			self.logger.error('[ROTARYENCODER2] stderr.data: ' + `stderr: ${data}`);
 			self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_ERR_FROM_STREAM') + '(' + data + ')');
 		});
-		handle.on('close', (code) => {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle: ' + `child process exited with code ${code} `);
+		dtoConfig.handle.on('close', (code) => {
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] handle.close: ' + `child process exited with code ${code} `);
 		});		
-	} else if (handleType == "button") {
-		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle: adding handle :');
-		if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(handle));
-		handle.stdout.on("data", function (chunk) {
+	} else if (dtoConfig.type == "gpio-key") {
+		dtoConfig.handle.stdout.on('data', function (chunk) {
 			var i=0;
 			while (chunk.length - i >= 16) {
 				var type = chunk.readUInt16LE(i+8)
@@ -741,79 +578,78 @@ rotaryencoder2.prototype.addEventHandle = function (handle, rotaryIndex, handleT
 				var value = chunk.readInt16LE(i+12)
 				i += 16
 				if (type == 1) {
-					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle received from rotary: '+(rotaryIndex +1) + ' Button: '+value)
+					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] stdout.data: '+JSON.stringify(dtoConfig,['pinA','type']) + ' Button: '+value)
 					//value=1 means keydown, value =0 means keyup
 					//if button is activeLow, falling edge triggers keydown, rising edge keyup - for activeHigh it is the other way around
 					//see https://raw.githubusercontent.com/raspberrypi/firmware/refs/heads/master/boot/overlays/README
 					switch (value) {
 						case 0: //button released
-							if (self.btnLastEvent[rotaryIndex] < 0) {
-								self.logger.warn('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' signalled "released" but was never pressed. Did you set the correct Push Button logic?')
-							} else if (self.btnLastEvent[rotaryIndex]==value){
-								self.logger.warn('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' signalled "released" without intermediate "pressed". You may be suffering from bouncy buttons.')
+							if (self.btnLastEvent[dtoConfig.rotaryIdx] < 0) {
+								self.logger.warn('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' signalled "released" but was never pressed. Did you set the correct Push Button logic?')
+							} else if (self.btnLastEvent[dtoConfig.rotaryIdx]==value){
+								self.logger.warn('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' signalled "released" without intermediate "pressed". You may be suffering from bouncy buttons.')
 							}
-							var pushTime = Date.now() - self.pushDownTime[rotaryIndex]
-							if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' released after '+pushTime+'ms.');
-							if ((pushTime > 10000) && (self.debugLogging)) self.logger.warn('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' released after '+pushTime+'ms. Seems quite long, maybe you have a wrong button logic level setting or bouncy button?');
-							self.pressed[rotaryIndex] = false;
-							if (self.dblElapsed[rotaryIndex] && (self.pressedCount[rotaryIndex]==1)) {
-								if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' sending single push command at release.');
-								self.pressedCount[rotaryIndex] = 0;
-								self.emitPushCommand('single',rotaryIndex);
+							var pushTime = Date.now() - self.pushDownTime[dtoConfig.rotaryIdx]
+							if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' released after '+pushTime+'ms.');
+							if ((pushTime > 10000) && (self.debugLogging)) self.logger.warn('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' released after '+pushTime+'ms. Seems quite long, maybe you have a wrong button logic level setting or bouncy button?');
+							self.pressed[dtoConfig.rotaryIdx] = false;
+							if (self.dblElapsed[dtoConfig.rotaryIdx] && (self.pressedCount[dtoConfig.rotaryIdx]==1)) {
+								if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' sending single push command at release.');
+								self.pressedCount[dtoConfig.rotaryIdx] = 0;
+								self.emitPushCommand('single',dtoConfig.rotaryIdx);
 							}
 							break;
 
 						case 1: //button pressed
-							if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' pressed.');
-							self.pushDownTime[rotaryIndex] = Date.now(); //only used for logging
-							if (self.pressedCount[rotaryIndex] == 0) { //if first time pressed, start timers
-								if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' starting timers.');
-								self.doublePushTimer[rotaryIndex] = setTimeout(() => {  //timer to check for double-press
-									if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' doublepush timer elapsed. (' + self.pressed[rotaryIndex] + ', ' + self.pressedCount[rotaryIndex] + ')' );
-									self.dblElapsed[rotaryIndex] = true;
-									if (self.pressedCount[rotaryIndex] == 2) {
-										if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' sending double push command.');
-										clearTimeout(self.longPushTimer[rotaryIndex]);
-										self.pressedCount[rotaryIndex] = 0;
-										self.emitPushCommand('double', rotaryIndex)
-									} else if ((self.pressedCount[rotaryIndex] == 1) && (!self.pressed[rotaryIndex])){
-										clearTimeout(self.longPushTimer[rotaryIndex]);
-										if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' sending single push command.');
-										self.pressedCount[rotaryIndex] = 0;
-										self.emitPushCommand('single', rotaryIndex)
+							if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' pressed.');
+							self.pushDownTime[dtoConfig.rotaryIdx] = Date.now(); //only used for logging
+							if (self.pressedCount[dtoConfig.rotaryIdx] == 0) { //if first time pressed, start timers
+								if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' starting timers.');
+								self.doublePushTimer[dtoConfig.rotaryIdx] = setTimeout(() => {  //timer to check for double-press
+									if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' doublepush timer elapsed. (' + self.pressed[dtoConfig.rotaryIdx] + ', ' + self.pressedCount[dtoConfig.rotaryIdx] + ')' );
+									self.dblElapsed[dtoConfig.rotaryIdx] = true;
+									if (self.pressedCount[dtoConfig.rotaryIdx] == 2) {
+										if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' sending double push command.');
+										clearTimeout(self.longPushTimer[dtoConfig.rotaryIdx]);
+										self.pressedCount[dtoConfig.rotaryIdx] = 0;
+										self.emitPushCommand('double', dtoConfig.rotaryIdx)
+									} else if ((self.pressedCount[dtoConfig.rotaryIdx] == 1) && (!self.pressed[dtoConfig.rotaryIdx])){
+										clearTimeout(self.longPushTimer[dtoConfig.rotaryIdx]);
+										if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' sending single push command.');
+										self.pressedCount[dtoConfig.rotaryIdx] = 0;
+										self.emitPushCommand('single', dtoConfig.rotaryIdx)
 									}
-								}, self.config.get('delayDoublePush'+rotaryIndex));
-								self.dblElapsed[rotaryIndex] = false;
-								self.longPushTimer[rotaryIndex] = setTimeout(() => {  //timer to check for long press
-									if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' longpush timer elapsed. (' + self.pressed[rotaryIndex] + ', ' + self.pressedCount[rotaryIndex] + ')' );
-									if (self.pressed[rotaryIndex] && (self.pressedCount[rotaryIndex] == 1)) {
-										if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(rotaryIndex+1)+' sending long push command.');
-										self.pressedCount[rotaryIndex] = 0;
-										self.emitPushCommand('long', rotaryIndex)
+								}, self.config.get('delayDoublePush'+dtoConfig.rotaryIdx));
+								self.dblElapsed[dtoConfig.rotaryIdx] = false;
+								self.longPushTimer[dtoConfig.rotaryIdx] = setTimeout(() => {  //timer to check for long press
+									if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' longpush timer elapsed. (' + self.pressed[dtoConfig.rotaryIdx] + ', ' + self.pressedCount[dtoConfig.rotaryIdx] + ')' );
+									if (self.pressed[dtoConfig.rotaryIdx] && (self.pressedCount[dtoConfig.rotaryIdx] == 1)) {
+										if (self.debugLogging) self.logger.info('[ROTARYENCODER2] Push Button '+(dtoConfig.rotaryIdx+1)+' sending long push command.');
+										self.pressedCount[dtoConfig.rotaryIdx] = 0;
+										self.emitPushCommand('long', dtoConfig.rotaryIdx)
 									}
-									self.pressedCount[rotaryIndex] = 0;
-								}, self.config.get('delayLongPush'+rotaryIndex));
+									self.pressedCount[dtoConfig.rotaryIdx] = 0;
+								}, self.config.get('delayLongPush'+dtoConfig.rotaryIdx));
 							};
-							self.pressed[rotaryIndex] =true;
-							self.pressedCount[rotaryIndex] +=1;
+							self.pressed[dtoConfig.rotaryIdx] =true;
+							self.pressedCount[dtoConfig.rotaryIdx] +=1;
 							break;
 						default:
 							break;
 					}
-					self.btnLastEvent[rotaryIndex] = value;
-
+					self.btnLastEvent[dtoConfig.rotaryIdx] = value;
 				} 
 			}
 		});
-		handle.stdout.on('end', function(){
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle: Stream from button ended.');
+		dtoConfig.handle.stdout.on('end', function(){
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] stdout.end: ' + JSON.stringify(dtoConfig,['pinA','type']));
 		});
-		handle.stderr.on('data', (data) => {
-			self.logger.error('[ROTARYENCODER2] addEventHandle: ' + `stderr: ${data}`);
+		dtoConfig.handle.stderr.on('data', (data) => {
+			self.logger.error('[ROTARYENCODER2] stderr.data: ' +JSON.stringify(dtoConfig,['pinA','type'])+ ` stderr: ${data}`);
 			self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_ERR_FROM_STREAM') + '(' + data + ')');
 		});
-		handle.on('close', (code) => {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] addEventHandle: ' + `child process exited with code ${code} `);
+		dtoConfig.handle.on('close', (code) => {
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] handle.close: ' + `child process exited with code ${code} `);
 		});		
 	}
 }
@@ -1007,38 +843,6 @@ rotaryencoder2.prototype.emitPushCommand = function(type,rotaryIndex){
 	}
 }
 
-// Retrieve a string
-rotaryencoder2.prototype.getI18nString = function (key) {
-    var self = this;
-
-	key = key.replace(/^ROTARYENCODER2\./,'');
-    if (self.i18nStrings['ROTARYENCODER2'][key] !== undefined) {
-		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] getI18nString("'+key+'"):'+ self.i18nStrings['ROTARYENCODER2'][key]);
-        return self.i18nStrings['ROTARYENCODER2'][key];
-	} else {
-		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] getI18nString("'+key+'")'+ self.i18nStringsDefaults['ROTARYENCODER2'][key]);
-        return self.i18nStringsDefaults['ROTARYENCODER2'][key];
-	};
-}
-// A method to get some language strings used by the plugin
-rotaryencoder2.prototype.loadI18nStrings = function() {
-    var self = this;
-
-    try {
-        var language_code = this.commandRouter.sharedVars.get('language_code');
-		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: '+__dirname + '/i18n/strings_' + language_code + ".json");
-        self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + ".json");
-		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: loaded: ');
-		if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(self.i18nStrings));
-    }
-    catch (e) {
-		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] loadI18nStrings: ' + language_code + ' not found. Fallback to en');
-        self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
-    }
-
-    self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
-};
-
 /**
  * Wrapper for dtoverlay -l, returning an array with information about all installed dtoverlays
  * of type Rotary-Encoder and Gpio-Key
@@ -1090,40 +894,149 @@ rotaryencoder2.prototype.dtoverlayL = function () {
 	return defer.promise
 }
 
-/**
- * Wrapper for dtoverlay rotary-encoder and dtoverlay gpio-key. Depending on properties existing in the object, the function
- * either installes an overlay for a rotary or a button
- * @param {dtoObject} dto an Object describing the overlay to add
-*/
-rotaryencoder2.prototype.dtoverlayAdd = function (dto) {
+rotaryencoder2.prototype.getDtoFromConfig = function(){
 	var self = this;
-	var resolver = libQ.defer();
-	var defer = libQ.defer();
-	var cmdString = '';
-	
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayAdd');
-	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2] ' + JSON.stringify(dto))
-	if (dto !== undefined) {
-		if (dto.pinA !== undefined && dto.pinB !== undefined && dto.stepsPerPeriod !== undefined) {
-			cmdString = '/usr/bin/sudo /usr/bin/dtoverlay ' + 'rotary-encoder pin_a=' + dto.pinA + ' pin_b=' +dto.pinB+ ' relative_axis=true steps-per-period='+dto.stepsPerPeriod;			
-		} else if (dto.pinA !== undefined && dto.gpioPull !== undefined && dto.activeLow !== undefined) {
-			cmdString = '/usr/bin/sudo /usr/bin/dtoverlay ' + 'gpio-key gpio=' + dto.pinA + ' active_low=' + dto.activeLow + ' gpio_pull=' + dto.gpioPull + ' keycode=20'
-		} else {
-			return defer.reject('dtoverlayAdd: dto is not fully defined')
+	var overlays = [];
+	var ovlObject = {};
+	for (let i = 0; i < maxRotaries; i++) {
+		if (self.config.get('enabled'+i)) {
+			ovlObject = {
+				"rotaryIdx": i,
+				"type": "rotary-encoder",
+				"pinA": parseInt(self.config.get('pinA'+i)),
+				"pinB": parseInt(self.config.get('pinB'+i)),
+				"dialAction": self.config.get('dialAction' + i),
+				"socketCmdCW": self.config.get('socketCmdCW' + i),
+				"socketDataCW": self.config.get('socketDataCW' + i),
+				"socketCmdCCW": self.config.get('socketCmdCCW' + i),
+				"socketDataCCW": self.config.get('socketDataCCW' + i),
+				"relativeAxis": true,
+				"stepsPerPeriod": self.config.get('rotaryType'+i)
+			};
+			overlays.push(ovlObject);
+			ovlObject = {
+				"rotaryIdx": i,
+				"type": "gpio-key",
+				"pinA": self.config.get('pinPush'+i),
+				"debounce": self.config.get('pinPushDebounce' + i),
+				"action": self.config.get('pushAction'+i),
+				"socketCmdPush": self.config.get('socketCmdPush'+i),
+				"socketDataPush": self.config.get('socketDataPush'+i),
+				"longPushAction": self.config.get('longPushAction'+i),
+				"socketCmdLongPush": self.config.get('socketCmdLongPush'+i),
+				"socketDataLongPush": self.config.get('socketDataLongPush'+i),
+				"delayLongPush": parseInt(self.config.get('delayLongPush'+i)),
+				"doublePushAction": self.config.get('doublePushAction'+i),
+				"socketCmdDoublePush": self.config.get('socketCmdDoublePush'+i),
+				"socketDataDoublePush": self.config.get('socketDataDoublePush'+i),
+				"delayDoublePush": parseInt(self.config.get('delayDoublePush'+i)),
+				"activeLow": self.config.get('pushState'+i),
+				"gpioPull": 'up',
+				"keycode": 20
+			}
+			overlays.push(ovlObject);		
 		}
-		exec(cmdString, {uid: 1000, gid: 1000}, resolver.makeNodeResolver());
-		resolver.promise
-		.then(stdout =>  {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayAdd executed: ' + cmdString);
-			defer.resolve()
-		})
-		.fail(stderr => {
-			if (self.debugLogging) self.logger.error('[ROTARYENCODER2] dtoverlayAdd failed: ' + stderr);
-			defer.reject(stderr)
-		})
-	} else return defer.reject('dtoverlayAdd: dto is undefined')
+	}
+	return overlays;
+}
 
-	return defer.promise
+//Function to recursively uninstall all device tree overlays
+rotaryencoder2.prototype.uninstallAllOverlays = function (overlays) {
+	var self = this;
+	var defer = libQ.defer();
+	var currentOverlay;
+	
+	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: ' + JSON.stringify(overlays,['rotaryIdx','pinA','type']));
+	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2] '+JSON.stringify(overlays));
+
+	if (Array.isArray(overlays)){
+		if (overlays.length > 0) {
+			currentOverlay = overlays[0];
+			self.uninstallAllOverlays(overlays.slice(1,overlays.length))
+			.then(_ => {
+				return this.removeEventListeners(currentOverlay);
+			})
+			.then(_ => {
+				return this.dtoverlayRemove(currentOverlay);					
+			})
+			.then(_ => {
+				if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: removed' + JSON.stringify(currentOverlay,['pinA','type'] ));
+				return defer.resolve();
+			})
+			.fail(msg => {
+				if (self.debugLogging) self.logger.error('[ROTARYENCODER2] uninstallAllOverlays: failed for ' + JSON.stringify(currentOverlay,['pinA','type']) + ' with: '+msg);
+				self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
+				return defer.resolve();
+			})
+		} else {
+			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: end of recursion.');
+			defer.resolve();
+		}
+	} else {
+		self.logger.error('[ROTARYENCODER2] uninstallAllOverlays: rotaryIndexArray must be an Array: ' + overlays);
+		defer.reject('overlays must be an Array of integers')
+	}
+	return defer.promise;
+}
+
+rotaryencoder2.prototype.waitForOverlay = function (timeout, devPath){
+//inspired by https://stackoverflow.com/questions/26165725/nodejs-check-file-exists-if-not-wait-till-it-exist
+	var self = this;
+	var defer = libQ.defer();
+
+        var timer = setTimeout(function () {
+            watcher.close();
+            defer.reject('Device ' + devPath+ ' did not appear after waiting for ' + timeout + 'ms.');
+        }, timeout);
+
+        fs.access(devPath, fs.constants.F_OK, function (err) {
+            if (!err) {
+                clearTimeout(timer);
+                watcher.close();
+                defer.resolve();
+            }
+        });
+
+        var dir = path.dirname(devPath);
+        var basename = path.basename(devPath);
+        var watcher = fs.watch(dir, function (eventType, filename) {
+            if (eventType === 'rename' && filename.includes(basename)) {
+                clearTimeout(timer);
+                watcher.close();
+                defer.resolve();
+            }
+		});
+	return defer.promise;
+}
+
+rotaryencoder2.prototype.removeEventListeners = function (currentOverlay){
+	var self = this;
+	var defer = libQ.defer();
+    if (currentOverlay.handle!=undefined) {
+		currentOverlay.handle.stdout.removeAllListeners('end');
+		currentOverlay.handle.stdout.removeAllListeners('data');
+		currentOverlay.handle.stdout.removeAllListeners('close');
+		currentOverlay.handle.stderr.removeAllListeners('end');
+		currentOverlay.handle.stderr.removeAllListeners('data');
+		currentOverlay.handle.stderr.removeAllListeners('close');
+		currentOverlay.handle.removeAllListeners('close');
+		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] removeEventListeners: Remaining listeners STDOUT: ' + currentOverlay.handle.stdout._eventsCount + ' STDERR: ' + currentOverlay.handle.stdout._eventsCount);
+		if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(currentOverlay.handle));
+	    if (currentOverlay.handle.kill()) {
+        	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] removeEventListeners: successfully killed handler process');
+        	defer.resolve();
+        } else {
+            self.logger.error('[ROTARYENCODER2] removeEventListeners: could not kill handler process ');
+			if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(currentOverlay.handle));
+			self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
+            defer.resolve();
+        }
+
+    } else {
+        if (self.debugLogging) self.logger.info('[ROTARYENCODER2] removeEventListeners: no handler process to kill');
+        defer.resolve();
+    }
+	return defer.promise;
 }
 
 /**
@@ -1131,26 +1044,21 @@ rotaryencoder2.prototype.dtoverlayAdd = function (dto) {
  * Either the number dtoObject.no or the first GPIO pin dtoObject.pinA need to be defined, to identify the overlay.
  * @param {dtoObject} dto an Object describing the overlay to add
 */
-rotaryencoder2.prototype.dtoverlayRemove = function (dto) {
+rotaryencoder2.prototype.dtoverlayRemove = function (currentOverlay) {
 	var self = this;
 	var resolver = libQ.defer();
 	var defer = libQ.defer();
 	var cmdString = '';
 	var overlayToRemove;
 	
-	if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayRemove');
-	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2] ' + JSON.stringify(dto));
-	if (dto !== undefined) {
+	if (currentOverlay !== undefined) {
+		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayRemove: ' + JSON.stringify(currentOverlay,['pinA','type']));
 		self.dtoverlayL()
 		.then(overlays => {
-			if (dto.no !== undefined && dto.pinA !== undefined && dto.no >= 0) {
-				overlayToRemove = overlays.find(overlay => overlay.no == dto.no && overlay.pinA == dto.pinA)
-			} else if (dto.no!== undefined && dto.no >= 0) {
-				overlayToRemove = overlays.find(overlay => overlay.no == dto.no);
-			} else if (dto.pinA !== undefined) {
-				overlayToRemove = overlays.find(overlay => overlay.pinA == dto.pinA)
+			if (currentOverlay.pinA !== undefined && currentOverlay.type !== undefined) {
+				overlayToRemove = overlays.find(overlay => overlay.type == currentOverlay.type && overlay.pinA == currentOverlay.pinA)
 			} else {
-				defer.reject('dtoverlayRemove: dto did not contain dto index or dto Pin A info.')
+				defer.reject('dtoverlayRemove: currentOverlay did not contain type and Pin A info: ' + JSON.stringify(currentOverlay))
 			}
 			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayRemove: removing: ' + overlayToRemove.no);
 			if (self.JSONLogging) self.logger.info('[ROTARYENCODER2] ' + JSON.stringify(overlayToRemove));
@@ -1166,36 +1074,6 @@ rotaryencoder2.prototype.dtoverlayRemove = function (dto) {
 				defer.reject(stderr)
 			})
 		})
-	} else return defer.reject('dtoverlayAdd: dto is undefined')
+	} else return defer.reject('dtoverlayAdd: currentOverlay is undefined')
 	return defer.promise
 }
-
-rotaryencoder2.prototype.getDtoFromConfig = function(){
-var self = this;
-var overlays = [];
-var ovlObject = {};
-for (let i = 0; i < maxRotaries; i++) {
-	if (self.config.get('enabled'+i)) {
-		ovlObject = {
-			"no": -1,
-			"type": "rotary-encoder",
-			"pinA": self.config.get('pinA'+i),
-			"pinB": self.config.get('pinB'+i),
-			"relativeAxis": true,
-			"stepsPerPeriod": self.config.get('rotaryType'+i)
-		};
-		overlays.push(ovlObject);
-		ovlObject = {
-			"no": -1,
-			"type": "gpio-key",
-			"pinA": self.config.get('pinPush'+i),
-			"activeLow": self.config.get('pushState')==true,
-			"gpioPull": 'up',
-			"keycode": 20
-		}
-		overlays.push(ovlObject);		
-	}
-}
-return overlays;
-}
-

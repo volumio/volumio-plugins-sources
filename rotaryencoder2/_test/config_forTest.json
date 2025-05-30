@@ -1,0 +1,286 @@
+{
+    "enabled0": {
+        "type": "boolean",
+        "value": true
+    },
+    "rotaryType0": {
+        "type": "number",
+        "value": 2
+    },
+    "pinA0": {
+        "type": "string",
+        "value": "17"
+    },
+    "pinB0": {
+        "type": "string",
+        "value": "27"
+    },
+    "dialAction0": {
+        "type": "number",
+        "value": 1
+    },
+    "socketCmdCW0": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataCW0": {
+        "type": "string",
+        "value": ""
+    },
+    "socketCmdCCW0": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataCCW0": {
+        "type": "string",
+        "value": ""
+    },
+    "pinPush0": {
+        "type": "number",
+        "value": 22
+    },
+    "pinPushDebounce0": {
+        "type": "number",
+        "value": 10
+    },
+    "pushState0": {
+        "type": "boolean",
+        "value": true
+    },
+    "pushAction0": {
+        "type": "number",
+        "value": 3
+    },
+    "socketCmdPush0": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataPush0": {
+        "type": "string",
+        "value": ""
+    },
+    "longPushAction0": {
+        "type": "number",
+        "value": 5
+    },
+    "socketCmdLongPush0": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataLongPush0": {
+        "type": "string",
+        "value": ""
+    },
+    "delayLongPush0": {
+        "type": "string",
+        "value": "1500"
+    },
+    "doublePushAction0": {
+        "type": "number",
+        "value": 6
+    },
+    "socketCmdDoublePush0": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataDoublePush0": {
+        "type": "string",
+        "value": ""
+    },
+    "delayDoublePush0": {
+        "type": "string",
+        "value": "700"
+    },
+    "enabled1": {
+        "type": "boolean",
+        "value": true
+    },
+    "rotaryType1": {
+        "type": "number",
+        "value": 2
+    },
+    "pinA1": {
+        "type": "string",
+        "value": "5"
+    },
+    "pinB1": {
+        "type": "string",
+        "value": "6"
+    },
+    "dialAction1": {
+        "type": "number",
+        "value": 0
+    },
+    "socketCmdCW1": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataCW1": {
+        "type": "string",
+        "value": ""
+    },
+    "socketCmdCCW1": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataCCW1": {
+        "type": "string",
+        "value": ""
+    },
+    "pinPush1": {
+        "type": "number",
+        "value": 13
+    },
+    "pinPushDebounce1": {
+        "type": "number",
+        "value": 0
+    },
+    "pushState1": {
+        "type": "boolean",
+        "value": true
+    },
+    "pushAction1": {
+        "type": "number",
+        "value": 0
+    },
+    "socketCmdPush1": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataPush1": {
+        "type": "string",
+        "value": ""
+    },
+    "longPushAction1": {
+        "type": "number",
+        "value": 0
+    },
+    "socketCmdLongPush1": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataLongPush1": {
+        "type": "string",
+        "value": ""
+    },
+    "delayLongPush1": {
+        "type": "string",
+        "value": "1500"
+    },
+    "doublePushAction1": {
+        "type": "number",
+        "value": 0
+    },
+    "socketCmdDoublePush1": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataDoublePush1": {
+        "type": "string",
+        "value": ""
+    },
+    "delayDoublePush1": {
+        "type": "string",
+        "value": "700"
+    },
+    "enabled2": {
+        "type": "boolean",
+        "value": false
+    },
+    "rotaryType2": {
+        "type": "number",
+        "value": 0
+    },
+    "pinA2": {
+        "type": "string",
+        "value": ""
+    },
+    "pinB2": {
+        "type": "string",
+        "value": ""
+    },
+    "dialAction2": {
+        "type": "number",
+        "value": 0
+    },
+    "socketCmdCW2": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataCW2": {
+        "type": "string",
+        "value": ""
+    },
+    "socketCmdCCW2": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataCCW2": {
+        "type": "string",
+        "value": ""
+    },
+    "pinPush2": {
+        "type": "number",
+        "value": 0
+    },
+    "pinPushDebounce2": {
+        "type": "number",
+        "value": 0
+    },
+    "pushState2": {
+        "type": "boolean",
+        "value": true
+    },
+    "pushAction2": {
+        "type": "number",
+        "value": 0
+    },
+    "socketCmdPush2": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataPush2": {
+        "type": "string",
+        "value": ""
+    },
+    "longPushAction2": {
+        "type": "number",
+        "value": 0
+    },
+    "socketCmdLongPush2": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataLongPush2": {
+        "type": "string",
+        "value": ""
+    },
+    "delayLongPush2": {
+        "type": "string",
+        "value": "1500"
+    },
+    "doublePushAction2": {
+        "type": "number",
+        "value": 0
+    },
+    "socketCmdDoublePush2": {
+        "type": "string",
+        "value": ""
+    },
+    "socketDataDoublePush2": {
+        "type": "string",
+        "value": ""
+    },
+    "delayDoublePush2": {
+        "type": "string",
+        "value": "700"
+    },
+    "logging": {
+        "type": "boolean",
+        "value": true
+    },
+    "loggingJSON": {
+        "type": "boolean",
+        "value": false
+    }
+}
