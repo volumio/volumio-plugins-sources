@@ -3,3 +3,5 @@
 *node_modules*
 .gitignore
 rotaryencoder2/config_fresh.json
+rotaryencoder2/totest.txt
+.gitignore
