@@ -2,3 +2,4 @@
 .DS_Store
 *node_modules*
 .gitignore
+rotaryencoder2/config_fresh.json

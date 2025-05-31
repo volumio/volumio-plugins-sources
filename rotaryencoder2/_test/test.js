@@ -85,7 +85,8 @@ plugin.onVolumioStart()
 })
 
 process.stdin.on('keypress', function (ch, key) {
-    if (key && !key.ctrl && !key.meta && !key.shift && key.name == 't') {
+    if (key && !key.ctrl && !key.meta && !key.shift && key.name == 'w') {
+        plugin.emitDialCommand(1,1)
     };
     if (key && !key.ctrl && !key.meta && !key.shift && key.name == 's') {
         // plugin.updateSerialSettings(data);            

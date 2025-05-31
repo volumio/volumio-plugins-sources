@@ -460,18 +460,22 @@ rotaryencoder2.prototype.installAllOverlays = function (configuredDtos) {
 			return self.installAllOverlays(configuredDtos.slice(0,configuredDtos.length - 1))
 			.then(_ => {
 				// return self.addOverlay(self.config.get('pinA'+currentDto),self.config.get('pinB'+currentDto),self.config.get('rotaryType'+currentDto))
-				return self.dtoverlayAdd(currentDto)
-				.then(_=> self.attachEventEmitter(currentDto))
-					})
-					.fail(err => {
+				if (currentDto.pinA > 0) {
+					return self.dtoverlayAdd(currentDto)
+					.then(_=> self.attachEventEmitter(currentDto));
+				} else {
+					return libQ.resolve();
+				}
+			})
+			.fail(err => {
 				if (self.debugLogging) self.logger.error('[ROTARYENCODER2] installAllOverlays failed for rotary: ' + JSON.stringify(currentDto,['pinA','type']) + ' - ' + err);
 				self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('TOAST_ERR_ADD_OVERLAY_FAILED')+ JSON.stringify(currentDto));
 				return defer.reject(err)
-					})
-				} else {
+			})
+		} else {
 			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] installAllOverlays: end of recursion.');
-					defer.resolve();
-				}
+			defer.resolve();
+		}
 		} else {
 		self.logger.error('[ROTARYENCODER2] installAllOverlays: configuredDtos must be an Array');
 		defer.reject('configuredDtos must be an Array of integers')
@@ -499,24 +503,27 @@ rotaryencoder2.prototype.dtoverlayAdd = function (dto) {
 			cmdString = '/usr/bin/sudo /usr/bin/dtoverlay ' + 'gpio-key gpio=' + dto.pinA + ' active_low=' + dto.activeLow + ' gpio_pull=' + dto.gpioPull + ' keycode=20'
     } else {
 			return defer.reject('dtoverlayAdd: dto is not fully defined')
+	}
+	exec(cmdString, {uid: 1000, gid: 1000}, resolver.makeNodeResolver());
+	resolver.promise
+	.then(_ =>  {
+		if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayAdd executed: ' + cmdString);
+		//it takes a short time, before the overlay is available in the file system, wait a moment before we resolve
+		if (dto.type=="rotary-encoder") {
+			var devPath = '/dev/input/by-path/platform-rotary\@'+ Number(dto.pinA).toString(16) + '-event';
+		} else if (dto.type=="gpio-key") {
+			var devPath  = '/dev/input/by-path/platform-button\@'+ Number(dto.pinA).toString(16) + '-event';
 		}
-		exec(cmdString, {uid: 1000, gid: 1000}, resolver.makeNodeResolver());
-		resolver.promise
-		.then(_ =>  {
-			if (self.debugLogging) self.logger.info('[ROTARYENCODER2] dtoverlayAdd executed: ' + cmdString);
-			//it takes a short time, before the overlay is available in the file system, wait a moment before we resolve
-			if (dto.type=="rotary-encoder") {
-				var devPath = '/dev/input/by-path/platform-rotary\@'+ Number(dto.pinA).toString(16) + '-event';
-			} else if (dto.type=="gpio-key") {
-				var devPath  = '/dev/input/by-path/platform-button\@'+ Number(dto.pinA).toString(16) + '-event';
-			}
-			return self.waitForOverlay(5000, devPath)
+		//since by-path only gets generated with the first overlay, we first must wait for the folder to appear and then for the ovl
+		//recursive wait for the ovl does not work on buster
+		return self.waitForOverlay(5000, '/dev/input/by-path')
+		.then(_ => self.waitForOverlay(5000,devPath))
+	})
+	.then(_=>{defer.resolve()})
+	.fail(stderr => {
+		if (self.debugLogging) self.logger.error('[ROTARYENCODER2] dtoverlayAdd failed: ' + stderr);
+		defer.reject(stderr)
 		})
-		.then(_=>{defer.resolve()})
-		.fail(stderr => {
-			if (self.debugLogging) self.logger.error('[ROTARYENCODER2] dtoverlayAdd failed: ' + stderr);
-			defer.reject(stderr)
-			})
 	} else return defer.reject('dtoverlayAdd: dto is undefined')
 
 	return defer.promise
@@ -954,15 +961,17 @@ rotaryencoder2.prototype.uninstallAllOverlays = function (overlays) {
 			currentOverlay = overlays[0];
 			self.uninstallAllOverlays(overlays.slice(1,overlays.length))
 			.then(_ => {
-				return this.removeEventListeners(currentOverlay);
+				if (currentOverlay.pinA > 0) {
+					return this.removeEventListeners(currentOverlay)
+					.then(_ => this.dtoverlayRemove(currentOverlay))
+					.then(_ => {
+						if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: removed' + JSON.stringify(currentOverlay,['pinA','type'] ));
+					})
+				} else {
+					return libQ.resolve();
+				}
 			})
-			.then(_ => {
-				return this.dtoverlayRemove(currentOverlay);					
-			})
-			.then(_ => {
-				if (self.debugLogging) self.logger.info('[ROTARYENCODER2] uninstallAllOverlays: removed' + JSON.stringify(currentOverlay,['pinA','type'] ));
-				return defer.resolve();
-			})
+			.then(_=> defer.resolve())
 			.fail(msg => {
 				if (self.debugLogging) self.logger.error('[ROTARYENCODER2] uninstallAllOverlays: failed for ' + JSON.stringify(currentOverlay,['pinA','type']) + ' with: '+msg);
 				self.commandRouter.pushToastMessage('error', self.getI18nString('ROTARYENCODER2.TOAST_WRONG_PARAMETER'), self.getI18nString('ROTARYENCODER2.TOAST_KILL_HANDLE_FAIL'));
