@@ -6,6 +6,8 @@ var fs = require('fs');
 var path= "./rotaryencoder2/";
 var uiconf= JSON.parse(fs.readFileSync(path + 'UIConfig.json', 'utf8'));
 var translationRegEx = /TRANSLATE.([A-Z_0-9]*)/
+const testIo = require('socket.io-client');
+var socket = testIo.connect('http://localhost:3000');
 
 const volumioSimulator = {
     path: path,
@@ -22,10 +24,11 @@ const volumioSimulator = {
     //         ]}
     //     ]
     // }
-
     coreCommand: {
         pluginManager: {
-            getConfigurationFile: (context, filename)=>{return context.path + filename},
+            getConfigurationFile: (context, filename)=>{
+                return context.path + filename
+            },
         },
         executeOnPlugin: (a,b,c,d) => {
             if (c== 'getAlsaCards') {
@@ -74,8 +77,9 @@ const volumioSimulator = {
         }
     } 
 }
-const plugin = new(require('../index.js'))(volumioSimulator);
 
+const plugin = new(require('../index.js'))(volumioSimulator);
+// const display = new(require('../../eadog_lcd/index.js'))(volumioSimulator);
 plugin.onVolumioStart()
 .then(_=>plugin.onStart())
 // .then(_=>plugin.getUIConfig())
@@ -88,30 +92,16 @@ process.stdin.on('keypress', function (ch, key) {
     if (key && !key.ctrl && !key.meta && !key.shift && key.name == 'w') {
         plugin.emitDialCommand(1,1)
     };
-    if (key && !key.ctrl && !key.meta && !key.shift && key.name == 's') {
+    if (key && !key.ctrl && !key.meta && !key.shift && key.name == 'u') {
+        plugin.updateEncoder(JSON.parse('{"enabled0":true,"rotaryType0":{"value":2,"label":"1/2"},"pinA0":"17","pinB0":"27","dialAction0":{"value":1,"label":"Lautstärke"},"socketCmdCCW0":"","socketDataCCW0":"","socketCmdCW0":"","socketDataCW0":"","pinPush0":0,"pinPushDebounce0":0,"pushState0":true,"pushAction0":{"value":0,"label":"..."},"socketCmdPush0":"","socketDataPush0":"","longPushAction0":{"value":0,"label":"..."},"socketCmdLongPush0":"","socketDataLongPush0":"","delayLongPush0":"1500","doublePushAction0":{"value":0,"label":"..."},"socketCmdDoublePush0":"","socketDataDoublePush0":"","delayDoublePush0":"700"}'))
         // plugin.updateSerialSettings(data);            
     };
-    if (key && !key.ctrl && !key.meta && !key.shift && key.name == 'a') {
-        // plugin.updateAmpType(data);            
+    if (key && !key.ctrl && !key.meta && !key.shift && key.name == 'r') {
+        let d = "{\"endpoint\":\"system_hardware/eadog_lcd\",\"method\":\"up\",\"data\":\"\"}"
+        socket.emit("callMethod", d);
     };
-    if (key && !key.ctrl && !key.meta && !key.shift && key.name == 'b') {
-        // var data = {
-        //     'tcp_ip': false,
-        //     'ip_address': '',
-        //     'serial_interface_dev':'usb-Prolific_Technology_Inc._USB-Serial_Controller_D-if00-port0',
-        //     'amp_type':{'label':'Rotel - A12'},
-        //     'volumio_input': {'label':'Opt1'},
-        //     'min_volume': 0,
-        //     'max_volume': 35,
-        //     'startup_volume': 10,
-        //     'volume_steps': 1,
-        //     'map_to_100': false,
-        //     'pause_when_muted': true,
-        //     'pause_when_input_changed':true,
-        //     'switch_input_at_play': true,
-        //     'start_at_powerup':false
-        // };
-        // plugin.updateAmpType(data);            
+    if (key && !key.ctrl && !key.meta && !key.shift && key.name == 'g') {
+        plugin.getUIConfig()
     };
     if (key && !key.ctrl && !key.meta && !key.shift && key.name == 'v') {
         // plugin.getVolumeObject();

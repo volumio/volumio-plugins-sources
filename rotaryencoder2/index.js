@@ -148,6 +148,7 @@ rotaryencoder2.prototype.onStop = function() {
 	.then(_=> {
 		self.socket.off('pushState');
 		self.socket.disconnect();
+		defer.resolve();
 	})
 	.fail(err=>{
 		self.commandRouter.pushToastMessage('success',"Rotary Encoder II", self.getI18nString('ROTARYENCODER2.TOAST_STOP_FAIL'))
@@ -247,12 +248,6 @@ rotaryencoder2.prototype.updateEncoder = function(data){
 	if (self.JSONLogging) self.logger.info('[ROTARYENCODER2]' + JSON.stringify(data));
 
 	self.sanityCheckSettings(rotaryIndex, data)
-	.then(_ => {
-		//disable all rotaries before we make changes
-		//this is necessary, since there seems to be an issue in the Kernel, that breaks the
-		//eventHandlers if a dtoverlay with low index is removed and others with higher index exist
-		return self.detachAllListeners([...Array(maxRotaries).keys()])
-	})
 	.then(_ => {
 		return self.uninstallAllOverlays(self.configuredDtos)
 	})
@@ -691,7 +686,6 @@ rotaryencoder2.prototype.emitDialCommand = function(val,rotaryIndex){
 					if (self.debugLogging) self.logger.info('[ROTARYENCODER2] emit command ' + (self.config.get('socketCmdCCW'+rotaryIndex)) +
 						' with data ' + self.config.get('socketDataCCW'+rotaryIndex));
 					self.socket.emit(self.config.get('socketCmdCW'+rotaryIndex), JSON.parse(self.config.get('socketDataCW'+rotaryIndex)));
-					// self.socket.emit("callMethod", JSON.parse('{"endpoint":"system_hardware/eadog_lcd","method":"up","data":""}'));
 					break;
 
 				default:
