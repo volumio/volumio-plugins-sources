@@ -8,23 +8,27 @@ INSTALLING="/home/volumio/audiophonics_evo_sabre-plugin.installing"
 
 if [ `dpkg --print-architecture` != "armhf" ]; then
 	echo "This plugin is made for armhf hardware (Raspberry Pi) and cannot run under a different arch. Nothing will happen."; 
-	exit 0;
+	exit 1;
 fi
 
 
 echo "Installing display OLED#2" 
 
+grep -q '^[[:space:]]*dtparam=spi=on' /boot/userconfig.txt || echo 'dtparam=spi=on' | sudo tee -a /boot/userconfig.txt
+
 mkdir "$current_dir"/service
 
+# Creating systemd for display
 echo "Creating Systemd service for OLED#2 in $current_dir/service/evo_oled2.service"
 printf "[Unit]
 Description=OLED Display Service for EVO SABRE
 After=volumio.service
+Before=shutdown.target
 [Service]
 WorkingDirectory=$current_dir/apps/evo_oled
-ExecStart=$(which sudo) $(which node) $current_dir/apps/evo_oled/index.js volumio
+ExecStart=$(which node) $current_dir/apps/evo_oled/index.js
 StandardOutput=null
-KillSignal=SIGINT 
+KillSignal=SIGTERM 
 Type=simple
 User=root
 [Install]

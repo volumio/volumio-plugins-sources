@@ -105,7 +105,7 @@ let CamillaDsp = function (logger) {
 
         camilla = spawn(cdPath, args);
 
-        logger.info(`camilladsp spawned new process with pid ${camilla.pid}, instance ${uniqueid}, run: ${run}`);
+      //  logger.info(`camilladsp spawned new process with pid ${camilla.pid}, instance ${uniqueid}, run: ${run}`);
 
         //camilla.on("exit", listenerExit);
         camilla.on("close", listenerClose);

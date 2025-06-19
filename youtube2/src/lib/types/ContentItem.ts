@@ -1,4 +1,4 @@
-import { BrowseContinuationEndpoint, BrowseEndpoint, SearchContinuationEndpoint, SearchEndpoint, WatchEndpoint } from './Endpoint';
+import { type BrowseContinuationEndpoint, type BrowseEndpoint, type SearchContinuationEndpoint, type SearchEndpoint, type WatchEndpoint } from './Endpoint';
 
 export interface Video {
   type: 'video';

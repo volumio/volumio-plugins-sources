@@ -1,15 +1,15 @@
 import ytmusic from '../../../YTMusicContext';
 import { ModelType } from '../../../model';
-import { ContentItem, PageElement } from '../../../types';
-import { PageContent, WatchContent, WatchContinuationContent } from '../../../types/Content';
-import { Channel, EndpointLink, Album, Playlist, MusicItem } from '../../../types/ContentItem';
-import { BrowseContinuationEndpoint, BrowseEndpoint, EndpointType, WatchContinuationEndpoint, WatchEndpoint } from '../../../types/Endpoint';
-import { Option } from '../../../types/PageElement';
-import MusicFolderViewHandler, { MusicFolderView } from './MusicFolderViewHandler';
-import { RenderedPage } from './ViewHandler';
+import { type ContentItem, type PageElement } from '../../../types';
+import { type PageContent, type WatchContent, type WatchContinuationContent } from '../../../types/Content';
+import { type Channel, type EndpointLink, type Album, type Playlist, type MusicItem } from '../../../types/ContentItem';
+import { type BrowseContinuationEndpoint, type BrowseEndpoint, EndpointType, type WatchContinuationEndpoint, type WatchEndpoint } from '../../../types/Endpoint';
+import { type Option } from '../../../types/PageElement';
+import MusicFolderViewHandler, { type MusicFolderView } from './MusicFolderViewHandler';
+import { type RenderedPage } from './ViewHandler';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
-import { ContinuationBundleOption } from './renderers/OptionRenderer';
+import { type RenderedListItem } from './renderers/BaseRenderer';
+import { type ContinuationBundleOption } from './renderers/OptionRenderer';
 
 export interface AlbumView extends MusicFolderView {
   name: 'album'

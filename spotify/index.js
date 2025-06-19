@@ -15,8 +15,8 @@ var NodeCache = require('node-cache');
 var os = require('os');
 var { fetchPagedData, rateLimitedCall } = require('./utils/extendedSpotifyApi');
 
-var configFileDestinationPath = '/tmp/go-librespot-config.yml';
-var credentialsPath = '/data/configuration/music_service/spop/spotifycredentials.json';
+var configFileDestinationPath = '/data/go-librespot/config.yml';
+var credentialsPath = '/data/go-librespot/state.json';
 var spotifyDaemonPort = '9879';
 var spotifyLocalApiEndpointBase = 'http://127.0.0.1:' + spotifyDaemonPort;
 var stateSocket = undefined;
@@ -126,6 +126,9 @@ ControllerSpotify.prototype.getUIConfig = function () {
             var icon = self.config.get('icon', 'avr');
             uiconf.sections[2].content[3].value.value = icon;
             uiconf.sections[2].content[3].value.label =  self.getLabelForSelect(uiconf.sections[2].content[3].options, icon);
+
+            var enableAutoplayValue = self.config.get('enable_autoplay', false);
+            uiconf.sections[2].content[4].value = enableAutoplayValue;
 
             defer.resolve(uiconf);
         })
@@ -739,12 +742,14 @@ ControllerSpotify.prototype.createConfigFile = function () {
         externalVolume = false;
     }
     var normalisationPregain = self.config.get('normalisation_pregain', '1.0');
+    var enableAutoplay = self.config.get('enable_autoplay', false);
 
     var conf = template.replace('${device_name}', devicename)
         .replace('${bitrate_number}', selectedBitrate)
         .replace('${device_type}', icon)
         .replace('${external_volume}', externalVolume)
-        .replace('${normalisation_pregain}', normalisationPregain);
+        .replace('${normalisation_pregain}', normalisationPregain)
+        .replace('${disable_autoplay}', !enableAutoplay);
 
     var credentials_type = self.config.get('credentials_type', 'zeroconf');
     var logged_user_id = self.config.get('logged_user_id', '');
@@ -815,6 +820,7 @@ ControllerSpotify.prototype.saveGoLibrespotSettings = function (data, avoidBroad
         self.config.set('normalisation_pregain', data.normalisation_pregain.value);
     }
 
+    self.config.set('enable_autoplay', data.enable_autoplay);
 
     self.selectedBitrate = self.config.get('bitrate_number', '320').toString();
     self.initializeLibrespotDaemon();

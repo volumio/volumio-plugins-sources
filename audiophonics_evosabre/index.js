@@ -2,7 +2,8 @@
 
 const 	libQ 		= require('kew'),
 		{ exec } 	= require('child_process'),
-		http 		= require('http');
+		http 		= require('http'),
+		fs 		= require('fs');
 		
 	
 		
@@ -84,13 +85,13 @@ audiophonicsEvoSabre.prototype.startServiceIfActive = function(config,service){
 };
 
 audiophonicsEvoSabre.prototype.getUIConfig = function(){
-    const 	defer 					= libQ.defer(), 
-			lang_code 				= this.commandRouter.sharedVars.get('language_code'),
-			target_lang_path 		= `${__dirname}/i18n/strings_${lang_code}.json`, 
+    const defer 						= libQ.defer(), 
+			lang_code 						= this.commandRouter.sharedVars.get('language_code'),
+			target_lang_path 			= `${__dirname}/i18n/strings_${lang_code}.json`, 
 			fallback_lang_path		= `${__dirname}/i18n/strings_en.json`, 
-			config_template_path 	= `${__dirname}/UIConfig.json`;
+			config_template_path 	= `${__dirname}/UIConfig.json`
+		;
 			
-	
     this.commandRouter.i18nJson( target_lang_path, fallback_lang_path, config_template_path )
 		.then( (uiconf )=>{
 			uiconf.sections[1].content[0].value = this.config.get('oled_active');		
@@ -108,7 +109,8 @@ audiophonicsEvoSabre.prototype.getUIConfig = function(){
 
 			defer.resolve(uiconf);
 		})
-       .fail( x=> defer.reject() );
+    .fail( x=> defer.reject() );
+		
     return defer.promise;
 };
 
@@ -142,7 +144,6 @@ audiophonicsEvoSabre.prototype.updateOledConfig = function(data){
 			.then( x=> defer.resolve() )
 			.fail( x=> defer.reject() );
 		}
-		delete this.config_changes["lcd_active"];
 	}
 	else returnValue = defer.resolve();
 
@@ -158,8 +159,7 @@ audiophonicsEvoSabre.prototype.updateOledConfig = function(data){
 }
 
 audiophonicsEvoSabre.prototype.updateRemoteConfig = function(data){
-	const 	defer 	= libQ.defer();
-	
+	const defer = libQ.defer();
 	this.config_changes = {};
 	this.config_errors = [];
 	this.validateAndUpdateConfigItem( data, "remote_active" );
@@ -226,7 +226,7 @@ audiophonicsEvoSabre.prototype.configSoftLinks = function(targets){
 }
 
 audiophonicsEvoSabre.prototype.diagnoseRemote = function(){
-	const 	defer = libQ.defer();
+	const defer = libQ.defer();
 	this.checkRemoteService()
 	.then(  remote_status=>{
 		this.commandRouter.broadcastMessage("openModal",{
@@ -245,7 +245,6 @@ audiophonicsEvoSabre.prototype.diagnoseRemote = function(){
 	.fail(x=>defer.reject());
 	
 	;
-	
 };
 
 audiophonicsEvoSabre.prototype.setRemoteActive = function(status){
@@ -294,7 +293,14 @@ audiophonicsEvoSabre.prototype.checkRemoteService = function (){
 	if( !this.config.get("remote_active") ){ 
 		return libQ.resolve( this.commandRouter.getI18nString('ERRORS.REMOTE_DIAGNOSE_DISABLED') );
 	}
+	
 	const defer = libQ.defer(),
+	
+	query_dtoverlay = function(service){  
+		return 	fs.promises.readFile("/boot/userconfig")
+		.then(raw => (/[^#]dtoverlay=gpio-ir,gpio_pin=4/.test(raw) ) )
+		.catch( err => false )
+	}, 
 	query_service_active = function(service){  
 		return new Promise((resolve, reject) => {
 			exec(`systemctl is-active ${service}.service`, (err,stdout,stderr)=>{
@@ -314,11 +320,14 @@ audiophonicsEvoSabre.prototype.checkRemoteService = function (){
 		});
 	});
 	
-	Promise.all([query_service_active("evo_remote"), query_service_active("evo_irexec"), query_lirc_remote])
+	
+	Promise.all([query_service_active("evo_remote"), query_service_active("evo_irexec"), query_lirc_remote, query_dtoverlay])
 	.then((values)=>{
+		
 		let lircd_systemd_active = values[0],
 		irexec_systemd_active = values[1],
 		current_remote = values[2],
+		dtoverlay_ok =  values[3],
 		right_target_remote = (current_remote === "ApEvo"),
 		okstr = this.commandRouter.getI18nString('UI.REMOTE_DIAGNOSE_OK'),
 		errorstr = this.commandRouter.getI18nString('ERRORS.REMOTE_DIAGNOSE_CONFLICT'),
@@ -328,6 +337,7 @@ audiophonicsEvoSabre.prototype.checkRemoteService = function (){
 		
 		let html = `
 			<ul>
+				<li>dtoverlay installed : ${dtoverlay_ok?"OK":"ERROR"}</li>
 				<li>LIRC daemon : ${lircd_systemd_active?"OK":"ERROR"}</li>
 				<li>IREXEC daemon : ${irexec_systemd_active?"OK":"ERROR"}</li>
 				<li>${remoteModelStr} : ${right_target_remote?"OK":"ERROR"} (${current_remote})</li>
@@ -353,6 +363,7 @@ audiophonicsEvoSabre.prototype.getPluginDoc = function (){
 			<li><p>${docI18n("dac")}</p></li>
 			<li><p>${docI18n("dsd")}</p></li>
 			<li><p>${docI18n("vol")}</p></li>
+			<li><p>${docI18n("vol_curve")}</p></li>
 			<li><p>${docI18n("mpd")}</p></li>
 		</ul>
 	</p>

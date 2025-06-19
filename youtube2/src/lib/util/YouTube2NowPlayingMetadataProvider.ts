@@ -1,9 +1,9 @@
-import { MetadataAlbumInfo, MetadataArtistInfo, MetadataSongInfo, NowPlayingMetadataProvider } from 'now-playing-common';
+import { type MetadataAlbumInfo, type MetadataArtistInfo, type MetadataSongInfo, type NowPlayingMetadataProvider } from 'now-playing-common';
 import Model, { ModelType } from '../model';
 import ViewHelper from '../controller/browse/view-handlers/ViewHelper';
 import yt2 from '../YouTube2Context';
 import PlayController from '../controller/play/PlayController';
-import { BrowseEndpoint, EndpointType } from '../types/Endpoint';
+import { type BrowseEndpoint, EndpointType } from '../types/Endpoint';
 
 export default class YouTube2NowPlayingMetadataProvider implements NowPlayingMetadataProvider {
 
@@ -38,8 +38,8 @@ export default class YouTube2NowPlayingMetadataProvider implements NowPlayingMet
     return song;
   }
 
-  async getAlbumInfo(): Promise<MetadataAlbumInfo | null> {
-    return null;
+  getAlbumInfo(): Promise<MetadataAlbumInfo | null> {
+    return Promise.resolve(null);
   }
 
   async getArtistInfo(artistName?: string, payload?: string | { channelId: string }): Promise<MetadataArtistInfo | null> {

@@ -1,7 +1,7 @@
-import { ContentItem, PageElement } from '../../../../types';
-import { GenericView } from '../GenericViewHandler';
-import { PlaylistView } from '../PlaylistViewHandler';
-import View from '../View';
+import { type ContentItem, type PageElement } from '../../../../types';
+import { type GenericView } from '../GenericViewHandler';
+import { type PlaylistView } from '../PlaylistViewHandler';
+import type View from '../View';
 import MusicFolderRenderer from './MusicFolderRenderer';
 
 export default class PlaylistRenderer extends MusicFolderRenderer<ContentItem.Playlist, PageElement.PlaylistHeader> {

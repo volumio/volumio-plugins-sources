@@ -1,5 +1,5 @@
-import { ContentItem, PageElement } from '.';
-import { BrowseContinuationEndpoint, BrowseEndpoint, EndpointType, SearchContinuationEndpoint, SearchEndpoint, WatchContinuationEndpoint, WatchEndpoint } from './Endpoint';
+import { type ContentItem, type PageElement } from '.';
+import { type BrowseContinuationEndpoint, type BrowseEndpoint, type EndpointType, type SearchContinuationEndpoint, type SearchEndpoint, type WatchContinuationEndpoint, type WatchEndpoint } from './Endpoint';
 
 export type ContentOf<T> =
   T extends BrowseEndpoint | BrowseContinuationEndpoint | SearchEndpoint | SearchContinuationEndpoint ? PageContent :

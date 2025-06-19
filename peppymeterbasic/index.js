@@ -668,37 +668,51 @@ peppymeterbasic.prototype.savepeppyconfig = function () {
 
 peppymeterbasic.prototype.dlmeter = function (data) {
     const self = this;
-    let zipfile = data["zipfile"].value// + ".zip"
-    ///self.config.set('debuglog', data['debuglog']);
 
+    // Validate and sanitize the zipfile input
+    let zipfile = data["zipfile"]?.value;
+    if (!zipfile || !/^[a-zA-Z0-9_\-]+$/.test(zipfile)) {
+        self.logger.error(logPrefix + ' Invalid zipfile name provided.');
+        return Promise.reject(new Error('Invalid zipfile name.'));
+    }
 
-    return new Promise(function (resolve, reject) {
+    const zipUrl = `https://github.com/balbuze/Meter-peppymeter/raw/main/Zipped-folders/${zipfile}.zip`;
+    const tempPath = `/tmp/${zipfile}.zip`;
+    const destinationPath = `/data/${meterspath}`;
+
+    return new Promise((resolve, reject) => {
         try {
-            let modalData = {
+            // Show a modal to indicate the installation process
+            const modalData = {
                 title: self.commandRouter.getI18nString('METER_INSTALL_TITLE'),
                 message: self.commandRouter.getI18nString('METER_INSTALL_WAIT'),
                 size: 'lg'
             };
-            //self.commandRouter.pushToastMessage('info', 'Please wait while installing ( up to 30 seconds)');
             self.commandRouter.broadcastMessage("openModal", modalData);
 
-            let cp3 = execSync('/usr/bin/wget -P /tmp https://github.com/balbuze/Meter-peppymeter/raw/main/Zipped-folders/' + zipfile + '.zip');
-          //  let cp9 = execSync('sudo chmod -R 766 /data/' + meterspath)
-           // let cp5 = execSync('miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + meterspath);
-            let cp5 = execSync('miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + meterspath+' && sudo chmod -R 777 /data/' + meterspath);
+            // Download the zip file
+            self.logger.info(logPrefix + `Downloading zip file from ${zipUrl}`);
+            execSync(`/usr/bin/wget -P /tmp ${zipUrl}`);
 
-            self.logger.info(logPrefix + 'message miniunzip -o /tmp/' + zipfile + '.zip -d /data/' + meterspath);
+            // Extract the zip file and set permissions
+            self.logger.info(logPrefix + `Extracting zip file to ${destinationPath}`);
+            execSync(`miniunzip -o -q ${tempPath} -d ${destinationPath} && sudo chmod -R 777 ${destinationPath}`);
 
-
+            // Log success and refresh the UI
+            self.logger.info(logPrefix + `Successfully installed meter from ${zipfile}`);
             self.refreshUI();
 
+            // Clean up the temporary zip file
+            self.logger.info(logPrefix + `Removing temporary file: ${tempPath}`);
+            execSync(`/bin/rm ${tempPath}*`);
+
+            resolve();
         } catch (err) {
-            self.logger.error(logPrefix + ' An error occurs while downloading or installing Meters');
-            self.commandRouter.pushToastMessage('error', 'An error occurs while downloading or installing Meter');
+            // Log the error and notify the user
+            self.logger.error(logPrefix + ` Error during meter installation: ${err.message}`);
+            self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('METER_INSTALL_ERROR'));
+            reject(err);
         }
-      //  self.config.set('zipfile', zipfile);
-      let cp6 = execSync('/bin/rm /tmp/' + zipfile + '.zip*');
-        resolve();
     });
 };
 

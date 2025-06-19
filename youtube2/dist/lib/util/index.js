@@ -3,18 +3,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.kewToJSPromise = exports.jsPromiseToKew = exports.findInObject = exports.rnd = exports.sleep = void 0;
+exports.sleep = sleep;
+exports.rnd = rnd;
+exports.findInObject = findInObject;
+exports.jsPromiseToKew = jsPromiseToKew;
+exports.kewToJSPromise = kewToJSPromise;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
-exports.sleep = sleep;
 function rnd(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-exports.rnd = rnd;
 /**
  * Recursively match each property of `obj` against `predicate` and returns the values of matches.
  * @param {*} obj
@@ -52,7 +54,6 @@ function findInObject(obj, predicate) {
     }
     return matches;
 }
-exports.findInObject = findInObject;
 function jsPromiseToKew(promise) {
     const defer = kew_1.default.defer();
     promise.then((result) => {
@@ -63,10 +64,9 @@ function jsPromiseToKew(promise) {
     });
     return defer.promise;
 }
-exports.jsPromiseToKew = jsPromiseToKew;
 function kewToJSPromise(promise) {
     // Guard against a JS promise from being passed to this function.
-    if (typeof promise.catch === 'function' && typeof promise.fail === undefined) {
+    if (typeof promise.catch === 'function' && promise.fail === undefined) {
         // JS promise - return as is
         return promise;
     }
@@ -79,5 +79,4 @@ function kewToJSPromise(promise) {
         });
     });
 }
-exports.kewToJSPromise = kewToJSPromise;
 //# sourceMappingURL=index.js.map

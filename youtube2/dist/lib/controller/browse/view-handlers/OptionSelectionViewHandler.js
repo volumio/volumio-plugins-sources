@@ -18,7 +18,7 @@ class OptionSelectionViewHandler extends BaseViewHandler_1.default {
         super(...arguments);
         _OptionSelectionViewHandler_instances.add(this);
     }
-    async browse() {
+    browse() {
         const listData = __classPrivateFieldGet(this, _OptionSelectionViewHandler_instances, "m", _OptionSelectionViewHandler_getListData).call(this);
         const lists = [
             {
@@ -27,15 +27,14 @@ class OptionSelectionViewHandler extends BaseViewHandler_1.default {
                 items: listData.items
             }
         ];
-        return {
+        return Promise.resolve({
             navigation: {
                 prev: { uri: this.constructPrevUri() },
                 lists
             }
-        };
+        });
     }
 }
-exports.default = OptionSelectionViewHandler;
 _OptionSelectionViewHandler_instances = new WeakSet(), _OptionSelectionViewHandler_getListData = function _OptionSelectionViewHandler_getListData() {
     const view = this.currentView;
     const renderer = this.getRenderer(renderers_1.RendererType.OptionValue);
@@ -87,4 +86,5 @@ _OptionSelectionViewHandler_instances = new WeakSet(), _OptionSelectionViewHandl
         items: listItems
     };
 };
+exports.default = OptionSelectionViewHandler;
 //# sourceMappingURL=OptionSelectionViewHandler.js.map

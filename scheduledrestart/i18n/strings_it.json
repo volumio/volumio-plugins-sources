@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Configurazione del Riavvio"
+  },
+  "SECTION": {
+    "LABEL": "Pianificazione"
+  },
+  "BUTTON": {
+    "SAVE": "Salva"
+  },
+  "HOURS": {
+    "DOC": "Seleziona l'ora e il/i giorno/i per riavviare Volumio",
+    "LABEL": "Ora"
+  },
+  "MINUTES": {
+    "LABEL": "Minuti"
+  },
+  "MONDAY": {
+    "LABEL": "Lunedì"
+  },
+  "TUESDAY": {
+    "LABEL": "Martedì"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Mercoledì"
+  },
+  "THURSDAY": {
+    "LABEL": "Giovedì"
+  },
+  "FRIDAY": {
+    "LABEL": "Venerdì"
+  },
+  "SATURDAY": {
+    "LABEL": "Sabato"
+  },
+  "SUNDAY": {
+    "LABEL": "Domenica"
+  }
+}
+

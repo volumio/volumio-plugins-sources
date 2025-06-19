@@ -1,12 +1,10 @@
 import yt2 from '../../../YouTube2Context';
 import { ModelType } from '../../../model';
-import InnertubeLoader from '../../../model/InnertubeLoader';
-import { ContentItem, PageElement } from '../../../types';
-import { PageContent } from '../../../types/Content';
-import { AuthStatus } from '../../../util/Auth';
-import { ExplodedTrackInfo } from './ExplodableViewHandler';
-import FeedViewHandler, { FeedView } from './FeedViewHandler';
-import { RenderedPage } from './ViewHandler';
+import { type ContentItem, type PageElement } from '../../../types';
+import { type PageContent } from '../../../types/Content';
+import { type ExplodedTrackInfo } from './ExplodableViewHandler';
+import FeedViewHandler, { type FeedView } from './FeedViewHandler';
+import { type RenderedPage } from './ViewHandler';
 
 export interface RootView extends FeedView {
   name: 'root';
@@ -41,23 +39,20 @@ export default class RootViewHandler extends FeedViewHandler<RootView> {
       contents.sections = [];
     }
 
-    const { auth } = await InnertubeLoader.getInstance();
-    if (auth.getStatus().status === AuthStatus.SignedIn) {
-      const accountModel = this.getModel(ModelType.Account);
-      const account = await accountModel.getInfo();
-      if (account?.channel) {
-        contents.sections.unshift({
-          type: 'section',
-          items: [
-            {
-              type: 'endpointLink',
-              title: account.channel.title,
-              thumbnail: account.photo,
-              endpoint: account.channel.endpoint
-            } as ContentItem.EndpointLink
-          ]
-        });
-      }
+    const accountModel = this.getModel(ModelType.Account);
+    const account = await accountModel.getInfo();
+    if (account.active?.channel) {
+      contents.sections.unshift({
+        type: 'section',
+        items: [
+          {
+            type: 'endpointLink',
+            title: account.active.channel.title,
+            thumbnail: account.active.photo,
+            endpoint: account.active.channel.endpoint
+          } as ContentItem.EndpointLink
+        ]
+      });
     }
 
     if (contentType === 'simple' && contents.sections.length > 1) {

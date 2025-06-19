@@ -1,7 +1,8 @@
-import { PageElement } from '../../../types';
+import { type PageElement } from '../../../types';
 import BaseViewHandler from './BaseViewHandler';
-import View, { ContinuationBundle } from './View';
-import { RenderedPage } from './ViewHandler';
+import { type ContinuationBundle } from './View';
+import type View from './View';
+import { type RenderedPage } from './ViewHandler';
 export interface OptionSelectionView extends View {
     name: 'optionSelection';
     fromContinuationBundle?: '1';

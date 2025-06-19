@@ -6,15 +6,15 @@ import ytmusic from '../../YTMusicContext';
 import Model, { ModelType } from '../../model';
 import { EndpointType } from '../../types/Endpoint';
 import { kewToJSPromise } from '../../util';
-import { QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
+import { type QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
 import ViewHelper from '../browse/view-handlers/ViewHelper';
 import ExplodeHelper from '../../util/ExplodeHelper';
-import { ContentItem } from '../../types';
-import MusicItemPlaybackInfo from '../../types/MusicItemPlaybackInfo';
+import { type ContentItem } from '../../types';
+import type MusicItemPlaybackInfo from '../../types/MusicItemPlaybackInfo';
 import AutoplayHelper from '../../util/AutoplayHelper';
-import AutoplayContext from '../../types/AutoplayContext';
-import { AlbumView } from '../browse/view-handlers/AlbumViewHandler';
-import { GenericView } from '../browse/view-handlers/GenericViewHandler';
+import type AutoplayContext from '../../types/AutoplayContext';
+import { type AlbumView } from '../browse/view-handlers/AlbumViewHandler';
+import { type GenericView } from '../browse/view-handlers/GenericViewHandler';
 import EventEmitter from 'events';
 
 interface MpdState {
@@ -53,7 +53,7 @@ export default class PlayController {
       this.#autoplayListener = () => {
         this.#mpdPlugin.getState().then((state: MpdState) => {
           if (state.status === 'stop') {
-            this.#handleAutoplay();
+            void this.#handleAutoplay();
             this.#removeAutoplayListener();
           }
         });
@@ -118,7 +118,7 @@ export default class PlayController {
 
     if (ytmusic.getConfigValue('addToHistory')) {
       try {
-        playbackInfo.addToHistory();
+        void playbackInfo.addToHistory();
       }
       catch (error) {
         ytmusic.getLogger().error(ytmusic.getErrorMessage(`[ytmusic-play] Error: could not add to history (${videoId}): `, error));

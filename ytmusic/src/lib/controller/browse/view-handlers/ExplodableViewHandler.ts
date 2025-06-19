@@ -1,8 +1,8 @@
-import AutoplayContext from '../../../types/AutoplayContext';
-import { WatchEndpoint } from '../../../types/Endpoint';
+import type AutoplayContext from '../../../types/AutoplayContext';
+import { type WatchEndpoint } from '../../../types/Endpoint';
 import ExplodeHelper from '../../../util/ExplodeHelper';
 import BaseViewHandler from './BaseViewHandler';
-import View from './View';
+import type View from './View';
 
 export interface QueueItem {
   service: 'ytmusic';

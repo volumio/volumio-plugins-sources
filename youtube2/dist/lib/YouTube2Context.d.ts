@@ -1,11 +1,11 @@
-import I18nSchema from '../i18n/strings_en.json';
-import winston from 'winston';
-import { PluginConfigKey, PluginConfigValue } from './types/PluginConfig';
+import type I18nSchema from '../i18n/strings_en.json';
+import type winston from 'winston';
+import { type PluginConfigKey, type PluginConfigValue } from './types/PluginConfig';
 export type I18nKey = keyof typeof I18nSchema;
 declare class YouTube2Context {
     #private;
     constructor();
-    set<T>(key: string, value: T): void;
+    set<T = any>(key: string, value: T): void;
     get<T>(key: string): T | null;
     get<T>(key: string, defaultValue: T): T;
     delete(key: string): void;
@@ -14,7 +14,7 @@ declare class YouTube2Context {
     refreshUIConfig(): void;
     getLogger(): winston.Logger;
     getErrorMessage(message: string, error: any, stack?: boolean): string;
-    hasConfigKey<T extends PluginConfigKey>(key: T): boolean;
+    hasConfigKey(key: PluginConfigKey): boolean;
     getConfigValue<T extends PluginConfigKey>(key: T): PluginConfigValue<T>;
     deleteConfigValue(key: string): void;
     setConfigValue<T extends PluginConfigKey>(key: T, value: PluginConfigValue<T>): void;

@@ -47,7 +47,6 @@ class AutoplayHelper {
         return null;
     }
 }
-exports.default = AutoplayHelper;
 _a = AutoplayHelper, _AutoplayHelper_getCommonPlaylistData = function _AutoplayHelper_getCommonPlaylistData(items) {
     const hasOnlySongsAndVideos = items.length > 0 &&
         items.every((item) => item.type === 'song' || item.type === 'video');
@@ -68,4 +67,5 @@ _a = AutoplayHelper, _AutoplayHelper_getCommonPlaylistData = function _AutoplayH
     }
     return null;
 };
+exports.default = AutoplayHelper;
 //# sourceMappingURL=AutoplayHelper.js.map

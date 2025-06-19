@@ -1,6 +1,6 @@
-import { PageElement } from '../../../types';
-import { PageContent } from '../../../types/Content';
-import Endpoint from '../../../types/Endpoint';
+import { type PageElement } from '../../../types';
+import { type PageContent } from '../../../types/Content';
+import type Endpoint from '../../../types/Endpoint';
 
 interface View extends Record<string, any> {
   name: string;

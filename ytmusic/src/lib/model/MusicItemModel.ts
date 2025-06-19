@@ -1,10 +1,13 @@
 import ytmusic from '../YTMusicContext';
-import Innertube, { FormatOptions, YTNodes, Endpoints as YTEndpoints, Utils as YTUtils, YTMusic, Parser } from 'volumio-youtubei.js';
+import {type Types} from 'volumio-youtubei.js';
+import type Innertube from 'volumio-youtubei.js';
+import { YTNodes, Utils as YTUtils, YTMusic, Parser } from 'volumio-youtubei.js';
 import { BaseModel } from './BaseModel';
 import InnertubeResultParser from './InnertubeResultParser';
-import Endpoint, { EndpointType } from '../types/Endpoint';
-import MusicItemPlaybackInfo from '../types/MusicItemPlaybackInfo';
-import { ContentItem } from '../types';
+import type Endpoint from '../types/Endpoint';
+import { EndpointType } from '../types/Endpoint';
+import type MusicItemPlaybackInfo from '../types/MusicItemPlaybackInfo';
+import { type ContentItem } from '../types';
 import EndpointHelper from '../util/EndpointHelper';
 
 // https://gist.github.com/sidneys/7095afe4da4ae58694d128b1034e01e2
@@ -20,7 +23,7 @@ const ITAG_TO_BITRATE: Record<string, string> = {
   '774': 'VBR 256'
 };
 
-const BEST_AUDIO_FORMAT: FormatOptions = {
+const BEST_AUDIO_FORMAT: Types.FormatOptions = {
   type: 'audio',
   format: 'any',
   quality: 'best'
@@ -75,18 +78,18 @@ export default class MusicItemModel extends BaseModel {
     };
   }
 
-  // Based on Innertube.Music.#fetchInfoFromListItem(), which requires MusicTwoRowItem which we don't have.
+  // Based on Innertube.Music.#fetchInfoFromEndpoint()
   async #getTrackInfo(innertube: Innertube, endpoint: Endpoint) {
-    const innertubeEndpoint = new YTNodes.NavigationEndpoint({});
-    innertubeEndpoint.metadata.api_url = YTEndpoints.PlayerEndpoint.PATH;
-    innertubeEndpoint.payload = YTEndpoints.PlayerEndpoint.build({
-      video_id: endpoint.payload.videoId,
-      playlist_id: endpoint.payload.playlistId,
+    const watchEndpoint = new YTNodes.NavigationEndpoint({ watchEndpoint: {
+      videoId: endpoint.payload.videoId,
+      playlistId: endpoint.payload.playlistId,
       params: endpoint.payload.params,
       sts: innertube.session.player?.sts
-    });
+    } });
 
-    const player_response = innertubeEndpoint.call(innertube.actions, {
+    const nextEndpoint = new YTNodes.NavigationEndpoint({ watchNextEndpoint: { videoId: endpoint.payload.videoId }});
+
+    const player_response = watchEndpoint.call(innertube.actions, {
       client: 'YTMUSIC',
       playbackContext: {
         contentPlaybackContext: {
@@ -97,10 +100,9 @@ export default class MusicItemModel extends BaseModel {
       }
     });
 
-    const next_response = innertubeEndpoint.call(innertube.actions, {
+    const next_response = nextEndpoint.call(innertube.actions, {
       client: 'YTMUSIC',
-      enablePersistentPlaylistPanel: true,
-      override_endpoint: '/next'
+      enablePersistentPlaylistPanel: true
     });
 
     const cpn = YTUtils.generateRandomString(16);
@@ -161,13 +163,13 @@ export default class MusicItemModel extends BaseModel {
     }
     const videoId = endpoint.payload.videoId;
     const match = playlistPanel.contents.find((data) => {
-      if (data instanceof YTNodes.PlaylistPanelVideoWrapper) {
+      if (data.is(YTNodes.PlaylistPanelVideoWrapper)) {
         if (data.primary?.video_id === videoId) {
           return true;
         }
         return data.counterpart?.find((item) => item.video_id === videoId);
       }
-      else if (data instanceof YTNodes.PlaylistPanelVideo) {
+      else if (data.is(YTNodes.PlaylistPanelVideo)) {
         return data.video_id === videoId;
       }
     });

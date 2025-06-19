@@ -4,15 +4,15 @@ import libQ from 'kew';
 
 import yt2 from '../../YouTube2Context';
 import Model, { ModelType } from '../../model';
-import { EndpointType, WatchEndpoint } from '../../types/Endpoint';
+import { EndpointType, type WatchEndpoint } from '../../types/Endpoint';
 import { kewToJSPromise } from '../../util';
-import { ExplodedTrackInfo } from '../browse/view-handlers/ExplodableViewHandler';
-import { QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
+import { type ExplodedTrackInfo } from '../browse/view-handlers/ExplodableViewHandler';
+import { type QueueItem } from '../browse/view-handlers/ExplodableViewHandler';
 import ViewHelper from '../browse/view-handlers/ViewHelper';
 import ExplodeHelper from '../../util/ExplodeHelper';
-import { GenericView } from '../browse/view-handlers/GenericViewHandler';
-import VideoPlaybackInfo from '../../types/VideoPlaybackInfo';
-import { ContentItem } from '../../types';
+import { type GenericView } from '../browse/view-handlers/GenericViewHandler';
+import type VideoPlaybackInfo from '../../types/VideoPlaybackInfo';
+import { type ContentItem } from '../../types';
 import EndpointHelper from '../../util/EndpointHelper';
 import EventEmitter from 'events';
 
@@ -52,7 +52,7 @@ export default class PlayController {
       this.#autoplayListener = () => {
         this.#mpdPlugin.getState().then((state: MpdState) => {
           if (state.status === 'stop') {
-            this.#handleAutoplay();
+            void this.#handleAutoplay();
             this.#removeAutoplayListener();
           }
         });
@@ -116,7 +116,7 @@ export default class PlayController {
 
     if (yt2.getConfigValue('addToHistory')) {
       try {
-        playbackInfo.addToHistory();
+        void playbackInfo.addToHistory();
       }
       catch (error) {
         yt2.getLogger().error(yt2.getErrorMessage(`[youtube2-play] Error: could not add to history (videoId: ${videoId}): `, error));
@@ -368,7 +368,7 @@ export default class PlayController {
 
     // 2. Related
     if (autoplayItems.length === 0 && relatedItems && autoplayPrefMixRelated) {
-      const relatedVideos = relatedItems.filter((item) => item.type === 'video') as ContentItem.Video[];
+      const relatedVideos = relatedItems.filter((item) => item.type === 'video');
       if (relatedVideos) {
         autoplayItems.push(...relatedVideos.map((item) => ExplodeHelper.getExplodedTrackInfoFromVideo(item)));
         yt2.getLogger().info(`[youtube2-play] Obtained ${autoplayItems.length} related videos for autoplay`);
@@ -407,7 +407,7 @@ export default class PlayController {
           endpoint: {
             type: EndpointType.Browse,
             payload: {
-              browseId: (!playlistId.startsWith('VL') ? 'VL' : '') + playlistId
+              browseId: `${(!playlistId.startsWith('VL') ? 'VL' : '')}${playlistId}`
             }
           }
         };

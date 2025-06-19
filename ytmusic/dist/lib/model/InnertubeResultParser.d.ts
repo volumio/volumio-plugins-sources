@@ -1,9 +1,11 @@
-import { IBrowseResponse, INextResponse, ISearchResponse, YTNodes, Misc as YTMisc, Helpers as YTHelpers, IParsedResponse } from 'volumio-youtubei.js';
-import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, EndpointOf, EndpointType, SearchEndpoint, WatchEndpoint } from '../types/Endpoint';
-import { ContentItem } from '../types';
-import { SectionItem } from '../types/PageElement';
-import { ContentOf } from '../types/Content';
-import { MetadataLyrics } from 'now-playing-common';
+import { type IBrowseResponse, type INextResponse, type ISearchResponse, YTNodes, Misc as YTMisc, type Helpers as YTHelpers, type IParsedResponse } from 'volumio-youtubei.js';
+import { type BrowseContinuationEndpoint, type BrowseEndpoint, type EndpointOf, type SearchEndpoint, type WatchEndpoint } from '../types/Endpoint';
+import type Endpoint from '../types/Endpoint';
+import { EndpointType } from '../types/Endpoint';
+import { type ContentItem } from '../types';
+import { type SectionItem } from '../types/PageElement';
+import { type ContentOf } from '../types/Content';
+import { type MetadataLyrics } from 'now-playing-common';
 type ParseableInnertubeResponse = INextResponse | ISearchResponse | IBrowseResponse | IParsedResponse;
 export default class InnertubeResultParser {
     #private;

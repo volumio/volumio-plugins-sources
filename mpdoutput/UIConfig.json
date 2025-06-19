@@ -1,0 +1,462 @@
+{
+  "page": {
+    "label": "TRANSLATE.PAGE_TITLE"
+  },
+  "sections": [
+    {
+      "id": "httptitle",
+      "element": "section",
+      "label": "TRANSLATE.HTTPSERVERCONFIG",
+      "icon": "fa-cogs",
+      "description": "TRANSLATE.HTTPSERVERCONFIG_DESC",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "audio_interface/mpdoutput",
+        "method": "updateConfig"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "servername",
+          "encoder",
+          "bitrate",
+          "format",
+          "portn",
+          "httpadd",
+          "max_clients",
+          "buffer_time",
+          "outburst_time"
+        ]
+      },
+      "content": [
+        {
+          "id": "servername",
+          "label": "TRANSLATE.SERVERNAME",
+          "doc": "TRANSLATE.SERVERNAME_DESC",
+          "element": "input",
+          "value": {
+            "label": "TRANSLATE.SERVERNAME_LABEL",
+            "value": "My stream"
+          }
+        },
+        {
+          "id": "encoder",
+          "element": "select",
+          "doc": "TRANSLATE.HENCODER_DESC",
+          "label": "TRANSLATE.HENCODER",
+          "value": {
+            "value": "vorbis",
+            "label": "vorbis"
+          },
+          "options": [
+            {
+              "value": "lame",
+              "label": "lame"
+            },
+            {
+              "value": "opus",
+              "label": "opus"
+            },
+            {
+              "value": "vorbis",
+              "label": "vorbis"
+            }
+          ]
+        },
+        {
+          "id": "bitrate",
+          "element": "select",
+          "doc": "TRANSLATE.BITRATE_DESC",
+          "label": "TRANSLATE.BITRATE",
+          "value": {
+            "value": "320",
+            "label": "320"
+          },
+          "options": [
+            {
+              "value": "192",
+              "label": "192"
+            },
+            {
+              "value": "256",
+              "label": "256"
+            },
+            {
+              "value": "320",
+              "label": "320"
+            }
+          ]
+        },
+        {
+          "id": "format",
+          "element": "select",
+          "doc": "TRANSLATE.STREAMFORMAT_DESC",
+          "label": "TRANSLATE.STREAMFORMAT",
+          "value": {
+            "value": "44100:16:2",
+            "label": "44100:16:2"
+          },
+          "options": [
+            {
+              "value": "44100:16:1",
+              "label": "44100:16:1"
+            },
+            {
+              "value": "44100:16:2",
+              "label": "44100:16:2"
+            },
+            {
+              "value": "48000:16:1",
+              "label": "48000:16:1"
+            },
+            {
+              "value": "48000:16:2",
+              "label": "48000:16:2"
+            }
+          ]
+        },
+        {
+          "id": "portn",
+          "label": "TRANSLATE.SERVERPORT",
+          "doc": "TRANSLATE.SERVERPORT_DESC",
+          "element": "input",
+          "value": {
+            "label": "8000",
+            "value": "8000"
+          }
+        },
+        {
+          "id": "httpadd",
+          "label": "TRANSLATE.HTTPADDITIONNAL",
+          "element": "switch",
+          "doc": "TRANSLATE.HTTPADDITIONNAL_DESC",
+          "value": true
+        },
+        {
+          "id": "max_clients",
+          "label": "TRANSLATE.MAXCLIENTS",
+          "doc": "TRANSLATE.MAXCLIENTS_DESC",
+          "element": "input",
+          "value": {
+            "label": "",
+            "value": ""
+          },
+          "visibleIf": {
+            "field": "httpadd",
+            "value": true
+          }
+        },
+        {
+          "id": "buffer_time",
+          "label": "TRANSLATE.BUFFERTIME",
+          "doc": "TRANSLATE.BUFFERTIME_DESC",
+          "element": "input",
+          "value": {
+            "label": "",
+            "value": ""
+          },
+          "visibleIf": {
+            "field": "httpadd",
+            "value": true
+          }
+        },
+        {
+          "id": "outburst_time",
+          "label": "TRANSLATE.OUTBURSTTIME",
+          "doc": "TRANSLATE.OUTBURSTTIME_DESC",
+          "element": "input",
+          "value": {
+            "label": "",
+            "value": ""
+          },
+          "visibleIf": {
+            "field": "httpadd",
+            "value": true
+          }
+        },
+        {
+          "id": "mountp",
+          "label": "TRANSLATE.ICEMOUNTPOINT",
+          "doc": "TRANSLATE.ICEMOUNTPOINT_DESC",
+          "element": "input",
+          "value": {
+            "label": "TRANSLATE.ICEMOUNTPOINT_LABEL",
+            "value": "/mpd.ogg"
+          },
+          "visibleIf": {
+            "field": "icecaststream",
+            "value": true
+          }
+        },
+        {
+          "id": "password",
+          "label": "TRANSLATE.ICEPASSWORD",
+          "doc": "TRANSLATE.ICEPASSWORD_DESC",
+          "element": "input",
+          "value": {
+            "label": "TRANSLATE.ICEPASSWORD_LABEL",
+            "value": "hackme"
+          },
+          "visibleIf": {
+            "field": "icecaststream",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "icetitle",
+      "element": "section",
+      "label": "TRANSLATE.ICESERVERCONFIG",
+      "icon": "fa-cogs",
+      "description": "TRANSLATE.ICESERVERCONFIG_DESC",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "audio_interface/mpdoutput",
+        "method": "updateConfigIce"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "iceservername",
+          "icepublishport",
+          "iceprotocol",
+          "icemountp",
+          "iceencoder",
+          "icebitrate",
+          "iceformat",
+          "iceuser",
+          "icepassword",
+          "icestreamname",
+          "icepublic",
+          "icedescription",
+          "icegenre",
+          "iceurl",
+          "iceadd"
+        ]
+      },
+      "content": [
+        {
+          "id": "iceservername",
+          "label": "TRANSLATE.ICESERVERNAME",
+          "doc": "TRANSLATE.ICESERVERNAME_DESC",
+          "element": "input",
+          "value": {
+            "label": "TRANSLATE.SERVERNAME_LABEL",
+            "value": "My stream"
+          }
+        },
+        {
+          "id": "icepublishport",
+          "label": "TRANSLATE.ICEPUBLISHPORT",
+          "doc": "TRANSLATE.ICEPUBLISHPORT_DESC",
+          "element": "input",
+          "value": {
+            "label": "8015",
+            "value": "8015"
+          }
+        },
+        {
+          "id": "iceprotocol",
+          "element": "select",
+          "doc": "TRANSLATE.ICEPROTOCOL_DESC",
+          "label": "TRANSLATE.ICEPROTOCOL",
+          "value": {
+            "value": "icecast2",
+            "label": "icecast2"
+          },
+          "options": [
+            {
+              "value": "shoutcast",
+              "label": "shoutcast"
+            },
+            {
+              "value": "icecast1",
+              "label": "icecast1"
+            },
+            {
+              "value": "icecast2",
+              "label": "icecast2"
+            }
+          ]
+        },
+        {
+          "id": "icemountp",
+          "label": "TRANSLATE.ICEMOUNTPOINT",
+          "doc": "TRANSLATE.ICEMOUNTPOINT_DESC",
+          "element": "input",
+          "value": {
+            "label": "TRANSLATE.ICEMOUNTPOINT_LABEL",
+            "value": "/mnt"
+          }
+        },
+        {
+          "id": "iceencoder",
+          "element": "select",
+          "doc": "TRANSLATE.HENCODER_DESC",
+          "label": "TRANSLATE.HENCODER",
+          "value": {
+            "value": "vorbis",
+            "label": "vorbis"
+          },
+          "options": [
+            {
+              "value": "lame",
+              "label": "lame"
+            },
+            {
+              "value": "opus",
+              "label": "opus"
+            },
+            {
+              "value": "vorbis",
+              "label": "vorbis"
+            }
+          ]
+        },
+        {
+          "id": "icebitrate",
+          "element": "select",
+          "doc": "TRANSLATE.BITRATE_DESC",
+          "label": "TRANSLATE.BITRATE",
+          "value": {
+            "value": "320",
+            "label": "320"
+          },
+          "options": [
+            {
+              "value": "192",
+              "label": "192"
+            },
+            {
+              "value": "256",
+              "label": "256"
+            },
+            {
+              "value": "320",
+              "label": "320"
+            }
+          ]
+        },
+        {
+          "id": "iceformat",
+          "element": "select",
+          "doc": "TRANSLATE.STREAMFORMAT_DESC",
+          "label": "TRANSLATE.STREAMFORMAT",
+          "value": {
+            "value": "44100:16:2",
+            "label": "44100:16:2"
+          },
+          "options": [
+            {
+              "value": "44100:16:1",
+              "label": "44100:16:1"
+            },
+            {
+              "value": "44100:16:2",
+              "label": "44100:16:2"
+            },
+            {
+              "value": "48000:16:1",
+              "label": "48000:16:1"
+            },
+            {
+              "value": "48000:16:2",
+              "label": "48000:16:2"
+            }
+          ]
+        },
+        {
+          "id": "iceuser",
+          "label": "TRANSLATE.ICEUSER",
+          "doc": "TRANSLATE.ICEUSER_DESC",
+          "element": "input",
+          "value": {
+            "label": "Leave empty if not needed",
+            "value": ""
+          }
+        },
+        {
+          "id": "icepassword",
+          "label": "TRANSLATE.ICEPASSWORD",
+          "doc": "TRANSLATE.ICEPASSWORD_DESC",
+          "element": "input",
+          "value": {
+            "label": "Leave empty if not needed",
+            "value": ""
+          }
+        },
+        {
+          "id": "icestreamname",
+          "label": "TRANSLATE.ICESTREAMNAME",
+          "doc": "TRANSLATE.ICESTREAMNAME_DESC",
+          "element": "input",
+          "value": "TRANSLATE.ICESTREAMNAME_LABEL"
+        },
+        {
+          "id": "icepublic",
+          "element": "select",
+          "doc": "TRANSLATE.ICEPUBLIC_DESC",
+          "label": "TRANSLATE.ICEPUBLIC",
+          "value": {
+            "value": "no",
+            "label": "no"
+          },
+          "options": [
+            {
+              "value": "yes",
+              "label": "yes"
+            },
+            {
+              "value": "no",
+              "label": "no"
+            }
+          ]
+        },
+        {
+          "id": "iceadd",
+          "label": "TRANSLATE.ICEADDITIONAL",
+          "element": "switch",
+          "doc": "TRANSLATE.ICEADDITIONAL_DESC",
+          "value": true
+        },
+        {
+          "id": "icedescription",
+          "label": "TRANSLATE.ICEDESCRIPTION",
+          "doc": "TRANSLATE.ICEDESCRIPTION_DESC",
+          "element": "input",
+          "value": "TRANSLATE.ICEDESCRIPTION_LABEL",
+          "visibleIf": {
+            "field": "iceadd",
+            "value": true
+          }
+        },
+        {
+          "id": "icegenre",
+          "label": "TRANSLATE.ICEGENRE",
+          "doc": "TRANSLATE.ICEGENRE_DESC",
+          "element": "input",
+          "value": "TRANSLATE.ICEGENRE_LABEL",
+          "visibleIf": {
+            "field": "iceadd",
+            "value": true
+          }
+        },
+        {
+          "id": "iceurl",
+          "label": "TRANSLATE.ICEURL",
+          "doc": "TRANSLATE.ICEURL_DESC",
+          "element": "input",
+          "value": {
+            "label": "TRANSLATE.ICEURL_LABEL",
+            "value": ""
+          },
+          "visibleIf": {
+            "field": "iceadd",
+            "value": true
+          }
+        }
+      ]
+    }
+  ]
+}

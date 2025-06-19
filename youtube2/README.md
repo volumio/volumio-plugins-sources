@@ -1,8 +1,61 @@
+<a href='https://ko-fi.com/C0C5RGOOP' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
 # YouTube2 plugin for Volumio
 
 Credit goes to the [YouTube.js](https://github.com/LuanRT/YouTube.js) project. This plugin uses a [modified version](https://github.com/patrickkfkan/Volumio-YouTube.js) of that library for content fetching and YouTube login.
 
 ### Changelog
+
+1.4.2 (Buster backport)
+- Backport from main v2.3.2
+
+1.4.1 (Buster backport)
+- Backport from main v2.3.1
+
+1.4.0 (Buster backport)
+- Backport from main v2.3.0
+
+1.3.3 (Buster backport)
+- Backport from main v2.2.2
+
+1.3.2 (Buster backport)
+- Backport from main v2.2.1
+
+1.3.1 (Buster backport)
+- Fix `node:crypto` module not found fatal error on rPi
+
+1.3.0 (Buster backport)
+- Backport from main v2.2.0
+
+2.3.2
+- Update YT dependencies
+
+2.3.1
+- Fix blank page for some categories (e.g. Music)
+
+2.3.0
+- Update YT dependencies
+- Fix missing playlist header due to YT changes
+
+2.2.2
+- Fix broken playback due to YT changes, again (credit: [#837](https://github.com/LuanRT/YouTube.js/pull/837))
+
+2.2.1
+- Fix broken playback due to YT changes (credit: [#832](https://github.com/LuanRT/YouTube.js/pull/832))
+
+2.2.0
+- Add 'Active Profile' setting for accounts with multiple channels
+- Fix playlists not browseable
+
+2.1.0
+- Replace OAuth login with cookie
+
+2.0.1
+- Fix some missing elements in browse results
+
+2.0.0
+- Release for Bookworm-based Volumio
+- Fix 403 playback error by using PO tokens (experimental)
 
 1.2.2
 - Fix hanging "InnertubeLoader: creating Auth instance..."

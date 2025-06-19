@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Genstart Konfiguration"
+  },
+  "SECTION": {
+    "LABEL": "Tidsplan"
+  },
+  "BUTTON": {
+    "SAVE": "Gem"
+  },
+  "HOURS": {
+    "DOC": "Vælg tidspunkt og dag(e) for at genstarte Volumio",
+    "LABEL": "Time"
+  },
+  "MINUTES": {
+    "LABEL": "Minutter"
+  },
+  "MONDAY": {
+    "LABEL": "Mandag"
+  },
+  "TUESDAY": {
+    "LABEL": "Tirsdag"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Onsdag"
+  },
+  "THURSDAY": {
+    "LABEL": "Torsdag"
+  },
+  "FRIDAY": {
+    "LABEL": "Fredag"
+  },
+  "SATURDAY": {
+    "LABEL": "Lørdag"
+  },
+  "SUNDAY": {
+    "LABEL": "Søndag"
+  }
+}
+

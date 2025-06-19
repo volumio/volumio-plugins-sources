@@ -1,5 +1,4 @@
-import { Credentials } from 'volumio-youtubei.js';
-import Endpoint from './Endpoint';
+import type Endpoint from './Endpoint';
 
 export type PluginConfigKey = keyof PluginConfigSchema;
 export type PluginConfigValue<T extends PluginConfigKey> = PluginConfigSchema[T]['defaultValue'];
@@ -21,7 +20,8 @@ export interface PluginConfigSchema {
   liveStreamQuality: PluginConfigSchemaEntry<'auto' | '144p' | '240p' | '360p' | '480p' | '720p' | '1080p'>;
   prefetch: PluginConfigSchemaEntry<boolean>;
   ytPlaybackMode: PluginConfigSchemaEntry<YouTubePlaybackMode, true>;
-  authCredentials: PluginConfigSchemaEntry<Credentials | undefined, true>;
+  cookie: PluginConfigSchemaEntry<string>;
+  activeChannelHandle: PluginConfigSchemaEntry<string>
 }
 
 export interface YouTubePlaybackMode {
@@ -48,6 +48,10 @@ export interface I18nOptionValue {
 export interface Account {
   name: string;
   photo: string | null;
+  active: boolean;
+  handle: string;
+  pageId?: string;
+  datasyncIdToken: string;
   channel?: {
     title: string;
     endpoint: Endpoint | null;

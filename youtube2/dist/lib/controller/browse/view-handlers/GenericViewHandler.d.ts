@@ -1,6 +1,6 @@
-import { PageContent, WatchContent } from '../../../types/Content';
-import Endpoint from '../../../types/Endpoint';
-import FeedViewHandler, { FeedView } from './FeedViewHandler';
+import { type PageContent, type WatchContent } from '../../../types/Content';
+import type Endpoint from '../../../types/Endpoint';
+import FeedViewHandler, { type FeedView } from './FeedViewHandler';
 export interface GenericView extends FeedView {
     name: 'generic';
 }
@@ -15,6 +15,6 @@ export default class GenericViewHandler<V extends Omit<GenericView, 'name'> & {
     protected assertEndpointExists(endpoint?: Endpoint | null): Endpoint;
     protected assertPageContents(content: PageContent | WatchContent | null): PageContent;
     protected getTracksOnExplode(): Promise<import("./ExplodableViewHandler").ExplodedTrackInfo[]>;
-    protected getEndpoint(explode?: boolean): Endpoint | null;
+    protected getEndpoint(_explode?: boolean): Endpoint | null;
 }
 //# sourceMappingURL=GenericViewHandler.d.ts.map

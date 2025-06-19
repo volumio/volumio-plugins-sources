@@ -1,16 +1,19 @@
 import ytmusic from '../../../YTMusicContext';
-import { ContentItem, PageElement } from '../../../types';
-import Endpoint, { BrowseContinuationEndpoint, BrowseEndpoint, EndpointType, SearchContinuationEndpoint, SearchEndpoint, WatchEndpoint } from '../../../types/Endpoint';
+import { type ContentItem, type PageElement } from '../../../types';
+import {type BrowseContinuationEndpoint, type BrowseEndpoint, type SearchContinuationEndpoint, type SearchEndpoint, type WatchEndpoint} from '../../../types/Endpoint';
+import type Endpoint from '../../../types/Endpoint';
+import { EndpointType } from '../../../types/Endpoint';
 import ExplodableViewHandler from './ExplodableViewHandler';
-import View, { ContinuationBundle } from './View';
-import { RenderedList, RenderedPage } from './ViewHandler';
+import {type ContinuationBundle} from './View';
+import type View from './View';
+import { type RenderedList, type RenderedPage } from './ViewHandler';
 import { RendererType } from './renderers';
-import { RenderedHeader, RenderedListItem } from './renderers/BaseRenderer';
-import { ContinuationBundleOption } from './renderers/OptionRenderer';
-import { SectionItem } from '../../../types/PageElement';
+import { type RenderedHeader, type RenderedListItem } from './renderers/BaseRenderer';
+import { type ContinuationBundleOption } from './renderers/OptionRenderer';
+import { type SectionItem } from '../../../types/PageElement';
 import AutoplayHelper from '../../../util/AutoplayHelper';
 import EndpointHelper from '../../../util/EndpointHelper';
-import { PageContent } from '../../../types/Content';
+import { type PageContent } from '../../../types/Content';
 
 /**
  * View handler for feed contents consisting of sections and optional header.
@@ -24,6 +27,7 @@ type RenderableItem = ContentItem.Channel |
   ContentItem.EndpointLink |
   ContentItem.Album |
   ContentItem.Playlist |
+  ContentItem.Podcast |
   ContentItem.MusicItem |
   PageElement.Option |
   ContinuationBundleOption;
@@ -297,6 +301,8 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
         return this.getRenderer(RendererType.Channel).renderToHeader(data);
       case 'playlist':
         return this.getRenderer(RendererType.Playlist).renderToHeader(data as PageElement.PlaylistHeader);
+      case 'podcast':
+        return this.getRenderer(RendererType.Podcast).renderToHeader(data as PageElement.PodcastHeader);
       case 'album':
         return this.getRenderer(RendererType.Album).renderToHeader(data as PageElement.AlbumHeader);
       default:
@@ -384,8 +390,8 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
     return true;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected renderToListItem(data: RenderableItem, contents: PageContent): RenderedListItem | null {
+   
+  protected renderToListItem(data: RenderableItem, _contents: PageContent): RenderedListItem | null {
     switch (data.type) {
       case 'channel':
         return this.getRenderer(RendererType.Channel).renderToListItem(data);
@@ -393,6 +399,8 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
         return this.getRenderer(RendererType.EndpointLink).renderToListItem(data);
       case 'playlist':
         return this.getRenderer(RendererType.Playlist).renderToListItem(data);
+      case 'podcast':
+        return this.getRenderer(RendererType.Podcast).renderToListItem(data);
       case 'album':
         return this.getRenderer(RendererType.Album).renderToListItem(data);
       case 'video':
@@ -425,7 +433,7 @@ export default abstract class FeedViewHandler<V extends FeedView = FeedView> ext
       !EndpointHelper.isType(item.endpoint, EndpointType.Watch);
 
     if (items.length === 0 ||
-      !items.some((item) => item.type !== 'section' && isBrowseEndpointLinkWithIcon(item)) ||
+      !items.some((item) => isBrowseEndpointLinkWithIcon(item)) ||
       items.every((item) => item.type === 'song')) {
       return [ 'list' ];
     }

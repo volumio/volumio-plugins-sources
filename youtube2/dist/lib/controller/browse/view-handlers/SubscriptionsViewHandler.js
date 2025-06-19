@@ -5,9 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const YouTube2Context_1 = __importDefault(require("../../../YouTube2Context"));
 const model_1 = require("../../../model");
-const InnertubeLoader_1 = __importDefault(require("../../../model/InnertubeLoader"));
 const Endpoint_1 = require("../../../types/Endpoint");
-const Auth_1 = require("../../../util/Auth");
 const GenericViewHandler_1 = __importDefault(require("./GenericViewHandler"));
 const CHANNEL_DISPLAY_LIMIT = 6;
 class SubscriptionsViewHandler extends GenericViewHandler_1.default {
@@ -21,8 +19,8 @@ class SubscriptionsViewHandler extends GenericViewHandler_1.default {
         if (!contents.sections || contents.sections.length === 0) {
             contents.sections = [];
         }
-        const { auth } = await InnertubeLoader_1.default.getInstance();
-        if (auth.getStatus().status === Auth_1.AuthStatus.SignedIn) {
+        const account = await this.getModel(model_1.ModelType.Account).getInfo();
+        if (account.isSignedIn) {
             const endpointModel = this.getModel(model_1.ModelType.Endpoint);
             const channelsEndpoint = {
                 type: Endpoint_1.EndpointType.Browse,

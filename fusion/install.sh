@@ -13,6 +13,8 @@ mkdir -m 777 $opath/filter-sources
 mkdir -m 777 $opath/target-curves
 mkdir -m 777 $opath/peq
 mkdir -m 777 $opath/tools
+mkdir -m 777 $opath/presets
+
 
 chmod -R 777 $opath
 chown -R volumio $opath
@@ -24,6 +26,11 @@ cp $LIB/readme.txt $opath/readme.txt
 cp $LIB/filters/* $opath/filters/
 cp $LIB/target-curves/* $opath/target-curves/
 cp $LIB/filter-sources/* $opath/filter-sources/
+cp $LIB/presets.tar $opath/
+cd $opath
+tar -xvf presets.tar
+chmod -R 777 presets
+cd $LIB
 rm -Rf $LIB/filters
 rm -Rf $LIB/target-curves
 rm -Rf $LIB/filters-sources
@@ -63,7 +70,7 @@ if [ $cpu = "armv7l" ] || [ $cpu = "aarch64" ]
 then
 cd /tmp
 wget https://github.com/HEnquist/camilladsp/releases/download/v1.0.2/camilladsp-linux-armv7.tar.gz
-tar -xvf camilladsp-linux-armv7.tar.gz -C /tmp
+tar -xf camilladsp-linux-armv7.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp
@@ -79,7 +86,7 @@ elif [ $cpu = "x86_64" ]
 then
 cd /tmp
 wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/bin/camilladsp-linux-amd64-1.0.2.tar.gz
-tar -xvf camilladsp-linux-amd64-1.0.2.tar.gz -C /tmp
+tar -xf camilladsp-linux-amd64-1.0.2.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp
@@ -95,7 +102,7 @@ elif [ $cpu = "armv6l" ]
 then
 cd /tmp
 wget https://github.com/balbuze/volumio-plugins/raw/alsa_modular/plugins/audio_interface/FusionDsp/bin/camilladsp-linux-armv6l.tar.gz
-tar -xvf camilladsp-linux-armv6l.tar.gz -C /tmp
+tar -xf camilladsp-linux-armv6l.tar.gz -C /tmp
 chown volumio camilladsp
 chgrp volumio camilladsp
 chmod +x camilladsp

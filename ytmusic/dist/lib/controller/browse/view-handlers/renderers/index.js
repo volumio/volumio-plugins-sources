@@ -11,6 +11,7 @@ const OptionValueRenderer_1 = __importDefault(require("./OptionValueRenderer"));
 const PlaylistRenderer_1 = __importDefault(require("./PlaylistRenderer"));
 const MusicItemRenderer_1 = __importDefault(require("./MusicItemRenderer"));
 const AlbumRenderer_1 = __importDefault(require("./AlbumRenderer"));
+const PodcastRenderer_1 = __importDefault(require("./PodcastRenderer"));
 var RendererType;
 (function (RendererType) {
     RendererType["Channel"] = "Channel";
@@ -19,8 +20,9 @@ var RendererType;
     RendererType["OptionValue"] = "OptionValue";
     RendererType["Album"] = "Album";
     RendererType["Playlist"] = "Playlist";
+    RendererType["Podcast"] = "Podcast";
     RendererType["MusicItem"] = "MusicItem";
-})(RendererType = exports.RendererType || (exports.RendererType = {}));
+})(RendererType || (exports.RendererType = RendererType = {}));
 const RENDERER_TYPE_TO_CLASS = {
     [RendererType.Channel]: ChannelRenderer_1.default,
     [RendererType.EndpointLink]: EndpointLinkRenderer_1.default,
@@ -28,6 +30,7 @@ const RENDERER_TYPE_TO_CLASS = {
     [RendererType.OptionValue]: OptionValueRenderer_1.default,
     [RendererType.Album]: AlbumRenderer_1.default,
     [RendererType.Playlist]: PlaylistRenderer_1.default,
+    [RendererType.Podcast]: PodcastRenderer_1.default,
     [RendererType.MusicItem]: MusicItemRenderer_1.default
 };
 class Renderer {
@@ -35,7 +38,7 @@ class Renderer {
         if (RENDERER_TYPE_TO_CLASS[type]) {
             return new RENDERER_TYPE_TO_CLASS[type](uri, currentView, previousViews);
         }
-        throw Error(`Renderer not found for type ${RendererType}`);
+        throw Error(`Renderer not found for type ${String(RendererType)}`);
     }
 }
 exports.default = Renderer;

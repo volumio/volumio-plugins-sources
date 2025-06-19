@@ -1,6 +1,6 @@
 {
 	"name": "audiophonicsonoff",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "Minimized Audiophonics plugin for button management, copied from RaspDac by Jedail",
 	"main": "index.js",
 	"scripts": {

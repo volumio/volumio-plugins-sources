@@ -1,6 +1,6 @@
-import { PageElement } from '../../../../types';
-import { ContinuationBundle } from '../View';
-import BaseRenderer, { RenderedListItem } from './BaseRenderer';
+import { type PageElement } from '../../../../types';
+import { type ContinuationBundle } from '../View';
+import BaseRenderer, { type RenderedListItem } from './BaseRenderer';
 export interface ContinuationBundleOption {
     type: 'continuationBundleOption';
     continuationBundle: ContinuationBundle;

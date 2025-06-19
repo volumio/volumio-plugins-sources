@@ -1,4 +1,4 @@
-import { SearchView } from '../browse/view-handlers/SearchViewHandler';
+import { type SearchView } from '../browse/view-handlers/SearchViewHandler';
 import ViewHandlerFactory from '../browse/view-handlers/ViewHandlerFactory';
 import ViewHelper from '../browse/view-handlers/ViewHelper';
 

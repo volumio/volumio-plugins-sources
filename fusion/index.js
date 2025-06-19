@@ -25,7 +25,7 @@ const filtersource = "/data/INTERNAL/FusionDsp/filter-sources/";
 const tccurvepath = "/data/INTERNAL/FusionDsp/target-curves/";
 const hrtffilterpath = "/data/plugins/audio_interface/fusiondsp/hrtf-filters/";
 const toolspath = "INTERNAL/FusionDsp/tools/";
-const wavfolder = "/data/INTERNAL/FusionDsp/wavfiles/";
+const presetFolder = "/data/INTERNAL/FusionDsp/presets/";
 const eq15range = [25, 40, 63, 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 6300, 10000, 16000]//freq for graphic eq
 const baseQ = 1.4
 //const coefQ = [baseQ + 0.5, baseQ + 0.5, baseQ + 0.5, baseQ + 0.5, baseQ + 0.5, baseQ + 0.40, baseQ + 0.40, baseQ + 0.28, baseQ + 0.28, baseQ + 0.38, baseQ + 0.38, baseQ + 0.38, baseQ + 0.49, baseQ + 0.49, baseQ + 0.49]//Q for graphic EQ
@@ -180,7 +180,7 @@ FusionDsp.prototype.createCamillaWebsocket = function () {
       };
 
       self.connection.onerror = function (error) {
-        console.error('WebSocket error:', error);
+        self.logger.error(logPrefix + 'WebSocket error:', error);
       };
 
       self.connection.onclose = function () {
@@ -192,7 +192,7 @@ FusionDsp.prototype.createCamillaWebsocket = function () {
     if (self.connection && self.connection.readyState === WebSocket.OPEN) {
       self.connection.send(data);
     } else {
-      console.error('WebSocket is not connected');
+      self.logger.error(logPrefix + 'WebSocket is not connected');
     }
   };
 
@@ -247,11 +247,34 @@ FusionDsp.prototype.hwinfo = function () {
 FusionDsp.prototype.getUIConfig = function (address) {
   const self = this;
   let defer = libQ.defer();
+  const langCode = this.commandRouter.sharedVars.get('language_code');
+  /*
+    let lang_code = this.commandRouter.sharedVars.get('language_code');
+    self.commandRouter.i18nJson(__dirname + '/i18n/strings_' + lang_code + '.json',
+      __dirname + '/i18n/strings_en.json',
+      __dirname + '/UIConfig.json')
+  
+  
+  let langCode = lang_code || 'en';
+  const langFile = path.join(__dirname, 'i18n', `strings_${langCode}.json`);
+  const fallbackFile = path.join(__dirname, 'i18n', 'strings_en.json');
+  const uiConfigFile = path.join(__dirname, 'UIConfig.json');
+  
+  // Ensure the language file exists; fallback to English if it doesn't
+  if (!fs.existsSync(langFile)) {
+      langCode = 'en';
+  }
+  
+  self.commandRouter.i18nJson(
+      path.join(__dirname, 'i18n', `strings_${langCode}.json`),
+      fallbackFile,
+      uiConfigFile
+  )
+  */
+  self.commandRouter.i18nJson(path.join(__dirname, 'i18n', 'strings_' + langCode + '.json'),
+    path.join(__dirname, 'i18n', 'strings_en.json'),
+    path.join(__dirname, 'UIConfig.json'))
 
-  let lang_code = this.commandRouter.sharedVars.get('language_code');
-  self.commandRouter.i18nJson(__dirname + '/i18n/strings_' + lang_code + '.json',
-    __dirname + '/i18n/strings_en.json',
-    __dirname + '/UIConfig.json')
 
     .then(function (uiconf) {
       var value
@@ -1421,188 +1444,41 @@ FusionDsp.prototype.getUIConfig = function (address) {
         uiconf.sections[1].saveButton.data.push('showeq');
       }
 
-      // self.logger.info(logPrefix + '  Dsp mode set is ' + selectedsp)
-
-
       //--------section 2-------------------
 
-      value = self.config.get('usethispreset');
-
-      switch (value) {
-        case ("mypreset1"):
-          plabel = self.config.get(selectedsp + 'renpreset1')
-          if (!plabel) {
-            plabel = ('mypreset1')
-          }
-          break;
-        case ("mypreset2"):
-          plabel = self.config.get(selectedsp + 'renpreset2')
-          if (!plabel) {
-            plabel = ('mypreset2')
-          }
-          break;
-        case ("mypreset3"):
-          plabel = self.config.get(selectedsp + 'renpreset3')
-          if (!plabel) {
-            plabel = ('mypreset3')
-          }
-          break;
-        case ("mypreset4"):
-          plabel = self.config.get(selectedsp + 'renpreset4')
-          if (!plabel) {
-            plabel = ('mypreset4')
-          }
-          break;
-        case ("mypreset5"):
-          plabel = self.config.get(selectedsp + 'renpreset5')
-          if (!plabel) {
-            plabel = ('mypreset5')
-          }
-          break;
-        case ("flat"):
-          plabel = 'flat'
-          break;
-        case ("rock"):
-          plabel = 'rock'
-          break;
-        case ("voice"):
-          plabel = 'voice'
-          break;
-        case ("classic"):
-          plabel = 'classic'
-          break;
-        case ("bass"):
-          plabel = 'bass'
-          break;
-        case ("soundtrack"):
-          plabel = 'soundtrack'
-          break;
-        default: plabel = self.commandRouter.getI18nString('NO_PRESET_USED')
-      }
-
+      var value = self.config.get('usethispreset');
+      const pFolder = presetFolder + "/" + selectedsp;
+      var plabel = (self.config.get(selectedsp + "preset") || "")
+        .replace(/^\./, "")
+        .replace(/\.json$/, "");
+      self.logger.info(logPrefix + plabel)
       self.configManager.setUIConfigParam(uiconf, 'sections[2].content[0].value.value', value);
       self.configManager.setUIConfigParam(uiconf, 'sections[2].content[0].value.label', plabel);
 
-      let presetlist
-      if (selectedsp == 'PEQ') {
-        presetlist = ('mypreset1,mypreset2,mypreset3,mypreset4,mypreset5')
-      } else if ((selectedsp == 'EQ15') || (selectedsp == '2XEQ15')) {
-        presetlist = ('mypreset1,mypreset2,mypreset3,mypreset4,mypreset5,flat,rock,voice,classic,bass,soundtrack')
-      } else {
-        //     self.logger.info(logPrefix+' No preset for FIR')
-        presetlist = ('mypreset1,mypreset2,mypreset3,mypreset4,mypreset5')
+      try {
 
-      }
+        fs.readdir(pFolder, function (err, item) {
+          let allpreset = '' + item;
+          let items = allpreset.split(',');
+          let itemsf = items.map(item => item.replace(/^\./, "").replace(/\.json$/, ""));
+          self.logger.info(logPrefix + items)
 
+          for (let i in items) {
 
-      let pitems = presetlist.split(',')
-      for (let x in pitems) {
-
-        switch (pitems[x]) {
-          case ("mypreset1"):
-            var plabel = self.config.get(selectedsp + 'renpreset1')
-            if (!plabel) {
-              plabel = ('mypreset1')
-            }
-            break;
-          case ("mypreset2"):
-            var plabel = self.config.get(selectedsp + 'renpreset2')
-            if (!plabel) {
-              plabel = ('mypreset2')
-            }
-            break;
-          case ("mypreset3"):
-            var plabel = self.config.get(selectedsp + 'renpreset3')
-            if (!plabel) {
-              plabel = ('mypreset3')
-            }
-            break;
-          case ("mypreset4"):
-            var plabel = self.config.get(selectedsp + 'renpreset4')
-            if (!plabel) {
-              plabel = ('mypreset4')
-            }
-            break;
-          case ("mypreset5"):
-            var plabel = self.config.get(selectedsp + 'renpreset5')
-            if (!plabel) {
-              plabel = ('mypreset5')
-            }
-            break;
-          case ("flat"):
-            var plabel = 'flat'
-            break;
-          case ("rock"):
-            var plabel = 'rock'
-            break;
-          case ("voice"):
-            var plabel = 'voice'
-            break;
-          case ("classic"):
-            var plabel = 'classic'
-            break;
-          case ("bass"):
-            var plabel = 'bass'
-            break;
-          case ("soundtrack"):
-            var plabel = 'soundtrack'
-            break;
-          default: plabel = self.commandRouter.getI18nString('NO_PRESET_USED')
-        }
-        //   self.logger.info(logPrefix+' preset label' + plabel)
-        self.configManager.pushUIConfigParam(uiconf, 'sections[2].content[0].options', {
-          value: pitems[x],
-          label: plabel
+            self.configManager.pushUIConfigParam(uiconf, 'sections[2].content[0].options', {
+              value: items[i],
+              label: itemsf[i]
+            });
+          }
         });
+      } catch (err) {
+        self.logger.error(logPrefix + ' failed to read local file' + err);
       }
 
+      //-------------section 3-----------savepreset
 
-      //-------------section 3-----------
-      let savepresetlist = ('mypreset1,mypreset2,mypreset3,mypreset4,mypreset5').split(',')
-      self.configManager.setUIConfigParam(uiconf, 'sections[3].content[0].value.label', self.commandRouter.getI18nString('CHOOSE_PRESET'));
-      for (let y in savepresetlist) {
-        switch (savepresetlist[y]) {
-          case ("mypreset1"):
-            var plabel = self.config.get(selectedsp + 'renpreset1')
-            if (!plabel) {
-              plabel = ('mypreset1')
-            }
-            break;
-          case ("mypreset2"):
-            var plabel = self.config.get(selectedsp + 'renpreset2')
-            if (!plabel) {
-              plabel = ('mypreset2')
-            }
-            break;
-          case ("mypreset3"):
-            var plabel = self.config.get(selectedsp + 'renpreset3')
-            if (!plabel) {
-              plabel = ('mypreset3')
-            }
-            break;
-          case ("mypreset4"):
-            var plabel = self.config.get(selectedsp + 'renpreset4')
-            if (!plabel) {
-              plabel = ('mypreset4')
-            }
-            break;
-          case ("mypreset5"):
-            var plabel = self.config.get(selectedsp + 'renpreset5')
-            if (!plabel) {
-              plabel = ('mypreset5')
-            }
-            break;
-          default: plabel = self.commandRouter.getI18nString('NO_PRESET_USED')
-        }
-        self.configManager.pushUIConfigParam(uiconf, 'sections[3].content[0].options', {
-          value: savepresetlist[y],
-          label: plabel
-        });
-      }
-      self.configManager.setUIConfigParam(uiconf, 'sections[3].content[2].value.label', self.commandRouter.getI18nString('CHOOSE_PRESET'));
 
-      uiconf.sections[3].content[2].value = self.config.get('renpreset');
-
+      uiconf.sections[3].content[0].value = self.config.get('renpreset');
 
       //-----------section 4---------
       value = self.config.get('importeq');
@@ -1648,7 +1524,6 @@ FusionDsp.prototype.getUIConfig = function (address) {
 
           let allfilter = '' + item;
           let items = allfilter.split(',');
-          // items.pop();
           for (let i in items) {
 
             self.configManager.pushUIConfigParam(uiconf, 'sections[5].content[0].options', {
@@ -1787,7 +1662,7 @@ FusionDsp.prototype.getUIConfig = function (address) {
           }
         });
       } catch (e) {
-       self.logger.error(logPrefix + ' Could not read file: ' + e)
+        self.logger.error(logPrefix + ' Could not read file: ' + e)
       }
 
 
@@ -1805,7 +1680,8 @@ FusionDsp.prototype.getUIConfig = function (address) {
       //--------------end section 8----------
       defer.resolve(uiconf);
     })
-    .fail(function () {
+    .fail(function (e) {
+      self.logger.info(logPrefix + 'Error: ' + e);
       defer.reject(new Error());
     })
   return defer.promise;
@@ -1820,7 +1696,7 @@ FusionDsp.prototype.refreshUI = function () {
       self.commandRouter.broadcastMessage('pushUiConfig', config);
     });
     self.commandRouter.closeModals();
-  }, 100);
+  }, 110);
 }
 
 FusionDsp.prototype.choosedsp = function (data) {
@@ -2163,7 +2039,7 @@ FusionDsp.prototype.sendCommandToCamilla = function () {
   };
 
   connection.onerror = (error) => {
-   self.logger.error(logPrefix + `WebSocket error: ${error}`);
+    self.logger.error(logPrefix + `WebSocket error: ${error}`);
   };
 
   connection.onmessage = (e) => {
@@ -2173,7 +2049,7 @@ FusionDsp.prototype.sendCommandToCamilla = function () {
     try {
       parsed = JSON.parse(replyString);
     } catch (err) {
-     self.logger.error(logPrefix + 'Parse error ', err);
+      self.logger.error(logPrefix + 'Parse error ', err);
     }
     if (parsed.hasOwnProperty('GetClippedSamples')) {
       let result = parsed.GetClippedSamples.value;
@@ -2285,7 +2161,7 @@ FusionDsp.prototype.testclipping = function () {
       }, 50);
 
     } catch (e) {
-     self.logger.error(cmd);
+      self.logger.error(cmd);
     };
   }, 1500);
 
@@ -2461,7 +2337,7 @@ FusionDsp.prototype.checksamplerate = function () {
    * we read the stream parameters, validate them and update camilladsp
    * configuration file to accomodate changes
    */
-  let callbackRead = function(event, file) {
+  let callbackRead = function (event, file) {
 
     let hcurrentsamplerate;
     let hformat;
@@ -2499,7 +2375,7 @@ FusionDsp.prototype.checksamplerate = function () {
         // really terminated
         self.camillaProcess.stop();
 
-        self.createCamilladspfile(function() {
+        self.createCamilladspfile(function () {
           self.camillaProcess.start();
           isSamplerateUpdating = false;
         });
@@ -2538,7 +2414,7 @@ FusionDsp.prototype.checksamplerate = function () {
 
 };
 
-let getCamillaFiltersConfig = function(plugin, selectedsp, chunksize, hcurrentsamplerate) {
+let getCamillaFiltersConfig = function (plugin, selectedsp, chunksize, hcurrentsamplerate) {
 
   let self = plugin;
 
@@ -3571,7 +3447,7 @@ let getCamillaFiltersConfig = function(plugin, selectedsp, chunksize, hcurrentsa
 
 }
 
-let getCamillaPureGuiConfig = function(plugin, chunksize, samplerate) {
+let getCamillaPureGuiConfig = function (plugin, chunksize, samplerate) {
 
   let strConfig;
 
@@ -3615,8 +3491,8 @@ let getCamillaPureGuiConfig = function(plugin, chunksize, samplerate) {
     strConfig = fs.readFileSync(__dirname + "/camilladsp-pure.conf.yml", 'utf8');
 
     strConfig = strConfig.replace("${chunksize}", chunksize)
-        .replace("${outputsamplerate}", samplerate)
-        .replace("${capturesamplerate}", samplerate);
+      .replace("${outputsamplerate}", samplerate)
+      .replace("${capturesamplerate}", samplerate);
 
   }
 
@@ -3656,7 +3532,7 @@ FusionDsp.prototype.createCamilladspfile = function (callback) {
 
     } else {
 
-      strCamillaConf = getCamillaFiltersConfig(self, selectedsp, chunksize,hcurrentsamplerate);
+      strCamillaConf = getCamillaFiltersConfig(self, selectedsp, chunksize, hcurrentsamplerate);
 
     }
 
@@ -4077,7 +3953,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
       let rlevel = data.rightlevel
 
       if ((Number.parseFloat(llevel) <= 0 && Number.parseFloat(llevel) > -20) && (Number.parseFloat(rlevel) <= 0 && Number.parseFloat(rlevel) > -20)) {
-      //  self.logger.info(logPrefix + ' value ok ' + llevel + rlevel);
+        //  self.logger.info(logPrefix + ' value ok ' + llevel + rlevel);
       }
       else {
         self.logger.error(logPrefix + ' wrong value in  level ' + llevel + ' or ' + rlevel)
@@ -4091,11 +3967,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.config.set('autoatt', data["autoatt"]);
     self.config.set('muteleft', data["muteleft"]);
     self.config.set('muteright', data["muteright"]);
-
-    //self.config.set('delayscope', (data["delayscope"].value));
-
     if (self.config.get('showloudness')) {
-
       self.config.set('loudness', loudness);
     }
   }
@@ -4103,7 +3975,7 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
 
   self.config.set('effect', true);
   self.config.set('showeq', data["showeq"]);
-  self.config.set('usethispreset', 'no preset used');
+  self.config.set(selectedsp + "preset", 'no preset used')//preset);
   self.config.set('mergedeq', test);
   self.config.set('importeq', self.commandRouter.getI18nString('CHOOSE_HEADPHONE'));
   self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_APPLIED'))
@@ -4112,14 +3984,53 @@ FusionDsp.prototype.saveparameq = function (data, obj) {
     self.refreshUI();
     self.createCamilladspfile()
   }, 800);
-
   return defer.promise;
 };
 
+
 FusionDsp.prototype.saveequalizerpreset = function (data) {
   const self = this;
+  const dynamicKey = data['renpreset'];
+  let selectedsp = self.config.get('selectedsp');
+  const fileName = `${dynamicKey}.json`;
+  const filePath = `${presetFolder}${selectedsp}/${fileName}`;
+
+  // Check if the file already exists
+  if (fs.existsSync(filePath)) {
+    var responseData = {
+      title: `A file ${dynamicKey} already exists!`,//self.commandRouter.getI18nString('SAMPLE_WARNING_TITLE'),
+      message: "Overwrite this file?",//self.commandRouter.getI18nString('SAMPLE_WARNING_MESS'),
+      size: 'lg',
+      buttons: [
+        {
+          name: "Ok",//self.commandRouter.getI18nString('GET_IT'),
+          class: 'btn btn-cancel',
+          emit: 'callMethod',
+          payload: { 'endpoint': 'audio_interface/fusiondsp', 'method': 'saveequalizerpresetv' }
+        },
+        {
+          name: "No",
+          class: 'btn btn-info',
+          emit: 'closeModals',
+          payload: ""
+        }
+      ]
+    }
+    self.commandRouter.broadcastMessage("openModal", responseData);
+    self.logger.warn(logPrefix + `File "${filePath}" already exists. Overwriting...`);
+    self.config.set("renpreset", dynamicKey)
+
+  } else {
+    self.config.set("renpreset", dynamicKey)
+    self.saveequalizerpresetv();
+  }
+};
+
+FusionDsp.prototype.saveequalizerpresetv = function (data) {
+  const self = this;
   let defer = libQ.defer();
-  let selectedsp = self.config.get('selectedsp')
+  let selectedsp = self.config.get('selectedsp');
+  let parameters;
   let state4preset = [
     self.config.get('crossfeed'),
     self.config.get('monooutput'),
@@ -4135,96 +4046,62 @@ FusionDsp.prototype.saveequalizerpreset = function (data) {
     self.config.get('ldistance'),
     self.config.get('rdistance'),
     self.config.get('permutchannel')
-  ]
+  ];
 
-  let preset = (data['eqpresetsaved'].value);
-  if (preset == 'Select a preset') {
-    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('CHOOSE_PRESET'))
-    return;
-  }
-  var nbreq = self.config.get('nbreq')
-  // self.logger.info('eqpresetsaved ' + preset)
-  var rpreset = (data['renpreset'])
-  //if (rpreset != 'choose a name') {
-  switch (preset) {
-    case ("mypreset1"):
-      var spreset = 'p1'
-      var spresetm = self.config.get(selectedsp + 'renpreset1')
-      var renprestr = '1'
-      break;
-    case ("mypreset2"):
-      var spreset = 'p2'
-      var spresetm = self.config.get(selectedsp + 'renpreset2')
-      var renprestr = '2'
-      break;
-    case ("mypreset3"):
-      var spreset = 'p3'
-      var spresetm = self.config.get(selectedsp + 'renpreset3')
-      var renprestr = '3'
-      break;
-    case ("mypreset4"):
-      var spreset = 'p4'
-      var spresetm = self.config.get(selectedsp + 'renpreset4')
-      var renprestr = '4'
-      break;
-    case ("mypreset5"):
-      var spreset = 'p5'
-      var spresetm = self.config.get(selectedsp + 'renpreset5')
-      var renprestr = '5'
-      break;
-  }
-  if (!spresetm) {
-    spresetm = ('mypreset' + renprestr)
-  }
-  if (spresetm == undefined) {
-    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('CHOOSE_PRESET'))
-    return
-  }
-  if (((data['renpreset']) == '') && ((data['hideren']) == true)) {
-    self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString("RENAME_PRESET_SW_DOC"))
-    return
-  }
-  if ((data['hideren']) == false) {
-    self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_PRESET') + spresetm)
-  }
-  if (((data['renpreset']) != '') && ((data['hideren']) == true)) {
-    self.commandRouter.pushToastMessage('info', self.commandRouter.getI18nString('VALUE_SAVED_PRESET') + (data['renpreset']))
-  }
+  var nbreq = self.config.get('nbreq');
 
-  if (rpreset == '') {
-    self.logger.info(logPrefix + 'No change in name !')
-  } else {
-    self.config.set(selectedsp + "renpreset" + renprestr, (data['renpreset']));
-    // let name = (self.config.get('renpreset' + renprestr));
-
-  }
   if (selectedsp == 'PEQ') {
-    self.config.set(spreset + 'nbreq', nbreq);
-    self.config.set('mergedeq' + renprestr, self.config.get('mergedeq'));
-
+    parameters = {
+      spreset: nbreq,
+      mergedeq: self.config.get('mergedeq'),
+      state4preset: state4preset
+    };
   } else if (selectedsp == 'EQ15') {
-    self.config.set("geq15" + renprestr, self.config.get('geq15'));
-    self.config.set("x2geq15" + renprestr, self.config.get('geq15'));
-
+    parameters = {
+      geq15: self.config.get('geq15'),
+      x2geq15: self.config.get('geq15'),
+      state4preset: state4preset
+    };
   } else if (selectedsp == '2XEQ15') {
-    self.config.set("x2geq15" + renprestr, self.config.get('x2geq15'));
-    self.config.set("geq15" + renprestr, self.config.get('geq15'));
-
+    parameters = {
+      geq15: self.config.get('geq15'),
+      x2geq15: self.config.get('x2geq15'),
+      state4preset: state4preset
+    };
   } else if (selectedsp == 'convfir') {
-
-    self.config.set("leftfilter" + renprestr, self.config.get('leftfilter'));
-    self.config.set("attenuationl" + renprestr, self.config.get('attenuationl'));
-    self.config.set("attenuationr" + renprestr, self.config.get('attenuationr'));
-    self.config.set("rightfilter" + renprestr, self.config.get('rightfilter'));
-    self.config.set(('leftfilterlabel' + renprestr), self.config.get('leftfilterlabel'));
-    self.config.set(('filter_format' + renprestr), self.config.get('filter_format'));
-    self.config.set("savedmergedeqfir" + renprestr, self.config.get('mergedeq'));
-
+    parameters = {
+      leftfilter: self.config.get('leftfilter'),
+      attenuationl: self.config.get('attenuationl'),
+      attenuationr: self.config.get('attenuationr'),
+      rightfilter: self.config.get('rightfilter'),
+      leftfilterlabel: self.config.get('leftfilterlabel'),
+      filter_format: self.config.get('filter_format'),
+      mergedeq: self.config.get('mergedeq'),
+      state4preset: state4preset
+    };
   }
-  let confstate = (selectedsp + 'state4preset' + renprestr)
-  self.config.set(confstate, state4preset)
 
-  self.refreshUI();
+  const dynamicKey = self.config.get('renpreset');
+  const fileContent = JSON.stringify({ "parameters": parameters }, null, 2);
+  const fileName = `${dynamicKey}.json`;
+  const filePath = `${presetFolder}${selectedsp}/${fileName}`;
+
+  // Write the file
+  fs.writeFile(filePath, fileContent, 'utf8', (err) => {
+    if (err) {
+      self.logger.error(logPrefix + "Error writing file:", err);
+      defer.reject(err);
+      return;
+    }
+    self.logger.info(logPrefix + `File "${filePath}" created successfully.`);
+    self.commandRouter.pushToastMessage('success', `Preset ${dynamicKey} saved successfully`);
+    self.config.set("renpreset", "");
+
+    setTimeout(() => {
+      self.refreshUI();
+    }, 500);
+    defer.resolve(); // Resolve the promise on success
+  });
 
   return defer.promise;
 };
@@ -4236,185 +4113,129 @@ FusionDsp.prototype.usethispreset = function (data) {
   let test = ''
   let geq15, x2geq15
   let preset = (data['usethispreset'].value);
+
   let selectedsp = self.config.get('selectedsp')
+  let usedpreset = presetFolder + selectedsp + "/" + preset
 
-  switch (preset) {
-    case ("mypreset1"):
-      var spreset = '1'
-      var spresetm = self.config.get(selectedsp + 'renpreset1')
-      var eqspreset = 'geq151'
-      var reqspreset = 'x2geq151'
-      break;
-    case ("mypreset2"):
-      var spreset = '2'
-      var spresetm = self.config.get(selectedsp + 'renpreset2')
-      var eqspreset = 'geq152'
-      var reqspreset = 'x2geq152'
-      break;
-    case ("mypreset3"):
-      var spreset = '3'
-      var spresetm = self.config.get(selectedsp + 'renpreset3')
-      var eqspreset = 'geq153'
-      var reqspreset = 'x2geq153'
-      break;
-    case ("mypreset4"):
-      var spreset = '4'
-      var spresetm = self.config.get(selectedsp + 'renpreset4')
-      var eqspreset = 'geq154'
-      var reqspreset = 'x2geq154'
-      break;
-    case ("mypreset5"):
-      var spreset = '5'
-      var spresetm = self.config.get(selectedsp + 'renpreset5')
-      var eqspreset = 'geq155'
-      var reqspreset = 'x2geq155'
-      break;
-    case ("voice"):
-      var spreset = 'voice'
-      var eqspreset = 'voice'
-      var reqspreset = 'voice'
-      break;
-    case ("bass"):
-      var spreset = 'bass'
-      var eqspreset = 'bass'
-      var reqspreset = 'bass'
-      break;
-    case ("flat"):
-      var spreset = 'flat'
-      var eqspreset = 'flat'
-      var reqspreset = 'flat'
-      break;
-    case ("rock"):
-      var spreset = 'rock'
-      var eqspreset = 'rock'
-      var reqspreset = 'rock'
-      break;
-    case ("classic"):
-      var spreset = 'classic'
-      var eqspreset = 'classic'
-      var reqspreset = 'classic'
-      break;
-    case ("soundtrack"):
-      var spreset = 'soundtrack'
-      var eqspreset = 'soundtrack'
-      var reqspreset = 'soundtrack'
-      break;
-    default:
-      self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('CHOOSE_PRESET'))
-      return;
+  function readValueFromJsonFile(filePath, key, callback) {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        return callback(err);
+      }
+      let jsonData;
+      try {
+        jsonData = JSON.parse(data);
+      } catch (parseError) {
+        return callback(parseError);
+      }
+      callback(null, jsonData[key]);
+    });
   }
+  self.logger.info(logPrefix + "Value for usedpreset: ", usedpreset);
 
-  if (selectedsp == 'EQ15') {
-    geq15 = self.config.get(eqspreset).split(',')
-    //  self.logger.info(logPrefix+' geq1 ' + geq15)
+  let presetforkey = "parameters";
 
-    let o = 1
-    var eqr = geq15//.split(',')
-    //self.logger.info(logPrefix+' setting EQ15 values ' + typeof (eqr))
-    for (o in eqr) {
-      let eqval = geq15[o]
-      test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
+  readValueFromJsonFile(usedpreset, presetforkey, (err, value) => {
+    if (err) {
+      self.logger.error(logPrefix + "Error reading JSON file:", err);
+    }// else {
+    try {
+      self.logger.error(logPrefix + "Value reading JSON file:", value);
+
+      const eqrx = value.geq15;
+      const x2eqrx = value.x2geq15;
+      const state4presetx = value.state4preset;
+
+      if (selectedsp == 'EQ15') {
+
+        geq15 = eqrx.split(',')
+        self.logger.info(logPrefix + ' geq15 ' + geq15)
+
+        let o = 1
+        var eqr = geq15
+        for (o in eqr) {
+          let eqval = geq15[o]
+          test += ('Eq' + o + '|Peaking|L+R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
+        }
+        self.config.set('mergedeq', test);
+        self.config.set("nbreq", 15);
+
+      } else if (selectedsp == '2XEQ15') {
+        geq15 = eqrx.split(',')
+        x2geq15 = x2eqrx.split(',')
+
+        self.logger.info(logPrefix + ' geq15 ' + geq15)
+        let ltest, rtest
+        let o = 1
+        var eqr = geq15
+        for (let o in geq15) {
+          var eqval = geq15[o]
+          ltest += ('Eq' + o + '|Peaking|L|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
+        }
+        for (let o in x2geq15) {
+          var eqval = x2geq15[o]
+          rtest += ('Eq' + o + '|Peaking|R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
+        }
+        test = ltest + rtest
+
+        self.config.set('mergedeq', test);
+        self.config.set("nbreq", 30);
+
+      }
+
+      if ((selectedsp == 'EQ15') || (selectedsp == '2XEQ15')) {
+        self.config.set('geq15', eqrx)
+        self.config.set('x2geq15', x2eqrx);
+
+      } else if (selectedsp == 'PEQ') {
+        var nbreqc = value.spreset;
+        self.config.set("nbreq", nbreqc);
+        self.config.set('mergedeq', value.mergedeq);
+
+      } else if (selectedsp == 'convfir') {
+        self.config.set("usethispreset", preset);
+        self.config.set("leftfilter", value.leftfilter);
+        self.config.set("rightfilter", value.rightfilter);
+        self.config.set('leftfilterlabel', value.leftfilterlabel);
+        self.config.set('filter_format', value.filter_format)
+        self.config.set('mergedeq', value.savedmergedeqfir)
+        self.config.set("attenuationl", value.attenuationl);
+        self.config.set("attenuationr", value.attenuationr);
+      }
+
+      let state4preset = state4presetx;
+
+      self.logger.info(logPrefix + ' value state4preset ' + state4preset)
+      self.config.set('crossfeed', state4preset[0])
+      self.config.set('monooutput', state4preset[1])
+      self.config.set('loudness', state4preset[2])
+      self.config.set('loudnessthreshold', state4preset[3])
+      self.config.set('leftlevel', state4preset[4])
+      self.config.set('rightlevel', state4preset[5])
+      self.config.set('delay', state4preset[6])
+      self.config.set('delayscope', state4preset[7])
+      self.config.set('autoatt', state4preset[8])
+      self.config.set('muteleft', state4preset[9]);
+      self.config.set('muteright', state4preset[10]);
+
+      if (selectedsp + state4preset[11] == undefined) {
+        self.config.set('ldistance', 0);
+      } else {
+        self.config.set('ldistance', state4preset[11]);
+      }
+      if (selectedsp + state4preset[12] == undefined) {
+        self.config.set('rdistance', 0);
+      } else {
+        self.config.set('rdistance', state4preset[12]);
+      }
+      self.config.set('permutchannel', state4preset[13]);
+      self.config.set(selectedsp + "preset", preset);
+      self.commandRouter.pushToastMessage('info', presetforkey.replace(/^\./, "") + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
+
+    } catch (e) {
+      self.logger.error(logPrefix + ' failed processing JSON value: ' + e);
     }
-    // self.logger.info(logPrefix + ' test ' + test)
-    self.config.set('mergedeq', test);
-    self.config.set("nbreq", 15);
-
-  } else if (selectedsp == '2XEQ15') {
-    geq15 = self.config.get(eqspreset).split(',')
-    x2geq15 = self.config.get(reqspreset).split(',')
-
-    self.logger.info(logPrefix + ' geq15 ' + geq15)
-    let ltest, rtest
-    let o = 1
-    var eqr = geq15
-    for (let o in geq15) {
-      var eqval = geq15[o]
-      ltest += ('Eq' + o + '|Peaking|L|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
-    }
-    for (let o in x2geq15) {
-      var eqval = x2geq15[o]
-      rtest += ('Eq' + o + '|Peaking|R|' + eq15range[o] + ',' + eqval + ',' + coefQ[o] + '|');
-    }
-    test = ltest + rtest
-
-    //  self.logger.info(logPrefix + ' test ' + test)
-    self.config.set('mergedeq', test);
-    self.config.set("nbreq", 30);
-
-  }
-
-  if ((selectedsp == 'EQ15') || (selectedsp == '2XEQ15')) {
-    self.config.set('geq15', self.config.get(eqspreset))
-    self.config.set('x2geq15', self.config.get(reqspreset))
-    self.config.set("usethispreset", preset);
-
-  } else if (selectedsp == 'PEQ') {
-    var nbreqc = self.config.get('p' + spreset + 'nbreq')
-    self.config.set("nbreq", nbreqc);
-    self.config.set('mergedeq', self.config.get('mergedeq' + spreset));
-    self.config.set("usethispreset", preset);
-
-  } else if (selectedsp == 'convfir') {
-    self.config.set("usethispreset", preset);
-    self.config.set("leftfilter", self.config.get('leftfilter' + spreset));
-    self.config.set("rightfilter", self.config.get('rightfilter' + spreset));
-    self.config.set('leftfilterlabel', self.config.get('leftfilterlabel' + spreset));
-    self.config.set('filter_format', self.config.get('filter_format' + spreset))
-    self.config.set('mergedeq', self.config.get('savedmergedeqfir' + spreset))
-    self.config.set("attenuationl", self.config.get('attenuationl' + spreset));
-    self.config.set("attenuationr", self.config.get('attenuationr' + spreset));
-  }
-  if (preset == "mypreset1" || preset == "mypreset2" || preset == "mypreset3" || preset == "mypreset4" || preset == "mypreset5") {
-    let state4preset = self.config.get(selectedsp + 'state4preset' + spreset)
-
-    if (!state4preset) {
-      state4preset =
-        [
-          "None",
-          false,
-          false,
-          50,
-          0,
-          0,
-          0,
-          "None",
-          true,
-          false,
-          false,
-          0,
-          0,
-          false
-        ]
-    }
-
-    self.logger.info(logPrefix + ' value state4preset ' + state4preset)
-    self.config.set('crossfeed', state4preset[0])
-    self.config.set('monooutput', state4preset[1])
-    self.config.set('loudness', state4preset[2])
-    self.config.set('loudnessthreshold', state4preset[3])
-    self.config.set('leftlevel', state4preset[4])
-    self.config.set('rightlevel', state4preset[5])
-    self.config.set('delay', state4preset[6])
-    self.config.set('delayscope', state4preset[7])
-    self.config.set('autoatt', state4preset[8])
-    self.config.set('muteleft', state4preset[9]);
-    self.config.set('muteright', state4preset[10]);
-
-    if (selectedsp + state4preset[11] == undefined) {
-      self.config.set('ldistance', 0);
-    } else {
-      self.config.set('ldistance', state4preset[11]);
-    }
-    if (selectedsp + state4preset[12] == undefined) {
-      self.config.set('rdistance', 0);
-    } else {
-      self.config.set('rdistance', state4preset[12]);
-    }
-    self.config.set('permutchannel', state4preset[13]);
-    self.commandRouter.pushToastMessage('info', spresetm + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
-  } else {
-    self.commandRouter.pushToastMessage('info', spreset + self.commandRouter.getI18nString('PRESET_LOADED_USED'))
-  }
+  });
 
   setTimeout(function () {
     self.refreshUI();
@@ -4431,12 +4252,12 @@ FusionDsp.prototype.importeq = function (data) {
   const name = nameh.split('  ').slice(1).toString();
   const namepath = data['importeq'].value;
   const suffix = "%20ParametricEQ.txt";
-  self.logger.info(logPrefix + ' namepath ' + namepath+' name '+name);
+  self.logger.info(logPrefix + ' namepath ' + namepath + ' name ' + name);
 
   self.config.set('addreplace', true);
   self.config.set('nbreq', 1);
   const toDownload = `${path}${namepath}/${encodeURIComponent(name)}${suffix}`;
-    self.logger.info(logPrefix + ' wget \'' + toDownload);
+  self.logger.info(logPrefix + ' wget \'' + toDownload);
 
   try {
     execSync(`/usr/bin/wget '${toDownload}' -O /tmp/EQfile.txt`, {
@@ -4453,7 +4274,7 @@ FusionDsp.prototype.importeq = function (data) {
   self.config.set('importeq', nameh);
 
   self.convertimportedeq();
-  return defer.promise;  
+  return defer.promise;
 
 };
 
@@ -4983,6 +4804,8 @@ FusionDsp.prototype.playToolsFile = function (data) {
 
 FusionDsp.prototype.sendvolumelevel = function () {
   const self = this;
+  // let data = self.commandRouter.volumioGetState();
+
   self.socket.on('pushState', function (data) {
     let loudnessVolumeThreshold = self.config.get('loudnessthreshold')
     let loudnessMaxGain = 23 //15

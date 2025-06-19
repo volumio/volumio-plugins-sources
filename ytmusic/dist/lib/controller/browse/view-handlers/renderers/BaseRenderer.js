@@ -21,8 +21,7 @@ class BaseRenderer {
         __classPrivateFieldSet(this, _BaseRenderer_currentView, currentView, "f");
         __classPrivateFieldSet(this, _BaseRenderer_previousViews, previousViews, "f");
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    renderToHeader(data) {
+    renderToHeader(_data) {
         return null;
     }
     get uri() {
@@ -35,6 +34,6 @@ class BaseRenderer {
         return __classPrivateFieldGet(this, _BaseRenderer_previousViews, "f");
     }
 }
-exports.default = BaseRenderer;
 _BaseRenderer_uri = new WeakMap(), _BaseRenderer_currentView = new WeakMap(), _BaseRenderer_previousViews = new WeakMap();
+exports.default = BaseRenderer;
 //# sourceMappingURL=BaseRenderer.js.map

@@ -1,6 +1,6 @@
-import { PageContent } from '../../../types/Content';
-import Endpoint from '../../../types/Endpoint';
-import GenericViewHandler, { GenericView } from './GenericViewHandler';
+import { type PageContent } from '../../../types/Content';
+import type Endpoint from '../../../types/Endpoint';
+import GenericViewHandler, { type GenericView } from './GenericViewHandler';
 export interface PlaylistView extends Omit<GenericView, 'name'> {
     name: 'playlist';
     endpoints: {

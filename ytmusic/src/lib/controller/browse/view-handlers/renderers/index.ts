@@ -1,4 +1,4 @@
-import View from '../View';
+import type View from '../View';
 import ChannelRenderer from './ChannelRenderer';
 import EndpointLinkRenderer from './EndpointLinkRenderer';
 import OptionRenderer from './OptionRenderer';
@@ -6,6 +6,7 @@ import OptionValueRenderer from './OptionValueRenderer';
 import PlaylistRenderer from './PlaylistRenderer';
 import MusicItemRenderer from './MusicItemRenderer';
 import AlbumRenderer from './AlbumRenderer';
+import PodcastRenderer from './PodcastRenderer';
 
 export enum RendererType {
   Channel = 'Channel',
@@ -14,6 +15,7 @@ export enum RendererType {
   OptionValue = 'OptionValue',
   Album = 'Album',
   Playlist = 'Playlist',
+  Podcast = 'Podcast',
   MusicItem = 'MusicItem'
 }
 
@@ -24,6 +26,7 @@ export type RendererOf<T extends RendererType> =
   T extends RendererType.OptionValue ? OptionValueRenderer :
   T extends RendererType.Album ? AlbumRenderer :
   T extends RendererType.Playlist ? PlaylistRenderer :
+  T extends RendererType.Podcast ? PodcastRenderer :
   T extends RendererType.MusicItem ? MusicItemRenderer : never;
 
 const RENDERER_TYPE_TO_CLASS: Record<RendererType, any> = {
@@ -33,6 +36,7 @@ const RENDERER_TYPE_TO_CLASS: Record<RendererType, any> = {
   [RendererType.OptionValue]: OptionValueRenderer,
   [RendererType.Album]: AlbumRenderer,
   [RendererType.Playlist]: PlaylistRenderer,
+  [RendererType.Podcast]: PodcastRenderer,
   [RendererType.MusicItem]: MusicItemRenderer
 };
 
@@ -42,6 +46,6 @@ export default class Renderer {
     if (RENDERER_TYPE_TO_CLASS[type]) {
       return new RENDERER_TYPE_TO_CLASS[type](uri, currentView, previousViews);
     }
-    throw Error(`Renderer not found for type ${RendererType}`);
+    throw Error(`Renderer not found for type ${String(RendererType)}`);
   }
 }

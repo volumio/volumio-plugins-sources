@@ -5,12 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ExplodableViewHandler_1 = __importDefault(require("./ExplodableViewHandler"));
 class VideoViewHandler extends ExplodableViewHandler_1.default {
-    async getTracksOnExplode() {
+    getTracksOnExplode() {
         const explodeTrackData = this.currentView.explodeTrackData;
         if (!explodeTrackData) {
             throw Error('Operation not supported');
         }
-        return explodeTrackData;
+        return Promise.resolve(explodeTrackData);
     }
 }
 exports.default = VideoViewHandler;

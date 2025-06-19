@@ -39,6 +39,7 @@ class BrowseController {
      * - video[@explodeTrackData=...]
      * - song[@explodeTrackData=...]
      * - playlist[@endpoints=...]
+     * - podcast[@endpoints=...]
      * - generic[@endpoint=...]
      *
      * Legacy (pre v1.0) uris:
@@ -55,7 +56,7 @@ class BrowseController {
         YTMusicContext_1.default.getLogger().info(`[ytmusic-browse] explodeUri: ${uri}`);
         if (!ExplodeHelper_1.default.validateExplodeUri(uri)) {
             // Try convert from legacy
-            const convertedUri = await ExplodeHelper_1.default.convertLegacyExplodeUri(uri);
+            const convertedUri = ExplodeHelper_1.default.convertLegacyExplodeUri(uri);
             if (!convertedUri) {
                 YTMusicContext_1.default.getLogger().error(`[ytmusic-browse] Could not explode URI: ${uri}`);
                 YTMusicContext_1.default.toast('error', YTMusicContext_1.default.getI18n('YTMUSIC_ERR_INVALID_URI'));
@@ -74,8 +75,8 @@ class BrowseController {
         }
     }
 }
-exports.default = BrowseController;
 _BrowseController_instances = new WeakSet(), _BrowseController_getHandler = function _BrowseController_getHandler(uri) {
     return ViewHandlerFactory_1.default.getHandler(uri);
 };
+exports.default = BrowseController;
 //# sourceMappingURL=BrowseController.js.map

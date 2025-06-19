@@ -1,8 +1,11 @@
-import Innertube, { InnertubeEndpoint, Parser } from 'volumio-youtubei.js';
+import {type InnertubeEndpoint} from 'volumio-youtubei.js';
+import type Innertube from 'volumio-youtubei.js';
+import { Parser } from 'volumio-youtubei.js';
 import { BaseModel } from './BaseModel';
-import Endpoint, { EndpointType } from '../types/Endpoint';
+import type Endpoint from '../types/Endpoint';
+import { EndpointType } from '../types/Endpoint';
 import InnertubeResultParser from './InnertubeResultParser';
-import { ContentOf } from '../types/Content';
+import { type ContentOf } from '../types/Content';
 import EndpointHelper from '../util/EndpointHelper';
 
 export default class EndpointModel extends BaseModel {

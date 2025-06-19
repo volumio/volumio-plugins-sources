@@ -1,8 +1,8 @@
-import I18nSchema from '../i18n/strings_en.json';
+import type I18nSchema from '../i18n/strings_en.json';
 import format from 'string-format';
 import fs from 'fs-extra';
-import winston from 'winston';
-import { PluginConfigKey, PluginConfigValue } from './types/PluginConfig';
+import type winston from 'winston';
+import { type PluginConfigKey, type PluginConfigValue } from './types/PluginConfig';
 import { PLUGIN_CONFIG_SCHEMA } from './model/ConfigModel';
 
 export type I18nKey = keyof typeof I18nSchema;
@@ -26,10 +26,12 @@ class YouTube2Context {
     this.#i18CallbackRegistered = false;
   }
 
-  set<T>(key: string, value: T) {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+  set<T = any>(key: string, value: T) {
     this.#data[key] = value;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   get<T>(key: string): T | null;
   get<T>(key: string, defaultValue: T): T;
   get<T>(key: string, defaultValue?: T): T | null {
@@ -81,7 +83,7 @@ class YouTube2Context {
     return result.trim();
   }
 
-  hasConfigKey<T extends PluginConfigKey>(key: T): boolean {
+  hasConfigKey(key: PluginConfigKey): boolean {
     return this.#pluginConfig.has(key);
   }
 
@@ -93,7 +95,7 @@ class YouTube2Context {
         try {
           return JSON.parse(val);
         }
-        catch (e) {
+        catch (_error: unknown) {
           return schema.defaultValue;
         }
       }
@@ -169,7 +171,7 @@ class YouTube2Context {
       try {
         this.#i18nDefaults = fs.readJsonSync(`${i18nPath}/strings_en.json`);
       }
-      catch (e) {
+      catch (_error: unknown) {
         this.#i18nDefaults = {};
       }
 
@@ -177,7 +179,7 @@ class YouTube2Context {
         const language_code = this.#pluginContext.coreCommand.sharedVars.get('language_code');
         this.#i18n = fs.readJsonSync(`${i18nPath}/strings_${language_code}.json`);
       }
-      catch (e) {
+      catch (_error: unknown) {
         this.#i18n = this.#i18nDefaults;
       }
     }

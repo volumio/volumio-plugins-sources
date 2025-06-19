@@ -24,7 +24,7 @@ class RootViewHandler extends BaseViewHandler_1.default {
         super(...arguments);
         _RootViewHandler_instances.add(this);
     }
-    async browse() {
+    browse() {
         const items = [
             {
                 service: 'ytmusic',
@@ -55,7 +55,7 @@ class RootViewHandler extends BaseViewHandler_1.default {
                 icon: 'fa fa-history'
             }
         ];
-        return {
+        return Promise.resolve({
             navigation: {
                 prev: { uri: '/' },
                 lists: [
@@ -66,10 +66,9 @@ class RootViewHandler extends BaseViewHandler_1.default {
                     }
                 ]
             }
-        };
+        });
     }
 }
-exports.default = RootViewHandler;
 _RootViewHandler_instances = new WeakSet(), _RootViewHandler_constructUri = function _RootViewHandler_constructUri(browseId) {
     const endpoint = {
         type: Endpoint_1.EndpointType.Browse,
@@ -83,4 +82,5 @@ _RootViewHandler_instances = new WeakSet(), _RootViewHandler_constructUri = func
     };
     return `ytmusic/${ViewHelper_1.default.constructUriSegmentFromView(targetView)}`;
 };
+exports.default = RootViewHandler;
 //# sourceMappingURL=RootViewHandler.js.map

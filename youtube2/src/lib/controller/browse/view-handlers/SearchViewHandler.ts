@@ -1,9 +1,10 @@
 import yt2 from '../../../YouTube2Context';
-import { PageElement } from '../../../types';
-import { PageContent } from '../../../types/Content';
-import Endpoint, { EndpointType } from '../../../types/Endpoint';
-import { SectionItem } from '../../../types/PageElement';
-import GenericViewHandler, { GenericView } from './GenericViewHandler';
+import { type PageElement } from '../../../types';
+import { type PageContent } from '../../../types/Content';
+import type Endpoint from '../../../types/Endpoint';
+import { EndpointType } from '../../../types/Endpoint';
+import { type SectionItem } from '../../../types/PageElement';
+import GenericViewHandler, { type GenericView } from './GenericViewHandler';
 
 export interface SearchView extends Omit<GenericView, 'name'> {
   name: 'search';

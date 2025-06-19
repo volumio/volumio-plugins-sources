@@ -1,9 +1,9 @@
 import yt2 from '../../YouTube2Context';
 import ExplodeHelper from '../../util/ExplodeHelper';
-import BaseViewHandler from './view-handlers/BaseViewHandler';
-import { QueueItem } from './view-handlers/ExplodableViewHandler';
-import View from './view-handlers/View';
-import { RenderedPage } from './view-handlers/ViewHandler';
+import type BaseViewHandler from './view-handlers/BaseViewHandler';
+import { type QueueItem } from './view-handlers/ExplodableViewHandler';
+import type View from './view-handlers/View';
+import { type RenderedPage } from './view-handlers/ViewHandler';
 import ViewHandlerFactory from './view-handlers/ViewHandlerFactory';
 
 export default class BrowseController {

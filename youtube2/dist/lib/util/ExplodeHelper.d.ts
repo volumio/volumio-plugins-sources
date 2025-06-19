@@ -1,5 +1,5 @@
-import { ExplodedTrackInfo, QueueItem } from '../controller/browse/view-handlers/ExplodableViewHandler';
-import { ContentItem } from '../types';
+import { type ExplodedTrackInfo, type QueueItem } from '../controller/browse/view-handlers/ExplodableViewHandler';
+import { type ContentItem } from '../types';
 export default class ExplodeHelper {
     #private;
     static getExplodedTrackInfoFromVideo(data: ContentItem.Video): ExplodedTrackInfo;
