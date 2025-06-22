@@ -170,3 +170,7 @@
 ### Version 2.12.4
   #### Changes
   * Added `PandoraHandler::publishStationNames()`.  This new function publishes the Pandora stations to the MQTT broker if one is configured.  `PandoraHandler::publishStationData()` had a lot more information but was too much for Home Assistant to handle.
+
+### Version 2.13.1
+  #### Fixes
+  * Refactored anesidora `anesidora.js` and `encryption.js`.  Anesidora now uses external `egoroof-blowfish` library to deal with the deprecation of the Blowfish algorithm.  This is due to the changes in Volumio with current versions of NodeJS, OpenSSL, and others.

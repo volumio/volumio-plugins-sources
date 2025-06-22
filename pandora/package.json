@@ -1,6 +1,6 @@
 {
 	"name": "pandora",
-	"version": "2.12.4",
+	"version": "2.13.1",
 	"description": "Pandora Music Services Plugin",
 	"main": "index.js",
 	"scripts": {
@@ -26,10 +26,10 @@
 	},
 	"engines": {
 		"node": ">=8.11.1",
-		"volumio": ">=2.411 <4.0"
+		"volumio": ">=2.411 <5.0"
 	},
 	"dependencies": {
-		"anesidora": "https://github.com/truckershitch/anesidora.git",
+		"anesidora": "git://github.com/truckershitch/anesidora.git#master",
 		"dns-sync": "^0.1.3",
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
