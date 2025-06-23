@@ -29,7 +29,7 @@
 		"volumio": ">=2.411 <5.0"
 	},
 	"dependencies": {
-		"anesidora": "git://github.com/truckershitch/anesidora.git#master",
+		"anesidora": "https://github.com/truckershitch/anesidora.git",
 		"dns-sync": "^0.1.3",
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
