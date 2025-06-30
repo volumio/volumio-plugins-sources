@@ -8,7 +8,7 @@
                 "element": "section",
                 "label": "TRANSLATE.IRCONTROLLER.IR_CONFIGURATION",
                 "icon": "fa-magic",
-                 "onSave": {"type":"controller", "endpoint":"system_hardware/ir_controller", "method":"saveIROptions"},
+                 "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveIROptions"},
                  "saveButton": {
                                "label": "TRANSLATE.IRCONTROLLER.SAVE",
                                "data": [
@@ -34,7 +34,7 @@
                 "label": "TRANSLATE.IRCONTROLLER.GPIO_CONFIGURATION",
                 "description": "TRANSLATE.IRCONTROLLER.GPIO_DESC",
                 "icon": "fa-microchip",
-                "onSave": {"type":"controller","endpoint":"system_hardware/ir_controller","method":"saveGpioOptions"},
+                "onSave": {"type":"controller","endpoint":"${plugin_type/plugin_name}","method":"saveGpioOptions"},
                 "saveButton": {
                               "label": "TRANSLATE.IRCONTROLLER.SAVE",
                               "data": [
@@ -55,7 +55,7 @@
                              "value": {},
                              "options": [
                                           {
-							                              "value": 0,
+							                            "value": 0,
                               							"label": "0"
                               						},
                               						{
@@ -338,11 +338,18 @@
                               						}
                                					]
                              },
+							 {
+							 "id": "show_more",
+							 "element": "switch",
+							 "label": "TRANSLATE.IRCONTROLLER.SHOW_MORE",
+							 "value": false
+							 },
                              {
                              "id": "gpio_pull",
                              "element": "select",
                              "doc": "TRANSLATE.IRCONTROLLER.GPIO_PULL_DOC",
                              "label": "TRANSLATE.IRCONTROLLER.GPIO_PULL",
+							 "visibleIf": {"field": "show_more", "value": true},
                              "value": {"value": "up", "label": "TRANSLATE.IRCONTROLLER.GPIO_PULL_UP"},
                              "options": [
                                           {
@@ -364,6 +371,7 @@
                               "element": "switch",
                               "doc": "TRANSLATE.IRCONTROLLER.FORCE_ACTIVE_STATE_DOC",
                               "label": "TRANSLATE.IRCONTROLLER.FORCE_ACTIVE_STATE",
+							  "visibleIf": {"field": "show_more", "value": true},
                               "value": false
                               },
                               {

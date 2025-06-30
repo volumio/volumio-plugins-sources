@@ -10,9 +10,9 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.SCREENSAVER_DESC",
                 "icon": "fa-clock-o",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"${plugin_type}/touch_display", "method":"saveScreensaverConf"},
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveScreensaverConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "timeout",
                                       "afterPlay"
@@ -49,9 +49,9 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.BRIGHTNESS_DESC",
                 "icon": "fa-sun-o",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"${plugin_type}/touch_display", "method":"saveBrightnessConf"},
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveBrightnessConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "autoMode",
                                       "minBr",
@@ -108,7 +108,7 @@
                              "element": "button",
                              "doc": "TRANSLATE.TOUCH_DISPLAY.CALIBRATION_DOC",
                              "label": "TRANSLATE.TOUCH_DISPLAY.CALIBRATION",
-                             "onClick": {"type":"controller", "endpoint":"${plugin_type}/touch_display", "method":"getAlsValue", "data":{"confData": "", "action": "minmax"}},
+                             "onClick": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"getAlsValue", "data":{"confData": "", "action": "minmax"}},
                              "visibleIf": {"field": "autoMode", "value": true}
                              },
                              {
@@ -139,7 +139,7 @@
                              "element": "button",
                              "doc": "TRANSLATE.TOUCH_DISPLAY.GET_MID_ALS_DOC",
                              "label": "TRANSLATE.TOUCH_DISPLAY.GET_MID_ALS",
-                             "onClick": {"type":"controller", "endpoint":"${plugin_type}/touch_display", "method":"getAlsValue", "data":{"confData": "", "action": "mid"}},
+                             "onClick": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"getAlsValue", "data":{"confData": "", "action": "mid"}},
                              "visibleIf": {"field": "autoMode", "value": true}
                              },
                              {
@@ -211,9 +211,9 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.ORIENTATION_DESC",
                 "icon": "fa-compass",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"${plugin_type}/touch_display", "method":"saveOrientationConf"},
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveOrientationConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "angle"
                                       ]
@@ -253,9 +253,9 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.GPUMEM_DESC",
                 "icon": "fa-microchip",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"${plugin_type}/touch_display", "method":"saveGpuMemConf"},
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveGpuMemConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "controlGpuMem",
                                       "gpuMem"
@@ -293,9 +293,9 @@
                 "description": "TRANSLATE.TOUCH_DISPLAY.POINTER_DESC",
                 "icon": "fa-mouse-pointer",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"${plugin_type}/touch_display", "method":"savePointerConf"},
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"savePointerConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "showPointer"
                                       ]
@@ -311,15 +311,15 @@
                            ]
                 },
                 {
-                "id": "scale",
+                "id": "scale_conf",
                 "element": "section",
                 "label": "TRANSLATE.TOUCH_DISPLAY.SCALE_CONF",
                 "description": "TRANSLATE.TOUCH_DISPLAY.SCALE_DESC",
                 "icon": "fa-expand",
                 "hidden": "false",
-                "onSave": {"type":"controller", "endpoint":"${plugin_type}/touch_display", "method":"saveScaleConf"},
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveScaleConf"},
                 "saveButton": {
-                              "label": "TRANSLATE.TOUCH_DISPLAY.APPLY",
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
                               "data": [
                                       "scale"
                                       ]
@@ -338,6 +338,30 @@
                                              {"min": {}},
                                              {"max": {}}
                                            ]
+                             }
+                           ]
+                },
+                {
+                "id": "virtualkeyboard_conf",
+                "element": "section",
+                "label": "TRANSLATE.TOUCH_DISPLAY.VKEYBOARD_CONF",
+                "description": "TRANSLATE.TOUCH_DISPLAY.VKEYBOARD_DESC",
+                "icon": "fa-keyboard-o",
+                "hidden": "false",
+                "onSave": {"type":"controller", "endpoint":"${plugin_type/plugin_name}", "method":"saveVirtualKeyboardConf"},
+                "saveButton": {
+                              "label": "TRANSLATE.TOUCH_DISPLAY.SAVE",
+                              "data": [
+                                      "virtualKeyboard"
+                                      ]
+                              },
+                "content": [
+                             {
+                             "id": "virtualKeyboard",
+                             "element": "switch",
+                             "doc": "TRANSLATE.TOUCH_DISPLAY.VKEYBOARD_DOC",
+                             "label": "TRANSLATE.TOUCH_DISPLAY.VKEYBOARD",
+                             "value": false
                              }
                            ]
                 }

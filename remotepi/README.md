@@ -9,6 +9,6 @@ This allows the RemotePi board to cut power from the RasPi after the shutdown pr
 Furthermore the plugin detects the signal that is sent by the RemotePi board in case its hardware knob has been pressed or an IR power off signal from a remote control has been received. The plugin then initiates the shutdown of Volumio and sends a signal back to the RemotePi. This allows the board to detect when Volumio’s shutdown process has finished and cut the power afterwards.
 
 ## Set up IR receiver for LIRC
-The plugin configures Volumio to load the necessary overlay for the IR receiver of the RemotePi board. By default the plugin uses GPIO18 for the IR receiver. But as the hardware of RemotePi boards can be modified to use GPIO17 instead the plugin allows to set up the configuration accordingly.
+The plugin configures Volumio to load the necessary overlay for the IR receiver of the RemotePi board. This behaviour can be switched off. By default the plugin uses GPIO18 for the IR receiver. But as the hardware of RemotePi boards can be modified to use GPIO17 instead the plugin allows to set up the configuration accordingly.
 
 **Note: The plugin will not install and setup LIRC!** This can be achieved by installing the IR Remote Controller plugin.

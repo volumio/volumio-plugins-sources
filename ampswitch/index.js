@@ -3,10 +3,14 @@
 // load external modules
 var libQ = require('kew');
 var io = require('socket.io-client');
+var execSync = require('child_process').execSync;
+var os = require('os');
 var Gpio = require('onoff').Gpio;
 
 var socket = io.connect('http://localhost:3000');
 
+// Utils
+var gpioPrefix = '';
 
 //declare global status variable
 var status = 'na';
@@ -55,6 +59,8 @@ AmpSwitchController.prototype.getConfigurationFiles = function()
 AmpSwitchController.prototype.onStart = function() {
 	var self = this;
 	var defer = libQ.defer();
+	
+	self.getGPIOPrefix();
 
     // initialize output port
     self.ampGPIOInit();
@@ -163,8 +169,10 @@ AmpSwitchController.prototype.saveOptions = function(data) {
 // initialize shutdown port to the one that we stored in the config
 AmpSwitchController.prototype.ampGPIOInit = function() {
     var self = this;
-
-    self.shutdown = new Gpio(self.config.get('port'),'out');
+	
+	var pin = self.getKernelAgnosticPinNumber(self.config.get('port'));
+	
+    self.shutdown = new Gpio(pin,'out');
 };
 
 // a pushState event has happened. Check whether it differs from the last known status and
@@ -233,3 +241,19 @@ AmpSwitchController.prototype.freeGPIO = function() {
 
     self.shutdown.unexport();
 };
+
+AmpSwitchController.prototype.getKernelAgnosticPinNumber = function(gpioPin){
+	const self = this;
+	var kVer = os.release();
+	var gpioNumber = parseInt(kVer.split('.')[0]) >= 6 ? parseInt(gpioPin)  + parseInt(gpioPrefix) : parseInt(gpioPin);
+	return gpioNumber.toString();
+}
+
+AmpSwitchController.prototype.getGPIOPrefix = function(){
+	const self = this;
+	try {
+		gpioPrefix = execSync("ls /sys/class/gpio/ | sed 's/[^0-9 ]//g' | sed '/^$/d' | head -n 1", { uid: 1000, gid: 1000, encoding: 'utf8'});
+	} catch(e) {
+		self.logger.error('Error getting GPIO prefix: ' + e.toString());
+	}
+}

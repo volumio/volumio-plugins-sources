@@ -1,37 +1,54 @@
 # YouTube Cast Receiver for Volumio
 
-A plugin that enables Volumio to act as a cast device for the YouTube mobile app or website. The plugin will playback the audio streams of videos casted to it.
-
->Not all browsers support casting from the YouTube website. The plugin has been tested to work with the Chrome and Edge desktop browsers.
-
-This repository has two branches:
-
-1. The `master` branch is targeted towards Volumio 3.
-2. The `volumio-2.x` branch is targeted towards Volumio 2.x.
-
-The focus is on the `master` branch. The `volumio-2.x` branch will only be maintained if it is practically feasible and still worthwhile to do so.
-
-## Getting Started
-
-To begin casting:
-
-1. Ensure your phone or computer is on the same network as your Volumio device.
-2. Select the Cast button in the YouTube mobile app or website.
-3. Choose your Volumio device.
-4. Select a video or playlist for playback. Volumio should now play it.
-5. Control playback through the mobile app or website.
-
-# Notes
-
-- Only public videos can be played. Private (even owned by you) and regionally restricted videos will fail to load.
-- The YouTube website is less featured than the YouTube mobile app as far as casting is concerned:
-    - Autoplay is not supported
-    - Videos added manually to the queue are not visible to the plugin, and so will not be played.
-- The plugin tries to keep connections alive, even when nothing is being casted. Despite so, a connected client (YouTube app or website) may still decide to disconnect.
-- This plugin is work-in-progress. Do not expect it to be bug-free. If you come across an issue, you can report it on Github or in the [Volumio forums](https://community.volumio.org/). The latter is preferred because more people will see it and can report their findings too.
-
+Plugin that enables Volumio to act a YouTube Cast receiver device. Supports casting from YouTube and YouTube Music.
 
 # Changelog
+
+1.1.2
+- Fix broken playback due to YT changes (credit: [#713] (https://github.com/LuanRT/YouTube.js/pull/713))
+
+1.1.1
+- Fix broken playback due to YT changes (credit: [#698](https://github.com/LuanRT/YouTube.js/pull/698))
+
+1.1.0
+- Provide metadata to Now Playing plugin through [YouTube2](https://github.com/patrickkfkan/volumio-youtube2) and [YouTube Music](https://github.com/patrickkfkan/volumio-ytmusic) plugins -- so make sure you install those plugins as well!
+
+1.0.7
+- Fix broken playback due to YT changes (credit: [#682](https://github.com/LuanRT/YouTube.js/pull/682))
+- Add missing bitrate info
+
+1.0.6
+- Fix broken API requests due to YT changes
+
+1.0.5
+- Fix player not reconnecting with MPD after being disconnected, such as when MPD restarts following a change in configuration.
+
+1.0.4
+- Add prefetching of next track
+- Add 'prefer Opus streams' option when prefetching enabled
+- Use Volumio player name as device name (the name that appears in the Cast menu of clients)
+
+1.0.3
+- Add option to stop playback only when all clients have been *explicitly* disconnected
+
+1.0.2
+- Remove commented-out code
+- Remove links from package author because they don't look good when shown in Volumio plugin store
+
+1.0.1
+- Add i18n settings
+- Add option to clear persisted data
+- Bug fixes
+
+1.0.0
+- Add YouTube Music support
+- Allow multiple connections
+- Support manual pairing, aka Link with TV Code (YouTube only)
+- Support playback of private videos and music
+
+0.1.3
+- Fix MPD connection
+- Update dependency versions; replace deprecated `request` with `node-fetch`
 
 0.1.2
 - Improve fetching of audio URLs

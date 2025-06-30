@@ -1,0 +1,1 @@
+{"version":3,"file":"LabelEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/LabelEntity.ts"],"names":[],"mappings":"","sourcesContent":["import BandEntity from './BandEntity';\n\ninterface LabelEntity extends BandEntity {\n  type: 'label';\n}\n\nexport default LabelEntity;\n"]}

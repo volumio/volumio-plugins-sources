@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Neustart-Konfiguration"
+  },
+  "SECTION": {
+    "LABEL": "Zeitplan"
+  },
+  "BUTTON": {
+    "SAVE": "Speichern"
+  },
+  "HOURS": {
+    "DOC": "Wählen Sie die Uhrzeit und den Tag/die Tage aus, um Volumio neu zu starten",
+    "LABEL": "Stunde"
+  },
+  "MINUTES": {
+    "LABEL": "Minuten"
+  },
+  "MONDAY": {
+    "LABEL": "Montag"
+  },
+  "TUESDAY": {
+    "LABEL": "Dienstag"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Mittwoch"
+  },
+  "THURSDAY": {
+    "LABEL": "Donnerstag"
+  },
+  "FRIDAY": {
+    "LABEL": "Freitag"
+  },
+  "SATURDAY": {
+    "LABEL": "Samstag"
+  },
+  "SUNDAY": {
+    "LABEL": "Sonntag"
+  }
+}
+

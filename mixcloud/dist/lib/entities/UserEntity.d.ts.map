@@ -1,0 +1,1 @@
+{"version":3,"file":"UserEntity.d.ts","sourceRoot":"","sources":["../../../src/lib/entities/UserEntity.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,UAAU;IACzB,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;IACjB,GAAG,CAAC,EAAE,MAAM,CAAC;IACb,IAAI,CAAC,EAAE,MAAM,CAAC;IACd,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,KAAK,CAAC,EAAE,MAAM,CAAC;IACf,QAAQ,CAAC,EAAE,MAAM,CAAC;CACnB"}

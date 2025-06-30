@@ -1,0 +1,1 @@
+{"version":3,"file":"PlaylistModel.d.ts","sourceRoot":"","sources":["../../../src/lib/model/PlaylistModel.ts"],"names":[],"mappings":"AAEA,OAAO,SAAS,EAAE,EAAE,uBAAuB,EAAE,MAAM,aAAa,CAAC;AAGjE,MAAM,WAAW,+BAAgC,SAAQ,uBAAuB;IAC9E,QAAQ,EAAE,MAAM,CAAC;CAClB;AAED,MAAM,CAAC,OAAO,OAAO,aAAc,SAAQ,SAAS;;IAElD,YAAY,CAAC,MAAM,EAAE,+BAA+B;IAuBpD,WAAW,CAAC,UAAU,EAAE,MAAM;CAQ/B"}

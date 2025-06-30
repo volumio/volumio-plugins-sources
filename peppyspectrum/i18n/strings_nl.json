@@ -1,0 +1,17 @@
+{
+  "LOCALSETTINGS": "Lokale weergave-instellingen",
+  "SCREENSIZE": "Spectrum-map",
+  "SCREENSIZE_DOC": "Folder for Spectrum. Aangepaste map is in / data / INTERNAL / PeppySppectrum / Templates / en moet de naam gewichtxheight + numberofbar-description krijgen. ex 800x480 + 30-30-collectie. Als het aantal repen is weggelaten, wordt waarde 30 gebruikt",
+  "CHOOSE_SPECTRUM_DOC": "Selecteer het spectrum in de lijst",
+  "CHOOSE_SPECTRUM": "Select Spectrum",
+  "NBARCHANGE": "Aantal repen in Spectrum veranderd! Nu ingesteld op ",
+  "APPLY": "Toepassen",
+  "SAVE": "Sluiten",
+  "DOWNLOAD": "Download",
+  "SPECTRUM_FOLDER_NAME": "Kan de schermgrootte niet bepalen omdat de map niet de juiste naam heeft!, Moet breedtegraad + bars-beschrijving ex: 800x600 + 30-metaal zijn. Geen 'x' toegestaan in beschrijving! gelieve te controleren!",
+  "SPECTRUM_INSTALL_TITLE": "Installatievoortgang",
+  "SPECTRUM_INSTALL_WAIT": "Wacht even...",
+  "CLICK_TO_UPDATE_LIST": "Updatelijst",
+  "LIST_SUCCESS_UPDATED": "Lijst bijgewerkt",
+  "LIST_FAIL_UPDATE": "Kan de lijst niet bijwerken"
+}

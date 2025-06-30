@@ -1,0 +1,17 @@
+{
+  "LOCALSETTINGS": "Configuración de visualización local",
+  "SCREENSIZE": "Carpeta de espectro",
+  "SCREENSIZE_DOC": "Carpeta para Spectrum. La carpeta personalizada está en /data/INTERNAL/PeppySppectrum/Templates/ y debe llamarse weightxheight+numberofbar-description. ex 800x480+30-collection. Si se omite el número de barras, se usa el valor predeterminado 30",
+  "CHOOSE_SPECTRUM_DOC": "Seleccione el espectro en la lista",
+  "CHOOSE_SPECTRUM":"Select Spectrum",
+  "NBARCHANGE": "Número de barras en el espectro cambiado! Ahora se establece en ",
+  "APLICAR": "Aplicar",
+  "GUARDAR": "Cerrar",
+  "DESCARGAR":"Descargar",
+  "SPECTRUM_FOLDER_NAME":"No se puede determinar el tamaño de la pantalla porque la carpeta no se nombra correctamente! ,Debe ser widthxheight + barras-descripción ex : 800x600 + 30-metal. No 'x' permitido en la descripción! por favor, compruebe!",
+  "SPECTRUM_INSTALL_TITLE":"Progreso de la instalación",
+  "SPECTRUM_INSTALL_WAIT":"Por favor, espere...",
+  "CLICK_TO_UPDATE_LIST":"Lista de actualización",
+  "LIST_SUCCESS_UPDATED": "Lista actualizada",
+  "LIST_FAIL_UPDATE": "No se pudo actualizar la lista"
+}

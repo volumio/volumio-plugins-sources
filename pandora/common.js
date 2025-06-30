@@ -1,7 +1,8 @@
 /* jshint node: true, esversion: 9, unused: false */
 const serviceName = 'pandora';
+const sourceName = 'Pandora Radio';
 const uriParts = {
-    keys : [
+    keys: [
         '/' + serviceName,
         'stationToken=',
         'trackId='
@@ -15,6 +16,7 @@ const mqttTopic = dataName => {
 };
 
 module.exports.serviceName = serviceName;
+module.exports.sourceName = sourceName;
 module.exports.uriParts = uriParts;
 module.exports.uriPrefix = uriPrefix;
 module.exports.uriStaRE = uriStaRE;

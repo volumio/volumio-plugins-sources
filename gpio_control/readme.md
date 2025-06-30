@@ -1,6 +1,16 @@
 # GPIO Control
 
-- This plugin can react to Volumio events and control GPIO pins.  The events are: system startup, system shutdown, music start, music stop and music pause.
+- This plugin can react to Volumio events and control GPIO pins.  The supported events are: 
+	* system startup
+	* system shutdown
+	* music start
+	* music stop
+	* music pause
+	* mute on &off
+	* random mode on & off
+	* repeat on &  off
+	* repeat all on & off
+	* repeat single & off
 
 - You can setup a delay before the GPIO is changed and you can control how long the GPIO state is set for.
 
@@ -10,7 +20,9 @@
 
 - This plugin is based on tomatpasser's gpio-buttons https://github.com/tomatpasser/gpio-buttons/
 
-![GPIO Control Configuration](images/screenshot.png)
+![GPIO Control Configuration](images/screenshot1.png)
+
+![GPIO Control Configuration](images/screenshot2.png)
 
 # Instructions
 

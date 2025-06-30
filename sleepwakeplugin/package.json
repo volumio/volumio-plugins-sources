@@ -1,0 +1,34 @@
+{
+  "name": "SleepWakePlugin",
+  "version": "1.0.1",
+  "description": "Plugin for sleep and wake with volume fade out/in. Scheduling by workdays and weekend.",
+  "main": "index.js",
+  "author": "Mario Ivancic",
+  "license": "ISC",
+  "repository": "https://github.com/mivanci5/Sleep-Wake-Schedule-Volumio-Plugin",
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "kew": "^0.7.0",
+    "v-conf": "^1.4.0"
+  },
+  "engines": {
+    "node": ">=14.15.4 <15.0.0",
+    "volumio": ">=3.0.0 <4.0.0"
+  },
+  "volumio_info": {
+    "prettyName": "Sleep Wake Schedule Plugin",
+    "icon": "fa-clock-o",
+    "plugin_type": "system_controller",
+    "boot_priority": 10,
+    "architectures": [
+      "amd64",
+      "armhf"
+    ],
+    "os": [
+      "buster"
+    ],
+    "details": "Plugin for sleep and wake with volume fade out/in. Scheduling by workdays and weekend.",
+    "changelog": "First version",
+    "manually_installed": true
+  }
+}

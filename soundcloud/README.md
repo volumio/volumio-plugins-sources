@@ -1,13 +1,6 @@
 # SoundCloud plugin for Volumio
 
-Volumio plugin for playing SoundCloud tracks.
-
-This repository has two branches:
-
-1. The `master` branch is targeted towards Volumio 3.
-2. The `volumio-2.x` branch is targeted towards Volumio 2.x.
-
-The focus is on the `master` branch. The `volumio-2.x` branch will only be maintained if it is practically feasible and still worthwhile to do so.
+Volumio plugin for browsing and playing SoundCloud content.
 
 ### Playback
 
@@ -25,22 +18,28 @@ The last format, "MPEG Audio (HLS)", is somewhat problematic. While the stream w
 
 >It appears that tracks that do not have "MPEG Audio (Progressive)" formats do have "Ogg Opus (HLS)". The chance of encountering an "MPEG Audio (HLS)" format should in fact be quite small.
 
-### Limitations
-
-**Regionally restricted tracks**. There are two kinds of these tracks:
-- Those that cannot be played at all are marked as "Unavailable in your region" and will be skipped as they are encountered.
-- Those where playback is limited to the first 30 seconds are marked as "Preview" and the plugin will play these tracks for the trimmed duration. You can choose to skip these tracks in the plugin settings.
-
-**Account login** is not supported as this requires applying to SoundCloud for an API key, and:
-- SoundCloud is not accepting applications at the moment;
-- Even if applications were considered, it is uncertain whether an API key would be granted;
-- Even if an API key were granted, requests would be subject to a daily quota limit. This limit would be shared by *all* users of the plugin and could be exceeded fairly easily with a large enough number of users.
-
 ### Supporting SoundCloud and Artists
 
 If you come across an album that you like, consider purchasing it to support the SoundCloud platform and its artists. The plugin displays links where applicable so you can follow them to the corresponding SoundCloud pages (note: links not available if Manifest UI is enabled).
 
 ### Changelog
+
+1.0.3
+- Fix longer tracks cutting off early at 30-40 minutes into playback
+
+1.0.2
+- Fix plugin crash due to error in obtaining SoundCloud client ID
+
+1.0.1
+- Add library item filter
+- Minor UI changes and bug fixes
+
+1.0.0
+- Migrate to TypeScript
+- Add support for access to private resources through access token
+
+0.1.5
+- [Fixed] Manifest UI detection broken by Volumio commit [db5d61a](https://github.com/volumio/volumio3-backend/commit/db5d61a50dacb60d5132238c7f506f0000f07e07)
 
 0.1.4
 - [Fixed] Adding current song to playlist / favorites in Playback view

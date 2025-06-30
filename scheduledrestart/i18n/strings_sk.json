@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Konfigurácia Reštartu"
+  },
+  "SECTION": {
+    "LABEL": "Harmonogram"
+  },
+  "BUTTON": {
+    "SAVE": "Uložiť"
+  },
+  "HOURS": {
+    "DOC": "Vyberte čas a deň/dni pre reštart Volumia",
+    "LABEL": "Hodina"
+  },
+  "MINUTES": {
+    "LABEL": "Minúty"
+  },
+  "MONDAY": {
+    "LABEL": "Pondelok"
+  },
+  "TUESDAY": {
+    "LABEL": "Utorok"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Streda"
+  },
+  "THURSDAY": {
+    "LABEL": "Štvrtok"
+  },
+  "FRIDAY": {
+    "LABEL": "Piatok"
+  },
+  "SATURDAY": {
+    "LABEL": "Sobota"
+  },
+  "SUNDAY": {
+    "LABEL": "Nedeľa"
+  }
+}
+

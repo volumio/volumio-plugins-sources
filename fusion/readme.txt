@@ -7,7 +7,11 @@ This folder and sub folders have been created the the plugin.
     |_/target-curves
     |_/tools
     |_/peq
-
+    |_/presets  
+      |_/peq
+      |_/EQ15
+      |_/2XEQ15
+      |_/convfir
 ----------------------------------
 /filters
 
@@ -45,3 +49,9 @@ Do not alter. Place here file you want to play to test.
 /peq
 
 Place here EQ file exported as txt from REW to use it as local import EQ
+
+--------------------------------
+
+/preset
+
+Presets you created

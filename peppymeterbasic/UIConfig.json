@@ -1,0 +1,197 @@
+{
+	"page": {
+		"label": "Configuration"
+	},
+	"sections": [
+		{
+			"id": "section_account",
+			"element": "section",
+			"label": "TRANSLATE.LOCALSETTINGS",
+			"icon": "fa-desktop",
+			"onSave": {
+				"type": "controller",
+				"endpoint": "user_interface/peppymeterbasic",
+				"method": "savepeppy"
+			},
+			"saveButton": {
+				"label": "TRANSLATE.APPLY",
+				"data": [
+					"screensize"
+				]
+			},
+			"content": [
+				{
+					"id": "screensize",
+					"element": "select",
+					"doc": "TRANSLATE.SCREENSIZE_DOC",
+					"label": "TRANSLATE.SCREENSIZE",
+					"value": {
+						"value": "480x320",
+						"label": "480x320"
+					},
+					"options": []
+				}
+			]
+		},
+		{
+			"id": "section_meter",
+			"element": "section",
+			"label": "meter",
+			"icon": "fa-microchip",
+			"onSave": {
+				"type": "controller",
+				"endpoint": "user_interface/peppymeterbasic",
+				"method": "savepeppy1"
+			},
+			"saveButton": {
+				"label": "TRANSLATE.APPLY",
+				"data": [
+					"meter"
+					
+				]
+			},
+			"content": [
+				{
+					"id": "meter",
+					"element": "select",
+					"doc": "TRANSLATE.CHOOSE_meter_DOC",
+					"label": "TRANSLATE.CHOOSE_meter",
+					"value": {
+						"value": "",
+						"label": ""
+					},
+					"options": []
+				},
+				{
+					"id": "screenwidth",
+					"element": "input",
+					"type": "number",
+					"doc": "Screenwidth",
+					"label": "Screenwidth",
+					"value": {
+						"value": "",
+						"label": ""
+					},
+					"attributes": [
+						{
+							"maxlength": 3500
+						},
+						{
+							"min": 0
+						},
+						{
+							"step": 1
+						}
+					],
+					"options": [],
+					"visibleIf": {
+						"field": "autosize",
+						"value": false
+					}
+				},
+				{
+					"id": "screenheight",
+					"element": "input",
+					"type": "number",
+					"doc": "Screenheight",
+					"label": "Screenheight",
+					"value": {
+						"value": "",
+						"label": ""
+					},
+					"attributes": [
+						{
+							"maxlength": 3500
+						},
+						{
+							"min": 0
+						},
+						{
+							"step": 1
+						}
+					],
+					"options": [],
+					"visibleIf": {
+						"field": "autosize",
+						"value": false
+					}
+				},
+				{
+					"id": "autosize",
+					"element": "switch",
+					"doc": "auto screen size",
+					"label": "auto screen size",
+					"value": false
+				}
+			]
+		},
+		{
+			"id": "section_log",
+			"element": "section",
+			"label": "Debug-log",
+			"icon": "fa-microchip",
+			"onSave": {
+				"type": "controller",
+				"endpoint": "user_interface/peppymeterbasic",
+				"method": "savepeppy2"
+			},
+			"saveButton": {
+				"label": "TRANSLATE.APPLY",
+				"data": [
+					"debuglog"
+				]
+			},
+			"content": [
+				{
+					"id": "debuglog",
+					"element": "switch",
+					"doc": "If enabled, debug log is written",
+					"label": "debuglog",
+					"value": true
+				}
+			]
+		},
+		{
+			"id": "section_dl",
+			"element": "section",
+			"label": "Download meters packet",
+			"icon": "fa-microchip",
+			"onSave": {
+				"type": "controller",
+				"endpoint": "user_interface/peppymeterbasic",
+				"method": "dlmeter"
+			},
+			"saveButton": {
+				"label": "TRANSLATE.DOWNLOAD",
+				"data": [
+					"zipfile"
+				]
+			},
+			"content": [
+				{
+					"id": "zipfile",
+					"element": "select",
+					"doc": "Select a file",
+					"label": "Select a file",
+					"value": {
+						"value": "",
+						"label":""
+					},
+					"options": []
+				},
+				{
+					"id": "updatelist",
+					"element": "button",
+					"label": "TRANSLATE.CLICK_TO_UPDATE_LIST",
+					"description": "TRANSLATE.CLICK_TO_UPDATE_LIST_DESC",
+					"onClick": {
+					  "type": "plugin",
+					  "endpoint": "user_interface/peppymeterbasic",
+					  "method": "updatelist",
+					  "data": []
+					}
+				  }
+			]
+		}
+	]
+}

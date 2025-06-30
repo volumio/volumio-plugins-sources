@@ -1,0 +1,1 @@
+{"version":3,"file":"Server.d.ts","sourceRoot":"","sources":["../../../src/lib/entities/Server.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,aAAa,CAAC;AACzC,OAAO,UAAU,MAAM,wBAAwB,CAAC;AAEhD,UAAU,MAAO,SAAQ,UAAU;IACjC,IAAI,EAAE,UAAU,CAAC,MAAM,CAAC;IACxB,GAAG,EAAE,MAAM,CAAC;IACZ,aAAa,EAAE,MAAM,CAAC;CACvB;AAED,eAAe,MAAM,CAAC"}

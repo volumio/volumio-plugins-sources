@@ -1,0 +1,60 @@
+{
+  "baseNavigation": {
+    "navigation": {
+      "lists": [
+        {
+          "availableListViews": [
+            "list"
+          ],
+          "items": [
+          ]
+        }
+      ]
+    }
+  },
+
+  "stations": {
+    "mer": [
+      {
+        "title": "Mother Earth Radio (flac)",
+        "uri": "webmer/0",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth/motherearth"
+      },
+      {
+        "title": "Mother Earth Klassik (flac)",
+        "uri": "webmer/1",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_klassik/motherearth.klassik"
+      },
+      {
+        "title": "Mother Earth Instrumental (flac)",
+        "uri": "webmer/2",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_instrumental/motherearth.instrumental"
+      },
+      {
+        "title": "Mother Earth Jazz (flac)",
+        "uri": "webmer/3",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_jazz/motherearth.jazz"
+      },
+      {
+        "title": "Mother Earth Radio (aac)",
+        "uri": "webmer/4",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth/motherearth.aac"
+      },
+      {
+        "title": "Mother Earth Klassik (aac)",
+        "uri": "webmer/5",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_klassik/motherearth.klassik.aac"
+      },
+      {
+        "title": "Mother Earth Instrumental (aac)",
+        "uri": "webmer/6",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_instrumental/motherearth.instrumental.aac"
+      },
+      {
+        "title": "Mother Earth Jazz (aac)",
+        "uri": "webmer/7",
+        "url": "https://motherearth.streamserver24.com/listen/motherearth_jazz/motherearth.jazz.mp4"
+      }
+    ]
+  }
+}

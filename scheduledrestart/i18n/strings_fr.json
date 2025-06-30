@@ -1,0 +1,40 @@
+{
+  "PAGE": {
+    "LABEL": "Configuration du Redémarrage"
+  },
+  "SECTION": {
+    "LABEL": "Planification"
+  },
+  "BUTTON": {
+    "SAVE": "Sauver"
+  },
+  "HOURS": {
+    "DOC": "Sélectionnez l'heure et le(s) jour(s) pour redémarrer Volumio",
+    "LABEL": "Heure"
+  },
+  "MINUTES": {
+    "LABEL": "Minutes"
+  },
+  "MONDAY": {
+    "LABEL": "Lundi"
+  },
+  "TUESDAY": {
+    "LABEL": "Mardi"
+  },
+  "WEDNESDAY": {
+    "LABEL": "Mercredi"
+  },
+  "THURSDAY": {
+    "LABEL": "Jeudi"
+  },
+  "FRIDAY": {
+    "LABEL": "Vendredi"
+  },
+  "SATURDAY": {
+    "LABEL": "Samedi"
+  },
+  "SUNDAY": {
+    "LABEL": "Dimanche"
+  }
+}
+

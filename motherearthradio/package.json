@@ -1,0 +1,37 @@
+{
+	"name": "motherearthradio",
+	"version": "1.2.2",
+	"description": "Hi Res Audio and Vinyl streaming",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Florian Reiterer",
+	"license": "ISC",
+	"repository": "https://github.com/FlorianReiterer/",
+	"volumio_info": {
+		"prettyName": "MotherEarthRadio",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Mother Earth Radio is a free HD music station without advertising. Best audio quality, selected tracks, audiophile only. Stream now!",
+		"changelog": "2.2 plugin store issue 2.1 added Mother Earth Jazz channel"
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3"
+	},
+	"dependencies": {
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"nanotimer": "^0.3.15",
+		"v-conf": "^1.4.3"
+	}
+}

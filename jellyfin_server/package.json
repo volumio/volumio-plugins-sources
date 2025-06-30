@@ -1,0 +1,55 @@
+{
+	"name": "jellyfin_server",
+	"version": "1.0.2",
+	"description": "Installs the Jellyfin media server app. Note: will likely choke on devices with less than 1GB RAM (recommended 2GB or more).",
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "npm run prepare",
+		"prepare": "rm -rf dist && npx tsc --build src && bash fixup.sh",
+		"lint": "npx eslint ./src",
+		"lint:fix": "npx eslint ./src --fix"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/patrickkfkan/volumio-jellyfin-server"
+	},
+	"author": "Patrick Kan",
+	"license": "MIT",
+	"volumio_info": {
+		"prettyName": "Jellyfin Server",
+		"plugin_type": "music_service",
+		"os": [
+			"buster"
+		],
+		"icon": "fa-music",
+		"boot_priority": 10,
+		"details": "This plugin installs the Jellyfin media server app on your Volumio device. The server starts when the plugin is enabled.",
+		"changelog": "",
+		"architectures": [
+			"amd64",
+			"armhf"
+		]
+	},
+	"engines": {
+		"node": ">=14",
+		"volumio": ">=3"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^8.1.2",
+		"@types/node": "^14.18.38",
+		"@types/string-format": "^2.0.0",
+		"@types/xml2js": "^0.4.11",
+		"@typescript-eslint/eslint-plugin": "^5.56.0",
+		"@typescript-eslint/parser": "^5.56.0",
+		"eslint": "^8.36.0",
+		"ts-node": "^10.9.1",
+		"typescript": "^4.9.5",
+		"winston": "^3.8.2"
+	},
+	"dependencies": {
+		"kew": "^0.7.0",
+		"string-format": "^2.0.0",
+		"v-conf": "^1.4.3",
+		"xml2js": "^0.6.0"
+	}
+}

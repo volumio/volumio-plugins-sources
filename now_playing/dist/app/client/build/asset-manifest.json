@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "/static/css/main.99a525b9.css",
+    "main.js": "/static/js/main.8fa127e2.js",
+    "static/js/508.df48e1ea.chunk.js": "/static/js/508.df48e1ea.chunk.js",
+    "static/js/78.cd224ff0.chunk.js": "/static/js/78.cd224ff0.chunk.js",
+    "static/js/926.c7b3575a.chunk.js": "/static/js/926.c7b3575a.chunk.js",
+    "static/js/76.6fc90401.chunk.js": "/static/js/76.6fc90401.chunk.js",
+    "static/js/969.3f8dba3a.chunk.js": "/static/js/969.3f8dba3a.chunk.js",
+    "static/js/763.75abead8.chunk.js": "/static/js/763.75abead8.chunk.js",
+    "static/media/fontawesome-webfont.svg?v=4.7.0": "/static/media/fontawesome-webfont.c1e38fd9e0e74ba58f7a.svg",
+    "static/media/MaterialIcons-Regular.ttf": "/static/media/MaterialIcons-Regular.b459c012769931f03de2.ttf",
+    "static/media/fontawesome-webfont.eot": "/static/media/fontawesome-webfont.8b43027f47b20503057d.eot",
+    "static/media/fontawesome-webfont.ttf?v=4.7.0": "/static/media/fontawesome-webfont.1e59d2330b4c6deb84b3.ttf",
+    "static/media/fontawesome-webfont.woff?v=4.7.0": "/static/media/fontawesome-webfont.f691f37e57f04c152e23.woff",
+    "static/media/fontawesome-webfont.woff2?v=4.7.0": "/static/media/fontawesome-webfont.20fd1704ea223900efa9.woff2",
+    "static/media/volumio-icon.png": "/static/media/volumio-icon.3204cd4ee69f030fda73.png",
+    "index.html": "/index.html",
+    "main.99a525b9.css.map": "/static/css/main.99a525b9.css.map",
+    "main.8fa127e2.js.map": "/static/js/main.8fa127e2.js.map",
+    "508.df48e1ea.chunk.js.map": "/static/js/508.df48e1ea.chunk.js.map",
+    "763.75abead8.chunk.js.map": "/static/js/763.75abead8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.99a525b9.css",
+    "static/js/main.8fa127e2.js"
+  ]
+}

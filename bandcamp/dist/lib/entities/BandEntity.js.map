@@ -1,0 +1,1 @@
+{"version":3,"file":"BandEntity.js","sourceRoot":"","sources":["../../../src/lib/entities/BandEntity.ts"],"names":[],"mappings":"","sourcesContent":["interface BandEntity {\n  type: 'artist' | 'label' | 'artistOrLabel';\n  name: string;\n  url?: string;\n  thumbnail?: string;\n  location?: string;\n}\n\nexport default BandEntity;\n"]}
