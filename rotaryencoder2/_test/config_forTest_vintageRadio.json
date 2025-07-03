@@ -2,23 +2,23 @@
 {
     "enabled0": {
         "type": "boolean",
-        "value": false
+        "value": true
     },
     "rotaryType0": {
         "type": "number",
-        "value": 0
+        "value": 2
     },
     "pinA0": {
         "type": "string",
-        "value": ""
+        "value": "24"
     },
     "pinB0": {
         "type": "string",
-        "value": ""
+        "value": "23"
     },
     "dialAction0": {
         "type": "number",
-        "value": 0
+        "value": 1
     },
     "socketCmdCW0": {
         "type": "string",
@@ -50,7 +50,7 @@
     },
     "pushAction0": {
         "type": "number",
-        "value": 0
+        "value": 3
     },
     "socketCmdPush0": {
         "type": "string",
@@ -62,7 +62,7 @@
     },
     "longPushAction0": {
         "type": "number",
-        "value": 0
+        "value": 5
     },
     "socketCmdLongPush0": {
         "type": "string",
@@ -78,7 +78,7 @@
     },
     "doublePushAction0": {
         "type": "number",
-        "value": 0
+        "value": 6
     },
     "socketCmdDoublePush0": {
         "type": "string",
@@ -94,19 +94,19 @@
     },
     "enabled1": {
         "type": "boolean",
-        "value": false
+        "value": true
     },
     "rotaryType1": {
         "type": "number",
-        "value": 0
+        "value": 2
     },
     "pinA1": {
         "type": "string",
-        "value": ""
+        "value": "17"
     },
     "pinB1": {
         "type": "string",
-        "value": ""
+        "value": "27"
     },
     "dialAction1": {
         "type": "number",
@@ -130,7 +130,7 @@
     },
     "pinPush1": {
         "type": "number",
-        "value": 0
+        "value": 13
     },
     "pinPushDebounce1": {
         "type": "number",
@@ -190,15 +190,15 @@
     },
     "rotaryType2": {
         "type": "number",
-        "value": 0
+        "value": 2
     },
     "pinA2": {
         "type": "string",
-        "value": ""
+        "value": "5"
     },
     "pinB2": {
         "type": "string",
-        "value": ""
+        "value": "6"
     },
     "dialAction2": {
         "type": "number",
@@ -278,7 +278,7 @@
     },
     "logging": {
         "type": "boolean",
-        "value": false
+        "value": true
     },
     "loggingJSON": {
         "type": "boolean",
