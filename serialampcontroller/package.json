@@ -8,7 +8,7 @@
 	},
 	"author": "7h0mas-R",
 	"license": "ISC",
-	"repository": "https://github.com/7h0mas-R/volumio-plugins",
+	"repository": "https://github.com/7h0mas-R/volumio-plugins-sources",
 	"volumio_info": {
 		"prettyName": "SerialAmpControl",
 		"icon": "fa-volume-up",
