@@ -2,4 +2,6 @@
 .DS_Store
 *node_modules*
 .gitignore
-/.idea/*
+.vscode/launch.json
+serialampcontroller/test.js
+.gitignore

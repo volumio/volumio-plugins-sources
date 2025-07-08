@@ -8,6 +8,7 @@
   "LOGGING":"Protokoll ausgeben",
   "D_LOGGING":"Schaltet die Ausgabe eines Ablaufprotokolls ein. Fehlermeldungen werden immer ausgegeben.",
   "AMP_SETTINGS":"Verstärker Einstellungen",
+  "AMP_TYPE_SECTION":"Verstärker",
   "AMP_TYPE":"Hersteller/Typ",
   "D_AMP_TYPE":"Nach dem Auswählen SPEICHERN drücken, damit zusätzliche Optionen angeboten werden.",
   "VOLUMIO_INPUT":"Volumio Eingang",
@@ -29,8 +30,19 @@
   "TOAST_DEBUG_SAVE":"Fehlerprotokoll Einstellungen",
   "TOAST_SERIAL_SAVE":"Einstellungen Serielle Schnittstelle",
   "TOAST_AMP_SAVE":"Einstellungen Verstärker",
+  "TOAST_AMP_TYPE_SAVE":"Verstärker Typ",
   "MAP_TO_100": "Lautstärke umrechnen auf 0-100.",
   "D_MAP_TO_100": "Rechnet die Lautstärke-Werte am Verstärker auf 0-100 in Volumio um.",
   "START_AT_POWERUP":"Wiedergabe beim Einschalten des Verstärkers",
-  "D_START_AT_POWERUP":"Schaltet den beim Einschalten des Verstärkers den Eingang auf Volumio und beginnt die Wiedergabe."
+  "D_START_AT_POWERUP":"Schaltet den beim Einschalten des Verstärkers den Eingang auf Volumio und beginnt die Wiedergabe.",
+  "IP":"IP-Adresse",
+  "D_IP":"IP-Adresse des Verstärkers im lokalen Netzwerk",
+  "TCPIP":"TCP/IP",
+  "D_TCPIP":"TCP/IP Protokoll statt serieller Schnittstelle nutzen.",
+  "TOAST_ERROR":"Fehler",
+  "TOAST_INVALID_IP":"Ungültige IP-Adresse",
+  "POWERUP_ON_PLAY": "Einschalten bei Wiedergabe",
+  "D_POWERUP_ON_PLAY": "Verstärker einschalten, wenn die Wiedergabe gestartet wird.",
+  "POWERUP_ON_BOOT": "Einschalten bei Volumio-Start",
+  "D_POWERUP_ON_BOOT": "Verstärker einschalten, wenn die Volumio gestartet wird."
 }

@@ -10,18 +10,67 @@
       "icon": "fa-plug",
       "onSave": {
         "type": "controller",
-        "endpoint": "system_controller/serialampcontroller",
+        "endpoint": "system_hardware/serialampcontroller",
         "method": "updateSerialSettings"
       },
       "saveButton": {
         "label": "TRANSLATE.SAVE",
-        "data": ["serial_interface_dev"]
+        "data": ["tcp_ip","serial_interface_dev","ip_address"]
       },
       "content":[
         {
+          "id": "tcp_ip",
+          "element": "switch",
+          "label": "TRANSLATE.TCPIP",
+          "description": "TRANSLATE.D_TCPIP",
+          "value": false              
+        },
+        {
           "id": "serial_interface_dev",
           "element": "select",
+          "visibleIf":{"field":"tcp_ip", "value": false},
           "label": "TRANSLATE.SERIAL_INTERFACE_DEVICE",
+          "value": {"value": 0 ,"label": "..."},
+          "options": [
+            {
+              "value": 0,
+              "label": "..."
+            }
+          ]          
+        },
+        {
+          "id":"ip_address",
+          "type":"text",
+          "element": "input",
+          "visibleIf":{"field":"tcp_ip", "value": true},
+          "label": "TRANSLATE.IP",
+          "doc": "TRANSLATE.D_IP",
+          "value": "0.0.0.0"
+        }
+      ]
+    },
+    {
+      "id": "amp_type",
+      "element": "section",
+      "label": "TRANSLATE.AMP_TYPE_SECTION",
+      "icon": "fa-volume-up",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/serialampcontroller",
+        "method": "updateAmpType"
+      },
+      "saveButton": {
+        "label": "TRANSLATE.SAVE",
+        "data": [
+          "amp_type"
+        ]
+      },
+      "content":[
+        {
+          "id": "amp_type",
+          "element": "select",
+          "doc":"TRANSLATE.D_AMP_TYPE",
+          "label": "TRANSLATE.AMP_TYPE",
           "value": {"value": 0 ,"label": "..."},
           "options": [
             {
@@ -39,13 +88,12 @@
       "icon": "fa-volume-up",
       "onSave": {
         "type": "controller",
-        "endpoint": "system_controller/serialampcontroller",
+        "endpoint": "system_hardware/serialampcontroller",
         "method": "updateAmpSettings"
       },
       "saveButton": {
         "label": "TRANSLATE.SAVE",
         "data": [
-          "amp_type",
           "volumio_input",
           "min_volume",
           "max_volume",
@@ -55,23 +103,12 @@
           "pause_when_muted",
           "pause_when_input_changed",
           "switch_input_at_play",
-          "start_at_powerup"
+          "start_at_powerup",
+          "powerup_on_boot",
+          "powerup_on_play"
         ]
       },
       "content":[
-        {
-          "id": "amp_type",
-          "element": "select",
-          "doc":"TRANSLATE.D_AMP_TYPE",
-          "label": "TRANSLATE.AMP_TYPE",
-          "value": {"value": 0 ,"label": "..."},
-          "options": [
-            {
-              "value": 0,
-              "label": "..."
-            }
-          ]          
-        },
         {
           "id": "volumio_input",
           "element": "select",
@@ -150,6 +187,20 @@
           "label": "TRANSLATE.START_AT_POWERUP",
           "doc": "TRANSLATE.D_START_AT_POWERUP",
           "value": false
+        },
+        {
+          "id":"powerup_on_play",
+          "element":"switch",
+          "label": "TRANSLATE.POWERUP_ON_PLAY",
+          "doc": "TRANSLATE.D_POWERUP_ON_PLAY",
+          "value": false
+        },
+        {
+          "id":"powerup_on_boot",
+          "element":"switch",
+          "label": "TRANSLATE.POWERUP_ON_BOOT",
+          "doc": "TRANSLATE.D_POWERUP_ON_BOOT",
+          "value": false
         }
       ]
     },
@@ -161,7 +212,7 @@
       "icon": "fa-bug",
       "onSave": {
         "type": "controller",
-        "endpoint": "system_controller/serialampcontroller",
+        "endpoint": "system_hardware/serialampcontroller",
         "method": "updateDebugSettings"
       },
       "saveButton": {
