@@ -84,6 +84,8 @@
           "debug",
           "normalisation_pregain",
           "enable_autoplay",
+          "audio_buffer_time",
+          "audio_period_count",
           "icon"
         ]
       },
@@ -198,6 +200,20 @@
           "doc": "Whether autoplay should be enabled after the current playback session ends",
           "label": "Enable autoplay",
           "value": true
+        },
+        {
+          "id": "audio_buffer_time",
+          "element": "input",
+          "doc": "The audio buffer time in microseconds.",
+          "label": "Audio buffer time",
+          "value": 500000
+        },
+        {
+          "id": "audio_period_count",
+          "element": "input",
+          "doc": "The number of audio periods to request.",
+          "label": "Audio period count",
+          "value": 4
         }
       ]
     }
