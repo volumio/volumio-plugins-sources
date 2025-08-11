@@ -1014,6 +1014,7 @@ ControllerSpotify.prototype.spotifyApiConnect = function () {
     var d = new Date();
 
     self.spotifyApi = new SpotifyWebApi();
+    self.spotifyApi.setDefaultHeaders({'Accept-Language': self.commandRouter.sharedVars.get('language_code')});
 
     // Retrieve an access token
     self.spotifyClientCredentialsGrant()

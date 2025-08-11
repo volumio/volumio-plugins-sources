@@ -32,7 +32,7 @@
 		"kew": "^0.7.0",
 		"node-cache": "^4.1.1",
 		"socket.io-client": "2.1.1",
-		"spotify-web-api-node": "^5.0.2",
+		"spotify-web-api-node": "volumio/spotify-web-api-node#caf4921d71a3b67badfa25a1f2d5b36aa55e32a4",
 		"superagent": "^8.1.2",
 		"v-conf": "^1.4.2",
 		"ws": "^8.13.0"
