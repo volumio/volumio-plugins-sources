@@ -1,8 +1,9 @@
-import { Player, PlayerState, Video, Volume } from 'yt-cast-receiver';
-import { MPD } from 'mpd2';
-import { SubsystemName } from './MPDSubsystemEventEmitter.js';
-import VolumeControl from './VolumeControl.js';
-import VideoLoader, { VideoInfo } from './VideoLoader.js';
+import { Player, type PlayerState, type Video, type Volume } from 'yt-cast-receiver';
+import { type MPD } from 'mpd2';
+import { type SubsystemName } from './MPDSubsystemEventEmitter.js';
+import type VolumeControl from './VolumeControl.js';
+import { type VideoInfo } from './VideoLoader.js';
+import type VideoLoader from './VideoLoader.js';
 export interface MPDPlayerError {
     message: string;
 }
@@ -72,7 +73,7 @@ export default class MPDPlayer extends Player {
     constructor(config: MPDPlayerConfig);
     init(): Promise<void>;
     protected doPlay(video: Video, position: number): Promise<boolean>;
-    next(AID?: number | null | undefined): Promise<boolean>;
+    next(AID?: number | null): Promise<boolean>;
     protected doPause(): Promise<boolean>;
     protected doResume(): Promise<boolean>;
     protected doStop(): Promise<boolean>;

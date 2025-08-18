@@ -15,9 +15,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _MPDPlayer_instances, _MPDPlayer_config, _MPDPlayer_currentVideoInfo, _MPDPlayer_prefetchedAndQueuedVideoInfo, _MPDPlayer_prefetchedVideoExpiryTimer, _MPDPlayer_mpdClient, _MPDPlayer_mpdClientInitTimer, _MPDPlayer_volumeControl, _MPDPlayer_videoLoader, _MPDPlayer_loadVideoAbortController, _MPDPlayer_videoPrefetcher, _MPDPlayer_playlistEventListener, _MPDPlayer_autoplayModeChangeListener, _MPDPlayer_subsystemEventEmitter, _MPDPlayer_destroyed, _MPDPlayer_asleep, _MPDPlayer_clearMPDClientInitTimer, _MPDPlayer_initMPDClient, _MPDPlayer_abortLoadVideo, _MPDPlayer_addToMPDQueue, _MPDPlayer_handlePlaylistEvent, _MPDPlayer_handleAutoplayModeChange, _MPDPlayer_refreshPrefetch, _MPDPlayer_checkAndStartPrefetch, _MPDPlayer_cancelPrefetch, _MPDPlayer_clearPrefetch, _MPDPlayer_clearPrefetchedVideoExpiryTimer, _MPDPlayer_handlePrefetchedVideo, _MPDPlayer_handleExternalMPDEvent;
 Object.defineProperty(exports, "__esModule", { value: true });
+const abort_controller_1 = __importDefault(require("abort-controller"));
 const yt_cast_receiver_1 = require("yt-cast-receiver");
 const mpd_api_1 = __importDefault(require("mpd-api"));
-const abort_controller_1 = __importDefault(require("abort-controller"));
 const MPDSubsystemEventEmitter_js_1 = __importDefault(require("./MPDSubsystemEventEmitter.js"));
 const YTCRContext_js_1 = __importDefault(require("./YTCRContext.js"));
 const VideoPrefetcher_js_1 = __importDefault(require("./VideoPrefetcher.js"));
@@ -50,7 +50,7 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
         __classPrivateFieldSet(this, _MPDPlayer_videoLoader, __classPrivateFieldGet(this, _MPDPlayer_config, "f").videoLoader, "f");
         __classPrivateFieldSet(this, _MPDPlayer_videoPrefetcher, __classPrivateFieldGet(this, _MPDPlayer_config, "f").prefetch ? new VideoPrefetcher_js_1.default(__classPrivateFieldGet(this, _MPDPlayer_videoLoader, "f"), this.logger) : null, "f");
         __classPrivateFieldSet(this, _MPDPlayer_volumeControl, __classPrivateFieldGet(this, _MPDPlayer_config, "f").volumeControl, "f");
-        __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this);
+        await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this);
         __classPrivateFieldSet(this, _MPDPlayer_playlistEventListener, __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_handlePlaylistEvent).bind(this), "f");
         Object.values(yt_cast_receiver_1.PLAYLIST_EVENT_TYPES).forEach((event) => {
             this.queue.on(event, __classPrivateFieldGet(this, _MPDPlayer_playlistEventListener, "f"));
@@ -180,19 +180,25 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
         }
         return resolve.result;
     }
-    async doSetVolume(volume) {
+    doSetVolume(volume) {
         if (__classPrivateFieldGet(this, _MPDPlayer_asleep, "f") || __classPrivateFieldGet(this, _MPDPlayer_destroyed, "f")) {
-            return false;
+            return Promise.resolve(false);
         }
         this.emit('action', { name: 'setVolume', data: { volume } });
         if (__classPrivateFieldGet(this, _MPDPlayer_asleep, "f") || __classPrivateFieldGet(this, _MPDPlayer_destroyed, "f")) {
-            return false;
+            return Promise.resolve(false);
         }
         this.logger.debug('[ytcr] MPDPlayer: set volume to:', volume);
         __classPrivateFieldGet(this, _MPDPlayer_volumeControl, "f").setVolume(volume);
-        return true;
+        return Promise.resolve(true);
     }
     doGetVolume() {
+        if (!__classPrivateFieldGet(this, _MPDPlayer_volumeControl, "f")) {
+            return Promise.resolve({
+                level: 0,
+                muted: false
+            });
+        }
         return __classPrivateFieldGet(this, _MPDPlayer_volumeControl, "f").getVolume();
     }
     async doGetPosition() {
@@ -282,7 +288,7 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
                     resolve({ result: false, mpdStatus });
                 }
             });
-            action();
+            action().catch((error) => this.logger.error('[ytcr] MPD error:', error));
         });
     }
     async getVolumioState() {
@@ -359,7 +365,6 @@ class MPDPlayer extends yt_cast_receiver_1.Player {
         return this;
     }
 }
-exports.default = MPDPlayer;
 _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), _MPDPlayer_prefetchedAndQueuedVideoInfo = new WeakMap(), _MPDPlayer_prefetchedVideoExpiryTimer = new WeakMap(), _MPDPlayer_mpdClient = new WeakMap(), _MPDPlayer_mpdClientInitTimer = new WeakMap(), _MPDPlayer_volumeControl = new WeakMap(), _MPDPlayer_videoLoader = new WeakMap(), _MPDPlayer_loadVideoAbortController = new WeakMap(), _MPDPlayer_videoPrefetcher = new WeakMap(), _MPDPlayer_playlistEventListener = new WeakMap(), _MPDPlayer_autoplayModeChangeListener = new WeakMap(), _MPDPlayer_subsystemEventEmitter = new WeakMap(), _MPDPlayer_destroyed = new WeakMap(), _MPDPlayer_asleep = new WeakMap(), _MPDPlayer_instances = new WeakSet(), _MPDPlayer_clearMPDClientInitTimer = function _MPDPlayer_clearMPDClientInitTimer() {
     if (__classPrivateFieldGet(this, _MPDPlayer_mpdClientInitTimer, "f")) {
         clearTimeout(__classPrivateFieldGet(this, _MPDPlayer_mpdClientInitTimer, "f"));
@@ -377,24 +382,26 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
         this.logger.error('[ytcr] Error connecting MPD:', error, ' Retrying in 5 seconds...');
         __classPrivateFieldSet(this, _MPDPlayer_mpdClientInitTimer, setTimeout(() => {
             if (!__classPrivateFieldGet(this, _MPDPlayer_destroyed, "f")) {
-                __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this);
+                __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this).catch((error) => this.logger.error('[ytcr] Caught error while initializing MPD client:', error));
             }
         }, 5000), "f");
         return;
     }
     this.logger.debug('[ytcr] MPD connected');
-    __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f").once('close', async () => {
-        __classPrivateFieldSet(this, _MPDPlayer_mpdClient, null, "f");
-        __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f")?.destroy();
-        if (__classPrivateFieldGet(this, _MPDPlayer_destroyed, "f")) {
-            return;
-        }
-        await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_clearPrefetch).call(this);
-        __classPrivateFieldSet(this, _MPDPlayer_currentVideoInfo, null, "f");
-        await this.notifyExternalStateChange(yt_cast_receiver_1.Constants.PLAYER_STATUSES.STOPPED);
-        this.sleep();
-        this.logger.debug('[ytcr] MPD disconnected. Reconnecting...');
-        __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this);
+    __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f").once('close', () => {
+        void (async () => {
+            __classPrivateFieldSet(this, _MPDPlayer_mpdClient, null, "f");
+            __classPrivateFieldGet(this, _MPDPlayer_subsystemEventEmitter, "f")?.destroy();
+            if (__classPrivateFieldGet(this, _MPDPlayer_destroyed, "f")) {
+                return;
+            }
+            await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_clearPrefetch).call(this);
+            __classPrivateFieldSet(this, _MPDPlayer_currentVideoInfo, null, "f");
+            await this.notifyExternalStateChange(yt_cast_receiver_1.Constants.PLAYER_STATUSES.STOPPED);
+            this.sleep();
+            this.logger.debug('[ytcr] MPD disconnected. Reconnecting...');
+            __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_initMPDClient).call(this).catch((error) => this.logger.error('[ytcr] Caught error while initializing MPD client:', error));
+        })();
     });
     const externalMPDEventListener = __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_handleExternalMPDEvent).bind(this);
     __classPrivateFieldSet(this, _MPDPlayer_subsystemEventEmitter, MPDSubsystemEventEmitter_js_1.default.instance(__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f"), this.logger), "f");
@@ -411,6 +418,7 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
         return null;
     }
     if (videoInfo.streamUrl) {
+        // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
         const songId = (await __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f").api.queue.addid(videoInfo.streamUrl)).toString();
         if (videoInfo.title) {
             await __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f").api.queue.addtagid(songId, 'title', videoInfo.title);
@@ -424,7 +432,7 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
         return songId;
     }
     return null;
-}, _MPDPlayer_handlePlaylistEvent = async function _MPDPlayer_handlePlaylistEvent() {
+}, _MPDPlayer_handlePlaylistEvent = function _MPDPlayer_handlePlaylistEvent() {
     const queueState = this.queue.getState();
     if (!queueState.current?.id || __classPrivateFieldGet(this, _MPDPlayer_currentVideoInfo, "f")?.id !== queueState.current.id) {
         // Skip handling if:
@@ -432,11 +440,15 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
         // 2. Current video has changed, meaning doPlay() will be called. We will handle prefetching there.
         return;
     }
-    // Same video so doPlay() / doStop() will not be called.
-    // But playlist could have been updated so that the next / autoplay video is different. Need to refresh prefetch as ncessary.
-    await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_refreshPrefetch).call(this);
-}, _MPDPlayer_handleAutoplayModeChange = async function _MPDPlayer_handleAutoplayModeChange() {
-    await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_refreshPrefetch).call(this);
+    void (async () => {
+        // Same video so doPlay() / doStop() will not be called.
+        // But playlist could have been updated so that the next / autoplay video is different. Need to refresh prefetch as ncessary.
+        await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_refreshPrefetch).call(this);
+    })();
+}, _MPDPlayer_handleAutoplayModeChange = function _MPDPlayer_handleAutoplayModeChange() {
+    void (async () => {
+        await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_refreshPrefetch).call(this);
+    })();
 }, _MPDPlayer_refreshPrefetch = async function _MPDPlayer_refreshPrefetch() {
     const queueState = this.queue.getState();
     if (__classPrivateFieldGet(this, _MPDPlayer_videoPrefetcher, "f")) {
@@ -498,51 +510,55 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
         clearTimeout(__classPrivateFieldGet(this, _MPDPlayer_prefetchedVideoExpiryTimer, "f"));
         __classPrivateFieldSet(this, _MPDPlayer_prefetchedVideoExpiryTimer, null, "f");
     }
-}, _MPDPlayer_handlePrefetchedVideo = async function _MPDPlayer_handlePrefetchedVideo(videoInfo) {
-    if (__classPrivateFieldGet(this, _MPDPlayer_destroyed, "f") || !__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f")) {
-        return;
-    }
-    const queueState = this.queue.getState();
-    const nextVideo = queueState.next || queueState.autoplay;
-    if (nextVideo?.id === videoInfo.id) {
-        if (videoInfo) {
-            const songId = await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_addToMPDQueue).call(this, videoInfo);
-            if (songId) {
-                __classPrivateFieldSet(this, _MPDPlayer_prefetchedAndQueuedVideoInfo, {
-                    ...videoInfo,
-                    mpdSongId: songId
-                }, "f");
-                this.logger.debug(`[ytcr] Prefetched video ${videoInfo.id} added to MPD queue with song Id: ${songId}`);
-                if (videoInfo.streamExpires) {
-                    const expiryMS = videoInfo.streamExpires.getTime() - Date.now();
-                    if (expiryMS > 0) {
-                        this.logger.debug(`[ytcr] Stream URL of prefetched video ${videoInfo.id} is going to expire in ${expiryMS / 1000}s`);
-                        __classPrivateFieldSet(this, _MPDPlayer_prefetchedVideoExpiryTimer, setTimeout(async () => {
-                            this.logger.debug(`[ytcr] Stream URL of prefetched video ${videoInfo.id} is about to expire.`);
-                            if (__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f")) {
-                                this.logger.debug(`[ytcr] Removing it from MPD queue (song Id: ${songId})...`);
-                                try {
-                                    await __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f").api.queue.deleteid(songId);
-                                }
-                                catch (error) {
-                                    this.logger.error(`[ytcr] Failed to remove expired prefetched song from MPD queue (song Id ${songId}):`, error);
-                                }
-                                finally {
-                                    __classPrivateFieldSet(this, _MPDPlayer_prefetchedVideoExpiryTimer, null, "f");
-                                }
-                            }
-                        }, expiryMS - 60000), "f");
+}, _MPDPlayer_handlePrefetchedVideo = function _MPDPlayer_handlePrefetchedVideo(videoInfo) {
+    void (async () => {
+        if (__classPrivateFieldGet(this, _MPDPlayer_destroyed, "f") || !__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f")) {
+            return;
+        }
+        const queueState = this.queue.getState();
+        const nextVideo = queueState.next || queueState.autoplay;
+        if (nextVideo?.id === videoInfo.id) {
+            if (videoInfo) {
+                const songId = await __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_addToMPDQueue).call(this, videoInfo);
+                if (songId) {
+                    __classPrivateFieldSet(this, _MPDPlayer_prefetchedAndQueuedVideoInfo, {
+                        ...videoInfo,
+                        mpdSongId: songId
+                    }, "f");
+                    this.logger.debug(`[ytcr] Prefetched video ${videoInfo.id} added to MPD queue with song Id: ${songId}`);
+                    if (videoInfo.streamExpires) {
+                        const expiryMS = videoInfo.streamExpires.getTime() - Date.now();
+                        if (expiryMS > 0) {
+                            this.logger.debug(`[ytcr] Stream URL of prefetched video ${videoInfo.id} is going to expire in ${expiryMS / 1000}s`);
+                            __classPrivateFieldSet(this, _MPDPlayer_prefetchedVideoExpiryTimer, setTimeout(() => {
+                                void (async () => {
+                                    this.logger.debug(`[ytcr] Stream URL of prefetched video ${videoInfo.id} is about to expire.`);
+                                    if (__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f")) {
+                                        this.logger.debug(`[ytcr] Removing it from MPD queue (song Id: ${songId})...`);
+                                        try {
+                                            await __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f").api.queue.deleteid(songId);
+                                        }
+                                        catch (error) {
+                                            this.logger.error(`[ytcr] Failed to remove expired prefetched song from MPD queue (song Id ${songId}):`, error);
+                                        }
+                                        finally {
+                                            __classPrivateFieldSet(this, _MPDPlayer_prefetchedVideoExpiryTimer, null, "f");
+                                        }
+                                    }
+                                })();
+                            }, expiryMS - 60000), "f");
+                        }
                     }
                 }
-            }
-            else {
-                this.logger.debug(`[ytcr] Failed to add prefetched video ${videoInfo.id} to MPD queue: MPD did not return a song Id.`);
+                else {
+                    this.logger.debug(`[ytcr] Failed to add prefetched video ${videoInfo.id} to MPD queue: MPD did not return a song Id.`);
+                }
             }
         }
-    }
-    else {
-        this.logger.debug(`[ytcr] Prefetched video Id ${videoInfo.id} does not match next in queue (${nextVideo?.id})`);
-    }
+        else {
+            this.logger.debug(`[ytcr] Prefetched video Id ${videoInfo.id} does not match next in queue (${nextVideo?.id})`);
+        }
+    })();
 }, _MPDPlayer_handleExternalMPDEvent = async function _MPDPlayer_handleExternalMPDEvent(event) {
     if (__classPrivateFieldGet(this, _MPDPlayer_asleep, "f") || __classPrivateFieldGet(this, _MPDPlayer_destroyed, "f") || !__classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f")) {
         return;
@@ -556,7 +572,13 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
         __classPrivateFieldSet(this, _MPDPlayer_currentVideoInfo, __classPrivateFieldGet(this, _MPDPlayer_prefetchedAndQueuedVideoInfo, "f"), "f");
         __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_clearPrefetchedVideoExpiryTimer).call(this);
         __classPrivateFieldSet(this, _MPDPlayer_prefetchedAndQueuedVideoInfo, null, "f");
-        await this.queue.next();
+        const nextInQueue = await this.queue.next();
+        if (!nextInQueue) { // Already at end of queue - check if prefetched video is autoplay
+            const autoplay = this.queue.getState().autoplay;
+            if (autoplay?.id === __classPrivateFieldGet(this, _MPDPlayer_currentVideoInfo, "f").id) {
+                this.queue.setAsCurrent(autoplay);
+            }
+        }
         await this.notifyExternalStateChange(yt_cast_receiver_1.Constants.PLAYER_STATUSES.PLAYING);
         __classPrivateFieldGet(this, _MPDPlayer_instances, "m", _MPDPlayer_checkAndStartPrefetch).call(this, mpdStatus);
         return;
@@ -599,7 +621,7 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
                     songIdInfo = await __classPrivateFieldGet(this, _MPDPlayer_mpdClient, "f").api.queue.id(__classPrivateFieldGet(this, _MPDPlayer_currentVideoInfo, "f").mpdSongId);
                 }
             }
-            catch (error) {
+            catch (_error) {
                 songIdInfo = null;
             }
             __classPrivateFieldSet(this, _MPDPlayer_currentVideoInfo, null, "f");
@@ -611,4 +633,5 @@ _MPDPlayer_config = new WeakMap(), _MPDPlayer_currentVideoInfo = new WeakMap(), 
         }
     }
 };
+exports.default = MPDPlayer;
 //# sourceMappingURL=MPDPlayer.js.map

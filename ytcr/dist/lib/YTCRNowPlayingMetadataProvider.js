@@ -39,14 +39,13 @@ class YTCRNowPlayingMetadataProvider {
                 return null;
         }
     }
-    async getAlbumInfo() {
-        return null;
+    getAlbumInfo() {
+        return Promise.resolve(null);
     }
-    async getArtistInfo() {
-        return null;
+    getArtistInfo() {
+        return Promise.resolve(null);
     }
 }
-exports.default = YTCRNowPlayingMetadataProvider;
 _YTCRNowPlayingMetadataProvider_player = new WeakMap(), _YTCRNowPlayingMetadataProvider_logger = new WeakMap(), _YTCRNowPlayingMetadataProvider_instances = new WeakSet(), _YTCRNowPlayingMetadataProvider_getMusicServicePlugin = async function _YTCRNowPlayingMetadataProvider_getMusicServicePlugin(pluginName, pluginPrettyName, requiredVersion) {
     __classPrivateFieldGet(this, _YTCRNowPlayingMetadataProvider_logger, "f").debug(`[ytcr] Obtaining ${pluginPrettyName} plugin instance`);
     const plugin = YTCRContext_1.default.getMusicServicePlugin(pluginName);
@@ -132,4 +131,5 @@ _YTCRNowPlayingMetadataProvider_player = new WeakMap(), _YTCRNowPlayingMetadataP
 }, _YTCRNowPlayingMetadataProvider_hasNowPlayingMetadataProvider = function _YTCRNowPlayingMetadataProvider_hasNowPlayingMetadataProvider(plugin) {
     return plugin && typeof plugin['getNowPlayingMetadataProvider'] === 'function';
 };
+exports.default = YTCRNowPlayingMetadataProvider;
 //# sourceMappingURL=YTCRNowPlayingMetadataProvider.js.map
