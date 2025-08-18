@@ -108,7 +108,6 @@ class UIHelper {
         return (0, fs_1.existsSync)(volumioManifestUIDir) && !(0, fs_1.existsSync)(volumioManifestUIDisabledFile);
     }
 }
-exports.default = UIHelper;
 _a = UIHelper, _UIHelper_constructLinkItem = function _UIHelper_constructLinkItem(link) {
     let html = '';
     if (link.icon) {
@@ -127,4 +126,5 @@ _a = UIHelper, _UIHelper_constructLinkItem = function _UIHelper_constructLinkIte
     }
     return html;
 };
+exports.default = UIHelper;
 //# sourceMappingURL=UIHelper.js.map

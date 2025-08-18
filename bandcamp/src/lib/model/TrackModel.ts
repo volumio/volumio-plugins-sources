@@ -1,7 +1,7 @@
-import bcfetch, { Track } from 'bandcamp-fetch';
+import bcfetch, { type Track } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
 import BaseModel from './BaseModel';
-import TrackEntity from '../entities/TrackEntity';
+import type TrackEntity from '../entities/TrackEntity';
 import EntityConverter from '../util/EntityConverter';
 
 export default class TrackModel extends BaseModel {
