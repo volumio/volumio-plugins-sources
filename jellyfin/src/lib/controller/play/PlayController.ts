@@ -239,8 +239,9 @@ export default class PlayController {
     }
 
     const container = source.Container ? `.${source.Container}` : '';
-    const path = `/Audio/${song.id}/stream${container}`;
-    const pathUrlObj = new URL(path, connection.api.basePath);
+    const basePath = connection.api.basePath;
+    const sanitizedBasePath = basePath.endsWith('/') ? basePath.substring(0, basePath.length - 1) : basePath;
+    const pathUrlObj = new URL(`${sanitizedBasePath}/Audio/${song.id}/stream${container}`);
 
     pathUrlObj.searchParams.set('static', 'true');
     if (source.Id) {
