@@ -1,0 +1,3 @@
+[submodule "volumio-squeezelite-plugin"]
+	path = volumio-squeezelite-plugin
+	url = ./volumio-squeezelite-plugin
