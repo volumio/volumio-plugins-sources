@@ -1,7 +1,6 @@
-/// <reference types="node" />
 import EventEmitter from 'events';
-import { Logger, Video } from 'yt-cast-receiver';
-import VideoLoader from './VideoLoader';
+import { type Logger, type Video } from 'yt-cast-receiver';
+import type VideoLoader from './VideoLoader';
 export default class VideoPrefetcher extends EventEmitter {
     #private;
     constructor(videoLoader: VideoLoader, logger: Logger);
