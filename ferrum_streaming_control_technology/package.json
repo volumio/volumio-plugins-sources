@@ -1,6 +1,6 @@
 {
 	"name": "ferrum_streaming_control_technology",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Plugin provides support for Ferrum Streaming Control Technology™ allowing DACs (e.g. Ferrum Wandla) to show current state of playback like title, artist and progress bar.",
 	"main": "index.js",
 	"scripts": {
@@ -28,7 +28,7 @@
 			"buster"
 		],
 		"details": "Plugin provides support for Ferrum Streaming Control Technology™ allowing DACs (e.g. Ferrum Wandla) to show current state of playback like title, artist and progress bar.",
-		"changelog": " * 1.0.0 - first published ™version"
+		"changelog": " * 1.0.2 - plugin with fsct-lib bumped to 0.2.12, version which supports first official FSCT release."
 	},
 	"engines": {
 		"node": ">=14.15.4 <15.0.0",
@@ -38,6 +38,6 @@
 		"fs-extra": "^0.28.0",
 		"kew": "^0.7.0",
 		"v-conf": "^1.4.0",
-		"@hemspzoo/fsct-lib": "^0.2.9"
+		"@hemspzoo/fsct-lib": "^0.2.12"
 	}
 }
