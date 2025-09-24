@@ -1,7 +1,7 @@
 import bandcamp from '../../BandcampContext';
 import { SearchItemType } from '../../model/SearchModel';
-import { SearchView } from '../browse/view-handlers/SearchViewHandler';
-import { RenderedList } from '../browse/view-handlers/ViewHandler';
+import { type SearchView } from '../browse/view-handlers/SearchViewHandler';
+import { type RenderedList } from '../browse/view-handlers/ViewHandler';
 import ViewHandlerFactory from '../browse/view-handlers/ViewHandlerFactory';
 import ViewHelper from '../browse/view-handlers/ViewHelper';
 

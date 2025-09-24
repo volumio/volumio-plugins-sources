@@ -1,4 +1,4 @@
-import View from '../View';
+import type View from '../View';
 import AlbumRenderer from './AlbumRenderer';
 import ArticleRenderer from './ArticleRenderer';
 import BandRenderer from './BandRenderer';
@@ -40,6 +40,6 @@ export default class Renderer {
     if (RENDERER_TYPE_TO_CLASS[type]) {
       return new RENDERER_TYPE_TO_CLASS[type](uri, currentView, previousViews);
     }
-    throw Error(`Renderer not found for type ${RendererType}`);
+    throw Error(`Renderer not found for type ${String(type)}`);
   }
 }

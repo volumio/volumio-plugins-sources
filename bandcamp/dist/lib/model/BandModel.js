@@ -52,7 +52,6 @@ class BandModel extends BaseModel_1.default {
         return EntityConverter_1.default.convertLabel(band);
     }
 }
-exports.default = BandModel;
 _BandModel_instances = new WeakSet(), _BandModel_getLabelArtistsFetchPromise = function _BandModel_getLabelArtistsFetchPromise(params) {
     const queryParams = {
         labelUrl: params.labelUrl,
@@ -77,4 +76,5 @@ _BandModel_instances = new WeakSet(), _BandModel_getLabelArtistsFetchPromise = f
     }
     return EntityConverter_1.default.convertTrack(item);
 };
+exports.default = BandModel;
 //# sourceMappingURL=BandModel.js.map

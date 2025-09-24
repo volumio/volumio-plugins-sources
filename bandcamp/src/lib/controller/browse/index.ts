@@ -1,8 +1,8 @@
 import bandcamp from '../../BandcampContext';
-import BaseViewHandler from './view-handlers/BaseViewHandler';
-import { ExplodedTrackInfo } from './view-handlers/ExplodableViewHandler';
-import View from './view-handlers/View';
-import { RenderedPage } from './view-handlers/ViewHandler';
+import type BaseViewHandler from './view-handlers/BaseViewHandler';
+import { type ExplodedTrackInfo } from './view-handlers/ExplodableViewHandler';
+import type View from './view-handlers/View';
+import { type RenderedPage } from './view-handlers/ViewHandler';
 import ViewHandlerFactory from './view-handlers/ViewHandlerFactory';
 
 export default class BrowseController {
@@ -12,13 +12,13 @@ export default class BrowseController {
    * - If nothing follows 'bandcamp', the view would be 'root'.
    *
    * After 'bandcamp/', the uri consists of segments representing the following views:
-   * - discover[@genre=...][@subgenre=...][@sortBy=...][@artistRecommendationType=...][@location=...][@format=...][@time=...][@pageRef=...]
+   * - discover[@genre=...][@subgenre=...][@sortBy=...][@location=...][@category=...][@time=...][@customTags=...][@pageRef=...]
    * - album[@albumUrl=...]
    * - search[@query=...][@itemType=...][@pageRef=...]
    * - band[@bandUrl=...][band.type==='label': @view=artists|discography][@pageRef=...]*
    * - track[@trackUrl=...]
    * - shows[@showUrl=...|@pageRef=...][@view=tracks|albums]
-   * - tag[@tagUrl=...][@select=...][@format=...][@location=...][@sort=...][@pageRef=...]
+   * - tag
    * - fan[@username=...][@view=collection|wishlist|followingArtistsAndLabels|followingGenres][@pageRef=...]
    *
    * *Replaces obsolete 'artist' and 'label' views
@@ -35,6 +35,7 @@ export default class BrowseController {
    * - track[@trackUrl=...]
    * - album[@albumUrl=...]
    * - shows[@showUrl=...]
+   * - discover[@...]
    */
   explodeUri(uri: string): Promise<ExplodedTrackInfo[]> {
     bandcamp.getLogger().info(`[bandcamp-browse] explodeUri: ${uri}`);

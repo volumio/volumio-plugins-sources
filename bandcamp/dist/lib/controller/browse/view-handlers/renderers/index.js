@@ -20,7 +20,7 @@ var RendererType;
     RendererType["Show"] = "Fan";
     RendererType["Tag"] = "Search";
     RendererType["Track"] = "Show";
-})(RendererType = exports.RendererType || (exports.RendererType = {}));
+})(RendererType || (exports.RendererType = RendererType = {}));
 const RENDERER_TYPE_TO_CLASS = {
     [RendererType.Album]: AlbumRenderer_1.default,
     [RendererType.Article]: ArticleRenderer_1.default,
@@ -35,7 +35,7 @@ class Renderer {
         if (RENDERER_TYPE_TO_CLASS[type]) {
             return new RENDERER_TYPE_TO_CLASS[type](uri, currentView, previousViews);
         }
-        throw Error(`Renderer not found for type ${RendererType}`);
+        throw Error(`Renderer not found for type ${String(type)}`);
     }
 }
 exports.default = Renderer;

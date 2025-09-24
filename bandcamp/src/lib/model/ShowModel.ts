@@ -1,4 +1,4 @@
-import bcfetch, { Show } from 'bandcamp-fetch';
+import bcfetch, { type Show } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
 import BaseModel from './BaseModel';
 import EntityConverter from '../util/EntityConverter';

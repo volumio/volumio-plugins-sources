@@ -1,4 +1,4 @@
-import { ExplodedTrackInfo } from '../browse/view-handlers/ExplodableViewHandler';
+import { type ExplodedTrackInfo } from '../browse/view-handlers/ExplodableViewHandler';
 export default class PlayController {
     #private;
     constructor();
@@ -7,7 +7,7 @@ export default class PlayController {
      * - bandcamp/track@trackUrl={trackUrl}@artistUrl={...}@albumUrl={...}
      * - bandcamp/show@showUrl={showUrl}
      * - bandcamp/article@articleUrl={articleUrl}@mediaItemRef={...}@track={trackPosition}@artistUrl={...}@albumUrl={...}
-     * - bandcamp/album@albumUrl={...}@track={...}@artistUrl={...}@albumUrl={...}
+     * - bandcamp/album@albumUrl={...}@[track | trackId]={...}@artistUrl={...}@albumUrl={...}
      */
     clearAddPlayTrack(track: ExplodedTrackInfo): Promise<any>;
     stop(): any;

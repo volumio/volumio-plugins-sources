@@ -20,7 +20,7 @@ var SearchItemType;
     SearchItemType["ArtistsAndLabels"] = "ArtistsAndLabels";
     SearchItemType["Albums"] = "Albums";
     SearchItemType["Tracks"] = "Tracks";
-})(SearchItemType = exports.SearchItemType || (exports.SearchItemType = {}));
+})(SearchItemType || (exports.SearchItemType = SearchItemType = {}));
 class SearchModel extends BaseModel_1.default {
     constructor() {
         super(...arguments);
@@ -40,7 +40,6 @@ class SearchModel extends BaseModel_1.default {
         });
     }
 }
-exports.default = SearchModel;
 _SearchModel_instances = new WeakSet(), _SearchModel_getSearchResultsFetchPromise = function _SearchModel_getSearchResultsFetchPromise(params) {
     const page = params.pageToken ? parseInt(params.pageToken, 10) : 1;
     const queryParams = {
@@ -87,4 +86,5 @@ _SearchModel_instances = new WeakSet(), _SearchModel_getSearchResultsFetchPromis
     }
     return null;
 };
+exports.default = SearchModel;
 //# sourceMappingURL=SearchModel.js.map

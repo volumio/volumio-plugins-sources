@@ -1,4 +1,4 @@
-import TrackEntity from './TrackEntity';
+import type TrackEntity from './TrackEntity';
 interface ShowEntity {
     type: 'show';
     url: string;

@@ -1,8 +1,8 @@
 import bandcamp from '../../../../BandcampContext';
-import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
+import BaseRenderer, { type RenderedHeader, type RenderedListItem } from './BaseRenderer';
 import UIHelper from '../../../../util/UIHelper';
-import ShowEntity from '../../../../entities/ShowEntity';
-import { ShowView } from '../ShowViewHandler';
+import type ShowEntity from '../../../../entities/ShowEntity';
+import { type ShowView } from '../ShowViewHandler';
 import ViewHelper from '../ViewHelper';
 
 export default class ShowRenderer extends BaseRenderer<ShowEntity> {

@@ -122,7 +122,6 @@ class BandViewHandler extends ExplodableViewHandler_1.default {
         return [];
     }
 }
-exports.default = BandViewHandler;
 _BandViewHandler_instances = new WeakSet(), _BandViewHandler_getContentListsForArtist = async function _BandViewHandler_getContentListsForArtist(artistUrl) {
     return [await __classPrivateFieldGet(this, _BandViewHandler_instances, "m", _BandViewHandler_getDiscographyList).call(this, artistUrl)];
 }, _BandViewHandler_getContentListsForLabel = async function _BandViewHandler_getContentListsForLabel(labelUrl) {
@@ -238,4 +237,5 @@ _BandViewHandler_instances = new WeakSet(), _BandViewHandler_getContentListsForA
             return '';
     }
 };
+exports.default = BandViewHandler;
 //# sourceMappingURL=BandViewHandler.js.map

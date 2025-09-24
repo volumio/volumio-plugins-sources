@@ -35,7 +35,6 @@ class BaseModel {
         return 'bio_app';
     }
 }
-exports.default = BaseModel;
 _BaseModel_instances = new WeakSet(), _BaseModel_doLoopFetch = async function _BaseModel_doLoopFetch(params, currentList = [], iteration = 1) {
     const pageOffset = params.pageOffset || 0;
     const limit = params.limit || 47;
@@ -117,4 +116,5 @@ _BaseModel_instances = new WeakSet(), _BaseModel_doLoopFetch = async function _B
     }
     return result;
 };
+exports.default = BaseModel;
 //# sourceMappingURL=BaseModel.js.map

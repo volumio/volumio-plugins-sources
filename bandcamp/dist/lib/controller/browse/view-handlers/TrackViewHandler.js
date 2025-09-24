@@ -36,7 +36,6 @@ class TrackViewHandler extends ExplodableViewHandler_1.default {
         return this.getModel(model_1.ModelType.Track).getTrack(trackUrl);
     }
 }
-exports.default = TrackViewHandler;
 _TrackViewHandler_instances = new WeakSet(), _TrackViewHandler_browseTrack = async function _TrackViewHandler_browseTrack(trackUrl) {
     const trackInfo = await this.getModel(model_1.ModelType.Track).getTrack(trackUrl);
     if (trackInfo.album?.url) {
@@ -74,4 +73,5 @@ _TrackViewHandler_instances = new WeakSet(), _TrackViewHandler_browseTrack = asy
         }
     };
 };
+exports.default = TrackViewHandler;
 //# sourceMappingURL=TrackViewHandler.js.map

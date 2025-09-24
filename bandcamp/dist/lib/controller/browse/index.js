@@ -20,13 +20,13 @@ class BrowseController {
      * - If nothing follows 'bandcamp', the view would be 'root'.
      *
      * After 'bandcamp/', the uri consists of segments representing the following views:
-     * - discover[@genre=...][@subgenre=...][@sortBy=...][@artistRecommendationType=...][@location=...][@format=...][@time=...][@pageRef=...]
+     * - discover[@genre=...][@subgenre=...][@sortBy=...][@location=...][@category=...][@time=...][@customTags=...][@pageRef=...]
      * - album[@albumUrl=...]
      * - search[@query=...][@itemType=...][@pageRef=...]
      * - band[@bandUrl=...][band.type==='label': @view=artists|discography][@pageRef=...]*
      * - track[@trackUrl=...]
      * - shows[@showUrl=...|@pageRef=...][@view=tracks|albums]
-     * - tag[@tagUrl=...][@select=...][@format=...][@location=...][@sort=...][@pageRef=...]
+     * - tag
      * - fan[@username=...][@view=collection|wishlist|followingArtistsAndLabels|followingGenres][@pageRef=...]
      *
      * *Replaces obsolete 'artist' and 'label' views
@@ -41,6 +41,7 @@ class BrowseController {
      * - track[@trackUrl=...]
      * - album[@albumUrl=...]
      * - shows[@showUrl=...]
+     * - discover[@...]
      */
     explodeUri(uri) {
         BandcampContext_1.default.getLogger().info(`[bandcamp-browse] explodeUri: ${uri}`);
@@ -48,8 +49,8 @@ class BrowseController {
         return handler.explode();
     }
 }
-exports.default = BrowseController;
 _BrowseController_instances = new WeakSet(), _BrowseController_getHandler = function _BrowseController_getHandler(uri) {
     return ViewHandlerFactory_1.default.getHandler(uri);
 };
+exports.default = BrowseController;
 //# sourceMappingURL=index.js.map

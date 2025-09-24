@@ -1,6 +1,6 @@
 import ExplodableViewHandler from './ExplodableViewHandler';
-import View from './View';
-import { RenderedPage } from './ViewHandler';
+import type View from './View';
+import { type RenderedPage } from './ViewHandler';
 export interface TrackView extends View {
     name: 'track';
     trackUrl: string;
