@@ -1,6 +1,6 @@
 {
 	"name": "radio_paradise",
-	"version": "1.0.13",
+	"version": "1.0.14",
 	"description": "Radio Paradise Plugin for Volumio2 (incl. FLAC versions)",
 	"main": "index.js",
 	"scripts": {
@@ -22,7 +22,7 @@
 			"buster"
 		],
 		"details": "Radio paradise",
-		"changelog": "add radio Serenity"
+		"changelog": "workaround version"
 	},
 	"engines": {
 		"node": ">=8",
