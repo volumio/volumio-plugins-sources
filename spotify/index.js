@@ -885,13 +885,10 @@ ControllerSpotify.prototype.spotifyClientCredentialsGrant = function () {
         self.refreshAccessToken()
             .then(function (data) {
                 self.spotifyAccessToken = data.body['accessToken'];
-                self.debugLog('------------------------------------------------------ ACCESS TOKEN ------------------------------------------------------');
-                self.debugLog(self.spotifyAccessToken);
-                self.debugLog('------------------------------------------------------ ACCESS TOKEN ------------------------------------------------------');
                 self.config.set('access_token', self.spotifyAccessToken);
                 self.spotifyApi.setAccessToken(self.spotifyAccessToken);
                 self.spotifyAccessTokenExpiration = data.body['expiresInSeconds'] * 1000 + now;
-                self.logger.info('New Spotify access token = ' + self.spotifyAccessToken);
+                self.logger.info('New Spotify access token' + self.spotifyAccessToken.substring(0, 10) + '...');
                 defer.resolve();
             }, function (err) {
                 self.logger.info('Spotify credentials grant failed with ' + err);
