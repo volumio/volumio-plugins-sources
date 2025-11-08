@@ -67,15 +67,15 @@ if [ ! -d $DAEMON_DATA_PATH ]; then
   chown -R volumio:volumio $DAEMON_DATA_PATH
 fi
 
-if [ -f /tmp/go-librespot-config.yml ] ; then
-  cp /tmp/go-librespot-config.yml \$DAEMON_DATA_PATH/config.yml
-  chown volumio:volumio \$DAEMON_DATA_PATH/config.yml
+if [ -f /tmp/go-librespot-config.yml ]; then
+  cp /tmp/go-librespot-config.yml $DAEMON_DATA_PATH/config.yml
+  chown volumio:volumio $DAEMON_DATA_PATH/config.yml
   rm /tmp/go-librespot-config.yml
 fi
 
-if [ -f /data/configuration/music_service/spop/spotifycredentials.json ] ; then
-  cp /data/configuration/music_service/spop/spotifycredentials.json \$DAEMON_DATA_PATH/credentials.json
-  chown volumio:volumio \$DAEMON_DATA_PATH/credentials.json
+if [ -f /data/configuration/music_service/spop/spotifycredentials.json ]; then
+  cp /data/configuration/music_service/spop/spotifycredentials.json $DAEMON_DATA_PATH/credentials.json
+  chown volumio:volumio $DAEMON_DATA_PATH/credentials.json
   rm /data/configuration/music_service/spop/spotifycredentials.json
 fi
 
