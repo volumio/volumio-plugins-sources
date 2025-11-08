@@ -190,7 +190,43 @@
             },
             {
               "value": "stb",
-              "label": "Set Top Box"
+              "label": "Set-Top Box"
+            },
+            {
+              "value": "computer",
+              "label": "Computer"
+            },
+            {
+              "value": "tablet",
+              "label": "Tablet"
+            },
+            {
+              "value": "smartphone",
+              "label": "Smartphone"
+            },
+            {
+              "value": "tv",
+              "label": "TV"
+            },
+            {
+              "value": "audio_dongle",
+              "label": "Audio dongle"
+            },
+            {
+              "value": "game_console",
+              "label": "Game console"
+            },
+            {
+              "value": "cast_video",
+              "label": "Chromecast"
+            },
+            {
+              "value": "cast_audio",
+              "label": "Cast for audio"
+            },
+            {
+              "value": "automobile",
+              "label": "Car device"
             }
           ]
         },
