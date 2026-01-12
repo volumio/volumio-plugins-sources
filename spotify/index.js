@@ -34,8 +34,8 @@ var ws;
 var currentVolumioState;
 var currentSpotifyVolume;
 var currentVolumioVolume;
-var isInVolatileMode = false;
-var ignoreStopEvent = false;
+let unsettingVolatile = false;
+const UNSETTING_VOLATILE_TIMEOUT = 10000;
 
 // Volume limiter
 var deltaVolumeTreshold = 2;
@@ -331,40 +331,34 @@ ControllerSpotify.prototype.parseEventState = function (event) {
 };
 
 ControllerSpotify.prototype.identifyPlaybackMode = function (data) {
-    var self = this;
+    if (unsettingVolatile) {
+        // Ignore all unnecessary events (several "pause" events) from spotify during
+        // switching from volatile mode to prevent volumio from switching back to volatile mode
+        return;
+    }
 
     // This functions checks if Spotify is playing in volatile mode or in Volumio mode (playback started from Volumio UI)
     // play_origin = 'go-librespot' means that Spotify is playing in Volumio mode
     // play_origin = 'your_library' or 'playlist' means that Spotify is playing in volatile mode
-    if (data && data.play_origin && data.play_origin === 'go-librespot') {
-        isInVolatileMode = false;
-    } else {
-        isInVolatileMode = true;
-    }
+    const isVolumioMode = data && data.play_origin && data.play_origin === 'go-librespot';
 
     // Refactor in order to handle the case where current service is spop but not in volatile mode
-    if ((isInVolatileMode && currentVolumioState.service !== 'spop') ||
-        (isInVolatileMode && currentVolumioState.service === 'spop' && currentVolumioState.volatile !== true)) {
-        self.initializeSpotifyPlaybackInVolatileMode();
+    if ((!isVolumioMode && currentVolumioState.service !== 'spop') ||
+        (!isVolumioMode && currentVolumioState.service === 'spop' && currentVolumioState.volatile !== true)) {
+        this.initializeSpotifyPlaybackInVolatileMode();
     }
-
 };
 
 ControllerSpotify.prototype.initializeSpotifyPlaybackInVolatileMode = function () {
     var self = this;
 
     self.logger.info('Spotify is playing in volatile mode');
-    ignoreStopEvent = true;
 
     self.commandRouter.stateMachine.setConsumeUpdateService(undefined);
     self.context.coreCommand.stateMachine.setVolatile({
         service: 'spop',
-        callback: self.libRespotGoUnsetVolatile()
+        callback: self.libRespotGoUnsetVolatile.bind(this)
     });
-
-    setTimeout(()=>{
-        ignoreStopEvent = false;
-    }, 2000);
 };
 
 ControllerSpotify.prototype.parseDuration = function (spotifyDuration) {
@@ -403,20 +397,17 @@ ControllerSpotify.prototype.parseArtists = function (spotifyArtists) {
 
 
 ControllerSpotify.prototype.libRespotGoUnsetVolatile = function () {
-    var self = this;
-    var defer = libQ.defer();
-
-    self.debugLog('UNSET VOLATILE');
-    self.debugLog(JSON.stringify(currentVolumioState))
-
+    this.debugLog('UNSET VOLATILE');
+    this.debugLog(JSON.stringify(currentVolumioState))
+    unsettingVolatile = true;
+    setTimeout(() => {
+        unsettingVolatile = false;
+    }, UNSETTING_VOLATILE_TIMEOUT);
     if (currentVolumioState && currentVolumioState.status && currentVolumioState.status !== 'stop') {
-        self.logger.info('Setting Spotify stop after unset volatile call');
+        this.logger.info('Setting Spotify stop after unset volatile call');
         setTimeout(()=>{
-            self.stop();
-            defer.resolve('');
+            this.stop();
         }, 500);
-    } else {
-        defer.resolve('');
     }
 }
 
@@ -488,9 +479,7 @@ ControllerSpotify.prototype.stop = function () {
 
     this.debugLog('SPOTIFY STOP');
     this.debugLog(JSON.stringify(currentVolumioState))
-    if (!ignoreStopEvent) {
-        this.sendSpotifyLocalApiCommand('/player/pause');
-    }
+    this.sendSpotifyLocalApiCommand('/player/pause');
 
     defer.resolve('');
     return defer.promise;
