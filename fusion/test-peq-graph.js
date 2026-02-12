@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Temporary mock server for visually testing peq-graph.html without a Volumio device.
-// Usage:  node fusion/test-peq-graph.js
+// Usage:  node fusion/test-peq-graph.js [--mode mixed|merged]
+//   --mode mixed   (default) Mixed L/R scopes — shows separate Combined L + Combined R curves
+//   --mode merged  All filters L+R — shows single Combined L+R curve
 // Then open http://localhost:10015
 
 'use strict';
@@ -11,8 +13,30 @@ var path = require('path');
 
 var PORT = 10015;
 
-// Mock mergedeq string exercising many filter types + mixed L/R scopes
-var mergedeq = 'Eq0|Peaking|L+R|1000,5,2.5|Eq1|Lowshelf|L+R|200,-3,6|Eq2|Highshelf|L+R|8000,4,6|Eq3|Highpass|L+R|30,0.707|Eq4|Notch|L+R|50,5|Eq5|Lowpass|R|12000,0.707|Eq6|ButterworthHighpass|L|80,4|Eq7|Peaking2|L+R|3000,-2,1.5|Eq8|LowpassFO|L+R|15000|Eq9|HighshelfFO|L+R|5000,3|';
+// Parse --mode argument
+var mode = 'mixed';
+var args = process.argv.slice(2);
+for (var a = 0; a < args.length; a++) {
+  if (args[a] === '--mode' && a + 1 < args.length) {
+    mode = args[a + 1];
+    break;
+  }
+}
+
+if (mode !== 'mixed' && mode !== 'merged') {
+  console.error('Unknown mode: ' + mode + '. Use "mixed" or "merged".');
+  process.exit(1);
+}
+
+// Mock mergedeq strings for each mode
+var testData = {
+  // Mixed L/R scopes: Eq5 is R-only, Eq6 is L-only — shows separate Combined L + Combined R curves
+  mixed: 'Eq0|Peaking|L+R|1000,5,2.5|Eq1|Lowshelf|L+R|200,-3,6|Eq2|Highshelf|L+R|8000,4,6|Eq3|Highpass|L+R|30,0.707|Eq4|Notch|L+R|50,5|Eq5|Lowpass|R|12000,0.707|Eq6|ButterworthHighpass|L|80,4|Eq7|Peaking2|L+R|3000,-2,1.5|Eq8|LowpassFO|L+R|15000|Eq9|HighshelfFO|L+R|5000,3|',
+  // All filters L+R — shows single Combined L+R curve
+  merged: 'Eq0|Peaking|L+R|1000,5,2.5|Eq1|Lowshelf|L+R|200,-3,6|Eq2|Highshelf|L+R|8000,4,6|Eq3|Highpass|L+R|30,0.707|Eq4|Notch|L+R|50,5|Eq5|Lowpass|L+R|12000,0.707|Eq6|ButterworthHighpass|L+R|80,4|Eq7|Peaking2|L+R|3000,-2,1.5|Eq8|LowpassFO|L+R|15000|Eq9|HighshelfFO|L+R|5000,3|'
+};
+
+var mergedeq = testData[mode];
 
 var sampleRate = 44100;
 
@@ -74,6 +98,7 @@ var server = http.createServer(function (req, res) {
 
 server.listen(PORT, function () {
   console.log('PEQ graph test server running at http://localhost:' + PORT);
+  console.log('Mode: ' + mode + (mode === 'mixed' ? ' (separate Combined L + Combined R curves)' : ' (single Combined L+R curve)'));
   console.log('Mock filters:');
   var filters = parseMergedeq(mergedeq);
   filters.forEach(function (f) {
