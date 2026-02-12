@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FusionDSP - PEQ Frequency Response</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  #header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #16213e;
+    border-bottom: 1px solid #0f3460;
+  }
+  #header h1 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #e94560;
+  }
+  #info {
+    font-size: 13px;
+    color: #888;
+  }
+  #canvas-container {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  #crosshair-info {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(22, 33, 62, 0.9);
+    border: 1px solid #0f3460;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #e0e0e0;
+    display: none;
+    white-space: nowrap;
+  }
+  #legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 8px 20px;
+    background: #16213e;
+    border-top: 1px solid #0f3460;
+    font-size: 12px;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-color {
+    width: 20px;
+    height: 3px;
+    border-radius: 1px;
+  }
+  #error-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #e94560;
+    font-size: 16px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div id="header">
+  <h1>FusionDSP - PEQ Frequency Response</h1>
+  <div id="info">Sample rate: <span id="samplerate">--</span> Hz</div>
+</div>
+<div id="canvas-container">
+  <canvas id="graph"></canvas>
+  <div id="crosshair-info"></div>
+  <div id="error-msg">Unable to load PEQ data</div>
+</div>
+<div id="legend"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var canvas = document.getElementById('graph');
+  var ctx = canvas.getContext('2d');
+  var container = document.getElementById('canvas-container');
+  var crosshairInfo = document.getElementById('crosshair-info');
+  var legendEl = document.getElementById('legend');
+  var samplerateEl = document.getElementById('samplerate');
+  var errorMsg = document.getElementById('error-msg');
+
+  var currentData = null;
+  var mouseX = -1, mouseY = -1;
+  var dpr = window.devicePixelRatio || 1;
+
+  // Plot margins
+  var margin = { top: 20, right: 30, bottom: 40, left: 60 };
+
+  // Frequency range
+  var fMin = 20, fMax = 20000;
+  // Number of frequency points
+  var numPoints = 500;
+
+  // Precompute log-spaced frequencies
+  var frequencies = [];
+  var logMin = Math.log10(fMin);
+  var logMax = Math.log10(fMax);
+  for (var i = 0; i < numPoints; i++) {
+    frequencies.push(Math.pow(10, logMin + (logMax - logMin) * i / (numPoints - 1)));
+  }
+
+  // Grid frequencies for labels
+  var gridFreqs = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+
+  // Filter colors (for individual curves)
+  var filterColors = [
+    '#e94560', '#f5a623', '#7ed321', '#4a90d9', '#bd10e0',
+    '#50e3c2', '#d0021b', '#f8e71c', '#8b572a', '#417505',
+    '#9013fe', '#ff6f61', '#88d8b0', '#c7b299', '#6c5b7b',
+    '#45b7d1', '#e8a87c', '#d5aaff', '#a8e6cf', '#fddb92'
+  ];
+
+  // ========== Biquad coefficient computation ==========
+
+  function computeBiquadCoeffs(type, params, sampleRate) {
+    var w0, alpha, A, cosw0, sinw0, b0, b1, b2, a0, a1, a2;
+    var freq, gain, Q, bandwidth, slope, order;
+    var omega, sn, cs, k, kk, v0, H0, tn;
+
+    switch (type) {
+      case 'Peaking':
+        freq = params[0]; gain = params[1]; Q = params[2];
+        A = Math.pow(10, gain / 40);
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / (2 * Q);
+        b0 = 1 + alpha * A;
+        b1 = -2 * cosw0;
+        b2 = 1 - alpha * A;
+        a0 = 1 + alpha / A;
+        a1 = -2 * cosw0;
+        a2 = 1 - alpha / A;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'Peaking2':
+        // Peaking with bandwidth in octaves
+        freq = params[0]; gain = params[1]; bandwidth = params[2];
+        A = Math.pow(10, gain / 40);
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 * Math.sinh(Math.log(2) / 2 * bandwidth * w0 / sinw0);
+        b0 = 1 + alpha * A;
+        b1 = -2 * cosw0;
+        b2 = 1 - alpha * A;
+        a0 = 1 + alpha / A;
+        a1 = -2 * cosw0;
+        a2 = 1 - alpha / A;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'Lowshelf':
+        // Lowshelf with slope S (dB/octave)
+        freq = params[0]; gain = params[1]; slope = params[2];
+        A = Math.pow(10, gain / 40);
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / 2 * Math.sqrt((A + 1/A) * (1/slope - 1) + 2);
+        var sqA = Math.sqrt(A);
+        b0 = A * ((A + 1) - (A - 1) * cosw0 + 2 * sqA * alpha);
+        b1 = 2 * A * ((A - 1) - (A + 1) * cosw0);
+        b2 = A * ((A + 1) - (A - 1) * cosw0 - 2 * sqA * alpha);
+        a0 = (A + 1) + (A - 1) * cosw0 + 2 * sqA * alpha;
+        a1 = -2 * ((A - 1) + (A + 1) * cosw0);
+        a2 = (A + 1) + (A - 1) * cosw0 - 2 * sqA * alpha;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'Lowshelf2':
+        // Lowshelf with Q
+        freq = params[0]; gain = params[1]; Q = params[2];
+        A = Math.pow(10, gain / 40);
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / (2 * Q);
+        sqA = Math.sqrt(A);
+        b0 = A * ((A + 1) - (A - 1) * cosw0 + 2 * sqA * alpha);
+        b1 = 2 * A * ((A - 1) - (A + 1) * cosw0);
+        b2 = A * ((A + 1) - (A - 1) * cosw0 - 2 * sqA * alpha);
+        a0 = (A + 1) + (A - 1) * cosw0 + 2 * sqA * alpha;
+        a1 = -2 * ((A - 1) + (A + 1) * cosw0);
+        a2 = (A + 1) + (A - 1) * cosw0 - 2 * sqA * alpha;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'Highshelf':
+        // Highshelf with slope S
+        freq = params[0]; gain = params[1]; slope = params[2];
+        A = Math.pow(10, gain / 40);
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / 2 * Math.sqrt((A + 1/A) * (1/slope - 1) + 2);
+        sqA = Math.sqrt(A);
+        b0 = A * ((A + 1) + (A - 1) * cosw0 + 2 * sqA * alpha);
+        b1 = -2 * A * ((A - 1) + (A + 1) * cosw0);
+        b2 = A * ((A + 1) + (A - 1) * cosw0 - 2 * sqA * alpha);
+        a0 = (A + 1) - (A - 1) * cosw0 + 2 * sqA * alpha;
+        a1 = 2 * ((A - 1) - (A + 1) * cosw0);
+        a2 = (A + 1) - (A - 1) * cosw0 - 2 * sqA * alpha;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'Highshelf2':
+        // Highshelf with Q
+        freq = params[0]; gain = params[1]; Q = params[2];
+        A = Math.pow(10, gain / 40);
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / (2 * Q);
+        sqA = Math.sqrt(A);
+        b0 = A * ((A + 1) + (A - 1) * cosw0 + 2 * sqA * alpha);
+        b1 = -2 * A * ((A - 1) + (A + 1) * cosw0);
+        b2 = A * ((A + 1) + (A - 1) * cosw0 - 2 * sqA * alpha);
+        a0 = (A + 1) - (A - 1) * cosw0 + 2 * sqA * alpha;
+        a1 = 2 * ((A - 1) - (A + 1) * cosw0);
+        a2 = (A + 1) - (A - 1) * cosw0 - 2 * sqA * alpha;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'LowshelfFO':
+        // First-order low shelf via bilinear transform
+        freq = params[0]; gain = params[1];
+        omega = 2 * Math.PI * freq / sampleRate;
+        tn = Math.tan(omega / 2);
+        A = Math.pow(10, gain / 20);
+        v0 = A;
+        H0 = v0 - 1;
+        if (A >= 1) {
+          b0 = 1 + H0 / (1 + 1/tn);
+          b1 = H0 * (1/(1 + 1/tn) - 1/(1 + tn));
+          b2 = 0;
+          a0 = 1;
+          a1 = -1 * (1 - tn) / (1 + tn);
+          a2 = 0;
+          // Normalize: treat as b0 + b1*z^-1 / 1 + a1*z^-1
+          // Actually let's use the standard shelf formula
+        } else {
+          // Cut case
+          b0 = 1 + H0 / (1 + tn);
+          b1 = H0 * (1/(1 + tn) - 1/(1 + 1/tn));
+          b2 = 0;
+          a0 = 1;
+          a1 = -1 * (1 - tn) / (1 + tn);
+          a2 = 0;
+        }
+        // Use CamillaDSP's actual first-order shelf formula
+        // H(s) = (s + wc*sqrt(A)) / (s + wc/sqrt(A)) * A  [low shelf]
+        // Bilinear: s = 2*fs*(z-1)/(z+1)
+        var wc = 2 * Math.PI * freq;
+        var fs = sampleRate;
+        var sqrtA = Math.sqrt(A);
+        // Pre-warp
+        var wp = 2 * fs * Math.tan(wc / (2 * fs));
+        // s -> z via bilinear
+        // Numerator: s + wp*sqrtA => 2*fs*(z-1)/(z+1) + wp*sqrtA
+        // => (2*fs + wp*sqrtA)*z + (wp*sqrtA - 2*fs) / (z+1)
+        // Denominator: s + wp/sqrtA => (2*fs + wp/sqrtA)*z + (wp/sqrtA - 2*fs) / (z+1)
+        var bn = 2 * fs + wp * sqrtA;
+        var bn1 = wp * sqrtA - 2 * fs;
+        var an = 2 * fs + wp / sqrtA;
+        var an1 = wp / sqrtA - 2 * fs;
+        b0 = bn / an;
+        b1 = bn1 / an;
+        b2 = 0;
+        a0 = 1;
+        a1 = an1 / an;
+        a2 = 0;
+        return [{ b0: b0, b1: b1, b2: 0, a1: a1, a2: 0 }];
+
+      case 'HighshelfFO':
+        // First-order high shelf via bilinear transform
+        freq = params[0]; gain = params[1];
+        A = Math.pow(10, gain / 20);
+        wc = 2 * Math.PI * freq;
+        fs = sampleRate;
+        sqrtA = Math.sqrt(A);
+        wp = 2 * fs * Math.tan(wc / (2 * fs));
+        // H(s) = A * (s*sqrtA + wc) / (s/sqrtA + wc)
+        // Numerator: sqrtA*s + wc => sqrtA*2*fs*(z-1)/(z+1) + wc_p
+        // => (sqrtA*2*fs + wc_p)*z + (wc_p - sqrtA*2*fs)  / (z+1)
+        // Denominator: s/sqrtA + wc => (2*fs/sqrtA + wc_p)*z + (wc_p - 2*fs/sqrtA) / (z+1)
+        bn = sqrtA * 2 * fs + wp;
+        bn1 = wp - sqrtA * 2 * fs;
+        an = 2 * fs / sqrtA + wp;
+        an1 = wp - 2 * fs / sqrtA;
+        // Multiply numerator by A/sqrtA = sqrtA? No.
+        // Actually for high shelf: H(s) = (A*s + wc*sqrtA) / (s + wc*sqrtA)
+        // Let me use the correct CamillaDSP formulation.
+        // CamillaDSP HighshelfFO: first-order high-shelf
+        // Using matched bilinear:
+        // H(s) = (sqrtA * s + wc) / (s/sqrtA + wc) -- this gives high-shelf
+        // Actually after pre-warping:
+        bn = sqrtA * 2 * fs + wp;
+        bn1 = -(sqrtA * 2 * fs) + wp;
+        an = 2 * fs / sqrtA + wp;
+        an1 = -(2 * fs / sqrtA) + wp;
+        // Normalize: multiply through
+        b0 = (sqrtA * bn) / an;
+        b1 = (sqrtA * bn1) / an;
+        b2 = 0;
+        a1 = an1 / an;
+        a2 = 0;
+        // Hmm, let's simplify. The standard first-order high shelf bilinear result:
+        // Actually let's just use the cookbook approach consistently.
+        // For first-order high shelf (CamillaDSP implementation):
+        // b0 = A*( (A+1) + (A-1)*... ) etc but for first order it's simpler.
+        // Use a direct bilinear of H(s) = A * (s + wa/sqrtA) / (s + wa*sqrtA) where wa = prewarped
+        wp = 2 * fs * Math.tan(Math.PI * freq / fs);
+        var b0n = A * (2 * fs + wp / sqrtA);
+        var b1n = A * (wp / sqrtA - 2 * fs);
+        var a0n = 2 * fs + wp * sqrtA;
+        var a1n = wp * sqrtA - 2 * fs;
+        b0 = b0n / a0n;
+        b1 = b1n / a0n;
+        b2 = 0;
+        a1 = a1n / a0n;
+        a2 = 0;
+        return [{ b0: b0, b1: b1, b2: 0, a1: a1, a2: 0 }];
+
+      case 'Lowpass':
+        freq = params[0]; Q = params[1];
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / (2 * Q);
+        b0 = (1 - cosw0) / 2;
+        b1 = 1 - cosw0;
+        b2 = (1 - cosw0) / 2;
+        a0 = 1 + alpha;
+        a1 = -2 * cosw0;
+        a2 = 1 - alpha;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'Highpass':
+        freq = params[0]; Q = params[1];
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / (2 * Q);
+        b0 = (1 + cosw0) / 2;
+        b1 = -(1 + cosw0);
+        b2 = (1 + cosw0) / 2;
+        a0 = 1 + alpha;
+        a1 = -2 * cosw0;
+        a2 = 1 - alpha;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'LowpassFO':
+        freq = params[0];
+        w0 = 2 * Math.PI * freq / sampleRate;
+        k = Math.tan(w0 / 2);
+        b0 = k / (k + 1);
+        b1 = k / (k + 1);
+        b2 = 0;
+        a1 = (k - 1) / (k + 1);
+        a2 = 0;
+        return [{ b0: b0, b1: b1, b2: 0, a1: a1, a2: 0 }];
+
+      case 'HighpassFO':
+        freq = params[0];
+        w0 = 2 * Math.PI * freq / sampleRate;
+        k = Math.tan(w0 / 2);
+        b0 = 1 / (k + 1);
+        b1 = -1 / (k + 1);
+        b2 = 0;
+        a1 = (k - 1) / (k + 1);
+        a2 = 0;
+        return [{ b0: b0, b1: b1, b2: 0, a1: a1, a2: 0 }];
+
+      case 'Notch':
+        freq = params[0]; Q = params[1];
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / (2 * Q);
+        b0 = 1;
+        b1 = -2 * cosw0;
+        b2 = 1;
+        a0 = 1 + alpha;
+        a1 = -2 * cosw0;
+        a2 = 1 - alpha;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'Notch2':
+        // Notch with bandwidth in octaves
+        freq = params[0]; bandwidth = params[1];
+        w0 = 2 * Math.PI * freq / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 * Math.sinh(Math.log(2) / 2 * bandwidth * w0 / sinw0);
+        b0 = 1;
+        b1 = -2 * cosw0;
+        b2 = 1;
+        a0 = 1 + alpha;
+        a1 = -2 * cosw0;
+        a2 = 1 - alpha;
+        return [{ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 }];
+
+      case 'LinkwitzTransform':
+        // Ratio of two 2nd-order sections: target / actual
+        var Fa = params[0], Qa = params[1], Ft = params[2], Qt = params[3];
+        // Actual speaker resonance (to flatten)
+        w0 = 2 * Math.PI * Fa / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / (2 * Qa);
+        var a0a = 1 + alpha;
+        var a1a = -2 * cosw0;
+        var a2a = 1 - alpha;
+        // Target response
+        w0 = 2 * Math.PI * Ft / sampleRate;
+        sinw0 = Math.sin(w0); cosw0 = Math.cos(w0);
+        alpha = sinw0 / (2 * Qt);
+        var a0t = 1 + alpha;
+        var a1t = -2 * cosw0;
+        var a2t = 1 - alpha;
+        // H(z) = (a0a + a1a*z^-1 + a2a*z^-2) / (a0t + a1t*z^-1 + a2t*z^-2)
+        // Normalized:
+        return [{
+          b0: a0a / a0t,
+          b1: a1a / a0t,
+          b2: a2a / a0t,
+          a1: a1t / a0t,
+          a2: a2t / a0t
+        }];
+
+      case 'ButterworthHighpass':
+        freq = params[0]; order = Math.round(params[1]);
+        return butterworthBiquads(freq, order, 'highpass', sampleRate);
+
+      case 'ButterworthLowpass':
+        freq = params[0]; order = Math.round(params[1]);
+        return butterworthBiquads(freq, order, 'lowpass', sampleRate);
+
+      default:
+        return [];
+    }
+  }
+
+  function butterworthBiquads(freq, order, type, sampleRate) {
+    // Decompose Butterworth into cascaded biquad sections
+    var sections = [];
+    var nSections = Math.floor(order / 2);
+    var w0, sinw0, cosw0, alpha, Q, b0, b1, b2, a0, a1, a2;
+
+    for (var i = 0; i < nSections; i++) {
+      // Q for each section of Butterworth filter
+      Q = 1 / (2 * Math.cos(Math.PI * (2 * i + 1) / (2 * order)));
+      w0 = 2 * Math.PI * freq / sampleRate;
+      sinw0 = Math.sin(w0);
+      cosw0 = Math.cos(w0);
+      alpha = sinw0 / (2 * Q);
+
+      if (type === 'lowpass') {
+        b0 = (1 - cosw0) / 2;
+        b1 = 1 - cosw0;
+        b2 = (1 - cosw0) / 2;
+      } else {
+        b0 = (1 + cosw0) / 2;
+        b1 = -(1 + cosw0);
+        b2 = (1 + cosw0) / 2;
+      }
+      a0 = 1 + alpha;
+      a1 = -2 * cosw0;
+      a2 = 1 - alpha;
+      sections.push({ b0: b0/a0, b1: b1/a0, b2: b2/a0, a1: a1/a0, a2: a2/a0 });
+    }
+
+    // If odd order, add a first-order section
+    if (order % 2 === 1) {
+      var k = Math.tan(Math.PI * freq / sampleRate);
+      if (type === 'lowpass') {
+        b0 = k / (k + 1);
+        b1 = k / (k + 1);
+        b2 = 0;
+        a1 = (k - 1) / (k + 1);
+        a2 = 0;
+      } else {
+        b0 = 1 / (k + 1);
+        b1 = -1 / (k + 1);
+        b2 = 0;
+        a1 = (k - 1) / (k + 1);
+        a2 = 0;
+      }
+      sections.push({ b0: b0, b1: b1, b2: 0, a1: a1, a2: 0 });
+    }
+
+    return sections;
+  }
+
+  // ========== Transfer function evaluation ==========
+
+  function evalBiquadMagnitudeDb(biquads, freq, sampleRate) {
+    // Evaluate cascaded biquad magnitude at a given frequency
+    var w = 2 * Math.PI * freq / sampleRate;
+    var cosw = Math.cos(w);
+    var cos2w = Math.cos(2 * w);
+    var sinw = Math.sin(w);
+    var sin2w = Math.sin(2 * w);
+
+    var totalMagSq = 1;
+    for (var i = 0; i < biquads.length; i++) {
+      var c = biquads[i];
+      // Numerator: b0 + b1*e^(-jw) + b2*e^(-j2w)
+      var numRe = c.b0 + c.b1 * cosw + c.b2 * cos2w;
+      var numIm = -(c.b1 * sinw + c.b2 * sin2w);
+      // Denominator: 1 + a1*e^(-jw) + a2*e^(-j2w)
+      var denRe = 1 + c.a1 * cosw + c.a2 * cos2w;
+      var denIm = -(c.a1 * sinw + c.a2 * sin2w);
+
+      var numMagSq = numRe * numRe + numIm * numIm;
+      var denMagSq = denRe * denRe + denIm * denIm;
+
+      if (denMagSq === 0) denMagSq = 1e-20;
+      totalMagSq *= numMagSq / denMagSq;
+    }
+
+    return 10 * Math.log10(totalMagSq);
+  }
+
+  // ========== Compute response curves ==========
+
+  function computeResponses(data) {
+    if (!data || !data.filters) return null;
+
+    var sampleRate = data.sampleRate || 44100;
+    var filters = data.filters.filter(function (f) {
+      return f.type !== 'None';
+    });
+
+    if (filters.length === 0) {
+      return { individual: [], combinedL: null, combinedR: null, combinedLR: null, sampleRate: sampleRate };
+    }
+
+    var individual = [];
+    var hasL = false, hasR = false, allLR = true;
+
+    for (var fi = 0; fi < filters.length; fi++) {
+      var f = filters[fi];
+      var biquads = computeBiquadCoeffs(f.type, f.params, sampleRate);
+      if (biquads.length === 0) continue;
+
+      var curve = new Float64Array(numPoints);
+      for (var j = 0; j < numPoints; j++) {
+        curve[j] = evalBiquadMagnitudeDb(biquads, frequencies[j], sampleRate);
+      }
+
+      individual.push({
+        index: f.index,
+        type: f.type,
+        scope: f.scope,
+        params: f.params,
+        curve: curve,
+        biquads: biquads
+      });
+
+      if (f.scope === 'L' || f.scope === 'L+R') hasL = true;
+      if (f.scope === 'R' || f.scope === 'L+R') hasR = true;
+      if (f.scope !== 'L+R') allLR = false;
+    }
+
+    // Compute combined responses
+    var combinedL = null, combinedR = null, combinedLR = null;
+
+    if (allLR && hasL) {
+      // All filters are L+R, show single combined curve
+      combinedLR = new Float64Array(numPoints);
+      for (var j = 0; j < numPoints; j++) {
+        var total = 0;
+        for (var fi = 0; fi < individual.length; fi++) {
+          total += individual[fi].curve[j];
+        }
+        combinedLR[j] = total;
+      }
+    } else {
+      if (hasL) {
+        combinedL = new Float64Array(numPoints);
+        for (var j = 0; j < numPoints; j++) {
+          var total = 0;
+          for (var fi = 0; fi < individual.length; fi++) {
+            if (individual[fi].scope === 'L' || individual[fi].scope === 'L+R') {
+              total += individual[fi].curve[j];
+            }
+          }
+          combinedL[j] = total;
+        }
+      }
+      if (hasR) {
+        combinedR = new Float64Array(numPoints);
+        for (var j = 0; j < numPoints; j++) {
+          var total = 0;
+          for (var fi = 0; fi < individual.length; fi++) {
+            if (individual[fi].scope === 'R' || individual[fi].scope === 'L+R') {
+              total += individual[fi].curve[j];
+            }
+          }
+          combinedR[j] = total;
+        }
+      }
+    }
+
+    return {
+      individual: individual,
+      combinedL: combinedL,
+      combinedR: combinedR,
+      combinedLR: combinedLR,
+      sampleRate: sampleRate
+    };
+  }
+
+  // ========== Canvas rendering ==========
+
+  function resizeCanvas() {
+    var rect = container.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function freqToX(freq) {
+    var w = canvas.width / dpr;
+    var plotW = w - margin.left - margin.right;
+    return margin.left + plotW * (Math.log10(freq) - logMin) / (logMax - logMin);
+  }
+
+  function xToFreq(x) {
+    var w = canvas.width / dpr;
+    var plotW = w - margin.left - margin.right;
+    var logF = logMin + (x - margin.left) / plotW * (logMax - logMin);
+    return Math.pow(10, logF);
+  }
+
+  function dbToY(db, dbMin, dbMax) {
+    var h = canvas.height / dpr;
+    var plotH = h - margin.top - margin.bottom;
+    return margin.top + plotH * (1 - (db - dbMin) / (dbMax - dbMin));
+  }
+
+  function yToDb(y, dbMin, dbMax) {
+    var h = canvas.height / dpr;
+    var plotH = h - margin.top - margin.bottom;
+    return dbMin + (1 - (y - margin.top) / plotH) * (dbMax - dbMin);
+  }
+
+  function formatFreq(f) {
+    if (f >= 1000) return (f / 1000) + 'k';
+    return f.toString();
+  }
+
+  function render(responses) {
+    var w = canvas.width / dpr;
+    var h = canvas.height / dpr;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Determine dB range
+    var dbMin = -15, dbMax = 15;
+    if (responses) {
+      var allCurves = [];
+      for (var i = 0; i < responses.individual.length; i++) {
+        allCurves.push(responses.individual[i].curve);
+      }
+      if (responses.combinedL) allCurves.push(responses.combinedL);
+      if (responses.combinedR) allCurves.push(responses.combinedR);
+      if (responses.combinedLR) allCurves.push(responses.combinedLR);
+
+      for (var i = 0; i < allCurves.length; i++) {
+        for (var j = 0; j < allCurves[i].length; j++) {
+          var v = allCurves[i][j];
+          if (isFinite(v)) {
+            if (v < dbMin) dbMin = v;
+            if (v > dbMax) dbMax = v;
+          }
+        }
+      }
+      // Add padding and ensure minimum range
+      var range = dbMax - dbMin;
+      if (range < 30) {
+        var mid = (dbMax + dbMin) / 2;
+        dbMin = mid - 15;
+        dbMax = mid + 15;
+      }
+      dbMin = Math.floor(dbMin / 6) * 6 - 6;
+      dbMax = Math.ceil(dbMax / 6) * 6 + 6;
+    }
+
+    var plotW = w - margin.left - margin.right;
+    var plotH = h - margin.top - margin.bottom;
+
+    // Draw background
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Draw grid - vertical (frequency)
+    ctx.strokeStyle = '#2a2a4e';
+    ctx.lineWidth = 0.5;
+    ctx.font = '11px sans-serif';
+    ctx.fillStyle = '#666';
+    ctx.textAlign = 'center';
+
+    for (var i = 0; i < gridFreqs.length; i++) {
+      var x = freqToX(gridFreqs[i]);
+      ctx.beginPath();
+      ctx.moveTo(x, margin.top);
+      ctx.lineTo(x, h - margin.bottom);
+      ctx.stroke();
+      ctx.fillText(formatFreq(gridFreqs[i]), x, h - margin.bottom + 16);
+    }
+
+    // Draw grid - horizontal (dB)
+    ctx.textAlign = 'right';
+    for (var db = dbMin; db <= dbMax; db += 6) {
+      var y = dbToY(db, dbMin, dbMax);
+      if (db === 0) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.8;
+        ctx.setLineDash([5, 5]);
+      } else {
+        ctx.strokeStyle = '#2a2a4e';
+        ctx.lineWidth = 0.5;
+        ctx.setLineDash([]);
+      }
+      ctx.beginPath();
+      ctx.moveTo(margin.left, y);
+      ctx.lineTo(w - margin.right, y);
+      ctx.stroke();
+      ctx.fillStyle = db === 0 ? '#aaa' : '#666';
+      ctx.fillText(db + ' dB', margin.left - 8, y + 4);
+    }
+    ctx.setLineDash([]);
+
+    // Draw axis labels
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'center';
+    ctx.fillText('Hz', w - margin.right + 15, h - margin.bottom + 16);
+
+    if (!responses || responses.individual.length === 0) {
+      // Draw flat line at 0dB
+      var y0 = dbToY(0, dbMin, dbMax);
+      ctx.strokeStyle = '#555';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(margin.left, y0);
+      ctx.lineTo(w - margin.right, y0);
+      ctx.stroke();
+      return;
+    }
+
+    // Draw individual filter curves
+    for (var fi = 0; fi < responses.individual.length; fi++) {
+      var ind = responses.individual[fi];
+      var color = filterColors[fi % filterColors.length];
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = 0.4;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (var j = 0; j < numPoints; j++) {
+        var x = freqToX(frequencies[j]);
+        var y = dbToY(ind.curve[j], dbMin, dbMax);
+        if (j === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1.0;
+    }
+
+    // Draw combined curves
+    if (responses.combinedLR) {
+      drawCurve(responses.combinedLR, '#FF9800', 3, dbMin, dbMax);
+    }
+    if (responses.combinedL) {
+      drawCurve(responses.combinedL, '#4CAF50', 2.5, dbMin, dbMax);
+    }
+    if (responses.combinedR) {
+      drawCurve(responses.combinedR, '#2196F3', 2.5, dbMin, dbMax);
+    }
+
+    // Draw numbered PEQ markers at each filter's center frequency (on top of all curves)
+    for (var fi = 0; fi < responses.individual.length; fi++) {
+      var ind = responses.individual[fi];
+      var color = filterColors[fi % filterColors.length];
+      var markerFreq = ind.params[0];
+      if (markerFreq < fMin || markerFreq > fMax) continue;
+      var markerDb = evalBiquadMagnitudeDb(ind.biquads, markerFreq, responses.sampleRate);
+      if (!isFinite(markerDb)) continue;
+      var mx = freqToX(markerFreq);
+      var my = dbToY(markerDb, dbMin, dbMax);
+      // Clamp to plot area
+      if (my < margin.top) my = margin.top;
+      if (my > h - margin.bottom) my = h - margin.bottom;
+      var label = '' + ind.index;
+      var radius = 10;
+      // Filled circle
+      ctx.beginPath();
+      ctx.arc(mx, my, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+      // Dark outline for contrast
+      ctx.strokeStyle = '#1a1a2e';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // Number label
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, mx, my + 3.5);
+    }
+
+    // Draw crosshair
+    if (mouseX >= margin.left && mouseX <= w - margin.right &&
+        mouseY >= margin.top && mouseY <= h - margin.bottom) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(mouseX, margin.top);
+      ctx.lineTo(mouseX, h - margin.bottom);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(margin.left, mouseY);
+      ctx.lineTo(w - margin.right, mouseY);
+      ctx.stroke();
+    }
+
+    // Store dbMin/dbMax for crosshair
+    render.dbMin = dbMin;
+    render.dbMax = dbMax;
+  }
+
+  function drawCurve(curve, color, lineWidth, dbMin, dbMax) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    for (var j = 0; j < numPoints; j++) {
+      var x = freqToX(frequencies[j]);
+      var y = dbToY(curve[j], dbMin, dbMax);
+      if (j === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // ========== Legend ==========
+
+  function updateLegend(responses) {
+    legendEl.innerHTML = '';
+    if (!responses) return;
+
+    // Individual filters
+    for (var i = 0; i < responses.individual.length; i++) {
+      var ind = responses.individual[i];
+      var color = filterColors[i % filterColors.length];
+      var paramStr = ind.params.join(', ');
+      var div = document.createElement('div');
+      div.className = 'legend-item';
+      div.innerHTML = '<span class="legend-color" style="background:' + color + '"></span>' +
+        '<span>Eq' + ind.index + ' ' + ind.type + ' [' + ind.scope + '] (' + paramStr + ')</span>';
+      legendEl.appendChild(div);
+    }
+
+    // Combined curves
+    if (responses.combinedLR) {
+      addLegendItem('Combined L+R', '#FF9800');
+    }
+    if (responses.combinedL) {
+      addLegendItem('Combined L', '#4CAF50');
+    }
+    if (responses.combinedR) {
+      addLegendItem('Combined R', '#2196F3');
+    }
+  }
+
+  function addLegendItem(label, color) {
+    var div = document.createElement('div');
+    div.className = 'legend-item';
+    div.innerHTML = '<span class="legend-color" style="background:' + color + '; height: 4px;"></span>' +
+      '<span style="font-weight:600;">' + label + '</span>';
+    legendEl.appendChild(div);
+  }
+
+  // ========== Data fetching ==========
+
+  function fetchAndRender() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/peq', true);
+    xhr.timeout = 5000;
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        try {
+          currentData = JSON.parse(xhr.responseText);
+          errorMsg.style.display = 'none';
+          samplerateEl.textContent = currentData.sampleRate || '--';
+          var responses = computeResponses(currentData);
+          updateLegend(responses);
+          resizeCanvas();
+          render(responses);
+        } catch (e) {
+          errorMsg.style.display = 'block';
+        }
+      } else {
+        errorMsg.style.display = 'block';
+      }
+    };
+    xhr.onerror = function () {
+      errorMsg.style.display = 'block';
+    };
+    xhr.send();
+  }
+
+  // ========== Event handlers ==========
+
+  canvas.addEventListener('mousemove', function (e) {
+    var rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+
+    var w = canvas.width / dpr;
+    var h = canvas.height / dpr;
+    if (mouseX >= margin.left && mouseX <= w - margin.right &&
+        mouseY >= margin.top && mouseY <= h - margin.bottom) {
+      var freq = xToFreq(mouseX);
+      var db = yToDb(mouseY, render.dbMin || -15, render.dbMax || 15);
+      crosshairInfo.style.display = 'block';
+      crosshairInfo.textContent = Math.round(freq) + ' Hz / ' + db.toFixed(1) + ' dB';
+      var infoX = mouseX + 15;
+      var infoY = mouseY - 25;
+      if (infoX + 150 > w) infoX = mouseX - 160;
+      if (infoY < 0) infoY = mouseY + 15;
+      crosshairInfo.style.left = infoX + 'px';
+      crosshairInfo.style.top = infoY + 'px';
+    } else {
+      crosshairInfo.style.display = 'none';
+    }
+
+    // Re-render for crosshair
+    if (currentData) {
+      var responses = computeResponses(currentData);
+      render(responses);
+    }
+  });
+
+  canvas.addEventListener('mouseleave', function () {
+    mouseX = -1;
+    mouseY = -1;
+    crosshairInfo.style.display = 'none';
+    if (currentData) {
+      var responses = computeResponses(currentData);
+      render(responses);
+    }
+  });
+
+  window.addEventListener('resize', function () {
+    dpr = window.devicePixelRatio || 1;
+    resizeCanvas();
+    if (currentData) {
+      var responses = computeResponses(currentData);
+      render(responses);
+      updateLegend(responses);
+    }
+  });
+
+  // ========== Init ==========
+
+  resizeCanvas();
+  render(null);
+  fetchAndRender();
+  setInterval(fetchAndRender, 3000);
+
+})();
+</script>
+</body>
+</html>

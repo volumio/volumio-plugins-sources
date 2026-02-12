@@ -199,5 +199,7 @@
   "MUTE_LEFT_DOC":"Linken Kanal stumm schalten",
   "MUTE_LEFT":"Links stummschalten",
   "MUTE_RIGHT_DOC":"Rechten Kanal stumm schalten",
-  "MUTE_RIGHT":"Rechts stummschalten"
+  "MUTE_RIGHT":"Rechts stummschalten",
+  "SHOW_PEQ_CURVE":"Frequenzgang anzeigen",
+  "SHOW_PEQ_CURVE_DOC":"PEQ-Frequenzgang-Diagramm öffnen (automatische Aktualisierung)"
 }

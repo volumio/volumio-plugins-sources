@@ -199,5 +199,7 @@
   "MUTE_LEFT_DOC":"Linker kanaal dempen",
   "MUTE_LEFT":"Dempen links",
   "MUTE_RIGHT_DOC":"Dempen rechterkanaal",
-  "MUTE_RIGHT":"Dempen rechts"
+  "MUTE_RIGHT":"Dempen rechts",
+  "SHOW_PEQ_CURVE":"Frequentierespons tonen",
+  "SHOW_PEQ_CURVE_DOC":"PEQ frequentierespons grafiek openen (automatisch bijwerken)"
 }

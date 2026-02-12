@@ -199,5 +199,7 @@
   "MUTE_LEFT_DOC":"Mettre le canal gauche  en sourdine",
   "MUTE_LEFT":"Gauche muet",
   "MUTE_RIGHT_DOC":"Mettre le canal droit en sourdine",
-  "MUTE_RIGHT":"Droite muet"
+  "MUTE_RIGHT":"Droite muet",
+  "SHOW_PEQ_CURVE":"Afficher la réponse en fréquence",
+  "SHOW_PEQ_CURVE_DOC":"Ouvrir le graphique de réponse en fréquence PEQ (mise à jour automatique)"
 }

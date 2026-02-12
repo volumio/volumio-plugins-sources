@@ -199,5 +199,7 @@
   "MUTE_LEFT_DOC":"Mute left channel",
   "MUTE_LEFT":"Mute left",
   "MUTE_RIGHT_DOC":"Mute right channel",
-  "MUTE_RIGHT":"Mute right"
+  "MUTE_RIGHT":"Mute right",
+  "SHOW_PEQ_CURVE":"Show frequency response",
+  "SHOW_PEQ_CURVE_DOC":"Open PEQ frequency response graph (auto-updates)"
 }

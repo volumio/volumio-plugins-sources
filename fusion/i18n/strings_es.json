@@ -199,5 +199,7 @@
   "MUTE_LEFT_DOC":"Silenciar canal izquierdo",
   "MUTE_LEFT":"Silenciar a la izquierda",
   "MUTE_RIGHT_DOC":"Silenciar canal derecho",
-  "MUTE_RIGHT":"Silenciar a la derecha"
+  "MUTE_RIGHT":"Silenciar a la derecha",
+  "SHOW_PEQ_CURVE":"Mostrar respuesta en frecuencia",
+  "SHOW_PEQ_CURVE_DOC":"Abrir gráfico de respuesta en frecuencia PEQ (actualización automática)"
 }

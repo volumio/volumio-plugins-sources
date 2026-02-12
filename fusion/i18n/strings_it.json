@@ -199,5 +199,7 @@
   "MUTE_LEFT_DOC":"Disattiva il canale sinistro",
   "MUTE_LEFT": "Muto sinistro",
   "MUTE_RIGHT_DOC":"Disattiva canale destro",
-  "MUTE_RIGHT": "Disattiva audio a destra"
+  "MUTE_RIGHT": "Disattiva audio a destra",
+  "SHOW_PEQ_CURVE":"Mostra risposta in frequenza",
+  "SHOW_PEQ_CURVE_DOC":"Apri il grafico della risposta in frequenza PEQ (aggiornamento automatico)"
 }
