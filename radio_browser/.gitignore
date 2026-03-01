@@ -1,7 +1,0 @@
-node_modules
-*.zip
-*.tar.gz
-deploy.sh
-prepare-submit.sh
-SUBMIT-ANLEITUNG.md
-.notizen
