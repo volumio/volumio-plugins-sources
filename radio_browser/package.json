@@ -1,0 +1,33 @@
+{
+  "name": "radio_browser",
+  "version": "1.0.3",
+  "description": "RadioBrowser Plugin for Volumio",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elpatron68/volumio-plugins-sources.git",
+    "directory": "radio_browser"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Markus F.J. Busche",
+  "license": "ISC",
+  "engines": {
+    "node": ">=14.15.4",
+    "volumio": ">=3"
+  },
+  "volumio_info": {
+    "prettyName": "Radio Browser",
+    "icon": "fa-internet-explorer",
+    "plugin_type": "music_service",
+    "os": ["buster"],
+    "details": "Browse and play thousands of internet radio stations from the Radio Browser API. Top voted and top clicked stations, search, API server selection.",
+    "changelog": "1.0.3: Browse-Fix (Stationen-Anzeige), Bitrate/Codec in Liste; 1.0.2: API server selection, custom URL, i18n (de/es/fr)"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "kew": "^0.7.0",
+    "v-conf": "^1.4.0"
+  }
+}

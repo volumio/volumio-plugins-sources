@@ -1,0 +1,49 @@
+{
+  "page": {
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
+  },
+  "sections": [{
+    "id": "api_server",
+    "element": "section",
+    "label": "TRANSLATE.API_SERVER_SECTION",
+    "icon": "fa-globe",
+    "onSave": {
+      "type": "controller",
+      "endpoint": "music_service/radio_browser",
+      "method": "saveApiConfig"
+    },
+    "saveButton": {
+      "label": "TRANSLATE.SAVE",
+      "data": ["apiServer", "customApiUrl"]
+    },
+    "content": [
+      {
+        "id": "apiServer",
+        "element": "select",
+        "label": "TRANSLATE.API_SERVER_LABEL",
+        "doc": "TRANSLATE.API_SERVER_DOC",
+        "value": {"value": "de1", "label": "de1.api.radio-browser.info (Germany 1)"},
+        "options": [
+          {"value": "de1", "label": "de1.api.radio-browser.info (Germany 1)"},
+          {"value": "de2", "label": "de2.api.radio-browser.info (Germany 2)"},
+          {"value": "de3", "label": "de3.api.radio-browser.info (Germany 3)"},
+          {"value": "at1", "label": "at1.api.radio-browser.info (Austria)"},
+          {"value": "ch1", "label": "ch1.api.radio-browser.info (Switzerland)"},
+          {"value": "fi1", "label": "fi1.api.radio-browser.info (Finland)"},
+          {"value": "nl1", "label": "nl1.api.radio-browser.info (Netherlands)"},
+          {"value": "custom", "label": "TRANSLATE.API_SERVER_CUSTOM"}
+        ]
+      },
+      {
+        "id": "customApiUrl",
+        "type": "text",
+        "element": "input",
+        "label": "TRANSLATE.CUSTOM_API_URL_LABEL",
+        "doc": "TRANSLATE.CUSTOM_API_URL_DOC",
+        "attributes": [{"placeholder": "https://my-server.com/api"}],
+        "value": "",
+        "visibleIf": {"field": "apiServer", "value": "custom"}
+      }
+    ]
+  }]
+}

@@ -1,0 +1,12 @@
+{
+    "PLUGIN_NAME": "Radio Browser",
+    "PLUGIN_CONFIGURATION": "Configuration de Radio Browser",
+    "API_SERVER_SECTION": "Serveur API",
+    "API_SERVER_LABEL": "Serveur API Radio Browser",
+    "API_SERVER_DOC": "Sélectionnez un serveur API public ou saisissez une URL personnalisée. Si un serveur est lent ou indisponible, essayez un autre.",
+    "API_SERVER_CUSTOM": "URL personnalisée",
+    "CUSTOM_API_URL_LABEL": "URL API personnalisée",
+    "CUSTOM_API_URL_DOC": "Saisissez l'URL de base d'une instance de l'API Radio Browser (ex. https://de1.api.radio-browser.info)",
+    "SAVE": "Enregistrer",
+    "API_LOAD_FAILED": "Échec de la requête API. Vérifiez le serveur API dans les paramètres."
+}
