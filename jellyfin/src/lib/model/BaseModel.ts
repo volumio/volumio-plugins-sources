@@ -11,6 +11,7 @@ import { BaseItemDto, BaseItemKind, ItemFields, ItemFilter, ItemSortBy } from '@
 import ServerConnection from '../connection/ServerConnection';
 import { EntityType } from '../entities';
 import { ItemsApiGetItemsRequest } from '@jellyfin/sdk/lib/generated-client/api/items-api';
+import jellyfin from '../JellyfinContext';
 
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
@@ -76,6 +77,7 @@ export default class BaseModel {
 
   async getItemsFromAPI<T, A = unknown>(params: GetItemsParams, parser: Parser<T>, getApiMethod?: GetApiMethod<A>): Promise<GetItemsResult<T>> {
     const apiParams = this.#toApiGetItemsParams(params);
+    jellyfin.getLogger().verbose(`[jellyfin] getItemsFromAPI(): ${JSON.stringify(apiParams)}`);
     let response;
     if (getApiMethod) {
       const itemsApi = getApiMethod.getApi(this.#connection.api);

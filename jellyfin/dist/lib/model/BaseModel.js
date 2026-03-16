@@ -10,6 +10,9 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var _BaseModel_instances, _BaseModel_connection, _BaseModel_toApiGetItemsParams, _BaseModel_toApiGetItemParams, _BaseModel_toApiGetFiltersParams, _BaseModel_ensureTypedArray;
 Object.defineProperty(exports, "__esModule", { value: true });
 const items_api_1 = require("@jellyfin/sdk/lib/utils/api/items-api");
@@ -19,6 +22,7 @@ const sort_order_1 = require("@jellyfin/sdk/lib/generated-client/models/sort-ord
 const image_type_1 = require("@jellyfin/sdk/lib/generated-client/models/image-type");
 const models_1 = require("@jellyfin/sdk/lib/generated-client/models");
 const entities_1 = require("../entities");
+const JellyfinContext_1 = __importDefault(require("../JellyfinContext"));
 class BaseModel {
     constructor(connection) {
         _BaseModel_instances.add(this);
@@ -27,6 +31,7 @@ class BaseModel {
     }
     async getItemsFromAPI(params, parser, getApiMethod) {
         const apiParams = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_toApiGetItemsParams).call(this, params);
+        JellyfinContext_1.default.getLogger().verbose(`[jellyfin] getItemsFromAPI(): ${JSON.stringify(apiParams)}`);
         let response;
         if (getApiMethod) {
             const itemsApi = getApiMethod.getApi(__classPrivateFieldGet(this, _BaseModel_connection, "f").api);

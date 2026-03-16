@@ -241,8 +241,9 @@ _PlayController_mpdPlugin = new WeakMap(), _PlayController_connectionManager = n
         throw Error(`No media streams found for song ${song.name}`);
     }
     const container = source.Container ? `.${source.Container}` : '';
-    const path = `/Audio/${song.id}/stream${container}`;
-    const pathUrlObj = new URL(path, connection.api.basePath);
+    const basePath = connection.api.basePath;
+    const sanitizedBasePath = basePath.endsWith('/') ? basePath.substring(0, basePath.length - 1) : basePath;
+    const pathUrlObj = new URL(`${sanitizedBasePath}/Audio/${song.id}/stream${container}`);
     pathUrlObj.searchParams.set('static', 'true');
     if (source.Id) {
         pathUrlObj.searchParams.set('mediaSourceId', source.Id);

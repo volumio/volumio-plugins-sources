@@ -159,6 +159,8 @@ class SongViewHandler extends FilterableViewHandler<SongView> {
       }
       else if (view.playlistId) {
         modelQueryParams.parentId = view.playlistId;
+        modelQueryParams.sortBy = null;
+        modelQueryParams.sortOrder = null;
 
         if (jellyfin.getConfigValue('noMaxTracksSinglePlaylist')) {
           modelQueryParams.limit = -1;
