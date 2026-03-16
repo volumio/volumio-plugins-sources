@@ -1,0 +1,14 @@
+[Unit]
+Description=Plexamp
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+Type=simple
+User=volumio
+WorkingDirectory=/data/plugins/music_service/plexamp/plexamp
+ExecStart=/home/volumio/.nvm/versions/node/v12.22.12/bin/node /data/plugins/music_service/plexamp/plexamp/js/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

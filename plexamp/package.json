@@ -1,0 +1,43 @@
+{
+	"name": "plexamp",
+	"version": "1.0.4",
+	"description": "Provides a plugin to link your Plex account with Volumio providing Volumio wit Plex Music and support for headless PlexAmp",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "jerome",
+	"license": "ISC",
+	"repository": "https://github.com/jeromeof/volumio-plugins-sources/tree/master/plexamp",
+	"volumio_info": {
+		"prettyName": "Plex and PlexAmp",
+		"icon": "fa-server",
+		"plugin_type": "music_service",
+		"architectures": [
+			"amd64",
+			"armhf"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Plex plugin with Plex Library and PlexAmp support",
+		"changelog": "Initial Version with basic plexamp script"
+	},
+	"engines": {
+		"node": ">=8",
+		"volumio": ">=3.236"
+	},
+	"dependencies": {
+		"cache-manager": "^2.4.0",
+		"dotenv": "^16.0.3",
+		"fast-xml-parser": "^4.0.11",
+		"kew": "^0.7.0",
+		"ping": "^0.4.4",
+		"plex-api": "^5.3.2",
+		"plex-websocket": "^1.0.3",
+		"semver": "^7.3.2",
+		"unirest": "^0.6.0",
+		"uuid": "^9.0.0",
+		"v-conf": "^1.4.2"
+	}
+}
