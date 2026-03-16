@@ -1,11 +1,11 @@
-import bcfetch, { SearchAPISearchParams, SearchResultAny, SearchResults } from 'bandcamp-fetch';
+import bcfetch, { type SearchAPISearchParams, type SearchResultAny, type SearchResults } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
-import BaseModel, { LoopFetchCallbackParams, LoopFetchResult } from './BaseModel';
+import BaseModel, { type LoopFetchCallbackParams, type LoopFetchResult } from './BaseModel';
 import EntityConverter from '../util/EntityConverter';
-import ArtistEntity from '../entities/ArtistEntity';
-import LabelEntity from '../entities/LabelEntity';
-import AlbumEntity from '../entities/AlbumEntity';
-import TrackEntity from '../entities/TrackEntity';
+import type ArtistEntity from '../entities/ArtistEntity';
+import type LabelEntity from '../entities/LabelEntity';
+import type AlbumEntity from '../entities/AlbumEntity';
+import type TrackEntity from '../entities/TrackEntity';
 
 export enum SearchItemType {
   All = 'All',

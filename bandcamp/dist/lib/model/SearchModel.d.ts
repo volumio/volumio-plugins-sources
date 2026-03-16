@@ -1,8 +1,8 @@
-import BaseModel, { LoopFetchResult } from './BaseModel';
-import ArtistEntity from '../entities/ArtistEntity';
-import LabelEntity from '../entities/LabelEntity';
-import AlbumEntity from '../entities/AlbumEntity';
-import TrackEntity from '../entities/TrackEntity';
+import BaseModel, { type LoopFetchResult } from './BaseModel';
+import type ArtistEntity from '../entities/ArtistEntity';
+import type LabelEntity from '../entities/LabelEntity';
+import type AlbumEntity from '../entities/AlbumEntity';
+import type TrackEntity from '../entities/TrackEntity';
 export declare enum SearchItemType {
     All = "All",
     ArtistsAndLabels = "ArtistsAndLabels",

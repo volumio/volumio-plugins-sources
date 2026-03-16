@@ -1,7 +1,7 @@
 import { SearchItemType } from '../../../model/SearchModel';
 import BaseViewHandler from './BaseViewHandler';
-import View from './View';
-import { RenderedPage } from './ViewHandler';
+import type View from './View';
+import { type RenderedPage } from './ViewHandler';
 export interface SearchView extends View {
     name: 'search';
     query: string;

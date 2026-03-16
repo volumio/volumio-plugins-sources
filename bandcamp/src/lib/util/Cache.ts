@@ -35,10 +35,12 @@ export default class Cache {
     this.#maxEntries = maxEntries;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   get<T>(key: string): T | undefined {
     return this.#cache.get<T>(key);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   put<T>(key: string, value: T) {
     const keys = this.#cache.keys();
     if (keys.length === this.#maxEntries) {

@@ -82,7 +82,6 @@ class AlbumViewHandler extends ExplodableViewHandler_1.default {
         return albumTracks || [];
     }
 }
-exports.default = AlbumViewHandler;
 _AlbumViewHandler_instances = new WeakSet(), _AlbumViewHandler_addArtistLink = async function _AlbumViewHandler_addArtistLink(nav, artistUrl) {
     if (!nav || !artistUrl) {
         return;
@@ -117,4 +116,5 @@ _AlbumViewHandler_instances = new WeakSet(), _AlbumViewHandler_addArtistLink = a
         nav.lists.unshift(linksList);
     }
 };
+exports.default = AlbumViewHandler;
 //# sourceMappingURL=AlbumViewHandler.js.map

@@ -1,12 +1,13 @@
-import { Album, Article, ArticleListItem, Artist, Label, LabelArtist, SearchResultAlbum, SearchResultArtist, SearchResultLabel, SearchResultTrack, Show, Tag, Track, UserKind } from 'bandcamp-fetch';
-import AlbumEntity from '../entities/AlbumEntity';
-import ArtistEntity from '../entities/ArtistEntity';
-import BandEntity from '../entities/BandEntity';
-import LabelEntity from '../entities/LabelEntity';
-import TrackEntity from '../entities/TrackEntity';
-import TagEntity from '../entities/TagEntity';
-import ShowEntity from '../entities/ShowEntity';
-import ArticleEntity, { ArticleEntityMediaItem, ArticleEntitySection } from '../entities/ArticleEntity';
+import { type Album, type Article, type ArticleListItem, type Artist, type Label, type LabelArtist, type SearchResultAlbum, type SearchResultArtist, type SearchResultLabel, type SearchResultTrack, type Show, type Tag, type Track, type UserKind } from 'bandcamp-fetch';
+import type AlbumEntity from '../entities/AlbumEntity';
+import type ArtistEntity from '../entities/ArtistEntity';
+import type BandEntity from '../entities/BandEntity';
+import type LabelEntity from '../entities/LabelEntity';
+import type TrackEntity from '../entities/TrackEntity';
+import type TagEntity from '../entities/TagEntity';
+import type ShowEntity from '../entities/ShowEntity';
+import {type ArticleEntityMediaItem, type ArticleEntitySection} from '../entities/ArticleEntity';
+import type ArticleEntity from '../entities/ArticleEntity';
 
 export default class EntityConverter {
   static convertAlbum(data: Album): AlbumEntity {
@@ -81,6 +82,9 @@ export default class EntityConverter {
       type: 'track',
       name: data.name
     };
+    if (data.id) {
+      result.id = data.id;
+    }
     if (data.url) {
       result.url = data.url;
     }
@@ -124,10 +128,11 @@ export default class EntityConverter {
         return this.convertArtist(item);
       case 'label':
         return this.convertLabel(item);
-      case 'album':
+      case 'album': {
         const albumArtist = item.artist ? { name: item.artist } : undefined;
         return this.convertAlbum({ ...item, artist: albumArtist });
-      case 'track':
+      }
+      case 'track': {
         const trackArtist = item.artist ? { name: item.artist } : undefined;
         const trackAlbum = item.album ? { name: item.album } : undefined;
         return this.convertTrack({
@@ -135,6 +140,7 @@ export default class EntityConverter {
           artist: trackArtist,
           album: trackAlbum
         });
+      }
     }
   }
 
@@ -196,7 +202,7 @@ export default class EntityConverter {
     const result: TagEntity = {
       type: 'tag',
       name: data.name,
-      url: data.url
+      value: data.value
     };
 
     if (data.imageUrls?.[0]) {

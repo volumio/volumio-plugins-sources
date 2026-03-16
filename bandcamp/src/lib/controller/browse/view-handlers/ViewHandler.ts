@@ -1,4 +1,4 @@
-import { RenderedHeader, RenderedListItem } from './renderers/BaseRenderer';
+import { type RenderedHeader, type RenderedListItem } from './renderers/BaseRenderer';
 
 export interface RenderedPage {
   navigation?: RenderedPageContents;

@@ -1,4 +1,4 @@
-import View from '../View';
+import type View from '../View';
 import AlbumRenderer from './AlbumRenderer';
 import ArticleRenderer from './ArticleRenderer';
 import BandRenderer from './BandRenderer';

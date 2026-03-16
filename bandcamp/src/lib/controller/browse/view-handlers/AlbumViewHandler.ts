@@ -1,13 +1,13 @@
 import bandcamp from '../../../BandcampContext';
 import { ModelType } from '../../../model';
-import UIHelper, { UILink } from '../../../util/UIHelper';
-import { BandView } from './BandViewHandler';
+import UIHelper, { type UILink } from '../../../util/UIHelper';
+import { type BandView } from './BandViewHandler';
 import ExplodableViewHandler from './ExplodableViewHandler';
-import View from './View';
-import { RenderedList, RenderedPage, RenderedPageContents } from './ViewHandler';
+import type View from './View';
+import { type RenderedList, type RenderedPage, type RenderedPageContents } from './ViewHandler';
 import ViewHelper from './ViewHelper';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
+import { type RenderedListItem } from './renderers/BaseRenderer';
 
 export interface AlbumView extends View {
   name: 'album';
@@ -15,6 +15,7 @@ export interface AlbumView extends View {
   track?: string;
   // For explode track URIs (used by `goto()`)
   artistUrl?: string;
+  trackId?: string;
 }
 
 export default class AlbumViewHandler extends ExplodableViewHandler<AlbumView> {

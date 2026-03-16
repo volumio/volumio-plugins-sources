@@ -1,6 +1,6 @@
-import { DiscoverParams } from 'bandcamp-fetch';
-import BaseModel, { LoopFetchResult } from './BaseModel';
-import AlbumEntity from '../entities/AlbumEntity';
+import { type DiscoverParams } from 'bandcamp-fetch';
+import BaseModel, { type LoopFetchResult } from './BaseModel';
+import type AlbumEntity from '../entities/AlbumEntity';
 export interface DiscoveryModelGetDiscoverResultParams {
     discoverParams: DiscoverParams;
     pageToken?: string;

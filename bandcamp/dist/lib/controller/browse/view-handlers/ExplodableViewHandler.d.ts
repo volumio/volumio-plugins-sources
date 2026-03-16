@@ -1,6 +1,6 @@
 import BaseViewHandler from './BaseViewHandler';
-import View from './View';
-import TrackEntity from '../../../entities/TrackEntity';
+import type View from './View';
+import type TrackEntity from '../../../entities/TrackEntity';
 export interface ExplodedTrackInfo {
     service: 'bandcamp';
     uri: string;

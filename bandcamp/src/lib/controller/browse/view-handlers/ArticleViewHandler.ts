@@ -1,19 +1,20 @@
-import { ArticleCategory, ArticleCategorySection } from 'bandcamp-fetch';
+import { type ArticleCategory, type ArticleCategorySection } from 'bandcamp-fetch';
 import bandcamp from '../../../BandcampContext';
-import AlbumEntity from '../../../entities/AlbumEntity';
-import ArticleEntity, { ArticleEntityMediaItem } from '../../../entities/ArticleEntity';
-import TrackEntity from '../../../entities/TrackEntity';
+import type AlbumEntity from '../../../entities/AlbumEntity';
+import {type ArticleEntityMediaItem} from '../../../entities/ArticleEntity';
+import type ArticleEntity from '../../../entities/ArticleEntity';
+import type TrackEntity from '../../../entities/TrackEntity';
 import { ModelType } from '../../../model';
-import UIHelper, { UILink, UI_STYLES } from '../../../util/UIHelper';
-import View from './View';
-import { RenderedList, RenderedPage } from './ViewHandler';
+import UIHelper, { type UILink, UI_STYLES } from '../../../util/UIHelper';
+import type View from './View';
+import { type RenderedList, type RenderedPage } from './ViewHandler';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
+import { type RenderedListItem } from './renderers/BaseRenderer';
 import ViewHelper from './ViewHelper';
 import ExplodableViewHandler from './ExplodableViewHandler';
-import { ArticleModelGetArticlesParams } from '../../../model/ArticleModel';
-import { AlbumView } from './AlbumViewHandler';
-import { TrackView } from './TrackViewHandler';
+import { type ArticleModelGetArticlesParams } from '../../../model/ArticleModel';
+import { type AlbumView } from './AlbumViewHandler';
+import { type TrackView } from './TrackViewHandler';
 
 const ARTICLE_CATEGORY_ALL = {
   url: 'all',

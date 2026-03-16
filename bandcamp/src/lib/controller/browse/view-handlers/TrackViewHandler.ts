@@ -1,14 +1,14 @@
 import bandcamp from '../../../BandcampContext';
 import { ModelType } from '../../../model';
-import UIHelper, { UILink } from '../../../util/UIHelper';
-import { AlbumView } from './AlbumViewHandler';
+import UIHelper, { type UILink } from '../../../util/UIHelper';
+import { type AlbumView } from './AlbumViewHandler';
 import ExplodableViewHandler from './ExplodableViewHandler';
-import View from './View';
-import { RenderedPage } from './ViewHandler';
+import type View from './View';
+import { type RenderedPage } from './ViewHandler';
 import ViewHandlerFactory from './ViewHandlerFactory';
 import ViewHelper from './ViewHelper';
 import { RendererType } from './renderers';
-import { RenderedListItem } from './renderers/BaseRenderer';
+import { type RenderedListItem } from './renderers/BaseRenderer';
 
 export interface TrackView extends View {
   name: 'track';

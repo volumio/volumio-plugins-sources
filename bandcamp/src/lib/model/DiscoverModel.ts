@@ -1,7 +1,7 @@
-import bcfetch, { Album, DiscoverParams, DiscoverResult } from 'bandcamp-fetch';
+import bcfetch, { type Album, type DiscoverParams, type DiscoverResult, type DiscoverResultContinuation } from 'bandcamp-fetch';
 import bandcamp from '../BandcampContext';
-import BaseModel, { LoopFetchCallbackParams, LoopFetchResult } from './BaseModel';
-import AlbumEntity from '../entities/AlbumEntity';
+import BaseModel, { type LoopFetchCallbackParams, type LoopFetchResult } from './BaseModel';
+import type AlbumEntity from '../entities/AlbumEntity';
 import EntityConverter from '../util/EntityConverter';
 
 export interface DiscoveryModelGetDiscoverResultParams {
@@ -36,18 +36,20 @@ export default class DiscoverModel extends BaseModel {
   }
 
   #getDiscoverResultFetchPromise(params: GetDiscoverResultLoopFetchCallbackParams) {
-    let page = 0;
-    if (params.pageToken) {
-      const parsedPageToken = JSON.parse(params.pageToken);
-      page = parsedPageToken?.page || 0;
-    }
-
-    const queryParams: DiscoverParams = {
-      ...params.discoverParams,
-      page,
-      albumImageFormat: this.getAlbumImageFormat(),
-      artistImageFormat: this.getArtistImageFormat()
-    };
+    const queryParams = ((): DiscoverParams | DiscoverResultContinuation => {
+      if (params.pageToken) {
+        const parsedPageToken = JSON.parse(params.pageToken);
+        const continuation = parsedPageToken?.continuation;
+        if (continuation) {
+          return continuation;
+        }
+      }
+      return {
+        ...params.discoverParams,
+        albumImageFormat: this.getAlbumImageFormat(),
+        artistImageFormat: this.getArtistImageFormat()
+      };
+    })();
 
     return bandcamp.getCache().getOrSet(
       this.getCacheKeyForFetch('discover', queryParams),
@@ -55,19 +57,18 @@ export default class DiscoverModel extends BaseModel {
   }
 
   #getDiscoverItemsFromFetchResult(result: DiscoverResult) {
-    return result.items.slice(0);
+    return result.items.filter((value) => value.type === 'album');
   }
 
   #getNextPageTokenFromDiscoverFetchResult(result: DiscoverResult, params: GetDiscoverResultLoopFetchCallbackParams) {
-    let page = 0, indexRef = 0;
+    let indexRef = 0;
     if (params.pageToken) {
       const parsedPageToken = JSON.parse(params.pageToken);
-      page = parsedPageToken?.page || 0;
       indexRef = parsedPageToken?.indexRef || 0;
     }
-    if (result.items.length > 0 && result.total > indexRef + result.items.length) {
+    if (result.continuation && result.items.length > 0 && result.total > indexRef + result.items.length) {
       const nextPageToken = {
-        page: page + 1,
+        continuation: result.continuation,
         indexRef: indexRef + result.items.length
       };
       return JSON.stringify(nextPageToken);
@@ -85,7 +86,6 @@ export default class DiscoverModel extends BaseModel {
       ...result,
       params: lastFetchResult.params
     };
-    delete r.params.page;
     return r;
   }
 
@@ -93,6 +93,11 @@ export default class DiscoverModel extends BaseModel {
   getDiscoverOptions() {
     return bandcamp.getCache().getOrSet(
       this.getCacheKeyForFetch('discoverOptions'),
-      () => bcfetch.limiter.discovery.getAvailableOptions());
+      async () => {
+        const opts = await bcfetch.limiter.discovery.getAvailableOptions();
+        opts.categories = opts.categories.filter((cat) => cat.slug !== 'tshirt');
+        return opts;
+      }
+    );
   }
 }

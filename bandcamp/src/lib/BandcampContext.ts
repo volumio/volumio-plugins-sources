@@ -1,6 +1,6 @@
 import format from 'string-format';
 import fs from 'fs-extra';
-import winston from 'winston';
+import type winston from 'winston';
 import Cache from './util/Cache';
 
 class BandcampContext {
@@ -166,11 +166,6 @@ class BandcampContext {
 
   #onSystemLanguageChanged() {
     this.#loadI18n();
-  }
-
-  #onPlayerNameChanged() {
-    this.delete('deviceInfo');
-    this.toast('warning', 'Detected change in system settings. Please restart plugin for changes to take effect.');
   }
 
   get volumioCoreCommand(): any {

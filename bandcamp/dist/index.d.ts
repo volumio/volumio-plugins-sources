@@ -1,5 +1,5 @@
-import { SearchQuery } from './lib/controller/search/SearchController';
-import { ExplodedTrackInfo } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
+import { type SearchQuery } from './lib/controller/search/SearchController';
+import { type ExplodedTrackInfo } from './lib/controller/browse/view-handlers/ExplodableViewHandler';
 interface GotoParams extends ExplodedTrackInfo {
     type: 'album' | 'artist';
 }

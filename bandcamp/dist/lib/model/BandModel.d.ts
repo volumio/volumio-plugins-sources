@@ -1,8 +1,8 @@
 import BaseModel from './BaseModel';
-import ArtistEntity from '../entities/ArtistEntity';
-import AlbumEntity from '../entities/AlbumEntity';
-import TrackEntity from '../entities/TrackEntity';
-import LabelEntity from '../entities/LabelEntity';
+import type ArtistEntity from '../entities/ArtistEntity';
+import type AlbumEntity from '../entities/AlbumEntity';
+import type TrackEntity from '../entities/TrackEntity';
+import type LabelEntity from '../entities/LabelEntity';
 export interface BandModelGetLabelArtistsParams {
     labelUrl: string;
     pageToken?: string;

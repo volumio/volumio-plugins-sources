@@ -3,16 +3,16 @@
 import libQ from 'kew';
 
 import bandcamp from '../../BandcampContext';
-import { ExplodedTrackInfo } from '../browse/view-handlers/ExplodableViewHandler';
+import { type ExplodedTrackInfo } from '../browse/view-handlers/ExplodableViewHandler';
 import ViewHelper from '../browse/view-handlers/ViewHelper';
 import Model, { ModelType } from '../../model';
-import { TrackView } from '../browse/view-handlers/TrackViewHandler';
-import { ShowView } from '../browse/view-handlers/ShowViewHandler';
-import { ArticleView } from '../browse/view-handlers/ArticleViewHandler';
-import AlbumEntity from '../../entities/AlbumEntity';
-import { ArticleEntityMediaItem } from '../../entities/ArticleEntity';
-import TrackEntity from '../../entities/TrackEntity';
-import { AlbumView } from '../browse/view-handlers/AlbumViewHandler';
+import { type TrackView } from '../browse/view-handlers/TrackViewHandler';
+import { type ShowView } from '../browse/view-handlers/ShowViewHandler';
+import { type ArticleView } from '../browse/view-handlers/ArticleViewHandler';
+import type AlbumEntity from '../../entities/AlbumEntity';
+import { type ArticleEntityMediaItem } from '../../entities/ArticleEntity';
+import type TrackEntity from '../../entities/TrackEntity';
+import { type AlbumView } from '../browse/view-handlers/AlbumViewHandler';
 import { kewToJSPromise } from '../../util';
 import EventEmitter from 'events';
 
@@ -31,7 +31,7 @@ export default class PlayController {
    * - bandcamp/track@trackUrl={trackUrl}@artistUrl={...}@albumUrl={...}
    * - bandcamp/show@showUrl={showUrl}
    * - bandcamp/article@articleUrl={articleUrl}@mediaItemRef={...}@track={trackPosition}@artistUrl={...}@albumUrl={...}
-   * - bandcamp/album@albumUrl={...}@track={...}@artistUrl={...}@albumUrl={...}
+   * - bandcamp/album@albumUrl={...}@[track | trackId]={...}@artistUrl={...}@albumUrl={...}
    */
   async clearAddPlayTrack(track: ExplodedTrackInfo) {
     bandcamp.getLogger().info(`[bandcamp-play] clearAddPlayTrack: ${track.uri}`);
@@ -249,19 +249,30 @@ export default class PlayController {
 
     }
     else if (trackView.name === 'album') {
-      const { albumUrl, track: trackPosition } = trackView as AlbumView;
-      if (!albumUrl || !trackPosition) {
-        throw Error('Album URL or track position not specified');
+      const { albumUrl, track: trackPosition, trackId } = trackView as AlbumView;
+      if (!albumUrl || (!trackPosition && !trackId)) {
+        throw Error('Album URL or track position / ID not specified');
       }
       const model = Model.getInstance(ModelType.Album);
       const album = await model.getAlbum(albumUrl);
-      const albumTrack = album.tracks?.[parseInt(trackPosition, 10) - 1];
+      let albumTrack;
+      if (trackPosition !== undefined) {
+        albumTrack = album.tracks?.[parseInt(trackPosition, 10) - 1];
+      }
+      else if (trackId !== undefined) {
+        albumTrack = album.tracks?.find((track) => track.id !== undefined && String(track.id) === trackId);
+      }
       if (albumTrack?.streamUrl) {
         const safeUri = albumTrack.streamUrl.replace(/"/g, '\\"');
         return safeUri;
       }
       _toast('error', bandcamp.getI18n('BANDCAMP_ERR_STREAM_NOT_FOUND', albumTrack?.name || track.name));
-      throw Error(`Track or stream URL missing at position ${trackPosition} for album URL: ${albumUrl}`);
+      if (trackPosition !== undefined) {
+        throw Error(`Track or stream URL missing at position ${trackPosition} for album URL: ${albumUrl}`);
+      }
+      if (trackId !== undefined) {
+        throw Error(`Track matching ID ${trackId} or its stream URL missing for album URL: ${albumUrl}`);
+      }
     }
 
     _toast('error', bandcamp.getI18n('BANDCAMP_ERR_INVALID_PLAY_REQUEST'));

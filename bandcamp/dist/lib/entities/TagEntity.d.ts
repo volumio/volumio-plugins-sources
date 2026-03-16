@@ -1,7 +1,7 @@
 interface TagEntity {
     type: 'tag';
     name: string;
-    url: string;
+    value: string;
     thumbnail?: string;
 }
 export default TagEntity;
