@@ -64,7 +64,6 @@ class PairingHelper {
         });
     }
 }
-exports.default = PairingHelper;
 _a = PairingHelper, _PairingHelper_toastFetching = function _PairingHelper_toastFetching() {
     __classPrivateFieldGet(this, _a, "m", _PairingHelper_cancelToastFetching).call(this);
     __classPrivateFieldSet(this, _a, setTimeout(() => {
@@ -77,4 +76,5 @@ _a = PairingHelper, _PairingHelper_toastFetching = function _PairingHelper_toast
     }
 };
 _PairingHelper_toastFetchingTimer = { value: null };
+exports.default = PairingHelper;
 //# sourceMappingURL=PairingHelper.js.map

@@ -1,5 +1,5 @@
-import { VolumioState } from './lib/MPDPlayer.js';
-import { NowPlayingPluginSupport } from 'now-playing-common';
+import { type VolumioState } from './lib/MPDPlayer.js';
+import { type NowPlayingPluginSupport } from 'now-playing-common';
 import YTCRNowPlayingMetadataProvider from './lib/YTCRNowPlayingMetadataProvider';
 declare class ControllerYTCR implements NowPlayingPluginSupport {
     #private;

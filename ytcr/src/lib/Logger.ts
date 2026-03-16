@@ -1,6 +1,6 @@
 import { EOL } from 'os';
-import winston from 'winston';
-import { DefaultLogger, LogLevel, LOG_LEVELS } from 'yt-cast-receiver';
+import type winston from 'winston';
+import { DefaultLogger, type LogLevel, LOG_LEVELS } from 'yt-cast-receiver';
 
 export default class Logger extends DefaultLogger {
 

@@ -34,7 +34,9 @@ class VideoPrefetcher extends events_1.default {
     }
     startPrefetchOnTimeout(video, seconds) {
         this.abortPrefetch();
-        __classPrivateFieldSet(this, _VideoPrefetcher_startPrefetchTimer, setTimeout(__classPrivateFieldGet(this, _VideoPrefetcher_instances, "m", _VideoPrefetcher_prefetch).bind(this, video), seconds * 1000), "f");
+        __classPrivateFieldSet(this, _VideoPrefetcher_startPrefetchTimer, setTimeout(() => {
+            __classPrivateFieldGet(this, _VideoPrefetcher_instances, "m", _VideoPrefetcher_prefetch).call(this, video).catch((error) => __classPrivateFieldGet(this, _VideoPrefetcher_logger, "f").error('[ytcr] Caught error while prefetching video:', error));
+        }, seconds * 1000), "f");
         __classPrivateFieldSet(this, _VideoPrefetcher_target, video, "f");
         __classPrivateFieldGet(this, _VideoPrefetcher_logger, "f").debug(`[ytcr] Going to prefetch ${video.id} in ${seconds}s`);
     }
@@ -56,7 +58,6 @@ class VideoPrefetcher extends events_1.default {
         return __classPrivateFieldGet(this, _VideoPrefetcher_target, "f");
     }
 }
-exports.default = VideoPrefetcher;
 _VideoPrefetcher_videoLoader = new WeakMap(), _VideoPrefetcher_startPrefetchTimer = new WeakMap(), _VideoPrefetcher_prefetchVideoAbortController = new WeakMap(), _VideoPrefetcher_target = new WeakMap(), _VideoPrefetcher_logger = new WeakMap(), _VideoPrefetcher_instances = new WeakSet(), _VideoPrefetcher_prefetch = async function _VideoPrefetcher_prefetch(video) {
     __classPrivateFieldGet(this, _VideoPrefetcher_instances, "m", _VideoPrefetcher_clearPrefetchTimer).call(this);
     __classPrivateFieldSet(this, _VideoPrefetcher_prefetchVideoAbortController, new abort_controller_1.default(), "f");
@@ -86,4 +87,5 @@ _VideoPrefetcher_videoLoader = new WeakMap(), _VideoPrefetcher_startPrefetchTime
         __classPrivateFieldSet(this, _VideoPrefetcher_startPrefetchTimer, null, "f");
     }
 };
+exports.default = VideoPrefetcher;
 //# sourceMappingURL=VideoPrefetcher.js.map

@@ -1,4 +1,4 @@
-import YouTubeCastReceiver, { Constants, PlayerState, Sender, YouTubeCastReceiverOptions } from 'yt-cast-receiver';
+import YouTubeCastReceiver, { Constants, type PlayerState, type Sender, type YouTubeCastReceiverOptions } from 'yt-cast-receiver';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import libQ from 'kew';
@@ -8,13 +8,13 @@ import vconf from 'v-conf';
 import i18nConfOptions from './config/i18n.json';
 import ytcr from './lib/YTCRContext.js';
 import Logger from './lib/Logger.js';
-import MPDPlayer, { ActionEvent, MPDPlayerError, VolumioState } from './lib/MPDPlayer.js';
-import VolumeControl, { VolumioVolume } from './lib/VolumeControl.js';
+import MPDPlayer, { type ActionEvent, type MPDPlayerError, type VolumioState } from './lib/MPDPlayer.js';
+import VolumeControl, { type VolumioVolume } from './lib/VolumeControl.js';
 import * as utils from './lib/Utils.js';
 import VideoLoader from './lib/VideoLoader.js';
 import PairingHelper from './lib/PairingHelper.js';
 import ReceiverDataStore from './lib/ReceiverDataStore.js';
-import { NowPlayingPluginSupport } from 'now-playing-common';
+import { type NowPlayingPluginSupport } from 'now-playing-common';
 import YTCRNowPlayingMetadataProvider from './lib/YTCRNowPlayingMetadataProvider';
 
 const IDLE_STATE = {
@@ -82,18 +82,18 @@ class ControllerYTCR implements NowPlayingPluginSupport {
           otherUIConf ] = uiconf.sections;
         const receiverRunning = this.#receiver.status === Constants.STATUSES.RUNNING;
 
-        const port = ytcr.getConfigValue('port', 8098);
-        const enableAutoplayOnConnect = ytcr.getConfigValue('enableAutoplayOnConnect', true);
-        const resetPlayerOnDisconnect = ytcr.getConfigValue('resetPlayerOnDisconnect', Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED);
-        const debug = ytcr.getConfigValue('debug', false);
-        const bindToIf = ytcr.getConfigValue('bindToIf', '');
+        const port = ytcr.getConfigValue('port');
+        const enableAutoplayOnConnect = ytcr.getConfigValue('enableAutoplayOnConnect');
+        const resetPlayerOnDisconnect = ytcr.getConfigValue('resetPlayerOnDisconnect');
+        const debug = ytcr.getConfigValue('debug');
+        const bindToIf = ytcr.getConfigValue('bindToIf');
         const i18n = {
-          region: ytcr.getConfigValue('region', 'US'),
-          language: ytcr.getConfigValue('language', 'en')
+          region: ytcr.getConfigValue('region'),
+          language: ytcr.getConfigValue('language')
         };
-        const prefetch = ytcr.getConfigValue('prefetch', true);
-        const preferOpus = ytcr.getConfigValue('preferOpus', false);
-        const liveStreamQuality = ytcr.getConfigValue('liveStreamQuality', 'auto');
+        const prefetch = ytcr.getConfigValue('prefetch');
+        const preferOpus = ytcr.getConfigValue('preferOpus');
+        const liveStreamQuality = ytcr.getConfigValue('liveStreamQuality');
         const liveStreamQualityOptions = otherUIConf.content[2].options;
 
         const availableIf = utils.getNetworkInterfaces();
@@ -185,29 +185,34 @@ class ControllerYTCR implements NowPlayingPluginSupport {
 
     ytcr.init(this.#context, this.#config);
 
+    if (this.#dataStore.isExpired()) {
+      this.#logger.info('[ytcr] Data store TTL expired - clearing it...');
+      this.#dataStore.clear();
+    }
+
     this.#volumeControl = new VolumeControl(this.#commandRouter, this.#logger);
 
     const playerConfig = {
       mpd: this.#getMpdConfig(),
       volumeControl: this.#volumeControl,
       videoLoader: new VideoLoader(this.#logger),
-      prefetch: ytcr.getConfigValue('prefetch', true)
+      prefetch: ytcr.getConfigValue('prefetch')
     };
     this.#player = new MPDPlayer(playerConfig);
 
-    const bindToIf = ytcr.getConfigValue('bindToIf', '');
+    const bindToIf = ytcr.getConfigValue('bindToIf');
     const receiverOptions: YouTubeCastReceiverOptions = {
       dial: {
-        port: ytcr.getConfigValue('port', 8098),
+        port: ytcr.getConfigValue('port'),
         bindToInterfaces: utils.hasNetworkInterface(bindToIf) ? [ bindToIf ] : undefined
       },
       app: {
-        enableAutoplayOnConnect: ytcr.getConfigValue('enableAutoplayOnConnect', true),
-        resetPlayerOnDisconnectPolicy: ytcr.getConfigValue('resetPlayerOnDisconnect', Constants.RESET_PLAYER_ON_DISCONNECT_POLICIES.ALL_DISCONNECTED)
+        enableAutoplayOnConnect: ytcr.getConfigValue('enableAutoplayOnConnect'),
+        resetPlayerOnDisconnectPolicy: ytcr.getConfigValue('resetPlayerOnDisconnect')
       },
       dataStore: this.#dataStore,
       logger: this.#logger,
-      logLevel: ytcr.getConfigValue('debug', false) ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO
+      logLevel: ytcr.getConfigValue('debug') ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO
     };
     const deviceInfo = ytcr.getDeviceInfo();
     if (deviceInfo.name) {
@@ -229,33 +234,35 @@ class ControllerYTCR implements NowPlayingPluginSupport {
       this.refreshUIConfig();
     });
 
-    this.#player.on('action', async (action: ActionEvent) => {
-      if (action.name === 'play' && !this.isCurrentService()) {
-        this.#logger.debug('[ytcr] \'play\' command received while not being the current service.');
-        // Stop any playback by the currently active service
-        this.#logger.debug('[ytcr] Stopping playback by current service...');
-        try {
-          await utils.kewToJSPromise(this.#commandRouter.volumioStop());
+    this.#player.on('action', (action: ActionEvent) => {
+      void (async () => {
+        if (action.name === 'play' && !this.isCurrentService()) {
+          this.#logger.debug('[ytcr] \'play\' command received while not being the current service.');
+          // Stop any playback by the currently active service
+          this.#logger.debug('[ytcr] Stopping playback by current service...');
+          try {
+            await utils.kewToJSPromise(this.#commandRouter.volumioStop());
+          }
+          catch (error) {
+            this.#logger.debug('[ytcr] An error occurred while stopping playback by current service: ', error);
+            this.#logger.debug('[ytcr] Continuing anyway...');
+          }
+          // Unset any volatile state of currently active service
+          const sm = ytcr.getStateMachine();
+          if (sm.isVolatile) {
+            sm.unSetVolatile(); // Why isn't this async?!
+          }
+          this.#logger.debug('[ytcr] Setting ourselves as the current service...');
+          this.setVolatile();
+          this.pushIdleState();
+          // Update volume on sender apps
+          await this.#player.notifyExternalStateChange();
         }
-        catch (error) {
-          this.#logger.debug('[ytcr] An error occurred while stopping playback by current service: ', error);
-          this.#logger.debug('[ytcr] Continuing anyway...');
+        else if (action.name === 'setVolume' && !this.isCurrentService()) {
+          this.#logger.debug('[ytcr] setVolume command received, but we are not the current service. Putting player to sleep...');
+          this.#player.sleep();
         }
-        // Unset any volatile state of currently active service
-        const sm = ytcr.getStateMachine();
-        if (sm.isVolatile) {
-          sm.unSetVolatile(); // Why isn't this async?!
-        }
-        this.#logger.debug('[ytcr] Setting ourselves as the current service...');
-        this.setVolatile();
-        this.pushIdleState();
-        // Update volume on sender apps
-        await this.#player.notifyExternalStateChange();
-      }
-      else if (action.name === 'setVolume' && !this.isCurrentService()) {
-        this.#logger.debug('[ytcr] setVolume command received, but we are not the current service. Putting player to sleep...');
-        this.#player.sleep();
-      }
+      })();
     });
 
     // Listen for changes in volume on Volumio's end
@@ -270,37 +277,39 @@ class ControllerYTCR implements NowPlayingPluginSupport {
         // So we push the latest state here to refresh the old volatile state.
         this.#logger.debug('[ytcr] Captured change in Volumio\'s volume:', volumioVol);
         await this.pushState();
-        await this.#volumeControl.setVolume(volume, true);
+        this.#volumeControl.setVolume(volume, true);
         await this.pushState(); // Do it once more
         await this.#player.notifyExternalStateChange();
       }
       else {
         // Even if not current service, we keep track of the updated volume
-        await this.#volumeControl.setVolume(volume, true);
+        this.#volumeControl.setVolume(volume, true);
       }
     });
 
-    this.#player.on('state', async (states: { current: PlayerState, previous: PlayerState }) => {
-      if (this.isCurrentService()) {
-        const state = states.current;
-        this.#logger.debug('[ytcr] Received state change event from MPDPlayer:', state);
-        if (state.status === Constants.PLAYER_STATUSES.STOPPED || state.status === Constants.PLAYER_STATUSES.IDLE) {
-          this.#player.sleep();
-          if (state.status === Constants.PLAYER_STATUSES.STOPPED && this.#player.queue.videoIds.length > 0) {
-            // If queue is not empty, it is possible that we are just moving to another song. In this case, we don't push
-            // Idle state to avoid ugly flickering of the screen caused by the temporary Idle state.
-            const currentVolumioState = ytcr.getStateMachine().getState() as VolumioState;
-            currentVolumioState.status = 'pause'; // Don't use 'stop' - will display Volumio logo leading to flicker!
-            await this.pushState(currentVolumioState);
+    this.#player.on('state', (states: { current: PlayerState, previous: PlayerState }) => {
+      void (async () => {
+        if (this.isCurrentService()) {
+          const state = states.current;
+          this.#logger.debug('[ytcr] Received state change event from MPDPlayer:', state);
+          if (state.status === Constants.PLAYER_STATUSES.STOPPED || state.status === Constants.PLAYER_STATUSES.IDLE) {
+            this.#player.sleep();
+            if (state.status === Constants.PLAYER_STATUSES.STOPPED && this.#player.queue.videoIds.length > 0) {
+              // If queue is not empty, it is possible that we are just moving to another song. In this case, we don't push
+              // Idle state to avoid ugly flickering of the screen caused by the temporary Idle state.
+              const currentVolumioState = ytcr.getStateMachine().getState() as VolumioState;
+              currentVolumioState.status = 'pause'; // Don't use 'stop' - will display Volumio logo leading to flicker!
+              await this.pushState(currentVolumioState);
+            }
+            else {
+              this.pushIdleState();
+            }
           }
           else {
-            this.pushIdleState();
+            await this.pushState();
           }
         }
-        else {
-          await this.pushState();
-        }
-      }
+      })();
     });
 
     this.#player.on('error', (error: MPDPlayerError) => {
@@ -314,13 +323,13 @@ class ControllerYTCR implements NowPlayingPluginSupport {
       this.#nowPlayingMetadataProvider = new YTCRNowPlayingMetadataProvider(this.#player, this.#logger);
       defer.resolve();
     })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         this.#logger.error('[ytcr] Failed to start plugin:', error);
         if (receiver.status === Constants.STATUSES.RUNNING) {
-          receiver.stop();
+          receiver.stop().catch((error: unknown) => this.#logger.error('[ytcr] Caught error while stopping receiver:', error));
         }
         else {
-          ytcr.toast('error', ytcr.getI18n('YTCR_RECEIVER_START_ERR', error.message || error));
+          ytcr.toast('error', ytcr.getI18n('YTCR_RECEIVER_START_ERR', error instanceof Error ? error.message : String(error)));
         }
         // Still resolve, in case error is caused by wrong setting (e.g. conflicting port).
         defer.resolve();
@@ -341,13 +350,13 @@ class ControllerYTCR implements NowPlayingPluginSupport {
   }
 
   configSaveConnection(data: any) {
-    const oldPort = ytcr.getConfigValue('port', 8098);
+    const oldPort = ytcr.getConfigValue('port');
     const port = parseInt(data['port'], 10);
     if (port < 1024 || port > 65353) {
       ytcr.toast('error', ytcr.getI18n('YTCR_INVALID_PORT'));
       return;
     }
-    const oldBindToIf = ytcr.getConfigValue('bindToIf', '');
+    const oldBindToIf = ytcr.getConfigValue('bindToIf');
     const bindToIf = data['bindToIf'].value;
 
     if (oldPort !== port || oldBindToIf !== bindToIf) {
@@ -366,8 +375,8 @@ class ControllerYTCR implements NowPlayingPluginSupport {
   }
 
   configConfirmSaveConnection(data: any) {
-    this.#config.set('port', data['port']);
-    this.#config.set('bindToIf', data['bindToIf']);
+    ytcr.setConfigValue('port', data['port']);
+    ytcr.setConfigValue('bindToIf', data['bindToIf']);
     this.restart().then(() => {
       this.refreshUIConfig();
       ytcr.toast('success', ytcr.getI18n('YTCR_RESTARTED'));
@@ -393,12 +402,12 @@ class ControllerYTCR implements NowPlayingPluginSupport {
   }
 
   async configSaveOther(data: any) {
-    this.#config.set('prefetch', data['prefetch']);
-    this.#config.set('preferOpus', data['preferOpus']);
-    this.#config.set('liveStreamQuality', data['liveStreamQuality'].value);
-    this.#config.set('enableAutoplayOnConnect', data['enableAutoplayOnConnect']);
-    this.#config.set('resetPlayerOnDisconnect', data['resetPlayerOnDisconnect'].value);
-    this.#config.set('debug', data['debug']);
+    ytcr.setConfigValue('prefetch', data['prefetch']);
+    ytcr.setConfigValue('preferOpus', data['preferOpus']);
+    ytcr.setConfigValue('liveStreamQuality', data['liveStreamQuality'].value);
+    ytcr.setConfigValue('enableAutoplayOnConnect', data['enableAutoplayOnConnect']);
+    ytcr.setConfigValue('resetPlayerOnDisconnect', data['resetPlayerOnDisconnect'].value);
+    ytcr.setConfigValue('debug', data['debug']);
 
     if (this.#receiver) {
       this.#receiver.setLogLevel(data['debug'] ? Constants.LOG_LEVELS.DEBUG : Constants.LOG_LEVELS.INFO);
@@ -482,7 +491,7 @@ class ControllerYTCR implements NowPlayingPluginSupport {
       this.#nowPlayingMetadataProvider = null;
       defer.resolve();
     })
-      .catch((error) => {
+      .catch((error: unknown) => {
         this.#logger.error('[ytcr] Failed to stop receiver:', error);
         defer.reject(error);
       });

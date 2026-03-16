@@ -28,7 +28,7 @@ class VolumeControl {
         __classPrivateFieldSet(this, _VolumeControl_currentVolume, await this.getVolume(), "f");
         __classPrivateFieldGet(this, _VolumeControl_logger, "f").debug('[ytcr] VolumeControl initialized with current volume:', __classPrivateFieldGet(this, _VolumeControl_currentVolume, "f"));
     }
-    async setVolume(volume, setInternalOnly = false) {
+    setVolume(volume, setInternalOnly = false) {
         const oldVolume = __classPrivateFieldGet(this, _VolumeControl_currentVolume, "f");
         __classPrivateFieldSet(this, _VolumeControl_currentVolume, volume, "f");
         if (!setInternalOnly) {
@@ -89,6 +89,6 @@ class VolumeControl {
         }
     }
 }
-exports.default = VolumeControl;
 _VolumeControl_commandRouter = new WeakMap(), _VolumeControl_logger = new WeakMap(), _VolumeControl_currentVolume = new WeakMap(), _VolumeControl_volumioVolumeChangeListener = new WeakMap();
+exports.default = VolumeControl;
 //# sourceMappingURL=VolumeControl.js.map

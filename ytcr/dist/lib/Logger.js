@@ -40,6 +40,6 @@ class Logger extends yt_cast_receiver_1.DefaultLogger {
         }
     }
 }
-exports.default = Logger;
 _Logger_logger = new WeakMap();
+exports.default = Logger;
 //# sourceMappingURL=Logger.js.map

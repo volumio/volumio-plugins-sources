@@ -1,5 +1,5 @@
-import { MPDApi } from 'mpd-api';
-import { Logger } from 'yt-cast-receiver';
+import { type MPDApi } from 'mpd-api';
+import { type Logger } from 'yt-cast-receiver';
 export type SubsystemName = 'database' | 'update' | 'stored_playlist' | 'playlist' | 'player' | 'mixer' | 'output' | 'options' | 'partition' | 'sticker' | 'subscription' | 'message' | 'neighbor' | 'mount';
 interface SubsystemEventListener {
     (event: SubsystemEvent): Promise<void>;

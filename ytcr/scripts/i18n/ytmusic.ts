@@ -1,4 +1,4 @@
-import { I18nOptions, InnertubeInstance } from './common';
+import { type I18nOptions, InnertubeInstance } from './common';
 
 const CATEGORY_IDS = {
   'i18n': 'SETTING_CAT_I18N'
