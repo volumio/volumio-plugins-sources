@@ -246,13 +246,13 @@ PandoraHandler.prototype.fillStationData = function () {
                         stationToken,
                         stationName,
                         artUrl,
-                        // dateCreated
+                        dateCreated
                     } = self.stationList.stations[i];
                     self.stationData[stationToken] = {
                         id: i,
                         name: stationName,
-                        albumart: artUrl
-                        // dateCreated: dateCreated.time // already in decr. date order
+                        albumart: artUrl,
+                        dateCreated: new Date(dateCreated).getTime()
                     };
                 }
 
@@ -269,7 +269,8 @@ PandoraHandler.prototype.fillStationData = function () {
         })
         .then(() => {
             if (self.mqttEnabled) {
-                return self.publishStationData();
+                return self.publishStationData()
+                    .then(() => self.publishStationNames());
             }
         });
 };
@@ -285,6 +286,20 @@ PandoraHandler.prototype.publishStationData = function () {
         stationDataNoRadio[key].name = newStationName; 
     }
     return self.context.mqttHandler.publishData(stationDataNoRadio, 'stationData');
+};
+
+PandoraHandler.prototype.publishStationNames = function () {
+    const self = this;
+    const fnName = 'publishStationNames';
+    self.pUtil.announceFn(fnName);
+
+    let stationNames = [];
+    for (const key of Object.keys(self.stationData)) {
+        stationNames.push(self.stationData[key].name.replace(' Radio', ''));
+    }
+    self.pUtil.logInfo(fnName, 'stationNames: ' + JSON.stringify(stationNames));
+    
+    return self.context.mqttHandler.publishData(stationNames, 'stationNames');
 };
 
 PandoraHandler.prototype.fetchTracks = function () {

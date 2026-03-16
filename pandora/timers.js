@@ -73,6 +73,13 @@ class Timer {
 
         return libQ.resolve();
     }
+
+    is_active() {
+        const self = this;
+        const fnName = 'is_active';
+
+        return libQ.resolve(self.active);
+    }
 }
 
 class ExpireOldTracks extends Timer {
@@ -215,7 +222,9 @@ class StationDataPublisher extends Timer {
         self.pUtil.announceFn('fn');
 
         return self.context.pandoraHandler.publishStationData()
-            .fail(err => self.pUtil.generalReject('publishStationData', err));
+            .fail(err => self.pUtil.generalReject('publishStationData', err))
+            .then(() => self.context.pandoraHandler.publishStationNames())
+            .fail(err => self.pUtil.generalReject('publishStationNames', err));
     }
 }
 
