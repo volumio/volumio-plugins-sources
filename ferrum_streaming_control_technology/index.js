@@ -115,18 +115,17 @@ FerrumStreamingControlTechnology.prototype.onStop = function () {
     var self = this;
     var defer = libQ.defer();
 
-    try {
-        fsctService.stopFsct();
-    }
-    catch (e) {
-        self.logger.error(e);
-    }
+    fsctService.stopFsct()
+        .then(function () {
+            self.logger.info("FSCT Stoped");
+            defer.resolve();
+        })
+        .catch((err) => {
+            self.logger.error(err);
+            defer.reject(err);
+        });
 
-    // Once the Plugin has successfull stopped resolve the promise
-    defer.resolve();
-    self.logger.info('FSCT Stopped');
-
-    return libQ.resolve();
+    return defer.promise;
 };
 
 FerrumStreamingControlTechnology.prototype.onRestart = function () {
