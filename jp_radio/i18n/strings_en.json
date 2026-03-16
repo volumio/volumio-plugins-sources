@@ -1,0 +1,10 @@
+{
+  "PLUGIN_CONFIGURATION": "JP Radio Plugin Configuration",
+  "SAVE": "Save",
+  "PAGE_DESCRIPTION":"Japanese radio relay server for Volumio3",
+  "RADIKO_ACCOUNT_LABEL": "Radiko Premium Account",
+  "RADIKO_ACCOUNT_USER_LABEL": "Username",
+  "RADIKO_ACCOUNT_USER_DOC": "This is the username of your Radiko account",
+  "RADIKO_ACCOUNT_PASS_LABEL": "Password",
+  "RADIKO_ACCOUNT_PASS_DOC": "This is the password of your Radiko account"
+}
