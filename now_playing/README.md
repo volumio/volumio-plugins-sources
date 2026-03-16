@@ -91,6 +91,9 @@ Starting from v0.7.0, the Now Playing plugin can query the relevant music servic
 
 ## Changelog
 
+0.7.6
+- Update web client v0.7.4 - this should fix situations where screen constantly displays spinner
+
 0.7.5
 - Fix [#15](https://github.com/patrickkfkan/volumio-now-playing/issues/dependency)
 
