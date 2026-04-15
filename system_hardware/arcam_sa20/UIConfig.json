@@ -1,0 +1,358 @@
+{
+  "page": {
+    "label": "ARCAM SA20"
+  },
+  "sections": [
+    {
+      "id": "section_manual_source_power",
+      "element": "section",
+      "label": "SA20 Controls",
+      "icon": "fa-bolt",
+      "description": "Direct amplifier controls and confirmed live SA20 state.",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/arcam_sa20",
+        "method": "setManualSource"
+      },
+      "saveButton": {
+        "label": "Send to SA20",
+        "data": [
+          "manualSource",
+          "manualBalanceValue"
+        ]
+      },
+      "content": [
+        {
+          "id": "statusSummary",
+          "element": "input",
+          "type": "text",
+          "label": "SA20 Status",
+          "value": "PWR - | SRC - | VOL - | MUTE - | BAL -",
+          "attributes": [
+            "disabled"
+          ]
+        },
+        {
+          "id": "manualSource",
+          "element": "select",
+          "label": "Source",
+          "doc": "Choose the desired input and send it to the SA20.",
+          "value": {
+            "value": "CD",
+            "label": "CD"
+          },
+          "options": [
+            { "value": "Phono", "label": "Phono" },
+            { "value": "AUX", "label": "AUX" },
+            { "value": "PVR", "label": "PVR" },
+            { "value": "AV", "label": "AV" },
+            { "value": "STB", "label": "STB" },
+            { "value": "CD", "label": "CD" },
+            { "value": "BD", "label": "BD" },
+            { "value": "SAT", "label": "SAT" }
+          ]
+        },
+        {
+          "id": "manualBalanceValue",
+          "element": "input",
+          "type": "number",
+          "label": "Balance",
+          "doc": "Current confirmed SA20 value. Edit it to send a new balance from -12 to +12.",
+          "value": 0
+        },
+        {
+          "id": "powerOn",
+          "element": "button",
+          "label": "Power On",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "system_hardware/arcam_sa20",
+              "method": "powerOn",
+              "data": ""
+            }
+          }
+        },
+        {
+          "id": "powerOff",
+          "element": "button",
+          "label": "Standby",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "system_hardware/arcam_sa20",
+              "method": "powerOff",
+              "data": ""
+            }
+          }
+        },
+        {
+          "id": "muteToggle",
+          "element": "button",
+          "label": "Mute toggle",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "system_hardware/arcam_sa20",
+              "method": "muteToggle",
+              "data": ""
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_playback_defaults",
+      "element": "section",
+      "label": "Playback Defaults",
+      "icon": "fa-play-circle",
+      "description": "Default source and volume behavior for automatic playback startup.",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/arcam_sa20",
+        "method": "saveBehaviorConfig"
+      },
+      "saveButton": {
+        "label": "Save playback defaults",
+        "data": [
+          "autoPowerOnPlay",
+          "switchSourceOnPlay",
+          "playSource",
+          "setVolumeOnPlay",
+          "playVolumeValue",
+          "dacFilterValue",
+          "powerOnDelayMs",
+          "debugLogging",
+          "autoPowerOffOnIdle",
+          "stopPlaybackWhenAmpUnavailable",
+          "idlePowerOffDelaySec"
+        ]
+      },
+      "content": [
+        {
+          "id": "autoPowerOnPlay",
+          "element": "switch",
+          "label": "Power on SA20 when Volumio changes to Play",
+          "value": true
+        },
+        {
+          "id": "switchSourceOnPlay",
+          "element": "switch",
+          "label": "Set source when Play starts",
+          "value": true
+        },
+        {
+          "id": "playSource",
+          "element": "select",
+          "label": "Playback source",
+          "doc": "Used by Play automation for source switching on playback start and by idle / availability checks to decide whether the SA20 is still on the playback input.",
+          "value": {
+            "value": "CD",
+            "label": "CD"
+          },
+          "options": [
+            { "value": "Phono", "label": "Phono" },
+            { "value": "AUX", "label": "AUX" },
+            { "value": "PVR", "label": "PVR" },
+            { "value": "AV", "label": "AV" },
+            { "value": "STB", "label": "STB" },
+            { "value": "CD", "label": "CD" },
+            { "value": "BD", "label": "BD" },
+            { "value": "SAT", "label": "SAT" }
+          ]
+        },
+        {
+          "id": "setVolumeOnPlay",
+          "element": "switch",
+          "label": "Set startup volume on Play",
+          "value": true
+        },
+        {
+          "id": "playVolumeValue",
+          "element": "input",
+          "type": "number",
+          "label": "Startup volume",
+          "doc": "Accepted range: 0 to 99.",
+          "min": 0,
+          "max": 99,
+          "step": 1,
+          "value": 30
+        },
+        {
+          "id": "dacFilterValue",
+          "element": "select",
+          "label": "DAC filter",
+          "doc": "Saved to the plugin config and applied directly on the SA20. The extended system status refresh also reads back the confirmed filter.",
+          "value": {
+            "value": "Apodizing",
+            "label": "Apodizing"
+          },
+          "options": [
+            { "value": "Linear Phase Fast Roll Off", "label": "Linear Phase Fast Roll Off" },
+            { "value": "Linear Phase Slow Roll Off", "label": "Linear Phase Slow Roll Off" },
+            { "value": "Minimum Phase Fast Roll Off", "label": "Minimum Phase Fast Roll Off" },
+            { "value": "Minimum Phase Slow Roll Off", "label": "Minimum Phase Slow Roll Off" },
+            { "value": "Brick Wall", "label": "Brick Wall" },
+            { "value": "Corrected Phase Fast Roll Off", "label": "Corrected Phase Fast Roll Off" },
+            { "value": "Apodizing", "label": "Apodizing" }
+          ]
+        },
+        {
+          "id": "powerOnDelayMs",
+          "element": "input",
+          "type": "number",
+          "label": "Delay after power-on (ms)",
+          "doc": "Wait time before source and volume commands are sent after waking the amplifier",
+          "value": 3500
+        },
+        {
+          "id": "autoPowerOffOnIdle",
+          "element": "switch",
+          "label": "Auto-standby when Volumio is not playing",
+          "doc": "Only power off if the amplifier is still on the configured playback source.",
+          "value": false
+        },
+        {
+          "id": "idlePowerOffDelaySec",
+          "element": "input",
+          "type": "number",
+          "label": "Idle auto-standby delay (s)",
+          "doc": "After this many seconds without Play, power off the SA20 if it still uses the playback source.",
+          "value": 900
+        },
+        {
+          "id": "stopPlaybackWhenAmpUnavailable",
+          "element": "switch",
+          "label": "Stop Volumio if the SA20 becomes unavailable during Play",
+          "doc": "If enabled, the plugin stops Volumio only after repeated evidence that the amplifier is in standby or unreachable while playback is active.",
+          "value": false
+        },
+        {
+          "id": "debugLogging",
+          "element": "switch",
+          "label": "Verbose plugin log",
+          "value": false
+        },
+        {
+          "id": "resetDefaultPreset",
+          "element": "button",
+          "label": "Reset to default preset",
+          "description": "Reload the stored default preset for the full plugin configuration, including TCP connection settings and playback defaults.",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "system_hardware/arcam_sa20",
+              "method": "resetDefaultPreset",
+              "data": ""
+            }
+          }
+        },
+        {
+          "id": "setDefaultPreset",
+          "element": "button",
+          "label": "Set current values as default preset",
+          "description": "Store the current plugin configuration as the default preset for future resets.",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "system_hardware/arcam_sa20",
+              "method": "setDefaultPreset",
+              "data": ""
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "section_status_connection",
+      "element": "section",
+      "label": "SA20 TCP Connect",
+      "icon": "fa-plug",
+      "description": "TCP endpoint and discovery controls for the amplifier connection.",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "system_hardware/arcam_sa20",
+        "method": "saveConnectionConfig"
+      },
+      "saveButton": {
+        "label": "Save connection",
+        "data": [
+          "host",
+          "port",
+          "timeoutMs"
+        ]
+      },
+      "content": [
+        {
+          "id": "connectionState",
+          "element": "input",
+          "type": "text",
+          "label": "SA20 connection",
+          "value": "Checking SA20 connection",
+          "attributes": [
+            "disabled"
+          ]
+        },
+        {
+          "id": "host",
+          "element": "input",
+          "type": "text",
+          "label": "SA20 host / IP",
+          "doc": "Manual target for the amplifier. Leave empty and use discovery to scan the local network.",
+          "value": "192.168.178.27"
+        },
+        {
+          "id": "port",
+          "element": "input",
+          "type": "number",
+          "label": "TCP port",
+          "doc": "Recommended SA20 TCP control port: 50000. Discovery tries port 50000 first, then the configured port if it differs.",
+          "value": 50000
+        },
+        {
+          "id": "timeoutMs",
+          "element": "input",
+          "type": "number",
+          "label": "Timeout ms",
+          "doc": "Socket timeout in milliseconds",
+          "value": 3000
+        },
+        {
+          "id": "discoverSa20Host",
+          "element": "button",
+          "label": "Discover SA20 on network",
+          "description": "Scan the local IPv4 subnets for an amplifier responding on the SA20 TCP control port",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "system_hardware/arcam_sa20",
+              "method": "discoverSa20Host",
+              "data": ""
+            }
+          }
+        },
+        {
+          "id": "testConnection",
+          "element": "button",
+          "label": "Test TCP connection",
+          "description": "Open a TCP connection to the configured amplifier",
+          "onClick": {
+            "type": "emit",
+            "message": "callMethod",
+            "data": {
+              "endpoint": "system_hardware/arcam_sa20",
+              "method": "testConnection",
+              "data": ""
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

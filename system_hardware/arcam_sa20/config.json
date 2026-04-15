@@ -1,0 +1,114 @@
+{
+  "enabled": {
+    "type": "boolean",
+    "value": true
+  },
+  "host": {
+    "type": "string",
+    "value": "192.168.178.27"
+  },
+  "port": {
+    "type": "number",
+    "value": 50000
+  },
+  "timeoutMs": {
+    "type": "number",
+    "value": 3000
+  },
+  "autoPowerOnPlay": {
+    "type": "boolean",
+    "value": true
+  },
+  "switchSourceOnPlay": {
+    "type": "boolean",
+    "value": true
+  },
+  "playSource": {
+    "type": "string",
+    "value": "CD"
+  },
+  "manualSource": {
+    "type": "string",
+    "value": "CD"
+  },
+  "setVolumeOnPlay": {
+    "type": "boolean",
+    "value": true
+  },
+  "dacFilter": {
+    "type": "string",
+    "value": "Apodizing"
+  },
+  "playVolume": {
+    "type": "number",
+    "value": 30
+  },
+  "manualVolume": {
+    "type": "number",
+    "value": 30
+  },
+  "powerOnDelayMs": {
+    "type": "number",
+    "value": 3500
+  },
+  "debugLogging": {
+    "type": "boolean",
+    "value": false
+  },
+  "lastPower": {
+    "type": "string",
+    "value": "Unknown"
+  },
+  "lastVolume": {
+    "type": "string",
+    "value": "30"
+  },
+  "lastMute": {
+    "type": "string",
+    "value": "Unmuted"
+  },
+  "lastSource": {
+    "type": "string",
+    "value": "Unknown"
+  },
+  "lastBalance": {
+    "type": "string",
+    "value": "0"
+  },
+  "lastDacFilter": {
+    "type": "string",
+    "value": "Unknown"
+  },
+  "manualBalance": {
+    "type": "number",
+    "value": 0
+  },
+  "autoPowerOffOnIdle": {
+    "type": "boolean",
+    "value": false
+  },
+  "stopPlaybackWhenAmpUnavailable": {
+    "type": "boolean",
+    "value": false
+  },
+  "idlePowerOffDelaySec": {
+    "type": "number",
+    "value": 900
+  },
+  "lastStatusUpdate": {
+    "type": "string",
+    "value": "-"
+  },
+  "statusSummary": {
+    "type": "string",
+    "value": "PWR - | SRC - | VOL - | MUTE - | BAL -"
+  },
+  "defaultPresetInitialized": {
+    "type": "boolean",
+    "value": false
+  },
+  "defaultPresetJson": {
+    "type": "string",
+    "value": ""
+  }
+}
