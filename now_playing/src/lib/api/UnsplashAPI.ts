@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 const BASE_URL = 'https://unsplash.com/napi/search/photos';
-const FALLBACK_URL = 'https://source.unsplash.com/random';
+const FALLBACK_URL = 'https://picsum.photos/1920/1080';
 const PER_PAGE = 20;
 const SAMPLE_SIZE = 500;
 
@@ -18,7 +18,7 @@ class UnsplashAPI {
     };
 
     const fallback = () => {
-      // Fallback to using 'https://source.unsplash.com/random/...' (deprecated; occasional 503 response as of late)
+      // Fallback to picsum.photos (drop-in for the deprecated source.unsplash.com/random; works without API key)
       const qs = keywords ? encodeURIComponent(keywords) : '';
       const screenSizePart = matchSize ? `${matchSize.w}x${matchSize.h}/` : '';
       const url = `${FALLBACK_URL}/${screenSizePart}${qs ? `?${qs}` : ''}`;
