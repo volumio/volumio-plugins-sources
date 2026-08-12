@@ -742,23 +742,8 @@ ControllerSpotify.prototype.createConfigFile = function () {
         .replace('${audio_buffer_time}', audioBufferTime)
         .replace('${audio_period_count}', audioPeriodCount);
 
-    var credentials_type = self.config.get('credentials_type', 'zeroconf');
-    var logged_user_id = self.config.get('logged_user_id', '');
-    var access_token = self.config.get('access_token', '');
-
-    if (credentials_type === 'spotify_token' && logged_user_id !== '' && access_token !== '') {
-        conf += 'credentials: ' + os.EOL;
-        conf += '  type: spotify_token' + os.EOL;
-        conf += '  spotify_token:' + os.EOL;
-        conf += '    username: "' + logged_user_id + '"' + os.EOL;
-        conf += '    access_token: "' + access_token + '"';
-    } else {
-        conf += 'credentials: ' + os.EOL;
-        conf += '  type: zeroconf' + os.EOL;
-    }
-
-
-
+    conf += 'credentials: ' + os.EOL;
+    conf += '  type: zeroconf' + os.EOL;
 
     fs.writeFile(configFileDestinationPath, conf, (err) => {
         if (err) {
