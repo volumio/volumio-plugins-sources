@@ -755,6 +755,8 @@ ControllerSpotify.prototype.createConfigFile = function () {
     } else {
         conf += 'credentials: ' + os.EOL;
         conf += '  type: zeroconf' + os.EOL;
+        conf += '  zeroconf:' + os.EOL;
+        conf += '    persist_credentials: true' + os.EOL;
     }
 
 
