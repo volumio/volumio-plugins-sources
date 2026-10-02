@@ -1,0 +1,24 @@
+{
+  "page": {
+    "label": "TRANSLATE.OPENFM.SETTINGS"
+  },
+  "sections": [
+    {
+      "id": "cache",
+      "element": "section",
+      "label": "TRANSLATE.OPENFM.SETTINGS_SECTION",
+      "description": "TRANSLATE.OPENFM.SETTINGS_DESC",
+      "icon": "fa-clock-o",
+      "content": [
+        {
+          "id": "cache_ttl_minutes",
+          "element": "input",
+          "doc": "Cache time-to-live in minutes.",
+          "type": "number",
+          "value": 60,
+          "label": "TRANSLATE.OPENFM.CACHE_TTL"
+        }
+      ]
+    }
+  ]
+}

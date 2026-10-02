@@ -1,0 +1,6 @@
+{
+  "cache_ttl_minutes": {
+    "type": "number",
+    "value": 60
+  }
+}

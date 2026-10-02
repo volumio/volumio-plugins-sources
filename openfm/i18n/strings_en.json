@@ -1,0 +1,8 @@
+{
+  "OPENFM": {
+    "SETTINGS": "Open FM settings",
+    "SETTINGS_SECTION": "Cache",
+    "SETTINGS_DESC": "How long to cache the station and category lists (in minutes).",
+    "CACHE_TTL": "Cache TTL (minutes)"
+  }
+}
