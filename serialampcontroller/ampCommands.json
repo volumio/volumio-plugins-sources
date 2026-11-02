@@ -398,6 +398,47 @@
                 "reqMute":"#01,03\r",
                 "reqModel":"#13,02\r"
             }
+        },
+        {
+            "vendor": "NAD",
+            "model": "M51",
+            "baudRate": 115200,
+            "parity": "none",
+            "dataBits": 8,
+            "stopBits": 1,
+            "rtscts": false,
+            "xon": false,
+            "xoff": false,
+            "xany": false,
+            "sources": ["USB", "Coaxial", "Optical", "HDMI 1", "HDMI 2", "AES/EBU"],
+            "sourceCmd": ["Main.Source=USB\r", "Main.Source=COAX\r", "Main.Source=OPT\r", "Main.Source=HDMI 1\r", "Main.Source=HDMI 2\r", "Main.Source=AES\r"],
+            "sourceRespPostfix": ["USB", "COAX", "OPT", "HDMI 1", "HDMI 2", "AES"],
+            "delimiter": "\r\n",
+            "commands": {
+                "powerOn": "Main.Power=On\r",
+                "powerToggle": "Main.Power+\r",
+                "volUp": "Main.Volume+\r",
+                "volDown": "Main.Volume-\r",
+                "volValue": "Main.Volume=#\r",
+                "mute": "Main.Mute+\r",
+                "muteOn": "Main.Mute=On\r",
+                "muteOff": "Main.Mute=Off\r"
+            },
+            "responses": [
+                {"rx": "Main\\.Power=On", "cmd": ["respPowerOn"]},
+                {"rx": "Main\\.Power=Off", "cmd": ["respPowerOff"]},
+                {"rx": "Main\\.Volume=([+-]?[0-9]{1,2})dB?", "cmd": ["respVolume"]},
+                {"rx": "Main\\.Mute=On", "cmd": ["respMuteOn"]},
+                {"rx": "Main\\.Mute=Off", "cmd": ["respMuteOff"]},
+                {"rx": "Main\\.Source=([A-Za-z0-9 ]+)", "cmd": ["respSource"]}
+            ],
+            "statusRequests": {
+                "reqPower": "Main.Power?\r",
+                "reqSource": "Main.Source?\r",
+                "reqVolume": "Main.Volume?\r",
+                "reqMute": "Main.Mute?\r",
+                "reqModel": "Main.Version?\r"
+            }
         }
       ]
 }

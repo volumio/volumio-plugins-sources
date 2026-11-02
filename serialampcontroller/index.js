@@ -247,7 +247,7 @@ serialampcontroller.prototype.updateAmpSettings = function (data) {
     //     }
     // })
     //update Volume Settings and announce the updated settings to Volumio
-    .then(_ => self.alsavolume(this.config.get('startupVolume')))
+    .then(_ => self.alsavolume(self.config.get('startupVolume')))
     .then(_ => self.initVolumeSettings())
     .then(_=> {
         defer.resolve();        
@@ -297,10 +297,10 @@ serialampcontroller.prototype.getAmpStatus = function() {
     if (self.parser!=undefined) {
         if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] getAmpStatus: sending status requests to Amp');
         self.sendStatusRequest('reqModel');
-        self.sendStatusRequest('reqPower');
-        self.sendStatusRequest('reqVolume');
-        self.sendStatusRequest('reqMute');
-        self.sendStatusRequest('reqSource');
+        setTimeout(() => self.sendStatusRequest('reqPower'), 50);
+        setTimeout(() => self.sendStatusRequest('reqVolume'), 100);
+        setTimeout(() => self.sendStatusRequest('reqMute'), 150);
+        setTimeout(() => self.sendStatusRequest('reqSource'), 200);
     } else {
         if (self.debugLogging) self.logger.info('[SERIALAMPCONTROLLER] getAmpStatus: listener not yet available');
     }
@@ -352,19 +352,9 @@ serialampcontroller.prototype.onStop = function() {
     var self = this;
     var defer=libQ.defer();
 
-    self.deactivate()
-    // // self.socket.off('pushState');
-    // self.closePort()
-    // .then(_ => {
-    //     // self.resetVolumeSettings();
-    //     defer.resolve();
-    // })
-    // .fail(err => {
-    //     if (self.debugLogging) self.logger.error('[SERIALAMPCONTROLLER] onStop: failed to stop plugin: ' + err); 
-    //     defer.resolve()       
-    // })
-    // return defer.promise;
-    return defer.resolve();
+    self.deactivate();
+    defer.resolve();
+    return defer.promise;
 };
 
 
@@ -618,10 +608,9 @@ serialampcontroller.prototype.openSerialPort = function (){
                 self.port.on('open', ()=>{
                     self.attachParser()
                     //determine the current settings of the amp
-                    self.getAmpStatus()
-                    // //update Volume Settings and announce the updated settings to Volumio
-                    .then(_ => self.alsavolume(this.config.get('startupVolume')))
-                    .then(_ => self.initVolumeSettings());
+                    self.initVolumeSettings()
+                    .then(_ => self.getAmpStatus())
+                    .then(_ => self.alsavolume(self.config.get('startupVolume')));
                 });
                 self.port.open(err=>{
                     if (err) {
@@ -737,10 +726,9 @@ serialampcontroller.prototype.connectTcpIp = function() {
     var self = this;
     self.attachParser()
     //determine the current settings of the amp
-    self.getAmpStatus()
-    // //update Volume Settings and announce the updated settings to Volumio
-    .then(_ => self.alsavolume(this.config.get('startupVolume')))
-    .then(_ => self.initVolumeSettings());
+    self.initVolumeSettings()
+    .then(_ => self.getAmpStatus())
+    .then(_ => self.alsavolume(self.config.get('startupVolume')));
 
 }
 
@@ -787,6 +775,10 @@ serialampcontroller.prototype.openTcpIp = function (){
 serialampcontroller.prototype.sendCommand  = function(...cmd) {
     var self = this;
     var defer = libQ.defer();
+
+    if (cmd.length === 1 && Array.isArray(cmd[0])) {
+        cmd = cmd[0];
+    }
 
     var cmdString = '';
     if (self.debugLogging) self.logger.info("[SERIALAMPCONTROLLER] sendCommand: send " + cmd);
@@ -1063,7 +1055,7 @@ serialampcontroller.prototype.sendStatusRequest = function(messageType) {
         default:
             break;
     };
-    if (self.port!==undefined && cmdString!=='') {
+    if (self.port!==undefined && cmdString && cmdString!=='') {
         self.port.write(cmdString,'ascii',function(err) {
             if (err) {
                 self.logger.error('[SERIALAMPCONTROLLER] sendStatusRequest: Failed to send: "' + cmdString + '" ' + err);
@@ -1215,8 +1207,12 @@ serialampcontroller.prototype.alsavolume = function (VolumeInteger) {
 serialampcontroller.prototype.waitForAcknowledge = function(eventType) {
     var self = this;
     var defer = libQ.defer();
+    var timeout = setTimeout(() => {
+        defer.resolve(self.getVolumeObject());
+    }, 2000);
 
     self.messageReceived.once(eventType,(response) => {
+        clearTimeout(timeout);
         //check if response is correct, if yes, resolve the promise
         defer.resolve(self.getVolumeObject())
     })
